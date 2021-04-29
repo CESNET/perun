@@ -1885,4 +1885,12 @@ public interface GroupsManagerBl {
 	 * @return lists of groups [CURRENT GROUP -> SUBGROUP -> ... -> MEMBER'S SOURCE GROUP]
 	 */
 	List<List<Group>> getIndirectMembershipPaths(PerunSession sess, Member member, Group group) throws MemberNotExistsException, GroupNotExistsException;
+
+	/**
+	 *  Check if group has automatic registration enabled.
+	 *
+	 * @param sess session
+	 * @param group group to check
+	 */
+	boolean isGroupForAutoRegistration(PerunSession sess, Group group);
 }

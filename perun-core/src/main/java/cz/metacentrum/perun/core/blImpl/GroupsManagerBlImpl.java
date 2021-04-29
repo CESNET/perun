@@ -5588,4 +5588,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		return resultPaths;
 	}
+
+	@Override
+	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
+		return this.getGroupsManagerImpl().isGroupForAutoRegistration(sess, group);
+	}
 }

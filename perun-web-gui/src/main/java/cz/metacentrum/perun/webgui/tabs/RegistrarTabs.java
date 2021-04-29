@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.tabs;
 
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.tabs.registrartabs.AutoRegistrationGroupsTabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.EditMailTabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.MailsTabItem;
 
@@ -51,6 +52,10 @@ public class RegistrarTabs {
 			return true;
 		}
 
+		if (tab.equals(AutoRegistrationGroupsTabItem.URL)) {
+			session.getTabManager().addTab(AutoRegistrationGroupsTabItem.load(parameters), open);
+			return true;
+		}
 
 
 		return false;

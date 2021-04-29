@@ -877,6 +877,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 				.forEach(user -> convertToSponsoredMemberWithNewSponsor(sess, user, newSponsor, vo));
 	}
 
+	@Override
+	public boolean usesEmbeddedGroupRegistrations(PerunSession sess, Vo vo) {
+		return vosManagerImpl.hasEmbeddedGroupsItemInForm(sess, vo.getId());
+	}
+
 	/**
 	 * Sponsor given user by the given newSponsor in the given vo. If the newSponsor doesn't have
 	 * the SPONSOR role, it will be set to him.

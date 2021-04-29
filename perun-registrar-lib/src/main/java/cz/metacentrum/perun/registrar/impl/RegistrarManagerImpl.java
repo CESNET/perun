@@ -689,6 +689,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form.setId(resultSet.getInt("id"));
 				form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
+				form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
 				form.setModuleClassName(resultSet.getString("module_name"));
 				form.setVo(vo);
 				return form;
@@ -712,6 +713,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form.setId(resultSet.getInt("id"));
 				form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
+				form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
 				form.setModuleClassName(resultSet.getString("module_name"));
 				form.setGroup(group);
 				try {
@@ -738,6 +740,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setId(resultSet.getInt("id"));
 				form1.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
+				form1.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
 				form1.setModuleClassName(resultSet.getString("module_name"));
 				try {
 					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
@@ -784,6 +787,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setId(resultSet.getInt("id"));
 				form1.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
+				form1.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
 				form1.setModuleClassName(resultSet.getString("module_name"));
 				try {
 					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
@@ -875,6 +879,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					itemId, locale.getLanguage(), itemTexts.getLabel(),
 					itemTexts.getOptions(), itemTexts.getHelp(),
 					itemTexts.getErrorMessage());
+		}
+
+		if (item.getApplicationTypes().contains(AppType.EMBEDDED)) {
+			throw new InternalErrorException("It is not possible to add form items to EMBEDDED application type.");
 		}
 		for (AppType appType : item.getApplicationTypes()) {
 			jdbc.update("insert into application_form_item_apptypes (item_id,apptype) values (?,?)",
@@ -971,7 +979,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 			// update form item app types (easy way = delete and new insert)
-
+			// first check if there is EMBEDDED application type
+			if (item.getApplicationTypes().contains(AppType.EMBEDDED)) {
+				throw new InternalErrorException("It is not possible to add form items to EMBEDDED application type.");
+			}
 			// delete
 			jdbc.update("delete from application_form_item_apptypes where item_id=?", item.getId());
 			// insert new
@@ -1006,8 +1017,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		perun.getAuditer().log(user, new FormUpdated((form)));
 		return jdbc.update(
-				"update application_form set automatic_approval=?, automatic_approval_extension=?, module_name=? where id=?",
-				form.isAutomaticApproval(), form.isAutomaticApprovalExtension(), form.getModuleClassName(), form.getId());
+				"update application_form set automatic_approval=?, automatic_approval_extension=?, automatic_approval_embedded=?, module_name=? where id=?",
+				form.isAutomaticApproval(), form.isAutomaticApprovalExtension(), form.isAutomaticApprovalEmbedded(), form.getModuleClassName(), form.getId());
 	}
 
 	@Transactional
@@ -1557,6 +1568,95 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
+	 * Returns list of all groups embedded to target VO of application
+	 * @param sess
+	 * @param appId
+	 * @return
+	 * @throws PrivilegeException
+	 * @throws RegistrarException
+	 */
+	public List<Group> getEmbeddedGroups(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, GroupNotExistsException {
+		List<ApplicationFormItemData> appFormData = getApplicationDataById(sess, appId);
+		List<Group> embeddedGroups = new ArrayList<>();
+		String groupsPipe = null;
+		for (ApplicationFormItemData item : appFormData) {
+			if (item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION) {
+				groupsPipe = item.getValue();
+			}
+		}
+
+		if (groupsPipe != null) {
+			//Format is: "Group A#124|Group B#1212|Group C#1212"
+			String[] arr = groupsPipe.split("\\|");
+			for (String el : arr) {
+				String[] subelements = el.split("#");
+				int groupId = Integer.parseInt(subelements[subelements.length - 1]);
+				embeddedGroups.add(groupsManager.getGroupById(sess, groupId));
+			}
+		}
+
+		return embeddedGroups;
+	}
+
+	/**
+	 * Submits applications to all embedded groups
+	 * @param sess
+	 * @param groups embedded groups
+	 * @param app
+	 * @throws GroupNotEmbeddedException Group is not set as embedded in VO
+	 * @throws PerunException
+	 */
+	private void submitEmbeddedGroupApplications(PerunSession sess, List<Group> groups, Application app) throws GroupNotEmbeddedException, EmbeddedGroupApplicationSubmissionError {
+		List<Integer> notEmbeddedGroupsIds = new ArrayList<>();
+
+		for (Group group : groups) {
+
+			//skip if already member of group
+			if (groupsManager.isUserMemberOfGroup(sess, app.getUser(), group)) {
+				continue;
+			}
+
+			//check if is still embedded
+			if (!groupsManager.isGroupForAutoRegistration(sess, group)) {
+				notEmbeddedGroupsIds.add(group.getId());
+			}
+		}
+
+		if (!notEmbeddedGroupsIds.isEmpty()) {
+			throw new GroupNotEmbeddedException("Group(s) with ID(s): " + notEmbeddedGroupsIds + " not embedded to VO with ID " + app.getVo().getId());
+		}
+
+		Map<Integer, String> failedGroups = new HashMap<>();
+
+		for (Group group : groups) {
+			try {
+				Application groupApplication = new Application();
+				groupApplication.setUser(app.getUser());
+				groupApplication.setType(AppType.EMBEDDED);
+				groupApplication.setVo(app.getVo());
+				groupApplication.setGroup(group);
+				groupApplication.setFedInfo(app.getFedInfo());
+				groupApplication.setExtSourceName(app.getExtSourceName());
+				groupApplication.setExtSourceType(app.getExtSourceType());
+				groupApplication.setCreatedBy("Automatically generated");
+				try {
+					getFormForGroup(group);
+				} catch (FormNotExistsException e) {
+					createApplicationFormInGroup(sess, group);
+				}
+
+				submitApplication(sess, groupApplication, new ArrayList<>());
+			} catch (Exception e) {
+				failedGroups.put(group.getId(), e.getMessage());
+			}
+		}
+
+		if (!failedGroups.isEmpty()) {
+			throw new EmbeddedGroupApplicationSubmissionError(failedGroups);
+		}
+	}
+
+	/**
 	 * Process application approval in 1 transaction
 	 * !! WITHOUT members validation !!
 	 *
@@ -1566,7 +1666,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws PerunException
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException {
+	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException, EmbeddedGroupApplicationSubmissionError, GroupNotEmbeddedException {
 
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");
@@ -1626,10 +1726,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			logins = new ArrayList<>();
 		}
 
-		// FOR INITIAL APPLICATION
-		if (AppType.INITIAL.equals(app.getType())) {
+		// FOR INITIAL / EMBEDDED APPLICATION
+		if (AppType.INITIAL.equals(app.getType()) || AppType.EMBEDDED.equals(app.getType())) {
 
 			if (app.getGroup() != null) {
+				// group application
 
 				// free reserved logins so they can be set as attributes
 				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
@@ -1692,6 +1793,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				log.debug("[REGISTRAR] Member {} added to Group {}.",member, app.getGroup());
 
 			} else {
+
+				// VO application
+
+				if (AppType.EMBEDDED.equals(app.getType())) {
+					throw new InternalErrorException("Only group application can have EMBEDDED type.");
+				}
 
 				// free reserved logins so they can be set as attributes
 				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
@@ -1828,6 +1935,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (module != null) {
 			module.approveApplication(sess, app);
+		}
+
+
+		// for VO application with any embedded groups, submit applications to embedded groups
+		if (app.getGroup() == null) {
+			List<Group> embeddedGroups = getEmbeddedGroups(sess, appId);
+			if (!embeddedGroups.isEmpty()) {
+				submitEmbeddedGroupApplications(sess, embeddedGroups, app);
+			}
 		}
 
 		getMailManager().sendMessage(app, MailType.APP_APPROVED_USER, null, null);
@@ -2220,7 +2336,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// update form item app types (easy way = delete and new insert)
-
+		// first check if there is EMBEDDED application type
+		if (item.getApplicationTypes().contains(AppType.EMBEDDED)) {
+			throw new InternalErrorException("It is not possible to add form items to EMBEDDED application type.");
+		}
 		// delete
 		jdbc.update("delete from application_form_item_apptypes where item_id=?", item.getId());
 		// insert new
@@ -2431,10 +2550,39 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
 		}
 
+		itemsWithValues.stream()
+				.filter(item -> item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION)
+				.forEach(item -> setGroupsToCheckBoxForGroups(sess, item, vo));
+
 		// return prefilled form
 		return itemsWithValues;
 
 	}
+
+	/**
+	 * To the given EMBEDDED_GROUP_APPLICATION item, sets options of allowed groups.
+	 *
+	 * Example format:
+	 * 111#GroupA|222#GroupB
+	 *
+	 * @param sess session
+	 * @param item item, to which the group options will be set, only EMBEDDED_GROUP_APPLICATION is supported
+	 * @param vo vo, from which the groups for auto registration are taken
+	 */
+	private void setGroupsToCheckBoxForGroups(PerunSession sess, ApplicationFormItemWithPrefilledValue item, Vo vo) {
+		if (item.getFormItem().getType() != EMBEDDED_GROUP_APPLICATION) {
+			throw new InternalErrorException("Group options can be set only to the EMBEDDED_GROUP_APPLICATION item.");
+		}
+		List<Group> groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo);
+
+		String groupOptions = groups.stream()
+				.map(group -> group.getId() + "#" + group.getName())
+				.collect(Collectors.joining("|"));
+
+		item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);
+		item.getFormItem().getI18n().get(ApplicationFormItem.EN).setOptions(groupOptions);
+	}
+
 
 	/**
 	 * Checks, if the given item will be displayed during the submission.
@@ -2583,7 +2731,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		User user = sess.getPerunPrincipal().getUser();
 		int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
 
-		if (AppType.INITIAL.equals(appType)) {
+		if (AppType.INITIAL.equals(appType) || AppType.EMBEDDED.equals(appType)) {
+			if (AppType.EMBEDDED.equals(appType) && group == null) {
+				throw new InternalErrorException("Only group application can have EMBEDDED type.");
+			}
 			if (user != null) {
 				//user is known
 				try {
@@ -2596,6 +2747,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 							throw new AlreadyRegisteredException("You are already member of group "+group.getName()+".");
 						} else {
 							checkDupplicateGroupApplications(sess, vo, group, AppType.INITIAL);
+							checkDupplicateGroupApplications(sess, vo, group, AppType.EMBEDDED);
 							// pass if have approved or rejected app
 						}
 					} else {
@@ -2606,6 +2758,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					// user is not member of vo
 					if (group != null) {
 						checkDupplicateGroupApplications(sess, vo, group, AppType.INITIAL);
+						checkDupplicateGroupApplications(sess, vo, group, AppType.EMBEDDED);
 						//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
 					} else {
 						checkDupplicateVoApplications(sess, vo, AppType.INITIAL);
@@ -2616,6 +2769,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// user is not known
 				if (group != null) {
 					checkDupplicateGroupApplications(sess, vo, group, AppType.INITIAL);
+					checkDupplicateGroupApplications(sess, vo, group, AppType.EMBEDDED);
 					//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
 				} else {
 					checkDupplicateVoApplications(sess, vo, AppType.INITIAL);
@@ -3113,6 +3267,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (AppType.INITIAL.equals(type) && !form.isAutomaticApproval()) return;
 		if (AppType.EXTENSION.equals(type) && !form.isAutomaticApprovalExtension()) return;
+		if (AppType.EMBEDDED.equals(type) && !form.isAutomaticApprovalEmbedded()) return;
 
 		// do not auto-approve Group applications, if user is not member of VO
 		if (app.getGroup() != null && app.getVo() != null) {
@@ -3572,6 +3727,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// approve applications only for auto-approve forms
 			if (!getFormForGroup(a.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(a.getType())) continue;
 			if (!getFormForGroup(a.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(a.getType())) continue;
+			if (!getFormForGroup(a.getGroup()).isAutomaticApprovalEmbedded() && AppType.EMBEDDED.equals(a.getType())) continue;
 
 			try {
 				registrarManager.approveApplicationInternal(sess, a.getId());
@@ -3939,15 +4095,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// store user-ext-source attributes and redirectURL from session to application object
-		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
-		if (application.getFedInfo() != null && application.getFedInfo().contains("redirectURL")) {
-			String redirectURL = StringUtils.substringBetween(application.getFedInfo().substring(application.getFedInfo().indexOf("redirectURL")), "\"", "\"");
-			if (redirectURL != null && !redirectURL.equals("null")) {
-				map.put("redirectURL", redirectURL);
+		if (application.getType() != AppType.EMBEDDED) {
+			LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
+			if (application.getFedInfo() != null && application.getFedInfo().contains("redirectURL")) {
+				String redirectURL = StringUtils.substringBetween(application.getFedInfo().substring(application.getFedInfo().indexOf("redirectURL")), "\"", "\"");
+				if (redirectURL != null && !redirectURL.equals("null")) {
+					map.put("redirectURL", redirectURL);
+				}
 			}
+			String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
+			application.setFedInfo(additionalAttrs);
 		}
-		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
-		application.setFedInfo(additionalAttrs);
 
 		Application app;
 		try {
@@ -4063,7 +4221,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 
-	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,module_name from application_form";
+	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,automatic_approval_embedded,module_name from application_form";
 
 	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex,hidden,disabled,hidden_dependency_item_id,disabled_dependency_item_id,updatable from application_form_items";
 

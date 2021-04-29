@@ -296,8 +296,8 @@ public interface SmallIcons extends ClientBundle{
 	@Source("icons/16x16/arrow_rotate_clockwise.png")
 	ImageResource arrowRotateClockwiseIcon();
 
-	//@Source("icons/16x16/arrow_switch.png")
-	//ImageResource arrowSwitchIcon();
+	@Source("icons/16x16/arrow_switch.png")
+	ImageResource arrowSwitchIcon();
 
 	//@Source("icons/16x16/arrow_turn_left.png")
 	//ImageResource arrowTurnLeftIcon();

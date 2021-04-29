@@ -544,4 +544,13 @@ public interface VosManagerBl {
 	 * @param newSponsor user, who will be set as a sponsor to the sponsored members
 	 */
 	void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor);
+
+	/**
+	 * Returns true, if the given vo uses EMBEDDED_GROUP_APPLICATION item in its form.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @return true, if the given vo uses EMBEDDED_GROUP_APPLICATION item in its form, false otherwise.
+	 */
+	boolean usesEmbeddedGroupRegistrations(PerunSession sess, Vo vo);
 }

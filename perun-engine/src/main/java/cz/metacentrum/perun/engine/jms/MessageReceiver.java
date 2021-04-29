@@ -82,17 +82,23 @@ public class MessageReceiver implements Runnable {
 					waitTime = 0;
 				} catch (InvalidDestinationException e) {
 					queueAcquired = false;
-					waitTime = waitTime + 5000;
+					waitTime = setWaitTime(waitTime);
 					log.error("Queue doesn't exist yet. We gonna wait a bit ({} s) and try it again.",
 							(waitTime / 1000), e);
+					// wait for a time mentioned in the error message before try it again
+					try {
+						Thread.sleep(waitTime);
+					} catch (InterruptedException interrupted) {
+						log.error(interrupted.toString(), interrupted);
+					}
 				} catch (JMSException e) {
 					queueAcquired = false;
-					waitTime = waitTime + 5000;
+					waitTime = setWaitTime(waitTime);
 					log.error("Something went wrong with JMS. We are gonna wait a bit ({} s) and try it again...",
 							(waitTime / 1000), e);
 				} catch (Exception e) {
 					queueAcquired = false;
-					waitTime = waitTime + 5000;
+					waitTime = setWaitTime(waitTime);
 					log.error("Can not continue. We gonna wait a bit ({} s) and try it again...", (waitTime / 1000), e);
 				}
 			} else {
@@ -148,23 +154,24 @@ public class MessageReceiver implements Runnable {
 						}
 
 					}
+					waitTime = 0;
 				} catch (InvalidDestinationException e) {
 					queueAcquired = false;
-					waitTime = waitTime + 5000;
+					waitTime = setWaitTime(waitTime);
 					log.error(
 							"Queue doesn't exist or the connection is broken. We gonna wait a bit ("
 									+ (waitTime / 1000)
 									+ "s) and try it again...", e);
 				} catch (JMSException e) {
 					queueAcquired = false;
-					waitTime = waitTime + 5000;
+					waitTime = setWaitTime(waitTime);
 					log.error(
 							"Something went wrong with JMS. We gonna wait a bit ("
 									+ (waitTime / 1000)
 									+ "s) and try it again...", e);
 				} catch (Exception e) {
 					queueAcquired = false;
-					waitTime = waitTime + 5000;
+					waitTime = setWaitTime(waitTime);
 					log.error("Can not continue. We gonna wait a bit ("
 							+ (waitTime / 1000) + "s) and try it again...", e);
 				}
@@ -218,6 +225,17 @@ public class MessageReceiver implements Runnable {
 	public void setTaskExecutorMessageProcess(
 			TaskExecutor taskExecutorMessageProcess) {
 		this.taskExecutorMessageProcess = taskExecutorMessageProcess;
+	}
+
+	/**
+	 * Returns incremented wait time, but max limit is 10 minutes
+	 *
+	 * @param waitTime previous wait time
+	 * @return new wait time
+	 */
+	private int setWaitTime(int waitTime) {
+		waitTime = Math.min((waitTime + 5000), 600000);
+		return waitTime;
 	}
 
 }

@@ -209,7 +209,7 @@ public interface RegistrarManager {
 	 * taken from the user argument.
 	 *
 	 * @param sess PerunSession including PerunPrincipal containing info from authentication system
-	 * @param appType application type INITIAL or EXTENSION
+	 * @param appType application type INITIAL, EXTENSION or EMBEDDED
 	 * @param form ApplicationForm to get items for (specify vo and group)
 	 * @return list of form items for a given application type with pre-filled values
 	 * @throws PerunException

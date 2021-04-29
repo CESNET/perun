@@ -18,6 +18,7 @@ public class PerunAppTypeCell extends ClickableTextCell {
 
 	static private final ImageResource INITIAL = SmallIcons.INSTANCE.arrowRightIcon();
 	static private final ImageResource EXTENSION = SmallIcons.INSTANCE.arrowRefreshIcon();
+	static private final ImageResource EMBEDDED = SmallIcons.INSTANCE.arrowSwitchIcon();
 
 	@Override
 	public void render(com.google.gwt.cell.client.Cell.Context context,
@@ -30,6 +31,8 @@ public class PerunAppTypeCell extends ClickableTextCell {
 			ir = INITIAL;
 		} else if (status.equalsIgnoreCase("EXTENSION")) {
 			ir = EXTENSION;
+		} else if (status.equalsIgnoreCase("EMBEDDED")) {
+			ir = EMBEDDED;
 		}
 
 		// if status not available
