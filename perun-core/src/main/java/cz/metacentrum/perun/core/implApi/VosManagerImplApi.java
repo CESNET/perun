@@ -316,4 +316,15 @@ public interface VosManagerImplApi {
 	 * @return true, if member with given id is banned, false otherwise
 	 */
 	boolean isMemberBanned(PerunSession sess, int memberId);
+
+	/**
+	 * Returns true, if there is a vo with given id which has application form with the
+	 * EMBEDDED_GROUP_APPLICATION item in it.
+	 *
+	 * @param sess session
+	 * @param voId vo id
+	 * @return true, if there is a vo with given id which has application form with the
+	 * EMBEDDED_GROUP_APPLICATION item in it, false otherwise
+	 */
+	boolean hasEmbeddedGroupsItemInForm(PerunSession sess, int voId);
 }

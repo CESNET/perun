@@ -519,4 +519,11 @@ public class VosManagerImpl implements VosManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+
+	@Override
+	public boolean hasEmbeddedGroupsItemInForm(PerunSession sess, int voId) {
+		int count = jdbc.queryForInt("SELECT count(*) FROM application_form_items WHERE form_id = " +
+					"(SELECT id FROM application_form WHERE vo_id = ? AND group_id IS NULL) AND type = 'EMBEDDED_GROUP_APPLICATION';", voId);
+		return count > 0;
+	}
 }
