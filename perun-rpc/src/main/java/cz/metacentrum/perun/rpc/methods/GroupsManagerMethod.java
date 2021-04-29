@@ -1824,5 +1824,23 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 			return null;
 		}
+	},
+
+	/*#
+	 * Get unique paths of groups via which member is indirectly included to the group.
+	 * Cuts off after first included group.
+	 *
+	 * @param sess perun session
+	 * @param member member
+	 * @param group group in which the member is indirectly included
+	 * @return lists of groups [CURRENT GROUP -> SUBGROUP -> ... -> MEMBER'S SOURCE GROUP]
+	 */
+	getIndirectMembershipPaths {
+		@Override
+		public List<List<Group>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getIndirectMembershipPaths(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")),
+				ac.getGroupById(parms.readInt("group")));
+		}
 	};
 }

@@ -2053,6 +2053,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getIndirectMembershipPaths_Member_Group_policy:
+    policy_roles:
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   #MembersManagerEntry
   deleteMember_Member_policy:
     policy_roles:
