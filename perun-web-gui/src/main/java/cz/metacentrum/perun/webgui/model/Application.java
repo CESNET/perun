@@ -313,6 +313,8 @@ public class Application extends JavaScriptObject {
 			return ObjectTranslation.INSTANCE.applicationTypeInitial();
 		} else if ("EXTENSION".equalsIgnoreCase(type)) {
 			return ObjectTranslation.INSTANCE.applicationTypeExtension();
+		} else if ("EMBEDDED".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationTypeEmbedded();
 		} else {
 			return "";
 		}
