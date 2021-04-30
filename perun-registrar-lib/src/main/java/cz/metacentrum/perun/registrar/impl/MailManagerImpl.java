@@ -641,6 +641,11 @@ public class MailManagerImpl implements MailManager {
 	private ApplicationMail getMailByParams(Integer formId, AppType appType, MailType mailType) {
 		ApplicationMail mail;
 
+		// We want to use the initial notifications for the embedded applications
+		if (appType == AppType.EMBEDDED) {
+			appType = AppType.INITIAL;
+		}
+
 		// get mail def
 		try {
 			List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_PARAMS, (resultSet, arg1) -> new ApplicationMail(resultSet.getInt("id"),
