@@ -1,0 +1,17 @@
+---
+brands:
+  - name: default
+    new_apps:
+      admin: "gui"
+      profile: "profile"
+      pwd_reset: "pwd-reset"
+      publications: "publications"
+    old_gui_domain: "perun-dev"
+  - name: other
+    new_apps:
+      admin: ""
+      profile: ""
+      pwd_reset: ""
+      publications: ""
+    old_gui_domain: ""
+...
