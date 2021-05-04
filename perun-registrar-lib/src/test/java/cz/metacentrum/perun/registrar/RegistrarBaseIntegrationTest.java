@@ -40,6 +40,7 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.CS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.EN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -668,6 +669,24 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		application.setExtSourceName("ExtSource");
 		application.setExtSourceType(ExtSourcesManager.EXTSOURCE_IDP);
 		return application;
+	}
+
+	@Test
+	public void testAddFormItem_multipleEmbeddedGroupsItems() throws PerunException {
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		// create 2 embedded groups form items
+		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
+		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+		embeddedGroupsItem.setShortname("embeddedGroups");
+		registrarManager.addFormItem(session, form, embeddedGroupsItem);
+
+		ApplicationFormItem embeddedGroupsItem2 = new ApplicationFormItem();
+		embeddedGroupsItem2.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+		embeddedGroupsItem2.setShortname("embeddedGroups2");
+		assertThrows(MultipleApplicationFormItemsException.class, () -> {
+			registrarManager.addFormItem(session, form, embeddedGroupsItem2);
+		});
 	}
 
 	/*

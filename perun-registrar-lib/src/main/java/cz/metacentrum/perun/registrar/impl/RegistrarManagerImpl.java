@@ -827,7 +827,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Transactional
 	@Override
-	public ApplicationFormItem addFormItem(PerunSession user, ApplicationForm form, ApplicationFormItem item) throws PrivilegeException {
+	public ApplicationFormItem addFormItem(PerunSession user, ApplicationForm form, ApplicationFormItem item) throws PerunException {
 
 		//Authorization
 		if (form.getGroup() == null) {
@@ -839,6 +839,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (!AuthzResolver.authorizedInternal(user, "group-addFormItem_ApplicationForm_ApplicationFormItem_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException(user, "addFormItem");
 			}
+		}
+
+		if (item.getType() == EMBEDDED_GROUP_APPLICATION && countEmbeddedGroupFormItems(registrarManager.getFormItems(user, form)) == 1) {
+			throw new MultipleApplicationFormItemsException("Multiple definitions of embedded groups. Only one definition is allowed.");
 		}
 
 		// find the ordinal number of the next item
@@ -899,7 +903,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException {
+	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PerunException {
 		//map storing [temporaryId : savedId] to enable fixing invalid dependencies on temporary ids
 		Map<Integer, Integer> temporaryToSaved = new HashMap<>();
 		//map storing [temporaryId : disabledDependencyTemporaryId]
@@ -924,6 +928,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (items == null) {
 			throw new NullPointerException("ApplicationFormItems to update can't be null");
 		}
+
+		if (countEmbeddedGroupFormItems(items) > 1) {
+			throw new MultipleApplicationFormItemsException("Multiple definitions of embedded groups. Only one definition is allowed.");
+		}
+
 		int finalResult = 0;
 		for (ApplicationFormItem item : items) {
 
@@ -2929,6 +2938,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private void copyItems(PerunSession sess, ApplicationForm fromForm, ApplicationForm toForm) throws PerunException {
 		List<ApplicationFormItem> items = getFormItems(sess, fromForm);
 		Map<Integer, Integer> oldToNewIDs = new HashMap<>();
+
+		List<ApplicationFormItem> bothItems = new ArrayList<>(items);
+		bothItems.addAll(registrarManager.getFormItems(sess, toForm));
+		if (countEmbeddedGroupFormItems(bothItems) > 1) {
+			throw new MultipleApplicationFormItemsException("Multiple definitions of embedded groups. Only one definition is allowed.");
+		}
+
 		for (ApplicationFormItem item : items) {
 			Integer oldId = item.getId();
 			item.setOrdnum(null); // reset order, id is always new inside add method
@@ -4209,6 +4225,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				idsTranslation.get(tempId));
 		}
 	}
+
+	/**
+	 * Returns number of embedded groups form items.
+	 */
+	private int countEmbeddedGroupFormItems(List<ApplicationFormItem> items) {
+		int counter = 0;
+		for (ApplicationFormItem item : items) {
+			if (item.getType() == EMBEDDED_GROUP_APPLICATION) {
+				counter++;
+			}
+		}
+
+		return counter;
+	}
+
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 

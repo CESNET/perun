@@ -123,7 +123,7 @@ public interface RegistrarManager {
 	 * @throws InternalErrorException
 	 * @return created ApplicationFormItem with id and ordnum property set
 	 */
-	ApplicationFormItem addFormItem(PerunSession user, ApplicationForm applicationForm, ApplicationFormItem formItem) throws PrivilegeException;
+	ApplicationFormItem addFormItem(PerunSession user, ApplicationForm applicationForm, ApplicationFormItem formItem) throws PerunException;
 
 	/**
 	 * Updates whole FormItem object including ItemTexts and associated AppTypes
@@ -135,7 +135,7 @@ public interface RegistrarManager {
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
 	 */
-	int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException;
+	int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PerunException;
 
 	/**
 	 * Updates the form attributes, not the form items.
