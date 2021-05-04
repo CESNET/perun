@@ -1555,8 +1555,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 
 				try {
-					// get user's group apps with auto-approve and approve them
-					autoApproveUsersGroupApplications(sess, app.getVo(), app.getUser());
+					// get user's group apps with auto-approve and approve them and set them user id
+					handleUsersGroupApplications(sess, app.getVo(), app.getUser());
 				} catch (PerunException ex) {
 					log.error("[REGISTRAR] Exception when auto-approving waiting group applications for {} after approving application {}.", member, app);
 				}
@@ -3161,7 +3161,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		return resultApps;
 	}
 
-
 	@Override
 	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
@@ -3197,13 +3196,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException {
 		Utils.checkPerunSession(sess);
 
-		for(Group group : groups) {
+		for (Group group : groups) {
 			perun.getGroupsManagerBl().checkGroupExists(sess, group);
 		}
 
 		//Authorization
 		for (Group group : groups) {
-			if(!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_List<Group>_policy", group)) {
+			if (!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_List<Group>_policy", group)) {
 				throw new PrivilegeException(sess, "addGroupsToAutoRegistration");
 			}
 		}
@@ -3218,6 +3217,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
+	}
+
+	@Override
+	public void handleUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
+		// get group apps based on the vo
+		List<Application> apps = jdbc.query(
+			APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state in (?,?)",
+			APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), AppState.NEW.toString());
+
+		//filter only user's apps
+		List<Application> applications = filterUserApplications(sess, user, apps);
+
+		for (Application a : applications) {
+			setUserForApplication(a, user);
+			autoApproveGroupApplication(sess, a);
+		}
 	}
 
 	/**
@@ -3791,42 +3806,41 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
-	 * Try to approve all group applications of user with auto-approval (even by user-ext-source)
-	 * in specified VO.
+	 * Set user id to the application if it is not set already
 	 *
-	 * @param sess PerunSession
-	 * @param vo VO to approve group applications in
-	 * @param user user to approve applications for
+	 * @param application
+	 * @param user
 	 */
-	private void autoApproveUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
-
-		// get group apps based on the vo
-		List<Application> apps = jdbc.query(
-			APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?",
-			APP_MAPPER, vo.getId(), AppState.VERIFIED.toString());
-
-		//filter only user's apps
-		List<Application> applications = filterUserApplications(sess, user, apps);
-
-		for (Application a : applications) {
-			// if new => skipp user will approve automatically by verifying email
-			if (a.getState().equals(AppState.NEW)) continue;
-
-			// approve applications only for auto-approve forms
-			if (!getFormForGroup(a.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(a.getType())) continue;
-			if (!getFormForGroup(a.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(a.getType())) continue;
-			if (!getFormForGroup(a.getGroup()).isAutomaticApprovalEmbedded() && AppType.EMBEDDED.equals(a.getType())) continue;
-
-			try {
-				registrarManager.approveApplicationInternal(sess, a.getId());
-			} catch (RegistrarException ex) {
-				// case when user have UNVERIFIED group application
-				// will be approved when user verify his email
-				log.error("[REGISTRAR] Can't auto-approve group application after vo app approval because of exception.", ex);
-			}
-
+	private void setUserForApplication(Application application, User user) {
+		if (application.getUser() == null) {
+			application.setUser(user);
+			jdbc.update("update application set user_id=? where id=?", user.getId(), application.getId());
 		}
+	}
 
+	/**
+	 * Try to approve group applications if automatic approval is enabled.
+	 *
+	 * @param sess perun session
+	 * @param application which we try to auto approve
+	 * @throws PerunException
+	 */
+	private void autoApproveGroupApplication(PerunSession sess, Application application) throws PerunException {
+		// if new => skipp user will approve automatically by verifying email
+		if (application.getState().equals(AppState.NEW)) return;
+
+		// approve applications only for auto-approve forms
+		if (!getFormForGroup(application.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(application.getType())) return;
+		if (!getFormForGroup(application.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(application.getType())) return;
+		if (!getFormForGroup(application.getGroup()).isAutomaticApprovalEmbedded() && AppType.EMBEDDED.equals(application.getType())) return;
+
+		try {
+			registrarManager.approveApplicationInternal(sess, application.getId());
+		} catch (RegistrarException ex) {
+			// case when user have UNVERIFIED group application
+			// will be approved when user verify his email
+			log.error("[REGISTRAR] Can't auto-approve group application after vo app approval because of exception.", ex);
+		}
 	}
 
 	/**

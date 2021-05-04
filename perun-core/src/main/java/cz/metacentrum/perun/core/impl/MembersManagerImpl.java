@@ -22,11 +22,16 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +41,7 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -57,6 +63,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
+
+	private static String rejected = "REJECTED";
+	private static String approved = "APPROVED";
 
 	final static Logger log = LoggerFactory.getLogger(MembersManagerImpl.class);
 
@@ -831,5 +840,54 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	@Override
 	public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
 		return sponsoredAccountsConfigContainer.getNamespaceRules(namespace);
+	}
+
+	@Override
+	public void rejectAllMemberOpenApplications(PerunSession sess, Member member) {
+		try {
+			List<Integer> ids = jdbc.query(
+				"select id from application " +
+					"where user_id=? and vo_id=? and state not in (?, ?)",
+				new SingleColumnRowMapper<>(Integer.class),  member.getUserId(), member.getVoId(), rejected, approved);
+
+			if (ids.isEmpty()) {
+				return;
+			}
+
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			parameters.addValue("ids", ids);
+			parameters.addValue("userId", sess.getPerunPrincipal().getUserId());
+			parameters.addValue("state", rejected);
+
+			namedParameterJdbcTemplate.update(
+				"update application set state=:state, modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=:userId " +
+				"where id in (:ids)", parameters);
+
+			// get all reserved logins
+			List<Pair<String, String>> logins = namedParameterJdbcTemplate.query(
+				"select namespace,login from application_reserved_logins " +
+					"where app_id in (:ids)",
+				parameters,
+				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")));
+
+			// delete passwords for reserved logins
+			for (Pair<String, String> login : logins) {
+				try {
+					// left = namespace / right = login
+					((PerunBl) sess.getPerun()).getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
+				} catch (LoginNotExistsException ex) {
+					log.error("Login: {} not exists while deleting passwords in rejected applications for member: {}", login.getLeft(), member);
+				} catch (PasswordOperationTimeoutException | InvalidLoginException | PasswordDeletionFailedException e) {
+					throw new InternalErrorException("Unable to delete password for Login: " + login.getLeft() + " in rejected applications for member: " + member + ".", e);
+				}
+			}
+			// free any login from reservation when application is rejected
+			namedParameterJdbcTemplate.update(
+				"delete from application_reserved_logins " +
+					"where app_id in (:ids)", parameters);
+
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 }

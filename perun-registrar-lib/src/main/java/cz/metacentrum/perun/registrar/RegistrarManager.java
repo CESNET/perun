@@ -564,6 +564,19 @@ public interface RegistrarManager {
 	List<Application> filterUserApplications(PerunSession sess, User user, List<Application> applications);
 
 	/**
+	 * Try to approve all group applications of user with auto-approval (even by user-ext-source)
+	 * in specified VO.
+	 * Set user id to all user's group application where it is missing.
+	 *
+	 * @param sess PerunSession
+	 * @param vo VO to handle group applications in
+	 * @param user user to handle applications for
+	 *
+	 * @throws PerunException
+	 */
+	void handleUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException;
+
+	/**
 	 * Updates application type in db.
 	 *
 	 * @param session perun session
