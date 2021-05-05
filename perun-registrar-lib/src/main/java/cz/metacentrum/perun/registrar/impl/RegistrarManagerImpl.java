@@ -1603,23 +1603,35 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param sess
 	 * @param groups embedded groups
 	 * @param app
-	 * @throws GroupNotEmbeddedException Group is not set as embedded in VO
 	 * @throws PerunException
 	 */
-	private void submitEmbeddedGroupApplications(PerunSession sess, List<Group> groups, Application app) throws GroupNotEmbeddedException, EmbeddedGroupApplicationSubmissionError {
+	private void submitEmbeddedGroupApplications(PerunSession sess, List<Group> groups, Application app) throws PerunException {
 		List<Integer> notEmbeddedGroupsIds = new ArrayList<>();
+		User applicant = app.getUser();
+		List<Group> filteredGroups = new ArrayList<>();
 
 		for (Group group : groups) {
 
 			//skip if already member of group
-			if (groupsManager.isUserMemberOfGroup(sess, app.getUser(), group)) {
+			if (groupsManager.isUserMemberOfGroup(sess, applicant, group)) {
 				continue;
 			}
 
-			//check if is still embedded
+			//skip if another application to this group from user is waiting for approval
+			boolean alreadyExistingApplication = false;
+			List<Application> groupApplications = getApplicationsForGroup(sess, group, List.of(AppState.NEW.name(), AppState.VERIFIED.name()));
+			if (groupApplications.stream()
+				.anyMatch(application -> applicant.equals(application.getUser()))) {
+				continue;
+			}
+
+			//check if group is still embedded in VO application form
 			if (!groupsManager.isGroupForAutoRegistration(sess, group)) {
 				notEmbeddedGroupsIds.add(group.getId());
+				continue;
 			}
+
+			filteredGroups.add(group);
 		}
 
 		if (!notEmbeddedGroupsIds.isEmpty()) {
@@ -1628,10 +1640,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		Map<Integer, String> failedGroups = new HashMap<>();
 
-		for (Group group : groups) {
+		for (Group group : filteredGroups) {
 			try {
 				Application groupApplication = new Application();
-				groupApplication.setUser(app.getUser());
+				groupApplication.setUser(applicant);
 				groupApplication.setType(AppType.EMBEDDED);
 				groupApplication.setVo(app.getVo());
 				groupApplication.setGroup(group);
@@ -1666,7 +1678,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws PerunException
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException, EmbeddedGroupApplicationSubmissionError, GroupNotEmbeddedException {
+	public Application approveApplicationInternal(PerunSession sess, int appId) throws PerunException {
 
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");

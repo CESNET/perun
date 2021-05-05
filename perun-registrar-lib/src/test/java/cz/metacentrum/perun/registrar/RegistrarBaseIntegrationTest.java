@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
@@ -656,6 +655,49 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		assertThat(groupMembers)
 				.anyMatch(member -> member.getUserId() == user.getId());
+	}
+
+	@Test
+	public void testEmbeddedGroupsSubmission_initEmbeddedConflict() throws PerunException {
+		GroupsManager groupsManager = perun.getGroupsManager();
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		// create embedded groups form item
+		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
+		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+		embeddedGroupsItem.setShortname("embeddedGroups");
+		embeddedGroupsItem = registrarManager.addFormItem(session, form, embeddedGroupsItem);
+		registrarManager.updateFormItems(session, form, Collections.singletonList(embeddedGroupsItem));
+
+		// create group in VO, generate group application form
+		Group group1 = new Group("GroupA", "Cool folks");
+		groupsManager.createGroup(session, vo, group1);
+		registrarManager.createApplicationFormInGroup(session, group1);
+		groupsManager.addGroupsToAutoRegistration(session, List.of(group1));
+
+		// create user
+		User user = new User(-1, "Jo", "Doe", "", "", "");
+		user = perun.getUsersManagerBl().createUser(session, user);
+
+		Application application = prepareApplicationToVo(user);
+
+		// set embedded groups in VO application
+		String embGroupsValue = String.format("Group A#%d", group1.getId());
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		appItemsData.add(new ApplicationFormItemData(embeddedGroupsItem, "Embedded groups", embGroupsValue, "0"));
+		registrarManager.submitApplication(session, application, appItemsData);
+
+		// prepare group application and approve vo application
+		Application groupApp = prepareApplicationToVo(user);
+		groupApp.setGroup(group1);
+		registrarManager.submitApplication(session, groupApp, new ArrayList<>());
+		// normally, approval of VO generates and submits embedded groups applications
+		registrarManager.approveApplication(session, application.getId());
+
+		// embedded application is expected to not be created as init already exists
+		List<Application> group1Apps = registrarManager.getApplicationsForGroup(session, group1, List.of("NEW", "VERIFIED"));
+		assertEquals(1, group1Apps.size());
+		assertEquals(INITIAL, group1Apps.get(0).getType());
 	}
 
 	private Application prepareApplicationToVo(User user) {
