@@ -1076,6 +1076,26 @@ components:
         password: { type: string }
         login: { type: string }
 
+    NewApps:
+      type: object
+      properties:
+        admin: { type: string }
+        profile: { type: string }
+        pwdReset: { type: string }
+        publications: { type: string }
+
+    Brand:
+      type: object
+      properties:
+        name: { type: string }
+        oldGuiDomain: { type: string }
+        newApps: { $ref: '#/components/schemas/NewApps' }
+
+    PerunAppsConfig:
+      type: object
+      properties:
+        brands: { type: array, items: { $ref: '#/components/schemas/Brand' }}
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2004,6 +2024,13 @@ components:
           schema:
             $ref: "#/components/schemas/UserExtSource"
 
+    PerunAppsConfigResponse:
+      description: "returns configuration of perun apps brandings and apps' domains"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PerunAppsConfig"
+
 
   #####################################################
   #                                                   #
@@ -2892,6 +2919,19 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/utils/getAppsConfig:
+    get:
+      tags:
+        - Utils
+      operationId: getAppsConfig
+      summary: Gets configuration of perun apps brandings and apps' domains
+      description: Returns object of type PerunAppsConfig
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunAppsConfigResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
+import cz.metacentrum.perun.core.impl.PerunAppsConfig;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
@@ -627,6 +628,13 @@ public class Api extends HttpServlet {
 			} else if ("utils".equals(manager) && "getGuiConfiguration".equals(method)) {
 
 				ser.write(BeansUtils.getAllPropertiesFromCustomConfiguration("perun-web-gui.properties"));
+				// closes the request
+				out.close();
+				return;
+
+			} else if ("utils".equals(manager) && "getAppsConfig".equals(method)) {
+
+				ser.write(PerunAppsConfig.getInstance());
 				// closes the request
 				out.close();
 				return;
