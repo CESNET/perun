@@ -1734,7 +1734,7 @@ public class MailManagerImpl implements MailManager {
 									newValue += namespace + "/registrar/";
 									newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
 									newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
-									newValue += "&i=" + URLEncoder.encode(i, StandardCharsets.UTF_8) + "&m=" + URLEncoder.encode(m, StandardCharsets.UTF_8);
+									newValue += "&i=" + getUrlEncodedString(i) + "&m=" + getUrlEncodedString(m);
 								}
 							}
 							// substitute {validationLink-authz} with actual value or empty string
@@ -1766,7 +1766,7 @@ public class MailManagerImpl implements MailManager {
 							}
 
 							if (!url2.toString().isEmpty())
-								url2.append("i=").append(URLEncoder.encode(i, StandardCharsets.UTF_8)).append("&m=").append(URLEncoder.encode(m, StandardCharsets.UTF_8));
+								url2.append("i=").append(getUrlEncodedString(i)).append("&m=").append(getUrlEncodedString(m));
 
 							// replace validation link
 							mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());
@@ -1776,7 +1776,7 @@ public class MailManagerImpl implements MailManager {
 					if (mailText.contains(FIELD_REDIRECT_URL)) {
 						String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
 
-						mailText = mailText.replace(FIELD_REDIRECT_URL, redirectURL != null ? "&target=" + redirectURL : EMPTY_STRING);
+						mailText = mailText.replace(FIELD_REDIRECT_URL, redirectURL != null ? "&target=" + getUrlEncodedString(redirectURL) : EMPTY_STRING);
 					}
 
 					// set replaced text
