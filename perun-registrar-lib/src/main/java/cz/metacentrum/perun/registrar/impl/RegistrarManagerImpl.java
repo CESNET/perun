@@ -3658,7 +3658,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// put application data into Candidate
 		final Map<String, String> attributes = new HashMap<>();
 		jdbc.query("select dst_attr,value from application_data d, application_form_items i where d.item_id=i.id "
-				+ "and i.dst_attr is not null and d.value is not null and app_id=?",
+				+ "and i.dst_attr is not null and i.dst_attr <> '' and d.value is not null and app_id=?",
 			(resultSet, i) -> {
 				attributes.put(resultSet.getString("dst_attr"), resultSet.getString("value"));
 				return null;
