@@ -498,6 +498,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<bean id="sponsoredAccountsConfigLoader" class="cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader">
 			<property name="configurationPath" value="file:@perun.conf@sponsored-accounts-config.yml"/>
 		</bean>
+
+		<!-- Loader for the perunAppsConfig-->
+		<bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader" init-method="initialize">
+			<property name="configPath" value="file:@perun.conf@perun-apps-config.yml"/>
+		</bean>
 	</beans>
 
 	<!-- Containerized Perun for local testing -->
@@ -533,6 +538,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<!-- SponsoredAccountsConfigLoader implementation -->
 		<bean id="sponsoredAccountsConfigLoader" class="cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader">
 			<property name="configurationPath" value="classpath:sponsored-accounts-config.yml"/>
+		</bean>
+
+		<!-- Loader for the perunAppsConfig-->
+		<bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader" init-method="initialize">
+			<property name="configPath" value="classpath:perun-apps-config.yml"/>
 		</bean>
 	</beans>
 
