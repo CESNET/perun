@@ -124,10 +124,21 @@ public class urn_perun_entityless_attribute_def_def_identityAlertsTemplates exte
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setFriendlyName("identityAlertsTemplates");
 		attr.setDisplayName("Identity alerts templates");
-		attr.setDescription("Templates for identity alerts. Use 'en' key to set the values. Allowed values are " +
-				"'identityAddedPreferredMail', 'identityAddedPreferredMailSubject', 'identityAddedUESMail', 'identityAddedUESMailSubject', " +
-				"'identityRemovedPreferredMail', 'identityRemovedPreferredMailSubject', 'identityRemovedUESMail', and 'identityRemovedUESMailSubject'. " +
-				"You can use placeholders {organization}, {login}, {time} in the templates that will be replaced with actual values.");
+		attr.setDescription(String.format("Templates for identity alerts. Use 'en' key to set the values. Allowed values are " +
+				"'%s', '%s', '%s', '%s', '%s', '%s', '%s', and '%s'. " +
+				"You can use placeholders %s, %s, %s in the templates that will be replaced with actual values.",
+				UES_ADDED_PREFERRED_MAIL,
+				UES_ADDED_PREFERRED_MAIL_SUBJECT,
+				UES_ADDED_UES_MAIL,
+				UES_ADDED_UES_MAIL_SUBJECT,
+				UES_REMOVED_PREF_MAIL,
+				UES_REMOVED_PREF_MAIL_SUBJECT,
+				UES_REMOVED_UES_MAIL,
+				UES_REMOVED_UES_MAIL_SUBJECT,
+				LOGIN_PLACEHOLDER,
+				ORG_PLACEHOLDER,
+				TIME_PLACEHOLDER
+				));
 		return attr;
 	}
 }
