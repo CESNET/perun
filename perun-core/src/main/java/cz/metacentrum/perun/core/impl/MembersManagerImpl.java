@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
 
@@ -690,20 +691,62 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	@Override
 	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) {
-		return jdbc.query(
-				"SELECT " + memberMappingSelectQuery +
+
+		String userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
+
+		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+
+		Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
+
+		MapSqlParameterSource namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
+		namedParams.addValue("voId", vo.getId());
+		namedParams.addValue("offset", query.getOffset());
+		namedParams.addValue("limit", query.getPageSize());
+
+		String statusesQueryString = "";
+		if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
+			statusesQueryString = " members.status in (:statuses) and ";
+			List<Integer> statusCodes = query.getStatuses().stream()
+				.map(Status::getCode)
+				.collect(Collectors.toList());
+			namedParams.addValue("statuses", statusCodes);
+		}
+
+		String idQueryString = "";
+		try {
+			int id = Integer.parseInt(query.getSearchString());
+			idQueryString = " members.user_id=" + id + " or members.id=" + id + " or ";
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of ID
+		}
+
+		Paginated<Member> members = namedParameterJdbcTemplate.query(
+				"SELECT DISTINCT " + memberMappingSelectQuery +
 				query.getSortColumn().getSqlSelect() +
 				", count(*) OVER() AS total_count" +
 				" FROM members " +
+				" LEFT JOIN users ON members.user_id=users.id " +
+				" LEFT JOIN user_ext_sources ues ON ues.user_id=users.id " +
 				query.getSortColumn().getSqlJoin() +
-				" WHERE members.vo_id = ?" +
+				attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
+				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
+				attributesToSearchByQueries.get("uesAttributesQuery").getLeft() +
+				" WHERE members.vo_id = (:voId) AND " +
+				statusesQueryString +
+				" ( " +
+				" LOWER(ues.login_ext) = LOWER(:searchString) OR " +
+				attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
+				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
+				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
+				idQueryString +
+				userNameQueryString +
+				" ) " +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
-				" OFFSET ?" +
-				" LIMIT ?;",
-				getPaginatedMembersExtractor(query),
-				vo.getId(),
-				query.getOffset(),
-				query.getPageSize());
+				" OFFSET (:offset)" +
+				" LIMIT (:limit)",
+				namedParams, getPaginatedMembersExtractor(query));
+
+		return members;
 	}
 
 	@Override

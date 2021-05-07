@@ -13,7 +13,7 @@ import java.util.function.Function;
 public enum MembersOrderColumn {
 	NAME(
 			", users.first_name, users.last_name ",
-			" LEFT JOIN users on members.user_id = users.id ",
+			"",
 			query -> "users.last_name " + getLangSql(query) + query.getOrder().getSqlValue() + ", " +
 	                 "users.first_name " + getLangSql(query) + query.getOrder().getSqlValue()
 	),

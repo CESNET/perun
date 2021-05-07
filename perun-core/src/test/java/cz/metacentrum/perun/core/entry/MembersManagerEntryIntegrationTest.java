@@ -2683,6 +2683,72 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 				.containsOnly(prefMail);
 	}
 
+	@Test
+	public void getMembersPageBasedOnStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageBasedOnStatuses");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		Member member2 = setUpMember(vo, "Stinson", "Barney");
+
+		perun.getMembersManager().setStatus(sess, member1, Status.EXPIRED);
+		perun.getMembersManager().setStatus(sess, member2, Status.INVALID);
+
+		MembersPageQuery query = new MembersPageQuery(3, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, List.of(Status.EXPIRED));
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member1.getId());
+
+		query.setStatuses(List.of(Status.INVALID));
+
+		result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+
+		returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member2.getId());
+	}
+
+	@Test
+	public void getMembersPageBasedOnSearchString() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageBasedOnSearchString");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		Member member2 = setUpMember(vo, "Stinson", "Barney");
+		Member member3 = setUpMember(vo, "Doe", "Jane");
+
+		MembersPageQuery query = new MembersPageQuery(3, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "doe");
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member3.getId(), member1.getId());
+
+		query.setSearchString("barn");
+
+		result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+
+		returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member2.getId());
+	}
+
 	private Member setUpMember(Vo vo, String lastName, String firstName) throws Exception {
 		User user = new User();
 		user.setFirstName(firstName);
