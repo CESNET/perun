@@ -1338,37 +1338,6 @@ public interface UsersManagerBl {
 	 * was created, never used and hasn't expired yet.
 	 *
 	 * @param sess PerunSession
-	 * @param user user to check request for
-	 * @param m encrypted request id
-	 * @throws PasswordResetLinkExpiredException when the reset link expired
-	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
-	 */
-	void checkPasswordResetRequestIsValid(PerunSession sess, User user, String m) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
-
-	/**
-	 * Changes user password in defined login-namespace using encrypted parameters.
-	 *
-	 * @param sess     PerunSession
-	 * @param user     user to change password for
-	 * @param m        encrypted parameter
-	 * @param password password to set
-	 * @param lang Language to get notification in
-	 * @throws InternalErrorException
-	 * @throws PasswordChangeFailedException
-	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
-	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
-	 * @throws PasswordResetLinkExpiredException when the password reset request expired
-	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
-	 */
-	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang)
-		throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
-
-	/**
-	 * Checks if the password reset request link is valid. The request is valid, if it
-	 * was created, never used and hasn't expired yet.
-	 *
-	 * @param sess PerunSession
 	 * @param token token for the request to check
 	 * @throws PasswordResetLinkExpiredException when the reset link expired
 	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed

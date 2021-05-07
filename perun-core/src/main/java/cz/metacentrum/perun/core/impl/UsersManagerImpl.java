@@ -1264,42 +1264,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public void checkPasswordResetRequestIsValid(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
-		this.checkAndGetPasswordResetRequest(user, requestId);
-	}
-
-	private Pair<String, String> checkAndGetPasswordResetRequest(User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
-		try {
-			int numberOfRequests = jdbc.queryForInt("select count(1) from pwdreset where user_id=? and id=?", user.getId(), requestId);
-			if (numberOfRequests == 0) {
-				throw new PasswordResetLinkNotValidException("Password request " + requestId + " doesn't exist.");
-			} else if (numberOfRequests > 1) {
-				throw new ConsistencyErrorException("Password reset request " + requestId + " exists more than once.");
-			}
-
-			return jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and validity_to >= now()",
-					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
-		} catch (EmptyResultDataAccessException ex) {
-			throw new PasswordResetLinkExpiredException("Password reset request " + requestId + " has already expired.");
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public Pair<String,String> loadPasswordResetRequest(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
-		Pair<String,String> result = this.checkAndGetPasswordResetRequest(user, requestId);
-
-		try {
-			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		return result;
-	}
-
-	@Override
 	public void checkPasswordResetRequestIsValid(PerunSession sess, UUID uuid) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 		this.checkAndGetPasswordResetRequest(uuid);
 	}

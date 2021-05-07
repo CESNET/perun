@@ -8162,25 +8162,6 @@ paths:
                 candidate: { $ref: '#/components/schemas/Candidate' }
                 specificUserOwners: { type: array, items: { $ref: "#/components/schemas/User" } }
 
-  /json/usersManager/checkPasswordResetRequestIsValid:
-    get:
-      tags:
-        - UsersManager
-      operationId: checkPasswordResetRequestIsValid
-      summary: Checks if the password reset request based on encrypted input parameters is valid.
-      description: |
-        This method throws PasswordResetLinkExpiredException when the password reset request expired.
-        This method throws PasswordResetLinkNotValidException when the password reset request was already
-        used or has never existed.
-      parameters:
-        - { name: i, description: "encrypted user id", schema: { type: string }, in: query, required: true }
-        - { name: m, description: "encrypted password reset request id", schema: { type: string }, in: query, required: true }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
   /json/usersManager/checkPasswordResetRequestIsValid/token:
     get:
       tags:
@@ -8193,27 +8174,6 @@ paths:
         used or has never existed.
       parameters:
         - { name: token, description: "token for the password reset request", schema: { type: string }, in: query, required: true }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/usersManager/changeNonAuthzPassword:
-    post:
-      tags:
-        - UsersManager
-      operationId: changeNonAuthzPassword
-      summary: Changes user's password in namespace based on encrypted input parameters.
-      description: |
-        This method throws PasswordResetLinkExpiredException when the password reset request expired.
-        This method throws PasswordResetLinkNotValidException when the password reset request was already
-        used or has never existed.
-      parameters:
-        - { name: i, description: "encrypted user id", schema: { type: string }, in: query, required: true }
-        - { name: m, description: "encrypted password reset request id", schema: { type: string }, in: query, required: true }
-        - $ref: '#/components/parameters/password'
-        - { name: lang, description: "language to get notifications in (optional)", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

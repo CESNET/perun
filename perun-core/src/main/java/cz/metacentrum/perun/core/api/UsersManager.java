@@ -865,39 +865,6 @@ public interface UsersManager {
 			throws PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
-	 * Checks if the password reset request based on encrypted parameters is valid.
-	 *
-	 * @param sess
-	 * @param i encrypted user id
-	 * @param m encrypted request id
-	 * @return
-	 * @throws UserNotExistsException
-	 * @throws PasswordResetLinkExpiredException when the reset link expired
-	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
-	 */
-	@Deprecated
-	void checkPasswordResetRequestIsValid(PerunSession sess, String i, String m) throws UserNotExistsException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
-
-	/**
-	 * Changes user password in defined login-namespace using encrypted parameters.
-	 *
-	 * @param sess
-	 * @param i
-	 * @param m
-	 * @param password
-	 * @param lang language to get notification in
-	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
-	 * @throws LoginNotExistsException
-	 * @throws PasswordChangeFailedException
-	 * @throws PasswordResetLinkNotValidException
-	 * @throws PasswordResetLinkExpiredException
-	 */
-	@Deprecated
-	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang)
-		throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
-
-	/**
 	 * Checks if the password reset request is valid. The request is valid, if it
 	 * was created, never used and hasn't expired yet.
 	 *
