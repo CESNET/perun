@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.groupstabs;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -15,6 +16,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetGroupAttributeByName;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationForm;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetFormItems;
 import cz.metacentrum.perun.webgui.json.registrarManager.UpdateFormItems;
@@ -216,7 +218,18 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 			}
 		});
 		form.setHidden(true);
-		form.retrieveData();
+
+		new GetGroupAttributeByName(groupId, "urn:perun:group:attribute-def:virt:autoRegistrationEnabled", new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				Attribute attribute = jso.cast();
+				if (attribute.getValue() == "null") {
+					form.retrieveData();
+				} else {
+					form.retrieveData(group, attribute.getValueAsBoolean());
+				}
+			}
+		}).retrieveData();
+
 		menu.addWidget(form.getApprovalWidget());
 
 		emailButton.addClickHandler(new ClickHandler() {

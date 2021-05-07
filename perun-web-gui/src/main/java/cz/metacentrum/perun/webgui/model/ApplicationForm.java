@@ -60,6 +60,15 @@ public class ApplicationForm extends JavaScriptObject {
 		}-*/;
 
 		/**
+		 * Get automaticApproval for EMBEDDED
+		 * @return automaticApproval
+		 */
+		public final native boolean getAutomaticApprovalEmbedded() /*-{
+			if (!this.automaticApprovalEmbedded) return false;
+			return this.automaticApprovalEmbedded;
+		}-*/;
+
+		/**
 		 * Set automaticApproval
 		 * @param automatic (true=automatic / false=manual)
 		 */
@@ -73,6 +82,14 @@ public class ApplicationForm extends JavaScriptObject {
 		 */
 		public final native void setAutomaticApprovalExtension(boolean automatic) /*-{
 			this.automaticApprovalExtension = automatic;
+		}-*/;
+
+		/**
+		 * Set automaticApprovalEmbedded
+		 * @param automatic (true=automatic / false=manual)
+		 */
+		public final native void setAutomaticApprovalEmbedded(boolean automatic) /*-{
+			this.automaticApprovalEmbedded = automatic;
 		}-*/;
 
 		public final native void setModuleClassName(String name) /*-{
