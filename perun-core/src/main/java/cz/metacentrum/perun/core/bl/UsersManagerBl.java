@@ -1082,6 +1082,23 @@ public interface UsersManagerBl {
 			throws PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException;
 
 	/**
+	 * Deletes password in external system for existing user.
+	 *
+	 * @param sess perunSession
+	 * @param user for which the password will be deleted
+	 * @param loginNamespace from which the password will be deleted
+	 * @throws PasswordDeletionFailedException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordOperationTimeoutException
+	 * @throws InvalidLoginException
+	 */
+	void deletePassword(PerunSession sess, User user, String loginNamespace)
+		throws PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException;
+
+
+	boolean loginExist(PerunSession sess, User user, String loginNamespace);
+
+	/**
 	 * Creates alternative password in external system.
 	 *
 	 * @param sess

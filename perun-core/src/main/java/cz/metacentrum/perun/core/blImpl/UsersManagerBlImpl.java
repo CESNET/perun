@@ -1378,6 +1378,51 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	public void deletePassword(PerunSession sess, User user, String loginNamespace) throws LoginNotExistsException,
+		PasswordDeletionFailedException, PasswordOperationTimeoutException, InvalidLoginException {
+		log.info("Deleting password for {} in login-namespace {}.", user, loginNamespace);
+
+		// Delete the password
+		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+
+			if (attr.getValue() == null) {
+				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+			}
+
+			module.deletePassword(sess, attr.valueAsString());
+		} catch (PasswordDeletionFailedRuntimeException e) {
+			throw new PasswordDeletionFailedException(e);
+		} catch (LoginNotExistsRuntimeException e) {
+			throw new LoginNotExistsException(e);
+		}  catch (PasswordOperationTimeoutRuntimeException e) {
+			throw new PasswordOperationTimeoutException(e);
+		} catch (Exception ex) {
+			// fallback for exception compatibility
+			throw new PasswordDeletionFailedException("Password deletion failed for " + loginNamespace + ": " + user + ".", ex);
+		}
+	}
+
+	@Override
+	public boolean loginExist(PerunSession sess, User user, String loginNamespace) {
+		log.info("Checking if login exists for user {} in login-namespace {}.", user, loginNamespace);
+
+		// Check if login exists
+		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+
+			if (attr.getValue() == null) {
+				return false;
+			}
+			return module.loginExist(sess, attr.valueAsString());
+		} catch (Exception ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
 			throws LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		log.info("Changing password for {} in login-namespace {}.", user, loginNamespace);

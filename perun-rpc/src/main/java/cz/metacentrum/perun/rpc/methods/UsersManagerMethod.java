@@ -1241,6 +1241,30 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	deletePassword {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			if (parms.contains("user")) {
+				ac.getUsersManager().deletePassword(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
+			} else {
+				ac.getUsersManager().deletePassword(ac.getSession(), parms.readString("login"), parms.readString("namespace"));
+			}
+
+			return null;
+
+		}
+	},
+
+	loginExist {
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			return ac.getUsersManager().loginExist(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
+		}
+	},
+
 	/*#
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
 	 * in external authz system using his credentials. It also creates UserExtSource and sets some required attributes.

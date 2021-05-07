@@ -51,6 +51,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	protected static final String PASSWORD_CHANGE = "change";
 	protected static final String PASSWORD_CHECK = "check";
 	protected static final String PASSWORD_DELETE = "delete";
+	protected static final String LOGIN_EXIST = "exist";
 
 	protected static final String binTrue = "/bin/true";
 	protected String actualLoginNamespace = "generic";
@@ -185,6 +186,16 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 
 		return randomPassword;
 
+	}
+	@Override
+	public boolean loginExist(PerunSession sess, String login) {
+		Process process = createPwdManagerProcess(LOGIN_EXIST, actualLoginNamespace, login);
+		try {
+			handleExit(process, actualLoginNamespace, login);
+		} catch (LoginNotExistsRuntimeException e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

@@ -70,4 +70,8 @@ public interface PasswordManagerModule {
 
 	String generateRandomPassword(PerunSession sess, String login);
 
+	default boolean loginExist(PerunSession sess, String login) {
+		return false;
+	}
+
 }

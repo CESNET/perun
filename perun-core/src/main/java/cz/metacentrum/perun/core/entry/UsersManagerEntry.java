@@ -1149,6 +1149,37 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public void deletePassword(PerunSession sess, User user, String loginNamespace) throws
+		PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, InvalidLoginException, PasswordOperationTimeoutException, PasswordDeletionFailedException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "deletePassword_User_String_policy", user)
+			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-deletePassword_User_String_policy", user)) && user.isServiceUser())) {
+			throw new PrivilegeException(sess, "deletePassword");
+		}
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+			getUsersManagerBl().deletePassword(sess, user, loginNamespace);
+	}
+
+	@Override
+	public boolean loginExist(PerunSession sess, User user, String loginNamespace) throws PrivilegeException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "loginExist_User_String_policy", user)
+			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-loginExist_User_String_policy", user)) && user.isServiceUser())) {
+			throw new PrivilegeException(sess, "loginExist");
+		}
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		return getUsersManagerBl().loginExist(sess, user, loginNamespace);
+	}
+
+	@Override
 	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(description, "description");

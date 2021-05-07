@@ -981,6 +981,11 @@ public interface UsersManager {
 	void deletePassword(PerunSession sess, String userLogin, String loginNamespace)
 			throws PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException;
 
+	void deletePassword(PerunSession sess, User user, String loginNamespace) throws
+		PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, InvalidLoginException, PasswordOperationTimeoutException, PasswordDeletionFailedException;
+
+	boolean loginExist(PerunSession sess, User user, String loginNamespace) throws PrivilegeException, UserNotExistsException;
+
 	/**
 	 * Creates alternative password in external system.
 	 *
