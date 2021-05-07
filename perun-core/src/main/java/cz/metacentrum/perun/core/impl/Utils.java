@@ -144,7 +144,7 @@ public class Utils {
 
 	private static final String A_U_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 	private static final String A_UES_MAIL = AttributesManager.NS_UES_ATTR_DEF + ":mail";
-	private static final String A_E_IDENTITY_ALERTS = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":identityAlerts";
+	private static final String A_E_IDENTITY_ALERTS = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":identityAlertsTemplates";
 	private static final String A_UES_ORGANIZATION = AttributesManager.NS_UES_ATTR_DEF + ":o";
 
 	/**
@@ -2213,7 +2213,7 @@ public class Utils {
 		String organization = ORG_UNKNOWN_TEXT;
 		try {
 			Attribute orgAttr = ((PerunBl)sess.getPerun()).getAttributesManagerBl().getAttribute(sess, newUes, A_UES_ORGANIZATION);
-			if (orgAttr != null) {
+			if (orgAttr.getValue() != null) {
 				organization = orgAttr.valueAsString();
 			}
 		} catch (WrongAttributeAssignmentException e) {
@@ -2258,7 +2258,7 @@ public class Utils {
 
 	/**
 	 * Returns alert template for the given templateName. The templates should be stored in
-	 * entityless:def:identityAlerts attribute, under the 'en' key.
+	 * entityless:def:identityAlertsTemplates attribute, under the 'en' key.
 	 * If the templateName is not present or has an empty value, the default value is used.
 	 *
 	 * @param sess session
