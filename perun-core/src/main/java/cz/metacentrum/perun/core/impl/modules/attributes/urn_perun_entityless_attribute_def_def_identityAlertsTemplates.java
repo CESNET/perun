@@ -25,6 +25,7 @@ public class urn_perun_entityless_attribute_def_def_identityAlertsTemplates exte
 	public static final String UES_ADDED_UES_MAIL = "uesAddedUESMail";
 	public static final String UES_ADDED_UES_MAIL_SUBJECT = "uesAddedUESMailSubject";
 
+
 	public static final String UES_REMOVED_PREF_MAIL = "uesRemovedPreferredMail";
 	public static final String UES_REMOVED_PREF_MAIL_SUBJECT = "uesRemovedPreferredMailSubject";
 	public static final String UES_REMOVED_UES_MAIL = "uesRemovedUESMail";
