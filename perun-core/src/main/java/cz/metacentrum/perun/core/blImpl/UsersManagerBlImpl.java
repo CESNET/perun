@@ -1634,7 +1634,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path) {
+	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path, String idp) {
 
 		int changeId = getUsersManagerImpl().requestPreferredEmailChange(sess, user, email);
 
@@ -1668,7 +1668,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		Utils.sendValidationEmail(user, url, email, changeId, subject, message, path);
+		Utils.sendValidationEmail(user, url, email, changeId, subject, message, path, idp);
 
 	}
 

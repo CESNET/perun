@@ -33,6 +33,22 @@ public class PerunAppsConfig {
 	}
 
 	/**
+	 * Returns configuration's brand in which the provided domain is specified
+	 * @param domain Example: https://perun-dev.cz
+	 * @return brand or null if domain is not present in the configuration
+	 */
+	public static Brand getBrandContainingDomain(String domain) {
+		for (Brand brand : instance.getBrands()) {
+			PerunAppsConfig.NewApps newApps = brand.getNewApps();
+			if (brand.getOldGuiDomain().equals(domain) || newApps.getAdmin().equals(domain) || newApps.getProfile().equals(domain)
+				|| newApps.getPublications().equals(domain) || newApps.getPwdReset().equals(domain)) {
+				return brand;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Class holding data for a single branding.
 	 */
 	public static class Brand {

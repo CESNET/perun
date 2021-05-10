@@ -90,6 +90,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import static cz.metacentrum.perun.core.impl.PerunAppsConfig.getBrandContainingDomain;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ALERT_TIME_FORMATTER;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL_SUBJECT;
@@ -1007,18 +1008,29 @@ public class Utils {
 	 * @param changeId ID of change request in DB
 	 * @param subject Template subject or null
 	 * @param content Template message or null
-	 * @throws InternalErrorException
+	 * @param customUrlPath custom path to be used in generated URL
+	 * @param idp Authentication to be added as query parameter in generated URL
 	 */
-	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content, String customUrlPath) {
+	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content, String customUrlPath, String idp) {
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		// use default if unknown rpc path
 		String linkLocation = "/gui/";
 		try {
 			URL urlObject = new URL(url);
+			String domain = urlObject.getProtocol()+"://"+urlObject.getHost();
+			PerunAppsConfig.Brand brand = getBrandContainingDomain(domain);
+
+			// no brand contains specified domain
+			if (brand == null) {
+				throw new InternalErrorException("Not valid URL of running Perun instance: " + url + ".");
+			}
+
 			//if there is custom path, use it, if not, try to use specific path
 			if (customUrlPath != null && !customUrlPath.isEmpty()) {
 				linkLocation = customUrlPath;
+			} else if (!brand.getOldGuiDomain().equals(domain)) { //did not come from old GUI, do not add anything
+				linkLocation = "";
 			} else if (urlObject.getPath().contains("/krb/")) {
 				linkLocation = "/krb/gui/";
 			} else if (urlObject.getPath().contains("/fed/")) {
@@ -1032,7 +1044,7 @@ public class Utils {
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
 		}
-		String validationLink = prepareValidationLinkForEmailChange(url, linkLocation, changeId, user);
+		String validationLink = prepareValidationLinkForEmailChange(url, linkLocation, changeId, user, idp);
 
 		String defaultSubject = "["+instanceName+"] New email address verification";
 		String defaultBody = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+"."+
@@ -1394,12 +1406,13 @@ public class Utils {
 	 *
 	 * @param url base URL of Perun instance
 	 * @param linkLocation location of validation link under specific Perun instance (for example '/non/pwd-reset/')
-	 * @param changedId ID of request
+	 * @param changeId ID of request
 	 * @param user user to who link will be send
+	 * @param idp authentication method for query parameter
 	 *
 	 * @return link of validation as String
 	 */
-	private static String prepareValidationLinkForEmailChange(String url, String linkLocation, int changeId, User user) {
+	private static String prepareValidationLinkForEmailChange(String url, String linkLocation, int changeId, User user, String idp) {
 		notNull(user, "user");
 		notNull(url, "url");
 		notNull(linkLocation, "linkLocation");
@@ -1422,6 +1435,10 @@ public class Utils {
 			link.append("&m=");
 			link.append(URLEncoder.encode(m, StandardCharsets.UTF_8));
 			link.append("&u=" + user.getId());
+			if (idp != null) {
+				link.append("&idpFilter=");
+				link.append(URLEncoder.encode(idp, StandardCharsets.UTF_8));
+			}
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
 		}

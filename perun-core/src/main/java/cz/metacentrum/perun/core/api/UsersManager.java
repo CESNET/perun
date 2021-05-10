@@ -1150,12 +1150,13 @@ public interface UsersManager {
 	 * @param email new email address
 	 * @param lang Language to get confirmation mail in (optional)
 	 * @param path path that is appended to the url of the verification link (optional)
+	 * @param idp authentication method appended to query parameters of verification link (optional)
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path) throws PrivilegeException, UserNotExistsException;
+	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path, String idp) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Validate change of user's preferred email address.
