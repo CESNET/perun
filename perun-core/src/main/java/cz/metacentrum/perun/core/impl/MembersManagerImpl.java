@@ -723,7 +723,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		Paginated<Member> members = namedParameterJdbcTemplate.query(
 				"SELECT DISTINCT " + memberMappingSelectQuery +
 				query.getSortColumn().getSqlSelect() +
-				", count(*) OVER() AS total_count" +
+				", DENSE_RANK() OVER (order by members.id) + DENSE_RANK() OVER (ORDER BY members.id DESC) - 1 AS total_count" +
 				" FROM members " +
 				" LEFT JOIN users ON members.user_id=users.id " +
 				" LEFT JOIN user_ext_sources ues ON ues.user_id=users.id " +
