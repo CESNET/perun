@@ -210,12 +210,7 @@ public class AutoRegistrationGroupsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		int result = session != null ? session.hashCode() : 0;
-		result = 31 * result + (contentWidget != null ? contentWidget.hashCode() : 0);
-		result = 31 * result + (titleWidget != null ? titleWidget.hashCode() : 0);
-		result = 31 * result + voId;
-		result = 31 * result + (vo != null ? vo.hashCode() : 0);
-		result = 31 * result + (groups != null ? groups.hashCode() : 0);
-		return result;
+		final int prime = 977;
+		return 31 * prime + voId;
 	}
 }
