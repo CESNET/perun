@@ -76,12 +76,20 @@ public class urn_perun_user_attribute_def_def_login_namespace_erasmus_username  
 		ModulesUtilsBlImpl.LoginGenerator generator = new ModulesUtilsBlImpl.LoginGenerator();
 		return generator.generateLogin(user, (firstName, lastName) -> {
 
-			// unable to fill login for users without name or with partial name
-			if ((firstName == null || firstName.isEmpty()) && (lastName == null || lastName.isEmpty())) {
-				return "erasmus-user";
+			//default login
+			String login = "erasmus-user";
+
+			boolean firstNameFilled = firstName != null && !firstName.isEmpty();
+			boolean lastNameFilled = lastName != null && !lastName.isEmpty();
+
+			if (firstNameFilled && lastNameFilled) {
+				login = firstName+ "-" + lastName;
+			} else if (firstNameFilled) {
+				login = firstName;
+			} else if (lastNameFilled) {
+				login = lastName;
 			}
 
-			String login = firstName+ "-" + lastName;
 			if (login.length()>16) {
 				login = login.substring(0, 16);
 			}
