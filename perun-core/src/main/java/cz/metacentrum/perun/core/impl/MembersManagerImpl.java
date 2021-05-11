@@ -692,32 +692,51 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	@Override
 	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) {
 
-		String userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		String searchStringQueryJoin = "";
+		String searchStringQueryWhere = "";
 
-		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+		if (query.getSearchString() != null && !query.getSearchString().isEmpty()) {
 
-		Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
+			String userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
 
-		MapSqlParameterSource namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
+			String idQueryString = "";
+			try {
+				int id = Integer.parseInt(query.getSearchString());
+				idQueryString = " members.user_id=" + id + " or members.id=" + id + " or ";
+			} catch (NumberFormatException e) {
+				// IGNORE wrong format of ID
+			}
+
+			Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+			Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
+
+			searchStringQueryJoin = attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
+				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
+				attributesToSearchByQueries.get("uesAttributesQuery").getLeft();
+
+			searchStringQueryWhere = " AND ( LOWER(ues.login_ext) = LOWER(:searchString) OR " +
+				attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
+				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
+				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
+				idQueryString +
+				userNameQueryString +
+				" ) ";
+
+			namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
+		}
+
 		namedParams.addValue("voId", vo.getId());
 		namedParams.addValue("offset", query.getOffset());
 		namedParams.addValue("limit", query.getPageSize());
 
 		String statusesQueryString = "";
 		if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
-			statusesQueryString = " members.status in (:statuses) and ";
+			statusesQueryString = " AND members.status in (:statuses) ";
 			List<Integer> statusCodes = query.getStatuses().stream()
 				.map(Status::getCode)
 				.collect(Collectors.toList());
 			namedParams.addValue("statuses", statusCodes);
-		}
-
-		String idQueryString = "";
-		try {
-			int id = Integer.parseInt(query.getSearchString());
-			idQueryString = " members.user_id=" + id + " or members.id=" + id + " or ";
-		} catch (NumberFormatException e) {
-			// IGNORE wrong format of ID
 		}
 
 		Paginated<Member> members = namedParameterJdbcTemplate.query(
@@ -728,19 +747,10 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				" LEFT JOIN users ON members.user_id=users.id " +
 				" LEFT JOIN user_ext_sources ues ON ues.user_id=users.id " +
 				query.getSortColumn().getSqlJoin() +
-				attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
-				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
-				attributesToSearchByQueries.get("uesAttributesQuery").getLeft() +
-				" WHERE members.vo_id = (:voId) AND " +
+				searchStringQueryJoin +
+				" WHERE members.vo_id = (:voId) " +
 				statusesQueryString +
-				" ( " +
-				" LOWER(ues.login_ext) = LOWER(:searchString) OR " +
-				attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
-				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
-				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
-				idQueryString +
-				userNameQueryString +
-				" ) " +
+				searchStringQueryWhere +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
 				" LIMIT (:limit)",
