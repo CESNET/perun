@@ -1276,9 +1276,10 @@ public interface UsersManagerBl {
 	 * @param email new email address
 	 * @param lang language to get confirmation mail in (optional)
 	 * @param path path that is appended to the url of the verification link (optional)
+	 * @param idp authentication method appended to query parameters of verification link (optional)
 	 * @throws InternalErrorException
 	 */
-	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path);
+	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path, String idp);
 
 	/**
 	 * * Validate change of user's preferred email address.

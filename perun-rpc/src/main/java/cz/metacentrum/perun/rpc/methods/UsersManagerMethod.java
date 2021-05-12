@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
@@ -1322,6 +1324,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param email String new email address to set
 	 * @param lang String language to get confirmation mail in (optional)
 	 * @param linkPath path that is appended to the url of the verification link (optional)
+	 * @param customUrl url to verification link (optional)
+	 * @param idpFiler authentication method appended to query parameters of verification link (optional)
 	 */
 	requestPreferredEmailChange {
 		@Override
@@ -1329,8 +1333,22 @@ public enum UsersManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 
 			String referer = parms.getServletRequest().getHeader("Referer");
-			if (referer == null || referer.isEmpty()) {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing \"Referer\" header in HTTP request. Please check your browser settings.");
+			String customUrl = parms.contains("customUrl") ? parms.readString("customUrl") : null;
+			String customPath = parms.contains("linkPath") ? parms.readString("linkPath") : null;
+
+			if ((referer == null || referer.isEmpty()) && customUrl == null) {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing \"Referer\" header in HTTP request and no custom verification link specified.");
+			}
+
+			if (customUrl != null) {
+				URL url = null;
+				try {
+					url = new URL(customUrl);
+				} catch (MalformedURLException e) {
+					throw new RpcException(RpcException.Type.INVALID_URL, "Invalid custom verification link.");
+				}
+				referer = customUrl;
+				customPath = url.getPath();
 			}
 
 			ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
@@ -1338,7 +1356,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 					ac.getUserById(parms.readInt("user")),
 					parms.readString("email"),
 					parms.contains("lang") ? parms.readString("lang") : null,
-					parms.contains("linkPath") ? parms.readString("linkPath") : null);
+					customPath,
+					parms.contains("idpFilter") ? parms.readString("idpFilter") : null
+					);
 
 			return null;
 
