@@ -7029,8 +7029,8 @@ paths:
       operationId: deleteAuthorship
       summary: Delete Authorship by its userId and publicationId.
       parameters:
-        - $ref: '#/components/parameters/publicationId'
-        - $ref: '#/components/parameters/userId'
+        - { name: publicationId, schema: { type: integer }, in: query, required: true, description: 'id of publication' }
+        - { name: userId, schema: { type: integer }, in: query, required: true, description: 'id of user' }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
