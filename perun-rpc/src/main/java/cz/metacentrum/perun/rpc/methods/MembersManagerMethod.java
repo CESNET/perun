@@ -1879,11 +1879,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get page of members from the given vo, with the given attributes.
+	 * Query parameter specifies offset, page size, sorting order, sorting column, statuses in vo and string to search
+	 * members by (by default it searches in names, emails, logins of member or other attributes based on perun
+	 * configuration), last two parameters are optional and by default it finds all members.
 	 *
-	 * @param sess session
-	 * @param vo vo
-	 * @param query query with page information
-	 * @param attrNames attribute names
+	 * @param vo int Vo <code>id</code>
+	 * @param query MembersPageQuery Query with page information
+	 * @param attrNames List<String> List of attribute names
 	 *
 	 * @return Paginated<RichMember> page of requested rich members
 	 * @throw VoNotExistsException if there is no such vo

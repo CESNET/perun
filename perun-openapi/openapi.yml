@@ -192,6 +192,8 @@ components:
         offset: { type: integer }
         order: { $ref: '#/components/schemas/SortingOrder' }
         sortColumn: { $ref: '#/components/schemas/MembersOrderColumn' }
+        searchString : { type: string }
+        statuses: { type: array, items: { $ref: '#/components/schemas/VoMemberStatuses' } }
       required:
         - pageSize
         - offset

@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
 
@@ -690,20 +691,72 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	@Override
 	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) {
-		return jdbc.query(
-				"SELECT " + memberMappingSelectQuery +
+
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		String searchStringQueryJoin = "";
+		String searchStringQueryWhere = "";
+
+		if (query.getSearchString() != null && !query.getSearchString().isEmpty()) {
+
+			String userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
+
+			String idQueryString = "";
+			try {
+				int id = Integer.parseInt(query.getSearchString());
+				idQueryString = " members.user_id=" + id + " or members.id=" + id + " or ";
+			} catch (NumberFormatException e) {
+				// IGNORE wrong format of ID
+			}
+
+			Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+			Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
+
+			searchStringQueryJoin = attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
+				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
+				attributesToSearchByQueries.get("uesAttributesQuery").getLeft();
+
+			searchStringQueryWhere = " AND ( LOWER(ues.login_ext) = LOWER(:searchString) OR " +
+				attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
+				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
+				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
+				idQueryString +
+				userNameQueryString +
+				" ) ";
+
+			namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
+		}
+
+		namedParams.addValue("voId", vo.getId());
+		namedParams.addValue("offset", query.getOffset());
+		namedParams.addValue("limit", query.getPageSize());
+
+		String statusesQueryString = "";
+		if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
+			statusesQueryString = " AND members.status in (:statuses) ";
+			List<Integer> statusCodes = query.getStatuses().stream()
+				.map(Status::getCode)
+				.collect(Collectors.toList());
+			namedParams.addValue("statuses", statusCodes);
+		}
+
+		Paginated<Member> members = namedParameterJdbcTemplate.query(
+				"SELECT DISTINCT " + memberMappingSelectQuery +
 				query.getSortColumn().getSqlSelect() +
-				", count(*) OVER() AS total_count" +
+				", DENSE_RANK() OVER (order by members.id) + DENSE_RANK() OVER (ORDER BY members.id DESC) - 1 AS total_count" +
 				" FROM members " +
+				" LEFT JOIN users ON members.user_id=users.id " +
+				" LEFT JOIN user_ext_sources ues ON ues.user_id=users.id " +
 				query.getSortColumn().getSqlJoin() +
-				" WHERE members.vo_id = ?" +
+				searchStringQueryJoin +
+				" WHERE members.vo_id = (:voId) " +
+				statusesQueryString +
+				searchStringQueryWhere +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
-				" OFFSET ?" +
-				" LIMIT ?;",
-				getPaginatedMembersExtractor(query),
-				vo.getId(),
-				query.getOffset(),
-				query.getPageSize());
+				" OFFSET (:offset)" +
+				" LIMIT (:limit)",
+				namedParams, getPaginatedMembersExtractor(query));
+
+		return members;
 	}
 
 	@Override
