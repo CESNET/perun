@@ -1435,7 +1435,7 @@ public class Utils {
 			link.append("&m=");
 			link.append(URLEncoder.encode(m, StandardCharsets.UTF_8));
 			link.append("&u=" + user.getId());
-			if (idp != null) {
+			if (isNotBlank(idp)) {
 				link.append("&idpFilter=");
 				link.append(URLEncoder.encode(idp, StandardCharsets.UTF_8));
 			}
