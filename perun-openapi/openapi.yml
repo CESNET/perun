@@ -680,6 +680,7 @@ components:
         - USERNAME
         - HEADING
         - TIMEZONE
+        - EMBEDDED_GROUP_APPLICATION
 
     ItemTexts:
       type: object
