@@ -1113,23 +1113,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @throw PasswordResetLinkExpiredException when the reset link expired
 	 * @throw PasswordResetLinkNotValidException when the reset link was already used or has never existed
 	 */
-	/*#
-	 * Checks if the password reset request link is valid. The request is valid, if it
-	 * was created, never used and hasn't expired yet.
-	 *
-	 * @deprecated
-	 * @param i String first encrypted parameter
-	 * @param m String second encrypted parameter
-	 * @throw PasswordResetLinkExpiredException When the password reset request expired
-	 * @throw PasswordResetLinkNotValidException When the password reset request was already used or has never existed
-	 */
 	checkPasswordResetRequestIsValid {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("token")) {
 				ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("token"));
-			} else if (parms.contains("i") && parms.contains("m")) {
-				ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("i"), parms.readString("m"));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "token or (i and m)");
 			}
@@ -1152,20 +1140,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @throw PasswordChangeFailedException When password change failed
 	 * @throw PasswordOperationTimeoutException When password change timed out
 	 */
-	/*#
-	 * Changes user's password in namespace based on encrypted input parameters.
-	 *
-	 * @deprecated
-	 * @param i String first encrypted parameter
-	 * @param m String second encrypted parameter
-	 * @param password String new password
-	 * @param lang String language to get notifications in (optional).
-	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
-	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
-	 * @throw PasswordResetLinkExpiredException When the password reset request expired
-	 * @throw PasswordResetLinkNotValidException When the password reset request was already used or has never existed
-	 */
 	changeNonAuthzPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1173,10 +1147,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			if (parms.contains("token")) {
 				ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("token"), parms.readString("password"), (parms.contains("lang") ? parms.readString("lang") : null));
-			} else if (parms.contains("i") && parms.contains("m")) {
-				ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"), (parms.contains("lang") ? parms.readString("lang") : null));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "token or (i and m)");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "token");
 			}
 
 			return null;

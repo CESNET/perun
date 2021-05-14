@@ -727,33 +727,6 @@ public interface UsersManagerImplApi {
 	 * was created, never used and hasn't expired yet.
 	 *
 	 * @param sess PerunSession
-	 * @param user user to check request for
-	 * @param requestId request id to check
-	 * @throws PasswordResetLinkExpiredException when the password reset request expired
-	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
-	 */
-	void checkPasswordResetRequestIsValid(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
-
-	/**
-	 * Return only valid password reset requests for selected user and request ID.
-	 * Validity is determined by time since request creation and actual usage (only once).
-	 *
-	 * If no valid entry is found, exception is thrown. Entry is invalidated once loaded.
-	 *
-	 * @param sess PerunSession
-	 * @param user user to get requests for
-	 * @param request request ID to get
-	 * @return Pair with "left" = namespace user wants to reset password, "right" = mail used for notification
-	 * @throws PasswordResetLinkExpiredException when the password reset request expired
-	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
-	 */
-	Pair<String,String> loadPasswordResetRequest(PerunSession sess, User user, int request) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
-
-	/**
-	 * Checks if the password reset request link is valid. The request is valid, if it
-	 * was created, never used and hasn't expired yet.
-	 *
-	 * @param sess PerunSession
 	 * @param uuid UUID of the request to check
 	 * @throws PasswordResetLinkExpiredException when the password reset request expired
 	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed

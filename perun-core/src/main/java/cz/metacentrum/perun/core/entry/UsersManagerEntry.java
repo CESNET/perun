@@ -1361,34 +1361,6 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	@Deprecated
-	public void checkPasswordResetRequestIsValid(PerunSession sess, String i, String m) throws UserNotExistsException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
-		Utils.checkPerunSession(sess);
-
-		int userId = Integer.parseInt(Utils.cipherInput(i,true));
-		// this will make also "if exists check"
-		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
-
-		getPerunBl().getUsersManagerBl().checkPasswordResetRequestIsValid(sess, user, m);
-	}
-
-	@Override
-	@Deprecated
-	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
-
-		Utils.checkPerunSession(sess);
-
-		if (lang == null || lang.isEmpty()) lang = "en"; // fallback to english
-
-		int userId = Integer.parseInt(Utils.cipherInput(i,true));
-		// this will make also "if exists check"
-		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
-
-		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password, lang);
-
-	}
-
-	@Override
 	public void checkPasswordResetRequestIsValid(PerunSession sess, String token) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(token, "token");
