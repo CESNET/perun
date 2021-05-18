@@ -5,6 +5,7 @@ import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -125,6 +126,7 @@ public class RequestPreferredEmailChange {
 		if ("default".equals(locale)) locale = "en";
 		jsonQuery.put("lang", new JSONString(locale));
 		jsonQuery.put("linkPath", new JSONString("/"+PerunWebSession.getInstance().getRpcServer() + "/gui/"));
+		jsonQuery.put("customUrl", new JSONString(Window.Location.getProtocol() + "//" + Window.Location.getHostName()));
 		return jsonQuery;
 	}
 
