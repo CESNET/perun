@@ -1346,6 +1346,19 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public String validatePreferredEmailChange(PerunSession sess, User user, String token) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "validatePreferredEmailChange_User_String_policy", user)) {
+			throw new PrivilegeException(sess, "validatePreferredEmailChange");
+		}
+
+		return getPerunBl().getUsersManagerBl().validatePreferredEmailChange(sess, user, token);
+	}
+
+	@Override
 	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException {
 
 		Utils.checkPerunSession(sess);

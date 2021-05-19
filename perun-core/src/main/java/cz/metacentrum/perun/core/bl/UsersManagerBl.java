@@ -1300,6 +1300,23 @@ public interface UsersManagerBl {
 	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Validate change of user's preferred email address.
+	 * New email address is set as value of
+	 * urn:perun:user:attribute-def:def:preferredEmail attribute.
+	 *
+	 * @param sess PerunSession
+	 * @param user User to validate email address for
+	 * @param token token for the email change request to validate
+	 * @return String return new preferred email
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException          If new email address is in wrong format
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException           If user:preferredEmail attribute doesn't exists.
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	String validatePreferredEmailChange(PerunSession sess, User user, String token) throws WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Return list of email addresses of user, which are
 	 * awaiting validation and are inside time window
 	 * for validation.

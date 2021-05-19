@@ -1001,17 +1001,16 @@ public class Utils {
 
 	/**
 	 * Send validation email related to requested change of users preferred email.
-	 *
 	 * @param user user to change preferred email for
 	 * @param url base URL of running perun instance passed from RPC
 	 * @param email new email address to send notification to
-	 * @param changeId ID of change request in DB
+	 * @param changeUuid UUID of change request in DB
 	 * @param subject Template subject or null
 	 * @param content Template message or null
 	 * @param customUrlPath custom path to be used in generated URL
 	 * @param idp Authentication to be added as query parameter in generated URL
 	 */
-	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content, String customUrlPath, String idp) {
+	public static void sendValidationEmail(User user, String url, String email, UUID changeUuid, String subject, String content, String customUrlPath, String idp) {
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		// use default if unknown rpc path
@@ -1044,7 +1043,7 @@ public class Utils {
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
 		}
-		String validationLink = prepareValidationLinkForEmailChange(url, linkLocation, changeId, user, idp);
+		String validationLink = prepareValidationLinkForEmailChange(url, linkLocation, changeUuid, user, idp);
 
 		String defaultSubject = "["+instanceName+"] New email address verification";
 		String defaultBody = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+"."+
@@ -1406,20 +1405,16 @@ public class Utils {
 	 *
 	 * @param url base URL of Perun instance
 	 * @param linkLocation location of validation link under specific Perun instance (for example '/non/pwd-reset/')
-	 * @param changeId ID of request
+	 * @param changeUuid UUID of request
 	 * @param user user to who link will be send
 	 * @param idp authentication method for query parameter
 	 *
 	 * @return link of validation as String
 	 */
-	private static String prepareValidationLinkForEmailChange(String url, String linkLocation, int changeId, User user, String idp) {
+	private static String prepareValidationLinkForEmailChange(String url, String linkLocation, UUID changeUuid, User user, String idp) {
 		notNull(user, "user");
 		notNull(url, "url");
 		notNull(linkLocation, "linkLocation");
-
-		// prepare arguments
-		String i = Integer.toString(changeId, Character.MAX_RADIX);
-		String m = Utils.getMessageAuthenticationCode(i);
 
 		StringBuilder link = new StringBuilder();
 
@@ -1430,10 +1425,8 @@ public class Utils {
 			link.append("://");
 			link.append(urlObject.getHost());
 			link.append(linkLocation);
-			link.append("?i=");
-			link.append(URLEncoder.encode(i, StandardCharsets.UTF_8));
-			link.append("&m=");
-			link.append(URLEncoder.encode(m, StandardCharsets.UTF_8));
+			link.append("?token=");
+			link.append(URLEncoder.encode(changeUuid.toString(), StandardCharsets.UTF_8));
 			link.append("&u=" + user.getId());
 			if (isNotBlank(idp)) {
 				link.append("&idpFilter=");
