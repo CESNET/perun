@@ -11507,48 +11507,6 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/groupsManager/getGroupsToAutoRegistration:
-    get:
-      tags:
-        - GroupsManager
-      operationId: getGroupsToAutoRegistration
-      summary: Returns all groups which can be registered into during vo registration.
-      parameters:
-        - $ref: '#/components/parameters/voId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfGroupsResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/groupsManager/deleteGroupsFromAutoRegistration:
-    post:
-      tags:
-        - GroupsManager
-      operationId: deleteGroupsFromAutoRegistration
-      summary: Deletes groups from a list of groups which can be registered into during vo registration.
-      parameters:
-        - $ref: '#/components/parameters/groupIds'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/groupsManager/addGroupsToAutoRegistration:
-    post:
-      tags:
-        - GroupsManager
-      operationId: addGroupsToAutoRegistration
-      summary: Adds groups to a list of groups which can be registered into during vo registration.
-      parameters:
-        - $ref: '#/components/parameters/groupIds'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
   /json/groupsManager/getIndirectMembershipPaths:
     get:
       tags:
@@ -14178,6 +14136,48 @@ paths:
               properties:
                 app: { $ref: '#/components/schemas/Application' }
                 data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+
+  /json/registrarManager/getGroupsToAutoRegistration:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getGroupsToAutoRegistration
+      summary: Returns all groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/deleteGroupsFromAutoRegistration:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteGroupsFromAutoRegistration
+      summary: Deletes groups from a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/addGroupsToAutoRegistration:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: addGroupsToAutoRegistration
+      summary: Adds groups to a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #

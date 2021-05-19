@@ -39,6 +39,7 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.CS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.EN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -584,7 +585,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		groupsManager.createGroup(session, vo, group1);
 		groupsManager.createGroup(session, vo, group2);
 
-		groupsManager.addGroupsToAutoRegistration(session, List.of(group1, group2));
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group1, group2));
 
 		// create user
 		User user = new User(-1, "Jo", "Doe", "", "", "");
@@ -629,9 +630,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		// create groups in VO
 		Group group = new Group("GroupA", "Cool folks");
 		groupsManager.createGroup(session, vo, group);
-		groupsManager.addGroupsToAutoRegistration(session, List.of(group));
-
-		registrarManager.createApplicationFormInGroup(session, group);
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group));
 
 		// allow auto-approve
 		ApplicationForm groupForm = registrarManager.getFormForGroup(group);
@@ -673,8 +672,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		// create group in VO, generate group application form
 		Group group1 = new Group("GroupA", "Cool folks");
 		groupsManager.createGroup(session, vo, group1);
-		registrarManager.createApplicationFormInGroup(session, group1);
-		groupsManager.addGroupsToAutoRegistration(session, List.of(group1));
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group1));
 
 		// create user
 		User user = new User(-1, "Jo", "Doe", "", "", "");
@@ -729,6 +727,15 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertThrows(MultipleApplicationFormItemsException.class, () -> {
 			registrarManager.addFormItem(session, form, embeddedGroupsItem2);
 		});
+	}
+
+	@Test
+	public void addGroupsToAutoRegistration_emptyFormExpectedToBeCreated() throws PerunException {
+		Group group1 = new Group("GroupA", "Cool folks");
+		perun.getGroupsManager().createGroup(session, vo, group1);
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group1));
+
+		assertNotNull(registrarManager.getFormForGroup(group1));
 	}
 
 	/*

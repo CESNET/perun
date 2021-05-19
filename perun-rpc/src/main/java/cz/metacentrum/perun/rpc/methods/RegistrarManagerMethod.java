@@ -1354,6 +1354,72 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			return null;
 		}
 
+	},
+	/*#
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @throw VoNotExistsException When the vo doesn't exist
+	 *
+	 * @param vo int vo <code>id</code>
+	 * @return List<Group> list of groups
+	 */
+	getGroupsToAutoRegistration {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getRegistrarManager().getGroupsForAutoRegistration(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
+	 * Deletes groups from a list of groups which can be registered into during vo registration.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param ids List<Integer> list of groups IDs
+	 */
+	deleteGroupsFromAutoRegistration {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			List<Integer> groupsInts = parms.readList("groups", Integer.class);
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupInt : groupsInts) {
+				groups.add(ac.getGroupById(groupInt));
+			}
+
+			ac.getRegistrarManager().deleteGroupsFromAutoRegistration(ac.getSession(),
+				groups);
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Adds groups to a list of groups which can be registered into during vo registration.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupNotAllowedToAutoRegistrationException When given group cannot be added to auto registration
+	 *
+	 * @param ids List<Integer> list of groups IDs
+	 */
+	addGroupsToAutoRegistration {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			List<Integer> groupsInts = parms.readList("groups", Integer.class);
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupInt : groupsInts) {
+				groups.add(ac.getGroupById(groupInt));
+			}
+
+			ac.getRegistrarManager().addGroupsToAutoRegistration(ac.getSession(),
+				groups);
+
+			return null;
+		}
 	};
 
 }

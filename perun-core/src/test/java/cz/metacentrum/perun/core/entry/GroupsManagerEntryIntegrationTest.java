@@ -5067,9 +5067,9 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Vo vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
 
-		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
+		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group));
 
-		assertEquals(Arrays.asList(group), groupsManager.getGroupsForAutoRegistration(sess, vo));
+		assertEquals(Arrays.asList(group), groupsManagerBl.getGroupsForAutoRegistration(sess, vo));
 	}
 
 	@Test
@@ -5079,11 +5079,11 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Vo vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
 
-		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
-		assertEquals(Arrays.asList(group), groupsManager.getGroupsForAutoRegistration(sess, vo));
+		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group));
+		assertEquals(Arrays.asList(group), groupsManagerBl.getGroupsForAutoRegistration(sess, vo));
 
-		groupsManager.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
-		assertEquals(Collections.emptyList(), groupsManager.getGroupsForAutoRegistration(sess, vo));
+		groupsManagerBl.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
+		assertEquals(Collections.emptyList(), groupsManagerBl.getGroupsForAutoRegistration(sess, vo));
 	}
 
 	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
@@ -5093,7 +5093,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Vo vo = setUpVo();
 		Group membersGroup = perun.getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
 
-		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(membersGroup));
+		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(membersGroup));
 	}
 
 	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
@@ -5121,7 +5121,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		synchroAttr4.setValue("true");
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr4);
 
-		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
+		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group));
 	}
 
 	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
@@ -5150,7 +5150,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		synchroAttr4.setValue(true);
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr4);
 
-		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group2));
+		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group2));
 	}
 
 	@Test
@@ -5247,7 +5247,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroup(sess, vo, group);
 		assertFalse(groupsManagerBl.isGroupForAutoRegistration(sess, group));
 
-		groupsManager.addGroupsToAutoRegistration(sess, Collections.singletonList(group));
+		groupsManagerBl.addGroupsToAutoRegistration(sess, Collections.singletonList(group));
 		assertTrue(groupsManagerBl.isGroupForAutoRegistration(sess, group));
 	}
 
