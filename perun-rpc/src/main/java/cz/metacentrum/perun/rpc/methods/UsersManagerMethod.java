@@ -1312,7 +1312,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing \"Referer\" header in HTTP request and no custom verification link specified.");
 			}
 
-			if (customUrl != null) {
+			if (customUrl != null) { // customUrl option
 				URL url = null;
 				try {
 					url = new URL(customUrl);
@@ -1321,6 +1321,17 @@ public enum UsersManagerMethod implements ManagerMethod {
 				}
 				referer = customUrl;
 				customPath = url.getPath();
+			} else if (customPath != null) { // referer + linkPath option
+				// check that path won't change domain of the url (security risk)
+				try {
+					URL refUrl = new URL(referer);
+					URL refDomainWithPath = new URL(refUrl.getProtocol()+"://"+refUrl.getHost()+customPath);
+					if (!refUrl.getHost().equals(refDomainWithPath.getHost())) {
+						throw new RpcException(RpcException.Type.INVALID_URL, "Invalid verification link - path changes domain: " + refDomainWithPath);
+					}
+				} catch (MalformedURLException e) {
+					throw new RpcException(RpcException.Type.INVALID_URL, "Invalid referer or path.");
+				}
 			}
 
 			ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
