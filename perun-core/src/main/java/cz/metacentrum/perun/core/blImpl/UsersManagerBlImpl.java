@@ -1636,7 +1636,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path, String idp) {
 
-		int changeId = getUsersManagerImpl().requestPreferredEmailChange(sess, user, email);
+		UUID changeUuid = getUsersManagerImpl().requestPreferredEmailChange(sess, user, email);
 
 		if (lang == null || lang.isEmpty()) lang = "en";
 
@@ -1668,7 +1668,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		Utils.sendValidationEmail(user, url, email, changeId, subject, message, path, idp);
+		Utils.sendValidationEmail(user, url, email, changeUuid, subject, message, path, idp);
 
 	}
 
@@ -1688,6 +1688,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		return email;
 
+	}
+
+	@Override
+	public String validatePreferredEmailChange(PerunSession sess, User user, String token) throws WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
+		String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, UUID.fromString(token));
+
+		AttributeDefinition def = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
+		Attribute a = new Attribute(def);
+		a.setValue(email);
+
+		// store attribute
+		getPerunBl().getAttributesManagerBl().setAttribute(sess, user, a);
+
+		getUsersManagerImpl().removeAllPreferredEmailChangeRequests(sess, user);
+
+		return email;
 	}
 
 	@Override

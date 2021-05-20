@@ -680,9 +680,9 @@ public interface UsersManagerImplApi {
 	 * @param user
 	 * @param email
 	 * @throws InternalErrorException
-	 * @return ID of change request
+	 * @return UUID of change request
 	 */
-	int requestPreferredEmailChange(PerunSession sess, User user, String email);
+	UUID requestPreferredEmailChange(PerunSession sess, User user, String email);
 
 	/**
 	 * Get new preferred email value from user's original request
@@ -695,6 +695,17 @@ public interface UsersManagerImplApi {
 	 * @return String return new preferred email
 	 */
 	String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m);
+
+	/**
+	 * Get new preferred email value from user's original request
+	 *
+	 * @param sess PerunSession
+	 * @param user User to get new email address for
+	 * @param uuid UUID of the email change request
+	 * @throws InternalErrorException
+	 * @return String return new preferred email
+	 */
+	String getPreferredEmailChangeRequest(PerunSession sess, User user, UUID uuid);
 
 	/**
 	 * Removes all mail change requests related to user.
