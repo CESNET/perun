@@ -186,6 +186,13 @@ components:
         - ID
         - NAME
 
+    MemberGroupStatus:
+      type: string
+      description: 'statuses of a member in a group'
+      enum:
+        - VALID
+        - EXPIRED
+
     MembersPageQuery:
       properties:
         pageSize: { type: integer }
@@ -194,6 +201,8 @@ components:
         sortColumn: { $ref: '#/components/schemas/MembersOrderColumn' }
         searchString : { type: string }
         statuses: { type: array, items: { $ref: '#/components/schemas/VoMemberStatuses' } }
+        group: { $ref: '#/components/schemas/Group' }
+        groupStatuses: { type: array, items: { $ref: '#/components/schemas/MemberGroupStatus' } }
       required:
         - pageSize
         - offset

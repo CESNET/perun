@@ -739,6 +739,23 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			namedParams.addValue("statuses", statusCodes);
 		}
 
+		String groupQueryJoin = "";
+		String groupQueryWhere = "";
+		String groupStatusesQueryString = "";
+		if (query.getGroup() != null) {
+			groupQueryJoin = " LEFT JOIN groups_members ON members.id=groups_members.member_id ";
+			groupQueryWhere = " AND groups_members.group_id = (:groupId) ";
+			namedParams.addValue("groupId", query.getGroup().getId());
+
+			if (query.getGroupStatuses() != null && !query.getGroupStatuses().isEmpty()) {
+				groupStatusesQueryString = " AND groups_members.source_group_status in (:groupStatuses) ";
+				List<Integer> groupStatusCodes = query.getGroupStatuses().stream()
+					.map(MemberGroupStatus::getCode)
+					.collect(Collectors.toList());
+				namedParams.addValue("groupStatuses", groupStatusCodes);
+			}
+		}
+
 		Paginated<Member> members = namedParameterJdbcTemplate.query(
 				"SELECT DISTINCT " + memberMappingSelectQuery +
 				query.getSortColumn().getSqlSelect() +
@@ -747,9 +764,12 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				" LEFT JOIN users ON members.user_id=users.id " +
 				" LEFT JOIN user_ext_sources ues ON ues.user_id=users.id " +
 				query.getSortColumn().getSqlJoin() +
+				groupQueryJoin +
 				searchStringQueryJoin +
 				" WHERE members.vo_id = (:voId) " +
 				statusesQueryString +
+				groupQueryWhere +
+				groupStatusesQueryString +
 				searchStringQueryWhere +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +

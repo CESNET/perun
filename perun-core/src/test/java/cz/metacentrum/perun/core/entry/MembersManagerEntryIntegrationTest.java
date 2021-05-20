@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembersOrderColumn;
@@ -2738,6 +2739,82 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 			.containsExactly(member3.getId(), member1.getId());
 
 		query.setSearchString("barn");
+
+		result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+
+		returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member2.getId());
+	}
+
+	@Test
+	public void getGroupMembersPage() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersPage");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("test", "testPaginationInGroup"));
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		Member member2 = setUpMember(vo, "Stinson", "Barney");
+		Member member3 = setUpMember(vo, "Doe", "Jane");
+
+		perun.getGroupsManager().addMember(sess, group, member1);
+		perun.getGroupsManager().addMember(sess, group, member3);
+
+		MembersPageQuery query = new MembersPageQuery(3, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "doe", List.of(), group, List.of());
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member3.getId(), member1.getId());
+
+		query.setSearchString("barn");
+
+		result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+
+		returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.isEmpty();
+	}
+
+	@Test
+	public void getGroupMembersPageOnGroupStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersPageOnGroupStatuses");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("test", "testPaginationInGroup"));
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		Member member2 = setUpMember(vo, "Stinson", "Barney");
+
+		perun.getGroupsManager().addMember(sess, group, member1);
+		perun.getGroupsManager().addMember(sess, group, member2);
+
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.VALID);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
+
+		MembersPageQuery query = new MembersPageQuery(3, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "", List.of(), group, List.of(MemberGroupStatus.VALID));
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member1.getId());
+
+		query.setGroupStatuses(List.of(MemberGroupStatus.EXPIRED));
 
 		result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
 

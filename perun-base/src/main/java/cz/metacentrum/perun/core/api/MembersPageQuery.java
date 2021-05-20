@@ -14,6 +14,8 @@ public class MembersPageQuery {
 	private MembersOrderColumn sortColumn;
 	private String searchString = "";
 	private List<Status> statuses;
+	private Group group;
+	private List<MemberGroupStatus> groupStatuses;
 
 	public MembersPageQuery() { }
 	public MembersPageQuery(int pageSize, int offset, SortingOrder sortingOrder, MembersOrderColumn sortColumn) {
@@ -46,6 +48,17 @@ public class MembersPageQuery {
 		this.order = sortingOrder;
 		this.sortColumn = sortColumn;
 		this.statuses = statuses;
+	}
+
+	public MembersPageQuery(int pageSize, int offset, SortingOrder order, MembersOrderColumn sortColumn, String searchString, List<Status> statuses, Group group, List<MemberGroupStatus> groupStatuses) {
+		this.pageSize = pageSize;
+		this.offset = offset;
+		this.order = order;
+		this.sortColumn = sortColumn;
+		this.searchString = searchString;
+		this.statuses = statuses;
+		this.group = group;
+		this.groupStatuses = groupStatuses;
 	}
 
 	public int getPageSize() {
@@ -96,6 +109,22 @@ public class MembersPageQuery {
 		this.statuses = statuses;
 	}
 
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+
+	public List<MemberGroupStatus> getGroupStatuses() {
+		return groupStatuses;
+	}
+
+	public void setGroupStatuses(List<MemberGroupStatus> groupStatuses) {
+		this.groupStatuses = groupStatuses;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -108,6 +137,8 @@ public class MembersPageQuery {
 		if (getOrder() != that.getOrder()) return false;
 		if (getSortColumn() != that.getSortColumn()) return false;
 		if (!getSearchString().equals(that.getSearchString())) return false;
+		if (getGroup() != that.getGroup()) return false;
+		if (getGroupStatuses() != that.getGroupStatuses()) return false;
 		return getStatuses() != that.getStatuses();
 	}
 
@@ -119,6 +150,8 @@ public class MembersPageQuery {
 		result = 31 * result + (getSortColumn() != null ? getSortColumn().hashCode() : 0);
 		result = 31 * result + (getSearchString() != null ? getSearchString().hashCode() : 0);
 		result = 31 * result + (getStatuses() != null ? getStatuses().hashCode() : 0);
+		result = 31 * result + (getGroup() != null ? getGroup().hashCode() : 0);
+		result = 31 * result + (getGroupStatuses() != null ? getGroupStatuses().hashCode() : 0);
 		return result;
 	}
 }
