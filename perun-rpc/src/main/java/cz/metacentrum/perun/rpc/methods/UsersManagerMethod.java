@@ -1320,7 +1320,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 					throw new RpcException(RpcException.Type.INVALID_URL, "Invalid custom verification link.");
 				}
 				referer = customUrl;
-				customPath = url.getPath();
+				if (customPath == null) {
+					customPath = url.getPath();
+				}
 			}
 
 			ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
