@@ -16,8 +16,6 @@ import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
-import cz.metacentrum.perun.webgui.json.groupsManager.AddAutoRegGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.RemoveGroupsFromAutoRegistration;
 import cz.metacentrum.perun.webgui.model.ApplicationForm;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
