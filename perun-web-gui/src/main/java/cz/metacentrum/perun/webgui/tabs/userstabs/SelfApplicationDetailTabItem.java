@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
@@ -12,6 +13,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationDataById;
 import cz.metacentrum.perun.webgui.model.Application;
+import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.*;
 
@@ -91,7 +93,7 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		vp.setSize("100%", "100%");
 
 		String header = "<h2>";
-		if (application.getType().equalsIgnoreCase("INITIAL")) {
+		if (application.getType().equalsIgnoreCase("INITIAL") || application.getType().equalsIgnoreCase("EMBEDDED")) {
 			header += "Initial application for ";
 		} else {
 			header += "Extension application for ";
@@ -115,10 +117,31 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
 
-		GetApplicationDataById data = new GetApplicationDataById(applicationId);
-		data.setShowAdminItems(false);
-		data.retrieveData();
-		sp.setWidget(data.getContents());
+		if (application.getType().equalsIgnoreCase("EMBEDDED")) {
+			final FlexTable ft = new FlexTable();
+			ft.setCellSpacing(5);
+			String userName = application.getUser().getFullNameWithTitles();
+			if (userName != null) {
+				ft.setHTML(0, 0, "<strong>Name:</strong> " + SafeHtmlUtils.fromString(userName).asString());
+			}
+			new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, application.getUser().getId(), new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					User user = jso.cast();
+					Attribute preferredMail = user.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
+					if (preferredMail != null) {
+						ft.setHTML(1, 0, "<strong>Preferred mail:</strong> " + SafeHtmlUtils.fromString(preferredMail.getValue()).asString());
+					}
+				}
+			}).retrieveData();
+			sp.setWidget(ft);
+		} else {
+			GetApplicationDataById data = new GetApplicationDataById(applicationId);
+			data.setShowAdminItems(false);
+			data.retrieveData();
+			sp.setWidget(data.getContents());
+		}
+
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
 		this.contentWidget.setWidget(vp);
