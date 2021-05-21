@@ -473,7 +473,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 		if (writable) {
 			return "<input type=\"checkbox\" class=\"checkbox-value gwt-CheckBox\" " + value + " />";
 		} else {
-			return "<input title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly type=\"checkbox\" class=\"checkbox-value gwt-CheckBox gwt-CheckBox-readonly\" " + value + " />";
+			return "<input title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly disabled=\"disabled\" type=\"checkbox\" class=\"checkbox-value gwt-CheckBox gwt-CheckBox-readonly\" " + value + " />";
 		}
 
 	}
