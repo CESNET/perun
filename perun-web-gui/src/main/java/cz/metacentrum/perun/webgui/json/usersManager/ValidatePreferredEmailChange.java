@@ -1,10 +1,13 @@
 package cz.metacentrum.perun.webgui.json.usersManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
@@ -26,6 +29,7 @@ public class ValidatePreferredEmailChange implements JsonCallback {
 	// data
 	private String i = "";
 	private String m = "";
+	private String token = "";
 	private int u = 0;
 	private boolean hidden = false;
 
@@ -57,6 +61,30 @@ public class ValidatePreferredEmailChange implements JsonCallback {
 		this.u = u;
 	}
 
+	/**
+	 * Creates a new request
+	 *
+	 * @param token parameter for request validation
+	 * @param u user ID to request validation for
+	 */
+	public ValidatePreferredEmailChange(String token, int u) {
+		this.token = token;
+		this.u = u;
+	}
+
+	/**
+	 * Creates a new request with custom events
+	 *
+	 * @param token parameter for request validation
+	 * @param u user ID to request validation for
+	 * @param events Custom events
+	 */
+	public ValidatePreferredEmailChange(String token, int u, JsonCallbackEvents events) {
+		this.events = events;
+		this.token = token;
+		this.u = u;
+	}
+
 	public void onFinished(JavaScriptObject jso) {
 		events.onFinished(jso);
 	}
@@ -71,13 +99,18 @@ public class ValidatePreferredEmailChange implements JsonCallback {
 
 	public void retrieveData() {
 
-		String params = "";
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("u", new JSONNumber(u));
+		if (!token.isEmpty()) {
+			jsonQuery.put("token", new JSONString(token));
+		} else {
+			jsonQuery.put("i", new JSONString(i));
+			jsonQuery.put("m", new JSONString(m));
+		}
 
-		params += "i="+i+"&m="+m+"&u="+u;
-
-		JsonClient client = new JsonClient();
+		JsonPostClient client = new JsonPostClient(events);
 		client.setHidden(hidden);
-		client.retrieveData(JSON_URL, params, this);
+		client.sendData(JSON_URL, jsonQuery);
 
 	}
 
