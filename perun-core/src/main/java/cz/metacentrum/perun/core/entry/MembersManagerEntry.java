@@ -1570,7 +1570,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		if (!AuthzResolver.authorizedInternal(sess, "getMembersPage_Vo_MembersPageQuery_List<String>_policy", vo)
-			&& (query.getGroup() != null && !AuthzResolver.authorizedInternal(sess, "group-getMembersPage_Vo_MembersPageQuery_List<String>_policy", query.getGroup()))) {
+			&& (query.getGroup() == null || !AuthzResolver.authorizedInternal(sess, "group-getMembersPage_Vo_MembersPageQuery_List<String>_policy", query.getGroup()))) {
 			throw new PrivilegeException(sess, "getMembersPage");
 		}
 
