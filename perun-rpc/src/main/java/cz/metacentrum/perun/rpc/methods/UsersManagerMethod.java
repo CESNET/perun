@@ -1288,6 +1288,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Request to change preferred email address of user.
 	 * Validation mail is sent on new address.
 	 *
+	 * Combination of customUrl and linkPath is NOT supported.
+	 * Referer+linkPath option will be removed in the future.
+	 *
 	 * Change is not saved until user validate new email address
 	 * by calling validatePreferredEmailChange() method with
 	 * proper set of parameters (sent in validation mail).
@@ -1295,8 +1298,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param email String new email address to set
 	 * @param lang String language to get confirmation mail in (optional)
-	 * @param linkPath path that is appended to the url of the verification link (optional)
-	 * @param customUrl url to verification link (optional)
+	 * @param linkPath path that is appended to the referer and creates the verification link (optional)
+	 * @param customUrl url to verification link containing path (optional)
 	 * @param idpFiler authentication method appended to query parameters of verification link (optional)
 	 */
 	requestPreferredEmailChange {
