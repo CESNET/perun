@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.groupsManager;
+package cz.metacentrum.perun.webgui.json.registrarManager;
 
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -42,7 +42,7 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 	// VO id
 	private int voId;
 	// JSON URL
-	static private final String JSON_URL = "groupsManager/getGroupsToAutoRegistration";
+	static private final String JSON_URL = "registrarManager/getGroupsToAutoRegistration";
 	// Selection model
 	final MultiSelectionModel<Group> selectionModel = new MultiSelectionModel<Group>(new GeneralKeyProvider<Group>());
 	// Groups table data provider

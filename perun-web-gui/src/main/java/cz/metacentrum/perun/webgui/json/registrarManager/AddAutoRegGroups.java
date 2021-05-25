@@ -1,5 +1,6 @@
-package cz.metacentrum.perun.webgui.json.groupsManager;
+package cz.metacentrum.perun.webgui.json.registrarManager;
 
+import com.google.gson.JsonArray;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
@@ -7,72 +8,58 @@ import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Ajax query to delete selected groups
- *
  * @author vojtech sassmann
  */
-public class RemoveGroupsFromAutoRegistration {
+public class AddAutoRegGroups {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Json URL
-	static private final String JSON_URL = "groupsManager/deleteGroupsFromAutoRegistration";
+	static private final String JSON_URL = "registrarManager/addGroupsToAutoRegistration";
 
-	/**
-	 * New instance of callback
-	 */
-	public RemoveGroupsFromAutoRegistration() {}
-
-	/**
-	 * New instance of callback with external events
-	 *
-	 * @param events external events
-	 */
-	public RemoveGroupsFromAutoRegistration(JsonCallbackEvents events) {
+	public AddAutoRegGroups(JsonCallbackEvents events) {
 		this.events = events;
 	}
 
-	public void deleteGroups(final ArrayList<? extends Group> groups) {
-
+	public void setAutoRegGroups(final List<Group> groups) {
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
-
-		JSONArray grps = new JSONArray();
-		for (int i=0; i<groups.size(); i++) {
-			grps.set(i, new JSONNumber(groups.get(i).getId()));
+		JSONArray groupIds = new JSONArray();
+		for (int i = 0; i < groups.size(); i++) {
+			Group group = groups.get(i);
+			groupIds.set(i, new JSONNumber(group.getId()));
 		}
-
-		jsonQuery.put("groups", grps);
+		jsonQuery.put("groups", groupIds);
 
 		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Failed to remove groups from auto registration.");
+				session.getUiElements().setLogErrorText("Failed to add groups to auto registration.");
 				events.onError(error);
-			};
+			}
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Groups successfully removed from auto registration!");
+				session.getUiElements().setLogSuccessText("Groups successfully added to auto registration!");
 				events.onFinished(jso);
-			};
+			}
 
 			public void onLoadingStart() {
 				events.onLoadingStart();
-			};
+			}
 		};
 
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, jsonQuery);
-
 	}
 
 }
