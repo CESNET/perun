@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -423,9 +423,16 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void checkDestinationValidTilde() {
-		System.out.println("Utils.checkDestinationValidTilde");
+	public void checkDestinationValid_hyphen() {
+		System.out.println("Utils.checkDestinationValid_hyphen");
+		destination.setDestination("https://dudo-du.dudo.du.do/perun/upload");
+  
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
 
+  @Test
+  public void checkDestinationValidTilde() {
+		System.out.println("Utils.checkDestinationValidTilde");
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONURLTYPE);
 
@@ -524,6 +531,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		destination.setType(Destination.DESTINATIONURLTYPE);
 
 		destination.setDestination("https://2187.net");
+
 		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
 	}
 

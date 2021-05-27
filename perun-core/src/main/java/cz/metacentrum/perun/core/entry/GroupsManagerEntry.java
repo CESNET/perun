@@ -1445,55 +1445,6 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getGroupsForAutoRegistration_Vo_policy", vo)) {
-			throw new PrivilegeException(sess, "getGroupsForAutoRegistration");
-		}
-
-		return getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo);
-	}
-
-	@Override
-	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-
-		for(Group group : groups) {
-			getGroupsManagerBl().checkGroupExists(sess, group);
-		}
-
-		//Authorization
-		for (Group group : groups) {
-			if(!AuthzResolver.authorizedInternal(sess, "deleteGroupsFromAutoRegistration_List<Group>_policy", group)) {
-				throw new PrivilegeException(sess, "deleteGroupsFromAutoRegistration");
-			}
-		}
-
-		getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, groups);
-	}
-
-	@Override
-	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException {
-		Utils.checkPerunSession(sess);
-
-		for(Group group : groups) {
-			getGroupsManagerBl().checkGroupExists(sess, group);
-		}
-
-		//Authorization
-		for (Group group : groups) {
-			if(!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_List<Group>_policy", group)) {
-				throw new PrivilegeException(sess, "addGroupsToAutoRegistration");
-			}
-		}
-
-		getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
-	}
-
-	@Override
 	public List<List<Group>> getIndirectMembershipPaths(PerunSession sess, Member member, Group group) throws MemberNotExistsException, GroupNotExistsException, PrivilegeException {
 
 		Utils.checkPerunSession(sess);

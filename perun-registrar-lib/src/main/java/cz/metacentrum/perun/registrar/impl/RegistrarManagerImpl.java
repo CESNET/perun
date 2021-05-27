@@ -1660,7 +1660,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				groupApplication.setExtSourceName(app.getExtSourceName());
 				groupApplication.setExtSourceType(app.getExtSourceType());
 				groupApplication.setCreatedBy("Automatically generated");
-				try {
+				try { // this was moved to addGroupsToAutoRegistration, remove this later to avoid inconsistency
 					getFormForGroup(group);
 				} catch (FormNotExistsException e) {
 					createApplicationFormInGroup(sess, group);
@@ -3159,6 +3159,65 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 		return resultApps;
+	}
+
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		perun.getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsForAutoRegistration_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getGroupsForAutoRegistration");
+		}
+
+		return perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo);
+	}
+
+	@Override
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		for(Group group : groups) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if(!AuthzResolver.authorizedInternal(sess, "deleteGroupsFromAutoRegistration_List<Group>_policy", group)) {
+				throw new PrivilegeException(sess, "deleteGroupsFromAutoRegistration");
+			}
+		}
+
+		perun.getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, groups);
+	}
+
+	@Override
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException {
+		Utils.checkPerunSession(sess);
+
+		for(Group group : groups) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if(!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_List<Group>_policy", group)) {
+				throw new PrivilegeException(sess, "addGroupsToAutoRegistration");
+			}
+		}
+
+		// Create application form if non exists
+		for (Group group : groups) {
+			try {
+				getFormForGroup(group);
+			} catch (FormNotExistsException e) {
+				createApplicationFormInGroup(sess, group);
+			}
+		}
+
+		perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
 	}
 
 	/**

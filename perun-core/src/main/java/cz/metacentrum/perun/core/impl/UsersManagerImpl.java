@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -1204,19 +1203,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public int requestPreferredEmailChange(PerunSession sess, User user, String email) {
-
-		int id = Utils.getNewId(jdbc, "mailchange_id_seq");
-
+	public UUID requestPreferredEmailChange(PerunSession sess, User user, String email) {
 		try {
-			jdbc.update("insert into mailchange(id, value, user_id, created_by, created_by_uid) values (?,?,?,?,?) ",
-					id, email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+			return jdbc.queryForObject("insert into mailchange(id, value, user_id, created_by, created_by_uid) " +
+					"values (nextval('mailchange_id_seq'),?,?,?,?) returning uu_id", UUID.class,
+					email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-
-		return id;
-
 	}
 
 	@Override
@@ -1236,6 +1230,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		return newEmail;
 
+	}
+
+	@Override
+	public String getPreferredEmailChangeRequest(PerunSession sess, User user, UUID uuid) {
+		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
+
+		// get new email if possible
+		String newEmail;
+		try {
+			newEmail = jdbc.queryForObject("select value from mailchange where uu_id=? and user_id=? and (created_at > (now() - interval '"+validWindow+" hours'))",
+				String.class, uuid, user.getId());
+		} catch (EmptyResultDataAccessException ex) {
+			throw new InternalErrorException("Preferred mail change request with UUID="+uuid+" doesn't exists or isn't valid anymore.");
+		}
+
+		return newEmail;
 	}
 
 	@Override

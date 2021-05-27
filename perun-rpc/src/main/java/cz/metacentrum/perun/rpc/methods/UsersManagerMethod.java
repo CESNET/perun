@@ -1288,6 +1288,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Request to change preferred email address of user.
 	 * Validation mail is sent on new address.
 	 *
+	 * Combination of customUrl and linkPath is NOT supported.
+	 * Referer+linkPath option will be removed in the future.
+	 *
 	 * Change is not saved until user validate new email address
 	 * by calling validatePreferredEmailChange() method with
 	 * proper set of parameters (sent in validation mail).
@@ -1295,8 +1298,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param email String new email address to set
 	 * @param lang String language to get confirmation mail in (optional)
-	 * @param linkPath path that is appended to the url of the verification link (optional)
-	 * @param customUrl url to verification link (optional)
+	 * @param linkPath path that is appended to the referer and creates the verification link (optional)
+	 * @param customUrl url to verification link containing path (optional)
 	 * @param idpFiler authentication method appended to query parameters of verification link (optional)
 	 */
 	requestPreferredEmailChange {
@@ -1312,7 +1315,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing \"Referer\" header in HTTP request and no custom verification link specified.");
 			}
 
-			if (customUrl != null) {
+			if (customUrl != null) { // customUrl option
 				URL url = null;
 				try {
 					url = new URL(customUrl);
@@ -1321,6 +1324,17 @@ public enum UsersManagerMethod implements ManagerMethod {
 				}
 				referer = customUrl;
 				customPath = url.getPath();
+			} else if (customPath != null) { // referer + linkPath option
+				// check that path won't change domain of the url (security risk)
+				try {
+					URL refUrl = new URL(referer);
+					URL refDomainWithPath = new URL(refUrl.getProtocol()+"://"+refUrl.getHost()+customPath);
+					if (!refUrl.getHost().equals(refDomainWithPath.getHost())) {
+						throw new RpcException(RpcException.Type.INVALID_URL, "Invalid verification link - path changes domain: " + refDomainWithPath);
+					}
+				} catch (MalformedURLException e) {
+					throw new RpcException(RpcException.Type.INVALID_URL, "Invalid referer or path.");
+				}
 			}
 
 			ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
@@ -1340,9 +1354,22 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Validate new preferred email address.
 	 *
 	 * Request to validate is determined based
+	 * on token parameter sent in email notice
+	 * by requestPreferredEmailChange() method.
+	 *
+	 * @param token String token for the email change request to validate
+	 * @param u int <code>id</code> of user you want to validate preferred email request
+	 *
+	 * @return String new validated email address
+	 */
+	/*#
+	 * Validate new preferred email address.
+	 *
+	 * Request to validate is determined based
 	 * on encrypted parameters sent in email notice
 	 * by requestPreferredEmailChange() method.
 	 *
+	 * @deprecated
 	 * @param i String encrypted request parameter
 	 * @param m String encrypted request parameter
 	 * @param u int <code>id</code> of user you want to validate preferred email request
@@ -1352,12 +1379,20 @@ public enum UsersManagerMethod implements ManagerMethod {
 	validatePreferredEmailChange {
 		@Override
 		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
 
-			return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
+			if (parms.contains("token")) {
+				return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
+					ac.getUserById(parms.readInt("u")),
+					parms.readString("token"));
+			} else if (parms.contains("i") && parms.contains("m")) {
+				return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
 					ac.getUserById(parms.readInt("u")),
 					parms.readString("i"),
 					parms.readString("m"));
-
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "token or (i and m)");
+			}
 		}
 	},
 

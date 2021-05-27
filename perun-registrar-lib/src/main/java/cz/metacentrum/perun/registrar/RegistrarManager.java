@@ -570,4 +570,34 @@ public interface RegistrarManager {
 	 * @param application updated application
 	 */
 	void updateApplicationType(PerunSession session, Application application);
+
+	/**
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @return list of groups
+	 * @throws VoNotExistsException if vo does not exists
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Deletes groups from a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @throws GroupNotExistsException if some group does not exist
+	 */
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Adds groups to a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @throws GroupNotExistsException if some group does not exist
+	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
+	 */
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException;
+
 }

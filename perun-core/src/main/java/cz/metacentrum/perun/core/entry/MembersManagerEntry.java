@@ -1565,11 +1565,14 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException {
+	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
-		if (!AuthzResolver.authorizedInternal(sess, "getMembersPage_Vo_MembersPageQuery_List<String>_policy", vo)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersPage_Vo_MembersPageQuery_List<String>_policy", vo)
+			&& (query.getGroupId() == null ||
+				!AuthzResolver.authorizedInternal(sess, "group-getMembersPage_Vo_MembersPageQuery_List<String>_policy",
+				perunBl.getGroupsManagerBl().getGroupById(sess, query.getGroupId())))) {
 			throw new PrivilegeException(sess, "getMembersPage");
 		}
 

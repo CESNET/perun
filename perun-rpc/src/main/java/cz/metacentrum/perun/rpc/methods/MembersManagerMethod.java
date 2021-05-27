@@ -1889,6 +1889,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @return Paginated<RichMember> page of requested rich members
 	 * @throw VoNotExistsException if there is no such vo
+	 * @throw GroupNotExistsException if there is no such query group
 	 */
 	getMembersPage {
 		@Override

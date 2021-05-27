@@ -107,7 +107,11 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			int row = 0;
 			while (resultSet.next()) {
 				total_count = resultSet.getInt("total_count");
-				members.add(MEMBER_MAPPER.mapRow(resultSet, row));
+				if (query.getGroupId() == null) {
+					members.add(MEMBER_MAPPER.mapRow(resultSet, row));
+				} else {
+					members.add(MEMBER_MAPPER_WITH_GROUP.mapRow(resultSet, row));
+				}
 				row++;
 			}
 			return new Paginated<>(members, query.getOffset(), query.getPageSize(), total_count);
@@ -739,17 +743,43 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			namedParams.addValue("statuses", statusCodes);
 		}
 
+		String groupQueryJoin = "";
+		String groupQueryWhere = "";
+		String groupStatusesQueryString = "";
+		if (query.getGroupId() != null) {
+			groupQueryJoin = " JOIN (SELECT group_id, member_id, min(source_group_status) as source_group_status, " +
+									" min(membership_type) as membership_type, null as source_group_id " +
+									" FROM groups_members " +
+									" WHERE group_id = (:groupId) " +
+									" GROUP BY group_id, member_id) as groups_members " +
+								" ON members.id=groups_members.member_id ";
+			groupQueryWhere = " AND groups_members.group_id = (:groupId) ";
+			namedParams.addValue("groupId", query.getGroupId());
+
+			if (query.getGroupStatuses() != null && !query.getGroupStatuses().isEmpty()) {
+				groupStatusesQueryString = " AND groups_members.source_group_status in (:groupStatuses) ";
+				List<Integer> groupStatusCodes = query.getGroupStatuses().stream()
+					.map(MemberGroupStatus::getCode)
+					.collect(Collectors.toList());
+				namedParams.addValue("groupStatuses", groupStatusCodes);
+			}
+		}
+
 		Paginated<Member> members = namedParameterJdbcTemplate.query(
-				"SELECT DISTINCT " + memberMappingSelectQuery +
+				"SELECT DISTINCT " +
+					(query.getGroupId() == null ? memberMappingSelectQuery : groupsMembersMappingSelectQuery) +
 				query.getSortColumn().getSqlSelect() +
 				", DENSE_RANK() OVER (order by members.id) + DENSE_RANK() OVER (ORDER BY members.id DESC) - 1 AS total_count" +
 				" FROM members " +
 				" LEFT JOIN users ON members.user_id=users.id " +
 				" LEFT JOIN user_ext_sources ues ON ues.user_id=users.id " +
 				query.getSortColumn().getSqlJoin() +
+				groupQueryJoin +
 				searchStringQueryJoin +
 				" WHERE members.vo_id = (:voId) " +
 				statusesQueryString +
+				groupQueryWhere +
+				groupStatusesQueryString +
 				searchStringQueryWhere +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +

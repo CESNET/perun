@@ -1,7 +1,7 @@
 
 openapi: 3.0.2
 info:
-  version: 3.24.0
+  version: 3.25.0
   title: Perun RPC API
   description: Perun Remote Procedure Calls Application Programming Interface
   contact:
@@ -186,6 +186,13 @@ components:
         - ID
         - NAME
 
+    MemberGroupStatus:
+      type: string
+      description: 'statuses of a member in a group'
+      enum:
+        - VALID
+        - EXPIRED
+
     MembersPageQuery:
       properties:
         pageSize: { type: integer }
@@ -194,6 +201,8 @@ components:
         sortColumn: { $ref: '#/components/schemas/MembersOrderColumn' }
         searchString : { type: string }
         statuses: { type: array, items: { $ref: '#/components/schemas/VoMemberStatuses' } }
+        groupId: { type: integer }
+        groupStatuses: { type: array, items: { $ref: '#/components/schemas/MemberGroupStatus' } }
       required:
         - pageSize
         - offset
@@ -7997,13 +8006,13 @@ paths:
       tags:
         - UsersManager
       operationId: requestPreferredEmailChange
-      summary: Request to change preferred email address of user. Validation mail is sent on new address. Change is not saved until user validate new email address by calling validatePreferredEmailChange() method with proper set of parameters (sent in validation mail).
+      summary: Request to change preferred email address of user. Validation mail is sent on new address. Change is not saved until user validate new email address by calling validatePreferredEmailChange() method with proper set of parameters (sent in validation mail). Provide eiher linkPath (appended to referer) or whole custom url. Combination of linkPath and customUrl is not supported.
       parameters:
         - $ref: '#/components/parameters/userId'
         - { name: email, description: "new email address to set", schema: { type: string }, in: query, required: true }
         - { name: lang, description: "language to get confirmation mail in (optional)", schema: { type: string }, in: query, required: false }
-        - { name: linkPath, description: "path that is appended to the url of the verification link (optional)", schema: { type: string }, in: query, required: false }
-        - { name: customUrl, description: "url to verification link (optional)", schema: { type: string }, in: query, required: false }
+        - { name: linkPath, description: "path that is appended to the referer and creates the verification link (optional)", schema: { type: string }, in: query, required: false }
+        - { name: customUrl, description: "url to verification link containing path (optional)", schema: { type: string }, in: query, required: false }
         - { name: idpFilter, description: "authentication method appended to query parameters of verification link (optional)", schema: { type: string }, in: query, required: false }
       responses:
         '200':
@@ -8046,6 +8055,21 @@ paths:
       parameters:
         - { name: i, description: "encrypted request parameter", schema: { type: string }, in: query, required: true }
         - { name: m, description: "encrypted request parameter", schema: { type: string }, in: query, required: true }
+        - { name: u, description: "id of user you want to validate preferred email request", schema: { type: integer }, in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/validatePreferredEmailChange/token:
+    post:
+      tags:
+        - UsersManager
+      operationId: validatePreferredEmailChangeWithToken
+      summary: Validate new preferred email address. Request to validate is determined based on token parameter sent in email notice by requestPreferredEmailChange() method.
+      parameters:
+        - { name: token, description: "token for the email change request", schema: { type: string }, in: query, required: true }
         - { name: u, description: "id of user you want to validate preferred email request", schema: { type: integer }, in: query, required: true }
       responses:
         '200':
@@ -11507,48 +11531,6 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/groupsManager/getGroupsToAutoRegistration:
-    get:
-      tags:
-        - GroupsManager
-      operationId: getGroupsToAutoRegistration
-      summary: Returns all groups which can be registered into during vo registration.
-      parameters:
-        - $ref: '#/components/parameters/voId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfGroupsResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/groupsManager/deleteGroupsFromAutoRegistration:
-    post:
-      tags:
-        - GroupsManager
-      operationId: deleteGroupsFromAutoRegistration
-      summary: Deletes groups from a list of groups which can be registered into during vo registration.
-      parameters:
-        - $ref: '#/components/parameters/groupIds'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/groupsManager/addGroupsToAutoRegistration:
-    post:
-      tags:
-        - GroupsManager
-      operationId: addGroupsToAutoRegistration
-      summary: Adds groups to a list of groups which can be registered into during vo registration.
-      parameters:
-        - $ref: '#/components/parameters/groupIds'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
   /json/groupsManager/getIndirectMembershipPaths:
     get:
       tags:
@@ -14178,6 +14160,48 @@ paths:
               properties:
                 app: { $ref: '#/components/schemas/Application' }
                 data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+
+  /json/registrarManager/getGroupsToAutoRegistration:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getGroupsToAutoRegistration
+      summary: Returns all groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/deleteGroupsFromAutoRegistration:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteGroupsFromAutoRegistration
+      summary: Deletes groups from a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/addGroupsToAutoRegistration:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: addGroupsToAutoRegistration
+      summary: Adds groups to a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #

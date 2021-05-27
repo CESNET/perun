@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.google.api.services.admin.directory.Directory;
-import com.google.api.services.admin.directory.model.Member;
-import com.google.api.services.admin.directory.model.Members;
+import com.google.api.services.directory.Directory;
+import com.google.api.services.directory.model.Member;
+import com.google.api.services.directory.model.Members;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;

@@ -1,4 +1,4 @@
--- database version 3.1.80 (don't forget to update insert statement at the end of file)
+-- database version 3.1.81 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1267,6 +1267,7 @@ create table configurations (
 -- MAILCHANGE - allow to user to change mail address, temporairly saved mails during change is in progress
 create table mailchange (
 	id integer not null,
+	uu_id uuid not null default gen_random_uuid(),
 	value text not null,      --
 	user_id integer not null, --identifier of user (users.id)
 	created_at timestamp default statement_timestamp() not null,
@@ -1766,7 +1767,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.80');
+insert into configurations values ('DATABASE VERSION','3.1.81');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

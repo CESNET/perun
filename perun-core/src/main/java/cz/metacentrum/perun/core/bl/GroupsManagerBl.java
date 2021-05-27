@@ -1870,6 +1870,7 @@ public interface GroupsManagerBl {
 
 	/**
 	 * Adds groups to a list of groups which can be registered into during vo registration.
+	 * This will NOT create empty application form for groups and will throw exception if none exists.
 	 *
 	 * @param sess session
 	 * @param groups list of groups
