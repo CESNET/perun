@@ -201,7 +201,7 @@ components:
         sortColumn: { $ref: '#/components/schemas/MembersOrderColumn' }
         searchString : { type: string }
         statuses: { type: array, items: { $ref: '#/components/schemas/VoMemberStatuses' } }
-        group: { $ref: '#/components/schemas/Group' }
+        groupId: { type: integer }
         groupStatuses: { type: array, items: { $ref: '#/components/schemas/MemberGroupStatus' } }
       required:
         - pageSize

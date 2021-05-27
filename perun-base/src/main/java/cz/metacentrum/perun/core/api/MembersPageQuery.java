@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class representing a query requesting a specific page of members.
@@ -14,7 +15,7 @@ public class MembersPageQuery {
 	private MembersOrderColumn sortColumn;
 	private String searchString = "";
 	private List<Status> statuses;
-	private Group group;
+	private Integer groupId;
 	private List<MemberGroupStatus> groupStatuses;
 
 	public MembersPageQuery() { }
@@ -50,14 +51,14 @@ public class MembersPageQuery {
 		this.statuses = statuses;
 	}
 
-	public MembersPageQuery(int pageSize, int offset, SortingOrder order, MembersOrderColumn sortColumn, String searchString, List<Status> statuses, Group group, List<MemberGroupStatus> groupStatuses) {
+	public MembersPageQuery(int pageSize, int offset, SortingOrder order, MembersOrderColumn sortColumn, String searchString, List<Status> statuses, Integer groupId, List<MemberGroupStatus> groupStatuses) {
 		this.pageSize = pageSize;
 		this.offset = offset;
 		this.order = order;
 		this.sortColumn = sortColumn;
 		this.searchString = searchString;
 		this.statuses = statuses;
-		this.group = group;
+		this.groupId = groupId;
 		this.groupStatuses = groupStatuses;
 	}
 
@@ -109,12 +110,12 @@ public class MembersPageQuery {
 		this.statuses = statuses;
 	}
 
-	public Group getGroup() {
-		return group;
+	public Integer getGroupId() {
+		return groupId;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
 	}
 
 	public List<MemberGroupStatus> getGroupStatuses() {
@@ -137,7 +138,7 @@ public class MembersPageQuery {
 		if (getOrder() != that.getOrder()) return false;
 		if (getSortColumn() != that.getSortColumn()) return false;
 		if (!getSearchString().equals(that.getSearchString())) return false;
-		if (getGroup() != that.getGroup()) return false;
+		if (!Objects.equals(getGroupId(), that.getGroupId())) return false;
 		if (getGroupStatuses() != that.getGroupStatuses()) return false;
 		return getStatuses() != that.getStatuses();
 	}
@@ -150,7 +151,7 @@ public class MembersPageQuery {
 		result = 31 * result + (getSortColumn() != null ? getSortColumn().hashCode() : 0);
 		result = 31 * result + (getSearchString() != null ? getSearchString().hashCode() : 0);
 		result = 31 * result + (getStatuses() != null ? getStatuses().hashCode() : 0);
-		result = 31 * result + (getGroup() != null ? getGroup().hashCode() : 0);
+		result = 31 * result + (getGroupId() != null ? getGroupId().hashCode() : 0);
 		result = 31 * result + (getGroupStatuses() != null ? getGroupStatuses().hashCode() : 0);
 		return result;
 	}
