@@ -412,6 +412,22 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test
+	public void forceDeleteVoWithGroupAndSubgroup() throws Exception {
+		System.out.println(CLASS_NAME + "forceDeleteVoWithGroupAndSubgroup");
+
+		// create vo with group and subgroup
+		myVo = perun.getVosManagerBl().createVo(sess, myVo);
+		Group group = perun.getGroupsManager().createGroup(sess, myVo, new Group("group","testingGroup"));
+		Group subgroup = perun.getGroupsManager().createGroup(sess, myVo, new Group("subgroup","testingSubgroup"));
+		perun.getGroupsManager().moveGroup(sess, group, subgroup);
+
+		// force delete vo
+		vosManagerEntry.deleteVo(sess, myVo, true);
+		assertThatExceptionOfType(VoNotExistsException.class)
+			.isThrownBy(() -> vosManagerEntry.getVoById(sess, myVo.getId()));
+	}
+
+	@Test
 	public void setBanCorrectly() throws Exception {
 		System.out.println(CLASS_NAME + "setBanCorrectly");
 
