@@ -425,13 +425,220 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 	@Test
 	public void checkDestinationValid_hyphen() {
 		System.out.println("Utils.checkDestinationValid_hyphen");
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+		
+		destination.setDestination("https://dudo-du.dudo.du.do/perun/upload");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+  @Test
+  public void checkDestinationValidTilde() {
+		System.out.println("Utils.checkDestinationValidTilde");
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/~name");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationValidParentheses() {
+		System.out.println("Utils.checkDestinationValidParentheses");
 
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONURLTYPE);
 
-		destination.setDestination("https://dudo-du.dudo.du.do/perun/upload");
+		destination.setDestination("https://my.url/name_(my)");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("https://my.url/name_(my)_is");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationValidUnderscore() {
+		System.out.println("Utils.checkDestinationValidUnderscore");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/blah_blah");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("https://my_name.url/bleh");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationValidQuestionMark() {
+		System.out.println("Utils.checkDestinationValidQuestionMark");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/?name=john");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationValidAmpersand() {
+		System.out.println("Utils.checkDestinationValidAmpersand");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/?name=john&surname=doe");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationValidPercentSign() {
+		System.out.println("Utils.checkDestinationValidPercentSign");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/?name=john%20doe");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationValidIP() {
+		System.out.println("Utils.checkDestinationValidIP");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://42.42.1.1/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationValidIPPort() {
+		System.out.println("Utils.checkDestinationValidIPPort");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://42.42.1.1:8080/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationDomainNumbers() {
+		System.out.println("Utils.checkDestinationDomainNumbers");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://2187.net");
 
 		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationHashtag() {
+		System.out.println("Utils.checkDestinationHashtag");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/name#page1");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationDash() {
+		System.out.println("Utils.checkDestinationDash");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/my-name");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("https://my-url.com/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationLogin() {
+		System.out.println("Utils.checkDestinationLogin");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://myid@my.url:2187/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("https://myid:mypassword@my.url/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationProtocol() {
+		System.out.println("Utils.checkDestinationProtocol");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("http://my.url/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("ftp://my.url/");
+		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationInvalidProtocol() {
+		System.out.println("Utils.checkDestinationInvalidProtocol");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("my.url");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("h://my.url");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("ftps://my.url/");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationInvalidBeginning() {
+		System.out.println("Utils.checkDestinationInvalidBeginning");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("https://.");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("https://?");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+	}
+
+	@Test
+	public void checkDestinationInvalidSpaces() {
+		System.out.println("Utils.checkDestinationInvalidSpaces");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://my.url/?name=john doe");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+		destination.setDestination("https:// my.url");
+		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
 	}
 
 	@Test
