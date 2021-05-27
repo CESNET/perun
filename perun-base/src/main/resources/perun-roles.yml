@@ -2843,6 +2843,13 @@ perun_policies:
     include_policies:
       - default_policy
 
+  group-getMembersPage_Vo_MembersPageQuery_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+    include_policies:
+      - default_policy
+
   updateSponsorshipValidity_Member_User_LocalDate:
     policy_roles:
       - VOADMIN: Vo

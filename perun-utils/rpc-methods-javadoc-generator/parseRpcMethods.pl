@@ -190,7 +190,7 @@ $objectExamples{"MemberWithSponsors"} = "{ \"member\" : " . $objectExamples{"Ric
 $objectExamples{"List&lt;MemberWithSponsors&gt;"} = $listPrepend . $objectExamples{"MemberWithSponsors"} . $listAppend;
 $objectExamples{"List<MemberWithSponsors>"} = $objectExamples{"List&lt;MemberWithSponsors&gt;"};
 
-$objectExamples{"MembersPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"searchString\" : \"Doe\" }";
+$objectExamples{"MembersPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"searchString\" : \"Doe\" , \"statuses\" : [\"VALID\" , \"EXPIRED\"] , \"groupId\" : 10 , \"groupStatuses\" : [\"VALID\"] }";
 $objectExamples{"List&lt;MembersPageQuery&gt;"} = $listPrepend . $objectExamples{"MembersPageQuery"} . $listAppend;
 $objectExamples{"List<MembersPageQuery>"} = $objectExamples{"List&lt;MembersPageQuery&gt;"};
 

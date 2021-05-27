@@ -1420,9 +1420,10 @@ public interface MembersManager {
 	 * @param attrNames attribute names
 	 * @return page of requested rich members
 	 * @throws VoNotExistsException if there is no such vo
+	 * @throws GroupNotExistsException if there is no such query group
 	 * @throws PrivilegeException insufficient permission
 	 */
-	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException;
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.
