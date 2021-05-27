@@ -425,6 +425,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 	@Test
 	public void checkDestinationValid_hyphen() {
 		System.out.println("Utils.checkDestinationValid_hyphen");
+		Destination destination = new Destination();
 		destination.setDestination("https://dudo-du.dudo.du.do/perun/upload");
   
 		assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
