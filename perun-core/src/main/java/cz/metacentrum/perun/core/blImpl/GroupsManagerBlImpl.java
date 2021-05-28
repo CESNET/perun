@@ -524,7 +524,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public void deleteAllGroups(PerunSession sess, Vo vo) throws GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
-		for(Group group: getGroupsManagerImpl().getGroups(sess, vo)) {
+		// get parent groups
+		List<Group> groups = getGroupsManagerImpl().getGroups(sess, vo).stream()
+			.filter(group -> group.getParentGroupId() == null)
+			.collect(Collectors.toList());
+		for(Group group: groups) {
 
 			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 				// Do not delete built-in groups, they must be deleted using separate functions deleteMembersGroup
