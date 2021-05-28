@@ -230,6 +230,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		//Remove possible links to member's sponsors
 		membersManagerImpl.deleteSponsorLinks(sess, member);
 
+		membersManagerImpl.rejectAllMemberOpenApplications(sess, member);
+
 		// Remove member from the DB
 		getMembersManagerImpl().deleteMember(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberDeleted(member));

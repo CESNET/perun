@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.registrar;
 
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -8,9 +9,14 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -699,9 +705,86 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertEquals(INITIAL, group1Apps.get(0).getType());
 	}
 
+	@Test
+	public void testHandleGroupApplications() throws PerunException {
+		GroupsManager groupsManager = perun.getGroupsManager();
+
+		// create group in VO, generate group application form
+		Group group1 = new Group("GroupA", "Cool folks");
+		group1 = groupsManager.createGroup(session, vo, group1);
+
+		registrarManager.createApplicationFormInGroup(session, group1);
+		ApplicationForm groupForm = registrarManager.getFormForGroup(group1);
+		groupForm.setAutomaticApproval(true);
+		registrarManager.updateForm(session, groupForm);
+
+		// create user
+		User user = new User(-1, "Jo", "Doe", "", "", "");
+		user = perun.getUsersManagerBl().createUser(session, user);
+		ExtSource source = new ExtSource("ExtSource", ExtSourcesManager.EXTSOURCE_IDP);
+		perun.getExtSourcesManagerBl().createExtSource(session, source, new HashMap<>());
+		UserExtSource ues = new UserExtSource(source, session.getPerunPrincipal().getActor());
+		perun.getUsersManagerBl().addUserExtSource(session, user, ues);
+
+		Application voApplication = prepareApplicationToVo(user);
+		Application groupApplication = prepareApplicationToGroup(null, group1);
+
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		voApplication = registrarManager.submitApplication(session, voApplication, appItemsData);
+		registrarManager.submitApplication(session, groupApplication, appItemsData);
+
+		registrarManager.approveApplication(session, voApplication.getId());
+		//We have to call this method explicitly due to transactions
+		registrarManager.handleUsersGroupApplications(session, vo, user);
+
+		List<Application> group1Apps = registrarManager.getApplicationsForGroup(session, group1, List.of("APPROVED"));
+		assertEquals(1, group1Apps.size());
+		assertEquals(user, group1Apps.get(0).getUser());
+	}
+
+	@Test
+	public void testRejectApplicationsAfterMemberRemoval() throws PerunException {
+		GroupsManagerBl groupsManager = perun.getGroupsManagerBl();
+		MembersManagerBl membersManager = perun.getMembersManagerBl();
+
+		// create group in VO, generate group application form
+		Group group1 = new Group("GroupA", "Cool folks");
+		groupsManager.createGroup(session, vo, group1);
+		registrarManager.createApplicationFormInGroup(session, group1);
+
+		// create user
+		User user = new User(-1, "Jo", "Doe", "", "", "");
+		user = perun.getUsersManagerBl().createUser(session, user);
+
+		Member member = membersManager.createMember(session, vo, user);
+
+		Application groupApplication = prepareApplicationToGroup(user, group1);
+
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		registrarManager.submitApplication(session, groupApplication, appItemsData);
+
+		membersManager.deleteMember(session, member);
+
+		List<Application> group1Apps = registrarManager.getApplicationsForGroup(session, group1, List.of("REJECTED"));
+		assertEquals(1, group1Apps.size());
+	}
+
 	private Application prepareApplicationToVo(User user) {
 		Application application = new Application();
 		application.setVo(vo);
+		application.setUser(user);
+		application.setId(-1);
+		application.setCreatedBy(session.getPerunPrincipal().getActor());
+		application.setType(Application.AppType.INITIAL);
+		application.setExtSourceName("ExtSource");
+		application.setExtSourceType(ExtSourcesManager.EXTSOURCE_IDP);
+		return application;
+	}
+
+	private Application prepareApplicationToGroup(User user, Group group) {
+		Application application = new Application();
+		application.setVo(vo);
+		application.setGroup(group);
 		application.setUser(user);
 		application.setId(-1);
 		application.setCreatedBy(session.getPerunPrincipal().getActor());

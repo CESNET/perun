@@ -457,4 +457,14 @@ public interface MembersManagerImplApi {
 	 * @throws NamespaceRulesNotExistsException of there are no rules for the namespace
 	 */
 	NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException;
+
+	/**
+	 * Reject all member applications which are not Approved or already rejected
+	 * Reserved login/passwords are also deleted.
+	 * User is not notified about the rejection.
+	 *
+	 * @param sess perunSession
+	 * @param member which applications will be removed
+	 */
+	void rejectAllMemberOpenApplications(PerunSession sess, Member member);
 }
