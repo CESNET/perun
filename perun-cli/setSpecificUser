@@ -8,12 +8,12 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Sets specific User. User id is required.
+	Sets specific User. User id, user Id of owner and type of specific user are required.
 	--------------------------------------
 	Available options:
 	--userId       | -u user id
-	--specUserType | -t type of specific user (service/sponsored)
-	--owner        | -o owner Id
+	--specUserType | -t type of specific user (SERVICE/SPONSORED)
+	--owner        | -o user Id of owner
 	--batch        | -b batch
 	--help         | -h prints this help
 
@@ -31,6 +31,8 @@ GetOptions ("help|h"  => sub {
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
+unless (defined($specUsrType)) { die "ERROR: Type of specific user is required \n";}
+unless (defined($ownerId)) { die "ERROR:  owner Id is required \n";}
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
