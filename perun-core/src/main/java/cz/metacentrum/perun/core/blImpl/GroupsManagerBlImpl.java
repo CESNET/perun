@@ -3435,7 +3435,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws AttributeNotExistsException if some attributes not exists and for this reason can't be updated
 	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
-	public void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<AttributeDefinition> attrDefs) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<AttributeDefinition> attrDefs) {
 		//If member does not exists in this moment (somebody removed him before updating process), skip him and log it
 		try {
 			getPerunBl().getMembersManagerBl().checkMemberExists(sess, memberToUpdate);
@@ -3643,10 +3643,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @param sess perun session
 	 * @param memberToUpdate member to update
-	 * @throws AttributeNotExistsException if some attributes not exists and for this reason can't be updated
-	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
-	private void updateMemberStatus(PerunSession sess, RichMember memberToUpdate) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	private void updateMemberStatus(PerunSession sess, Member memberToUpdate) {
 		Status memberStatus = memberToUpdate.getStatus();
 		if (statusesAffectedBySynchronization.contains(memberStatus)) {
 			//prepare variables with information about member's expiration
@@ -3655,7 +3653,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			Date now = new Date();
 			Date currentMembershipExpirationDate = now;
-			Attribute membershipExpiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberToUpdate, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+			Attribute membershipExpiration;
+			try {
+				membershipExpiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberToUpdate, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+			} catch (AttributeNotExistsException e) {
+				throw new InternalErrorException("MembershipExpiration attribute doesn't exist.", e);
+			} catch (WrongAttributeAssignmentException e) {
+				// shouldn't happen
+				throw new InternalErrorException("Member attribute is not member attribute.", e);
+			}
 			//Check if member has not empty expiration date
 			memberHasExpiration = membershipExpiration.getValue() != null;
 
@@ -3717,14 +3723,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			// member exists - update attributes
 			RichMember memberToUpdate = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
-			try {
-				updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-				// if update fails, skip him
-				log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
-				skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e.getMessage() + "'");
-				return;
-			}
+
+			updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
 
 		} catch (MemberNotExistsException e) {
 			try {
@@ -3738,14 +3738,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());
 					// member exists - update attribute
 					RichMember memberToUpdate = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
-					try {
-						updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
-					} catch (WrongAttributeAssignmentException | AttributeNotExistsException e2) {
-						// if update fails, skip him
-						log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
-						skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e2.getMessage() + "'");
-						return;
-					}
+					updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
 				} catch (Exception e2) {
 					//Something is still wrong, thrown consistency exception
 					throw new ConsistencyErrorException("Trying to add existing member (it is not possible to get him by userExtSource even if is also not possible to create him in DB)!");
