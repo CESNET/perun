@@ -338,6 +338,33 @@ components:
         resource: { $ref: '#/components/schemas/Resource' }
         attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
 
+    EnrichedGroup:
+      type: object
+      properties:
+        group: { $ref: '#/components/schemas/Group' }
+        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+
+    GroupResourceStatus:
+      type: string
+      description: 'status of the group-resource assignment'
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - FAILED
+        - PROCESSING
+
+    AssignedResource:
+      type: object
+      properties:
+        enrichedResource: { $ref: '#/components/schemas/EnrichedResource' }
+        status: { $ref: '#/components/schemas/GroupResourceStatus' }
+
+    AssignedGroup:
+      type: object
+      properties:
+        enrichedGroup: { $ref: '#/components/schemas/EnrichedGroup' }
+        status: { $ref: '#/components/schemas/GroupResourceStatus' }
+
     EnrichedHost:
       type: object
       properties:
@@ -1625,6 +1652,24 @@ components:
             items:
               $ref: "#/components/schemas/EnrichedResource"
 
+    ListOfAssignedResourcesResponse:
+      description: "returns List<AssignedResource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/AssignedResource"
+
+    ListOfAssignedGroupsResponse:
+      description: "returns List<AssignedGroup>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/AssignedGroup"
+
     VoResponse:
       description: "returns Vo"
       content:
@@ -2067,6 +2112,14 @@ components:
         type: array
         items:
           type: integer
+
+    async:
+      name: async
+      description: "asynchronous flag, if set to true, some operation will be performed asynchronously"
+      schema:
+        type: boolean
+      in: query
+      required: false
 
     attributeId:
       name: attributeId
@@ -11897,6 +11950,103 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getResourceAssignments:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourceAssignments
+      summary: Lists all of the resource assignments for the given group. Also, returns specified attributes for the resources.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAssignedResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getGroupAssignments:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getGroupAssignments
+      summary: Lists all of the assigned groups for the given resource. Also, returns specified attributes for the groups.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAssignedGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/allowGroupsToResources:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: allowGroupsToResources
+      summary: Assigns given groups to all of the given resources. If async is set to false, check if attributes for each member from groups are valid and fill members' attributes with missing values.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/resourceIds'
+        - $ref: '#/components/parameters/async'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/unallowGroupsFromResources:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: unallowGroupsFromResources
+      summary: Unassigns given groups from the given resources.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/resourceIds'
+        - $ref: '#/components/parameters/async'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/activateGroupResourceAssignment:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: activateGroupResourceAssignment
+      summary: Try to activate the group-resource status. If the async is set to false, the validation is performed
+          synchronously. The assignment will be either ACTIVE, in case of a sucessfull synchronous call, or it will be
+          PROCESSING in case of an asynchronous call. After the async validation, the state can be either ACTIVE or
+          FAILING.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/async'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/deactivateGroupResourceAssignment:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: deactivateGroupResourceAssignment
+      summary: Deactivates the group-resource assignment. The assignment will become INACTIVE and will not be used to
+          allow users from the given group to the resource.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
