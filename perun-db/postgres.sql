@@ -1,4 +1,4 @@
--- database version 3.1.81 (don't forget to update insert statement at the end of file)
+-- database version 3.1.82 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -758,10 +758,18 @@ create table groups_members (
   constraint grpmem_memtype_fk foreign key (membership_type) references membership_types(id)
 );
 
+create type group_resource_status as enum (
+	'ACTIVE',
+	'INACTIVE',
+	'FAILED',
+	'PROCESSING'
+	);
+
 -- GROUPS_RESOURCES - groups assigned to resource
 create table groups_resources (
 	group_id integer not null,     --identifier of group (groups.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
+	status group_resource_status not null default 'PROCESSING',
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
@@ -1767,7 +1775,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.81');
+insert into configurations values ('DATABASE VERSION','3.1.82');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

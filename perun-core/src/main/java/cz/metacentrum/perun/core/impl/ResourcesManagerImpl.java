@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -358,7 +359,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id" +
 					" join users on users.id=members.user_id" +
-					" where groups_resources.resource_id=?", UsersManagerImpl.USER_MAPPER, resource.getId());
+					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status",
+					UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -374,8 +376,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" join users on users.id=members.user_id" +
-							" where groups_resources.resource_id=? and members.status!=? and members.status!=?",
-					UsersManagerImpl.USER_MAPPER, resource.getId(),	Status.INVALID.getCode(), Status.DISABLED.getCode());
+							" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status and members.status!=? and members.status!=?",
+					UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -391,8 +393,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" join users on users.id=members.user_id" +
-							" where groups_resources.resource_id=? and members.status!=? and members.status!=? and groups_members.source_group_status =?",
-					UsersManagerImpl.USER_MAPPER, resource.getId(),	Status.INVALID.getCode(),
+							" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status " +
+							" and members.status!=? and members.status!=? and groups_members.source_group_status =?",
+					UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), Status.INVALID.getCode(),
 					Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -405,11 +408,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
-					" join groups_resources on groups_resources.resource_id=resources.id" +
+					" join groups_resources on groups_resources.resource_id=resources.id and groups_resources.status=?::group_resource_status " +
 					" join groups_members on groups_members.group_id=groups_resources.group_id" +
 					" join members on members.id=groups_members.member_id" +
 					" where resources.facility_id=? and members.user_id=? and members.status!=? and members.status!=?",
-					RESOURCE_MAPPER, facility.getId(), user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
+					RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(), user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		}	catch (RuntimeException e) {
@@ -421,11 +424,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) {
 		try  {
 			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id" +
+							" join groups on groups_resources.group_id=groups.id and groups_resources.status=?::group_resource_status " +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" where groups_resources.resource_id=? and members.status!=? and members.status!=?",
-					MEMBER_MAPPER, resource.getId(),
+					MEMBER_MAPPER, GroupResourceStatus.ACTIVE.toString(), resource.getId(),
 					Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -442,9 +445,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 							" join groups on groups_resources.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id " +
-							" where groups_resources.resource_id=? and members.status!=? and members.status!=? and groups_members.source_group_status =?",
-					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), Status.INVALID.getCode(),
-					Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
+							" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status " +
+							" and members.status!=? and members.status!=? and groups_members.source_group_status =?",
+					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), GroupResourceStatus.ACTIVE.toString(),
+					Status.INVALID.getCode(), Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -460,7 +464,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id " +
-					" where groups_resources.resource_id=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
+					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status",
+					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -475,7 +480,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id" +
-					" where groups_resources.resource_id=? and members.user_id=?", resource.getId(), user.getId()));
+					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status and members.user_id=?",
+					resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId()));
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -488,8 +494,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id" +
-					" where groups_resources.resource_id=? and members.user_id=? and members.status!=? and members.status!=?",
-					resource.getId(), user.getId(), Status.INVALID.getCode(),
+					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status " +
+					" and members.user_id=? and members.status!=? and members.status!=?",
+					resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId(), Status.INVALID.getCode(),
 					Status.DISABLED.getCode()));
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -502,9 +509,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			if(1==jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId())) {
 				throw new GroupAlreadyAssignedException(group);
 			}else{
-				jdbc.update("insert into groups_resources (group_id, resource_id, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid) " +
-						"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", group.getId(),
-						resource.getId(),sess.getPerunPrincipal().getActor(),sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+				jdbc.update("insert into groups_resources (group_id, resource_id, status, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid) " +
+						"values (?,?,?::group_resource_status,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", group.getId(),
+						resource.getId(), GroupResourceStatus.ACTIVE.toString(), sess.getPerunPrincipal().getActor(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			}
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -527,8 +535,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
 							" join groups_resources on resources.id=groups_resources.resource_id" +
-							" where groups_resources.group_id=?",
-					RESOURCE_MAPPER, group.getId());
+							" where groups_resources.group_id=? and groups_resources.status=?::group_resource_status",
+					RESOURCE_MAPPER, group.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -540,11 +548,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Resource> getAssignedResources(PerunSession sess, Member member) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources on resources.id=groups_resources.resource_id " +
+					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id " +
 					" where groups_members.member_id=?",
-					RESOURCE_MAPPER, member.getId());
+					RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -556,12 +564,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources on resources.id=groups_resources.resource_id " +
+					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join resource_services on resource_services.resource_id=resources.id" +
 					" where groups_members.member_id=? and resource_services.service_id=?",
-					RESOURCE_MAPPER, member.getId(), service.getId());
+					RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId(), service.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -574,12 +582,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try  {
 			// FIXME - can we optimize SQL to limit joined data at start (limit resources.vo_id) ?
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-							" join groups_resources on resources.id=groups_resources.resource_id" +
+							" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
 							" join groups on groups_resources.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" where members.user_id=? and members.vo_id=?",
-					RESOURCE_MAPPER, user.getId(), vo.getId());
+					RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), user.getId(), vo.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -596,11 +604,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 					" join vos on resources.vo_id=vos.id" +
 					" join facilities on resources.facility_id=facilities.id" +
-					" join groups_resources on resources.id=groups_resources.resource_id" +
+					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status" +
 					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
 					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
 					" where groups_resources.group_id=?",
-					RICH_RESOURCE_WITH_TAGS_EXTRACTOR, group.getId());
+					RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), group.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -615,13 +623,13 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 					" join vos on resources.vo_id=vos.id" +
 					" join facilities on resources.facility_id=facilities.id" +
-					" join groups_resources on resources.id=groups_resources.resource_id" +
+					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
 					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
 					" where groups_members.member_id=?",
-					RICH_RESOURCE_WITH_TAGS_EXTRACTOR, member.getId());
+					RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), member.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -636,14 +644,14 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 							" join vos on resources.vo_id=vos.id" +
 							" join facilities on resources.facility_id=facilities.id" +
-							" join groups_resources on resources.id=groups_resources.resource_id" +
+							" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
 							" join groups on groups_resources.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join resource_services on resource_services.resource_id=resources.id" +
 							" left outer join tags_resources on resources.id=tags_resources.resource_id" +
 							" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
 							" where groups_members.member_id=? and resource_services.service_id=?",
-					RICH_RESOURCE_WITH_TAGS_EXTRACTOR, member.getId(), service.getId());
+					RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), member.getId(), service.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -654,7 +662,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public boolean isGroupAssigned(PerunSession sess, Group group, Resource resource) {
 		try {
-			return 1 == jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=? ", group.getId(), resource.getId());
+			return 1 == jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=? and status=?::group_resource_status",
+				group.getId(), resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
