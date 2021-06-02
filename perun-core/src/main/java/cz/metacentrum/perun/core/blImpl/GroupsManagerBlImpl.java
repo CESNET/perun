@@ -3776,11 +3776,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		// Try to validate member
-		try {
-			getPerunBl().getMembersManagerBl().validateMember(sess, member);
-		} catch (AttributeValueException e) {
-			log.warn("Member id {} will be in INVALID status due to wrong attributes {}.", member.getId(), e);
-		}
+		updateMemberStatus(sess, member);
 	}
 
 	/**
