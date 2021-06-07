@@ -28,6 +28,7 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Returns the form elements in application form
@@ -93,19 +94,23 @@ public class GetFormItems implements JsonCallback {
 
 		ft.setHTML(0, 0, "<strong>Short name</strong>");
 		ft.setHTML(0, 1, "<strong>Type</strong>");
-		ft.setHTML(0, 2, "<strong>Preview</strong>");
-		ft.setHTML(0, 3, "<strong>Edit</strong>");
+		ft.setHTML(0, 2, "<strong>Disabled</strong>");
+		ft.setHTML(0, 3, "<strong>Hidden</strong>");
+		ft.setHTML(0, 4, "<strong>Preview</strong>");
+		ft.setHTML(0, 5, "<strong>Edit</strong>");
 
 		fcf.setStyleName(0, 0, "header");
 		fcf.setStyleName(0, 1, "header");
 		fcf.setStyleName(0, 2, "header");
 		fcf.setStyleName(0, 3, "header");
+		fcf.setStyleName(0, 4, "header");
+		fcf.setStyleName(0, 5, "header");
 
 		contents.setWidget(ft);
 
 		ft.setWidget(1, 0, loaderImage);
 		fcf.addStyleName(1, 0, "noBorder");
-		fcf.setColSpan(1, 0, 4);
+		fcf.setColSpan(1, 0, 6);
 
 		loaderImage.asWidget().getElement().setAttribute("style", "text-align: center; vertical-align: middle");
 		loaderImage.setEmptyResultMessage("Application form has no form items.");
@@ -223,13 +228,17 @@ public class GetFormItems implements JsonCallback {
 
 		ft.setHTML(0, 0, "<strong>Short name</strong>");
 		ft.setHTML(0, 1, "<strong>Type</strong>");
-		ft.setHTML(0, 2, "<strong>Preview</strong>");
-		ft.setHTML(0, 3, "<strong>Edit</strong>");
+		ft.setHTML(0, 2, "<strong>Disabled</strong>");
+		ft.setHTML(0, 3, "<strong>Hidden</strong>");
+		ft.setHTML(0, 4, "<strong>Preview</strong>");
+		ft.setHTML(0, 5, "<strong>Edit</strong>");
 
 		fcf.setStyleName(0, 0, "header");
 		fcf.setStyleName(0, 1, "header");
 		fcf.setStyleName(0, 2, "header");
 		fcf.setStyleName(0, 3, "header");
+		fcf.setStyleName(0, 4, "header");
+		fcf.setStyleName(0, 5, "header");
 
 		String locale = "en";
 
@@ -261,14 +270,34 @@ public class GetFormItems implements JsonCallback {
 			type_label.setTitle(item.getType());
 			ft.setWidget(i, 1, type_label);
 
-			// 2 = preview
-			Widget w = gen.getWidget();
-			ft.setWidget(i, 2, w);
+			// 2 = disabled
+			if(item.getDisabled() != "NEVER") {
+				Image lockIcon =  new Image(SmallIcons.INSTANCE.lockIcon());
+				String dependency = item.getDisabledDependencyItemId() == 0 ? "(self)" : items.stream()
+					.filter(it -> it.getId() == item.getDisabledDependencyItemId())
+					.collect(Collectors.toList()).get(0).getShortname();
+				VerticalPanel lockPanel = createVPForIcon(lockIcon, item.getDisabled(), "disabled", dependency);
+				ft.setWidget(i, 2, lockPanel);
+			}
 
-			// 3 = EDIT
+			// 3 = hidden
+			if(item.getHidden() != "NEVER") {
+				Image eyeIcon =  new Image(SmallIcons.INSTANCE.eyeIcon());
+				String dependency = item.getHiddenDependencyItemId() == 0 ? "(self)" : items.stream()
+					.filter(it -> it.getId() == item.getHiddenDependencyItemId())
+					.collect(Collectors.toList()).get(0).getShortname();
+				VerticalPanel eyePanel = createVPForIcon(eyeIcon, item.getHidden(), "hidden", dependency);
+				ft.setWidget(i, 3, eyePanel);
+			}
+
+			// 4 = preview
+			Widget w = gen.getWidget();
+			ft.setWidget(i, 4, w);
+
+			// 5 = EDIT
 			FlexTable editTable = new FlexTable();
 			editTable.setStyleName("noBorder");
-			ft.setWidget(i, 3, editTable);
+			ft.setWidget(i, 5, editTable);
 
 			JsArrayString appTypes = item.getApplicationTypes();
 			if (appTypes == null || appTypes.length() == 0) {
@@ -276,6 +305,8 @@ public class GetFormItems implements JsonCallback {
 				ft.getFlexCellFormatter().setStyleName(i, 1, "log-unused");
 				ft.getFlexCellFormatter().setStyleName(i, 2, "log-unused");
 				ft.getFlexCellFormatter().setStyleName(i, 3, "log-unused");
+				ft.getFlexCellFormatter().setStyleName(i, 4, "log-unused");
+				ft.getFlexCellFormatter().setStyleName(i, 5, "log-unused");
 			}
 
 			// color for items with unsaved changes
@@ -284,6 +315,8 @@ public class GetFormItems implements JsonCallback {
 				ft.getFlexCellFormatter().setStyleName(i, 1, "log-changed");
 				ft.getFlexCellFormatter().setStyleName(i, 2, "log-changed");
 				ft.getFlexCellFormatter().setStyleName(i, 3, "log-changed");
+				ft.getFlexCellFormatter().setStyleName(i, 4, "log-changed");
+				ft.getFlexCellFormatter().setStyleName(i, 5, "log-changed");
 			}
 
 			// mark row for deletion
@@ -293,6 +326,8 @@ public class GetFormItems implements JsonCallback {
 				ft.getFlexCellFormatter().setStyleName(i, 1, "log-error");
 				ft.getFlexCellFormatter().setStyleName(i, 2, "log-error");
 				ft.getFlexCellFormatter().setStyleName(i, 3, "log-error");
+				ft.getFlexCellFormatter().setStyleName(i, 4, "log-error");
+				ft.getFlexCellFormatter().setStyleName(i, 5, "log-error");
 
 				// undelete button
 				CustomButton undelete = new CustomButton(ButtonTranslation.INSTANCE.undeleteFormItemButton(), ButtonTranslation.INSTANCE.undeleteFormItem(), SmallIcons.INSTANCE.arrowLeftIcon(), new ClickHandler(){
@@ -317,6 +352,8 @@ public class GetFormItems implements JsonCallback {
 				ft.getFlexCellFormatter().setStyleName(i, 1, "log-success");
 				ft.getFlexCellFormatter().setStyleName(i, 2, "log-success");
 				ft.getFlexCellFormatter().setStyleName(i, 3, "log-success");
+				ft.getFlexCellFormatter().setStyleName(i, 4, "log-success");
+				ft.getFlexCellFormatter().setStyleName(i, 5, "log-success");
 			}
 
 			// up
@@ -454,11 +491,45 @@ public class GetFormItems implements JsonCallback {
 		if (items == null || items.isEmpty()) {
 			ft.setWidget(1, 0, loaderImage);
 			ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
-			ft.getFlexCellFormatter().setColSpan(1, 0, 4);
+			ft.getFlexCellFormatter().setColSpan(1, 0, 6);
 		}
 
 		contents.setWidget(ft);
 
+	}
+
+	private VerticalPanel createVPForIcon(Image icon, String whenDisabledOrHidden, String disabledOrHidden, String dependency) {
+		Label label = new Label();
+		String tooltip = new String();
+
+		switch (whenDisabledOrHidden) {
+			case "ALWAYS":
+				label.setText("Always");
+				tooltip = "This item is always " + disabledOrHidden;
+				break;
+			case "IF_EMPTY":
+				label.setText("If empty " + dependency);
+				dependency = dependency.equals("(self)") ? "it" : dependency;
+				tooltip = "This item is " + disabledOrHidden +  " if " + dependency + " is empty";
+				break;
+			case "IF_PREFILLED":
+				label.setText("If prefilled " + dependency);
+				dependency = dependency.equals("(self)") ? "it" : dependency;
+				tooltip = "This item is " + disabledOrHidden +  " if " + dependency + " is prefilled";
+				break;
+		}
+
+		icon.setStyleName("pointer");
+		icon.setTitle(tooltip);
+
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
+		vp.addStyleName("noBorder");
+		vp.add(icon);
+		vp.add(label);
+		vp.setCellHorizontalAlignment(icon, HasHorizontalAlignment.ALIGN_CENTER);
+		vp.setCellHorizontalAlignment(label, HasHorizontalAlignment.ALIGN_CENTER);
+		return vp;
 	}
 
 	private void prepareErrorSettings(PerunError error) {
@@ -472,13 +543,17 @@ public class GetFormItems implements JsonCallback {
 
 		ft.setHTML(0, 0, "<strong>Short name</strong>");
 		ft.setHTML(0, 1, "<strong>Type</strong>");
-		ft.setHTML(0, 2, "<strong>Preview</strong>");
-		ft.setHTML(0, 3, "<strong>Edit</strong>");
+		ft.setHTML(0, 2, "<strong>Disabled</strong>");
+		ft.setHTML(0, 3, "<strong>Hidden</strong>");
+		ft.setHTML(0, 4, "<strong>Preview</strong>");
+		ft.setHTML(0, 5, "<strong>Edit</strong>");
 
 		fcf.setStyleName(0, 0, "header");
 		fcf.setStyleName(0, 1, "header");
 		fcf.setStyleName(0, 2, "header");
 		fcf.setStyleName(0, 3, "header");
+		fcf.setStyleName(0, 4, "header");
+		fcf.setStyleName(0, 5, "header");
 
 		if (error != null && error.getName().equalsIgnoreCase("FormNotExistsException")) {
 
@@ -515,11 +590,11 @@ public class GetFormItems implements JsonCallback {
 
 			ft.setWidget(1, 0, loaderImage);
 			ft.getFlexCellFormatter().addStyleName(1, 0, "noBorder");
-			ft.getFlexCellFormatter().setColSpan(1, 0, 4);
+			ft.getFlexCellFormatter().setColSpan(1, 0, 6);
 
 			ft.setWidget(2, 0, create);
 			ft.getFlexCellFormatter().addStyleName(2, 0, "noBorder");
-			ft.getFlexCellFormatter().setColSpan(2, 0, 4);
+			ft.getFlexCellFormatter().setColSpan(2, 0, 6);
 
 			ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -530,7 +605,7 @@ public class GetFormItems implements JsonCallback {
 
 			// standard error
 			ft.setWidget(1, 0, loaderImage);
-			fcf.setColSpan(1, 0, 4);
+			fcf.setColSpan(1, 0, 6);
 
 		}
 
