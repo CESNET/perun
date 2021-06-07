@@ -187,6 +187,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 		return randomPassword;
 
 	}
+
 	@Override
 	public boolean loginExist(PerunSession sess, String login) {
 		Process process = createPwdManagerProcess(LOGIN_EXIST, actualLoginNamespace, login);

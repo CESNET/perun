@@ -5218,6 +5218,7 @@ perun_policies:
 
   loginExist_User_String_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - REGISTRAR:
       - SELF: User
     include_policies:
@@ -5225,6 +5226,8 @@ perun_policies:
 
   service_user-loginExist_User_String_policy:
     policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER:
       - VOADMIN:
     include_policies:
       - default_policy

@@ -1063,7 +1063,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Changes user password in defined login-namespace.
 	 *
 	 * @param login String Users login
-	 * @param loginNamespace String Namespace
+	 * @param namespace String Namespace
 	 * @param newPassword String New password
 	 * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
 	 * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
@@ -1074,7 +1074,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Changes user password in defined login-namespace.
 	 *
 	 * @param user int User <code>id</code>
-	 * @param loginNamespace String Namespace
+	 * @param namespace String Namespace
 	 * @param newPassword String New password
 	 * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
 	 * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
@@ -1087,20 +1087,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			boolean checkOldPassword = parms.contains("checkOldPassword") ? parms.readBoolean("checkOldPassword") : false;
+			String oldPassword = parms.contains("oldPassword") ? parms.readString("oldPassword") : "";
+
 			if (parms.contains("login")) {
-				String login = parms.readString("login");
-				if (parms.contains("checkOldPassword") && parms.readBoolean("checkOldPassword")) {
-					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
-				} else {
-					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
-				}
+				ac.getUsersManager().changePassword(ac.getSession(), parms.readString("login"), parms.readString("namespace"), oldPassword, parms.readString("newPassword"), checkOldPassword);
 			} else {
 				User user = ac.getUserById(parms.readInt("user"));
-				if (parms.contains("checkOldPassword") && parms.readBoolean("checkOldPassword")) {
-					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
-				} else {
-					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
-				}
+				ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("namespace"), oldPassword, parms.readString("newPassword"), checkOldPassword);
 			}
 			return null;
 		}
@@ -1240,7 +1234,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		}
 	},
-
+	/*#
+	 * Delete password for a user in specified login-namespace.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param namespace String Namespace
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw PasswordDeletionFailedException When deleting password failed
+	 */
+	/*#
+	 * Delete password for a user in specified login-namespace.
+	 *
+	 * @param login String Login
+	 * @param namespace String Namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw PasswordDeletionFailedException When deleting password failed
+	 */
 	deletePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1256,15 +1266,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		}
 	},
-
+	/*#
+	 * Check, if login exists in given login-namespace. Not implemented for all namespaces.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param namespace String Namespace
+	 */
 	loginExist {
 		@Override
 		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
 			return ac.getUsersManager().loginExist(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
 		}
 	},
-
 	/*#
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
 	 * in external authz system using his credentials. It also creates UserExtSource and sets some required attributes.

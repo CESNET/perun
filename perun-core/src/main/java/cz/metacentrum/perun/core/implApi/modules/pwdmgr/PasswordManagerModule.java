@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 
 import java.util.Map;
@@ -71,7 +70,7 @@ public interface PasswordManagerModule {
 	String generateRandomPassword(PerunSession sess, String login);
 
 	default boolean loginExist(PerunSession sess, String login) {
-		return false;
+		throw new UnsupportedOperationException("LoginExist operation is not supported for given namespace.");
 	}
 
 }

@@ -8414,20 +8414,57 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/changePassword/login:
+    post:
+      tags:
+        - UsersManager
+      operationId: changePasswordForLogin
+      summary: Changes password for a user in specified login-namespace.
+      parameters:
+        - $ref: '#/components/parameters/login'
+        - $ref: '#/components/parameters/namespace'
+        - { name: newPassword, schema: { type: string }, in: query, required: true }
+        - { name: oldPassword, schema: { type: string }, in: query, required: false }
+        - { name: checkOldPassword, schema: { type: boolean }, in: query, required: false, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  /urlinjsonout/usersManager/changePassword/user:
+    post:
+      tags:
+        - UsersManager
+      operationId: changePasswordForUser
+      summary: Changes password for a user in specified login-namespace.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/namespace'
+        - { name: newPassword, schema: { type: string }, in: query, required: true }
+        - { name: oldPassword, schema: { type: string }, in: query, required: false }
+        - { name: checkOldPassword, schema: { type: boolean }, in: query, required: false, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/loginExist:
     post:
       tags:
         - UsersManager
       operationId: loginExist
-      summary: check wheter login exists in specified login-namespace.
+      summary: Check wheter login exists in specified login-namespace. Only available for some namespaces.
       parameters:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/namespace'
       responses:
         '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
           $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/usersManager/deleteUser:
     post:
