@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Display preview of VOs/Groups application form based on current
@@ -192,7 +193,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 			// get localized texts
 			ItemTexts itemTexts = item.getItemTexts(locale);
 
-			if(!gen.isVisible()){
+			if(item.getHidden().equals("ALWAYS")) {
 				continue;
 			}
 
@@ -208,10 +209,64 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 					ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong>");
 				}
 
-				// 1 = widget
+				// 1 = widget with icons
+				HorizontalPanel hp = new HorizontalPanel();
+				hp.setSpacing(10);
+
 				Widget w = gen.getWidget();
 				w.setTitle(itemTexts.getHelp());
-				ft.setWidget(i, 1, w);
+				if (item.getDisabled().equals("ALWAYS")) {
+					w.getElement().setAttribute("disabled","disabled");
+				}
+				hp.add(w);
+
+				// lock icon 
+				if(item.getDisabled() != "NEVER") {
+					Image lockIcon =  new Image(SmallIcons.INSTANCE.lockIcon());
+					lockIcon.setStyleName("pointer");
+
+					String dependency = item.getDisabledDependencyItemId() == 0 ? "it" : formItems.stream()
+						.filter(it -> it.getId() == item.getDisabledDependencyItemId())
+						.collect(Collectors.toList()).get(0).getShortname();
+					switch (item.getDisabled()) {
+						case "ALWAYS":
+							lockIcon.setTitle("Always disabled");
+							break;
+						case "IF_EMPTY":
+							lockIcon.setTitle("Disabled when " + dependency + " is empty");
+							break;
+						case "IF_PREFILLED":
+							lockIcon.setTitle("Disabled when " + dependency + " is prefilled");
+							break;
+					}
+
+					hp.add(lockIcon);
+				}
+
+				// eye icon
+				if(item.getHidden() != "NEVER") {
+					Image eyeIcon =  new Image(SmallIcons.INSTANCE.eyeIcon());
+					eyeIcon.setStyleName("pointer");
+
+					String dependency = item.getHiddenDependencyItemId() == 0 ? "it" : formItems.stream()
+						.filter(it -> it.getId() == item.getHiddenDependencyItemId())
+						.collect(Collectors.toList()).get(0).getShortname();
+					switch (item.getHidden()) {
+						case "ALWAYS":
+							eyeIcon.setTitle("Always hidden");
+							break;
+						case "IF_EMPTY":
+							eyeIcon.setTitle("Hidden when " + dependency + " is empty");
+							break;
+						case "IF_PREFILLED":
+							eyeIcon.setTitle("Hidden when " + dependency + " is prefilled");
+							break;
+					}
+
+					hp.add(eyeIcon);
+				}
+
+				ft.setWidget(i, 1, hp);
 
 				// 2 = status
 				ft.setWidget(i, 2, gen.getStatusWidget());
