@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
@@ -420,8 +421,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
 					" groups_resources on groups.id=groups_resources.group_id " +
-					" where groups_resources.resource_id=?",
-					GROUP_MAPPER, resource.getId());
+					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status",
+					GROUP_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -433,9 +434,10 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
-							" groups_resources on groups.id=groups_resources.group_id and groups_resources.resource_id=?" +
+							" groups_resources on groups.id=groups_resources.group_id and groups_resources.resource_id=? " +
+							" and groups_resources.status=?::group_resource_status" +
 							" join groups_members on groups_members.group_id=groups.id and groups_members.member_id=?",
-					GROUP_MAPPER, resource.getId(), member.getId());
+					GROUP_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), member.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -447,10 +449,10 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
-							" groups_resources on groups.id=groups_resources.group_id " +
+							" groups_resources on groups.id=groups_resources.group_id and groups_resources.status=?::group_resource_status " +
 							" join resources on groups_resources.resource_id=resources.id " +
 							"where resources.facility_id=?",
-					GROUP_MAPPER, facility.getId());
+					GROUP_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

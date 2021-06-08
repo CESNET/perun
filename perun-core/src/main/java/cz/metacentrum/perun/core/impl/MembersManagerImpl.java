@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.NamespaceRules;
@@ -589,9 +590,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			Member result = jdbc.queryForObject("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery +
 							" from groups_resources join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
-					" where groups_resources.resource_id=? and members.id=?",
+					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status and members.id=?",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
-					member.getId());
+					GroupResourceStatus.ACTIVE.toString(), member.getId());
 			return result.getGroupStatus();
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
@@ -610,9 +611,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 							" from groups_resources join groups on groups_resources.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
 							" join resources on groups_resources.resource_id=resources.id " +
-							" where resources.facility_id=? and members.user_id=?",
-					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
-					user.getId());
+							" where groups_resources.status=?::group_resource_status and resources.facility_id=? and members.user_id=?",
+					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(),
+					facility.getId(), user.getId());
 
 			if (result != null && !result.isEmpty()) {
 
