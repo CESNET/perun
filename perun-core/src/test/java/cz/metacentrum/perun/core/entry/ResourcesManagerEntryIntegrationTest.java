@@ -1,15 +1,19 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
@@ -47,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -2073,6 +2078,64 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertThat(eResources).hasSize(1);
 		assertThat(eResources.get(0).getAttributes()).hasSize(1);
 		assertThat(eResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+	}
+
+	@Test
+	public void getResourceAssignments() throws Exception {
+		System.out.println(CLASS_NAME + "getResourceAssignments");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+
+		List<AssignedResource> resources = resourcesManager.getResourceAssignments(sess, group, null);
+		AssignedResource expectedResource = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE);
+
+		assertThat(resources.size()).isEqualTo(1);
+		assertThat(resources).containsExactly(expectedResource);
+		assertThat(resources.get(0).getEnrichedResource().getAttributes())
+			.containsExactlyInAnyOrderElementsOf(perun.getAttributesManager().getAttributes(sess, resource));
+	}
+
+	@Test
+	public void getResourceAssignmentsWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getResourceAssignmentsWhenGroupNotExists");
+
+		assertThatExceptionOfType(GroupNotExistsException.class)
+			.isThrownBy(() -> resourcesManager.getResourceAssignments(sess, new Group(), null));
+	}
+
+	@Test
+	public void getGroupAssignments() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupAssignments");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+
+		List<AssignedGroup> groups = resourcesManager.getGroupAssignments(sess, resource, null);
+		AssignedGroup expectedGroup = new AssignedGroup(new EnrichedGroup(group, null), GroupResourceStatus.ACTIVE);
+
+		assertThat(groups.size()).isEqualTo(1);
+		assertThat(groups).containsExactly(expectedGroup);
+		assertThat(groups.get(0).getEnrichedGroup().getAttributes())
+			.containsExactlyInAnyOrderElementsOf(perun.getAttributesManager().getAttributes(sess, group));
+	}
+
+	@Test
+	public void getGroupAssignmentsWhenResourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupAssignmentsWhenResourceNotExists");
+
+		assertThatExceptionOfType(ResourceNotExistsException.class)
+			.isThrownBy(() -> resourcesManager.getGroupAssignments(sess, new Resource(), null));
 	}
 
 	// PRIVATE METHODS -----------------------------------------------------------

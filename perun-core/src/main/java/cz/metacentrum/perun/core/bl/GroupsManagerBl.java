@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -1274,6 +1275,16 @@ public interface GroupsManagerBl {
 	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Member member, Resource resource, boolean useContext);
 
 	/**
+	 * For enrichedGroup filter all its group attributes and remove all which principal has no access to.
+	 *
+	 * @param sess
+	 * @param enrichedGroup
+	 * @return enrichedGroup with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	EnrichedGroup filterOnlyAllowedAttributes(PerunSession sess, EnrichedGroup enrichedGroup);
+
+	/**
 	 * This method takes group and creates RichGroup containing all attributes
 	 *
 	 * @param sess
@@ -1896,4 +1907,15 @@ public interface GroupsManagerBl {
 	 * @param group group to check
 	 */
 	boolean isGroupForAutoRegistration(PerunSession sess, Group group);
+
+	/**
+	 * Creates enrichedGroup from given group and load attributes with given names.
+	 * If the attrNames are null, all group attributes are added.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrNames names of attributes to return
+	 * @return EnrichedGroup for given group with desired attributes
+	 */
+	EnrichedGroup convertToEnrichedGroup(PerunSession sess, Group group, List<String> attrNames);
 }

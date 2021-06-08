@@ -1375,5 +1375,49 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 			return null;
 		}
-	};
+	},
+
+	/*#
+	 * Lists all of the resource assignments for the given group. Also, returns specified attributes
+	 * for the resources. If attrNames are null or empty, all resource attributes are returned.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param attrNames List<String> names of attributes to return
+	 * @return List<AssignedResource> resources for given group with specified attributes
+	 * @throw GroupNotExistsException when the group doesn't exist
+	 */
+	getResourceAssignments {
+		@Override
+		public List<AssignedResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+
+			return ac.getResourcesManager().getResourceAssignments(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")), attrNames);
+		}
+	},
+
+	/*#
+	 * Lists all of the assigned groups for the given resource. Also, returns specified attributes
+	 * for the groups. If attrNames are null, all group attributes are returned.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param attrNames List<String> names of attributes to return
+	 * @return List<AssignedGroup> groups for given resource with specified attributes
+	 * @throw ResourceNotExistsException when the resource doesn't exist
+	 */
+	getGroupAssignments {
+		@Override
+		public List<AssignedGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+
+			return ac.getResourcesManager().getGroupAssignments(ac.getSession(),
+				ac.getResourceById(parms.readInt("resource")), attrNames);
+		}
+	}
 }
