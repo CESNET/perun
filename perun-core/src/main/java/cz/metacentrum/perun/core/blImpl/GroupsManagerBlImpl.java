@@ -182,6 +182,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public static final String PARENT_GROUP_LOGIN = "parentGroupLogin";
 	public static final String GROUP_NAME = "groupName";
 	public static final String GROUP_DESCRIPTION = "description";
+	public static final String OVERWRITE_USER_ATTRIBUTES = "overwriteUserAttributes";
+	public static final String MERGE_MEMBER_ATTRIBUTES = "mergeMemberAttributes";
+	public static final String MERGE_GROUP_ATTRIBUTES = "mergeGroupAttributes";
 
 	public static final Set<String> GROUP_SYNC_DEFAULT_DATA = ImmutableSet.of(
 		GROUP_LOGIN,
@@ -1716,8 +1719,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			membersSource = getGroupMembersExtSourceForSynchronization(sess, group, source);
 
 			//Prepare info about userAttributes which need to be overwritten (not just updated) and memberAttributes which need to be merged not overwritten
-			List<String> overwriteUserAttributesList = getOverwriteUserAttributesListFromExtSource(membersSource);
-			List<String> mergeMemberAttributesList = getMemberAttributesListToBeMergedFromExtSource(membersSource);
+			List<String> overwriteUserAttributesList = getAttributesListFromExtSource(membersSource, OVERWRITE_USER_ATTRIBUTES);
+			List<String> mergeMemberAttributesList = getAttributesListFromExtSource(membersSource, MERGE_MEMBER_ATTRIBUTES);
 
 			//Get info about type of synchronization (with or without update)
 			boolean lightweightSynchronization = isThisLightweightSynchronization(sess, group);
@@ -1805,6 +1808,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		List<String> mergeAttributes = getAttributesListFromExtSource(source, MERGE_GROUP_ATTRIBUTES);
+
 		List<CandidateGroup> candidateGroups = getPerunBl().getExtSourcesManagerBl().generateCandidateGroups(sess, subjectGroups, source, loginPrefix);
 
 		categorizeGroupsForSynchronization(actualGroups, candidateGroups, candidateGroupsToAdd, groupsToUpdate, groupsToRemove);
@@ -1813,8 +1818,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//removing need to go first to be able to replace groups with same name but different login
 		//updating need to be last to set right order of groups again
 		List<Integer> removedGroupsIds = removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
-		addMissingGroupsWhileSynchronization(sess, baseGroup, candidateGroupsToAdd, loginAttributeDefinition, skippedGroups);
-		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, removedGroupsIds, loginAttributeDefinition, skippedGroups);
+		addMissingGroupsWhileSynchronization(sess, baseGroup, candidateGroupsToAdd, loginAttributeDefinition, skippedGroups, mergeAttributes);
+		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, removedGroupsIds, loginAttributeDefinition, skippedGroups, mergeAttributes);
 
 		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source, loginAttributeDefinition, loginPrefix);
 
@@ -3141,32 +3146,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
-	 * From membersSource extSource get attribute overwriteUserAttributes and prepare
-	 * list of attributes names to be overwrite for synchronized users.
-	 *
-	 * Attribute has value (if set) in format "name,name2,name3..."
-	 * Method parse these names to list of names.
-	 * Return empty array if attribute is not set for extSource or if it is empty.
-	 *
-	 * @param membersSource to get attributes from
-	 *
-	 * @return list of attribute names to be overwrite
-	 *
-	 * @throws InternalErrorException if something happens in getting attributes from membersSource
-	 */
-	private List<String> getOverwriteUserAttributesListFromExtSource(ExtSource membersSource) {
-		Map<String, String> membersSourceAttributes = getPerunBl().getExtSourcesManagerBl().getAttributes(membersSource);
-		List<String> overwriteUserAttributesList = new ArrayList<>();
-		String overwriteUserAttributes = membersSourceAttributes.get("overwriteUserAttributes");
-		if(overwriteUserAttributes != null && !overwriteUserAttributes.isEmpty()) {
-			//remove all white spaces and invisible characters
-			overwriteUserAttributes = overwriteUserAttributes.replaceAll("\\s", "");
-			overwriteUserAttributesList = Arrays.asList(overwriteUserAttributes.split(","));
-		}
-		return overwriteUserAttributesList;
-	}
-
-	/**
 	 * Return login prefix for group structure if exists. In other case, return empty string.
 	 *
 	 * @param sess
@@ -3250,29 +3229,29 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
-	 * From membersSource extSource get attribute mergeMemberAttributes and prepare
-	 * list of attributes names to be overwrite for synchronized users.
+	 * From source extSource get attribute attributeName and return
+	 * list of attributes names.
 	 *
 	 * Attribute has value (if set) in format "name,name2,name3..."
 	 * Method parse these names to list of names.
 	 * Return empty array if attribute is not set for extSource or if it is empty.
 	 *
-	 * @param membersSource to get attributes from
+	 * @param source to get attributes from
 	 *
-	 * @return list of attribute names to be overwrite
+	 * @return list of attribute names
 	 *
-	 * @throws InternalErrorException if something happens in getting attributes from membersSource
+	 * @throws InternalErrorException if something happens in getting attributes from source
 	 */
-	private List<String> getMemberAttributesListToBeMergedFromExtSource(ExtSource membersSource) {
-		Map<String, String> membersSourceAttributes = getPerunBl().getExtSourcesManagerBl().getAttributes(membersSource);
-		List<String> mergeMemberAttributesList = new ArrayList<>();
-		String mergeMemberAttributes = membersSourceAttributes.get("mergeMemberAttributes");
-		if(mergeMemberAttributes != null && !mergeMemberAttributes.isEmpty()) {
+	private List<String> getAttributesListFromExtSource(ExtSource source, String attributeName) {
+		Map<String, String> sourceAttributes = getPerunBl().getExtSourcesManagerBl().getAttributes(source);
+		List<String> attributesList = new ArrayList<>();
+		String attributes = sourceAttributes.get(attributeName);
+		if(attributes != null && !attributes.isEmpty()) {
 			//remove all white spaces and invisible characters
-			mergeMemberAttributes = mergeMemberAttributes.replaceAll("\\s", "");
-			mergeMemberAttributesList = Arrays.asList(mergeMemberAttributes.split(","));
+			attributes = attributes.replaceAll("\\s", "");
+			attributesList = Arrays.asList(attributes.split(","));
 		}
-		return mergeMemberAttributesList;
+		return attributesList;
 	}
 
 	/**
@@ -3974,7 +3953,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param group group
 	 * @param additionalAttributes map with attrNames and values
 	 */
-	private void setUpAdditionalAttributes(PerunSession sess, Group group, Map<String, String> additionalAttributes) {
+	private void setUpAdditionalAttributes(PerunSession sess, Group group, Map<String, String> additionalAttributes, List<String> mergeAttributes) {
 		additionalAttributes.forEach((attrName, rawValue) -> {
 			if (!attrName.startsWith(AttributesManager.NS_GROUP_ATTR_DEF)) {
 				throw new InternalErrorException("Cannot synchronize a non group-def attribute - " + attrName);
@@ -3989,7 +3968,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			Object value = BeansUtils.stringToAttributeValue(rawValue, definition.getType());
 			Attribute attribute = new Attribute(definition, value);
 			try {
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, group, attribute);
+				if (mergeAttributes != null && mergeAttributes.contains(attrName)) {
+					getPerunBl().getAttributesManagerBl().mergeAttributeValue(sess, group, attribute);
+				} else {
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, group, attribute);
+				}
 			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException e) {
 				// Probably should not happen
 				throw new InternalErrorException("Failed to set synced group attribute.", e);
@@ -4328,14 +4311,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void updateExistingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, Map<CandidateGroup, Group> groupsToUpdate, List<Integer> removedGroupsIds, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups) {
+	private void updateExistingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, Map<CandidateGroup, Group> groupsToUpdate, List<Integer> removedGroupsIds, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups, List<String> mergeAttributes) {
 
 		for(CandidateGroup candidateGroup: groupsToUpdate.keySet()) {
 			Group groupToUpdate = groupsToUpdate.get(candidateGroup);
 			//If group had parent which was already removed from perun, it was moved under base group, change it's parent group id properly for updating
 			if(removedGroupsIds.contains(groupToUpdate.getParentGroupId())) groupToUpdate.setParentGroupId(baseGroup.getId());
 
-			setUpAdditionalAttributes(sess, groupToUpdate, candidateGroup.getAdditionalAttributes());
+			setUpAdditionalAttributes(sess, groupToUpdate, candidateGroup.getAdditionalAttributes(), mergeAttributes);
 
 			Group newParentGroup = specifyParentForUpdatedGroup(sess, groupToUpdate, baseGroup, candidateGroup, loginAttributeDefinition.getName());
 
@@ -4524,7 +4507,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void addMissingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, List<CandidateGroup> candidateGroupsToAdd, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups) {
+	private void addMissingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, List<CandidateGroup> candidateGroupsToAdd, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups, List<String> mergeAttributes) {
 		Map<CandidateGroup, Group> groupsToUpdate = new HashMap<>();
 
 		//create all groups under base group first
@@ -4560,7 +4543,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		// update newly added groups cause the hierarchy could be incorrect
 		//no need to send list of removed parent groups here, because it is no need to resolve it for new groups at all
-		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, Collections.emptyList(), loginAttributeDefinition, skippedGroups);
+		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, Collections.emptyList(), loginAttributeDefinition, skippedGroups, mergeAttributes);
 	}
 
 	/**
