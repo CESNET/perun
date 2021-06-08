@@ -5203,6 +5203,35 @@ perun_policies:
     include_policies:
       - default_policy
 
+  deletePassword_User_String_policy:
+    policy_roles:
+      - REGISTRAR:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  service_user-deletePassword_User_String_policy:
+    policy_roles:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  loginExist_User_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  service_user-loginExist_User_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
   createAlternativePassword_User_String_String_String_policy:
     policy_roles:
       - SELF: User

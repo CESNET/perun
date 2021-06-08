@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -1041,8 +1040,13 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "reserveRandomPassword_User_String_policy", user)
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-reserveRandomPassword_User_String_policy", user)) && user.isServiceUser())) {
+		boolean authorized;
+		if (!user.isServiceUser()) {
+			authorized = AuthzResolver.authorizedInternal(sess, "reserveRandomPassword_User_String_policy", user);
+		} else {
+			authorized = AuthzResolver.authorizedInternal(sess, "service_user-reserveRandomPassword_User_String_policy", user);
+		}
+		if (!authorized) {
 			throw new PrivilegeException(sess, "reserveRandomPassword");
 		}
 
@@ -1075,8 +1079,13 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "reservePassword_User_String_String_policy", user)
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-reservePassword_User_String_String_policy", user)) && user.isServiceUser())) {
+		boolean authorized;
+		if (!user.isServiceUser()) {
+			authorized = AuthzResolver.authorizedInternal(sess, "reservePassword_User_String_String_policy", user);
+		} else {
+			authorized = AuthzResolver.authorizedInternal(sess, "service_user-reservePassword_User_String_String_policy", user);
+		}
+		if (!authorized) {
 			throw new PrivilegeException(sess, "reservePassword");
 		}
 
@@ -1110,8 +1119,13 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", user)
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-validatePassword_User_String_policy", user)) && user.isServiceUser())) {
+		boolean authorized;
+		if (!user.isServiceUser()) {
+			authorized = AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", user);
+		} else {
+			authorized = AuthzResolver.authorizedInternal(sess, "service_user-validatePassword_User_String_policy", user);
+		}
+		if (!authorized) {
 			throw new PrivilegeException(sess, "validatePassword");
 		}
 
@@ -1119,7 +1133,6 @@ public class UsersManagerEntry implements UsersManager {
 
 		getUsersManagerBl().validatePassword(sess, user, loginNamespace);
 	}
-
 
 	@Override
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws
@@ -1146,6 +1159,47 @@ public class UsersManagerEntry implements UsersManager {
 				getUsersManagerBl().deletePassword(sess, userLogin, loginNamespace);
 			}
 		}
+	}
+
+	@Override
+	public void deletePassword(PerunSession sess, User user, String loginNamespace) throws
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, InvalidLoginException, PasswordOperationTimeoutException, PasswordDeletionFailedException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		boolean authorized;
+		if (!user.isServiceUser()) {
+			authorized = AuthzResolver.authorizedInternal(sess, "deletePassword_User_String_policy", user);
+		} else {
+			authorized = AuthzResolver.authorizedInternal(sess, "service_user-deletePassword_User_String_policy", user);
+		}
+		if (!authorized) {
+			throw new PrivilegeException(sess, "deletePassword");
+		}
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		getUsersManagerBl().deletePassword(sess, user, loginNamespace);
+	}
+
+	@Override
+	public boolean loginExist(PerunSession sess, User user, String loginNamespace) throws PrivilegeException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		boolean authorized;
+		if (!user.isServiceUser()) {
+			authorized = AuthzResolver.authorizedInternal(sess, "loginExist_User_String_policy", user);
+		} else {
+			authorized = AuthzResolver.authorizedInternal(sess, "service_user-loginExist_User_String_policy", user);
+		}
+		if (!authorized) {
+			throw new PrivilegeException(sess, "loginExist");
+		}
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		return getUsersManagerBl().loginExist(sess, user, loginNamespace);
 	}
 
 	@Override

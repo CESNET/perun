@@ -985,17 +985,17 @@ public interface UsersManagerBl {
 	 * @param checkOldPassword
 	 * @param loginNamespace
 	 * @throws InternalErrorException
-	 * @throws PasswordDoesntMatchException
+	 * @throws PasswordDoesntMatchException When old password does not match
 	 * @throws PasswordChangeFailedException
 	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
 			throws LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
-	 * Reserves random password in external system. User must exists.
+	 * Reserves random password in external system. User must exists. User's login for specified namespace must exist in Perun.
 	 *
 	 * @param sess
 	 * @param user
@@ -1003,7 +1003,7 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
 	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException;
 
@@ -1016,14 +1016,14 @@ public interface UsersManagerBl {
 	 * @param password
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password)
 			throws PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
-	 * Reserves the password in external system. User must exists.
+	 * Reserves the password in external system. User must exists. User's login for specified namespace must exist in Perun.
 	 *
 	 * @param sess
 	 * @param user
@@ -1032,7 +1032,7 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
 	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	void reservePassword(PerunSession sess, User user, String loginNamespace, String password)
@@ -1047,14 +1047,14 @@ public interface UsersManagerBl {
 	 * @param loginNamespace
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	void validatePassword(PerunSession sess, String userLogin, String loginNamespace)
 			throws PasswordCreationFailedException, InvalidLoginException;
 
 	/**
 	 * Validates the password in external system and sets user extSources and extSource related attributes.
-	 * User must exists.
+	 * User must exists. User's login for specified namespace must exist in Perun.
 	 *
 	 * @param sess
 	 * @param user
@@ -1062,7 +1062,7 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws PasswordCreationFailedException
 	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	void validatePassword(PerunSession sess, User user, String loginNamespace)
 			throws PasswordCreationFailedException, LoginNotExistsException, InvalidLoginException;
@@ -1071,15 +1071,39 @@ public interface UsersManagerBl {
 	 * Deletes password in external system. User must not exists.
 	 *
 	 * @param sess
-	 * @param userLogin
+	 * @param userLogin      string representation of the userLogin
 	 * @param loginNamespace
 	 * @throws InternalErrorException
 	 * @throws PasswordDeletionFailedException
 	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	void deletePassword(PerunSession sess, String userLogin, String loginNamespace)
 			throws PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException;
+
+	/**
+	 * Deletes password in external system for existing user. User's login for specified namespace must exist in Perun.
+	 *
+	 * @param sess perunSession
+	 * @param user for which the password will be deleted
+	 * @param loginNamespace from which the password will be deleted
+	 * @throws PasswordDeletionFailedException
+	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throws PasswordOperationTimeoutException
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 */
+	void deletePassword(PerunSession sess, User user, String loginNamespace)
+		throws PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException;
+
+	/**
+	 * Checks if login exists in given login-namespace.
+	 *
+	 * @param sess perunSession
+	 * @param user
+	 * @param loginNamespace
+	 * @return True if login for user exists in given namespace, false otherwise
+	 */
+	boolean loginExist(PerunSession sess, User user, String loginNamespace);
 
 	/**
 	 * Creates alternative password in external system.
