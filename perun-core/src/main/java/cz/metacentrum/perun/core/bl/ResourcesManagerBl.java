@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.bl;
 
+import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
@@ -1161,4 +1163,26 @@ public interface ResourcesManagerBl {
 	 * @return resources with desired attributes
 	 */
 	List<EnrichedResource> getEnrichedRichResourcesForFacility(PerunSession sess, Facility facility, List<String> attrNames);
+
+	/**
+	 * Lists all of the resource assignments for the given group. Also, returns specified attributes
+	 * for the resources. If attrNames are null or empty, all resource attributes are returned.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrNames names of attributes to return
+	 * @return list of assigned resources for given group with specified attributes
+	 */
+	List<AssignedResource> getResourceAssignments(PerunSession sess, Group group, List<String> attrNames);
+
+	/**
+	 * Lists all of the assigned groups for the given resource. Also, returns specified attributes
+	 * for the groups. If attrNames are null, all group attributes are returned.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrNames names of attributes to return
+	 * @return list of assigned groups for given resource with specified attributes
+	 */
+	List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource, List<String> attrNames);
 }

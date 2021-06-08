@@ -3874,6 +3874,66 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getResourceAssignments_Group_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - ENGINE:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getResourceAssignments_Group_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - ENGINE:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
+  getGroupAssignments_Resource_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getGroupAssignments_Resource_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+      - RESOURCESELFSERVICE: Resource
+        GROUPOBSERVER: Group
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   #SearcherEntry
   getUsers_Map<String_String>_policy:
     policy_roles:

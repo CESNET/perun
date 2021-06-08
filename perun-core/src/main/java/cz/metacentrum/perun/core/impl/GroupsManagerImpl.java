@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -68,6 +70,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
+	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources.status as groups_resources_status";
+
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
 	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -93,6 +97,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		if(resultSet.getInt("groups_created_by_uid") == 0) g.setCreatedByUid(null);
 		else g.setCreatedByUid(resultSet.getInt("groups_created_by_uid"));
 		return g;
+	};
+
+	protected static final RowMapper<AssignedGroup> ASSIGNED_GROUP_MAPPER = (resultSet, i) -> {
+		Group group = GROUP_MAPPER.mapRow(resultSet, i);
+		EnrichedGroup enrichedGroup = new EnrichedGroup(group, null);
+		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")));
 	};
 
 	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = (resultSet, i) -> {

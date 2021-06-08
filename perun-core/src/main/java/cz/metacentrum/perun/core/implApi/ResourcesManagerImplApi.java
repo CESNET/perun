@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.implApi;
 
+import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -763,4 +765,24 @@ public interface ResourcesManagerImplApi {
 	 * @throws BanNotExistsException
 	 */
 	void removeBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException;
+
+	/**
+	 * Lists all of the resource assignments for the given group without the resources' attributes.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @return list of assigned resources for given group
+	 * @throws InternalErrorException
+	 */
+	List<AssignedResource> getResourceAssignments(PerunSession sess, Group group);
+
+	/**
+	 * Lists all of the assigned groups for the given resource without the groups' attributes.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @return list of assigned groups for given resource
+	 * @throws InternalErrorException
+	 */
+	List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource);
 }

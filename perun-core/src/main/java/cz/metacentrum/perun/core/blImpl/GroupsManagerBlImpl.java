@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -2622,6 +2623,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		return filteredRichGroups;
 
+	}
+
+	@Override
+	public EnrichedGroup filterOnlyAllowedAttributes(PerunSession sess, EnrichedGroup enrichedGroup) {
+		enrichedGroup.setAttributes(AuthzResolverBlImpl
+			.filterNotAllowedAttributes(sess, enrichedGroup.getGroup(), enrichedGroup.getAttributes()));
+		return enrichedGroup;
 	}
 
 	public void setPerunBl(PerunBl perunBl) {
@@ -5599,5 +5607,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
 		return this.getGroupsManagerImpl().isGroupForAutoRegistration(sess, group);
+	}
+
+	@Override
+	public EnrichedGroup convertToEnrichedGroup(PerunSession sess, Group group, List<String> attrNames) {
+		List<Attribute> attributes;
+		if (attrNames == null) {
+			attributes = perunBl.getAttributesManagerBl().getAttributes(sess, group);
+		} else {
+			attributes = perunBl.getAttributesManagerBl().getAttributes(sess, group, attrNames);
+		}
+		return new EnrichedGroup(group, attributes);
 	}
 }

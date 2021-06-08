@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
@@ -1294,6 +1296,50 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		getResourcesManagerBl().removeResourceSelfServiceGroup(sess, resource, group);
+	}
+
+	@Override
+	public List<AssignedResource> getResourceAssignments(PerunSession sess, Group group, List<String> attrNames) throws PrivilegeException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getResourceAssignments_Group_policy", group)) {
+			throw new PrivilegeException(sess, "getResourceAssignments");
+		}
+
+		List<AssignedResource> filteredResources = getResourcesManagerBl().getResourceAssignments(sess, group, attrNames).stream()
+			.filter(assignedResource -> AuthzResolver.authorizedInternal(sess,
+				"filter-getResourceAssignments_Group_policy", assignedResource.getEnrichedResource().getResource()))
+			.collect(Collectors.toList());
+
+		filteredResources.forEach(assignedResource ->
+			assignedResource.setEnrichedResource(getResourcesManagerBl().filterOnlyAllowedAttributes(sess, assignedResource.getEnrichedResource())));
+
+		return filteredResources;
+	}
+
+	@Override
+	public List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupAssignments_Resource_policy", resource)) {
+			throw new PrivilegeException(sess, "getGroupAssignments");
+		}
+
+		List<AssignedGroup> filteredGroups =  getResourcesManagerBl().getGroupAssignments(sess, resource, attrNames).stream()
+			.filter(assignedGroup -> AuthzResolver.authorizedInternal(sess,
+				"filter-getGroupAssignments_Resource_policy", assignedGroup.getEnrichedGroup().getGroup()))
+			.collect(Collectors.toList());
+
+		filteredGroups.forEach(assignedGroup ->
+			assignedGroup.setEnrichedGroup(getPerunBl().getGroupsManagerBl().filterOnlyAllowedAttributes(sess, assignedGroup.getEnrichedGroup())));
+
+		return filteredGroups;
 	}
 
 	/**

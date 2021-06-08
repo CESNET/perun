@@ -1166,4 +1166,30 @@ public interface ResourcesManager {
 	 * @throws GroupNotAdminException     group did not have the role
 	 */
 	void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws PrivilegeException, GroupNotAdminException, ResourceNotExistsException, GroupNotExistsException;
+
+	/**
+	 * Lists all of the resource assignments for the given group. Also, returns specified attributes
+	 * for the resources. If attrNames are null or empty, all resource attributes are returned.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @param attrNames names of attributes to return
+	 * @return list of assigned resources for given group with specified attributes
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 */
+	List<AssignedResource> getResourceAssignments(PerunSession session, Group group, List<String> attrNames) throws PrivilegeException, GroupNotExistsException;
+
+	/**
+	 * Lists all of the assigned groups for the given resource. Also, returns specified attributes
+	 * for the groups. If attrNames are null, all group attributes are returned.
+	 *
+	 * @param session
+	 * @param resource resource
+	 * @param attrNames names of attributes to return
+	 * @return list of assigned groups for given resource with specified attributes
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws ResourceNotExistsException when the resource doesn't exist
+	 */
+	List<AssignedGroup> getGroupAssignments(PerunSession session, Resource resource, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException;
 }

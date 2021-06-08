@@ -1,8 +1,11 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
@@ -69,6 +72,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources.created_at as resources_created_at, resources.created_by as resources_created_by, resources.modified_by as resources_modified_by, " +
 		"resources.modified_at as resources_modified_at, resources.modified_by_uid as resources_modified_by_uid, resources.created_by_uid as resources_created_by_uid";
 
+	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status";
+
 	protected final static String resourceTagMappingSelectQuery = "res_tags.id as res_tags_id, res_tags.vo_id as res_tags_vo_id, res_tags.tag_name as res_tags_tag_name, " +
 		"res_tags.created_at as res_tags_created_at, res_tags.created_by as res_tags_created_by, res_tags.modified_by as res_tags_modified_by, " +
 		"res_tags.modified_at as res_tags_modified_at, res_tags.modified_by_uid as res_tags_modified_by_uid, res_tags.created_by_uid as res_tags_created_by_uid";
@@ -97,6 +102,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		if(resultSet.getInt("resources_created_by_uid") == 0) resource.setCreatedByUid(null);
 		else resource.setCreatedByUid(resultSet.getInt("resources_created_by_uid"));
 		return resource;
+	};
+
+	protected static final RowMapper<AssignedResource> ASSIGNED_RESOURCE_MAPPER = (resultSet, i) -> {
+		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
+		EnrichedResource enrichedResource = new EnrichedResource(resource, null);
+		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")));
 	};
 
 	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = (resultSet, i) -> {
@@ -1180,6 +1191,28 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			if(numAffected != 1) throw new BanNotExistsException("Ban for member " + memberId + " and resource " + resourceId + " can't be remove, because not exists yet.");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<AssignedResource> getResourceAssignments(PerunSession sess, Group group) {
+		try {
+			return jdbc.query("select " + assignedResourceMappingSelectQuery + " from resources" +
+					" join groups_resources on resources.id=groups_resources.resource_id" +
+					" where groups_resources.group_id=?", ASSIGNED_RESOURCE_MAPPER, group.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource) {
+		try {
+			return jdbc.query("select " + GroupsManagerImpl.assignedGroupMappingSelectQuery + " from groups join " +
+					" groups_resources on groups.id=groups_resources.group_id " +
+					" where groups_resources.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 

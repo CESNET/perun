@@ -14,6 +14,8 @@ import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceSelfServi
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceUpdated;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceAssignedToResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceRemovedFromResource;
+import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnResource;
@@ -1053,6 +1055,28 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return perunBl.getFacilitiesManagerBl().getAssignedResources(sess, facility).stream()
 				.map(resource -> convertToEnrichedResource(sess, resource, attrNames))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<AssignedResource> getResourceAssignments(PerunSession sess, Group group, List<String> attrNames) {
+		List<AssignedResource> assignedResources = getResourcesManagerImpl().getResourceAssignments(sess, group);
+
+		// set resource attributes in EnrichedResource
+		assignedResources.forEach(assignedResource ->
+			assignedResource.setEnrichedResource(convertToEnrichedResource(sess, assignedResource.getEnrichedResource().getResource(), attrNames)));
+
+		return assignedResources;
+	}
+
+	@Override
+	public List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource, List<String> attrNames) {
+		List<AssignedGroup> assignedGroups = getResourcesManagerImpl().getGroupAssignments(sess, resource);
+
+		// set group attributes in EnrichedGroup
+		assignedGroups.forEach(assignedGroup -> assignedGroup.setEnrichedGroup(getPerunBl().getGroupsManagerBl()
+				.convertToEnrichedGroup(sess, assignedGroup.getEnrichedGroup().getGroup(), attrNames)));
+
+		return assignedGroups;
 	}
 
 	/**
