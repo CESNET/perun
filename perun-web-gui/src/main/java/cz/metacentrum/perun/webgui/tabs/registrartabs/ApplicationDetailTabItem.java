@@ -405,6 +405,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 		GetApplicationDataById data = new GetApplicationDataById(appId);
 		data.setEditable(app.getState().equals("VERIFIED") || app.getState().equals("NEW"));
+		data.setEmbedded(app.getType().equals("EMBEDDED"), app.getUser());
 		data.retrieveData();
 		ScrollPanel sp = new ScrollPanel(data.getContents());
 		sp.setSize("100%", "100%");
