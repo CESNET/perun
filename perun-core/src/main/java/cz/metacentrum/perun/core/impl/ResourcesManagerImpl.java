@@ -515,14 +515,14 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws GroupAlreadyAssignedException {
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) throws GroupAlreadyAssignedException {
 		try {
 			if(1==jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId())) {
 				throw new GroupAlreadyAssignedException(group);
 			}else{
 				jdbc.update("insert into groups_resources (group_id, resource_id, status, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid) " +
 						"values (?,?,?::group_resource_status,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", group.getId(),
-						resource.getId(), GroupResourceStatus.ACTIVE.toString(), sess.getPerunPrincipal().getActor(),
+						resource.getId(), status.toString(), sess.getPerunPrincipal().getActor(),
 						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			}
 		} catch(RuntimeException ex) {
