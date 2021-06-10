@@ -496,6 +496,59 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 	}
 
 	@Test
+	public void mergeGroupAttributeTestList() throws Exception {
+		System.out.println(CLASS_NAME + "mergeGroupAttributeTestList");
+
+		final Group subBaseGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+		AttributeDefinition additionalAttr = setGroupAttribute("list", ArrayList.class.getName());
+
+		Attribute attribute = new Attribute(additionalAttr, new ArrayList<>(List.of("val0", "val1")));
+		attributesManagerBl.setAttribute(sess, subBaseGroup, attribute);
+
+		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "child of base group");
+		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+		subjects.get(0).put(additionalAttr.getName(), "val1,val2,");
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+		doReturn(Map.of("mergeGroupAttributes", attribute.getName())).when(extSourceManagerBl).getAttributes((ExtSourceLdap)essa);
+
+		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+		attribute = attributesManagerBl.getAttribute(sess, subBaseGroup, additionalAttr.getName());
+		assertThat(attribute.valueAsList()).containsExactly("val0", "val1", "val2");
+	}
+
+	@Test
+	public void overwriteGroupAttributeTestList() throws Exception {
+		System.out.println(CLASS_NAME + "overwriteGroupAttributeTestList");
+
+		final Group subBaseGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+		AttributeDefinition additionalAttr = setGroupAttribute("list", ArrayList.class.getName());
+
+		Attribute attribute = new Attribute(additionalAttr, new ArrayList<>(List.of("val0", "val1")));
+		attributesManagerBl.setAttribute(sess, subBaseGroup, attribute);
+
+		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "child of base group");
+		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+		subjects.get(0).put(additionalAttr.getName(), "val1,val2,");
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+		attribute = attributesManagerBl.getAttribute(sess, subBaseGroup, additionalAttr.getName());
+		assertThat(attribute.valueAsList()).containsExactly("val1", "val2");
+	}
+
+	@Test
 	public void removeAllGroupsTest() throws Exception {
 		System.out.println(CLASS_NAME + "removeAllGroupsTest");
 

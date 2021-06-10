@@ -5528,6 +5528,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * Supported namespaces
 	 * - user attributes
 	 * - member attributes
+	 * - group attributes
 	 *
 	 * @param sess session
 	 * @param attribute     attribute to merge it's value if possible
@@ -5553,6 +5554,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, (User) primaryHolder, attribute.getName());
 			} else if (primaryHolder instanceof Member) {
 				storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, (Member) primaryHolder, attribute.getName());
+			} else if (primaryHolder instanceof Group) {
+				storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, (Group) primaryHolder, attribute.getName());
 			} else {
 				throw new InternalErrorException("Primary holder for attribute is not supported: " + primaryHolder);
 			}
@@ -5591,12 +5594,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Other types as String, Integer, Boolean etc. will be replaced by new value (no way how to merge them properly)
 		if (primaryHolder instanceof User) {
 			getPerunBl().getAttributesManagerBl().setAttribute(sess, (User) primaryHolder, attribute);
-		} else //noinspection ConstantConditions
-			if (primaryHolder instanceof Member) {
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, (Member) primaryHolder, attribute);
-			} else {
-				throw new InternalErrorException("Primary holder for attribute is not supported: " + primaryHolder);
-			}
+		} else if (primaryHolder instanceof Member) {
+			getPerunBl().getAttributesManagerBl().setAttribute(sess, (Member) primaryHolder, attribute);
+		} else {
+			getPerunBl().getAttributesManagerBl().setAttribute(sess, (Group) primaryHolder, attribute);
+		}
 
 		return attribute;
 	}
@@ -5611,6 +5613,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public Attribute mergeAttributeValue(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeValueException,
 			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		return this.mergeAttributeValue(sess, attribute, member);
+	}
+
+	@Override
+	public Attribute mergeAttributeValue(PerunSession sess, Group group, Attribute attribute) throws WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		return this.mergeAttributeValue(sess, attribute, group);
 	}
 
 	@Override
