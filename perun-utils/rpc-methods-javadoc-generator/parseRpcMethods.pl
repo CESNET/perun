@@ -186,6 +186,18 @@ $objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Res
 $objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
 $objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
 
+$objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"ACTIVE\" }";
+$objectExamples{"List&lt;AssignedResource&gt;"} = $listPrepend . $objectExamples{"AssignedResource"} . $listAppend;
+$objectExamples{"List<AssignedResource>"} = $objectExamples{"List&lt;AssignedResource&gt;"};
+
+$objectExamples{"EnrichedGroup"} = "{ \"group\" : " . $objectExamples{"Group"} . " , \"attributes\" : " . $objectExamples{"List&lt;Attribute&gt;"} . " }";
+$objectExamples{"List&lt;EnrichedGroup&gt;"} = $listPrepend . $objectExamples{"EnrichedGroup"} . $listAppend;
+$objectExamples{"List<EnrichedGroup>"} = $objectExamples{"List&lt;EnrichedGroup&gt;"};
+
+$objectExamples{"AssignedGroup"} = "{ \"enrichedGroup\" : " . $objectExamples{"EnrichedGroup"} . " , \"status\" : \"ACTIVE\" }";
+$objectExamples{"List&lt;AssignedGroup&gt;"} = $listPrepend . $objectExamples{"AssignedGroup"} . $listAppend;
+$objectExamples{"List<AssignedGroup>"} = $objectExamples{"List&lt;AssignedGroup&gt;"};
+
 $objectExamples{"MemberWithSponsors"} = "{ \"member\" : " . $objectExamples{"RichMember"} . " , \"sponsors\" : " . $objectExamples{"List&lt;RichUser&gt;"} . " }";
 $objectExamples{"List&lt;MemberWithSponsors&gt;"} = $listPrepend . $objectExamples{"MemberWithSponsors"} . $listAppend;
 $objectExamples{"List<MemberWithSponsors>"} = $objectExamples{"List&lt;MemberWithSponsors&gt;"};
