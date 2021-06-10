@@ -67,6 +67,7 @@
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.4</commons-cli.version>
 		<commons-text.version>1.9</commons-text.version>
+		<docker-java.version>3.2.8</docker-java.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.9</expiringmap.version>
 		<flying-saucer-pdf.version>9.1.18</flying-saucer-pdf.version>
@@ -327,6 +328,23 @@
 				<groupId>org.reflections</groupId>
 				<artifactId>reflections</artifactId>
 				<version>${reflections.version}</version>
+			</dependency>
+
+			<!-- Define globally as "test" scope so it gets excluded from resulting JARs/WARs -->
+			<!-- Its overridden in base module to get tests running -->
+			<!-- This is here just to get a correct JNA version for the testcontainers,
+			     it is possible that this wont be needed in the future versions of testcontainers. -->
+			<dependency>
+				<groupId>com.github.docker-java</groupId>
+				<artifactId>docker-java-api</artifactId>
+				<version>${docker-java.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.github.docker-java</groupId>
+				<artifactId>docker-java-transport-zerodep</artifactId>
+				<version>${docker-java.version}</version>
+				<scope>test</scope>
 			</dependency>
 
 			<!-- Define globally as "test" scope so it gets excluded from resulting JARs/WARs -->

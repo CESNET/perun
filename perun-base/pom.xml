@@ -108,6 +108,23 @@
 			<artifactId>jaxb-api</artifactId>
 		</dependency>
 
+
+		<!-- Redefine this dependency as a compile dependency to get tests running -->
+		<!-- This is here just to get a correct JNA version for the testcontainers,
+		     it is possible that this wont be needed in the future versions of testcontainers. -->
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java-api</artifactId>
+			<version>${docker-java.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java-transport-zerodep</artifactId>
+			<version>${docker-java.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Redefine testcontainers as compile dependency to get tests running for other modules in IDE -->
 		<dependency>
 			<groupId>org.testcontainers</groupId>
