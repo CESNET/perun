@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -1192,4 +1193,38 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException when the resource doesn't exist
 	 */
 	List<AssignedGroup> getGroupAssignments(PerunSession session, Resource resource, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException;
+
+	/**
+	 * Try to activate the group-resource status. If the async is set to false, the validation is performed
+	 * synchronously. The assignment will be either ACTIVE, in case of a successful synchronous call, or it will be
+	 * PROCESSING in case of an asynchronous call. After the async validation, the state can be either ACTIVE or
+	 * FAILED.
+	 *
+	 * @param session
+	 * @param group group
+	 * @param resource resource
+	 * @param async if true the validation is performed asynchronously
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 * @throws ResourceNotExistsException when the resource doesn't exist
+	 * @throws WrongAttributeValueException when an attribute value has wrong/illegal syntax
+	 * @throws WrongReferenceAttributeValueException when an attribute value has wrong/illegal semantics
+	 * @throws GroupResourceMismatchException when the given group and resource are not from the same VO
+	 * @throws GroupNotDefinedOnResourceException when the group-resource assignment doesn't exist
+	 */
+	void activateGroupResourceAssignment(PerunSession session, Group group, Resource resource, boolean async) throws ResourceNotExistsException, GroupNotExistsException, PrivilegeException, WrongReferenceAttributeValueException, GroupNotDefinedOnResourceException, GroupResourceMismatchException, WrongAttributeValueException;
+
+	/**
+	 * Deactivates the group-resource assignment. The assignment will become INACTIVE and will not be used to
+	 * allow users from the given group to the resource.
+	 *
+	 * @param group group
+	 * @param resource resource
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 * @throws ResourceNotExistsException when the resource doesn't exist
+	 * @throws GroupNotDefinedOnResourceException when the group-resource assignment doesn't exist
+	 * @throws GroupResourceStatusException when trying to deactivate an assignment in PROCESSING state
+	 */
+	void deactivateGroupResourceAssignment(PerunSession session, Group group, Resource resource) throws PrivilegeException, ResourceNotExistsException, GroupNotExistsException, GroupNotDefinedOnResourceException, GroupResourceStatusException;
 }

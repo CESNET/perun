@@ -12151,7 +12151,7 @@ paths:
       summary: Try to activate the group-resource status. If the async is set to false, the validation is performed
           synchronously. The assignment will be either ACTIVE, in case of a sucessfull synchronous call, or it will be
           PROCESSING in case of an asynchronous call. After the async validation, the state can be either ACTIVE or
-          FAILING.
+          FAILED.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceId'
