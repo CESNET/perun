@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -141,11 +142,12 @@ public interface ResourcesManagerImplApi {
 	 * @param perunSession
 	 * @param group
 	 * @param resource
+	 * @param status Status of the group-resource assignment
 
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyAssignedException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyAssignedException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, GroupResourceStatus status) throws GroupAlreadyAssignedException;
 
 	/**
 	 * Remove group from a resource.

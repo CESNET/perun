@@ -312,7 +312,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new RelationExistsException("Group group="+group+" contains members");
 		}
 
-		List<Resource> assignedResources  = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		List<Resource> assignedResources  = getPerunBl().getResourcesManagerBl()
+			.getResourceAssignments(sess, group, List.of()).stream()
+			.map(res -> res.getEnrichedResource().getResource())
+			.collect(Collectors.toList());
 		try {
 			for(Resource resource : assignedResources) {
 				getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, group, resource);
@@ -535,7 +538,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// Do not delete built-in groups, they must be deleted using separate functions deleteMembersGroup
 				continue;
 			}
-			List<Resource> assignedResources  = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+
+			//get all resources in relationship with the group (with any GroupResource status)
+			List<Resource> assignedResources  = getPerunBl().getResourcesManagerBl()
+				.getResourceAssignments(sess, group, List.of()).stream()
+				.map(res -> res.getEnrichedResource().getResource())
+				.collect(Collectors.toList());
 			try {
 				for(Resource resource : assignedResources) {
 					getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, group, resource);
