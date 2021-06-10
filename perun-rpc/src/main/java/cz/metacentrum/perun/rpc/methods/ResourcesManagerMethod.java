@@ -1419,5 +1419,55 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			return ac.getResourcesManager().getGroupAssignments(ac.getSession(),
 				ac.getResourceById(parms.readInt("resource")), attrNames);
 		}
+	},
+
+	/*#
+	 * Try to activate the group-resource status. If the async is set to false, the validation is performed
+	 * synchronously. The assignment will be either ACTIVE, in case of a successful synchronous call, or it will be
+	 * PROCESSING in case of an asynchronous call. After the async validation, the state can be either ACTIVE or
+	 * FAILED.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param async boolean if true the validation is performed asynchronously, default value is false
+	 * @throw GroupNotExistsException when the group doesn't exist
+	 * @throw ResourceNotExistsException when the resource doesn't exist
+	 * @throw WrongAttributeValueException when an attribute value has wrong/illegal syntax
+	 * @throw WrongReferenceAttributeValueException when an attribute value has wrong/illegal semantics
+	 * @throw GroupResourceMismatchException when the given group and resource are not from the same VO
+	 * @throw GroupNotDefinedOnResourceException when the group-resource assignment doesn't exist
+	 */
+	activateGroupResourceAssignment {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getResourcesManager().activateGroupResourceAssignment(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getResourceById(parms.readInt("resource")),
+				parms.contains("async") ? parms.readBoolean("async") : false);
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Deactivates the group-resource assignment. The assignment will become INACTIVE and will not be used to
+	 * allow users from the given group to the resource.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @throw GroupNotExistsException when the group doesn't exist
+	 * @throw ResourceNotExistsException when the resource doesn't exist
+	 * @throw GroupNotDefinedOnResourceException when the group-resource assignment doesn't exist
+	 * @throw GroupResourceStatusException when trying to deactivate an assignment in PROCESSING state
+	 */
+	deactivateGroupResourceAssignment {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getResourcesManager().deactivateGroupResourceAssignment(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getResourceById(parms.readInt("resource")));
+
+			return null;
+		}
 	}
 }

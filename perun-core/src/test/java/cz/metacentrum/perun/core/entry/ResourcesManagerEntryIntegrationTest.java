@@ -2139,6 +2139,93 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 			.isThrownBy(() -> resourcesManager.getGroupAssignments(sess, new Resource(), null));
 	}
 
+	@Test
+	public void activateGroupResourceAssignment() throws Exception {
+		System.out.println(CLASS_NAME + "activateGroupResourceAssignment");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
+		resourcesManager.activateGroupResourceAssignment(sess, group, resource, false);
+
+		List<AssignedGroup> groups = resourcesManager.getGroupAssignments(sess, resource, null);
+
+		assertThat(groups.size()).isEqualTo(1);
+		assertThat(groups.get(0).getStatus()).isEqualTo(GroupResourceStatus.ACTIVE);
+	}
+
+	@Test
+	public void activateGroupResourceAssignmentWhenResourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "activateGroupResourceAssignmentWhenResourceNotExists");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		assertThatExceptionOfType(ResourceNotExistsException.class)
+			.isThrownBy(() -> resourcesManager.activateGroupResourceAssignment(sess, group, new Resource(), false));
+	}
+
+	@Test
+	public void activateGroupResourceAssignmentWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "activateGroupResourceAssignmentWhenGroupNotExists");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		assertThatExceptionOfType(GroupNotExistsException.class)
+			.isThrownBy(() -> resourcesManager.activateGroupResourceAssignment(sess, new Group(), resource, false));
+	}
+
+	@Test
+	public void deactivateGroupResourceAssignment() throws Exception {
+		System.out.println(CLASS_NAME + "deactivateGroupResourceAssignment");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
+
+		List<AssignedGroup> groups = resourcesManager.getGroupAssignments(sess, resource, null);
+
+		assertThat(groups.size()).isEqualTo(1);
+		assertThat(groups.get(0).getStatus()).isEqualTo(GroupResourceStatus.INACTIVE);
+	}
+
+	@Test
+	public void deactivateGroupResourceAssignmentWhenResourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "deactivateGroupResourceAssignmentWhenResourceNotExists");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		assertThatExceptionOfType(ResourceNotExistsException.class)
+			.isThrownBy(() -> resourcesManager.deactivateGroupResourceAssignment(sess, group, new Resource()));
+	}
+
+	@Test
+	public void deactivateGroupResourceAssignmentWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "deactivateGroupResourceAssignmentWhenGroupNotExists");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		assertThatExceptionOfType(GroupNotExistsException.class)
+			.isThrownBy(() -> resourcesManager.deactivateGroupResourceAssignment(sess, new Group(), resource));
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private User setUpUser(String firstName, String lastName) throws Exception {

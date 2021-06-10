@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
@@ -41,6 +42,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.List;
 
@@ -1185,4 +1187,45 @@ public interface ResourcesManagerBl {
 	 * @return list of assigned groups for given resource with specified attributes
 	 */
 	List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource, List<String> attrNames);
+
+	/**
+	 * Try to activate the group-resource status. If the async is set to false, the validation is performed
+	 * synchronously. The assignment will be either ACTIVE, in case of a successful synchronous call, or it will be
+	 * PROCESSING in case of an asynchronous call. After the async validation, the state can be either ACTIVE or
+	 * FAILED.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @param async if true the validation is performed asynchronously
+	 * @throws WrongAttributeValueException when an attribute value has wrong/illegal syntax
+	 * @throws WrongReferenceAttributeValueException when an attribute value has wrong/illegal semantics
+	 * @throws GroupResourceMismatchException when the given group and resource are not from the same VO
+	 * @throws GroupNotDefinedOnResourceException when the group-resource assignment doesn't exist
+	 */
+	void activateGroupResourceAssignment(PerunSession sess, Group group, Resource resource, boolean async) throws WrongReferenceAttributeValueException, GroupResourceMismatchException, WrongAttributeValueException, GroupNotDefinedOnResourceException;
+
+	/**
+	 * Asynchronously processes group-resource activation. Sets assignment status of given group and resource
+	 * to ACTIVE. Check if attributes for each member from group are valid. Fill members' attributes with
+	 * missing values. In case of error during activation, the group-resource assignment status is set to
+	 * FAILED.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 */
+	@Async
+	void processGroupResourceActivationAsync(PerunSession sess, Group group, Resource resource);
+
+	/**
+	 * Deactivates the group-resource assignment. The assignment will become INACTIVE and will not be used to
+	 * allow users from the given group to the resource.
+	 *
+	 * @param group group
+	 * @param resource resource
+	 * @throws GroupNotDefinedOnResourceException when the group-resource assignment doesn't exist
+	 * @throws GroupResourceStatusException when trying to deactivate an assignment in PROCESSING state
+	 */
+	void deactivateGroupResourceAssignment(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException, GroupResourceStatusException;
 }

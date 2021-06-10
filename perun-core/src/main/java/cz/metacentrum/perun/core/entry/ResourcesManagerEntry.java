@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -1340,6 +1341,34 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			assignedGroup.setEnrichedGroup(getPerunBl().getGroupsManagerBl().filterOnlyAllowedAttributes(sess, assignedGroup.getEnrichedGroup())));
 
 		return filteredGroups;
+	}
+
+	@Override
+	public void activateGroupResourceAssignment(PerunSession sess, Group group, Resource resource, boolean async) throws ResourceNotExistsException, GroupNotExistsException, PrivilegeException, WrongReferenceAttributeValueException, GroupNotDefinedOnResourceException, GroupResourceMismatchException, WrongAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "activateGroupResourceAssignment_Group_Resource_boolean_policy", group, resource)) {
+			throw new PrivilegeException(sess, "activateGroupResourceAssignment");
+		}
+
+		getResourcesManagerBl().activateGroupResourceAssignment(sess, group, resource, async);
+	}
+
+	@Override
+	public void deactivateGroupResourceAssignment(PerunSession sess, Group group, Resource resource) throws PrivilegeException, ResourceNotExistsException, GroupNotExistsException, GroupNotDefinedOnResourceException, GroupResourceStatusException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "deactivateGroupResourceAssignment_Group_Resource_policy", group, resource)) {
+			throw new PrivilegeException(sess, "deactivateGroupResourceAssignment");
+		}
+
+		getResourcesManagerBl().deactivateGroupResourceAssignment(sess, group, resource);
 	}
 
 	/**

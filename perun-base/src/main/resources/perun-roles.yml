@@ -3934,6 +3934,28 @@ perun_policies:
     include_policies:
       - default_policy
 
+  activateGroupResourceAssignment_Group_Resource_boolean_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  deactivateGroupResourceAssignment_Group_Resource_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
   #SearcherEntry
   getUsers_Map<String_String>_policy:
     policy_roles:

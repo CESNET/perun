@@ -47,6 +47,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
@@ -70,6 +71,7 @@ import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -1081,6 +1083,93 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				.convertToEnrichedGroup(sess, assignedGroup.getEnrichedGroup().getGroup(), attrNames)));
 
 		return assignedGroups;
+	}
+
+	@Override
+	public void activateGroupResourceAssignment(PerunSession sess, Group group, Resource resource, boolean async) throws WrongReferenceAttributeValueException, GroupResourceMismatchException, WrongAttributeValueException, GroupNotDefinedOnResourceException {
+		GroupResourceStatus status = getResourcesManagerImpl().getGroupResourceStatus(sess, group, resource);
+		if (status == GroupResourceStatus.ACTIVE) {
+			// silently skip
+			return;
+		}
+
+		if (async) {
+			getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.PROCESSING);
+			getPerunBl().getResourcesManagerBl().processGroupResourceActivationAsync(sess, group, resource);
+		} else {
+			processGroupResourceActivation(sess, group, resource);
+		}
+	}
+
+	@Async
+	@Override
+	public void processGroupResourceActivationAsync(PerunSession sess, Group group, Resource resource) {
+		try {
+			processGroupResourceActivation(sess, group, resource);
+		} catch (Exception e) {
+			log.error("Activation of group-resource assignment failed.", e);
+			try {
+				getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.FAILED);
+			} catch (GroupNotDefinedOnResourceException groupNotDefinedOnResourceException) {
+				log.error("Group-resource assignment doesn't exist.", groupNotDefinedOnResourceException);
+			}
+		}
+	}
+
+	/**
+	 * Sets assignment status of given group and resource to ACTIVE. Check if attributes for each member
+	 * from group are valid. Fill members' attributes with missing values.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @throws WrongAttributeValueException when an attribute value has wrong/illegal syntax
+	 * @throws WrongReferenceAttributeValueException when an attribute value has wrong/illegal semantics
+	 * @throws GroupResourceMismatchException when the given group and resource are not from the same VO
+	 * @throws GroupNotDefinedOnResourceException when there is no such group-resource assignment
+	 */
+	private void processGroupResourceActivation(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotDefinedOnResourceException {
+		getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+
+		// set status as ACTIVE first because methods checkAttributesSemantics and fillAttribute need active state to work correctly
+		getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.ACTIVE);
+
+		// if there are no services, the members are empty and there is nothing more to process
+		if (getAssignedServices(sess, resource).isEmpty()) return;
+
+		// get/fill/set all required group and group-resource attributes
+		try {
+			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, resource, group, true);
+			attributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, resource, group, attributes, true);
+			getPerunBl().getAttributesManagerBl().setAttributes(sess, resource, group, attributes, true);
+		} catch (WrongAttributeAssignmentException | GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
+
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
+
+		// get all "allowed" group members and get/fill/set required attributes for them
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		for (Member member : members) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			try {
+				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member, true);
+			} catch (WrongAttributeAssignmentException | MemberResourceMismatchException | AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			}
+		}
+
+		// TODO: set and check member-group attributes
+	}
+
+	@Override
+	public void deactivateGroupResourceAssignment(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException, GroupResourceStatusException {
+		GroupResourceStatus status = getResourcesManagerImpl().getGroupResourceStatus(sess, group, resource);
+		if (status == GroupResourceStatus.PROCESSING) {
+			throw new GroupResourceStatusException("Cannot deactivate an assignment in PROCESSING state.");
+		}
+
+		getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.INACTIVE);
 	}
 
 	/**

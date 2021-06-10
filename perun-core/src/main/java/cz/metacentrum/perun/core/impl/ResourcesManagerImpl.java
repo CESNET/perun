@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -1214,6 +1215,33 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			return jdbc.query("select " + GroupsManagerImpl.assignedGroupMappingSelectQuery + " from groups join " +
 					" groups_resources on groups.id=groups_resources.group_id " +
 					" where groups_resources.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public GroupResourceStatus getGroupResourceStatus(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException {
+		try {
+			String status = jdbc.queryForObject("select status from groups_resources where group_id=? and resource_id=?",
+				String.class, group.getId(), resource.getId());
+			return GroupResourceStatus.valueOf(status);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void setGroupResourceStatus(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) throws GroupNotDefinedOnResourceException {
+		try {
+			int numAffected = jdbc.update("update groups_resources set status=?::group_resource_status, modified_by=?, modified_by_uid=?, " +
+					" modified_at=statement_timestamp() where group_id=? and resource_id=?", status.toString(),
+				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId(), resource.getId());
+			if (numAffected == 0) {
+				throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
+			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

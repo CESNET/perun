@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -787,4 +788,28 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource);
+
+	/**
+	 * Gets status of given group-resource assignment.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @return assignment status of the given group and resource
+	 * @throws GroupNotDefinedOnResourceException if there is no such group-resource assignment
+	 * @throws InternalErrorException
+	 */
+	GroupResourceStatus getGroupResourceStatus(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException;
+
+	/**
+	 * Sets status of given group-resource assignment to the specified status.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @param status new status of the group-resource assignment
+	 * @throws GroupNotDefinedOnResourceException if there is no such group-resource assignment
+	 * @throws InternalErrorException
+	 */
+	void setGroupResourceStatus(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) throws GroupNotDefinedOnResourceException;
 }

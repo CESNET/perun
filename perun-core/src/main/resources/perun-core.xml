@@ -5,12 +5,13 @@
 	   xmlns:aop="http://www.springframework.org/schema/aop"
 	   xmlns:jdbc="http://www.springframework.org/schema/jdbc"
 	   xmlns:context="http://www.springframework.org/schema/context"
-	   xsi:schemaLocation="
-	   http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
 >
 
 	<import resource="classpath:perun-base.xml"/>
@@ -30,6 +31,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.validateMember(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.expireMember(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.createMemberSync(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ResourcesManagerBlImpl.processGroupResourceActivationAsync(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.removeFormerMemberWhileSynchronization(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.updateExistingMemberWhileSynchronization(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.addMissingMemberWhileSynchronization(..))"/>
@@ -164,6 +166,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<tx:method name="*" read-only="false" propagation="REQUIRES_NEW"/>
 		</tx:attributes>
 	</tx:advice>
+
+	<!-- Enabling Spring's @Async execution	-->
+	<task:executor id="asyncExecutor" pool-size="10-1000" queue-capacity="1"/>
+	<task:annotation-driven executor="asyncExecutor"/>
 
 	<!--FIXME   a hack which forces Spring to call a static method -->
 	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl" scope="singleton">
