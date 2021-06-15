@@ -2093,12 +2093,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<AssignedResource> resources = resourcesManager.getResourceAssignments(sess, group, null);
-		AssignedResource expectedResource = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE);
+		AssignedResource expectedResource = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, facility);
 
 		assertThat(resources.size()).isEqualTo(1);
 		assertThat(resources).containsExactly(expectedResource);
 		assertThat(resources.get(0).getEnrichedResource().getAttributes())
 			.containsExactlyInAnyOrderElementsOf(perun.getAttributesManager().getAttributes(sess, resource));
+		assertThat(resources.get(0).getFacility().getName()).isEqualTo(facility.getName());
 	}
 
 	@Test

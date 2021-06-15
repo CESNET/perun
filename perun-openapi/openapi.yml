@@ -358,6 +358,7 @@ components:
       properties:
         enrichedResource: { $ref: '#/components/schemas/EnrichedResource' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
+        facility: { $ref: '#/components/schemas/Facility'}
 
     AssignedGroup:
       type: object
