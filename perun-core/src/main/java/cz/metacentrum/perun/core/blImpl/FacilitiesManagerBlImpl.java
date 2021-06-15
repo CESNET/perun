@@ -6,25 +6,15 @@ import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanUpdatedForFaci
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityCreated;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityDeleted;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityUpdated;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupContactsRemovedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupsAddedToContactGroupOfFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupsRemovedFromContactGroupOfFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostAddedToFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostRemovedFromFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnerContactsRemovedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnersAddedToContactGroupOfFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnersRemovedFromContactGroupOfFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamAssignedToFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamRemovedFromFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UserContactsRemovedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersAddedToContactGroupOfFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersRemovedFromContactGroupOfFacility;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
@@ -49,7 +39,6 @@ import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -373,12 +362,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		List<SecurityTeam> teams = getAssignedSecurityTeams(sess, facility);
 		for (SecurityTeam team : teams) {
 			removeSecurityTeam(sess, facility, team);
-		}
-
-		// remove assigned facility contacts
-		List<ContactGroup> contacts = getFacilityContactGroups(sess, facility);
-		if (contacts != null && !contacts.isEmpty()) {
-			removeFacilityContacts(sess, contacts);
 		}
 
 		// remove associated attributes
@@ -839,166 +822,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		getPerunBl().getAttributesManagerBl().setAttributes(sess, destinationFacility, sourceAttributes);
 	}
 
-	// FACILITY CONTACTS METHODS
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) {
-		//no users there, no need to set attributes for them
-		return this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, owner);
-	}
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) {
-		//need to get richUsers with attributes
-		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
-		List<ContactGroup> cgs = this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, user);
-		return this.setAttributesForRichUsersInContactGroups(sess, cgs, mandatoryAttributes);
-	}
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) {
-		//no users there, no need to set attributes for them
-		return this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, group);
-	}
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) {
-		//need to get richUsers with attributes
-		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
-		List<ContactGroup> cgs = this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, facility);
-		return this.setAttributesForRichUsersInContactGroups(sess, cgs, mandatoryAttributes);
-	}
-
-	@Override
-	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws FacilityContactNotExistsException {
-		//need to get richUsers with attributes
-		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
-		ContactGroup cg = this.getFacilitiesManagerImpl().getFacilityContactGroup(sess, facility, name);
-		return this.setAttributesForRichUsersInContactGroup(sess, cg, mandatoryAttributes);
-	}
-
-	@Override
-	public List<String> getAllContactGroupNames(PerunSession sess) {
-		return this.getFacilitiesManagerImpl().getAllContactGroupNames(sess);
-	}
-
-	@Override
-	public void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) {
-		if(contactGroupsToAdd != null) {
-			for(ContactGroup cg: contactGroupsToAdd) {
-				this.addFacilityContact(sess, cg);
-			}
-		}
-	}
-
-	@Override
-	public void addFacilityContact(PerunSession sess, ContactGroup contactGroupToAdd) {
-		if(contactGroupToAdd != null) {
-			if(contactGroupToAdd.getUsers() != null) {
-				List<Integer> usersId = new ArrayList<>();
-				for(RichUser user: contactGroupToAdd.getUsers()) {
-					usersId.add(user.getId());
-					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), user);
-				}
-				sess.getPerun().getAuditer().log(sess, new UsersAddedToContactGroupOfFacility(usersId, contactGroupToAdd));
-			}
-
-			if(contactGroupToAdd.getGroups()!= null) {
-				List<Integer> groupsId = new ArrayList<>();
-				for(Group group: contactGroupToAdd.getGroups()) {
-					groupsId.add(group.getId());
-					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), group);
-				}
-				sess.getPerun().getAuditer().log(sess, new GroupsAddedToContactGroupOfFacility(groupsId, contactGroupToAdd));
-			}
-
-			if(contactGroupToAdd.getOwners() != null) {
-				List<Integer> ownersId = new ArrayList<>();
-				for(Owner owner: contactGroupToAdd.getOwners()) {
-					ownersId.add(owner.getId());
-					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), owner);
-				}
-				sess.getPerun().getAuditer().log(sess, new OwnersAddedToContactGroupOfFacility(ownersId, contactGroupToAdd));
-			}
-		}
-	}
-
-	@Override
-	public void removeAllOwnerContacts(PerunSession sess, Owner owner) {
-		List<ContactGroup> contactGroups = getFacilityContactGroups(sess, owner);
-		this.facilitiesManagerImpl.removeAllOwnerContacts(sess, owner);
-
-		for (ContactGroup contactGroup : contactGroups) {
-			sess.getPerun().getAuditer().log(sess, new OwnerContactsRemovedForFacility(owner,contactGroup));
-		}
-	}
-
-	@Override
-	public void removeAllUserContacts(PerunSession sess, User user) {
-		List<ContactGroup> contactGroups = getFacilityContactGroups(sess, user);
-		this.facilitiesManagerImpl.removeAllUserContacts(sess, user);
-
-		for (ContactGroup contactGroup : contactGroups) {
-			sess.getPerun().getAuditer().log(sess, new UserContactsRemovedForFacility(user,contactGroup));
-		}
-	}
-
-	@Override
-	public void removeAllGroupContacts(PerunSession sess, Group group) {
-		List<ContactGroup> contactGroups = getFacilityContactGroups(sess, group);
-		this.facilitiesManagerImpl.removeAllGroupContacts(sess, group);
-
-		for (ContactGroup contactGroup : contactGroups) {
-			sess.getPerun().getAuditer().log(sess, new GroupContactsRemovedForFacility(group, contactGroup));
-		}
-	}
-
-	@Override
-	public void removeFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToRemove) {
-		if(contactGroupsToRemove != null) {
-			for(ContactGroup cg: contactGroupsToRemove) {
-				this.removeFacilityContact(sess, cg);
-			}
-		}
-	}
-
-	@Override
-	public void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) {
-		if(contactGroupToRemove != null) {
-			if(contactGroupToRemove.getUsers() != null) {
-				List<Integer> usersId = new ArrayList<>();
-				for(RichUser user: contactGroupToRemove.getUsers()) {
-					usersId.add(user.getId());
-					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), user);
-				}
-				sess.getPerun().getAuditer().log(sess, new UsersRemovedFromContactGroupOfFacility(usersId, contactGroupToRemove));
-			}
-
-			if(contactGroupToRemove.getGroups()!= null) {
-				List<Integer> groupsId = new ArrayList<>();
-				for(Group group: contactGroupToRemove.getGroups()) {
-					groupsId.add(group.getId());
-					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), group);
-				}
-				sess.getPerun().getAuditer().log(sess, new GroupsRemovedFromContactGroupOfFacility(groupsId, contactGroupToRemove));
-			}
-
-			if(contactGroupToRemove.getOwners() != null) {
-				List<Integer> ownersId = new ArrayList<>();
-				for(Owner owner: contactGroupToRemove.getOwners()) {
-					ownersId.add(owner.getId());
-					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), owner);
-				}
-				sess.getPerun().getAuditer().log(sess, new OwnersRemovedFromContactGroupOfFacility(ownersId, contactGroupToRemove));
-			}
-		}
-	}
-
-	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws FacilityContactNotExistsException {
-		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, user);
-	}
-
 	@Override
 	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) {
 		return facilitiesManagerImpl.getAssignedSecurityTeams(sess, facility);
@@ -1014,16 +837,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
 		facilitiesManagerImpl.removeSecurityTeam(sess, facility, securityTeam);
 		getPerunBl().getAuditer().log(sess, new SecurityTeamRemovedFromFacility(securityTeam, facility));
-	}
-
-	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws FacilityContactNotExistsException {
-		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, group);
-	}
-
-	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws FacilityContactNotExistsException {
-		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, owner);
 	}
 
 	@Override
@@ -1121,46 +934,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 				//Skipt this, probably already removed
 			}
 		}
-	}
-
-	/**
-	 * Change all richUsers in contactGroup to richUsersWithAttributes.
-	 *
-	 * @param sess
-	 * @param contactGroup
-	 * @param attributesToSet
-	 * @return contactGroup with richUsers with attributes (if there is any contact, user or attribute to set)
-	 * @throws InternalErrorException
-	 */
-	private ContactGroup setAttributesForRichUsersInContactGroup(PerunSession sess, ContactGroup contactGroup, List<AttributeDefinition> attributesToSet) {
-		if(contactGroup == null) return null;
-		if(contactGroup.getUsers() == null || contactGroup.getUsers().isEmpty()) return contactGroup;
-		if(attributesToSet == null || attributesToSet.isEmpty()) return contactGroup;
-
-		List<RichUser> richUsers = contactGroup.getUsers();
-		richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, richUsers, attributesToSet);
-		contactGroup.setUsers(richUsers);
-		return contactGroup;
-	}
-
-	/**
-	 * Change all richUsers in all contactGroups to richUsersWithAttributes.
-	 *
-	 * @param sess
-	 * @param contactGroups
-	 * @param attributesToSet
-	 * @return list of modified contactGroups with richUsers with attributes (if there is any not null contact, user for contact or attribute to set)
-	 * @throws InternalErrorException
-	 */
-	private List<ContactGroup> setAttributesForRichUsersInContactGroups(PerunSession sess, List<ContactGroup> contactGroups, List<AttributeDefinition> attributesToSet) {
-		if(contactGroups == null || contactGroups.isEmpty()) return contactGroups;
-		if(attributesToSet == null || attributesToSet.isEmpty()) return contactGroups;
-
-		for(ContactGroup cg: contactGroups) {
-			setAttributesForRichUsersInContactGroup(sess, cg, attributesToSet);
-		}
-
-		return contactGroups;
 	}
 
 	/**

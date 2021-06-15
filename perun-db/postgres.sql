@@ -1,4 +1,4 @@
--- database version 3.1.82 (don't forget to update insert statement at the end of file)
+-- database version 3.1.83 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -208,23 +208,6 @@ create table groups (
 	constraint grp_pk primary key (id),
   constraint grp_vos_fk foreign key (vo_id) references vos(id),
   constraint grp_grp_fk foreign key (parent_group_id) references groups(id)
-);
-
--- FACILITIES_CONTACTS - all optional contacts for facility (owners, users or groups)
-create table facility_contacts (
-	name varchar not null, -- similar to tag of group of contacts
-	facility_id integer not null, --facility identifier
-	owner_id integer, --owner identifier
-	user_id integer, --user identifier
-	group_id integer, -- group identifier
-	constraint faccont_fac_fk foreign key (facility_id) references facilities(id),
-	constraint faccont_usr_fk foreign key (user_id) references users(id),
-	constraint faccont_own_fk foreign key (owner_id) references owners(id),
-	constraint faccont_grp_fk foreign key (group_id) references groups(id),
-	constraint faccont_usr_own_grp_chk check
-	((user_id is not null and owner_id is null and group_id is null)
-	 or (user_id is null and owner_id is not null and group_id is null)
-	 or (user_id is null and owner_id is null and group_id is not null))
 );
 
 -- MEMBERS - members of VO
@@ -1540,10 +1523,6 @@ create index idx_fk_groupsrc_group on group_ext_sources(group_id);
 create index idx_fk_usrcatt_usrc on ext_sources_attributes(ext_sources_id);
 create index idx_fk_rsrc_fac on resources(facility_id);
 create index idx_fk_rsrc_vo on resources(vo_id);
-create index idx_fk_faccont_fac on facility_contacts(facility_id);
-create index idx_fk_faccont_usr on facility_contacts(user_id);
-create index idx_fk_faccont_own on facility_contacts(owner_id);
-create index idx_fk_faccont_grp on facility_contacts(group_id);
 create index idx_fk_resatval_res on resource_attr_values(resource_id);
 create index idx_fk_resatval_resatnam on resource_attr_values(attr_id);
 create index idx_fk_usrav_usr on user_attr_values(user_id);
@@ -1591,7 +1570,6 @@ create index idx_fk_hostav_attrt on host_attr_values(attr_id);
 create index idx_fk_entlatval_attr on entityless_attr_values(attr_id);
 create index idx_fk_catpub_sys on cabinet_publications(publicationsystemid);
 create index idx_fk_cabpub_cat on cabinet_publications(categoryid);
-create unique index idx_faccont_u2 ON facility_contacts (COALESCE(user_id, '0'), COALESCE(owner_id, '0'), COALESCE(group_id, '0'), facility_id, name);
 create unique index idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(security_team_id, '0'), COALESCE(sponsored_user_id, '0'));
 create index idx_fk_authz_role on authz(role_id);
 create index idx_fk_authz_user on authz(user_id);
@@ -1692,7 +1670,6 @@ grant all on facilities to perun;
 grant all on resources to perun;
 grant all on resource_attr_values to perun;
 grant all on resource_attr_u_values to perun;
-grant all on facility_contacts to perun;
 grant all on user_attr_values to perun;
 grant all on user_attr_u_values to perun;
 grant all on facility_owners to perun;
@@ -1775,7 +1752,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.82');
+insert into configurations values ('DATABASE VERSION','3.1.83');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

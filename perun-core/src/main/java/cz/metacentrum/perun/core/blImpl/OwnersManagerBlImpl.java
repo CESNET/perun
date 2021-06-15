@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.audit.events.OwnersManagerEvents.OwnerCreated;
 import cz.metacentrum.perun.audit.events.OwnersManagerEvents.OwnerDeleted;
-import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -61,16 +60,6 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 						throw new InternalErrorException(e);
 					}
 				}
-			}
-		}
-
-		//Remove all information about owner on facilities (facilities contacts)
-		List<ContactGroup> ownerContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, owner);
-		if(!ownerContactGroups.isEmpty()) {
-			if(forceDelete) {
-				getPerunBl().getFacilitiesManagerBl().removeAllOwnerContacts(sess, owner);
-			} else {
-				throw new RelationExistsException("Owner has still some facilities contacts : " + ownerContactGroups);
 			}
 		}
 

@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -566,70 +565,6 @@ public interface FacilitiesManager {
 	 * @throws WrongReferenceAttributeValueException if the attribute value is illegal
 	 */
 	void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws PrivilegeException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-
-	// FACILITY CONTACTS METHODS
-
-	/**
-	 * Get list of contact groups for the owner.
-	 *
-	 * @return list of ContactGroups for the owner
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws OwnerNotExistsException;
-
-	/**
-	 * Get list of contact groups for the user.
-	 *
-	 * @return list of ContactGroups for the user
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws UserNotExistsException;
-
-	/**
-	 * Get list of contact groups for the group.
-	 *
-	 * @return list of ContactGroups for the group
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws GroupNotExistsException;
-
-	/**
-	 * Get list of contact groups for the facility
-	 *
-	 * @return list of ContactGroups for the facility
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException;
-
-	/**
-	 * Get contact group for the facility and the contact group name
-	 *
-	 * @return contactGroup for the facility and the contact group name
-	 */
-	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException;
-
-	/**
-	 * Get all exist contact group names.
-	 *
-	 * @return list of all contact group names
-	 */
-	List<String> getAllContactGroupNames(PerunSession sess);
-
-	/**
-	 * Create all contacts from list of contact groups
-	 */
-	void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
-
-	/**
-	 * Create all contacts from contact group
-	 */
-	void addFacilityContact(PerunSession sess, ContactGroup contactGroupToAdd) throws PrivilegeException, FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
-
-	/**
-	 * Remove all contacts from list of contact groups
-	 */
-	void removeFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToRemove) throws PrivilegeException, FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
-
-	/**
-	 * Remove all contacts from contact group
-	 */
-	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws PrivilegeException, FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
 
 	/**
 	 * return assigned security teams for specific facility
