@@ -10,10 +10,12 @@ import java.util.Objects;
 public class AssignedResource {
 	private EnrichedResource enrichedResource;
 	private GroupResourceStatus status;
+	private Facility facility;
 
-	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status) {
+	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, Facility facility) {
 		this.enrichedResource = enrichedResource;
 		this.status = status;
+		this.facility = facility;
 	}
 
 	public EnrichedResource getEnrichedResource() {
@@ -32,17 +34,26 @@ public class AssignedResource {
 		this.status = status;
 	}
 
+	public Facility getFacility() {
+		return facility;
+	}
+
+	public void setFacility(Facility facility) {
+		this.facility = facility;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AssignedResource that = (AssignedResource) o;
-		return Objects.equals(getEnrichedResource(), that.getEnrichedResource()) && getStatus() == that.getStatus();
+		return Objects.equals(getEnrichedResource(), that.getEnrichedResource()) &&
+			getStatus() == that.getStatus() && Objects.equals(getFacility(), that.getFacility());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getEnrichedResource(), getStatus());
+		return Objects.hash(getEnrichedResource(), getStatus(), getFacility());
 	}
 
 	@Override
@@ -50,6 +61,7 @@ public class AssignedResource {
 		return "AssignedResource{" +
 			"enrichedResource=" + enrichedResource +
 			", status=" + status +
+			", facility=" + facility +
 			'}';
 	}
 }
