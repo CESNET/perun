@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.rpc;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
 
@@ -17,7 +16,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
@@ -43,7 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateParsingException;
@@ -86,7 +83,6 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static String PERUNSTATISTICS = "getPerunStatistics";
 	private final static String PERUNSYSTEMTIME = "getPerunSystemTimeInMillis";
-	private final static String VOOTMANAGER = "vootManager";
 	private final static String SCIMMANAGER = "scimManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
@@ -709,12 +705,7 @@ public class Api extends HttpServlet {
 			}
 
 			// Process request and sent the response back
-			if (VOOTMANAGER.equals(manager)) {
-				// Process VOOT protocol
-				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
-				if (perunRequest != null) perunRequest.setResult(result);
-				ser.write(result);
-			} else if (SCIMMANAGER.equals(manager)) {
+			if (SCIMMANAGER.equals(manager)) {
 				// Process SCIM protocol
 				result = caller.getSCIMManager().process(caller.getSession(), method, des.readAll());
 				if (perunRequest != null) perunRequest.setResult(result);
@@ -807,9 +798,6 @@ public class Api extends HttpServlet {
 			case urlinjsonout:
 				serializer = new JsonSerializer(out);
 				break;
-			case voot:
-				serializer = new JsonSerializer(out);
-				break;
 			case jsonsimple:
 				serializer = new JsonSerializerJSONSIMPLE(out);
 				break;
@@ -839,7 +827,6 @@ public class Api extends HttpServlet {
 			case jsonlite:
 				return new JsonDeserializer(req);
 			case urlinjsonout:
-			case voot:
 				return new UrlDeserializer(req);
 			default:
 				throw new RpcException(RpcException.Type.UNKNOWN_DESERIALIZER_FORMAT, format);
@@ -855,7 +842,6 @@ public class Api extends HttpServlet {
 		urlinjsonout,
 		json,
 		jsonp,
-		voot,
 		jsonsimple,
 		jsonlite;
 

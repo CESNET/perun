@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -93,7 +92,6 @@ public class ApiCaller {
 	private CabinetManager cabinetManager;
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
-	private VOOT vootManager = null;
 	private SCIM scimManager = null;
 
 	private final static String RPCPRINCIPAL = "perunRpc";
@@ -223,10 +221,6 @@ public class ApiCaller {
 
 	public PerunNotifNotificationManager getNotificationManager() {
 		return notificationManager;
-	}
-
-	public VOOT getVOOTManager(){
-		return vootManager;
 	}
 
 	public SCIM getSCIMManager(){
@@ -442,9 +436,6 @@ public class ApiCaller {
 
 		// Initialize Notifications
 		this.notificationManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perunNotifNotificationManager", PerunNotifNotificationManager.class);
-
-		// Initialize VOOT Manager
-		this.vootManager = new VOOT();
 
 		// Initialize SCIM Manager
 		this.scimManager = new SCIM();
