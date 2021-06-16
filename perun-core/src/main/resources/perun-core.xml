@@ -415,9 +415,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceGoogle" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceVOOT" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceUnity" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
         </bean>

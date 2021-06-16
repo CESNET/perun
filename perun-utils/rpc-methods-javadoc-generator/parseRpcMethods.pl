@@ -523,7 +523,7 @@ sub buildVersion {
 			<dd>Is type of expected authentication which must be supported by Perun instance. Standard values are: <i>fed</i> (Shibboleth IDP), <i>krb</i> (Kerberos), <i>cert</i> (Certificate), <i>non</i> (without authorization).</dd>
 
 			<dt>[format]</dt>
-			<dd>Format of data for transfer. Possible values are: <i>json</i>, <i>jsonp</i> and <i>voot</i>.</dd>
+			<dd>Format of data for transfer. Possible values are: <i>json</i> and <i>jsonp</i>.</dd>
 
 			<dt>[manager]</dt>
 			<dd>Name of manager to call method in (in a camel case).</dd>
