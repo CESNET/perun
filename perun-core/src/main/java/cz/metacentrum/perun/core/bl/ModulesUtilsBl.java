@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -534,4 +535,27 @@ public interface ModulesUtilsBl {
 	 * @return found user or null if no user was found
 	 */
 	User getUserByLoginInNamespace(PerunSession sess, String login, String namespace);
+
+	/**
+	 * Calculates value of o365SendAs/o365SendOnBehalf attribute based on values of o365SendAs/o365SendOnBehalf
+	 * member-group attribute and o365SendAsGroups/o365SendOnBehalfGroups group attribute.
+	 *
+	 * @param sess
+	 * @param member member of the group
+	 * @param group parent group
+	 * @param booleanAttribute name of o365SendAs/o365SendOnBehalf attribute
+	 * @param listAttribute name of o365SendAsGroups/o365SendOnBehalfGroups attribute
+	 * @return boolean
+	 */
+	boolean getSendRightFromAttributes(PerunSessionImpl sess, Member member, Group group, String booleanAttribute, String listAttribute);
+
+	/**
+	 * Checks whether all values of attribute are ids of subgroups of group.
+	 *
+	 * @param sess
+	 * @param group parent group
+	 * @param attribute attribute to check
+	 * @throws WrongReferenceAttributeValueException if any value of attribute is not a subgroup id
+	 */
+	void checkAttributeValueIsSubgroupId(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
 }

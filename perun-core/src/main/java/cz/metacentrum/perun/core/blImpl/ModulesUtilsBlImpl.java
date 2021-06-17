@@ -18,8 +18,10 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -1195,6 +1197,52 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			return usersByLoginInNamespace.get(0);
 		} else {
 			throw new ConsistencyErrorException("There is more than 1 login '" + login + "' in namespace " + namespace + ".");
+		}
+	}
+
+	@Override
+	public boolean getSendRightFromAttributes(PerunSessionImpl sess, Member member, Group group, String booleanAttribute, String listAttribute) {
+		try {
+			Attribute sendAs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, member, group, booleanAttribute);
+			if (sendAs.getValue() != null && sendAs.valueAsBoolean()) {
+				return true;
+			}
+
+			Attribute sendAsGroups = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, listAttribute);
+			if (sendAsGroups.getValue() == null) {
+				return false;
+			}
+			List<String> subgroups = sendAsGroups.valueAsList();
+
+			for (String groupId : subgroups) {
+				Group subgroup = sess.getPerunBl().getGroupsManagerBl().getGroupById(sess, Integer.parseInt(groupId));
+				if (sess.getPerunBl().getGroupsManagerBl().isGroupMember(sess, subgroup, member)) {
+					return true;
+				}
+			}
+			return false;
+
+		} catch (MemberGroupMismatchException | GroupNotExistsException e) {
+			throw new InternalErrorException(e);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+	}
+
+	@Override
+	public void checkAttributeValueIsSubgroupId(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) {
+			return;
+		}
+
+		Set<Integer> subgroupIds = sess.getPerunBl().getGroupsManagerBl().getAllSubGroups(sess, group).stream()
+			.map(Group::getId)
+			.collect(Collectors.toSet());
+
+		for (String groupId : attribute.valueAsList()) {
+			if (!subgroupIds.contains(Integer.valueOf(groupId))) {
+				throw new WrongReferenceAttributeValueException("Id: " + groupId + " is not id of any subgroup of group " + group);
+			}
 		}
 	}
 
