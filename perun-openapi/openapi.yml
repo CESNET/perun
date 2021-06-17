@@ -11575,6 +11575,27 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/setGroupsMemberStatus:
+    post:
+      tags:
+        - GroupsManager
+      operationId: setGroupsMemberStatus
+      summary: Set membership status of a member in a group. Please note, that resulting Status after change is calculated from all members sub-groups and groups in relation sourcing this member. If in any of them is VALID, resulting status is still VALID.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - name: status
+          description: status (VALID | EXPIRED)
+          schema:
+            type: string
+          in: query
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/removeGroupUnion:
     post:
       tags:
