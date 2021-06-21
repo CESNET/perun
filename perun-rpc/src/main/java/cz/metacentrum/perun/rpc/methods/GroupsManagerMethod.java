@@ -1761,6 +1761,51 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 *
+	 * @throw GroupNotExistsException If any group not exists in perun
+	 * @throw MemberNotExistsException When member doesn't exist
+	 * @throw ExtendMembershipException
+	 */
+	extendMembershipInGroup {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getGroupsManager().extendMembershipInGroup(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")),
+				ac.getGroupById(parms.readInt("group")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Returns <code>1 == true</code> if member in given group can extend membership or if no rules were set for the membershipExpiration
+	 * Otherwise return <code>0 == false</code>.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @return int 1 if true | 0 if false
+	 *
+	 * @throw GroupNotExistsException If any group not exists in perun
+	 * @throw MemberNotExistsException When member doesn't exist
+	 */
+	canExtendMembershipInGroup {
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (ac.getGroupsManager().canExtendMembershipInGroup(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")),
+				ac.getGroupById(parms.readInt("group")))) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+	},
+
+	/*#
 	 * Get unique paths of groups via which member is indirectly included to the group.
 	 * Cuts off after first included group.
 	 *
