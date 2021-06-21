@@ -1725,6 +1725,25 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Extend member membership using membershipExpirationRules attribute defined at VO.
+	 *
+	 * @param member int Member <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When member with <code>id</code> doesn't exists
+	 * @throw ExtendMembershipException
+	 */
+	extendMembership {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getMembersManager().extendMembership(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Return <code>1 == true</code> if membership can be extended or if VO has no rules for the membershipExpiration.
 	 * Otherwise return <code>0 == false</code>.
 	 *

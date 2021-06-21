@@ -8654,6 +8654,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/extendMembership:
+    post:
+      tags:
+        - MembersManager
+      operationId: extendMembership
+      summary: Extend member membership using membershipExpirationRules attribute defined at VO.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/canExtendMembership:
+    get:
+      tags:
+        - MembersManager
+      operationId: canExtendMembership
+      summary: Return true if the membership can be extended or if no rules were set for the membershipExpiration, otherwise false.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getMembersCount:
     get:
       tags:
@@ -11593,6 +11621,36 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/extendMembershipInGroup:
+    post:
+      tags:
+        - GroupsManager
+      operationId: extendMembershipInGroup
+      summary: Extend member membership in given group using membershipExpirationRules attribute defined in Group.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/canExtendMembershipInGroup:
+    get:
+      tags:
+        - GroupsManager
+      operationId: canExtendMembershipInGroup
+      summary: Returns true if member in given group can extend membership or if no rules were set for the membershipExpiration, otherwise false.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
