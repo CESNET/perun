@@ -272,34 +272,6 @@ public interface UsersManager {
 	List<RichUser> getRichUsersWithAttributesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException, UserNotExistsException;
 
 	/**
-	 * From Users makes RichUsers without attributes.
-	 *
-	 * @deprecated - use getRichUsersByIds
-	 * @param sess
-	 * @param users users to convert
-	 * @return list of richUsers
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
-	 */
-	@Deprecated
-	List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException;
-
-	/**
-	 * From Users makes RichUsers with attributes.
-	 *
-	 * @deprecated - use getRichUsersWithAttributesByIds
-	 * @param sess
-	 * @param users users to convert
-	 * @return list of richUsers
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
-	 */
-	@Deprecated
-	List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException;
-
-	/**
 	 *  Inserts user into DB.
 	 *
 	 * @param perunSession

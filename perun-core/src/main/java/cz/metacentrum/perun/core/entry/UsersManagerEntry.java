@@ -338,60 +338,6 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException {
-		Utils.checkPerunSession(sess);
-
-		if(users == null || users.isEmpty()) return new ArrayList<>();
-
-		for(User user: users) {
-			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-		}
-
-		// Authorization
-		for (User user: users) {
-			if (!AuthzResolver.authorizedInternal(sess, "getRichUsersFromListOfUsers_List<User>_policy", user)) {
-				throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
-			}
-		}
-
-		List<Integer> userIds = users.stream()
-				.map(User::getId)
-				.collect(Collectors.toList());
-
-		List<User> usersFromDB = getPerunBl().getUsersManagerBl().getUsersByIds(sess, userIds);
-
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersFromListOfUsers(sess, usersFromDB));
-	}
-
-	@Override
-	@Deprecated
-	public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException {
-		Utils.checkPerunSession(sess);
-
-		if(users == null || users.isEmpty()) return new ArrayList<>();
-
-		for(User user: users) {
-			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-		}
-
-		// Authorization
-		for (User user: users) {
-			if (!AuthzResolver.authorizedInternal(sess, "getRichUsersWithAttributesFromListOfUsers_List<User>_policy", user)) {
-				throw new PrivilegeException(sess, "getRichUsersWithAttributesFromListOfUsers");
-			}
-		}
-
-		List<Integer> userIds = users.stream()
-				.map(User::getId)
-				.collect(Collectors.toList());
-
-		List<User> usersFromDB = getPerunBl().getUsersManagerBl().getUsersByIds(sess, userIds);
-
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, usersFromDB));
-	}
-
-	@Override
-	@Deprecated
 	public User createUser(PerunSession sess, User user) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(user, "user");

@@ -4900,19 +4900,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getRichUsersFromListOfUsers_List<User>_policy:
-    policy_roles:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getRichUsersWithAttributesFromListOfUsers_List<User>_policy:
-    policy_roles:
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
   setSpecificUser_User_SpecificUserType_User_policy:
     policy_roles: []
     include_policies:
