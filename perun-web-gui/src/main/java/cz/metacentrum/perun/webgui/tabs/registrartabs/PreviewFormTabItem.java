@@ -245,7 +245,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 
 				// eye icon
 				if(item.getHidden() != "NEVER") {
-					Image eyeIcon =  new Image(SmallIcons.INSTANCE.eyeIcon());
+					Image eyeIcon =  new Image(SmallIcons.INSTANCE.hiddenIcon());
 					eyeIcon.setStyleName("pointer");
 
 					String dependency = item.getHiddenDependencyItemId() == 0 ? "it" : formItems.stream()

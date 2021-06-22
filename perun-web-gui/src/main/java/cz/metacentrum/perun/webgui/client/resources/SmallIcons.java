@@ -2375,8 +2375,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/extract_foreground_objects.png")
 	//ImageResource extractForegroundObjectsIcon();
 
-	@Source("icons/16x16/eye.png")
-	ImageResource eyeIcon();
+	//@Source("icons/16x16/eye.png")
+	//ImageResource eyeIcon();
 
 	//@Source("icons/16x16/factory.png")
 	//ImageResource factoryIcon();
@@ -3886,6 +3886,9 @@ public interface SmallIcons extends ClientBundle{
 
 	@Source("icons/16x16/help.png")
 	ImageResource helpIcon();
+
+	@Source("icons/16x16/hidden.png")
+	ImageResource hiddenIcon();
 
 	//@Source("icons/16x16/hlocchart.png")
 	//ImageResource hlocchartIcon();
