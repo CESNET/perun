@@ -207,7 +207,9 @@ public class GetApplicationForm implements JsonCallback {
 							});
 							form.setAutomaticApproval(Boolean.parseBoolean(lbInit.getValue(lbInit.getSelectedIndex())));
 							form.setAutomaticApprovalExtension(Boolean.parseBoolean(lbExt.getValue(lbExt.getSelectedIndex())));
-							form.setAutomaticApprovalEmbedded(Boolean.parseBoolean(lbEmbed.getValue(lbEmbed.getSelectedIndex())));
+							if (groupForm && voHasEmbeddedGroupApplication) {
+								form.setAutomaticApprovalEmbedded(Boolean.parseBoolean(lbEmbed.getValue(lbEmbed.getSelectedIndex())));
+							}
 							form.setModuleClassName(className.getText().trim());
 							request.updateForm(form);
 						}
