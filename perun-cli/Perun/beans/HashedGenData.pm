@@ -343,4 +343,118 @@ sub getGroupResourceAttributeValue ($$$)
 	return $self->{_attributes}->{$groupResourceHash}->{$attrName};
 }
 
+#--------------------------------------------------
+#----------GET ALL ATTRIBUTES methods-----------
+#--------------------------------------------------
+
+sub getAllFacilityAttributes ($)
+{
+	my $self = shift;
+	my %args = @_;
+	my $facilityId = $self->getFacilityId;
+	my $facilityHash = "f-" . $facilityId;
+	return $self->{_attributes}->{$facilityHash};
+}
+
+sub getAllResourceAttributes ($$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $resourceId = $args{resource};
+	unless($resourceId) { die "ResourceId is mandatory to get all resource attributes!\n"; }
+	my $resourceHash = "r-" . $resourceId;
+	return $self->{_attributes}->{$resourceHash};
+}
+
+sub getAllVoAttributes ($$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $voId = $args{vo};
+	unless($voId) { die "VoId is mandatory to get all vo attributes!\n"; }
+	my $voHash = "v-" . $voId;
+	return $self->{_attributes}->{$voHash};
+}
+
+sub getAllGroupAttributes ($$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $groupId = $args{group};
+	unless($groupId) { die "GroupId is mandatory to get all attributes for group!\n"; }
+	my $groupHash = "g-" . $groupId;
+	return $self->{_attributes}->{$groupHash};
+}
+
+sub getAllUserAttributes ($$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	unless($memberId) { die "MemberId is mandatory to get all attributes for user!\n"; }
+	my $userId = $self->getUserIdForMember( member => $memberId );
+	unless($userId) { die "Can't find user for chosen member:$memberId in the hierarchy data!\n"; }
+	my $userHash = "u-" . $userId;
+	return $self->{_attributes}->{$userHash};
+}
+
+sub getAllMemberAttributes ($$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	unless($memberId) { die "MemberId is mandatory to get all attributes for member!\n"; }
+	my $memberHash = "m-" . $memberId;
+	return $self->{_attributes}->{$memberHash};
+}
+
+sub getAllUserFacilityAttributes ($$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	unless($memberId) { die "MemberId is mandatory to get all attributes for user and facility!\n"; }
+	my $userId = $self->getUserIdForMember( member => $memberId );
+	unless($userId) { die "Can't find user for chosen member:$memberId in the hierarchy data!\n"; }
+	my $facilityId = $self->getFacilityId;
+	my $userFacilityHash = "u-f-" . $userId . "-" . $facilityId;
+	return $self->{_attributes}->{$userFacilityHash};
+}
+
+sub getAllMemberResourceAttributes ($$$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	my $resourceId = $args{resource};
+	unless($memberId) { die "MemberId is mandatory to get all attributes for member and resource!\n"; }
+	unless($resourceId) { die "ResourceId is mandatory to get all attribute for member and resource!\n"; }
+	my $memberResourceHash = "m-r-" . $memberId . "-" . $resourceId;
+	return $self->{_attributes}->{$memberResourceHash};
+}
+
+sub getAllMemberGroupAttributes ($$$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	my $groupId = $args{group};
+	unless($memberId) { die "MemberId is mandatory to get all attributes for member and group!\n"; }
+	unless($groupId) { die "GroupId is mandatory to get all attributes for member and group!\n"; }
+	my $memberGroupHash = "m-g-" . $memberId . "-" . $groupId;
+	return $self->{_attributes}->{$memberGroupHash};
+}
+
+sub getAllGroupResourceAttributes ($$$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $groupId = $args{group};
+	my $resourceId = $args{resource};
+	unless($groupId) { die "GroupId is mandatory to get all attributes for group and resource!\n"; }
+	unless($resourceId) { die "ResourceId is mandatory to get all attributes for group and resource!\n"; }
+	my $groupResourceHash = "g-r-" . $groupId . "-" . $resourceId;
+	return $self->{_attributes}->{$groupResourceHash};
+}
+
 1;
