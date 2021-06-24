@@ -139,7 +139,7 @@ public class ChangePassword {
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("user", new JSONNumber(user.getId()));
-		jsonQuery.put("loginNamespace", new JSONString(loginNamespace));
+		jsonQuery.put("namespace", new JSONString(loginNamespace));
 		jsonQuery.put("oldPassword", new JSONString(oldPassword));
 		jsonQuery.put("newPassword", new JSONString(newPassword));
 		jsonQuery.put("checkOldPassword", new JSONNumber(checkPasswordNum));
