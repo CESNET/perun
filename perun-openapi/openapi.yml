@@ -11568,6 +11568,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupMemberById:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupMemberById
+      summary: Get member in context of group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #
