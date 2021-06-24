@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.BanOnFacility;
-import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -21,7 +20,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -888,132 +886,6 @@ public interface FacilitiesManagerBl {
 	 */
 	void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
-	// FACILITY CONTACTS METHODS
-
-	/**
-	 * Get list of contact groups for the owner.
-	 *
-	 * @param sess
-	 * @param owner
-	 * @return list of ContactGroups for the owner
-	 * @throws InternalErrorException
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner);
-
-	/**
-	 * Get list of contact groups for the user.
-	 *
-	 * @param sess
-	 * @param user
-	 * @return list of ContactGroups for the user
-	 * @throws InternalErrorException
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user);
-
-	/**
-	 * Get list of contact groups for the group.
-	 *
-	 * @param sess
-	 * @param group
-	 * @return list of ContactGroups for the group
-	 * @throws InternalErrorException
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group);
-
-	/**
-	 * Get list of contact groups for the facility
-	 *
-	 * @param sess
-	 * @param facility
-	 * @return list of ContactGroups for the facility
-	 * @throws InternalErrorException
-	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility);
-
-	/**
-	 * Get contact group for the facility and the contact group name
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param name
-	 * @return contactGroup for the facility and the contact group name
-	 * @throws InternalErrorException
-	 * @throws FacilityContactNotExistsException
-	 */
-	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws FacilityContactNotExistsException;
-
-	/**
-	 * Get all exist contact group names.
-	 *
-	 * @param sess
-	 * @return list of all contact group names
-	 * @throws InternalErrorException
-	 */
-	List<String> getAllContactGroupNames(PerunSession sess);
-
-	/**
-	 * Create all contacts from list of contact groups
-	 *
-	 * @param sess
-	 * @param contactGroupsToAdd
-	 * @throws InternalErrorException
-	 */
-	void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd);
-
-	/**
-	 * Create all contacts from contact group
-	 *
-	 * @param sess
-	 * @param contactGroupToAdd
-	 * @throws InternalErrorException
-	 */
-	void addFacilityContact(PerunSession sess, ContactGroup contactGroupToAdd);
-
-	/**
-	 * Remove all facilities contacts assigned to this owner.
-	 *
-	 * @param sess
-	 * @param owner
-	 * @throws InternalErrorException
-	 */
-	void removeAllOwnerContacts(PerunSession sess, Owner owner);
-
-	/**
-	 * Remove all facilities contacts assigned to this user.
-	 *
-	 * @param sess
-	 * @param user
-	 * @throws InternalErrorException
-	 */
-	void removeAllUserContacts(PerunSession sess, User user);
-
-	/**
-	 * Remove all facilities contacts assigned to this group.
-	 *
-	 * @param sess
-	 * @param group
-	 * @throws InternalErrorException
-	 */
-	void removeAllGroupContacts(PerunSession sess, Group group);
-
-	/**
-	 * Remove all contacts from list of contact groups
-	 *
-	 * @param sess
-	 * @param contactGroupsToRemove
-	 * @throws InternalErrorException
-	 */
-	void removeFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToRemove);
-
-	/**
-	 * Remove all contacts from contact group
-	 *
-	 * @param sess
-	 * @param contactGroupToRemove
-	 * @throws InternalErrorException
-	 */
-	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove);
-
 	/**
 	 * Return all security teams which specific facility trusts
 	 *
@@ -1043,45 +915,6 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam);
-
-	/**
-	 * Check if facility contact for the user already exists.
-	 * Throw exception info not.
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param name
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws FacilityContactNotExistsException
-	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws FacilityContactNotExistsException;
-
-	/**
-	 * Check if facility contact for the group already exists.
-	 * Throw exception info not.
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param name
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws FacilityContactNotExistsException
-	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws FacilityContactNotExistsException;
-
-	/**
-	 * Check if facility contact for the owner already exists.
-	 * Throw exception info not.
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param name
-	 * @param owner
-	 * @throws InternalErrorException
-	 * @throws FacilityContactNotExistsException
-	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws FacilityContactNotExistsException;
 
 	/**
 	 * Check if security team is <b>not</b> assigned to facility.

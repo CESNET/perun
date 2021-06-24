@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
-import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
@@ -31,7 +30,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -1149,138 +1147,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return this.getPerunBl().getFacilitiesManagerBl().getAssignedUsers(sess,facility,service);
 	}
 
-	// FACILITY CONTACTS METHODS
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws OwnerNotExistsException {
-		Utils.checkPerunSession(sess);
-		perunBl.getOwnersManagerBl().checkOwnerExists(sess, owner);
-		List<ContactGroup> contactGroups = this.getFacilitiesManagerBl().getFacilityContactGroups(sess, owner);
-
-		if(contactGroups == null) return new ArrayList<>();
-
-		//Authorization
-		contactGroups.removeIf(contactGroup -> !AuthzResolver.authorizedInternal(sess, "getFacilityContactGroups_Owner_policy", Arrays.asList(owner, contactGroup.getFacility())));
-
-
-		return contactGroups;
-	}
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws UserNotExistsException {
-		Utils.checkPerunSession(sess);
-		perunBl.getUsersManagerBl().checkUserExists(sess, user);
-		List<ContactGroup> contactGroups = this.getFacilitiesManagerBl().getFacilityContactGroups(sess, user);
-
-		if(contactGroups == null) return new ArrayList<>();
-
-		//Authorization
-		contactGroups.removeIf(contactGroup -> !AuthzResolver.authorizedInternal(sess, "getFacilityContactGroups_User_policy", Arrays.asList(user, contactGroup.getFacility())));
-
-		return contactGroups;
-	}
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws GroupNotExistsException {
-		Utils.checkPerunSession(sess);
-		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-		List<ContactGroup> contactGroups = this.getFacilitiesManagerBl().getFacilityContactGroups(sess, group);
-
-		if(contactGroups == null) return new ArrayList<>();
-
-		//Authorization
-		contactGroups.removeIf(contactGroup -> !AuthzResolver.authorizedInternal(sess, "getFacilityContactGroups_Group_policy", Arrays.asList(group, contactGroup.getFacility())));
-
-		return contactGroups;
-	}
-
-	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws FacilityNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-		perunBl.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getFacilityContactGroups_Facility_policy", facility)) {
-			throw new PrivilegeException(sess, "getFacilityContactGroups");
-		}
-
-		return this.getFacilitiesManagerBl().getFacilityContactGroups(sess, facility);
-	}
-
-	@Override
-	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException {
-		Utils.checkPerunSession(sess);
-		Utils.notNull(name, "name");
-		this.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getFacilityContactGroup_Facility_String_policy", facility)) {
-			throw new PrivilegeException(sess, "getFacilityContactGroup");
-		}
-
-		return this.getFacilitiesManagerBl().getFacilityContactGroup(sess, facility, name);
-	}
-
-	@Override
-	public List<String> getAllContactGroupNames(PerunSession sess) {
-		Utils.checkPerunSession(sess);
-		return this.getFacilitiesManagerBl().getAllContactGroupNames(sess);
-	}
-
-	@Override
-	public void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
-		Utils.checkPerunSession(sess);
-		this.checkFacilityContactsEntitiesExist(sess, contactGroupsToAdd);
-
-		//Authorization
-		contactGroupsToAdd.removeIf(contactGroupToAdd -> !AuthzResolver.authorizedInternal(sess, "addFacilityContacts_List<ContactGroup>_policy", contactGroupToAdd.getFacility()));
-
-		if(!contactGroupsToAdd.isEmpty()) {
-			this.facilitiesManagerBl.addFacilityContacts(sess, contactGroupsToAdd);
-		}
-	}
-
-	@Override
-	public void addFacilityContact(PerunSession sess, ContactGroup contactGroupToAdd) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
-		Utils.checkPerunSession(sess);
-		this.checkFacilityContactEntitiesExists(sess, contactGroupToAdd);
-
-		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "addFacilityContact_ContactGroup_policy", contactGroupToAdd.getFacility())) {
-			throw new PrivilegeException(sess, "addFacilityContact");
-		}
-
-		this.getFacilitiesManagerBl().addFacilityContact(sess, contactGroupToAdd);
-	}
-
-	@Override
-	public void removeFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToRemove) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
-		Utils.checkPerunSession(sess);
-		this.checkFacilityContactsEntitiesExist(sess, contactGroupsToRemove);
-
-		//Authorization
-		for (ContactGroup contactGroupToRemove : contactGroupsToRemove) {
-			if (!AuthzResolver.authorizedInternal(sess, "removeFacilityContacts_List<ContactGroup>_policy", contactGroupToRemove.getFacility())) {
-				throw new PrivilegeException(sess, "removeFacilityContacts");
-			}
-		}
-
-		this.getFacilitiesManagerBl().removeFacilityContacts(sess, contactGroupsToRemove);
-	}
-
-	@Override
-	public void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
-		Utils.checkPerunSession(sess);
-		this.checkFacilityContactEntitiesExists(sess, contactGroupToRemove);
-
-		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "removeFacilityContact_ContactGroup_policy", contactGroupToRemove.getFacility())) {
-			throw new PrivilegeException(sess, "contactGroupToRemove");
-		}
-
-		this.getFacilitiesManagerBl().removeFacilityContact(sess, contactGroupToRemove);
-	}
-
 	@Override
 	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
@@ -1449,62 +1315,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		getFacilitiesManagerBl().removeBan(sess, userId, facilityId);
-	}
-
-	/**
-	 * Check existence of every entity in contactGroup
-	 *
-	 * @param sess
-	 * @param contactGroup
-	 * @throws FacilityNotExistsException
-	 * @throws UserNotExistsException
-	 * @throws OwnerNotExistsException
-	 * @throws GroupNotExistsException
-	 * @throws InternalErrorException
-	 */
-	private void checkFacilityContactEntitiesExists(PerunSession sess, ContactGroup contactGroup) throws FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
-		Utils.notNull(contactGroup, "contactGroup");
-		Utils.notNull(contactGroup.getFacility(), "facility");
-		Utils.notNull(contactGroup.getName(), "name");
-
-		this.getFacilitiesManagerBl().checkFacilityExists(sess, contactGroup.getFacility());
-
-		if(contactGroup.getUsers() != null) {
-			for(RichUser user: contactGroup.getUsers()) {
-				getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-			}
-		}
-
-		if(contactGroup.getGroups() != null) {
-			for(Group group: contactGroup.getGroups()) {
-				getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-			}
-		}
-
-		if(contactGroup.getOwners() != null) {
-			for(Owner owner: contactGroup.getOwners()) {
-				getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
-			}
-		}
-	}
-
-	/**
-	 * Check existence of every entity in list of contactGroups
-	 *
-	 * @param sess
-	 * @param contactGroups
-	 * @throws FacilityNotExistsException
-	 * @throws UserNotExistsException
-	 * @throws OwnerNotExistsException
-	 * @throws GroupNotExistsException
-	 * @throws InternalErrorException
-	 */
-	private void checkFacilityContactsEntitiesExist(PerunSession sess, List<ContactGroup> contactGroups) throws FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
-		Utils.notNull(contactGroups, "contactGroups");
-
-		for(ContactGroup contactGroup: contactGroups) {
-			this.checkFacilityContactEntitiesExists(sess, contactGroup);
-		}
 	}
 
 	/**

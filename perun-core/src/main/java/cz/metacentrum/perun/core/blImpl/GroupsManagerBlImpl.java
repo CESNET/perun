@@ -27,7 +27,6 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
-import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -351,16 +350,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		// delete all Groups reserved logins from DB
 		getGroupsManagerImpl().deleteGroupReservedLogins(sess, group);
-
-		//Remove all information about group on facilities (facilities contacts)
-		List<ContactGroup> groupContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, group);
-		if(!groupContactGroups.isEmpty()) {
-			if(forceDelete) {
-				getPerunBl().getFacilitiesManagerBl().removeAllGroupContacts(sess, group);
-			} else {
-				throw new RelationExistsException("Group has still some facilities contacts: " + groupContactGroups);
-			}
-		}
 
 		//remove all assigned ExtSources to this group
 		List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
