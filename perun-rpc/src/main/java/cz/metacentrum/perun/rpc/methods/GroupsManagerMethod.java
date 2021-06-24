@@ -1821,5 +1821,22 @@ public enum GroupsManagerMethod implements ManagerMethod {
 				ac.getMemberById(parms.readInt("member")),
 				ac.getGroupById(parms.readInt("group")));
 		}
+	},
+
+	/*#
+	 * Get member in context of group.
+	 *
+	 * @param sess perun session
+	 * @param group int Group <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @return Member member in context of group
+	 */
+	getGroupMemberById {
+		@Override
+		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupMemberById(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				parms.readInt("member"));
+		}
 	};
 }
