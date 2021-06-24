@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -832,6 +833,107 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals(user, userByLogin);
 	}
 
+	@Test
+	public void getSendRightFromSendAsAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getSendRightFromSendAsAttribute");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		Attribute sendAs = new Attribute(setSendAsAttribute(), true);
+
+		perun.getAttributesManagerBl().setAttribute(sess, member, group, sendAs);
+
+		assertTrue(perun.getModulesUtilsBl().getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(), ""));
+	}
+
+	@Test
+	public void getSendRightFromSendAsGroupsAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getSendRightFromSendAsGroupsAttribute");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		Group subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroupTest", "testing subgroup"));
+		perun.getGroupsManagerBl().addMember(sess, subgroup, member);
+		ArrayList<String> subgroupIds = new ArrayList<>();
+		subgroupIds.add(String.valueOf(subgroup.getId()));
+
+		Attribute sendAs = new Attribute(setSendAsAttribute(), false);
+		perun.getAttributesManagerBl().setAttribute(sess, member, group, sendAs);
+
+		Attribute sendAsGroups = new Attribute(setSendAsGroupsAttribute(), subgroupIds);
+		perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
+
+		assertTrue(perun.getModulesUtilsBl().getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(), sendAsGroups.getName()));
+	}
+
+	@Test
+	public void getSendRightFromAttributesFalse() throws Exception {
+		System.out.println(CLASS_NAME + "getSendRightFromAttributesFalse");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		Group subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroupTest", "testing subgroup"));
+		ArrayList<String> subgroupIds = new ArrayList<>();
+		subgroupIds.add(String.valueOf(subgroup.getId()));
+
+		Attribute sendAs = new Attribute(setSendAsAttribute(), false);
+		perun.getAttributesManagerBl().setAttribute(sess, member, group, sendAs);
+
+		Attribute sendAsGroups = new Attribute(setSendAsGroupsAttribute(), subgroupIds);
+		perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
+
+		assertFalse(perun.getModulesUtilsBl().getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(), sendAsGroups.getName()));
+	}
+
+	@Test
+	public void checkAttributeValueIsSubgroupId() throws Exception {
+		System.out.println(CLASS_NAME + "checkAttributeValueIsSubgroupId");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		Group subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroupTest", "testing subgroup"));
+		ArrayList<String> subgroupIds = new ArrayList<>();
+		subgroupIds.add(String.valueOf(subgroup.getId()));
+
+		Attribute sendAsGroups = new Attribute(setSendAsGroupsAttribute(), subgroupIds);
+		perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
+
+		assertThatNoException().isThrownBy(() -> perun.getModulesUtilsBl().checkAttributeValueIsSubgroupId((PerunSessionImpl) sess, group, sendAsGroups));
+	}
+
+	@Test(expected = WrongReferenceAttributeValueException.class)
+	public void checkAttributeValueIsNotSubgroupId() throws Exception {
+		System.out.println(CLASS_NAME + "checkAttributeValueIsNotSubgroupId");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		Group subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroupTest", "testing subgroup"));
+		ArrayList<String> subgroupIds = new ArrayList<>();
+		subgroupIds.add(String.valueOf(subgroup.getId()));
+		subgroupIds.add("31415");
+
+		Attribute sendAsGroups = new Attribute(setSendAsGroupsAttribute(), subgroupIds);
+		perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
+
+		perun.getModulesUtilsBl().checkAttributeValueIsSubgroupId((PerunSessionImpl) sess, group, sendAsGroups);
+	}
+
 	// private methods ------------------------------------------------------------------
 
 	private Attribute getOverrideFileQuotasAttribute() {
@@ -1453,6 +1555,22 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute attribute = new Attribute(attrDef);
 		attribute.setValue("Testing value");
 		return attribute;
+	}
+
+	private AttributeDefinition setSendAsAttribute() throws Exception {
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+		attributeDefinition.setFriendlyName("o365SendAs");
+		attributeDefinition.setType(Boolean.class.getName());
+		return perun.getAttributesManagerBl().createAttribute(sess, attributeDefinition);
+	}
+
+	private AttributeDefinition setSendAsGroupsAttribute() throws Exception {
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attributeDefinition.setFriendlyName("o365SendAsGroups");
+		attributeDefinition.setType(ArrayList.class.getName());
+		return perun.getAttributesManagerBl().createAttribute(sess, attributeDefinition);
 	}
 
 }
