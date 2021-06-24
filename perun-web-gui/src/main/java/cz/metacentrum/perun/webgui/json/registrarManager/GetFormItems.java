@@ -282,7 +282,7 @@ public class GetFormItems implements JsonCallback {
 
 			// 3 = hidden
 			if(item.getHidden() != "NEVER") {
-				Image eyeIcon =  new Image(SmallIcons.INSTANCE.eyeIcon());
+				Image eyeIcon =  new Image(SmallIcons.INSTANCE.hiddenIcon());
 				String dependency = item.getHiddenDependencyItemId() == 0 ? "(self)" : items.stream()
 					.filter(it -> it.getId() == item.getHiddenDependencyItemId())
 					.collect(Collectors.toList()).get(0).getShortname();
