@@ -98,7 +98,7 @@ public class GetApplicationDataById implements JsonCallback{
 
 	public void setEmbedded(boolean embedded, User user) {
 		this.embedded = embedded;
-		this.userId = user.getId();
+		this.userId = (user != null) ? user.getId() : 0;
 	}
 
 	/**
