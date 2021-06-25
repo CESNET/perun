@@ -323,42 +323,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * From Users makes RichUsers without attributes.
-	 *
-	 * @deprecated use getRichUsersByIds
-	 * @param users List<RichUser> users to convert
-	 * @return List<RichUser> list of rich users
-	 */
-	getRichUsersFromListOfUsers {
-
-		@Override
-		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
-
-			return ac.getUsersManager().getRichUsersFromListOfUsers(ac.getSession(),
-					parms.readList("users", User.class));
-		}
-	},
-
-	/*#
-	 * From Users makes RichUsers with attributes.
-	 *
-	 * @deprecated use getRichUsersWithAttributesByIds
-	 * @param users List<RichUser> users to convert
-	 * @return List<RichUser> list of richUsers
-	 */
-	getRichUsersFromListOfUsersWithAttributes {
-
-		@Override
-		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
-
-			return ac.getUsersManager().getRichUsersWithAttributesFromListOfUsers(ac.getSession(),
-					parms.readList("users", User.class));
-		}
-	},
-
-	/*#
 	 * Returns all RichUsers with attributes who are not member of any VO.
 	 *
 	 * @return List<RichUser> list of richUsers who are not member of any VO
