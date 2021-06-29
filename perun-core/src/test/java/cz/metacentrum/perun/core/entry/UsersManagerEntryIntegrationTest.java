@@ -1481,6 +1481,14 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void findUserByUuid() {
+		System.out.println(CLASS_NAME + "findUserByUuid");
+
+		List<User> users = perun.getUsersManagerBl().findUsers(sess, user.getUuid().toString());
+		assertThat(users).containsExactly(user);
+	}
+
+	@Test
 	public void findUserByMemberAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "findUserByMemberAttribute");
 

@@ -721,7 +721,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns list of users who matches the searchString, searching name, email, logins.
+	 * Returns list of users who matches the searchString, searching name, id, uuid, email, logins.
 	 *
 	 * @param searchString String String to search by
 	 * @return List<User> Found users
@@ -736,7 +736,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+	 * Returns list of RichUsers with attributes who matches the searchString, searching name, id, uuid, email, logins.
 	 *
 	 * @param searchString String searched string
 	 * @return List<RichUser> list of RichUsers

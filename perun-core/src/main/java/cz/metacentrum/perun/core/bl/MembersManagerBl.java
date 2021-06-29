@@ -1078,7 +1078,7 @@ public interface MembersManagerBl {
 	List<Member> findMembersInVo(PerunSession sess, Vo vo, String searchString);
 
 	/**
-	 * Return list of rich members by theirs name or login or email under defined VO.
+	 * Return list of rich members by theirs name, id, uuid, login or email under defined VO.
 	 * @param sess
 	 * @param searchString
 	 * @param vo
@@ -1089,7 +1089,7 @@ public interface MembersManagerBl {
 	List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
 
 	/**
-	 * Return list of rich members by theirs name or login or email
+	 * Return list of rich members by theirs name, id, uuid, login or email
 	 * @param sess
 	 * @param searchString
 	 * @param onlySponsored return only sponsored members
@@ -1711,7 +1711,7 @@ public interface MembersManagerBl {
 	/**
 	 * Return list of members VO by specific string.
 	 * All searches are case insensitive.
-	 * Looking for searchString in member mail, user preferredMail, logins, name and IDs (user and member).
+	 * Looking for searchString in member mail, user preferredMail, logins, name, IDs (user and member) and user UUID.
 	 * If parameter onlySponsored is true, it will return only sponsored members by searchString.
 	 * If vo is null, looking for any members in whole Perun. If vo is not null, looking only in specific VO.<
 	 *

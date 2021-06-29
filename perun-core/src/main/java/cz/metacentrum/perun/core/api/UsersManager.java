@@ -633,7 +633,7 @@ public interface UsersManager {
 	List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
-	 * Returns list of users who matches the searchString, searching name, email, logins.
+	 * Returns list of users who matches the searchString, searching name, id, uuid, email, logins.
 	 *
 	 * @param sess
 	 * @param searchString
@@ -643,7 +643,7 @@ public interface UsersManager {
 	List<User> findUsers(PerunSession sess, String searchString) throws PrivilegeException;
 
 	/**
-	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+	 * Returns list of RichUsers with attributes who matches the searchString, searching name, id, uuid, email, logins.
 	 *
 	 * @param sess
 	 * @param searchString
@@ -1033,7 +1033,7 @@ public interface UsersManager {
 		throws PrivilegeException, UserNotExistsException;
 
 	/**
-	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+	 * Returns list of RichUsers with attributes who matches the searchString, searching name, id, uuid, email, logins.
 	 *
 	 * @param sess
 	 * @param searchString
@@ -1047,7 +1047,7 @@ public interface UsersManager {
 		throws UserNotExistsException, PrivilegeException;
 
 	/**
-	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+	 * Returns list of RichUsers with attributes who matches the searchString, searching name, id, uuid, email, logins.
 	 * Name part is searched for exact match.
 	 *
 	 * @param sess
