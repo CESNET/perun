@@ -2762,6 +2762,28 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 			.containsExactly(member2.getId());
 	}
 
+
+	@Test
+	public void getMembersPageFindMemberById() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageFindMemberById");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		setUpMember(vo, "Stinson", "Barney");
+		setUpMember(vo, "Doe", "Jane");
+
+		MembersPageQuery query = new MembersPageQuery(3, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, String.valueOf(member1.getId()));
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member1.getId());
+	}
+
 	@Test
 	public void getMembersPageBasedOnUserUuidSearchString() throws Exception {
 		System.out.println(CLASS_NAME + "getMembersPageBasedOnUserUuidSearchString");
