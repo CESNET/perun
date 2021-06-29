@@ -2601,7 +2601,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				.map(group -> group.getId() + "#" + group.getName())
 				.collect(Collectors.joining("|"));
 
-		item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);
+		if (ApplicationFormItem.CS != null) {
+			item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);
+		}
 		item.getFormItem().getI18n().get(ApplicationFormItem.EN).setOptions(groupOptions);
 	}
 
