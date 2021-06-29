@@ -848,7 +848,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	/**
-	 * Returns list of users who matches the searchString, searching name, id, member attributes, user attributes
+	 * Returns list of users who matches the searchString, searching name, id, uuid, member attributes, user attributes
 	 * and userExtSource attributes (listed in CoreConfig).
 	 *
 	 * @param searchString string used to search by
@@ -882,11 +882,21 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		MapSqlParameterSource namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(searchString, attributesToSearchBy);
 
+		String uuidQueryString = "";
+		try {
+			UUID uuid = UUID.fromString(searchString);
+			uuidQueryString = " users.uu_id=:uuid or ";
+			namedParams.addValue("uuid", uuid);
+		} catch (IllegalArgumentException ex) {
+			// IGNORE wrong format of UUID
+		}
+
 		// Search by member attributes
 		// Search by user attributes
 		// Search by login in userExtSources
 		// Search by userExtSource attributes
 		// Search by user id
+		// Search by user uuid
 		// Search by name for user
 		Set<User> users = new HashSet<>(namedParameterJdbcTemplate.query("select distinct " + userMappingSelectQuery +
 			" from users " +
@@ -902,6 +912,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			attributesToSearchByQueries.get("userAttributesQuery").getRight() +
 			attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
 			idQueryString +
+			uuidQueryString +
 			userNameQueryString +
 			" ) ", namedParams, USER_MAPPER));
 

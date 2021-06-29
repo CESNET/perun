@@ -669,12 +669,22 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		MapSqlParameterSource namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(searchString, attributesToSearchBy);
 
+		String uuidQueryString = "";
+		try {
+			UUID uuid = UUID.fromString(searchString);
+			uuidQueryString = " users.uu_id=:uuid or ";
+			namedParams.addValue("uuid", uuid);
+		} catch (IllegalArgumentException ex) {
+			// IGNORE wrong format of UUID
+		}
+
 		//searching by member attributes
 		//searching by user attributes
 		//searching by login in userExtSources
 		//searching by userExtSource attributes
 		//searching by name for user
 		//searching by user and member id
+		//searching by user uuid
 		Set<Member> members = new HashSet<>(namedParameterJdbcTemplate.query("select distinct " + memberMappingSelectQuery +
 				" from members " +
 				" left join users on members.user_id=users.id " +
@@ -691,6 +701,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
 				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
 				idQueryString +
+				uuidQueryString +
 				userNameQueryString +
 				" ) ", namedParams, MEMBER_MAPPER));
 
@@ -725,6 +736,17 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
 			Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
 
+			namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
+
+			String uuidQueryString = "";
+			try {
+				UUID uuid = UUID.fromString(query.getSearchString());
+				uuidQueryString = " users.uu_id=:uuid or ";
+				namedParams.addValue("uuid", uuid);
+			} catch (IllegalArgumentException ex) {
+				// IGNORE wrong format of UUID
+			}
+
 			searchStringQueryJoin = attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
 				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
 				attributesToSearchByQueries.get("uesAttributesQuery").getLeft();
@@ -734,10 +756,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
 				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
 				idQueryString +
+				uuidQueryString +
 				userNameQueryString +
 				" ) ";
-
-			namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
 		}
 
 		namedParams.addValue("voId", vo.getId());

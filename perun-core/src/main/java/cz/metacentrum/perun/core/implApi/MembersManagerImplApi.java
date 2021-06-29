@@ -381,7 +381,7 @@ public interface MembersManagerImplApi {
 
 	/**
 	 * Return list of members by specific string.
-	 * Looking for searchString in user name, member and user id, member, users and userExtSource attributes specified by perun.properties.
+	 * Looking for searchString in user name, member and user id, user uuid, member, users and userExtSource attributes specified by perun.properties.
 	 * All searches are case insensitive.
 	 * If parameter onlySponsored is true, it will return only sponsored members by searchString.
 	 * If vo is null, looking for any members in whole Perun. If vo is not null, looking only in specific VO.

@@ -530,7 +530,7 @@ public interface UsersManagerImplApi {
 	List<Vo> getVosWhereUserIsMember(PerunSession sess, User user);
 
 	/**
-	 * Returns list of users who matches the searchString, searching name, id, member attributes, user attributes
+	 * Returns list of users who matches the searchString, searching name, id, uuid, member attributes, user attributes
 	 * and userExtSource attributes (listed in perun.properties).
 	 *
 	 * @param sess perun session
@@ -540,7 +540,7 @@ public interface UsersManagerImplApi {
 	List<User> findUsers(PerunSession sess, String searchString);
 
 	/**
-	 * Returns list of users who matches the searchString, searching name (exact match), id, member attributes, user attributes
+	 * Returns list of users who matches the searchString, searching name (exact match), id, uuid, member attributes, user attributes
 	 * and userExtSource attributes (listed in perun.properties).
 	 *
 	 * @param sess perun session
