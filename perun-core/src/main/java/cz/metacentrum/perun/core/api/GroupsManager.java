@@ -1332,4 +1332,16 @@ public interface GroupsManager {
 	 * @return lists of groups [CURRENT GROUP -> SUBGROUP -> ... -> MEMBER'S SOURCE GROUP]
 	 */
 	List<List<Group>> getIndirectMembershipPaths(PerunSession sess, Member member, Group group) throws MemberNotExistsException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns list of RichMembers with requested attributes by their member IDs from given group.
+	 * Skips invalid member IDs (unknown or not members of group).
+	 * Supports member, member-group (stored in memberAttributes) and user attributes (stored in userAttributes).
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @param memberIds ids of members to include in result
+	 * @param attrNames names of attributes to include in RichMembers
+	 * @return list of RichMembers
+	 */
+	List<RichMember> getGroupRichMembersByIds(PerunSession sess, int groupId, List<Integer> memberIds, List<String> attrNames) throws GroupNotExistsException, PrivilegeException, AttributeNotExistsException;
 }

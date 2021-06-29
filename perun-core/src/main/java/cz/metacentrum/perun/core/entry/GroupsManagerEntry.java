@@ -1458,4 +1458,35 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		return getGroupsManagerBl().getIndirectMembershipPaths(sess, member, group);
 	}
+
+	@Override
+	public List<RichMember> getGroupRichMembersByIds(PerunSession sess, int groupId, List<Integer> memberIds, List<String> attrNames) throws GroupNotExistsException, PrivilegeException, AttributeNotExistsException  {
+		Utils.checkPerunSession(sess);
+
+		Group group = groupsManagerBl.getGroupById(sess, groupId);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if ( !AuthzResolver.authorizedInternal(sess, "getGroupRichMembersByIds_int_List<Integer>_List<String>_policy", group)) {
+			throw new PrivilegeException(sess, "getGroupRichMembersByIds");
+		}
+
+		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
+		for (String attrName : attrNames) {
+			attributeDefinitions.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+		}
+
+		List<Member> members = new ArrayList<>();
+		for (Integer memberId : memberIds) {
+			try {
+				members.add(groupsManagerBl.getGroupMemberById(sess, group, memberId));
+			} catch (NotGroupMemberException e) {
+				// silently skip
+			}
+		}
+		members.removeIf(member -> !AuthzResolver.authorizedInternal(sess, "filter-getGroupRichMembersByIds_int_List<Integer>_List<String>_policy", member));
+
+		List<RichMember> richMembers = perunBl.getMembersManagerBl().getRichMembersWithAttributes(sess, group, members, attributeDefinitions);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, richMembers, group, true);
+	}
 }

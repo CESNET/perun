@@ -11583,6 +11583,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupRichMembersByIds:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupRichMembersByIds
+      summary: Returns list of RichMembers with requested attributes by their member IDs from given group. Skips invalid member IDs (unknown or not members of group). Supports member, member-group (stored in memberAttributes) and user attributes (stored in userAttributes).
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/memberIds'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #
