@@ -831,6 +831,17 @@ public interface MembersManagerBl {
 	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef);
 
 	/**
+	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef and for specified members.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param attrsDef
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<Member> members, List<AttributeDefinition> attrsDef);
+
+	/**
 	 * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.
 	 *
 	 * @param sess

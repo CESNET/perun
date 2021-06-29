@@ -10,14 +10,18 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -1837,6 +1841,26 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			return ac.getGroupsManager().getGroupMemberById(ac.getSession(),
 				ac.getGroupById(parms.readInt("group")),
 				parms.readInt("member"));
+		}
+	},
+
+	/*#
+	 * Returns list of RichMembers with requested attributes by their member IDs from given group.
+	 * Skips invalid member IDs (unknown or not members of group).
+	 * Supports member, member-group (stored in memberAttributes) and user attributes (stored in userAttributes).
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param members List<Integer> <code>id</code> of members to be returned
+	 * @param attrNames List<String> names of attributes
+	 * @return List<RichMember> Group members
+	 */
+	getGroupRichMembersByIds {
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupRichMembersByIds(ac.getSession(),
+				parms.readInt("group"),
+				parms.readList("members", Integer.class),
+				parms.readList("attrNames", String.class));
 		}
 	};
 }

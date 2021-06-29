@@ -920,8 +920,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) {
 		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
+		return getRichMembersWithAttributes(sess, group, members, attrsDef);
+	}
+
+	@Override
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<Member> members, List<AttributeDefinition> attrsDef) {
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		List<RichMember> richMembersWithAttributes = null;
+		List<RichMember> richMembersWithAttributes;
 		try {
 			richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
 		} catch (MemberGroupMismatchException e) {

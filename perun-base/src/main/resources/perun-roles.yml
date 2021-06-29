@@ -1999,6 +1999,30 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getGroupRichMembersByIds_int_List<Integer>_List<String>_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getGroupRichMembersByIds_int_List<Integer>_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - SELF: User
+      - RPC:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
+    include_policies:
+      - default_policy
+
   #MembersManagerEntry
   deleteMember_Member_policy:
     policy_roles:
