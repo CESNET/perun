@@ -98,6 +98,7 @@ components:
             titleAfter: { type: string }
             serviceUser: { type: boolean }
             sponsoredUser: { type: boolean }
+            uuid: { type: string, format: uuid }
             specificUser: { type: boolean }
             majorSpecificType: { type: string }
       discriminator:
@@ -567,6 +568,7 @@ components:
             description: { type: string }
             voId: { type: integer }
             parentGroupId: { type: integer }
+            uuid: { type: string, format: uuid }
       discriminator:
         propertyName: beanName
 
@@ -586,6 +588,7 @@ components:
             description: { type: string }
             voId: { type: integer }
             facilityId: { type: integer }
+            uuid: { type: string, format: uuid }
       discriminator:
         propertyName: beanName
 
