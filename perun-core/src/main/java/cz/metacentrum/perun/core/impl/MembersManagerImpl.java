@@ -63,6 +63,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+
 public class MembersManagerImpl implements MembersManagerImplApi {
 
 	private static String rejected = "REJECTED";
@@ -716,108 +718,31 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	@Override
 	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) {
+		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+		MapSqlParameterSource namedParams =
+			Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
 
-		MapSqlParameterSource namedParams = new MapSqlParameterSource();
-		String searchStringQueryJoin = "";
-		String searchStringQueryWhere = "";
-
-		if (query.getSearchString() != null && !query.getSearchString().isEmpty()) {
-
-			String userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
-
-			String idQueryString = "";
-			try {
-				int id = Integer.parseInt(query.getSearchString());
-				idQueryString = " members.user_id=" + id + " or members.id=" + id + " or ";
-			} catch (NumberFormatException e) {
-				// IGNORE wrong format of ID
-			}
-
-			Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
-			Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
-
-			namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
-
-			String uuidQueryString = "";
-			try {
-				UUID uuid = UUID.fromString(query.getSearchString());
-				uuidQueryString = " users.uu_id=:uuid or ";
-				namedParams.addValue("uuid", uuid);
-			} catch (IllegalArgumentException ex) {
-				// IGNORE wrong format of UUID
-			}
-
-			searchStringQueryJoin = attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
-				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
-				attributesToSearchByQueries.get("uesAttributesQuery").getLeft();
-
-			searchStringQueryWhere = " AND ( LOWER(ues.login_ext) = LOWER(:searchString) OR " +
-				attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
-				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
-				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
-				idQueryString +
-				uuidQueryString +
-				userNameQueryString +
-				" ) ";
-		}
+		String select = getSQLSelectForMembersPage(query);
+		String searchQuery = getSQLWhereForMembersPage(query, namedParams);
 
 		namedParams.addValue("voId", vo.getId());
 		namedParams.addValue("offset", query.getOffset());
 		namedParams.addValue("limit", query.getPageSize());
 
-		String statusesQueryString = "";
-		if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
-			statusesQueryString = " AND members.status in (:statuses) ";
-			List<Integer> statusCodes = query.getStatuses().stream()
-				.map(Status::getCode)
-				.collect(Collectors.toList());
-			namedParams.addValue("statuses", statusCodes);
-		}
+		String statusesQueryString = getVoStatusSQLConditionForMembersPage(query, namedParams);
 
-		String groupQueryJoin = "";
-		String groupQueryWhere = "";
-		String groupStatusesQueryString = "";
-		if (query.getGroupId() != null) {
-			groupQueryJoin = " JOIN (SELECT group_id, member_id, min(source_group_status) as source_group_status, " +
-									" min(membership_type) as membership_type, null as source_group_id " +
-									" FROM groups_members " +
-									" WHERE group_id = (:groupId) " +
-									" GROUP BY group_id, member_id) as groups_members " +
-								" ON members.id=groups_members.member_id ";
-			groupQueryWhere = " AND groups_members.group_id = (:groupId) ";
-			namedParams.addValue("groupId", query.getGroupId());
+		String groupStatusesQueryString = getGroupStatusSQLConditionForMembersPage(query, namedParams);
 
-			if (query.getGroupStatuses() != null && !query.getGroupStatuses().isEmpty()) {
-				groupStatusesQueryString = " AND groups_members.source_group_status in (:groupStatuses) ";
-				List<Integer> groupStatusCodes = query.getGroupStatuses().stream()
-					.map(MemberGroupStatus::getCode)
-					.collect(Collectors.toList());
-				namedParams.addValue("groupStatuses", groupStatusCodes);
-			}
-		}
-
-		Paginated<Member> members = namedParameterJdbcTemplate.query(
-				"SELECT DISTINCT " +
-					(query.getGroupId() == null ? memberMappingSelectQuery : groupsMembersMappingSelectQuery) +
-				query.getSortColumn().getSqlSelect() +
-				", DENSE_RANK() OVER (order by members.id) + DENSE_RANK() OVER (ORDER BY members.id DESC) - 1 AS total_count" +
-				" FROM members " +
-				" LEFT JOIN users ON members.user_id=users.id " +
-				" LEFT JOIN user_ext_sources ues ON ues.user_id=users.id " +
-				query.getSortColumn().getSqlJoin() +
-				groupQueryJoin +
-				searchStringQueryJoin +
-				" WHERE members.vo_id = (:voId) " +
+		return namedParameterJdbcTemplate.query(
+			    select +
+				" WHERE members.vo_id = (:voId)" +
 				statusesQueryString +
-				groupQueryWhere +
 				groupStatusesQueryString +
-				searchStringQueryWhere +
+				searchQuery +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
-				" LIMIT (:limit)",
-				namedParams, getPaginatedMembersExtractor(query));
-
-		return members;
+				" LIMIT (:limit)"
+			, namedParams, getPaginatedMembersExtractor(query));
 	}
 
 	@Override
@@ -912,4 +837,153 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	private String getSQLSelectForMembersPage(MembersPageQuery query) {
+		String voSelect =
+			"SELECT " + memberMappingSelectQuery +
+				" ,count(*) OVER() AS total_count" +
+				" FROM members JOIN users on members.user_id = users.id";
+
+		String groupSelect =
+			"SELECT " + groupsMembersMappingSelectQuery +
+				" ,count(*) OVER() AS total_count" +
+				"       FROM" +
+				"            (SELECT group_id, member_id, min(source_group_status) as source_group_status," +
+				"    min(membership_type) as membership_type, null as source_group_id" +
+				"    FROM groups_members" +
+				"    WHERE group_id = (:groupId)" +
+				"    GROUP BY group_id, member_id) groups_members" +
+				"               LEFT JOIN members on groups_members.member_id = members.id" +
+				"                    LEFT JOIN users on members.user_id = users.id";
+
+		return query.getGroupId() == null ? voSelect : groupSelect;
+	}
+
+	private String getSQLWhereForMembersPage(MembersPageQuery query, MapSqlParameterSource namedParams) {
+		if (isEmpty(query.getSearchString())) {
+			return "";
+		}
+
+		String uuidQueryString = "";
+		try {
+			UUID uuid = UUID.fromString(query.getSearchString());
+			uuidQueryString = " OR users.uu_id=:uuid";
+			namedParams.addValue("uuid", uuid);
+		} catch (IllegalArgumentException ex) {
+			// IGNORE wrong format of UUID
+		}
+
+		String idQueryString = "";
+		try {
+			int id = Integer.parseInt(query.getSearchString());
+			idQueryString = " OR members.user_id=" + id + " OR members.id=" + id;
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of ID
+		}
+
+		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+
+		String userAttrCondition = "";
+		if (!attributesToSearchBy.get("userAttributes").isEmpty()) {
+			userAttrCondition =
+				"        UNION " +
+					"        SELECT user_id" +
+					"            FROM user_attr_values uav" +
+					"            WHERE uav.attr_id IN (select id from attr_names where attr_name in (:userAttributes))" +
+					"            AND lower(uav.attr_value) = lower(:searchString)";
+		}
+		String uesAttrCondition = "";
+		if (!attributesToSearchBy.get("uesAttributes").isEmpty()) {
+			uesAttrCondition =
+				"        UNION " +
+					"        SELECT user_id" +
+					"            FROM user_ext_sources" +
+					"            WHERE user_ext_sources.id IN (" +
+					"                SELECT user_ext_source_id" +
+					"                FROM user_ext_source_attr_values uesav" +
+					"                WHERE uesav.attr_id IN (" +
+					"                    SELECT id" +
+					"                    FROM attr_names" +
+					"                    WHERE attr_name IN (:uesAttributes)" +
+					"                )" +
+					"                  AND lower(uesav.attr_value) = lower(:searchString)" +
+					"            )";
+		}
+
+		String memberAttrCondition = "";
+		if (!attributesToSearchBy.get("memberAttributes").isEmpty()) {
+			memberAttrCondition =
+				"OR " +
+					"      members.id IN (" +
+					"                SELECT member_id" +
+					"                FROM member_attr_values mav" +
+					"                WHERE mav.attr_id IN (" +
+					"                    SELECT id" +
+					"                    FROM attr_names" +
+					"                    WHERE attr_name IN (:memberAttributes)" +
+					"                )" +
+					"                  AND lower(mav.attr_value) = lower(:searchString)" +
+					"            )";
+		}
+
+		return " AND " +
+			"     (members.user_id IN (" +
+			"        SELECT user_id" +
+			"        FROM user_ext_sources ues" +
+			"        WHERE LOWER(ues.login_ext) = LOWER(:searchString)" +
+			userAttrCondition +
+			uesAttrCondition +
+			"     ) " +
+			memberAttrCondition +
+			"OR (" +
+			"     strpos(replace(" +
+			"              lower(" +
+			"                  unaccent(" +
+			"                          COALESCE(users.first_name, '') || COALESCE(users.middle_name, '') ||" +
+			"                          COALESCE(users.last_name, '')))," +
+			"           ' '," +
+			"         '')," +
+			"      replace(lower(unaccent(:nameString)), ' ', '')) > 0 or" +
+			"     strpos(" +
+			"         replace(" +
+			"             lower(" +
+			"                   unaccent(" +
+			"                         COALESCE(users.last_name, '') || COALESCE(users.first_name, '') ||" +
+			"                         COALESCE(users.middle_name, '')))," +
+			"           ' '," +
+			"         '')," +
+			"             replace(lower(unaccent(:nameString)), ' ', '')) > 0)" +
+			idQueryString +
+			uuidQueryString +
+			")";
+	}
+
+	private String getVoStatusSQLConditionForMembersPage(MembersPageQuery query, MapSqlParameterSource namedParams) {
+		String statusesQueryString = "";
+		if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
+			statusesQueryString = " AND members.status in (:statuses) ";
+			List<Integer> statusCodes = query.getStatuses().stream()
+				.map(Status::getCode)
+				.collect(Collectors.toList());
+			namedParams.addValue("statuses", statusCodes);
+		}
+		return statusesQueryString;
+	}
+
+	private String getGroupStatusSQLConditionForMembersPage(MembersPageQuery query, MapSqlParameterSource namedParams) {
+		String groupStatusesQueryString = "";
+		if (query.getGroupId() != null) {
+			namedParams.addValue("groupId", query.getGroupId());
+
+			if (query.getGroupStatuses() != null && !query.getGroupStatuses().isEmpty()) {
+				groupStatusesQueryString = " AND groups_members.source_group_status in (:groupStatuses) ";
+				List<Integer> groupStatusCodes = query.getGroupStatuses().stream()
+					.map(MemberGroupStatus::getCode)
+					.collect(Collectors.toList());
+				namedParams.addValue("groupStatuses", groupStatusCodes);
+			}
+		}
+		return groupStatusesQueryString;
+	}
+
 }
