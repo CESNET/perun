@@ -470,7 +470,7 @@ public class ExpirationNotifScheduler {
 	 * @param vos vos where the auto extension will be performed
 	 */
 	private void performAutoExtension(Collection<Vo> vos) {
-		LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
+		LocalDate nextMonth = getCurrentLocalDate().plusDays(28);
 
 		List<Member> soonExpiringMembers = perun.getSearcherBl().getMembersByExpiration(sess, "<=", nextMonth);
 
@@ -708,7 +708,7 @@ public class ExpirationNotifScheduler {
 	 * @throws InternalErrorException internal error
 	 */
 	private void auditIncomingExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) {
-		LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
+		LocalDate nextMonth = getCurrentLocalDate().plusDays(28);
 
 		// log message for all members which will expire in 30 days
 		auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, nextMonth, ExpirationPeriod.MONTH);
@@ -734,7 +734,7 @@ public class ExpirationNotifScheduler {
 	 * @throws InternalErrorException internal error
 	 */
 	private void auditIncomingGroupExpirations(List<Status> allowedStatuses, Group group) {
-		LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
+		LocalDate nextMonth = getCurrentLocalDate().plusDays(28);
 
 		// log message for all members which will expire in 30 days
 		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, nextMonth, GroupExpirationPeriod.MONTH);
