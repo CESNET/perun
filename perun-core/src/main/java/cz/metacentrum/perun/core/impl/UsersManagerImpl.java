@@ -1226,25 +1226,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m) {
-
-		int changeId = Integer.parseInt(i, Character.MAX_RADIX);
-
-		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
-
-		// get new email if possible
-		String newEmail;
-		try {
-			newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (now() - interval '"+validWindow+" hours'))", String.class, changeId, user.getId());
-		} catch (EmptyResultDataAccessException ex) {
-			throw new InternalErrorException("Preferred mail change request with ID="+changeId+" doesn't exists or isn't valid anymore.");
-		}
-
-		return newEmail;
-
-	}
-
-	@Override
 	public String getPreferredEmailChangeRequest(PerunSession sess, User user, UUID uuid) {
 		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
 

@@ -1704,24 +1704,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
-
-		String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, i, m);
-
-		AttributeDefinition def = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
-		Attribute a = new Attribute(def);
-		a.setValue(email);
-
-		// store attribute
-		getPerunBl().getAttributesManagerBl().setAttribute(sess, user, a);
-
-		getUsersManagerImpl().removeAllPreferredEmailChangeRequests(sess, user);
-
-		return email;
-
-	}
-
-	@Override
 	public String validatePreferredEmailChange(PerunSession sess, User user, String token) throws WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
 		String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, UUID.fromString(token));
 

@@ -1351,6 +1351,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		}
 	},
+
 	/*#
 	 * Validate new preferred email address.
 	 *
@@ -1359,20 +1360,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * by requestPreferredEmailChange() method.
 	 *
 	 * @param token String token for the email change request to validate
-	 * @param u int <code>id</code> of user you want to validate preferred email request
-	 *
-	 * @return String new validated email address
-	 */
-	/*#
-	 * Validate new preferred email address.
-	 *
-	 * Request to validate is determined based
-	 * on encrypted parameters sent in email notice
-	 * by requestPreferredEmailChange() method.
-	 *
-	 * @deprecated
-	 * @param i String encrypted request parameter
-	 * @param m String encrypted request parameter
 	 * @param u int <code>id</code> of user you want to validate preferred email request
 	 *
 	 * @return String new validated email address
@@ -1386,13 +1373,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 				return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
 					ac.getUserById(parms.readInt("u")),
 					parms.readString("token"));
-			} else if (parms.contains("i") && parms.contains("m")) {
-				return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
-					ac.getUserById(parms.readInt("u")),
-					parms.readString("i"),
-					parms.readString("m"));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "token or (i and m)");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "token");
 			}
 		}
 	},

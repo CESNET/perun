@@ -578,77 +578,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 	public boolean checkIfMailVerification() {
 
 		// Trigger validation if necessary
-		if (Location.getParameterMap().keySet().contains("m") &&
-				Location.getParameterMap().keySet().contains("i") &&
-				Location.getParameterMap().keySet().contains("u")) {
-
-			String verifyI = Location.getParameter("i");
-			String verifyM = Location.getParameter("m");
-			String verifyU = Location.getParameter("u");
-
-			if (verifyI != null && !verifyI.isEmpty() &&
-					verifyM != null && !verifyM.isEmpty() &&
-					verifyU != null && !verifyU.isEmpty() && JsonUtils.checkParseInt(verifyU)) {
-
-				ValidatePreferredEmailChange call = new ValidatePreferredEmailChange(verifyI, verifyM, Integer.parseInt(verifyU), new JsonCallbackEvents() {
-					@Override
-					public void onFinished(JavaScriptObject jso) {
-
-						BasicOverlayType over = jso.cast();
-
-						RootLayoutPanel body = RootLayoutPanel.get();
-						body.clear();
-						FlexTable ft = new FlexTable();
-						ft.setSize("100%", "300px");
-						ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ "The email address: <i>"+ (SafeHtmlUtils.fromString(over.getString())).asString() +"</i></h2><h2>was verified and set as your preferred email.</h2>");
-						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-						body.add(ft);
-					}
-					@Override
-					public void onLoadingStart() {
-
-						RootLayoutPanel body = RootLayoutPanel.get();
-						body.clear();
-						FlexTable ft = new FlexTable();
-						ft.setSize("100%", "300px");
-						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-						ft.setWidget(0, 0, new AjaxLoaderImage());
-						body.add(ft);
-
-					}
-					@Override
-					public void onError(PerunError error) {
-
-						RootLayoutPanel body = RootLayoutPanel.get();
-						body.clear();
-						FlexTable ft = new FlexTable();
-						ft.setSize("100%", "300px");
-						ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.deleteIcon())+"<h2>Your new email address couldn't be verified !</h2>");
-						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-
-						if (error == null) {
-							ft.setHTML(1, 0, "Request timeout exceeded.");
-							ft.getFlexCellFormatter().setStyleName(1, 0, "serverResponseLabelError");
-						} else {
-							// display raw message
-							ft.setHTML(1, 0, "<strong>"+error.getErrorInfo()+"</strong>");
-						}
-						ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-						ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-
-						body.add(ft);
-
-					}
-				});
-				call.retrieveData();
-			}
-
-			return true;
-
-		} else if (Location.getParameterMap().keySet().contains("token") &&
+		if (Location.getParameterMap().keySet().contains("token") &&
 			Location.getParameterMap().keySet().contains("u")) {
 
 			String verifyToken = Location.getParameter("token");

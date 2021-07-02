@@ -1306,24 +1306,6 @@ public interface UsersManagerBl {
 	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path, String idp);
 
 	/**
-	 * * Validate change of user's preferred email address.
-	 * New email address is set as value of
-	 * urn:perun:user:attribute-def:def:preferredEmail attribute.
-	 *
-	 * @param sess PerunSession
-	 * @param user User to validate email address for
-	 * @param i    decrypted parameter
-	 * @param m    encrypted parameter
-	 * @return String return new preferred email
-	 * @throws InternalErrorException
-	 * @throws WrongAttributeValueException          If new email address is in wrong format
-	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException           If user:preferredEmail attribute doesn't exists.
-	 * @throws WrongReferenceAttributeValueException
-	 */
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
-
-	/**
 	 * Validate change of user's preferred email address.
 	 * New email address is set as value of
 	 * urn:perun:user:attribute-def:def:preferredEmail attribute.
