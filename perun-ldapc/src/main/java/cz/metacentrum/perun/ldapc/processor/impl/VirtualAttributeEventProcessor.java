@@ -2,9 +2,7 @@ package cz.metacentrum.perun.ldapc.processor.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -31,8 +29,8 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 	private final static Logger log = LoggerFactory.getLogger(VirtualAttributeEventProcessor.class);
 
 	@Autowired
-	protected VirtualAttributeManager<User> dependencyManager; 
-	
+	protected VirtualAttributeManager<User> dependencyManager;
+
 	@Override
 	public void processEvent(String msg, MessageBeans beans) {
 	}
@@ -53,7 +51,7 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 				groupAttrs.forEach(attr -> attrDefs.addAll(dependencyManager.getAttributeDependants(attr.getName())));
 				log.debug("Found attributes: {}", attrDefs);
 				Collection<Pair<PerunAttribute<User>, AttributeDefinition>> userAttrs = this.getAttributeValues(perun, user, attrDefs);
-				log.debug("Modifyng user {} entry with the new values {}", user.getId(), userAttrs);
+				log.debug("Modifying user {} entry with the new values {}", user.getId(), userAttrs);
 				perunUser.modifyEntry(user, userAttrs);
 			}
 		} catch (InternalErrorException e) {
@@ -72,13 +70,13 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 			Collection<PerunVirtualAttribute<User>> attrDefs = dependencyManager.getAllAttributeDependants();
 			log.debug("Processing member {} status change with attributes {}", user, attrDefs);
 			Collection<Pair<PerunAttribute<User>, AttributeDefinition>> userAttrs = this.getAttributeValues(perun, user, attrDefs);
-			log.debug("Modifyng user {} entry with the new values {}", user.getId(), userAttrs);
+			log.debug("Modifying user {} entry with the new values {}", user.getId(), userAttrs);
 			perunUser.modifyEntry(user, userAttrs);
 		} catch (InternalErrorException e) {
 			log.error("Error processing member {} status change: {}", beans.getMember(), e.getMessage());
 		}
 	}
-	
+
 	public void processGroupAttributeChange(String msg, MessageBeans beans) {
 		// ensure we have the correct beans available
 		if (beans.getAttribute() == null || beans.getGroup() == null) {
@@ -92,11 +90,11 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 			if(attrDefs != null) {
 				/* for each concerned user */
 				for(User user : perun.getGroupsManagerBl().getGroupUsers(
-						ldapcManager.getPerunSession(), 
+						ldapcManager.getPerunSession(),
 						beans.getGroup())) {
 					/* get attribute value for each dependent attribute */
-					Collection<Pair<PerunAttribute<User>, AttributeDefinition>> userAttrs = this.getAttributeValues(perun, user, attrDefs); 
-					log.debug("Modifyng user {} entry with the new values {}", user.getId(), userAttrs);
+					Collection<Pair<PerunAttribute<User>, AttributeDefinition>> userAttrs = this.getAttributeValues(perun, user, attrDefs);
+					log.debug("Modifying user {} entry with the new values {}", user.getId(), userAttrs);
 					perunUser.modifyEntry(user, userAttrs);
 				}
 			}
@@ -116,11 +114,11 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 			log.debug("Processing group {} attribute {} removal, affected attributes {}", beans.getGroup(), beans.getAttributeDef(), attrDefs);
 			if(attrDefs != null) {
 				for(User user : perun.getGroupsManagerBl().getGroupUsers(
-						ldapcManager.getPerunSession(), 
+						ldapcManager.getPerunSession(),
 						beans.getGroup())) {
 					/* get attribute value for each dependent attribute */
 					Collection<Pair<PerunAttribute<User>, AttributeDefinition>> userAttrs = this.getAttributeValues(perun, user, attrDefs);
-					log.debug("Modifyng user {} entry with the new values {}", user.getId(), userAttrs);
+					log.debug("Modifying user {} entry with the new values {}", user.getId(), userAttrs);
 					perunUser.modifyEntry(user, userAttrs);
 				}
 			}
@@ -140,11 +138,11 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 			log.debug("Processing group {} all attribute removal, affected attributes {}", beans.getGroup(),  attrDefs);
 			if(attrDefs != null) {
 				for(User user : perun.getGroupsManagerBl().getGroupUsers(
-						ldapcManager.getPerunSession(), 
+						ldapcManager.getPerunSession(),
 						beans.getGroup())) {
 					/* get attribute value for each dependent attribute */
 					Collection<Pair<PerunAttribute<User>, AttributeDefinition>> userAttrs = this.getAttributeValues(perun, user, attrDefs);
-					log.debug("Modifyng user {} entry with the new values {}", user.getId(), userAttrs);
+					log.debug("Modifying user {} entry with the new values {}", user.getId(), userAttrs);
 					perunUser.modifyEntry(user, userAttrs);
 				}
 			}
@@ -154,9 +152,9 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 	}
 
 	protected List<Pair<PerunAttribute<User>, AttributeDefinition>> getAttributeValues(
-			PerunBl perun, 
-			User user, 
-			Collection<PerunVirtualAttribute<User>> attrDefs) 
+			PerunBl perun,
+			User user,
+			Collection<PerunVirtualAttribute<User>> attrDefs)
 	{
 		return attrDefs.stream()
 				.map(attrDef -> {
@@ -174,5 +172,5 @@ public class VirtualAttributeEventProcessor extends AbstractEventProcessor imple
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
-	
+
 }
