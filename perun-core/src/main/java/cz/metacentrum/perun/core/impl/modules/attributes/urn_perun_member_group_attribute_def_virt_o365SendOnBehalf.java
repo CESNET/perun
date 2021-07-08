@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author Metodej Klang <metodej.klang@gmail.com>
  */
-public class urn_perun_member_group_attribute_def_virt_o365SendOnBehalfGroups extends MemberGroupVirtualAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
+public class urn_perun_member_group_attribute_def_virt_o365SendOnBehalf extends MemberGroupVirtualAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
 
 	private static final String A_MG_o365SendOnBehalf = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":o365SendOnBehalf";
 	private static final String A_G_o365SendOnBehalfGroups = AttributesManager.NS_GROUP_ATTR_DEF + ":o365SendOnBehalfGroups";
