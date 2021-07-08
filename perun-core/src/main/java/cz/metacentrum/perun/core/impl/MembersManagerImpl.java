@@ -653,32 +653,10 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			sponsoredQueryString+=" members.sponsored=true and ";
 		}
 
-		String userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
-
-		String idQueryString = "";
-		try {
-			int id = Integer.parseInt(searchString);
-			idQueryString = " members.user_id=" + id + " or members.id=" + id + " or ";
-		} catch (NumberFormatException e) {
-			// IGNORE wrong format of ID
-		}
-
-		// Divide attributes received from CoreConfig into member, user and userExtSource attributes
 		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
-
-		// Parts of query to search by attributes
-		Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
-
 		MapSqlParameterSource namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(searchString, attributesToSearchBy);
 
-		String uuidQueryString = "";
-		try {
-			UUID uuid = UUID.fromString(searchString);
-			uuidQueryString = " users.uu_id=:uuid or ";
-			namedParams.addValue("uuid", uuid);
-		} catch (IllegalArgumentException ex) {
-			// IGNORE wrong format of UUID
-		}
+		String searchQuery = Utils.prepareSqlWhereForUserMemberSearch(searchString, namedParams, false);
 
 		//searching by member attributes
 		//searching by user attributes
@@ -687,25 +665,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		//searching by name for user
 		//searching by user and member id
 		//searching by user uuid
-		Set<Member> members = new HashSet<>(namedParameterJdbcTemplate.query("select distinct " + memberMappingSelectQuery +
-				" from members " +
-				" left join users on members.user_id=users.id " +
-				" left join user_ext_sources ues on ues.user_id=users.id " +
-				attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
-				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
-				attributesToSearchByQueries.get("uesAttributesQuery").getLeft() +
-				" where " +
-				voIdQueryString +
-				sponsoredQueryString +
-				" ( " +
-				" lower(ues.login_ext)=lower(:searchString) or " +
-				attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
-				attributesToSearchByQueries.get("userAttributesQuery").getRight() +
-				attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
-				idQueryString +
-				uuidQueryString +
-				userNameQueryString +
-				" ) ", namedParams, MEMBER_MAPPER));
+		Set<Member> members = new HashSet<>(namedParameterJdbcTemplate.query("select " + memberMappingSelectQuery +
+			" from members " +
+			" join users on members.user_id=users.id " +
+			" where " +
+			voIdQueryString +
+			sponsoredQueryString +
+			searchQuery,
+			namedParams, MEMBER_MAPPER));
 
 		if (vo != null) {
 			log.debug("Searching members of VO '{}' using searchString '{}', sponsored '{}'. Found: {} member(s).", vo.getShortName(), searchString, onlySponsored, members.size());
@@ -863,99 +830,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		if (isEmpty(query.getSearchString())) {
 			return "";
 		}
-
-		String uuidQueryString = "";
-		try {
-			UUID uuid = UUID.fromString(query.getSearchString());
-			uuidQueryString = " OR users.uu_id=:uuid";
-			namedParams.addValue("uuid", uuid);
-		} catch (IllegalArgumentException ex) {
-			// IGNORE wrong format of UUID
-		}
-
-		String idQueryString = "";
-		try {
-			int id = Integer.parseInt(query.getSearchString());
-			idQueryString = " OR members.user_id=" + id + " OR members.id=" + id;
-		} catch (NumberFormatException e) {
-			// IGNORE wrong format of ID
-		}
-
-		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
-
-		String userAttrCondition = "";
-		if (!attributesToSearchBy.get("userAttributes").isEmpty()) {
-			userAttrCondition =
-				"        UNION " +
-					"        SELECT user_id" +
-					"            FROM user_attr_values uav" +
-					"            WHERE uav.attr_id IN (select id from attr_names where attr_name in (:userAttributes))" +
-					"            AND lower(uav.attr_value) = lower(:searchString)";
-		}
-		String uesAttrCondition = "";
-		if (!attributesToSearchBy.get("uesAttributes").isEmpty()) {
-			uesAttrCondition =
-				"        UNION " +
-					"        SELECT user_id" +
-					"            FROM user_ext_sources" +
-					"            WHERE user_ext_sources.id IN (" +
-					"                SELECT user_ext_source_id" +
-					"                FROM user_ext_source_attr_values uesav" +
-					"                WHERE uesav.attr_id IN (" +
-					"                    SELECT id" +
-					"                    FROM attr_names" +
-					"                    WHERE attr_name IN (:uesAttributes)" +
-					"                )" +
-					"                  AND lower(uesav.attr_value) = lower(:searchString)" +
-					"            )";
-		}
-
-		String memberAttrCondition = "";
-		if (!attributesToSearchBy.get("memberAttributes").isEmpty()) {
-			memberAttrCondition =
-				"OR " +
-					"      members.id IN (" +
-					"                SELECT member_id" +
-					"                FROM member_attr_values mav" +
-					"                WHERE mav.attr_id IN (" +
-					"                    SELECT id" +
-					"                    FROM attr_names" +
-					"                    WHERE attr_name IN (:memberAttributes)" +
-					"                )" +
-					"                  AND lower(mav.attr_value) = lower(:searchString)" +
-					"            )";
-		}
-
-		return " AND " +
-			"     (members.user_id IN (" +
-			"        SELECT user_id" +
-			"        FROM user_ext_sources ues" +
-			"        WHERE LOWER(ues.login_ext) = LOWER(:searchString)" +
-			userAttrCondition +
-			uesAttrCondition +
-			"     ) " +
-			memberAttrCondition +
-			"OR (" +
-			"     strpos(replace(" +
-			"              lower(" +
-			"                  unaccent(" +
-			"                          COALESCE(users.first_name, '') || COALESCE(users.middle_name, '') ||" +
-			"                          COALESCE(users.last_name, '')))," +
-			"           ' '," +
-			"         '')," +
-			"      replace(lower(unaccent(:nameString)), ' ', '')) > 0 or" +
-			"     strpos(" +
-			"         replace(" +
-			"             lower(" +
-			"                   unaccent(" +
-			"                         COALESCE(users.last_name, '') || COALESCE(users.first_name, '') ||" +
-			"                         COALESCE(users.middle_name, '')))," +
-			"           ' '," +
-			"         '')," +
-			"             replace(lower(unaccent(:nameString)), ' ', '')) > 0)" +
-			idQueryString +
-			uuidQueryString +
-			")";
+		return " AND " + Utils.prepareSqlWhereForUserMemberSearch(query.getSearchString(), namedParams, false);
 	}
 
 	private String getVoStatusSQLConditionForMembersPage(MembersPageQuery query, MapSqlParameterSource namedParams) {

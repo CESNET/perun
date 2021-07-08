@@ -113,6 +113,7 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entity
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_PREF_MAIL_SUBJECT;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL_SUBJECT;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -1962,6 +1963,106 @@ public class Utils {
 	public static String prepareUserSearchQuerySimilarMatch() {
 		return " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 or " +
 			" strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 ";
+	}
+
+	/**
+	 * Returns a part of WHERE condition to search users and members in their ids, uuids, logins, ext sources
+	 * user names and attributes by given search string.
+	 *
+	 * @param searchString string to search by
+	 * @param namedParams parameters used in the query
+	 * @param exactMatch if true, searches user name only by exact match
+	 * @return search query
+	 */
+	public static String prepareSqlWhereForUserMemberSearch(String searchString, MapSqlParameterSource namedParams, boolean exactMatch) {
+		if (isEmpty(searchString)) {
+			return "";
+		}
+
+		String uuidQueryString = "";
+		try {
+			UUID uuid = UUID.fromString(searchString);
+			uuidQueryString = " OR users.uu_id=:uuid";
+			namedParams.addValue("uuid", uuid);
+		} catch (java.lang.IllegalArgumentException ex) {
+			// IGNORE wrong format of UUID
+		}
+
+		String idQueryString = "";
+		try {
+			int id = Integer.parseInt(searchString);
+			idQueryString = " OR users.id=" + id + " OR members.id=" + id;
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of ID
+		}
+
+		String userNameQueryString;
+		if (exactMatch) {
+			userNameQueryString = prepareUserSearchQueryExactMatch();
+		} else {
+			userNameQueryString = prepareUserSearchQuerySimilarMatch();
+		}
+
+		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+
+		String userAttrCondition = "";
+		if (!attributesToSearchBy.get("userAttributes").isEmpty()) {
+			userAttrCondition =
+				"        UNION " +
+					"        SELECT user_id" +
+					"            FROM user_attr_values uav" +
+					"            WHERE uav.attr_id IN (select id from attr_names where attr_name in (:userAttributes))" +
+					"            AND lower(uav.attr_value) = lower(:searchString)";
+		}
+		String uesAttrCondition = "";
+		if (!attributesToSearchBy.get("uesAttributes").isEmpty()) {
+			uesAttrCondition =
+				"        UNION " +
+					"        SELECT user_id" +
+					"            FROM user_ext_sources" +
+					"            WHERE user_ext_sources.id IN (" +
+					"                SELECT user_ext_source_id" +
+					"                FROM user_ext_source_attr_values uesav" +
+					"                WHERE uesav.attr_id IN (" +
+					"                    SELECT id" +
+					"                    FROM attr_names" +
+					"                    WHERE attr_name IN (:uesAttributes)" +
+					"                )" +
+					"                  AND lower(uesav.attr_value) = lower(:searchString)" +
+					"            )";
+		}
+
+		String memberAttrCondition = "";
+		if (!attributesToSearchBy.get("memberAttributes").isEmpty()) {
+			memberAttrCondition =
+				"OR " +
+					"      members.id IN (" +
+					"                SELECT member_id" +
+					"                FROM member_attr_values mav" +
+					"                WHERE mav.attr_id IN (" +
+					"                    SELECT id" +
+					"                    FROM attr_names" +
+					"                    WHERE attr_name IN (:memberAttributes)" +
+					"                )" +
+					"                  AND lower(mav.attr_value) = lower(:searchString)" +
+					"            )";
+		}
+
+		return
+			"     (users.id IN (" +
+				"        SELECT user_id" +
+				"        FROM user_ext_sources ues" +
+				"        WHERE LOWER(ues.login_ext) = LOWER(:searchString)" +
+				userAttrCondition +
+				uesAttrCondition +
+				"     ) " +
+				memberAttrCondition +
+				"OR (" +
+				userNameQueryString +
+				")" +
+				idQueryString +
+				uuidQueryString +
+				")";
 	}
 
 	/**
