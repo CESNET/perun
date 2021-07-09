@@ -1133,29 +1133,6 @@ public interface UsersManager {
 	 *
 	 * @param sess PerunSession
 	 * @param user User to validate email address for
-	 * @param i decrypted parameter
-	 * @param m encrypted parameter
-	 *
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
-	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
-	 *
-	 * @return String return new preferred email
-	 */
-	@Deprecated
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
-
-	/**
-	 * Validate change of user's preferred email address.
-	 * New email address is set as value of
-	 * urn:perun:user:attribute-def:def:preferredMail attribute.
-	 *
-	 * @param sess PerunSession
-	 * @param user User to validate email address for
 	 * @param token token for the email change request to validate
 	 *
 	 * @throws InternalErrorException

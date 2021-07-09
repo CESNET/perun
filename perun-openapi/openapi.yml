@@ -8082,22 +8082,6 @@ paths:
     post:
       tags:
         - UsersManager
-      operationId: validatePreferredEmailChange
-      summary: Validate new preferred email address. Request to validate is determined based on encrypted parameters sent in email notice by requestPreferredEmailChange() method.
-      parameters:
-        - { name: i, description: "encrypted request parameter", schema: { type: string }, in: query, required: true }
-        - { name: m, description: "encrypted request parameter", schema: { type: string }, in: query, required: true }
-        - { name: u, description: "id of user you want to validate preferred email request", schema: { type: integer }, in: query, required: true }
-      responses:
-        '200':
-          $ref: '#/components/responses/StringResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/usersManager/validatePreferredEmailChange/token:
-    post:
-      tags:
-        - UsersManager
       operationId: validatePreferredEmailChangeWithToken
       summary: Validate new preferred email address. Request to validate is determined based on token parameter sent in email notice by requestPreferredEmailChange() method.
       parameters:

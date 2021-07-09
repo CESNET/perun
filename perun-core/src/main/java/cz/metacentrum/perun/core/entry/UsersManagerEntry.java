@@ -1325,27 +1325,6 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
-
-		Utils.checkPerunSession(sess);
-		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "validatePreferredEmailChange_User_String_String_policy", user)) {
-			throw new PrivilegeException(sess, "validatePreferredEmailChange");
-		}
-
-		// check change verification parameters
-
-		if (m.equals(Utils.getMessageAuthenticationCode(i))) {
-			return getPerunBl().getUsersManagerBl().validatePreferredEmailChange(sess, user, i, m);
-		}
-
-		throw new InternalErrorException("Can't validate preferred email change. Verification parameters doesn't match.");
-
-	}
-
-	@Override
 	public String validatePreferredEmailChange(PerunSession sess, User user, String token) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);

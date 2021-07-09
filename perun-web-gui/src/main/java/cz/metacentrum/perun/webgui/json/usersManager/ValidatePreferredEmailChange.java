@@ -27,39 +27,9 @@ public class ValidatePreferredEmailChange implements JsonCallback {
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
 	// data
-	private String i = "";
-	private String m = "";
 	private String token = "";
 	private int u = 0;
 	private boolean hidden = false;
-
-	/**
-	 * Creates a new request
-	 *
-	 * @param i decrypted parameter
-	 * @param m encrypted parameter
-	 * @param u user ID to request validation for
-	 */
-	public ValidatePreferredEmailChange(String i, String m, int u) {
-		this.i = i;
-		this.m = m;
-		this.u = u;
-	}
-
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param i decrypted parameter
-	 * @param m encrypted parameter
-	 * @param u user ID to request validation for
-	 * @param events Custom events
-	 */
-	public ValidatePreferredEmailChange(String i, String m, int u, JsonCallbackEvents events) {
-		this.events = events;
-		this.i = i;
-		this.m = m;
-		this.u = u;
-	}
 
 	/**
 	 * Creates a new request
@@ -101,12 +71,7 @@ public class ValidatePreferredEmailChange implements JsonCallback {
 
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("u", new JSONNumber(u));
-		if (!token.isEmpty()) {
-			jsonQuery.put("token", new JSONString(token));
-		} else {
-			jsonQuery.put("i", new JSONString(i));
-			jsonQuery.put("m", new JSONString(m));
-		}
+		jsonQuery.put("token", new JSONString(token));
 
 		JsonPostClient client = new JsonPostClient(events);
 		client.setHidden(hidden);
