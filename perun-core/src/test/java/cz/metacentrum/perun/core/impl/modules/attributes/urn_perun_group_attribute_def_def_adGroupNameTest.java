@@ -37,4 +37,12 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
 
 		classInstance.checkAttributeSyntax((PerunSessionImpl) sess, group, attributeToCheck);
 	}
+
+	@Test
+	public void testCorrectSyntaxWithDash() throws Exception {
+		System.out.println("testCorrectSyntax()");
+		attributeToCheck.setValue("correct-Value-with-Dash");
+
+		classInstance.checkAttributeSyntax((PerunSessionImpl) sess, group, attributeToCheck);
+	}
 }
