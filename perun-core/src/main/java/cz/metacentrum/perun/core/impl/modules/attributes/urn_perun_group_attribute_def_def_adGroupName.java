@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class urn_perun_group_attribute_def_def_adGroupName extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("[A-Za-z0-9 _]+");
+	private static final Pattern pattern = Pattern.compile("[A-Za-z0-9 _-]+");
 
 	@Override
 	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
@@ -21,7 +21,7 @@ public class urn_perun_group_attribute_def_def_adGroupName extends GroupAttribut
 		if (attribute.getValue() == null) return;
 
 		if (!pattern.matcher(attribute.valueAsString()).matches()) {
-			throw new WrongAttributeValueException(attribute, "Invalid attribute adGroupName value. It should contain only letters, digits, underscores or spaces.");
+			throw new WrongAttributeValueException(attribute, "Invalid attribute adGroupName value. It should contain only letters, digits, underscores, dashes or spaces.");
 		}
 	}
 

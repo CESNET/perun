@@ -8,6 +8,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
+
 public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractPerunIntegrationTest {
 
 	private urn_perun_group_attribute_def_def_adGroupName classInstance;
@@ -31,10 +33,20 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
 	}
 
 	@Test
-	public void testCorrectSyntax() throws Exception {
+	public void testCorrectSyntax() {
 		System.out.println("testCorrectSyntax()");
 		attributeToCheck.setValue("correctValue");
 
-		classInstance.checkAttributeSyntax((PerunSessionImpl) sess, group, attributeToCheck);
+		assertThatNoException().isThrownBy(
+			() -> classInstance.checkAttributeSyntax((PerunSessionImpl) sess, group, attributeToCheck));
+	}
+
+	@Test
+	public void testCorrectSyntaxWithDash() {
+		System.out.println("testCorrectSyntax()");
+		attributeToCheck.setValue("correct-Value-with-Dash");
+
+		assertThatNoException().isThrownBy(
+			() -> classInstance.checkAttributeSyntax((PerunSessionImpl) sess, group, attributeToCheck));
 	}
 }
