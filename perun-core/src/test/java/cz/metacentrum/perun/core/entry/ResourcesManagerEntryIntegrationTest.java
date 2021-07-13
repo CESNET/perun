@@ -2119,6 +2119,26 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void getResourceAssignmentsContainsTags() throws Exception {
+		System.out.println(CLASS_NAME + "getResourceAssignmentsContainsTags");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		ResourceTag resourceTag = new ResourceTag(1, "This is a tag", vo.getId());
+		resourcesManager.createResourceTag(sess, resourceTag, vo);
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignResourceTagToResource(sess, resourceTag, resource);
+
+		List<AssignedResource> resources = resourcesManager.getResourceAssignments(sess, group, null);
+
+		assertThat(resources.get(0).getResourceTags()).containsOnly(resourceTag);
+	}
+
+	@Test
 	public void getResourceAssignmentsWhenGroupNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getResourceAssignmentsWhenGroupNotExists");
 

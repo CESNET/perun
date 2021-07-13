@@ -1167,13 +1167,13 @@ public interface ResourcesManagerBl {
 	List<EnrichedResource> getEnrichedRichResourcesForFacility(PerunSession sess, Facility facility, List<String> attrNames);
 
 	/**
-	 * Lists all of the resource assignments for the given group. Also, returns specified attributes
+	 * Lists all of the resource assignments for the given group. Also, returns specified attributes and resource tags
 	 * for the resources. If attrNames are null or empty, all resource attributes are returned.
 	 *
 	 * @param sess session
 	 * @param group group
 	 * @param attrNames names of attributes to return
-	 * @return list of assigned resources for given group with specified attributes
+	 * @return list of assigned resources for given group with specified attributes and resource tags
 	 */
 	List<AssignedResource> getResourceAssignments(PerunSession sess, Group group, List<String> attrNames);
 
