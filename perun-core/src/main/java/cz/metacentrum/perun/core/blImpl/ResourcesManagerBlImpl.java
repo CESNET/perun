@@ -1071,6 +1071,9 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		assignedResources.forEach(assignedResource ->
 			assignedResource.setEnrichedResource(convertToEnrichedResource(sess, assignedResource.getEnrichedResource().getResource(), attrNames)));
 
+		assignedResources.forEach(assignedResource ->
+			assignedResource.setResourceTags(getAllResourcesTagsForResource(sess, assignedResource.getEnrichedResource().getResource())));
+
 		return assignedResources;
 	}
 

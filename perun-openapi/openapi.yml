@@ -360,6 +360,7 @@ components:
         enrichedResource: { $ref: '#/components/schemas/EnrichedResource' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
         facility: { $ref: '#/components/schemas/Facility'}
+        resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
 
     AssignedGroup:
       type: object
@@ -11945,7 +11946,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getResourceAssignments
-      summary: Lists all of the resource assignments for the given group. Also, returns specified attributes for the resources.
+      summary: Lists all of the resource assignments for the given group. Also, returns specified attributes for the resources and resource tags.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attrNamesOptional'
