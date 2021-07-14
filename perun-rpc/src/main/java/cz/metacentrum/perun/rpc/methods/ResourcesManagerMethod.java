@@ -1378,12 +1378,12 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Lists all of the resource assignments for the given group. Also, returns specified attributes
+	 * Lists all of the resource assignments for the given group. Also, returns specified attributes and resource tags
 	 * for the resources. If attrNames are null or empty, all resource attributes are returned.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param attrNames List<String> names of attributes to return
-	 * @return List<AssignedResource> resources for given group with specified attributes
+	 * @return List<AssignedResource> resources for given group with specified attributes and resource tags
 	 * @throw GroupNotExistsException when the group doesn't exist
 	 */
 	getResourceAssignments {

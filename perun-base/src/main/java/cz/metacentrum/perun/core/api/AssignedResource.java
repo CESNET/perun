@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -11,6 +12,7 @@ public class AssignedResource {
 	private EnrichedResource enrichedResource;
 	private GroupResourceStatus status;
 	private Facility facility;
+	private List<ResourceTag> resourceTags;
 
 	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, Facility facility) {
 		this.enrichedResource = enrichedResource;
@@ -42,6 +44,14 @@ public class AssignedResource {
 		this.facility = facility;
 	}
 
+	public List<ResourceTag> getResourceTags() {
+		return resourceTags;
+	}
+
+	public void setResourceTags(List<ResourceTag> resourceTags) {
+		this.resourceTags = resourceTags;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -62,6 +72,7 @@ public class AssignedResource {
 			"enrichedResource=" + enrichedResource +
 			", status=" + status +
 			", facility=" + facility +
+			", resourceTags=" + resourceTags +
 			'}';
 	}
 }

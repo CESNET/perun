@@ -186,7 +186,7 @@ $objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Res
 $objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
 $objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
 
-$objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"ACTIVE\" }";
+$objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"ACTIVE\"" . " , \"resourceTags\" : ". $objectExamples{"List<ResourceTag>"} . " }";
 $objectExamples{"List&lt;AssignedResource&gt;"} = $listPrepend . $objectExamples{"AssignedResource"} . $listAppend;
 $objectExamples{"List<AssignedResource>"} = $objectExamples{"List&lt;AssignedResource&gt;"};
 

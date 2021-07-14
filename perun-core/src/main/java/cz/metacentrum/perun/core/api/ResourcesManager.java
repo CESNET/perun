@@ -1169,13 +1169,13 @@ public interface ResourcesManager {
 	void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws PrivilegeException, GroupNotAdminException, ResourceNotExistsException, GroupNotExistsException;
 
 	/**
-	 * Lists all of the resource assignments for the given group. Also, returns specified attributes
+	 * Lists all of the resource assignments for the given group. Also, returns specified attributes and resource tags
 	 * for the resources. If attrNames are null or empty, all resource attributes are returned.
 	 *
 	 * @param session session
 	 * @param group group
 	 * @param attrNames names of attributes to return
-	 * @return list of assigned resources for given group with specified attributes
+	 * @return list of assigned resources for given group with specified attributes and resource tags
 	 * @throws PrivilegeException insufficient permissions
 	 * @throws GroupNotExistsException when the group doesn't exist
 	 */
