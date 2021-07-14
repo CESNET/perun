@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceAssignment;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
@@ -48,14 +49,17 @@ import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_MAPPER;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 /**
  *
@@ -75,6 +79,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status" +
 		", " + FacilitiesManagerImpl.facilityMappingSelectQuery;
+
+	protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status" +
+		", " + GroupsManagerImpl.groupMappingSelectQuery;
 
 	protected final static String resourceTagMappingSelectQuery = "res_tags.id as res_tags_id, res_tags.vo_id as res_tags_vo_id, res_tags.tag_name as res_tags_tag_name, " +
 		"res_tags.created_at as res_tags_created_at, res_tags.created_by as res_tags_created_by, res_tags.modified_by as res_tags_modified_by, " +
@@ -111,6 +118,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		EnrichedResource enrichedResource = new EnrichedResource(resource, null);
 		Facility facility = FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i);
 		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), facility);
+	};
+
+	protected static final RowMapper<GroupResourceAssignment> GROUP_RESOURCE_ASSIGNMENT_MAPPER = (resultSet, i) -> {
+		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
+		Group group = GroupsManagerImpl.GROUP_MAPPER.mapRow(resultSet, i);
+		return new GroupResourceAssignment(group, resource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")));
 	};
 
 	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = (resultSet, i) -> {
@@ -1215,6 +1228,26 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			return jdbc.query("select " + GroupsManagerImpl.assignedGroupMappingSelectQuery + " from groups join " +
 					" groups_resources on groups.id=groups_resources.group_id " +
 					" where groups_resources.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<GroupResourceAssignment> getGroupResourceAssignments(PerunSession sess, List<GroupResourceStatus> statuses) {
+		try {
+			if (isEmpty(statuses)) {
+				statuses = Arrays.asList(GroupResourceStatus.values());
+			}
+
+			String statusesSql = statuses.stream()
+				.map(status -> "'" + status.toString() + "'")
+				.collect(Collectors.joining(", "));
+
+			return jdbc.query("select " + groupResourceAssignmentMappingSelectQuery + " from groups " +
+				" join groups_resources on groups.id=groups_resources.group_id " +
+				" join resources on resources.id=groups_resources.resource_id " +
+				" where groups_resources.status in (" + statusesSql + ")", GROUP_RESOURCE_ASSIGNMENT_MAPPER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
