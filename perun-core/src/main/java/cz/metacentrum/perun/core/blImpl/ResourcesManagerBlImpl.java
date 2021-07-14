@@ -446,7 +446,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}
 
 		// Check if the group was defined on the resource
-		if (!this.getAssignedGroups(sess, resource).contains(group)) {
+		boolean isDefined = getResourcesManagerImpl().getGroupAssignments(sess, resource).stream()
+			.map(assignedGroup -> assignedGroup.getEnrichedGroup().getGroup())
+			.anyMatch(thatGroup -> thatGroup.equals(group));
+		if (!isDefined) {
 			// Group is not defined on the resource
 			throw new GroupNotDefinedOnResourceException(group.getName());
 		}

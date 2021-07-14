@@ -52,6 +52,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -644,6 +645,21 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		resourcesManager.removeGroupFromResource(sess, group, resource);
 
+	}
+
+	@Test
+	public void removeGroupFromResourceWhereGroupIsInactive() throws Exception {
+		System.out.println(CLASS_NAME + "removeGroupFromResourceWhereGroupIsInactive");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
+
+		assertThatNoException().isThrownBy(() -> resourcesManager.removeGroupFromResource(sess, group, resource));
 	}
 
 	@Test
