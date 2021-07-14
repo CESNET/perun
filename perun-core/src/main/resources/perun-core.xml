@@ -417,6 +417,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<constructor-arg ref="perun" />
 	</bean>
 
+	<bean id="resourceAssignmentActivator" class="cz.metacentrum.perun.core.impl.ResourceAssignmentActivator" scope="singleton" depends-on="databaseManagerBl">
+		<constructor-arg ref="perun" />
+	</bean>
+
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceGoogle" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>

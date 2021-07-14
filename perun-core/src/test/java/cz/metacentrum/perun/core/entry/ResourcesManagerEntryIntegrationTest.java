@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceAssignment;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
@@ -2173,6 +2174,74 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		assertThatExceptionOfType(ResourceNotExistsException.class)
 			.isThrownBy(() -> resourcesManager.getGroupAssignments(sess, new Resource(), null));
+	}
+
+	@Test
+	public void getGroupResourceAssignmentsReturnsEmptyList() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupResourceAssignmentsReturnsEmptyList");
+
+		List<GroupResourceAssignment> assignments = perun.getResourcesManagerBl()
+			.getGroupResourceAssignments(sess, List.of(GroupResourceStatus.ACTIVE));
+		assertThat(assignments)
+			.isEmpty();
+	}
+
+	@Test
+	public void getGroupResourceAssignmentsWithAllStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupResourceAssignmentsWithAllStatuses");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		Resource resource2 = setUpResource2();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource2);
+		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource2);
+
+		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE);
+		GroupResourceAssignment expectedAssignment2 = new GroupResourceAssignment(group, resource2, GroupResourceStatus.INACTIVE);
+
+		List<GroupResourceAssignment> assignments = perun.getResourcesManagerBl().getGroupResourceAssignments(sess, null);
+		assertThat(assignments)
+			.containsExactlyInAnyOrder(expectedAssignment, expectedAssignment2);
+
+		assignments = perun.getResourcesManagerBl().getGroupResourceAssignments(sess, Collections.emptyList());
+		assertThat(assignments)
+			.containsExactlyInAnyOrder(expectedAssignment, expectedAssignment2);
+
+		assignments = perun.getResourcesManagerBl().getGroupResourceAssignments(sess, Arrays.asList(GroupResourceStatus.values()));
+		assertThat(assignments)
+			.containsExactlyInAnyOrder(expectedAssignment, expectedAssignment2);
+	}
+
+	@Test
+	public void getGroupResourceAssignmentsWithGivenStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupResourceAssignmentsWithGivenStatus");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		Resource resource2 = setUpResource2();
+
+		List<GroupResourceAssignment> assignments = perun.getResourcesManagerBl()
+			.getGroupResourceAssignments(sess, List.of(GroupResourceStatus.ACTIVE));
+		assertThat(assignments)
+			.isEmpty();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource2);
+		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource2);
+
+		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE);
+
+		assignments = perun.getResourcesManagerBl().getGroupResourceAssignments(sess, List.of(GroupResourceStatus.ACTIVE));
+		assertThat(assignments)
+			.containsExactly(expectedAssignment);
 	}
 
 	@Test

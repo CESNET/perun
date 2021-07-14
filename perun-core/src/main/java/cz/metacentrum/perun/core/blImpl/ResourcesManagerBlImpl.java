@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceAssignment;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -74,11 +75,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 /**
  *
@@ -1089,6 +1093,15 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				.convertToEnrichedGroup(sess, assignedGroup.getEnrichedGroup().getGroup(), attrNames)));
 
 		return assignedGroups;
+	}
+
+	@Override
+	public List<GroupResourceAssignment> getGroupResourceAssignments(PerunSession sess, List<GroupResourceStatus> statuses) {
+		if (isEmpty(statuses)) {
+			statuses = Arrays.asList(GroupResourceStatus.values());
+		}
+
+		return getResourcesManagerImpl().getGroupResourceAssignments(sess, statuses);
 	}
 
 	@Override
