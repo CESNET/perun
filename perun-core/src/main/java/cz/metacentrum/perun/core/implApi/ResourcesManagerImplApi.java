@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceAssignment;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -788,6 +789,17 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource);
+
+	/**
+	 * Lists all group-resource assignments with given statuses. If statuses are empty or null, lists assignments
+	 * with all statuses.
+	 *
+	 * @param sess session
+	 * @param statuses list of allowed statuses
+	 * @return list of group-resource assignments with given statuses
+	 * @throws InternalErrorException
+	 */
+	List<GroupResourceAssignment> getGroupResourceAssignments(PerunSession sess, List<GroupResourceStatus> statuses);
 
 	/**
 	 * Gets status of given group-resource assignment.
