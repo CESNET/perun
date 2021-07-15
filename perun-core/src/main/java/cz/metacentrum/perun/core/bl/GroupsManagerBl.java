@@ -1739,9 +1739,10 @@ public interface GroupsManagerBl {
 	 *
 	 * @param member member
 	 * @param group group
+	 * @param previousStatus previousStatus
 	 * @throws InternalErrorException internal error
 	 */
-	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group);
+	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group, MemberGroupStatus previousStatus);
 
 	/**
 	 * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
