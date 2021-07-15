@@ -1176,7 +1176,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		member = setUpMember();
 		group = setUpGroup();
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -1195,7 +1195,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// create second (but same) resource
 		resource.setName("HierarchDataResource");
 		resource = perun.getResourcesManager().createResource(sess, resource, vo, facility);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 		perun.getResourcesManager().assignService(sess, resource, service);
 		// get it's required attribute with value for testing purpose
 		Attribute reqResAttr2 = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
@@ -1293,7 +1293,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		group = setUpGroup();
 		perun.getGroupsManager().addMember(sess, group, member);
 		perun.getGroupsManager().addMember(sess, group, member2);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
 
 		// set element's name/id as required attributes to get some attributes for every element
@@ -1352,7 +1352,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		group = setUpGroup();
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -1439,8 +1439,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getGroupsManager().addMember(sess, group, member3);
 		perun.getGroupsManager().addMember(sess, group, member4);
 		perun.getGroupsManager().addMember(sess, group2, member5);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
-		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group2, MemberGroupStatus.EXPIRED);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member, group, MemberGroupStatus.EXPIRED);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member4, group, MemberGroupStatus.EXPIRED);
@@ -1473,7 +1473,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		member = setUpMember();
 		group = setUpGroup();
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -1495,7 +1495,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// create second (but same) resource
 		resource.setName("HierarchDataResource");
 		resource = perun.getResourcesManager().createResource(sess, resource, vo, facility);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 		perun.getResourcesManager().assignService(sess, resource, service);
 		// get it's required attribute with value for testing purpose
 		Attribute reqResAttr2 = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
@@ -1643,8 +1643,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getGroupsManager().addMember(sess, group, member3);
 		perun.getGroupsManager().addMember(sess, group2, member2);
 		perun.getGroupsManager().addMember(sess, group2, member3);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
-		perun.getResourcesManager().assignGroupToResource(sess, group2, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource, false);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -1717,7 +1717,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		member = setUpMember();
 		group = setUpGroup();
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -1812,8 +1812,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getGroupsManager().addMember(sess, group, member3);
 		perun.getGroupsManager().addMember(sess, group2, member2);
 		perun.getGroupsManager().addMember(sess, group2, member3);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
-		perun.getResourcesManager().assignGroupToResource(sess, group2, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource, false);
 
 		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group, MemberGroupStatus.EXPIRED);
@@ -1920,7 +1920,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		member = setUpMember();
 		group = setUpGroup();
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -1946,7 +1946,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Resource resource2 = new Resource();
 		resource2.setName("HierarchDataResource");
 		resource2 = perun.getResourcesManager().createResource(sess, resource2, vo, facility);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource2);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource2, false);
 		perun.getResourcesManager().assignService(sess, resource2, service);
 
 		//create third resource but without service
@@ -2033,7 +2033,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		member = setUpMember();
 		group = setUpGroup();
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -2059,7 +2059,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Resource resource2 = new Resource();
 		resource2.setName("HierarchDataResource");
 		resource2 = perun.getResourcesManager().createResource(sess, resource2, vo, facility);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource2);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource2, false);
 		perun.getResourcesManager().assignService(sess, resource2, service);
 
 		//create third resource but without service

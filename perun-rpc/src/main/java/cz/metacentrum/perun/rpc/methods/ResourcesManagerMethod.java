@@ -2,7 +2,6 @@ package cz.metacentrum.perun.rpc.methods;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
@@ -283,7 +282,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Assign group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value.
+	 * Assign group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value. Work in sync/async mode.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resource int Resource <code>id</code>
@@ -294,15 +293,19 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			boolean async = parms.contains("async") ? parms.readBoolean("async") : false;
+
 			ac.getResourcesManager().assignGroupToResource(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
-					ac.getResourceById(parms.readInt("resource")));
+					ac.getResourceById(parms.readInt("resource")),
+					async
+				);
 			return null;
 		}
 	},
 
 	/*#
-	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values.
+	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values. Work in sync/async mode.
 	 *
 	 * @param groups List<Integer> list of groups IDs
 	 * @param resource int Resource <code>id</code>
@@ -313,6 +316,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			boolean async = parms.contains("async") ? parms.readBoolean("async") : false;
+
 			List<Integer> ids = parms.readList("groups", Integer.class);
 			List<Group> groups = new ArrayList<Group>();
 			for (Integer i : ids) {
@@ -320,13 +325,14 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			}
 			ac.getResourcesManager().assignGroupsToResource(ac.getSession(),
 					groups,
-					ac.getResourceById(parms.readInt("resource")));
+					ac.getResourceById(parms.readInt("resource")),
+					async);
 			return null;
 		}
 	},
 
 	/*#
-	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
+	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resources List<Integer> list of resources IDs
@@ -337,6 +343,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			boolean async = parms.contains("async") ? parms.readBoolean("async") : false;
+
 			List<Integer> ids = parms.readList("resources", Integer.class);
 			List<Resource> resources = new ArrayList<Resource>();
 			for (Integer i : ids) {
@@ -344,7 +352,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			}
 			ac.getResourcesManager().assignGroupToResources(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
-					resources);
+					resources,
+					async);
 			return null;
 		}
 	},
