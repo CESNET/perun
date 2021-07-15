@@ -58,7 +58,7 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 		perun.getGroupsManagerBl().addMember(sess, group1, member1);
 
 		// assign the group to resource
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false);
 
 	}
 

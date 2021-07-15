@@ -393,12 +393,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource2InVo1 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource2InVo1", "", facility2.getId(), vo1.getId()), vo1, facility2);
 		resource1InVo2 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource1InVo2", "", facility2.getId(), vo2.getId()), vo2, facility2);
 		resource2InVo2 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource2InVo2", "", facility3.getId(), vo2.getId()), vo2, facility3);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group1InVo1, resource1InVo1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo1, resource1InVo1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo1, resource2InVo1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group1InVo2, resource1InVo2);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo2, resource1InVo2);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo2, resource2InVo2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1InVo1, resource1InVo1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo1, resource1InVo1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo1, resource2InVo1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1InVo2, resource1InVo2, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo2, resource1InVo2, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo2, resource2InVo2, false);
 	}
 
 	// ==============  1. GET ATTRIBUTES ================================
@@ -493,8 +493,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		Group g1 = new Group("Testing_group01", "Testing group01");
 		g1 = perun.getGroupsManagerBl().createGroup(sess, v1, g1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, g1, r1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, g1, r2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, g1, r1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, g1, r2, false);
 
 		//Create attribute def entityless gidRanges
 		AttributeDefinition gidRangesAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
@@ -563,7 +563,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		facility = setUpFacility();
 		resource = setUpResource();
-		perun.getResourcesManagerBl().assignGroupToResource(sess, topGroup, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, topGroup, resource, false);
 		service = setUpService();
 		perun.getResourcesManagerBl().assignService(sess, resource, service);
 
@@ -928,7 +928,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		group = setUpGroup();
 		facility = setUpFacility();
 		resource = setUpResource();
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 		member = setUpMember();
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
@@ -1363,7 +1363,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facility = setUpFacility();
 		group = setUpGroup();
 		resource = setUpResource();
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		List<Attribute> groupResourceAttrs = setUpGroupResourceAttribute();
 		perun.getAttributesManagerBl().setAttributes(sess, resource, group, groupResourceAttrs);
@@ -3625,7 +3625,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		group = setUpGroup();
 		member = setUpMember();
 
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 
 		Attribute attr = setUpSpecificMemberResourceAttribute(member, resource);
@@ -6398,7 +6398,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attributes = setUpRequiredAttributes();
 		perun.getResourcesManager().assignService(sess, resource, service);
 		group = setUpGroup();
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 		perun.getGroupsManager().addMember(sess, group, member);
 
 		User user = perun.getUsersManager().getUserByMember(sess, member);
@@ -6969,7 +6969,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, members);
@@ -7114,7 +7114,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, resource, service, members);
@@ -14947,7 +14947,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	private void setUpMemberToResource() throws Exception {
 
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
 	}
 
 	private List<Host> setUpHost() throws Exception {

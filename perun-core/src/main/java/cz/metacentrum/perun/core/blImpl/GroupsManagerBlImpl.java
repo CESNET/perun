@@ -1937,7 +1937,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * Assign resource to the given groups. If some of the groups
 	 * is already assigned, the group is skipped silently.
-	 *
 	 * @param sess perun session
 	 * @param groups groups which should be assigned to the given resource
 	 * @param resource resource
@@ -1947,7 +1946,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		groupsToAssign.removeAll(perunBl.getResourcesManagerBl().getAssignedGroups(sess, resource));
 
 		try {
-			perunBl.getResourcesManagerBl().assignGroupsToResource(sess, groupsToAssign, resource);
+			perunBl.getResourcesManagerBl().assignGroupsToResource(sess, groupsToAssign, resource, false);
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | GroupResourceMismatchException e) {
 			log.error("Failed to assign groups during group structure synchronization. Groups {}, resource {}," +
 					" exception: {}", groups, resource, e);
