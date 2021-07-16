@@ -66,7 +66,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		this.randomPasswordLength = 12;
 
 		// omit chars that can be mistaken by users: iI, oO, l, yY, zZ, 0 (zero), most of spec.chars
-		this.randomPasswordCharacters = "ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,.".toCharArray();
+		this.randomPasswordCharacters = "ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,.-_".toCharArray();
 
 		// if we are not faking password manager by using /bin/true value in the config,
 		// then append namespace to the script path to trigger correct password manager script.

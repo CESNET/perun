@@ -54,7 +54,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	protected int randomPasswordLength = 12;
 
 	// omit chars that can be mistaken by users: iI, oO, l, yY, zZ, 0 (zero), most of spec.chars
-	protected char[] randomPasswordCharacters = "ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,.".toCharArray();
+	protected char[] randomPasswordCharacters = "ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,.-_".toCharArray();
 
 	@Override
 	public String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws PasswordStrengthException {

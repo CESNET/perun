@@ -26,13 +26,13 @@ import static org.mockito.Mockito.when;
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class  MuPasswordManagerModuleTest extends AbstractPerunIntegrationTest {
+public class MuPasswordManagerModuleTest extends AbstractPerunIntegrationTest {
 
 	private MuPasswordManagerModule module;
 	private final ISServiceCaller isServiceCallerMock = mock(ISServiceCaller.class);
 
-	private final int     randomPasswordLength = 12;
-	private final Pattern MUPasswordContainsNotAllowedChars = Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,.].*");
+	private final int randomPasswordLength = 12;
+	private final Pattern MUPasswordContainsNotAllowedChars = Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,._-].*");
 
 	@Before
 	public void setUp() throws Exception {

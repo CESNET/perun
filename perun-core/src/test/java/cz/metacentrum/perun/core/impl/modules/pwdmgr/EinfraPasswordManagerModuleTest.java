@@ -18,8 +18,8 @@ public class EinfraPasswordManagerModuleTest extends AbstractPerunIntegrationTes
 
 	private EinfraPasswordManagerModule module;
 
-	private final int     randomPasswordLength = 12;
-	private final Pattern EinfraPasswordContainsNotAllowedChars = Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,.].*");
+	private final int randomPasswordLength = 12;
+	private final Pattern EinfraPasswordContainsNotAllowedChars = Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,._-].*");
 
 	@Before
 	public void setUp() {
