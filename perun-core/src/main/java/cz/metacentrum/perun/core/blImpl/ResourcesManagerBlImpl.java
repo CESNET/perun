@@ -387,7 +387,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 			//first we must assign group
 			try {
-
 				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource, GroupResourceStatus.PROCESSING);
 				activateGroupResourceAssignment(perunSession, g, resource, async);
 			} catch (GroupAlreadyAssignedException e) {
@@ -395,6 +394,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			} catch (GroupNotDefinedOnResourceException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
+		}
+
 	}
 
 	@Override
