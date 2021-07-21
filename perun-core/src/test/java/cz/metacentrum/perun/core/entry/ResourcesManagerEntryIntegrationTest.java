@@ -276,7 +276,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		service = setUpService();
 		ResourceTag resTag = setUpResourceTag();
 		resourcesManager.assignService(sess, resource, service);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		resourcesManager.assignResourceTagToResource(sess, resTag, resource);
 
 		Resource destinationResource = new Resource();
@@ -339,7 +339,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertNotNull("unable to create resource before deletion",resource);
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		resourcesManager.deleteResource(sess, resource);
 		// shouldn't delete resource with assigned group
@@ -380,7 +380,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
 
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 		List<Attribute> attributes = setUpGroupResourceAttribute(group, resource);
 
 		List<Attribute> retAttributes = perun.getAttributesManagerBl().getAttributes(sess, resource, group, false);
@@ -448,7 +448,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertNotNull("unable to create resource",resource);
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<Member> members = resourcesManager.getAllowedMembers(sess, resource);
 		assertTrue("our resource should have 1 allowed member",members.size() == 1);
@@ -467,7 +467,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<User> users = resourcesManager.getAllowedUsers(sess, resource);
 		assertTrue("our resource should have 1 allowed user",users.size() == 1);
@@ -494,7 +494,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertNotNull("unable to create resource",resource);
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<Group> assignedGroups = resourcesManager.getAssignedGroups(sess, resource);
 		assertTrue("one group should be assigned to our Resource",assignedGroups.size() == 1);
@@ -510,7 +510,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 		assertNotNull("unable to create resource",resource);
-		resourcesManager.assignGroupToResource(sess, new Group(), resource);
+		resourcesManager.assignGroupToResource(sess, new Group(), resource, false);
 		// shouldn't find group
 
 	}
@@ -523,7 +523,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, new Resource());
+		resourcesManager.assignGroupToResource(sess, group, new Resource(), false);
 		// shouldn't find resource
 
 	}
@@ -537,8 +537,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		// shouldn't add group twice
 
 	}
@@ -565,7 +565,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		groups.add(group);
 		groups.add(group2);
 		resourcesManager.assignService(sess, resource, service);
-		resourcesManager.assignGroupsToResource(sess, groups, resource);
+		resourcesManager.assignGroupsToResource(sess, groups, resource, false);
 
 		List<Group> assignedGroups = resourcesManager.getAssignedGroups(sess, resource);
 		assertEquals("all groups should be assigned to our Resource", assignedGroups.size(), groups.size());
@@ -581,7 +581,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
 		resource = setUpResource();
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		resourcesManager.removeGroupFromResource(sess, group, resource);
 		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource);
@@ -626,7 +626,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		subGroup = setUpSubGroup(group);
 		facility = setUpFacility();
 		resource = setUpResource();
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		resourcesManager.removeGroupFromResource(sess, subGroup, resource);
 		// shouldn't remove subGroup when parent group was assigned
@@ -656,7 +656,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		facility = setUpFacility();
 		resource = setUpResource();
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
 
 		assertThatNoException().isThrownBy(() -> resourcesManager.removeGroupFromResource(sess, group, resource));
@@ -672,7 +672,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource);
 		assertTrue("only one group should be assigned",groups.size() == 1);
@@ -690,7 +690,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource, member);
 		assertTrue("only one group should be assigned",groups.size() == 1);
@@ -716,7 +716,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<Resource> resources = resourcesManager.getAssignedResources(sess, group);
 		assertTrue("group should have be on 1 resource",resources.size() == 1);
@@ -745,7 +745,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		RichResource rr = new RichResource(resource);
 		rr.setFacility(perun.getResourcesManager().getFacility(sess, resource));
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, group);
 		assertTrue("group should have be on 1 rich resource",resources.size() == 1);
@@ -778,8 +778,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		service = setUpService();
 
 		// both the resources assign to the group
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, sndResource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, sndResource, false);
 		// but only one of them assign to the service
 		resourcesManager.assignService(sess, resource, service);
 
@@ -800,8 +800,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		Resource sndResource = setUpResource2();
 
 		// both the resources assign to the group
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, sndResource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, sndResource, false);
 
 		List<Resource> resources = resourcesManager.getAssignedResources(sess, member);
 		assertTrue("member should be assigned to 2 resources",resources.size() == 2);
@@ -839,8 +839,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		service = setUpService();
 
 		// both the resources assign to the group
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, sndResource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, sndResource, false);
 		// but only one of them assign to the service
 		resourcesManager.assignService(sess, resource, service);
 
@@ -864,8 +864,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		richResource.setVo(vo);
 		Resource sndResource = setUpResource2();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, sndResource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, sndResource, false);
 
 		RichResource rr = perun.getResourcesManagerBl().getRichResourceById(sess, resource.getId());
 		RichResource rr2 = perun.getResourcesManagerBl().getRichResourceById(sess, sndResource.getId());
@@ -902,8 +902,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		Resource sndResource = setUpResource2();
 
 		// both the resources assign to the group
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, sndResource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, sndResource, false);
 
 		List<Member> members = resourcesManager.getAssignedMembers(sess, resource);
 		assertTrue(members.size() == 1);
@@ -1398,7 +1398,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		// set up second resource
 		Resource newResource = new Resource();
@@ -1432,7 +1432,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1453,7 +1453,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1474,7 +1474,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1495,7 +1495,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1516,7 +1516,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1537,7 +1537,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1561,7 +1561,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1587,7 +1587,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1613,7 +1613,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -1641,7 +1641,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		member = setUpMember(vo);
 		group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnResource banOnResource = new BanOnResource();
 		banOnResource.setMemberId(member.getId());
@@ -2106,7 +2106,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<AssignedResource> resources = resourcesManager.getResourceAssignments(sess, group, null);
 		AssignedResource expectedResource = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, facility);
@@ -2130,7 +2130,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		ResourceTag resourceTag = new ResourceTag(1, "This is a tag", vo.getId());
 		resourcesManager.createResourceTag(sess, resourceTag, vo);
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		resourcesManager.assignResourceTagToResource(sess, resourceTag, resource);
 
 		List<AssignedResource> resources = resourcesManager.getResourceAssignments(sess, group, null);
@@ -2156,7 +2156,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<AssignedGroup> groups = resourcesManager.getGroupAssignments(sess, resource, null);
 		AssignedGroup expectedGroup = new AssignedGroup(new EnrichedGroup(group, null), GroupResourceStatus.ACTIVE);
@@ -2185,7 +2185,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
 		resourcesManager.activateGroupResourceAssignment(sess, group, resource, false);
 
@@ -2229,7 +2229,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
 
 		List<AssignedGroup> groups = resourcesManager.getGroupAssignments(sess, resource, null);

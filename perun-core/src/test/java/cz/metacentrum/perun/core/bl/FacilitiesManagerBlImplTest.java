@@ -102,7 +102,7 @@ public class FacilitiesManagerBlImplTest {
 		resource = new Resource(0, "testRes", null, facility.getId(), vo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, vo ,facility);
 
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		// second branch
 
@@ -127,7 +127,7 @@ public class FacilitiesManagerBlImplTest {
 		resource3 = new Resource(0, "testRes3", null, facility2.getId(), vo2.getId());
 		resource3 = perun.getResourcesManagerBl().createResource(sess, resource3, vo2 ,facility2);
 
-		perun.getResourcesManagerBl().assignGroupToResources(sess, group2, Arrays.asList(resource2, resource3));
+		perun.getResourcesManagerBl().assignGroupToResources(sess, group2, Arrays.asList(resource2, resource3), false);
 
 		user = perun.getUsersManagerBl().getUserByMember(sess, member);
 

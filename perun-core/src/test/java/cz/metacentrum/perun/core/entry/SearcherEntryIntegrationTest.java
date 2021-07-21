@@ -327,13 +327,13 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Resource resource3 = new Resource(0, "testName03", "testName03", facility.getId(), vo.getId());
 		resource3 = perun.getResourcesManagerBl().createResource(sess,resource3, vo, facility);
 
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource2);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource3);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group3, resource2);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group3, resource3);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource2, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource3, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group3, resource2, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group3, resource3, false);
 
 		Attribute groupResourceAttr01 = new Attribute(setUpGroupResourceAttribute());
 		groupResourceAttr01.setValue("VALUE01");

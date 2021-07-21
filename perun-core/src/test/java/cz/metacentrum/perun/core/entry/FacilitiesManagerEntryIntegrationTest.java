@@ -433,7 +433,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility);
 		assertTrue("our facility should have 1 allowed user", users.size() == 1);
@@ -453,8 +453,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
 		Group group2 = setUpGroup2(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource1);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2, false);
 
 		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility);
 		assertTrue("our facility should have 1 allowed user", users.size() == 1);
@@ -478,7 +478,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		// second vo and member, assign group but no service
 		Vo vo2 = new Vo();
@@ -492,7 +492,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group2 = setUpGroup(vo2, member2);
 		Resource resource2 = setUpResource(vo2);
 		perun.getResourcesManager().assignService(sess, resource2, serv);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2, false);
 
 		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, serv);
 		assertTrue("our facility should have 1 allowed user",users.size() == 1);
@@ -1414,7 +1414,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1436,7 +1436,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1458,7 +1458,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1480,7 +1480,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1502,7 +1502,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1524,7 +1524,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1549,7 +1549,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1576,7 +1576,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1603,7 +1603,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1632,7 +1632,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member member = setUpMember(vo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Group group = setUpGroup(vo, member);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 
 		BanOnFacility banOnFacility = new BanOnFacility();
 		banOnFacility.setUserId(user.getId());
@@ -1963,8 +1963,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getGroupsManager().addMember(sess, group1, member12);
 		perun.getGroupsManager().addMember(sess, group2, member22);
 
-		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1);
-		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2);
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false);
 
 		// test new way - single select
 		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);
@@ -2018,8 +2018,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getGroupsManager().addMember(sess, group1, member12);
 		perun.getGroupsManager().addMember(sess, group2, member22);
 
-		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1);
-		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2);
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false);
 
 		// test new way - single select
 		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);

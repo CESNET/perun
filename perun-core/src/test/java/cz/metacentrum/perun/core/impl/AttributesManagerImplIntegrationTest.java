@@ -210,7 +210,7 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
 		perunBlImpl.getServicesManagerBl().addRequiredAttribute(sess, service2, groupResourceAttribute2);
 		perunBlImpl.getServicesManagerBl().addRequiredAttribute(sess, service2, groupAttribute2);
 
-		perunBlImpl.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		perunBlImpl.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
 		perunBlImpl.getResourcesManagerBl().assignService(sess, resource, service1);
 		perunBlImpl.getResourcesManagerBl().assignService(sess, resource, service2);
 	}
