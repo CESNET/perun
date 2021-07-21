@@ -11826,10 +11826,11 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignGroupToResource
-      summary: Assigns a group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value.
+      summary: Assigns a group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value. Work in sync/async mode.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/async'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -11841,10 +11842,11 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignGroupsToResource
-      summary: Assigns groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values.
+      summary: Assigns groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values. Work in sync/async mode.
       parameters:
         - $ref: '#/components/parameters/groupIds'
         - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/async'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -11856,10 +11858,11 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignGroupToResources
-      summary: Assigns a group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
+      summary: Assigns a group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceIds'
+        - $ref: '#/components/parameters/async'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

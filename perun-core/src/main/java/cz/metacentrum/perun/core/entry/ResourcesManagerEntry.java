@@ -345,7 +345,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "assignGroupToResource");
 		}
 
-		getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
+		getResourcesManagerBl().assignGroupToResource(sess, group, resource, async);
 	}
 
 	@Override
@@ -361,7 +361,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			}
 		}
 
-		getResourcesManagerBl().assignGroupsToResource(perunSession, groups, resource, false);
+		getResourcesManagerBl().assignGroupsToResource(perunSession, groups, resource, async);
 	}
 
 	@Override
@@ -380,7 +380,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			}
 		}
 
-		getResourcesManagerBl().assignGroupToResources(perunSession, group, resources, false);
+		getResourcesManagerBl().assignGroupToResources(perunSession, group, resources, async);
 	}
 
 	@Override
