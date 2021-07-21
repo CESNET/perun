@@ -1189,6 +1189,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}
 
 		getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.INACTIVE);
+		getPerunBl().getAuditer().log(sess, new GroupRemovedFromResource(group, resource));
 	}
 
 	/**
