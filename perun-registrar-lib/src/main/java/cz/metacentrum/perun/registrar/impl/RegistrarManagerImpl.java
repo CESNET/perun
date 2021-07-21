@@ -2405,6 +2405,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			itemsWithValues.add(new ApplicationFormItemWithPrefilledValue(item, null));
 		}
 
+		// data from pending app to group's VO, use values from attributes which destination in VO application matches source attribute in group application
+		List<ApplicationFormItemData> pendingVoApplicationData = new ArrayList<>();
+
 		// get user and member attributes from DB for existing users
 		if (user != null) {
 
@@ -2456,6 +2459,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(sourceAttribute)));
 					}
 				}
+			}
+		}
+
+		// pending vo data for current user (if known to Perun) or session principal
+		if (group != null) {
+			Optional<Application> pendingVoApplication = getApplicationsForUser(sess)
+				.stream()
+				.filter(voApp -> voApp.getGroup() == null && (voApp.getState().equals(AppState.NEW) || voApp.getState().equals(AppState.VERIFIED)))
+				.findFirst();
+			if (pendingVoApplication.isPresent()) {
+				pendingVoApplicationData = getApplicationDataById(sess, pendingVoApplication.get().getId());
 			}
 		}
 
@@ -2542,6 +2556,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				}
 
+			}
+
+			// if pending vo application data can be used for group application, overwrite value with it
+			for (ApplicationFormItemData appFormItemData : pendingVoApplicationData) {
+				String vosAppDestinationAttribute = appFormItemData.getFormItem().getPerunDestinationAttribute();
+				if (vosAppDestinationAttribute != null && !vosAppDestinationAttribute.isEmpty()
+					&& appFormItemData.getValue() != null && vosAppDestinationAttribute.equals(itemW.getFormItem().getPerunSourceAttribute())) {
+					itemW.setPrefilledValue(appFormItemData.getValue());
+				}
 			}
 		}
 
