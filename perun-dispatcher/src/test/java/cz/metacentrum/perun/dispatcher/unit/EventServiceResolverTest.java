@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -56,7 +55,7 @@ public class EventServiceResolverTest extends AbstractDispatcherTest {
 		perun.getGroupsManagerBl().addMember(sess, group1, member1);
 
 		// assign the group to resource
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false);
 
 	}
 
