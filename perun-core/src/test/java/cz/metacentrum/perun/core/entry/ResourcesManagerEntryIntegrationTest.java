@@ -2197,8 +2197,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		Resource resource2 = setUpResource2();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, resource2);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, resource2, false);
 		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource2);
 
 		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE);
@@ -2233,8 +2233,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertThat(assignments)
 			.isEmpty();
 
-		resourcesManager.assignGroupToResource(sess, group, resource);
-		resourcesManager.assignGroupToResource(sess, group, resource2);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, resource2, false);
 		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource2);
 
 		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE);
