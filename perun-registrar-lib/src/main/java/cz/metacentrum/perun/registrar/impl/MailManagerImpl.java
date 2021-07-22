@@ -110,6 +110,8 @@ public class MailManagerImpl implements MailManager {
 	private static final String FIELD_VALIDATION_LINK = "{validationLink}";
 	private static final String FIELD_REDIRECT_URL = "{redirectUrl}";
 
+	private static final Pattern FROM_APP_PATTERN = Pattern.compile("\\{fromApp-([^}]+)}");
+
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
 	@Autowired private Properties registrarProperties;
@@ -1101,6 +1103,20 @@ public class MailManagerImpl implements MailManager {
 				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, reason);
 			} else {
 				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, EMPTY_STRING);
+			}
+		}
+
+		// replace {fromApp-*}
+		Matcher matcher = FROM_APP_PATTERN.matcher(mailText);
+		while (matcher.find()) {
+			String itemName = matcher.group(1);
+
+			for (ApplicationFormItemData item : data) {
+				if (itemName.equals(item.getShortname())) {
+					String newValue = item.getValue();
+					mailText = mailText.replace("{fromApp-" + itemName +"}", newValue != null ? newValue : EMPTY_STRING);
+					break;
+				}
 			}
 		}
 
