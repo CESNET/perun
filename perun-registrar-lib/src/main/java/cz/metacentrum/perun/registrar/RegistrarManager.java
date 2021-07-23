@@ -206,7 +206,8 @@ public interface RegistrarManager {
 	/**
 	 * Gets the content for an application form for a given type of application,vo, group and user.
 	 * The values are pre-filled from database for extension applications, and always from federation values
-	 * taken from the user argument.
+	 * taken from the user argument. If available, values in group application are overwritten with most recent
+	 * pending vo application.
 	 *
 	 * @param sess PerunSession including PerunPrincipal containing info from authentication system
 	 * @param appType application type INITIAL, EXTENSION or EMBEDDED
