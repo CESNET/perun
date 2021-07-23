@@ -1093,7 +1093,22 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public void processGroupResourceActivationAsync(PerunSession sess, Group group, Resource resource) {
 		try {
-			processGroupResourceActivation(sess, group, resource);
+			// try activation for 5 times after 5 seconds because the assignment
+			// might not be committed in DB yet
+			boolean successful = false;
+			for (int i = 0; i < 5; ++i) {
+				try {
+					processGroupResourceActivation(sess, group, resource);
+					successful = true;
+					break;
+				} catch (GroupNotDefinedOnResourceException ex) {
+					Thread.sleep(5000);
+				}
+			}
+
+			if (!successful) {
+				processGroupResourceActivation(sess, group, resource);
+			}
 		} catch (Exception e) {
 			log.error("Activation of group-resource assignment failed.", e);
 			try {
