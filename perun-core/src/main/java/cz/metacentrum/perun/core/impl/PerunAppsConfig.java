@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.List;
 
@@ -13,7 +14,6 @@ public class PerunAppsConfig {
 
 	private static PerunAppsConfig instance;
 
-	@JsonProperty("brands")
 	private List<Brand> brands;
 
 	public static PerunAppsConfig getInstance() {
@@ -24,10 +24,12 @@ public class PerunAppsConfig {
 		PerunAppsConfig.instance = instance;
 	}
 
+	@JsonGetter("brands")
 	public List<Brand> getBrands() {
 		return brands;
 	}
 
+	@JsonSetter("brands")
 	public void setBrands(List<Brand> brands) {
 		this.brands = brands;
 	}
@@ -53,35 +55,38 @@ public class PerunAppsConfig {
 	 */
 	public static class Brand {
 
-		@JsonProperty("name")
 		private String name;
 
-		@JsonProperty("old_gui_domain")
 		private String oldGuiDomain;
 
-		@JsonProperty("new_apps")
 		private NewApps newApps;
 
+		@JsonGetter("name")
 		public String getName() {
 			return name;
 		}
 
+		@JsonSetter("name")
 		public void setName(String name) {
 			this.name = name;
 		}
 
+		@JsonGetter("newApps")
 		public NewApps getNewApps() {
 			return newApps;
 		}
 
+		@JsonSetter("new_apps")
 		public void setNewApps(NewApps newApps) {
 			this.newApps = newApps;
 		}
 
+		@JsonGetter("oldGuiDomain")
 		public String getOldGuiDomain() {
 			return oldGuiDomain;
 		}
 
+		@JsonSetter("old_gui_domain")
 		public void setOldGuiDomain(String oldGuiDomain) {
 			this.oldGuiDomain = oldGuiDomain;
 		}
@@ -100,46 +105,50 @@ public class PerunAppsConfig {
 	 * Class holding domains of new gui applications.
 	 */
 	public static class NewApps {
-		@JsonProperty("admin")
 		private String admin;
 
-		@JsonProperty("profile")
 		private String profile;
 
-		@JsonProperty("pwd_reset")
 		private String pwdReset;
 
-		@JsonProperty("publications")
 		private String publications;
 
+		@JsonGetter("admin")
 		public String getAdmin() {
 			return admin;
 		}
 
+		@JsonSetter("admin")
 		public void setAdmin(String admin) {
 			this.admin = admin;
 		}
 
+		@JsonGetter("profile")
 		public String getProfile() {
 			return profile;
 		}
 
+		@JsonSetter("profile")
 		public void setProfile(String profile) {
 			this.profile = profile;
 		}
 
+		@JsonGetter("pwdReset")
 		public String getPwdReset() {
 			return pwdReset;
 		}
 
+		@JsonSetter("pwd_reset")
 		public void setPwdReset(String pwdReset) {
 			this.pwdReset = pwdReset;
 		}
 
+		@JsonGetter("publications")
 		public String getPublications() {
 			return publications;
 		}
 
+		@JsonSetter("publications")
 		public void setPublications(String publications) {
 			this.publications = publications;
 		}
