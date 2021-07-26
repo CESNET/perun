@@ -34,7 +34,7 @@ public class urn_perun_group_attribute_def_def_o365SendOnBehalfGroups extends Gr
 
 	@Override
 	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
-		sess.getPerunBl().getModulesUtilsBl().checkAttributeValueIsSubgroupId(sess, group, attribute);
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeValueIsIncludedOrSubgroupId(sess, group, attribute);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class urn_perun_group_attribute_def_def_o365SendOnBehalfGroups extends Gr
 		attr.setFriendlyName("o365SendOnBehalfGroups");
 		attr.setDisplayName("O365 Send on behalf of Groups");
 		attr.setType(ArrayList.class.getName());
-		attr.setDescription("List of subgroups with rights to send on behalf of.");
+		attr.setDescription("List of subgroups and included groups with rights to send on behalf of.");
 		return attr;
 	}
 }

@@ -896,8 +896,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
-	public void checkAttributeValueIsSubgroupId() throws Exception {
-		System.out.println(CLASS_NAME + "checkAttributeValueIsSubgroupId");
+	public void checkAttributeValueIsIncludedOrSubgroupId_subgroup() throws Exception {
+		System.out.println(CLASS_NAME + "checkAttributeValueIsIncludedOrSubgroupId_subgroup");
 
 		vo = setUpVo();
 		group = setUpGroup();
@@ -911,12 +911,35 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute sendAsGroups = new Attribute(setSendAsGroupsAttribute(), subgroupIds);
 		perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
 
-		assertThatNoException().isThrownBy(() -> perun.getModulesUtilsBl().checkAttributeValueIsSubgroupId((PerunSessionImpl) sess, group, sendAsGroups));
+		assertThatNoException().isThrownBy(() -> perun.getModulesUtilsBl().checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess, group, sendAsGroups));
+	}
+
+	@Test
+	public void checkAttributeValueIsIncludedOrSubgroupId_includedGroup() throws Exception {
+		System.out.println(CLASS_NAME + "checkAttributeValueIsIncludedOrSubgroupId_includedGroup");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		Group included = new Group("Included", "Included group");
+
+		perun.getGroupsManagerBl().createGroup(sess, vo , included);
+		perun.getGroupsManager().createGroupUnion(sess, group, included);
+
+		ArrayList<String> includedGroupsIds = new ArrayList<>();
+		includedGroupsIds.add(String.valueOf(included.getId()));
+
+		Attribute sendAsGroups = new Attribute(setSendAsGroupsAttribute(), includedGroupsIds);
+		perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
+
+		assertThatNoException().isThrownBy(() -> perun.getModulesUtilsBl().checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess, group, sendAsGroups));
 	}
 
 	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void checkAttributeValueIsNotSubgroupId() throws Exception {
-		System.out.println(CLASS_NAME + "checkAttributeValueIsNotSubgroupId");
+	public void checkAttributeValueIsNotIncludedOrSubgroupId() throws Exception {
+		System.out.println(CLASS_NAME + "checkAttributeValueIsNotIncludedOrSubgroupId");
 
 		vo = setUpVo();
 		group = setUpGroup();
@@ -931,7 +954,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute sendAsGroups = new Attribute(setSendAsGroupsAttribute(), subgroupIds);
 		perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
 
-		perun.getModulesUtilsBl().checkAttributeValueIsSubgroupId((PerunSessionImpl) sess, group, sendAsGroups);
+		perun.getModulesUtilsBl().checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess, group, sendAsGroups);
 	}
 
 	// private methods ------------------------------------------------------------------
