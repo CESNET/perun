@@ -47,10 +47,12 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -1113,6 +1115,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			log.error("Activation of group-resource assignment failed.", e);
 			try {
 				getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.FAILED);
+				getResourcesManagerImpl().setFailedGroupResourceAssignmentCause(sess, group, resource, e.getMessage());
 			} catch (GroupNotDefinedOnResourceException groupNotDefinedOnResourceException) {
 				log.error("Group-resource assignment doesn't exist.", groupNotDefinedOnResourceException);
 			}
@@ -1136,6 +1139,9 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		// set status as ACTIVE first because methods checkAttributesSemantics and fillAttribute need active state to work correctly
 		getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.ACTIVE);
+
+		// reset assignment failure cause
+		getResourcesManagerImpl().setFailedGroupResourceAssignmentCause(sess, group, resource, null);
 
 		// if there are no services, the members are empty and there is nothing more to process
 		if (getAssignedServices(sess, resource).isEmpty()) return;
@@ -1175,6 +1181,9 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		getResourcesManagerImpl().setGroupResourceStatus(sess, group, resource, GroupResourceStatus.INACTIVE);
 		getPerunBl().getAuditer().log(sess, new GroupRemovedFromResource(group, resource));
+
+		// reset assignment failure cause
+		getResourcesManagerImpl().setFailedGroupResourceAssignmentCause(sess, group, resource, null);
 	}
 
 	/**

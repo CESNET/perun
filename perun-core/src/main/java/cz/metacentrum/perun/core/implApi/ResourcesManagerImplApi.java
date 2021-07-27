@@ -824,4 +824,24 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void setGroupResourceStatus(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) throws GroupNotDefinedOnResourceException;
+
+	/**
+	 * Gets the current cause of failed group-resource assignment. Returns null if there is no such group-resource assignment.
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @return error message
+	 */
+	String getFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource);
+
+	/**
+	 * Sets the cause of failed group-resource assignment
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @param cause the cause of assignment failure
+	 * @throws GroupNotDefinedOnResourceException if there is no such group-resource assignment
+	 */
+	void setFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource, String cause) throws GroupNotDefinedOnResourceException;
+
 }

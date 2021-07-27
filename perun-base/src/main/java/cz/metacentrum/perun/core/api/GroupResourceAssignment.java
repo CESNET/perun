@@ -11,11 +11,13 @@ public class GroupResourceAssignment {
 	private Group group;
 	private Resource resource;
 	private GroupResourceStatus status;
+	private String failureCause;
 
-	public GroupResourceAssignment(Group group, Resource resource, GroupResourceStatus status) {
+	public GroupResourceAssignment(Group group, Resource resource, GroupResourceStatus status, String failureCause) {
 		this.group = group;
 		this.resource = resource;
 		this.status = status;
+		this.failureCause = failureCause;
 	}
 
 	public Group getGroup() {
@@ -42,6 +44,14 @@ public class GroupResourceAssignment {
 		this.status = status;
 	}
 
+	public String getFailureCause() {
+		return this.failureCause;
+	}
+
+	public void setFailureCause(String failureCause) {
+		this.failureCause = failureCause;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -62,6 +72,7 @@ public class GroupResourceAssignment {
 			"group=" + group +
 			", resource=" + resource +
 			", status=" + status +
+			", failureCause=" + failureCause +
 			'}';
 	}
 }

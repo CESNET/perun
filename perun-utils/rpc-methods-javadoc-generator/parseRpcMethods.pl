@@ -186,7 +186,7 @@ $objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Res
 $objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
 $objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
 
-$objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"ACTIVE\"" . " , \"resourceTags\" : ". $objectExamples{"List<ResourceTag>"} . " }";
+$objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"FAILED\"" . " , \"failureCause\" : \"Wrong attribute value in group 1\"" . " , \"facility\" : " . $objectExamples{"Facility"} . " , \"resourceTags\" : " . $objectExamples{"List<ResourceTag>"} . " }";
 $objectExamples{"List&lt;AssignedResource&gt;"} = $listPrepend . $objectExamples{"AssignedResource"} . $listAppend;
 $objectExamples{"List<AssignedResource>"} = $objectExamples{"List&lt;AssignedResource&gt;"};
 
@@ -194,7 +194,7 @@ $objectExamples{"EnrichedGroup"} = "{ \"group\" : " . $objectExamples{"Group"} .
 $objectExamples{"List&lt;EnrichedGroup&gt;"} = $listPrepend . $objectExamples{"EnrichedGroup"} . $listAppend;
 $objectExamples{"List<EnrichedGroup>"} = $objectExamples{"List&lt;EnrichedGroup&gt;"};
 
-$objectExamples{"AssignedGroup"} = "{ \"enrichedGroup\" : " . $objectExamples{"EnrichedGroup"} . " , \"status\" : \"ACTIVE\" }";
+$objectExamples{"AssignedGroup"} = "{ \"enrichedGroup\" : " . $objectExamples{"EnrichedGroup"} . " , \"status\" : \"FAILED\"" . " , \"failureCause\" : \"Wrong attribute value in group 1\" }";
 $objectExamples{"List&lt;AssignedGroup&gt;"} = $listPrepend . $objectExamples{"AssignedGroup"} . $listAppend;
 $objectExamples{"List<AssignedGroup>"} = $objectExamples{"List&lt;AssignedGroup&gt;"};
 

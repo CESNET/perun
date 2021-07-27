@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
@@ -2110,7 +2111,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<AssignedResource> resources = resourcesManager.getResourceAssignments(sess, group, null);
-		AssignedResource expectedResource = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, facility);
+		AssignedResource expectedResource = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, null, facility);
 
 		assertThat(resources.size()).isEqualTo(1);
 		assertThat(resources).containsExactly(expectedResource);
@@ -2160,7 +2161,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
 		List<AssignedGroup> groups = resourcesManager.getGroupAssignments(sess, resource, null);
-		AssignedGroup expectedGroup = new AssignedGroup(new EnrichedGroup(group, null), GroupResourceStatus.ACTIVE);
+		AssignedGroup expectedGroup = new AssignedGroup(new EnrichedGroup(group, null), GroupResourceStatus.ACTIVE, null);
 
 		assertThat(groups.size()).isEqualTo(1);
 		assertThat(groups).containsExactly(expectedGroup);
@@ -2201,8 +2202,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource2, false);
 		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource2);
 
-		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE);
-		GroupResourceAssignment expectedAssignment2 = new GroupResourceAssignment(group, resource2, GroupResourceStatus.INACTIVE);
+		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE, null);
+		GroupResourceAssignment expectedAssignment2 = new GroupResourceAssignment(group, resource2, GroupResourceStatus.INACTIVE, null);
 
 		List<GroupResourceAssignment> assignments = perun.getResourcesManagerBl().getGroupResourceAssignments(sess, null);
 		assertThat(assignments)
@@ -2237,7 +2238,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource2, false);
 		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource2);
 
-		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE);
+		GroupResourceAssignment expectedAssignment = new GroupResourceAssignment(group, resource, GroupResourceStatus.ACTIVE, null);
 
 		assignments = perun.getResourcesManagerBl().getGroupResourceAssignments(sess, List.of(GroupResourceStatus.ACTIVE));
 		assertThat(assignments)
