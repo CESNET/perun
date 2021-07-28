@@ -8445,6 +8445,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/isLoginAvailable:
+    post:
+      tags:
+        - UsersManager
+      operationId: isLoginAvailable
+      summary: Checks if the login is available in the namespace. Return 1 if yes, 0 if no.
+      parameters:
+        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
+        - $ref: '#/components/parameters/login'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
