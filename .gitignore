@@ -4,6 +4,10 @@
 *.war
 *.ear
 
+# Semantic releasing related
+*.versionsBackup
+node_modules
+
 # Ignore data folder of running perun-rpc | perun-dispatcher
 perun-rpc/data/
 
