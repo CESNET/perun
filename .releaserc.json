@@ -1,0 +1,25 @@
+{
+  "branches": [ "production", "+([0-9])?(.{+([0-9]),x}).x"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    ["@semantic-release/exec", {
+		"prepareCmd": "./update-versions.sh ${nextRelease.version} && mvn -B clean install"
+    }],
+    ["@semantic-release/git", {
+		"assets": [["**/pom.xml", "!perun-openapi/target/generated-sources/openapi/pom.xml"], "perun-openapi/openapi.yml"],
+		"message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
+    }],
+    ["@semantic-release/github", {
+	  "successComment": false,
+	  "assets": [
+	    {"path": "perun-rpc/target/perun-rpc.war"},
+	    {"path": "perun-engine/target/perun-engine.jar"},
+	    {"path": "perun-ldapc/target/perun-ldapc.jar"},
+	    {"path": "perun-web-gui/target/perun-web-gui.war"},
+	    {"path": "perun-cli-java/target/perun-cli-java.jar"}
+	  ]
+	}]
+  ]
+}
+
