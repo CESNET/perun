@@ -1230,18 +1230,25 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkAttributeValueIsSubgroupId(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
+	public void checkAttributeValueIsIncludedOrSubgroupId(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		if (attribute.getValue() == null) {
 			return;
 		}
 
-		Set<Integer> subgroupIds = sess.getPerunBl().getGroupsManagerBl().getAllSubGroups(sess, group).stream()
+		// subgroups
+		Set<Integer> includedAndSubgroupsIds = sess.getPerunBl().getGroupsManagerBl().getAllSubGroups(sess, group).stream()
 			.map(Group::getId)
 			.collect(Collectors.toSet());
 
+		// directly included groups
+		includedAndSubgroupsIds.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupUnions(sess, group, false)
+			.stream()
+			.map(PerunBean::getId)
+			.collect(Collectors.toSet()));
+
 		for (String groupId : attribute.valueAsList()) {
-			if (!subgroupIds.contains(Integer.valueOf(groupId))) {
-				throw new WrongReferenceAttributeValueException("Id: " + groupId + " is not id of any subgroup of group " + group);
+			if (!includedAndSubgroupsIds.contains(Integer.valueOf(groupId))) {
+				throw new WrongReferenceAttributeValueException("Id: " + groupId + " is not id of any subgroup or included group of group " + group);
 			}
 		}
 	}

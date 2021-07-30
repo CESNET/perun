@@ -550,12 +550,12 @@ public interface ModulesUtilsBl {
 	boolean getSendRightFromAttributes(PerunSessionImpl sess, Member member, Group group, String booleanAttribute, String listAttribute);
 
 	/**
-	 * Checks whether all values of attribute are ids of subgroups of group.
+	 * Checks whether all values of attribute are ids of group's included groups or subgroups.
 	 *
 	 * @param sess
 	 * @param group parent group
 	 * @param attribute attribute to check
-	 * @throws WrongReferenceAttributeValueException if any value of attribute is not a subgroup id
+	 * @throws WrongReferenceAttributeValueException if any value of attribute is not subgroup's or included group's id
 	 */
-	void checkAttributeValueIsSubgroupId(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
+	void checkAttributeValueIsIncludedOrSubgroupId(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
 }
