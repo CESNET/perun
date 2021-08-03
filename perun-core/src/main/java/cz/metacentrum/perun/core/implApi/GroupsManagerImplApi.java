@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author  Michal Prochazka
@@ -722,6 +723,16 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException internal error
 	 */
 	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group);
+
+	/**
+	 * Returns total member's status of given members in given group.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @param members members
+	 * @return total status of members in given group
+	 */
+	Map<Integer, MemberGroupStatus> getTotalGroupStatusForMembers(PerunSession session, Group group, List<Member> members);
 
 	/**
 	 * Returns all facilities where given group si FACILITYADMIN.

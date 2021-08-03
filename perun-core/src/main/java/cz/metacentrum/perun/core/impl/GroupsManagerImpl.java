@@ -39,6 +39,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -47,8 +48,10 @@ import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -111,6 +114,20 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		Pair<Group, Resource> pair = new Pair<>();
 		pair.put(GROUP_MAPPER.mapRow(resultSet, i), ResourcesManagerImpl.RESOURCE_MAPPER.mapRow(resultSet, i));
 		return pair;
+	};
+
+	private static final ResultSetExtractor<Map<Integer, List<Integer>>> MEMBERID_MEMBERGROUPSTATUS_EXTRACTOR = resultSet -> {
+		Map<Integer, List<Integer>> map = new HashMap<>();
+		while (resultSet.next()) {
+			Integer memberId = resultSet.getInt("member_id");
+			List<Integer> list = map.get(memberId);
+			if (list == null) {
+				list = new ArrayList<>();
+			}
+			list.add(resultSet.getInt("source_group_status"));
+			map.put(memberId, list);
+		}
+		return map;
 	};
 
 	/**
@@ -975,6 +992,40 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return null;
 		}
 		catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public Map<Integer, MemberGroupStatus> getTotalGroupStatusForMembers(PerunSession session, Group group, List<Member> members) {
+		List<Integer> memberIds = new ArrayList<>();
+		members.forEach(member -> memberIds.add(member.getId()));
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("groupId", group.getId());
+		parameters.addValue("memberIds", memberIds);
+
+		try {
+			Map<Integer, List<Integer>> map = namedParameterJdbcTemplate.query("select member_id, source_group_status FROM groups_members" +
+				" join members on groups_members.member_id=members.id where group_id=(:groupId) and member_id in (:memberIds)", parameters, MEMBERID_MEMBERGROUPSTATUS_EXTRACTOR);
+
+			Map<Integer, MemberGroupStatus> resultMap = new HashMap<>();
+
+			if (map == null) {
+				return null;
+			}
+
+			for (Integer memberId : map.keySet()) {
+				if (map.get(memberId).contains(0)) {
+					resultMap.put(memberId, MemberGroupStatus.VALID);
+				} else {
+					resultMap.put(memberId, MemberGroupStatus.EXPIRED);
+				}
+			}
+
+			return resultMap;
+
+		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
