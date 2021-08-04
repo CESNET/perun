@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
+import org.springframework.scheduling.annotation.Async;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -1227,6 +1228,7 @@ public interface MembersManagerBl {
 	 * @return member with original status
 	 *
 	 */
+	@Async
 	Member validateMemberAsync(PerunSession sess, Member member);
 
 	/**
