@@ -11,7 +11,6 @@
 		"message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
     }],
     ["@semantic-release/github", {
-	  "successComment": false,
 	  "assets": [
 	    {"path": "perun-rpc/target/perun-rpc.war"},
 	    {"path": "perun-engine/target/perun-engine.jar"},
