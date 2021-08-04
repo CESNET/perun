@@ -144,12 +144,21 @@ public interface ResourcesManagerImplApi {
 	 * @param perunSession
 	 * @param group
 	 * @param resource
-	 * @param status Status of the group-resource assignment
 
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyAssignedException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, GroupResourceStatus status) throws GroupAlreadyAssignedException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyAssignedException;
+
+	/**
+	 * Set initial status to group-resource assignment.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param resource
+	 * @param status Status of the group-resource assignment
+	 */
+	void assignGroupToResourceState(PerunSession perunSession, Group group, Resource resource, GroupResourceStatus status);
 
 	/**
 	 * Remove group from a resource.

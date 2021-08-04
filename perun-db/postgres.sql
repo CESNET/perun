@@ -1,4 +1,4 @@
--- database version 3.1.84 (don't forget to update insert statement at the end of file)
+-- database version 3.1.85 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -752,18 +752,41 @@ create type group_resource_status as enum (
 create table groups_resources (
 	group_id integer not null,     --identifier of group (groups.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
-	status group_resource_status not null default 'PROCESSING',
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
-	failure_cause varchar default null,
 	constraint grres_grp_res_u unique (group_id,resource_id),
   constraint grres_gr_fk foreign key (group_id) references groups(id),
   constraint grres_res_fk foreign key (resource_id) references resources(id)
 );
+
+create function relation_group_resource_exist(integer, integer) returns integer as
+    'select count(1) from groups_resources where group_id=$1 and resource_id=$2;' language sql;
+
+create table groups_resources_state (
+	group_id integer not null,
+	resource_id integer not null,
+	status group_resource_status not null default 'PROCESSING',
+	failure_cause varchar default null,
+	constraint grres_s_grp_res_u unique (group_id,resource_id),
+	constraint grres_s_gr_fk foreign key (group_id) references groups(id),
+	constraint grres_s_res_fk foreign key (resource_id) references resources(id),
+	check ( relation_group_resource_exist(group_id, resource_id) != 0 )
+);
+
+create function delete_group_resource_status() returns trigger as
+	'
+    begin
+    	delete from groups_resources_state where group_id=OLD.group_id and resource_id=OLD.resource_id;
+		return OLD;
+   	end;
+	' language plpgsql;
+
+create trigger after_deleting_from_groups_resources after delete on groups_resources
+	for each row execute procedure delete_group_resource_status();
 
 -- MEMBER_ATTR_VALUES - values of attributes assigned to members
 create table member_attr_values (
@@ -1585,6 +1608,8 @@ create index idx_fk_authz_sec_team on authz(security_team_id);
 create index idx_fk_authz_sponsu on authz(sponsored_user_id);
 create index idx_fk_grres_gr on groups_resources(group_id);
 create index idx_fk_grres_res on groups_resources(resource_id);
+create index idx_fk_grres_s_gr on groups_resources_state(group_id);
+create index idx_fk_grres_s_res on groups_resources_state(resource_id);
 create index idx_fk_grpmem_gr on groups_members(group_id);
 create index idx_fk_grpmem_mem on groups_members(member_id);
 create index idx_fk_grpmem_memtype on groups_members(membership_type);
@@ -1718,6 +1743,7 @@ grant all on cabinet_thanks to perun;
 grant all on roles to perun;
 grant all on authz to perun;
 grant all on groups_resources to perun;
+grant all on groups_resources_state to perun;
 grant all on groups_members to perun;
 grant all on application_mails to perun;
 grant all on application_mail_texts to perun;
@@ -1753,7 +1779,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.84');
+insert into configurations values ('DATABASE VERSION','3.1.85');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

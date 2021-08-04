@@ -70,8 +70,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
-	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources.status as groups_resources_status" +
-		", groups_resources.failure_cause as groups_resources_failure_cause";
+	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status" +
+		", groups_resources_state.failure_cause as groups_resources_state_failure_cause";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
@@ -103,8 +103,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	protected static final RowMapper<AssignedGroup> ASSIGNED_GROUP_MAPPER = (resultSet, i) -> {
 		Group group = GROUP_MAPPER.mapRow(resultSet, i);
 		EnrichedGroup enrichedGroup = new EnrichedGroup(group, null);
-		String failureCause = resultSet.getString("groups_resources_failure_cause");
-		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), failureCause);
+		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
+		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), failureCause);
 	};
 
 	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = (resultSet, i) -> {
@@ -432,8 +432,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
-					" groups_resources on groups.id=groups_resources.group_id " +
-					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status",
+					" groups_resources_state on groups.id=groups_resources_state.group_id " +
+					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
 					GROUP_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -446,8 +446,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
-							" groups_resources on groups.id=groups_resources.group_id and groups_resources.resource_id=? " +
-							" and groups_resources.status=?::group_resource_status" +
+							" groups_resources_state on groups.id=groups_resources_state.group_id and groups_resources_state.resource_id=? " +
+							" and groups_resources_state.status=?::group_resource_status" +
 							" join groups_members on groups_members.group_id=groups.id and groups_members.member_id=?",
 					GROUP_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), member.getId());
 		} catch (EmptyResultDataAccessException e) {
@@ -461,8 +461,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
-							" groups_resources on groups.id=groups_resources.group_id and groups_resources.status=?::group_resource_status " +
-							" join resources on groups_resources.resource_id=resources.id " +
+							" groups_resources_state on groups.id=groups_resources_state.group_id and groups_resources_state.status=?::group_resource_status " +
+							" join resources on groups_resources_state.resource_id=resources.id " +
 							"where resources.facility_id=?",
 					GROUP_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId());
 		} catch (EmptyResultDataAccessException e) {
