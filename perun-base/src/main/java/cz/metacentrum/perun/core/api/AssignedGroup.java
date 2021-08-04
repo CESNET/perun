@@ -10,10 +10,12 @@ import java.util.Objects;
 public class AssignedGroup {
 	private EnrichedGroup enrichedGroup;
 	private GroupResourceStatus status;
+	private String failureCause;
 
-	public AssignedGroup(EnrichedGroup enrichedGroup, GroupResourceStatus status) {
+	public AssignedGroup(EnrichedGroup enrichedGroup, GroupResourceStatus status, String failureCause) {
 		this.enrichedGroup = enrichedGroup;
 		this.status = status;
+		this.failureCause = failureCause;
 	}
 
 	public EnrichedGroup getEnrichedGroup() {
@@ -30,6 +32,14 @@ public class AssignedGroup {
 
 	public void setStatus(GroupResourceStatus status) {
 		this.status = status;
+	}
+
+	public String getFailureCause() {
+		return failureCause;
+	}
+
+	public void setFailureCause(String failureCause) {
+		this.failureCause = failureCause;
 	}
 
 	@Override
@@ -50,6 +60,7 @@ public class AssignedGroup {
 		return "AssignedGroup{" +
 			"enrichedGroup=" + enrichedGroup +
 			", status=" + status +
+			", failureCause=" + failureCause +
 			'}';
 	}
 }

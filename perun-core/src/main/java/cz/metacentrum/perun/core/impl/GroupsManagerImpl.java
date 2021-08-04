@@ -70,7 +70,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
-	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources.status as groups_resources_status";
+	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources.status as groups_resources_status" +
+		", groups_resources.failure_cause as groups_resources_failure_cause";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
@@ -102,7 +103,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	protected static final RowMapper<AssignedGroup> ASSIGNED_GROUP_MAPPER = (resultSet, i) -> {
 		Group group = GROUP_MAPPER.mapRow(resultSet, i);
 		EnrichedGroup enrichedGroup = new EnrichedGroup(group, null);
-		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")));
+		String failureCause = resultSet.getString("groups_resources_failure_cause");
+		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), failureCause);
 	};
 
 	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = (resultSet, i) -> {

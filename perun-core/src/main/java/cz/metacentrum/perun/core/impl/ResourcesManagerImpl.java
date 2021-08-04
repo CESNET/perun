@@ -77,10 +77,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources.created_at as resources_created_at, resources.created_by as resources_created_by, resources.modified_by as resources_modified_by, " +
 		"resources.modified_at as resources_modified_at, resources.modified_by_uid as resources_modified_by_uid, resources.created_by_uid as resources_created_by_uid";
 
-	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status" +
+	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status, groups_resources.failure_cause as groups_resources_failure_cause" +
 		", " + FacilitiesManagerImpl.facilityMappingSelectQuery;
 
-	protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status" +
+	protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status, groups_resources.failure_cause as groups_resources_failure_cause" +
 		", " + GroupsManagerImpl.groupMappingSelectQuery;
 
 	protected final static String resourceTagMappingSelectQuery = "res_tags.id as res_tags_id, res_tags.vo_id as res_tags_vo_id, res_tags.tag_name as res_tags_tag_name, " +
@@ -116,14 +116,16 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	protected static final RowMapper<AssignedResource> ASSIGNED_RESOURCE_MAPPER = (resultSet, i) -> {
 		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
 		EnrichedResource enrichedResource = new EnrichedResource(resource, null);
+		String failureCause = resultSet.getString("groups_resources_failure_cause");
 		Facility facility = FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i);
-		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), facility);
+		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), failureCause, facility);
 	};
 
 	protected static final RowMapper<GroupResourceAssignment> GROUP_RESOURCE_ASSIGNMENT_MAPPER = (resultSet, i) -> {
 		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
 		Group group = GroupsManagerImpl.GROUP_MAPPER.mapRow(resultSet, i);
-		return new GroupResourceAssignment(group, resource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")));
+		String failureCause = resultSet.getString("groups_resources_failure_cause");
+		return new GroupResourceAssignment(group, resource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), failureCause);
 	};
 
 	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = (resultSet, i) -> {
@@ -1271,6 +1273,32 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			int numAffected = jdbc.update("update groups_resources set status=?::group_resource_status, modified_by=?, modified_by_uid=?, " +
 					" modified_at=statement_timestamp() where group_id=? and resource_id=?", status.toString(),
+				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId(), resource.getId());
+			if (numAffected == 0) {
+				throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public String getFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource) {
+		try {
+			return jdbc.queryForObject("select failure_cause from groups_resources where group_id=? and resource_id=?",
+				String.class, group.getId(), resource.getId());
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void setFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource, String cause) throws GroupNotDefinedOnResourceException {
+		try {
+			int numAffected = jdbc.update("update groups_resources set failure_cause=?, modified_by=?, modified_by_uid=?, " +
+					" modified_at=statement_timestamp() where group_id=? and resource_id=?", cause,
 				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId(), resource.getId());
 			if (numAffected == 0) {
 				throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
