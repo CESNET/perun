@@ -8462,6 +8462,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/reserveRandomPassword:
+    post:
+      tags:
+        - UsersManager
+      operationId: reserveRandomPassword
+      summary: Reserves a random password in external authz system. User shouldn't be able to log-in (account disabled, password unknown to him). This is usefull when manager create account for others and later send them password reset request.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/namespace'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
