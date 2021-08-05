@@ -1494,7 +1494,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Async
 	@Override
-	public Member validateMemberAsync(final PerunSession sess, final Member member) {
+	public void validateMemberAsync(final PerunSession sess, final Member member) {
+		// We have to wait because the transaction that created the member, might have not committed yet
+		try {
+			Thread.sleep(5_000);
+		} catch (InterruptedException e) {
+			log.error("Failed to sleep thread for member async validation.", e);
+			throw new RuntimeException(e);
+		}
 		Status oldStatus = Status.getStatus(member.getStatus().getCode());
 		try {
 			((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
@@ -1503,7 +1510,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
 			log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
 		}
-		return member;
 	}
 
 	@Override
