@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 import static cz.metacentrum.perun.core.impl.Utils.emailPattern;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupExchangeMail.vsupExchangeMailAliasesUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupExchangeMail.vsupExchangeMailUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsKeyVsup;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailAliasUrn;
@@ -65,6 +67,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
+		// FIXME - USE vsupExchangeMail AFTER MIGRATION and modify domain in value to "@umprum.cz" in case of using vsupMail (case for service accounts).
 		Attribute resultAttribute = new Attribute(attribute);
 		try {
 			Attribute vsupMailAliasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasUrn);
@@ -86,6 +89,8 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
+		// FIXME - REMOVE checks on vsupMailAlias and vsupMailAliases AFTER MIGRATION
+
 		// map of reserved vsup mails
 		Attribute reservedMailsAttribute;
 		Map<String,String> reservedMailsAttributeValue;
@@ -94,6 +99,8 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 		Attribute vsupMailAttribute;
 		Attribute vsupMailAliasAttribute;
 		Attribute mailAliasesAttribute;
+		Attribute vsupExchangeMailAttribute;
+		Attribute vsupExchangeMailAliasesAttribute;
 
 		// output sets used for comparison
 		Set<String> reservedMailsOfUser = new HashSet<>();
@@ -106,6 +113,8 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 			vsupMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
 			mailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasesUrn);
 			vsupMailAliasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasUrn);
+			vsupExchangeMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailUrn);
+			vsupExchangeMailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailAliasesUrn);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
 		} catch (WrongAttributeAssignmentException e) {
@@ -123,7 +132,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 		if (reservedMailsAttribute.getValue() == null) {
 			reservedMailsAttributeValue = new LinkedHashMap<>();
 		} else {
-			reservedMailsAttributeValue = (Map<String,String>)reservedMailsAttribute.getValue();
+			reservedMailsAttributeValue = reservedMailsAttribute.valueAsMap();
 		}
 
 		// if SET action and mail is already reserved by other user
@@ -145,13 +154,19 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 		}
 
 		if (vsupMailAttribute.getValue() != null) {
-			actualMailsOfUser.add((String)vsupMailAttribute.getValue());
+			actualMailsOfUser.add(vsupMailAttribute.valueAsString());
 		}
 		if (vsupMailAliasAttribute.getValue() != null) {
-			actualMailsOfUser.add((String)vsupMailAliasAttribute.getValue());
+			actualMailsOfUser.add(vsupMailAliasAttribute.valueAsString());
 		}
 		if (mailAliasesAttribute.getValue() != null) {
-			actualMailsOfUser.addAll((ArrayList<String>)mailAliasesAttribute.getValue());
+			actualMailsOfUser.addAll(mailAliasesAttribute.valueAsList());
+		}
+		if (vsupExchangeMailAttribute.getValue() != null) {
+			actualMailsOfUser.add(vsupExchangeMailAttribute.valueAsString());
+		}
+		if (vsupExchangeMailAliasesAttribute.getValue() != null) {
+			actualMailsOfUser.addAll(vsupExchangeMailAliasesAttribute.valueAsList());
 		}
 
 

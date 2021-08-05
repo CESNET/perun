@@ -23,25 +23,22 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupExchangeMail.vsupExchangeMailAliasesUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupExchangeMail.vsupExchangeMailUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.emailPattern;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsKeyVsup;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailAliasUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailAliasesUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupPreferredMailUrn;
 
 /**
  * Storage for all spare mail aliases of a person at VŠUP.
- * Preferred alias (used in Zimbra) is stored in vsupMailAlias attribute !!
- *
- * TODO - REMOVE ONCE MAILS LOGIC IS MIGRATED TO u:d:vsupExchangeMail
+ * Primary mail stored in O365 Exchange server is stored in user:def:vsupExchangeMail attribute !!
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-@Deprecated
-public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_vsupExchangeMailAliases extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
 	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
@@ -50,7 +47,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 
 		for (String mail : mails) {
 			Matcher emailMatcher = emailPattern.matcher(mail);
-			if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Following value of School mail aliases is not in a correct form: '"+mail+"'.");
+			if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Following value of primary mail alias is not in a correct form: '"+mail+"'.");
 		}
 
 		// TODO - check uniqueness within list of values ??
@@ -60,6 +57,8 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
+		// FIXME - REMOVE checks on vsupMailAlias and vsupMailAliases AFTER MIGRATION
+
 		// map of reserved vsup mails
 		Attribute reservedMailsAttribute;
 		Map<String,String> reservedMailsAttributeValue;
@@ -67,9 +66,9 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 		// other vsup mail attributes to get values from
 		Attribute vsupMailAttribute;
 		Attribute mailAliasAttribute;
+		Attribute mailAliasesAttribute;
 		Attribute vsupPreferredMailAttribute;
 		Attribute vsupExchangeMailAttribute;
-		Attribute vsupExchangeMailAliasesAttribute;
 
 		// output sets used for comparison
 		Set<String> reservedMailsOfUser = new HashSet<>();
@@ -81,9 +80,9 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 			reservedMailsAttribute = session.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(session, usedMailsKeyVsup, usedMailsUrn);
 			vsupMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
 			mailAliasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasUrn);
+			mailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasesUrn);
 			vsupPreferredMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupPreferredMailUrn);
 			vsupExchangeMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailUrn);
-			vsupExchangeMailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailAliasesUrn);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
 		} catch (WrongAttributeAssignmentException e) {
@@ -93,7 +92,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 		// if REMOVE action and reserved map is empty -> consistency error
 
 		if (attribute.getValue() == null && reservedMailsAttribute.getValue() == null) {
-			throw new ConsistencyErrorException("Entityless attribute 'urn:perun:entityless:attribute-def:def:usedMails' is empty, but we are removing 'vsupMailAliases' value, so there should have been entry in entityless attribute.");
+			throw new ConsistencyErrorException("Entityless attribute 'urn:perun:entityless:attribute-def:def:usedMails' is empty, but we are removing 'vsupExchangeMailAliases' value, so there should have been entry in entityless attribute.");
 		}
 
 		// get value from reserved mails attribute
@@ -136,13 +135,12 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 		if (mailAliasAttribute.getValue() != null) {
 			actualMailsOfUser.add(mailAliasAttribute.valueAsString());
 		}
+		if (mailAliasesAttribute.getValue() != null) {
+			actualMailsOfUser.addAll(mailAliasesAttribute.valueAsList());
+		}
 		if (vsupExchangeMailAttribute.getValue() != null) {
 			actualMailsOfUser.add(vsupExchangeMailAttribute.valueAsString());
 		}
-		if (vsupExchangeMailAliasesAttribute.getValue() != null) {
-			actualMailsOfUser.addAll(vsupExchangeMailAliasesAttribute.valueAsList());
-		}
-
 
 		// Find which is in the map (reserved) but not in attributes anymore and remove it from the map
 		// handles remove and change action on attribute
@@ -177,10 +175,10 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("vsupMailAliases");
+		attr.setFriendlyName("vsupExchangeMailAliases");
 		attr.setDisplayName("School mail aliases");
 		attr.setType(ArrayList.class.getName());
-		attr.setDescription("Spare school mail aliases of a user. They can be used in Zimbra, but are not preferred. See 'vsupMailAlias' for preferred value.");
+		attr.setDescription("Spare school mail aliases of a user. It contains all former addresses of user from @vsup.cz namespace. Values are filled manually.");
 		return attr;
 	}
 

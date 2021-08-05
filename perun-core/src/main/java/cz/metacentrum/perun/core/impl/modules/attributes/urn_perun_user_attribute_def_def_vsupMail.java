@@ -25,6 +25,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupExchangeMail.vsupExchangeMailAliasesUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupExchangeMail.vsupExchangeMailUrn;
+
 /**
  * Attribute module for storing school mail of persons at VŠUP.
  * Represents user account identifier in Zimbra.
@@ -101,6 +104,8 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
+		// FIXME - REMOVE checks on vsupMailAlias and vsupMailAliases AFTER MIGRATION
+
 		// map of reserved vsup mails
 		Attribute reservedMailsAttribute;
 		Map<String,String> reservedMailsAttributeValue;
@@ -109,6 +114,8 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 		Attribute mailAliasAttribute;
 		Attribute mailAliasesAttribute;
 		Attribute vsupPreferredMailAttribute;
+		Attribute vsupExchangeMailAttribute;
+		Attribute vsupExchangeMailAliasesAttribute;
 
 		// output sets used for comparison
 		Set<String> reservedMailsOfUser = new HashSet<>();
@@ -121,6 +128,8 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 			mailAliasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasUrn);
 			mailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasesUrn);
 			vsupPreferredMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupPreferredMailUrn);
+			vsupExchangeMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailUrn);
+			vsupExchangeMailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailAliasesUrn);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
 		} catch (WrongAttributeAssignmentException e) {
@@ -138,7 +147,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 		if (reservedMailsAttribute.getValue() == null) {
 			reservedMailsAttributeValue = new LinkedHashMap<>();
 		} else {
-			reservedMailsAttributeValue = (Map<String,String>)reservedMailsAttribute.getValue();
+			reservedMailsAttributeValue = reservedMailsAttribute.valueAsMap();
 		}
 
 		// if SET action and mail is already reserved by other user
@@ -160,13 +169,19 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 		}
 
 		if (mailAliasAttribute.getValue() != null) {
-			actualMailsOfUser.add((String)mailAliasAttribute.getValue());
+			actualMailsOfUser.add(mailAliasAttribute.valueAsString());
 		}
 		if (vsupPreferredMailAttribute.getValue() != null) {
-			actualMailsOfUser.add((String)vsupPreferredMailAttribute.getValue());
+			actualMailsOfUser.add(vsupPreferredMailAttribute.valueAsString());
 		}
 		if (mailAliasesAttribute.getValue() != null) {
-			actualMailsOfUser.addAll((ArrayList<String>)mailAliasesAttribute.getValue());
+			actualMailsOfUser.addAll(mailAliasesAttribute.valueAsList());
+		}
+		if (vsupExchangeMailAttribute.getValue() != null) {
+			actualMailsOfUser.add(vsupExchangeMailAttribute.valueAsString());
+		}
+		if (vsupExchangeMailAliasesAttribute.getValue() != null) {
+			actualMailsOfUser.addAll(vsupExchangeMailAliasesAttribute.valueAsList());
 		}
 
 
@@ -197,6 +212,9 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 		}
 
 		// if set, check vsupPreferredMail - if is empty, set vsupMail to vsupPreferredMail
+		// this is OK since we write value only if destinations is empty, so it handles eg. service accounts
+		// FIXME - AFTER MIGRATION write this mail into vsupExchangeMailAliases
+		// FIXME - AFTER MIGRATION write this mail with changed domain to "@umprum.cz" to vsupPreferredMail
 		if (vsupPreferredMailAttribute.getValue() == null && attribute.getValue() != null) {
 			vsupPreferredMailAttribute.setValue(attribute.getValue());
 			try {
