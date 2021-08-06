@@ -1046,7 +1046,9 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "validateMemberAsync");
 		}
 
-		return getMembersManagerBl().validateMemberAsync(sess, member);
+		getMembersManagerBl().validateMemberAsync(sess, member);
+
+		return member;
 	}
 
 	@Override
