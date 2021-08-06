@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
@@ -851,30 +852,57 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Get proper values "TO" for mail message based on VO or GROUP attribute "toEmail"
-	 *
-	 * If group attribute not set and is group application, get vo attribute as backup.
-	 * If no attribute set, BACKUP_FROM address will be used.
+	 * Get proper values "TO" for mail message based on VO or GROUP attribute "toEmail".
+	 * <p>
+	 * If group attribute not set and is group application, notify all corresponding group admins.
+	 * In case group admins not set, use VO attribute.
+	 * If Vo attribute not set (both group or vo application), notify all corresponding VO admins.
+	 * Otherwise, BACKUP_FROM address will be used.
 	 *
 	 * @param app application to decide if it's VO or Group application
-	 *
 	 * @return list of mail addresses to send mail to
 	 */
-	private List<String> getToMailAddresses(Application app){
+	private List<String> getToMailAddresses(Application app) {
 		List<String> result = new ArrayList<>();
 
 		// get proper value from attribute
 		try {
-			Attribute attrToEmail = getMailFromVoAndGroupAttrs(app, URN_VO_TO_EMAIL, URN_GROUP_TO_EMAIL);
+			Attribute attrSenderEmail;
 
-			if (attrToEmail != null && attrToEmail.getValue() != null) {
-				ArrayList<String> value = attrToEmail.valueAsList();
-				for (String adr : value) {
-					if (adr != null && !adr.isEmpty()) {
-						result.add(adr);
+			if (app.getGroup() == null) {
+				// it is a VO application
+				return getMailsFromVo(app, URN_VO_TO_EMAIL);
+			}
+
+			attrSenderEmail = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_TO_EMAIL);
+
+			if (attrSenderEmail == null || attrSenderEmail.getValue() == null) {
+				// not specified toEmail group attribute
+
+				// try to use all group admins with specified preferred emails
+				List<RichUser> admins = AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getGroup(), Role.GROUPADMIN);
+				for (User admin : admins) {
+					attrSenderEmail = attrManager.getAttribute(registrarSession, admin, URN_USER_PREFERRED_MAIL);
+
+					if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
+						result.add(attrSenderEmail.valueAsString());
 					}
 				}
+
+				if (!result.isEmpty()) {
+					return result;
+				}
+				return getMailsFromVo(app, URN_VO_TO_EMAIL);
 			}
+
+			// specified toEmail group attribute, use valid emails
+			ArrayList<String> value = attrSenderEmail.valueAsList();
+			for (String adr : value) {
+				if (adr != null && !adr.isEmpty()) {
+					result.add(adr);
+				}
+			}
+
 		} catch (Exception ex) {
 			// we don't care about exceptions here - we have backup TO/FROM address
 			if (app.getGroup() == null) {
@@ -2113,6 +2141,50 @@ public class MailManagerImpl implements MailManager {
 		message.setSubject(mailSubject);
 
 		return message;
+	}
+
+	/**
+	 * Get notification emails for given VO. If toEmail is not specified, all VO admins are used.
+	 *
+	 * @param app  Application to get VO from
+	 * @param voEmailAttr  String name of given email attribute
+	 * @return list of emails used for sending notifications.
+	 */
+	private List<String> getMailsFromVo(Application app, String voEmailAttr)
+		throws AttributeNotExistsException, WrongAttributeAssignmentException {
+
+		List<String> emails = new ArrayList<>();
+
+		Attribute attrToEmail = attrManager.getAttribute(registrarSession, app.getVo(), voEmailAttr);
+
+		// if there are any pre-defined VO emailTo attributes, use them
+		if (attrToEmail != null && attrToEmail.getValue() != null) {
+			ArrayList<String> value = attrToEmail.valueAsList();
+			for (String adr : value) {
+				if (adr != null && !adr.isEmpty()) {
+					emails.add(adr);
+				}
+			}
+			return emails;
+		}
+
+		// in case no pre-defined attribute was found, use all VO admins with specified preferred email
+		try {
+			List<RichUser> admins = AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getVo(), Role.VOADMIN);
+			Attribute attrPreferredMail;
+
+			for (User admin : admins) {
+				attrPreferredMail = attrManager.getAttribute(registrarSession, admin, URN_USER_PREFERRED_MAIL);
+
+				if (attrPreferredMail != null && attrPreferredMail.getValue() != null) {
+					emails.add(attrPreferredMail.valueAsString());
+				}
+			}
+		} catch (RoleCannotBeManagedException e) {
+			throw new InternalErrorException(e);
+		}
+
+		return emails;
 	}
 
 }
