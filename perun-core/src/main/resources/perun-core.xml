@@ -167,7 +167,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	</tx:advice>
 
 	<!-- Enabling Spring's @Async execution	-->
-	<task:executor id="asyncExecutor" pool-size="10-1000" queue-capacity="1"/>
+	<task:executor id="asyncExecutor" pool-size="20-20" queue-capacity="5000" keep-alive="120" rejection-policy="DISCARD_OLDEST" />
 	<task:annotation-driven executor="asyncExecutor"/>
 
 	<!--FIXME   a hack which forces Spring to call a static method -->

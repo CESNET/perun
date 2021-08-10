@@ -15,6 +15,8 @@ import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.MembershipExtend
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -2858,7 +2860,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public boolean validateEmailFromLink(Map<String, String> urlParameters) throws PerunException {
 
 		String idStr = urlParameters.get("i");
-		if (mailManager.getMessageAuthenticationCode(idStr).equals(urlParameters.get("m"))) {
+		byte[] mac = mailManager.getMessageAuthenticationCode(idStr).getBytes(StandardCharsets.UTF_8);
+		byte[] m = urlParameters.get("m").getBytes(StandardCharsets.UTF_8);
+		if (MessageDigest.isEqual(mac, m)) {
 			int appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
 			// validate mail
 			jdbc.update("update application_data set assurance_level=1 where id = ?", appDataId);

@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
+import org.springframework.scheduling.annotation.Async;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -1219,15 +1220,14 @@ public interface MembersManagerBl {
 
 	/**
 	 * Validate all attributes for member and then set member's status to VALID.
-	 * This method runs asynchronously. It immediately return member with <b>ORIGINAL</b> status and after asynchronous validation sucessfuly finishes
-	 * it switch member's status to VALID. If validation ends with error, member keeps his status.
+	 * This method runs asynchronously. If validation ends with error, member keeps his status.
 	 *
 	 * @param sess
 	 * @param member
-	 * @return member with original status
 	 *
 	 */
-	Member validateMemberAsync(PerunSession sess, Member member);
+	@Async
+	void validateMemberAsync(PerunSession sess, Member member);
 
 	/**
 	 * Set member status to invalid.

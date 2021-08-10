@@ -1,7 +1,7 @@
 
 openapi: 3.0.2
 info:
-  version: 3.28.0
+  version: 0.0.0
   title: Perun RPC API
   description: Perun Remote Procedure Calls Application Programming Interface
   contact:
@@ -359,6 +359,7 @@ components:
       properties:
         enrichedResource: { $ref: '#/components/schemas/EnrichedResource' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
+        failureCause: { type: string }
         facility: { $ref: '#/components/schemas/Facility'}
         resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
 
@@ -367,6 +368,7 @@ components:
       properties:
         enrichedGroup: { $ref: '#/components/schemas/EnrichedGroup' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
+        failureCause: { type: string }
 
     EnrichedHost:
       type: object
@@ -8439,6 +8441,36 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/isLoginAvailable:
+    post:
+      tags:
+        - UsersManager
+      operationId: isLoginAvailable
+      summary: Checks if the login is available in the namespace. Return 1 if yes, 0 if no.
+      parameters:
+        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
+        - $ref: '#/components/parameters/login'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/reserveRandomPassword:
+    post:
+      tags:
+        - UsersManager
+      operationId: reserveRandomPassword
+      summary: Reserves a random password in external authz system. User shouldn't be able to log-in (account disabled, password unknown to him). This is usefull when manager create account for others and later send them password reset request.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/namespace'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

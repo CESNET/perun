@@ -11,12 +11,14 @@ import java.util.Objects;
 public class AssignedResource {
 	private EnrichedResource enrichedResource;
 	private GroupResourceStatus status;
+	private String failureCause;
 	private Facility facility;
 	private List<ResourceTag> resourceTags;
 
-	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, Facility facility) {
+	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, String failureCause, Facility facility) {
 		this.enrichedResource = enrichedResource;
 		this.status = status;
+		this.failureCause = failureCause;
 		this.facility = facility;
 	}
 
@@ -52,6 +54,14 @@ public class AssignedResource {
 		this.resourceTags = resourceTags;
 	}
 
+	public String getFailureCause() {
+		return this.failureCause;
+	}
+
+	public void setFailureCause(String failureCause) {
+		this.failureCause = failureCause;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -71,6 +81,7 @@ public class AssignedResource {
 		return "AssignedResource{" +
 			"enrichedResource=" + enrichedResource +
 			", status=" + status +
+			", failureCause=" + failureCause +
 			", facility=" + facility +
 			", resourceTags=" + resourceTags +
 			'}';

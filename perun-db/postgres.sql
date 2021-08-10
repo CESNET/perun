@@ -1,4 +1,4 @@
--- database version 3.1.83 (don't forget to update insert statement at the end of file)
+-- database version 3.1.84 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -759,6 +759,7 @@ create table groups_resources (
 	modified_by varchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
+	failure_cause varchar default null,
 	constraint grres_grp_res_u unique (group_id,resource_id),
   constraint grres_gr_fk foreign key (group_id) references groups(id),
   constraint grres_res_fk foreign key (resource_id) references resources(id)
@@ -1752,7 +1753,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.83');
+insert into configurations values ('DATABASE VERSION','3.1.84');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

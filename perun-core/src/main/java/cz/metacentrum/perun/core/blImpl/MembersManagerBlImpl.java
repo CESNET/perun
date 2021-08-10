@@ -106,6 +106,7 @@ import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -1491,26 +1492,24 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
+	@Async
 	@Override
-	public Member validateMemberAsync(final PerunSession sess, final Member member) {
-		new Thread(() -> {
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Status oldStatus = Status.getStatus(member.getStatus().getCode());
-
-			try {
-				((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
-			} catch(Exception ex) {
-				log.info("validateMemberAsync failed.", ex);
-				getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
-				log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
-			}
-		}, "validateMemberAsync").start();
-		return member;
+	public void validateMemberAsync(final PerunSession sess, final Member member) {
+		// We have to wait because the transaction that created the member, might have not committed yet
+		try {
+			Thread.sleep(5_000);
+		} catch (InterruptedException e) {
+			log.error("Failed to sleep thread for member async validation.", e);
+			throw new RuntimeException(e);
+		}
+		Status oldStatus = Status.getStatus(member.getStatus().getCode());
+		try {
+			((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
+		} catch(Exception ex) {
+			log.info("validateMemberAsync failed.", ex);
+			getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
+			log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
+		}
 	}
 
 	@Override

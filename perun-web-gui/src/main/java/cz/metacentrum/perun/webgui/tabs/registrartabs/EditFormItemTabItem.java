@@ -65,7 +65,6 @@ public class EditFormItemTabItem implements TabItem {
 	 * Item object
 	 */
 	private ApplicationFormItem item;
-	private boolean forGroup = false;
 	private ArrayList<ApplicationFormItem> otherItems;
 	private JsonCallbackEvents events;
 
@@ -100,19 +99,24 @@ public class EditFormItemTabItem implements TabItem {
 	private Map<String, Map<TextBox, TextBox>> optionsBoxes = new HashMap<String, Map<TextBox, TextBox>>();
 
 	private TabItem tab;
+	private int voId = 0;
+	private int groupId = 0;
 
 	/**
 	 * Creates a tab instance
 	 *
+	 * @param voId
+	 * @param groupId
 	 * @param item
-	 * @param forGroup
+	 * @param otherItems
 	 * @param events
 	 */
-	public EditFormItemTabItem(ApplicationFormItem item, boolean forGroup, ArrayList<ApplicationFormItem> otherItems, JsonCallbackEvents events) {
+	public EditFormItemTabItem(int voId, int groupId, ApplicationFormItem item, ArrayList<ApplicationFormItem> otherItems, JsonCallbackEvents events) {
 		this.item = item;
-		this.forGroup = forGroup;
 		this.otherItems = otherItems;
 		this.events = events;
+		this.voId = voId;
+		this.groupId = groupId;
 	}
 
 	public boolean isPrepared() {
@@ -534,7 +538,7 @@ public class EditFormItemTabItem implements TabItem {
 						} else if (def.getEntity().equalsIgnoreCase("vo")) {
 							// source attributes can be VO too
 							perunSourceAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());
-						} else if (def.getEntity().equalsIgnoreCase("group") && forGroup) {
+						} else if (def.getEntity().equalsIgnoreCase("group") && groupId != 0) {
 							// source attributes can be Group too if form is for group
 							perunSourceAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());
 						}
@@ -756,7 +760,7 @@ public class EditFormItemTabItem implements TabItem {
 			ftf.setColSpan(row, 1, 2);
 
 			row++;
-			ft.setHTML(row, 1, "Select attribute, which will be used to pre-fill form value. You can select also VO "+(forGroup ? "and grou p" : "")+"attributes.");
+			ft.setHTML(row, 1, "Select attribute, which will be used to pre-fill form value. You can select also VO "+(groupId != 0 ? "and group " : "")+"attributes.");
 			ftf.setStyleName(row, 1, "inputFormInlineComment");
 			ftf.setColSpan(row, 1, 2);
 
@@ -1112,25 +1116,21 @@ public class EditFormItemTabItem implements TabItem {
 		return SmallIcons.INSTANCE.addIcon();
 	}
 
-
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EditFormItemTabItem other = (EditFormItemTabItem) o;
+		if (voId != other.voId || groupId != other.groupId)
+			return false;
+		return true;
+	}
+
 	public int hashCode() {
 		final int prime = 991;
 		int result = 1;
-		result = prime * result + 672;
+		result = prime * result + 672 + voId + groupId;
 		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-
-		return true;
 	}
 
 	public boolean multipleInstancesEnabled() {
@@ -1142,7 +1142,7 @@ public class EditFormItemTabItem implements TabItem {
 
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin() || session.isGroupAdmin()) {
+		if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
 			return true;
 		} else {
 			return false;

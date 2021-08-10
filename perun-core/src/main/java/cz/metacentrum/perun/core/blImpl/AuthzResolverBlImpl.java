@@ -1302,6 +1302,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, richAdminsWithAttributes);
 	}
 
+	/**
+	 * Get all richUser administrators for complementary object and role without any attributes.
+	 *
+	 * @param sess perun session
+	 * @param complementaryObject for which we will get administrator
+	 * @param role expected role to filter managers by
+	 *
+	 * @return list of richUser administrators for complementary object and role.
+	 */
+	public static List<RichUser> getRichAdmins(PerunSession sess, PerunBean complementaryObject, String role) throws RoleCannotBeManagedException {
+		return getRichAdmins(sess, complementaryObject, Collections.emptyList(), role, false, false);
+	}
+
 	public String toString() {
 		return getClass().getSimpleName() + ":[]";
 	}
