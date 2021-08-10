@@ -424,7 +424,11 @@ public class GetFormItems implements JsonCallback {
 			CustomButton editButton = new CustomButton(ButtonTranslation.INSTANCE.editFormItemButton(), ButtonTranslation.INSTANCE.editFormItem(), SmallIcons.INSTANCE.applicationFormEditIcon());
 			editButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, group != null, applFormItems, refreshEvents));
+					if (group == null) {
+						session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(id, 0, item, applFormItems, refreshEvents));
+					} else {
+						session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(group.getVoId(), group.getId(), item, applFormItems, refreshEvents));
+					}
 				}
 			});
 			editTable.setWidget(0, 2, editButton);

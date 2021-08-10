@@ -185,7 +185,7 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		// add button
 		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(currentTemporaryId, sourceList, true, refreshEvents));
+				session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(group.getVoId(), group.getId(), currentTemporaryId, sourceList, refreshEvents));
 				currentTemporaryId--;
 			}
 		});

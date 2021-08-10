@@ -187,7 +187,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		// add button
 		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(currentTemporaryId, sourceList, refreshEvents));
+				session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(voId, 0, currentTemporaryId, sourceList, refreshEvents));
 				currentTemporaryId--;
 			}
 		});

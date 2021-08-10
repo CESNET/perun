@@ -57,7 +57,9 @@ public class CreateFormItemTabItem implements TabItem {
 
 	private int itemId = 0;
 	private JsonCallbackEvents events;
-	private boolean forGroup = false;
+
+	private int voId = 0;
+	private int groupId = 0;
 
 	public static final Map<String, String> inputTypes;
 	static {
@@ -87,20 +89,18 @@ public class CreateFormItemTabItem implements TabItem {
 
 	/**
 	 * Creates a tab instance
+	 *
+	 * @param voId
+	 * @param groupId
+	 * @param itemId
+	 * @param sourceList
+	 * @param events
 	 */
-	public CreateFormItemTabItem(int itemId, ArrayList<ApplicationFormItem> sourceList, JsonCallbackEvents events) {
+	public CreateFormItemTabItem(int voId, int groupId, int itemId, ArrayList<ApplicationFormItem> sourceList, JsonCallbackEvents events) {
+		this.voId = voId;
+		this.groupId = groupId;
 		this.itemId = itemId;
 		this.sourceList = sourceList;
-		this.events = events;
-	}
-
-	/**
-	 * Creates a tab instance
-	 */
-	public CreateFormItemTabItem(int itemId, ArrayList<ApplicationFormItem> sourceList, boolean forGroup, JsonCallbackEvents events) {
-		this.itemId = itemId;
-		this.sourceList = sourceList;
-		this.forGroup = forGroup;
 		this.events = events;
 	}
 
@@ -286,7 +286,7 @@ public class CreateFormItemTabItem implements TabItem {
 		item.setOrdnum(positionToAdd);
 		sourceList.add(positionToAdd, item);
 
-		session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, forGroup, sourceList, events));
+		session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(voId, groupId, item, sourceList, events));
 
 		events.onFinished(item);
 
@@ -309,7 +309,7 @@ public class CreateFormItemTabItem implements TabItem {
 	public int hashCode() {
 		final int prime = 983;
 		int result = 1;
-		result = prime * result + 672;
+		result = prime * result + 672 + voId + groupId;
 		return result;
 	}
 
@@ -320,6 +320,9 @@ public class CreateFormItemTabItem implements TabItem {
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
+			return false;
+		CreateFormItemTabItem other = (CreateFormItemTabItem) obj;
+		if (voId != other.voId || groupId != other.groupId)
 			return false;
 
 		return true;
