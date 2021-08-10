@@ -1,8 +1,11 @@
 package Perun::Agent;
-my $agentVersionMajor = '3';
-my $agentVersionMinor = '29';
-my $agentVersionPatch = '0';
-my $agentVersion = $agentVersionMajor . "." . $agentVersionMinor . "." . $agentVersionPatch;
+my $agentVersion = '0.0.0';
+my $agentVersionMajor;
+if ($agentVersion !~ /^(\d+)(?{ $agentVersionMajor = $^N })\..*/i)
+{
+	die Perun::Exception->fromHash( { type => WRONG_AGENT_VERSION, errorInfo =>
+		"Tools have an invalid version: $agentVersion" } );
+}
 
 use strict;
 use warnings;
