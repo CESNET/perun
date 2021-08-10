@@ -1144,7 +1144,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		getResourcesManagerImpl().setFailedGroupResourceAssignmentCause(sess, group, resource, null);
 
 		// if there are no services, the members are empty and there is nothing more to process
-		if (getAssignedServices(sess, resource).isEmpty()) return;
+		if (getAssignedServices(sess, resource).isEmpty()) {
+			getPerunBl().getAuditer().log(sess, new GroupAssignedToResource(group, resource));
+			return;
+		}
 
 		// get/fill/set all required group and group-resource attributes
 		try {
