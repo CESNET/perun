@@ -203,4 +203,9 @@ sub getSponsorsForMember
 	return Perun::Common::callManagerMethod('getSponsorsForMember', '[]Sponsor', @_);
 }
 
+sub anonymizeUser
+{
+	return Perun::Common::callManagerMethod('anonymizeUser', 'null', @_);
+}
+
 1;
