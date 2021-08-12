@@ -8447,6 +8447,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/anonymizeUser:
+    post:
+      tags:
+        - UsersManager
+      operationId: anonymizeUser
+      summary:  Anonymizes user - according to configuration, each of user's attributes is either anonymized, kept untouched or deleted. Also deletes other user's related data, e.g. authorships of users publications, mail change and password reset requests, bans...
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/isLoginAvailable:
     post:
       tags:
