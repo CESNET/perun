@@ -360,11 +360,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) {
 		try  {
 			// we do include all group statuses for such members
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id and groups_resources.status=?::group_resource_status" +
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+							" join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id " +
-							" join resources on groups_resources.resource_id=resources.id " +
+							" join resources on groups_resources_state.resource_id=resources.id " +
 							" where resources.facility_id=? and members.status!=? and members.status!=?",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(),
 					facility.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
@@ -379,8 +379,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility) {
 		try  {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from resources" +
-							" join groups_resources on groups_resources.resource_id=resources.id and groups_resources.status=?::group_resource_status"+
-							" join groups_members on groups_resources.group_id=groups_members.group_id" +
+							" join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status=?::group_resource_status"+
+							" join groups_members on groups_resources_state.group_id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" join users on members.user_id=users.id" +
 							" where resources.facility_id=? and members.status!=? and members.status!=?",
@@ -394,11 +394,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<Facility> getAllowedFacilities(PerunSession sess, User user) {
 		try  {
-			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id and groups_resources.status=?::group_resource_status" +
+			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources_state" +
+							" join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id " +
-							" join resources on groups_resources.resource_id=resources.id " +
+							" join resources on groups_resources_state.resource_id=resources.id " +
 							" join facilities on resources.facility_id=facilities.id " +
 							" where members.user_id=? and members.status!=? and members.status!=?",
 					FACILITY_MAPPER, GroupResourceStatus.ACTIVE.toString(), user.getId(),
@@ -411,11 +411,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<Facility> getAllowedFacilities(PerunSession sess, Member member) {
 		try  {
-			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id and groups_resources.status=?::group_resource_status" +
+			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources_state" +
+							" join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id " +
-							" join resources on groups_resources.resource_id=resources.id " +
+							" join resources on groups_resources_state.resource_id=resources.id " +
 							" join facilities on resources.facility_id=facilities.id " +
 							" where members.id=? and members.status!=? and members.status!=?",
 					FACILITY_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId(),
@@ -726,8 +726,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users"
 					+ " join members on users.id = members.user_id"
 					+ " join groups_members on members.id = groups_members.member_id"
-					+ " join groups_resources on groups_members.group_id = groups_resources.group_id and groups_resources.status=?::group_resource_status"
-					+ " join resources on resources.id = groups_resources.resource_id and resources.facility_id=?",
+					+ " join groups_resources_state on groups_members.group_id = groups_resources_state.group_id and groups_resources_state.status=?::group_resource_status"
+					+ " join resources on resources.id = groups_resources_state.resource_id and resources.facility_id=?",
 					UsersManagerImpl.USER_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -741,8 +741,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users"
 					+ " join members on users.id = members.user_id"
 					+ " join groups_members on members.id = groups_members.member_id"
-					+ " join groups_resources on groups_members.group_id = groups_resources.group_id and groups_resources.status=?::group_resource_status"
-					+ " join resources on resources.id = groups_resources.resource_id and resources.facility_id=?"
+					+ " join groups_resources_state on groups_members.group_id = groups_resources_state.group_id and groups_resources_state.status=?::group_resource_status"
+					+ " join resources on resources.id = groups_resources_state.resource_id and resources.facility_id=?"
 					+ " join resource_services on resources.id=resource_services.resource_id and resource_services.service_id=?",
 					UsersManagerImpl.USER_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(),service.getId());
 		} catch (RuntimeException e) {

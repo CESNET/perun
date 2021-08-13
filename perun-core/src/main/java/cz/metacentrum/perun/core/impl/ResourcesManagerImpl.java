@@ -77,10 +77,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources.created_at as resources_created_at, resources.created_by as resources_created_by, resources.modified_by as resources_modified_by, " +
 		"resources.modified_at as resources_modified_at, resources.modified_by_uid as resources_modified_by_uid, resources.created_by_uid as resources_created_by_uid";
 
-	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status, groups_resources.failure_cause as groups_resources_failure_cause" +
+	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
 		", " + FacilitiesManagerImpl.facilityMappingSelectQuery;
 
-	protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources.status as groups_resources_status, groups_resources.failure_cause as groups_resources_failure_cause" +
+	protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
 		", " + GroupsManagerImpl.groupMappingSelectQuery;
 
 	protected final static String resourceTagMappingSelectQuery = "res_tags.id as res_tags_id, res_tags.vo_id as res_tags_vo_id, res_tags.tag_name as res_tags_tag_name, " +
@@ -116,16 +116,16 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	protected static final RowMapper<AssignedResource> ASSIGNED_RESOURCE_MAPPER = (resultSet, i) -> {
 		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
 		EnrichedResource enrichedResource = new EnrichedResource(resource, null);
-		String failureCause = resultSet.getString("groups_resources_failure_cause");
+		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
 		Facility facility = FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i);
-		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), failureCause, facility);
+		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), failureCause, facility);
 	};
 
 	protected static final RowMapper<GroupResourceAssignment> GROUP_RESOURCE_ASSIGNMENT_MAPPER = (resultSet, i) -> {
 		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
 		Group group = GroupsManagerImpl.GROUP_MAPPER.mapRow(resultSet, i);
-		String failureCause = resultSet.getString("groups_resources_failure_cause");
-		return new GroupResourceAssignment(group, resource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), failureCause);
+		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
+		return new GroupResourceAssignment(group, resource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), failureCause);
 	};
 
 	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = (resultSet, i) -> {
@@ -383,12 +383,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<User> getAssignedUsers(PerunSession sess, Resource resource) {
 		try  {
-			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources" +
-					" join groups on groups_resources.group_id=groups.id" +
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id" +
 					" join users on users.id=members.user_id" +
-					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status",
+					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
 					UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -400,12 +400,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Resource resource) {
 		try  {
-			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id" +
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+							" join groups on groups_resources_state.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" join users on users.id=members.user_id" +
-							" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status and members.status!=? and members.status!=?",
+							" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status and members.status!=? and members.status!=?",
 					UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -417,12 +417,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) {
 		try  {
-			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id" +
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+							" join groups on groups_resources_state.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" join users on users.id=members.user_id" +
-							" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status " +
+							" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
 							" and members.status!=? and members.status!=? and groups_members.source_group_status =?",
 					UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), Status.INVALID.getCode(),
 					Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
@@ -437,8 +437,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
-					" join groups_resources on groups_resources.resource_id=resources.id and groups_resources.status=?::group_resource_status " +
-					" join groups_members on groups_members.group_id=groups_resources.group_id" +
+					" join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status=?::group_resource_status " +
+					" join groups_members on groups_members.group_id=groups_resources_state.group_id" +
 					" join members on members.id=groups_members.member_id" +
 					" where resources.facility_id=? and members.user_id=? and members.status!=? and members.status!=?",
 					RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(), user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
@@ -452,11 +452,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) {
 		try  {
-			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id and groups_resources.status=?::group_resource_status " +
+			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources_state" +
+							" join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status " +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
-							" where groups_resources.resource_id=? and members.status!=? and members.status!=?",
+							" where groups_resources_state.resource_id=? and members.status!=? and members.status!=?",
 					MEMBER_MAPPER, GroupResourceStatus.ACTIVE.toString(), resource.getId(),
 					Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (EmptyResultDataAccessException e) {
@@ -470,11 +470,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource) {
 		try  {
 			// we do include all group statuses for such members
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources" +
-							" join groups on groups_resources.group_id=groups.id" +
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+							" join groups on groups_resources_state.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id " +
-							" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status " +
+							" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
 							" and members.status!=? and members.status!=? and groups_members.source_group_status =?",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), GroupResourceStatus.ACTIVE.toString(),
 					Status.INVALID.getCode(), Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
@@ -489,11 +489,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) {
 		try  {
 			// we do include all group statuses for such members
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources" +
-					" join groups on groups_resources.group_id=groups.id" +
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id " +
-					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status",
+					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -505,11 +505,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public boolean isUserAssigned(PerunSession sess, User user, Resource resource) {
 		try {
-			return (0 < jdbc.queryForInt("select count(*) from groups_resources" +
-					" join groups on groups_resources.group_id=groups.id" +
+			return (0 < jdbc.queryForInt("select count(*) from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id" +
-					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status and members.user_id=?",
+					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status and members.user_id=?",
 					resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId()));
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -519,11 +519,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) {
 		try {
-			return (0 < jdbc.queryForInt("select count(*) from groups_resources" +
-					" join groups on groups_resources.group_id=groups.id" +
+			return (0 < jdbc.queryForInt("select count(*) from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join members on groups_members.member_id=members.id" +
-					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status " +
+					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
 					" and members.user_id=? and members.status!=? and members.status!=?",
 					resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId(), Status.INVALID.getCode(),
 					Status.DISABLED.getCode()));
@@ -533,16 +533,26 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) throws GroupAlreadyAssignedException {
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws GroupAlreadyAssignedException {
 		try {
 			if(1==jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId())) {
 				throw new GroupAlreadyAssignedException(group);
 			}else{
-				jdbc.update("insert into groups_resources (group_id, resource_id, status, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid) " +
-						"values (?,?,?::group_resource_status,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", group.getId(),
-						resource.getId(), status.toString(), sess.getPerunPrincipal().getActor(),
+				jdbc.update("insert into groups_resources (group_id, resource_id, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid) " +
+						"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", group.getId(),
+						resource.getId(), sess.getPerunPrincipal().getActor(),
 						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			}
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void assignGroupToResourceState(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) {
+		try {
+			jdbc.update("insert into groups_resources_state (group_id, resource_id, status) values (?,?,?::group_resource_status)",
+				group.getId(), resource.getId(), status.toString());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -563,8 +573,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Resource> getAssignedResources(PerunSession sess, Group group) {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
-							" join groups_resources on resources.id=groups_resources.resource_id" +
-							" where groups_resources.group_id=? and groups_resources.status=?::group_resource_status",
+							" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
+							" where groups_resources_state.group_id=? and groups_resources_state.status=?::group_resource_status",
 					RESOURCE_MAPPER, group.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -577,8 +587,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Resource> getAssignedResources(PerunSession sess, Member member) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
-					" join groups on groups_resources.group_id=groups.id" +
+					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+					" join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id " +
 					" where groups_members.member_id=?",
 					RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId());
@@ -593,8 +603,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
-					" join groups on groups_resources.group_id=groups.id" +
+					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+					" join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" join resource_services on resource_services.resource_id=resources.id" +
 					" where groups_members.member_id=? and resource_services.service_id=?",
@@ -611,8 +621,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try  {
 			// FIXME - can we optimize SQL to limit joined data at start (limit resources.vo_id) ?
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-							" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
-							" join groups on groups_resources.group_id=groups.id" +
+							" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+							" join groups on groups_resources_state.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" where members.user_id=? and members.vo_id=?",
@@ -633,10 +643,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 					" join vos on resources.vo_id=vos.id" +
 					" join facilities on resources.facility_id=facilities.id" +
-					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status" +
+					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status" +
 					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
 					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
-					" where groups_resources.group_id=?",
+					" where groups_resources_state.group_id=?",
 					RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), group.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -652,8 +662,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 					" join vos on resources.vo_id=vos.id" +
 					" join facilities on resources.facility_id=facilities.id" +
-					" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
-					" join groups on groups_resources.group_id=groups.id" +
+					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+					" join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id" +
 					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
 					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
@@ -673,8 +683,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 							" join vos on resources.vo_id=vos.id" +
 							" join facilities on resources.facility_id=facilities.id" +
-							" join groups_resources on resources.id=groups_resources.resource_id and groups_resources.status=?::group_resource_status " +
-							" join groups on groups_resources.group_id=groups.id" +
+							" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+							" join groups on groups_resources_state.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join resource_services on resource_services.resource_id=resources.id" +
 							" left outer join tags_resources on resources.id=tags_resources.resource_id" +
@@ -691,7 +701,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public boolean isGroupAssigned(PerunSession sess, Group group, Resource resource) {
 		try {
-			return 1 == jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=? and status=?::group_resource_status",
+			return 1 == jdbc.queryForInt("select count(1) from groups_resources_state where group_id=? and resource_id=? and status=?::group_resource_status",
 				group.getId(), resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -1216,9 +1226,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<AssignedResource> getResourceAssignments(PerunSession sess, Group group) {
 		try {
 			return jdbc.query("select " + assignedResourceMappingSelectQuery + " from resources" +
-					" join groups_resources on resources.id=groups_resources.resource_id" +
+					" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
 					" join facilities on resources.facility_id=facilities.id" +
-					" where groups_resources.group_id=?", ASSIGNED_RESOURCE_MAPPER, group.getId());
+					" where groups_resources_state.group_id=?", ASSIGNED_RESOURCE_MAPPER, group.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1228,8 +1238,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource) {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.assignedGroupMappingSelectQuery + " from groups join " +
-					" groups_resources on groups.id=groups_resources.group_id " +
-					" where groups_resources.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
+					" groups_resources_state on groups.id=groups_resources_state.group_id " +
+					" where groups_resources_state.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1247,9 +1257,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 				.collect(Collectors.joining(", "));
 
 			return jdbc.query("select " + groupResourceAssignmentMappingSelectQuery + " from groups " +
-				" join groups_resources on groups.id=groups_resources.group_id " +
-				" join resources on resources.id=groups_resources.resource_id " +
-				" where groups_resources.status in (" + statusesSql + ")", GROUP_RESOURCE_ASSIGNMENT_MAPPER);
+				" join groups_resources_state on groups.id=groups_resources_state.group_id " +
+				" join resources on resources.id=groups_resources_state.resource_id " +
+				" where groups_resources_state.status in (" + statusesSql + ")", GROUP_RESOURCE_ASSIGNMENT_MAPPER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1258,7 +1268,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public GroupResourceStatus getGroupResourceStatus(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException {
 		try {
-			String status = jdbc.queryForObject("select status from groups_resources where group_id=? and resource_id=?",
+			String status = jdbc.queryForObject("select status from groups_resources_state where group_id=? and resource_id=?",
 				String.class, group.getId(), resource.getId());
 			return GroupResourceStatus.valueOf(status);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1271,9 +1281,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public void setGroupResourceStatus(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) throws GroupNotDefinedOnResourceException {
 		try {
-			int numAffected = jdbc.update("update groups_resources set status=?::group_resource_status, modified_by=?, modified_by_uid=?, " +
-					" modified_at=statement_timestamp() where group_id=? and resource_id=?", status.toString(),
-				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId(), resource.getId());
+			int numAffected = jdbc.update("update groups_resources_state set status=?::group_resource_status" +
+					" where group_id=? and resource_id=?", status.toString(), group.getId(), resource.getId());
 			if (numAffected == 0) {
 				throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
 			}
@@ -1285,7 +1294,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public String getFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource) {
 		try {
-			return jdbc.queryForObject("select failure_cause from groups_resources where group_id=? and resource_id=?",
+			return jdbc.queryForObject("select failure_cause from groups_resources_state where group_id=? and resource_id=?",
 				String.class, group.getId(), resource.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
@@ -1297,9 +1306,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public void setFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource, String cause) throws GroupNotDefinedOnResourceException {
 		try {
-			int numAffected = jdbc.update("update groups_resources set failure_cause=?, modified_by=?, modified_by_uid=?, " +
-					" modified_at=statement_timestamp() where group_id=? and resource_id=?", cause,
-				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId(), resource.getId());
+			int numAffected = jdbc.update("update groups_resources_state set failure_cause=?" +
+					" where group_id=? and resource_id=?", cause, group.getId(), resource.getId());
 			if (numAffected == 0) {
 				throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
 			}

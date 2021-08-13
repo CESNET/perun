@@ -6,6 +6,18 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.85
+create function relation_group_resource_exist(integer, integer) returns integer as 'select count(1) from groups_resources where group_id=$1 and resource_id=$2;' language sql;
+create table groups_resources_state (group_id integer not null, resource_id integer not null, failure_cause varchar default null, status group_resource_status not null default 'PROCESSING', check (relation_group_resource_exist(group_id, resource_id) != 0));
+create function delete_group_resource_status() returns trigger as 'begin delete from groups_resources_state where group_id=OLD.group_id and resource_id=OLD.resource_id; return OLD; end;' language plpgsql;
+create trigger after_deleting_from_groups_resources after delete on groups_resources for each row execute procedure delete_group_resource_status();
+create index idx_fk_grres_s_gr on groups_resources_state(group_id);
+create index idx_fk_grres_s_res on groups_resources_state(resource_id);
+grant all on groups_resources_state to perun;
+insert into groups_resources_state (group_id, resource_id, failure_cause, status) select group_id, resource_id, failure_cause, status from groups_resources;
+alter table groups_resources drop column status, drop column failure_cause;
+UPDATE configurations SET value='3.1.85' WHERE property='DATABASE VERSION';
+
 3.1.84
 ALTER TABLE groups_resources ADD COLUMN failure_cause varchar default null;
 UPDATE configurations SET value='3.1.84' WHERE property='DATABASE VERSION';

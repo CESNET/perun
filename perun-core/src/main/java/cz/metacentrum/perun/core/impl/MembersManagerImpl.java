@@ -590,9 +590,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		try {
 			Member result = jdbc.queryForObject("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery +
-							" from groups_resources join groups on groups_resources.group_id=groups.id" +
+							" from groups_resources_state join groups on groups_resources_state.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
-					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status and members.id=?",
+					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status and members.id=?",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
 					GroupResourceStatus.ACTIVE.toString(), member.getId());
 			return result.getGroupStatus();
@@ -610,10 +610,10 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		try {
 
 			List<Member> result = jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery +
-							" from groups_resources join groups on groups_resources.group_id=groups.id" +
+							" from groups_resources_state join groups on groups_resources_state.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
-							" join resources on groups_resources.resource_id=resources.id " +
-							" where groups_resources.status=?::group_resource_status and resources.facility_id=? and members.user_id=?",
+							" join resources on groups_resources_state.resource_id=resources.id " +
+							" where groups_resources_state.status=?::group_resource_status and resources.facility_id=? and members.user_id=?",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(),
 					facility.getId(), user.getId());
 
