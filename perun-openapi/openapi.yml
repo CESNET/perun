@@ -11055,7 +11055,7 @@ paths:
       description: Throws GroupNotExistsException when the group doesn't exist.
       parameters:
         - { name: groupId, description: "id of Group", schema: { type: integer }, in: query, required: true }
-        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/attrNamesOptional'
       responses:
         '200':
           $ref: '#/components/responses/RichGroupResponse'
