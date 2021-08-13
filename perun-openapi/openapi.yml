@@ -5228,7 +5228,14 @@ paths:
         - AttributesManager
       operationId: getAttributeDefinitionsByNamespace
       summary: Returns all AttributeDefinitions in a namespace.
-      parameters: [ ]
+      parameters:
+        - {
+            name: namespace,
+            description: "name of namespace to obtain attribute definitions from",
+            schema: { type: string },
+            in: query,
+            required: true          
+        }
       responses:
         '200':
           $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
@@ -7722,6 +7729,41 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RichUserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUsers:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUsers
+      summary: Returns all users 
+      description: Returns list of objects representing the User 
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+  
+  /json/usersManager/getAllRichUsersWithAttributes:
+    get:
+      tags:
+        - UsersManager
+      operationId: getAllRichUsersWithAttributes
+      summary: Returns users with attributes
+      description: Returns list of objects representing the User with attributes
+      parameters:
+        - { name: includedSpecificUsers,
+            description: "if you want to or don't want to get specificUsers too",
+            schema: {
+              type: boolean,
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
