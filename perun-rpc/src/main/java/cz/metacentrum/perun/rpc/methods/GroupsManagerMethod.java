@@ -1623,7 +1623,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 			return ac.getGroupsManager().getRichGroupByIdWithAttributesByNames(ac.getSession(),
 					parms.readInt("groupId"),
-					parms.readList("attrNames", String.class));
+					parms.contains("attrNames") ? parms.readList("attrNames", String.class) : null);
 		}
 	},
 
