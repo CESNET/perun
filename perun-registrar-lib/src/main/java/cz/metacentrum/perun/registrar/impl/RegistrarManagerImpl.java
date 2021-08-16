@@ -191,7 +191,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	// regular expression to match alfanumeric contents
 	private static final Pattern alnumPattern = Pattern.compile(".*\\p{Alnum}+.*", Pattern.UNICODE_CHARACTER_CLASS);
-	
+
 	private final Set<String> runningCreateApplication = new HashSet<>();
 	private final Set<Integer> runningApproveApplication = new HashSet<>();
 	private final Set<Integer> runningRejectApplication = new HashSet<>();
@@ -2063,7 +2063,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (state == null || state.isEmpty()) {
 			// list all
 			try {
-				return jdbc.query(APP_SELECT + " where a.vo_id=? " 
+				return jdbc.query(APP_SELECT + " where a.vo_id=? "
 						+ (includeGroupApplications ? "" : " and a.group_id is null ")
 						+ " order by a.id desc", APP_MAPPER, vo.getId());
 			} catch (EmptyResultDataAccessException ex) {
@@ -2075,7 +2075,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 				sqlParameterSource.addValue("voId", vo.getId());
 				sqlParameterSource.addValue("states", state);
-				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) " 
+				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) "
 						+ (includeGroupApplications ? "" : " and a.group_id is null ")
 						+ " order by a.id desc", sqlParameterSource, APP_MAPPER);
 			} catch (EmptyResultDataAccessException ex) {
@@ -2392,11 +2392,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
 		Map<String, String> federValues = sess.getPerunPrincipal().getAdditionalInformations();
 
-		RegistrarModule module = getRegistrarModule(form);
-		if (module != null) module.canBeSubmitted(sess, appType, federValues);
-
 		// throws exception if user couldn't submit application - no reason to get form
 		checkDuplicateRegistrationAttempt(sess, appType, form);
+
+		RegistrarModule module = getRegistrarModule(form);
+		if (module != null) module.canBeSubmitted(sess, appType, federValues);
 
 		// PROCEED
 		Map<String, String> parsedName = extractNames(federValues);
