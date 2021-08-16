@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Anonymizes a user. User id is required.
+	--------------------------------------
+	Available options:
+	--userId     | -u user id
+	--batch      | -b batch
+	--help       | -h prints this help
+
+	};
+}
+
+my ($userId, $batch);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"userId|u=i"     => \$userId) || die help();
+
+# Check options
+unless (defined($userId)) { die "ERROR: userId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+
+$usersAgent->anonymizeUser( user => $userId);
+
+printMessage("User Id:$userId successfully anonymized", $batch);
