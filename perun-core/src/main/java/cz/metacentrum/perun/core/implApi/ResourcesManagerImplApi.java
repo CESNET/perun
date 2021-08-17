@@ -173,6 +173,18 @@ public interface ResourcesManagerImplApi {
 	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyRemovedFromResourceException;
 
 	/**
+	 * Remove automatically assigned group from resource.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param resource
+	 * @param sourceGroupId id of a source group through which was the group automatically assigned
+	 * @throws InternalErrorException
+	 * @throws GroupAlreadyRemovedFromResourceException if there are 0 rows affected by removing group from resource
+	 */
+	void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupAlreadyRemovedFromResourceException;
+
+	/**
 	 * Check if the user is assigned as a member on the selected resource.
 	 *
 	 * @param sess

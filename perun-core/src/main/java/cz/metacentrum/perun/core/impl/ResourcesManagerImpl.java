@@ -37,7 +37,6 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -78,7 +77,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources.modified_at as resources_modified_at, resources.modified_by_uid as resources_modified_by_uid, resources.created_by_uid as resources_created_by_uid";
 
 	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
-		", " + FacilitiesManagerImpl.facilityMappingSelectQuery;
+		", groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id, " + FacilitiesManagerImpl.facilityMappingSelectQuery;
 
 	protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
 		", " + GroupsManagerImpl.groupMappingSelectQuery;
@@ -116,9 +115,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	protected static final RowMapper<AssignedResource> ASSIGNED_RESOURCE_MAPPER = (resultSet, i) -> {
 		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
 		EnrichedResource enrichedResource = new EnrichedResource(resource, null);
+		Integer sourceGroupId = resultSet.getInt("groups_resources_automatic_source_group_id");
+		sourceGroupId = resultSet.wasNull() ? null : sourceGroupId;
 		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
 		Facility facility = FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i);
-		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), failureCause, facility);
+		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), sourceGroupId, failureCause, facility);
 	};
 
 	protected static final RowMapper<GroupResourceAssignment> GROUP_RESOURCE_ASSIGNMENT_MAPPER = (resultSet, i) -> {
@@ -563,6 +564,17 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			int numAffected = jdbc.update("delete from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId());
 			if(numAffected == 0) throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupAlreadyRemovedFromResourceException {
+		try {
+			int numAffected = jdbc.update("delete from groups_resources_automatic where group_id=? and resource_id=? and source_group_id=?",
+				group.getId(), resource.getId(), sourceGroupId);
+			if (numAffected == 0) throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -1226,9 +1238,13 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<AssignedResource> getResourceAssignments(PerunSession sess, Group group) {
 		try {
 			return jdbc.query("select " + assignedResourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
-					" join facilities on resources.facility_id=facilities.id" +
-					" where groups_resources_state.group_id=?", ASSIGNED_RESOURCE_MAPPER, group.getId());
+				" join (SELECT group_id, resource_id, NULL as source_group_id FROM groups_resources" +
+					"	UNION" +
+					"	SELECT group_id, resource_id, source_group_id FROM groups_resources_automatic)" +
+				" 	groups_resources_automatic on groups_resources_automatic.resource_id = resources.id" +
+				" join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
+				" join facilities on resources.facility_id=facilities.id" +
+				" where groups_resources_state.group_id=?", ASSIGNED_RESOURCE_MAPPER, group.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1238,7 +1254,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource) {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.assignedGroupMappingSelectQuery + " from groups join " +
-					" groups_resources_state on groups.id=groups_resources_state.group_id " +
+					" (SELECT group_id, resource_id, NULL as source_group_id FROM groups_resources" +
+					"	UNION" +
+					"	SELECT group_id, resource_id, source_group_id FROM groups_resources_automatic)" +
+					" 	groups_resources_automatic on groups_resources_automatic.group_id = groups.id" +
+					" join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
 					" where groups_resources_state.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

@@ -11,13 +11,15 @@ import java.util.Objects;
 public class AssignedResource {
 	private EnrichedResource enrichedResource;
 	private GroupResourceStatus status;
+	private Integer sourceGroupId;
 	private String failureCause;
 	private Facility facility;
 	private List<ResourceTag> resourceTags;
 
-	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, String failureCause, Facility facility) {
+	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, Integer sourceGroupId, String failureCause, Facility facility) {
 		this.enrichedResource = enrichedResource;
 		this.status = status;
+		this.sourceGroupId = sourceGroupId;
 		this.failureCause = failureCause;
 		this.facility = facility;
 	}
@@ -36,6 +38,14 @@ public class AssignedResource {
 
 	public void setStatus(GroupResourceStatus status) {
 		this.status = status;
+	}
+
+	public Integer getSourceGroupId() {
+		return sourceGroupId;
+	}
+
+	public void setSourceGroupId(Integer sourceGroupId) {
+		this.sourceGroupId = sourceGroupId;
 	}
 
 	public Facility getFacility() {
@@ -67,13 +77,13 @@ public class AssignedResource {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AssignedResource that = (AssignedResource) o;
-		return Objects.equals(getEnrichedResource(), that.getEnrichedResource()) &&
-			getStatus() == that.getStatus() && Objects.equals(getFacility(), that.getFacility());
+		return Objects.equals(getEnrichedResource(), that.getEnrichedResource()) && getStatus() == that.getStatus()
+			&& Objects.equals(getSourceGroupId(), that.getSourceGroupId()) && Objects.equals(getFacility(), that.getFacility());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getEnrichedResource(), getStatus(), getFacility());
+		return Objects.hash(getEnrichedResource(), getStatus(), getSourceGroupId(), getFacility());
 	}
 
 	@Override
@@ -81,6 +91,7 @@ public class AssignedResource {
 		return "AssignedResource{" +
 			"enrichedResource=" + enrichedResource +
 			", status=" + status +
+			", sourceGroupId=" + sourceGroupId +
 			", failureCause=" + failureCause +
 			", facility=" + facility +
 			", resourceTags=" + resourceTags +

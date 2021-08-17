@@ -386,6 +386,21 @@ public interface ResourcesManagerBl {
 	void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
 
 	/**
+	 * Remove automatically assigned group from resource.
+	 * After removing, check attributes and fix them if it is needed.
+	 *
+	 * @param perunSession
+	 * @param group the group
+	 * @param resource the resource
+	 * @param sourceGroupId id of a source group through which was the group automatically assigned
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupNotDefinedOnResourceException when there is no such automatic group-resource assignment
+	 * @throws GroupAlreadyRemovedFromResourceException when the group was already removed
+	 */
+	void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+
+	/**
 	 * Returns all users assigned to the resource.
 	 *
 	 * @param perunSession
