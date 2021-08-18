@@ -13,9 +13,8 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -411,7 +410,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		Utils.checkDestination(destination);
 	}
 
-	@Test(expected = InvalidDestinationException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void checkDestinationInvalid() throws Exception {
 		System.out.println("Utils.checkDestinationInvalid");
 
@@ -601,13 +600,13 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		destination.setType(Destination.DESTINATIONURLTYPE);
 
 		destination.setDestination("my.url");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 
 		destination.setDestination("h://my.url");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 
 		destination.setDestination("ftps://my.url/");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 	}
 
 	@Test
@@ -618,13 +617,13 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		destination.setType(Destination.DESTINATIONURLTYPE);
 
 		destination.setDestination("https://");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 
 		destination.setDestination("https://.");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 
 		destination.setDestination("https://?");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 	}
 
 	@Test
@@ -635,10 +634,10 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		destination.setType(Destination.DESTINATIONURLTYPE);
 
 		destination.setDestination("https://my.url/?name=john doe");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 
 		destination.setDestination("https:// my.url");
-		assertThatExceptionOfType(InvalidDestinationException.class).isThrownBy(() -> Utils.checkDestination(destination));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
 	}
 
 	@Test
@@ -653,7 +652,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		Utils.checkHostname(host);
 	}
 
-	@Test(expected = InvalidHostnameException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void checkHostnameInvalid() throws Exception {
 		System.out.println("Utils.checkHostnameInvalid");
 

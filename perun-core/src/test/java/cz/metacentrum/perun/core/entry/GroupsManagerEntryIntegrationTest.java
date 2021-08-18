@@ -34,8 +34,8 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -5052,7 +5052,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		String invalidName = "invalid";
 		Group invalidGroup = new Group(invalidName, "");
 
-		assertThatExceptionOfType(InvalidGroupNameException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> groupsManager.createGroup(sess, vo, invalidGroup));
 
 		// cleanup
