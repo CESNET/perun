@@ -68,6 +68,7 @@
 		<property name="attributesToAnonymize" value="#{'${perun.attributesToAnonymize}'.split('\s*,\s*')}"/>
 		<property name="attributesToKeep" value="#{'${perun.attributesToKeep}'.split('\s*,\s*')}"/>
 		<property name="sendIdentityAlerts" value="${perun.sendIdentityAlerts}"/>
+		<property name="findSimilarUsersDisabled" value="${perun.findSimilarUsersDisabled}"/>
 	</bean>
 
 
@@ -157,6 +158,7 @@
 
 				<prop key="perun.autocreatedNamespaces"></prop>
 				<prop key="perun.sendIdentityAlerts">false</prop>
+				<prop key="perun.findSimilarUsersDisabled">false</prop>
 
 			</props>
 		</property>

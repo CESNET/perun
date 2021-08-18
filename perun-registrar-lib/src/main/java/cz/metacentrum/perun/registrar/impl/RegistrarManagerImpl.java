@@ -89,6 +89,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private final static Logger log = LoggerFactory.getLogger(RegistrarManagerImpl.class);
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private final static boolean isFindSimilarUsersDisabled = BeansUtils.getCoreConfig().isFindSimilarUsersDisabled();
 
 	// identifiers for selected attributes
 	private static final String URN_USER_TITLE_BEFORE = "urn:perun:user:attribute-def:core:titleBefore";
@@ -620,16 +621,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			}
 
-			// FIND SIMILAR USERS
-			try {
-				List<Identity> similarUsers = getConsolidatorManager().checkForSimilarUsers(sess);
-				if (similarUsers != null && !similarUsers.isEmpty()) {
-					log.debug("Similar users found for {} / {}: {}", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), similarUsers);
+			// FIND SIMILAR USERS IF IT IS NOT DISABLED
+			if (!isFindSimilarUsersDisabled) {
+				try {
+					List<Identity> similarUsers = getConsolidatorManager().checkForSimilarUsers(sess);
+					if (similarUsers != null && !similarUsers.isEmpty()) {
+						log.debug("Similar users found for {} / {}: {}", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), similarUsers);
+					}
+					result.put("similarUsers", similarUsers);
+				} catch (Exception ex) {
+					// not relevant exception in this use-case
+					log.error("[REGISTRAR] Exception when searching for similar users.", ex);
 				}
-				result.put("similarUsers", similarUsers);
-			} catch (Exception ex) {
-				// not relevant exception in this use-case
-				log.error("[REGISTRAR] Exception when searching for similar users.", ex);
 			}
 
 		} catch (Exception ex) {
