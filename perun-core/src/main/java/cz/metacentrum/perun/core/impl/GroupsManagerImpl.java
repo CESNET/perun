@@ -72,8 +72,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
-	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status" +
-		", groups_resources_state.failure_cause as groups_resources_state_failure_cause, groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id";
+	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, " +
+		"groups_resources_automatic.auto_assign_subgroups as auto_assign_subgroups, groups_resources_state.failure_cause as groups_resources_state_failure_cause, groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id";
+
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
@@ -108,7 +109,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		Integer sourceGroupId = resultSet.getInt("groups_resources_automatic_source_group_id");
 		sourceGroupId = resultSet.wasNull() ? null : sourceGroupId;
 		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
-		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), sourceGroupId, failureCause);
+		boolean autoAssignSubgroups = resultSet.getBoolean("auto_assign_subgroups");
+		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), sourceGroupId, failureCause, autoAssignSubgroups);
 	};
 
 	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = (resultSet, i) -> {

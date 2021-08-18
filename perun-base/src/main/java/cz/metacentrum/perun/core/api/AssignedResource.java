@@ -15,13 +15,15 @@ public class AssignedResource {
 	private String failureCause;
 	private Facility facility;
 	private List<ResourceTag> resourceTags;
+	private boolean autoAssignSubgroups;
 
-	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, Integer sourceGroupId, String failureCause, Facility facility) {
+	public AssignedResource(EnrichedResource enrichedResource, GroupResourceStatus status, Integer sourceGroupId, String failureCause, Facility facility, boolean autoAssignSubgroups) {
 		this.enrichedResource = enrichedResource;
 		this.status = status;
 		this.sourceGroupId = sourceGroupId;
 		this.failureCause = failureCause;
 		this.facility = facility;
+		this.autoAssignSubgroups = autoAssignSubgroups;
 	}
 
 	public EnrichedResource getEnrichedResource() {
@@ -72,18 +74,27 @@ public class AssignedResource {
 		this.failureCause = failureCause;
 	}
 
+	public boolean isAutoAssignSubgroups() {
+		return autoAssignSubgroups;
+	}
+
+	public void setAutoAssignSubgroups(boolean autoAssignSubgroups) {
+		this.autoAssignSubgroups = autoAssignSubgroups;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AssignedResource that = (AssignedResource) o;
 		return Objects.equals(getEnrichedResource(), that.getEnrichedResource()) && getStatus() == that.getStatus()
-			&& Objects.equals(getSourceGroupId(), that.getSourceGroupId()) && Objects.equals(getFacility(), that.getFacility());
+			&& Objects.equals(getSourceGroupId(), that.getSourceGroupId()) && Objects.equals(getFacility(), that.getFacility())
+			&& Objects.equals(isAutoAssignSubgroups(), that.isAutoAssignSubgroups());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getEnrichedResource(), getStatus(), getSourceGroupId(), getFacility());
+		return Objects.hash(getEnrichedResource(), getStatus(), getSourceGroupId(), getFacility(), isAutoAssignSubgroups());
 	}
 
 	@Override
@@ -95,6 +106,7 @@ public class AssignedResource {
 			", failureCause=" + failureCause +
 			", facility=" + facility +
 			", resourceTags=" + resourceTags +
+			", autoAssignSubgroups=" + autoAssignSubgroups +
 			'}';
 	}
 }

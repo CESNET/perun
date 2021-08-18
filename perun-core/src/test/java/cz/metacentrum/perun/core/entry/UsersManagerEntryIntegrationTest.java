@@ -1042,7 +1042,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource.setName("UsersManagerTestResource");
 		resource.setDescription("Testovaci");
 		resource = perun.getResourcesManager().createResource(sess, resource, vo, facility);
-		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
 		// create resource, assign group with our member
 
 		User user = usersManager.getUserByMember(sess, member);
@@ -1309,7 +1309,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Group g1 = setUpGroup(vo, member, "group1");
 		Group g2 = setUpGroup(vo, member, "group2");
 
-		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
 
 		// more groups case
 
@@ -1325,7 +1325,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue("Should have no groups, since member should be VO expired", groups.isEmpty());
 
 		perun.getMembersManager().setStatus(sess, member, Status.VALID);
-		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
 
 		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, f, u);
 		assertTrue("Should have 2 groups", groups.size() == 2);
@@ -1356,7 +1356,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue("Should be empty since there are no groups on R2 resource.", groups.size() == 0);
 
 		perun.getResourcesManager().removeGroupFromResource(sess, g2, r);
-		perun.getResourcesManager().assignGroupToResource(sess, g2, r2, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r2, false, false, false);
 
 		perun.getGroupsManager().setMemberGroupStatus(sess, member, g1, MemberGroupStatus.VALID);
 

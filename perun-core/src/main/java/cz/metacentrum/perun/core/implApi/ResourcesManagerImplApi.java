@@ -145,11 +145,25 @@ public interface ResourcesManagerImplApi {
 	 * @param perunSession
 	 * @param group
 	 * @param resource
-
+	 * @param autoAssignSubgroups
+	 *
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyAssignedException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyAssignedException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, boolean autoAssignSubgroups) throws GroupAlreadyAssignedException;
+
+	/**
+	 * Assign group to a resource (automatic subgroup assignment).
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param resource
+	 * @param sourceGroup
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupAlreadyAssignedException
+	 */
+	void assignAutomaticGroupToResource(PerunSession perunSession, Group group, Resource resource, Group sourceGroup) throws GroupAlreadyAssignedException;
 
 	/**
 	 * Set initial status to group-resource assignment.
@@ -497,14 +511,36 @@ public interface ResourcesManagerImplApi {
 
 
 	/**
-	 * Returns true if the group is assigned to the current resource, false otherwise.
+	 * Returns true if the group is assigned to the current resource with ACTIVE status, false otherwise.
+	 *
 	 * @param sess
-	 * @param group
 	 * @param resource
+	 * @param group
+	 * @return true if the group is assigned to the current resource with active status.
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupAssigned(PerunSession sess, Resource resource, Group group);
+
+	/**
+	 * Returns true if the group is assigned to the current resource with any status, false otherwise.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @param group
 	 * @return true if the group is assigned to the current resource.
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupAssigned(PerunSession sess, Group group, Resource resource);
+	boolean groupResourceAssignmentExists(PerunSession sess, Resource resource, Group group);
+
+	/**
+	 * Returns true if the group is assigned to the given resource manually, false otherwise.
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @return true if the group is assigned to the given resource manually.
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource);
 
 	/**
 	 * Updates Resource.

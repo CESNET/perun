@@ -1966,7 +1966,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		groupsToAssign.removeAll(perunBl.getResourcesManagerBl().getAssignedGroups(sess, resource));
 
 		try {
-			perunBl.getResourcesManagerBl().assignGroupsToResource(sess, groupsToAssign, resource, false);
+			perunBl.getResourcesManagerBl().assignGroupsToResource(sess, groupsToAssign, resource, false, false, false);
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | GroupResourceMismatchException e) {
 			log.error("Failed to assign groups during group structure synchronization. Groups {}, resource {}," +
 					" exception: {}", groups, resource, e);

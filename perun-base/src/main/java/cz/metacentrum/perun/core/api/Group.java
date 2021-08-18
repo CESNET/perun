@@ -114,7 +114,6 @@ public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
 		this.voId = voId;
 	}
 
-
 	public String getShortName() {
 		if(name == null) return null;
 		return name.substring(name.lastIndexOf(':')+1);

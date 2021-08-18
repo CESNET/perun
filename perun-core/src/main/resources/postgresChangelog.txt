@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.87
+ALTER TABLE groups_resources ADD COLUMN auto_assign_subgroups boolean default false not null;
+UPDATE configurations SET value='3.1.87' WHERE property='DATABASE VERSION';
+
 3.1.86
 create table groups_resources_automatic(group_id integer not null, resource_id integer not null,source_group_id integer not null,created_at timestamp default statement_timestamp() not null,created_by varchar default user not null,modified_at timestamp default statement_timestamp() not null,modified_by varchar default user not null,created_by_uid integer,modified_by_uid integer,constraint grresaut_grp_res_sgrp_u unique (group_id,resource_id,source_group_id),constraint grresaut_gr_fk foreign key (group_id) references groups(id),constraint grresaut_res_fk foreign key (resource_id) references resources(id),constraint grresaut_sgr_fk foreign key (source_group_id) references groups(id));
 grant all on groups_resources_automatic to perun;
