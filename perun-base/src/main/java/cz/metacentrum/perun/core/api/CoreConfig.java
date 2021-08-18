@@ -84,6 +84,7 @@ public class CoreConfig {
 	private List<String> attributesToSearchUsersAndMembersBy;
 	private List<String> attributesToAnonymize;
 	private List<String> attributesToKeep;
+	private boolean findSimilarUsersDisabled;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -701,5 +702,13 @@ public class CoreConfig {
 
 	public void setSendIdentityAlerts(boolean sendIdentityAlerts) {
 		this.sendIdentityAlert = sendIdentityAlerts;
+	}
+
+	public boolean isFindSimilarUsersDisabled() {
+		return findSimilarUsersDisabled;
+	}
+
+	public void setFindSimilarUsersDisabled(boolean findSimilarUsersDisabled) {
+		this.findSimilarUsersDisabled = findSimilarUsersDisabled;
 	}
 }
