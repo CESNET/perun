@@ -1734,14 +1734,25 @@ public interface GroupsManagerBl {
 	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group);
 
 	/**
+	 * Returns total member's status of given members in given group.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @param members members
+	 * @return total status of members in given group
+	 */
+	Map<Integer, MemberGroupStatus> getTotalGroupStatusForMembers(PerunSession session, Group group, List<Member> members);
+
+	/**
 	 * Calculates the state of given member in given group and calls
 	 * this method recursively for all parent groups.
 	 *
 	 * @param member member
 	 * @param group group
+	 * @param previousStatuses previousStatuses
 	 * @throws InternalErrorException internal error
 	 */
-	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group);
+	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group, Map<Integer, Map<Integer, MemberGroupStatus>> previousStatuses);
 
 	/**
 	 * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
