@@ -2213,6 +2213,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public List<Application> getOpenApplicationsForUser(PerunSession sess) {
+
+		try {
+			List<Application> allApplications = jdbc.query(APP_SELECT + " where state in (?,?) order by a.id desc",
+				APP_MAPPER, AppState.VERIFIED.toString(), AppState.NEW.toString());
+			return filterPrincipalApplications(sess, allApplications);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		}
+
+	}
+
+	@Override
 	public List<Application> getApplicationsForMember(PerunSession sess, Group group, Member member) throws PerunException {
 		membersManager.checkMemberExists(sess, member);
 
@@ -2469,9 +2482,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// pending vo data for current user (if known to Perun) or session principal
 		if (group != null) {
-			Optional<Application> pendingVoApplication = getApplicationsForUser(sess)
+			Optional<Application> pendingVoApplication = getOpenApplicationsForUser(sess)
 				.stream()
-				.filter(voApp -> voApp.getGroup() == null && (voApp.getState().equals(AppState.NEW) || voApp.getState().equals(AppState.VERIFIED)))
+				.filter(voApp -> voApp.getGroup() == null)
 				.findFirst();
 			if (pendingVoApplication.isPresent()) {
 				pendingVoApplicationData = getApplicationDataById(sess, pendingVoApplication.get().getId());
