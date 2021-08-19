@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -36,7 +35,7 @@ public class EduGain extends DefaultRegistrarModule {
 
 				Group membersGroup = session.getPerun().getGroupsManager().getGroupByName(session, vo, "members");
 				AuthzResolver.setRole(session, user, membersGroup, Role.GROUPADMIN);
-			} catch (RoleCannotBeManagedException | InvalidGroupNameException e) {
+			} catch (RoleCannotBeManagedException e) {
 				throw new InternalErrorException(e);
 			}
 

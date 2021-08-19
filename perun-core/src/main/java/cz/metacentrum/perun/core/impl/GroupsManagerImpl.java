@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
@@ -142,11 +141,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			}
 		}
 
-		try {
-			Utils.validateGroupName(group.getShortName());
-		} catch (InvalidGroupNameException e) {
-			throw new InternalErrorException(e);
-		}
+		Utils.validateGroupName(group.getShortName());
 
 		int newId;
 		try {
@@ -237,11 +232,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		// we allow only update on shortName part of name
 		if (!dbGroup.getShortName().equals(group.getShortName())) {
-			try {
-				Utils.validateGroupName(group.getShortName());
-			} catch (InvalidGroupNameException e) {
-				throw new InternalErrorException(e);
-			}
+			Utils.validateGroupName(group.getShortName());
 			dbGroup.setShortName(group.getShortName());
 			try {
 				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", dbGroup.getName(),

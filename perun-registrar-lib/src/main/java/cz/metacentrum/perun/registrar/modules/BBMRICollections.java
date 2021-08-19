@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -78,7 +77,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 		Group directoryGroup;
 		try {
 			directoryGroup = perun.getGroupsManager().getGroupByName(session, vo, directoryGroupName);
-		} catch (GroupNotExistsException | InvalidGroupNameException e) {
+		} catch (GroupNotExistsException e) {
 			throw new InternalErrorException("Target group does not exist");
 		}
 		Map<String, Group> collectionIDsToGroupsMap = getCollectionIDsToGroupsMap(session, perun, directoryGroup);
@@ -123,7 +122,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 		Group directoryGroup;
 		try {
 			directoryGroup = perun.getGroupsManager().getGroupByName(session, vo, directoryGroupName);
-		} catch (GroupNotExistsException | InvalidGroupNameException e) {
+		} catch (GroupNotExistsException e) {
 			throw new InternalErrorException("Target group does not exist");
 		}
 		Set<String> collectionIDsInPerun = getCollectionIDs(session, perun, directoryGroup);

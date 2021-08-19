@@ -27,7 +27,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -516,10 +515,9 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @return Hosts with ID's set.
 	 *
-	 * @throws InvalidHostnameException if host has invalid hostname
 	 * @throws HostExistsException
 	 */
-	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostExistsException, InvalidHostnameException;
+	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostExistsException;
 
 	/**
 	 * Create hosts in Perun and add them to the Facility.
@@ -534,11 +532,10 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @return Hosts with ID's set.
 	 *
-	 * @throws InvalidHostnameException if host has invalid hostname
 	 * @throws HostExistsException
 	 * @throws WrongPatternException when syntax of any of the hostnames is wrong
 	 */
-	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws HostExistsException, WrongPatternException, InvalidHostnameException;
+	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws HostExistsException, WrongPatternException;
 
 	/**
 	 * Adds host to the Facility.
@@ -548,10 +545,8 @@ public interface FacilitiesManagerBl {
 	 * @param facility
 	 *
 	 * return host
-	 *
-	 * @throws InvalidHostnameException if host has invalid hostname
 	 */
-	Host addHost(PerunSession perunSession, Host host, Facility facility) throws InvalidHostnameException;
+	Host addHost(PerunSession perunSession, Host host, Facility facility);
 
 	/**
 	 * Remove hosts from the Facility.

@@ -20,9 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MinSizeExceededException;
@@ -1510,9 +1507,9 @@ public class Utils {
 	 * Checks whether the destinations name has correct syntax.
 	 *
 	 * @param destination destination to check
-	 * @throws cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException if destination has invalid value in given destination type.
+	 * @throws cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException if destination has invalid value in given destination type.
 	 */
-	public static void checkDestination(Destination destination) throws InvalidDestinationException {
+	public static void checkDestination(Destination destination) {
 		if (destination == null) {
 			throw new InternalErrorException("Destination is null.");
 		}
@@ -1534,10 +1531,10 @@ public class Utils {
 
 		// it should not happen because destination type is checked earlier
 		if (matcher == null)
-			throw new InvalidDestinationException("Destination type " + destinationType + " is not supported.");
+			throw new IllegalArgumentException("Destination type " + destinationType + " is not supported.");
 
 		if (!matcher.matches())
-			throw new InvalidDestinationException("Wrong syntax of destination " + destination.getDestination());
+			throw new IllegalArgumentException("Wrong syntax of destination " + destination.getDestination());
 
 	}
 
@@ -1545,9 +1542,9 @@ public class Utils {
 	 * Checks whether the hostname has correct syntax.
 	 *
 	 * @param host host to check
-	 * @throws cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException if host has invalid hostname
+	 * @throws cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException if host has invalid hostname
 	 */
-	public static void checkHostname(Host host) throws InvalidHostnameException {
+	public static void checkHostname(Host host) {
 		if (host == null) {
 			throw new InternalErrorException("Host is null.");
 		}
@@ -1555,7 +1552,7 @@ public class Utils {
 		Matcher matcher = hostPattern.matcher(host.getHostname());
 
 		if (!matcher.matches())
-			throw new InvalidHostnameException("Wrong syntax of hostname " + host.getHostname());
+			throw new IllegalArgumentException("Wrong syntax of hostname " + host.getHostname());
 	}
 
 	/**
@@ -1898,7 +1895,7 @@ public class Utils {
 
 	/**
 	 */
-	public static void validateFullGroupName(String name) throws InvalidGroupNameException {
+	public static void validateFullGroupName(String name) {
 		String primaryRegex = GroupsManager.GROUP_FULL_NAME_REGEXP;
 		validateGroupName(name, primaryRegex);
 
@@ -1917,9 +1914,8 @@ public class Utils {
 	 * a core property named groupNameSecondaryRegex.
 	 *
 	 * @param name name to be validated
-	 * @throws InvalidGroupNameException if the name is invalid
 	 */
-	public static void validateGroupName(String name) throws InvalidGroupNameException {
+	public static void validateGroupName(String name) {
 		String primaryRegex = GroupsManager.GROUP_SHORT_NAME_REGEXP;
 		validateGroupName(name, primaryRegex);
 
@@ -1934,12 +1930,11 @@ public class Utils {
 	 *
 	 * @param name group name
 	 * @param regex regex to be used
-	 * @throws InvalidGroupNameException if the name is invalid
 	 */
-	public static void validateGroupName(String name, String regex) throws InvalidGroupNameException {
+	public static void validateGroupName(String name, String regex) {
 		try {
 			if (!name.matches(regex)) {
-				throw new InvalidGroupNameException("Wrong group name, group name must matches " + regex);
+				throw new IllegalArgumentException("Wrong group name, group name must matches " + regex);
 			}
 		} catch (PatternSyntaxException e) {
 			throw new InternalErrorException("Invalid group name regex defined: " + regex, e);

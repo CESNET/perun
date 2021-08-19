@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
@@ -575,7 +574,7 @@ public interface ServicesManagerImplApi {
 	 */
 	boolean destinationExists(PerunSession sess, Service service, Facility facility, Destination destination);
 
-	Destination createDestination(PerunSession sess, Destination destination) throws InvalidDestinationException;
+	Destination createDestination(PerunSession sess, Destination destination);
 
 	boolean destinationExists(PerunSession sess, Destination destination);
 
