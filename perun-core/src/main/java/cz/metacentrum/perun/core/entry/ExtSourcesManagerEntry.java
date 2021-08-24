@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -278,7 +279,21 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		if (!AuthzResolver.authorizedInternal(sess, "getCandidate_ExtSource_String_policy", source))
 			throw new PrivilegeException(sess, "getCandidate");
 
-		return new Candidate(getExtSourcesManagerBl().getCandidate(sess, source, login));
+		try {
+			return new Candidate(getExtSourcesManagerBl().getCandidate(sess, source, login));
+
+			// we need to close the extsource here because we don't want to always do it in the BL layer
+		} finally {
+			if (source instanceof ExtSourceSimpleApi) {
+				try {
+					((ExtSourceSimpleApi) source).close();
+				} catch (ExtSourceUnsupportedOperationException e) {
+					// silently skip
+				} catch (Exception e) {
+					log.error("Failed to close connection to extsource", e);
+				}
+			}
+		}
 	}
 
 	@Override

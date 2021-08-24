@@ -1787,45 +1787,57 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		//get extSource for group structure
 		ExtSource source = getGroupExtSourceForSynchronization(sess, baseGroup);
+		try {
 
-		//get login attribute for structure
-		AttributeDefinition loginAttributeDefinition = getLoginAttributeForGroupStructure(sess, baseGroup);
-		//get login prefix if exists
-		String loginPrefix = getLoginPrefixForGroupStructure(sess, baseGroup);
+			//get login attribute for structure
+			AttributeDefinition loginAttributeDefinition = getLoginAttributeForGroupStructure(sess, baseGroup);
+			//get login prefix if exists
+			String loginPrefix = getLoginPrefixForGroupStructure(sess, baseGroup);
 
-		List<CandidateGroup> candidateGroupsToAdd = new ArrayList<>();
-		Map<CandidateGroup, Group> groupsToUpdate = new HashMap<>();
-		List<Group> groupsToRemove = new ArrayList<>();
+			List<CandidateGroup> candidateGroupsToAdd = new ArrayList<>();
+			Map<CandidateGroup, Group> groupsToUpdate = new HashMap<>();
+			List<Group> groupsToRemove = new ArrayList<>();
 
-		Map<String, Group> actualGroups = getAllSubGroupsWithLogins(sess, baseGroup, loginAttributeDefinition);
-		List<Map<String, String>> subjectGroups = getSubjectGroupsFromExtSource(sess, source, baseGroup);
+			Map<String, Group> actualGroups = getAllSubGroupsWithLogins(sess, baseGroup, loginAttributeDefinition);
+			List<Map<String, String>> subjectGroups = getSubjectGroupsFromExtSource(sess, source, baseGroup);
 
-		if (isThisFlatSynchronization(sess, baseGroup)) {
-			for(Map<String, String> subjectGroup : subjectGroups) {
-				subjectGroup.put(PARENT_GROUP_LOGIN, null);
+			if (isThisFlatSynchronization(sess, baseGroup)) {
+				for(Map<String, String> subjectGroup : subjectGroups) {
+					subjectGroup.put(PARENT_GROUP_LOGIN, null);
+				}
+			}
+
+			List<String> mergeAttributes = getAttributesListFromExtSource(source, MERGE_GROUP_ATTRIBUTES);
+
+			List<CandidateGroup> candidateGroups = getPerunBl().getExtSourcesManagerBl().generateCandidateGroups(sess, subjectGroups, source, loginPrefix);
+
+			categorizeGroupsForSynchronization(actualGroups, candidateGroups, candidateGroupsToAdd, groupsToUpdate, groupsToRemove);
+
+			//order of operations is important here
+			//removing need to go first to be able to replace groups with same name but different login
+			//updating need to be last to set right order of groups again
+			List<Integer> removedGroupsIds = removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
+			addMissingGroupsWhileSynchronization(sess, baseGroup, candidateGroupsToAdd, loginAttributeDefinition, skippedGroups, mergeAttributes);
+			updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, removedGroupsIds, loginAttributeDefinition, skippedGroups, mergeAttributes);
+
+			setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source, loginAttributeDefinition, loginPrefix);
+
+			syncResourcesForSynchronization(sess, baseGroup, loginAttributeDefinition, skippedGroups);
+
+			log.info("Group structure synchronization {}: ended.", baseGroup);
+
+			return skippedGroups;
+		} finally {
+			if (source instanceof ExtSourceSimpleApi) {
+				try {
+					((ExtSourceSimpleApi) source).close();
+				} catch (ExtSourceUnsupportedOperationException e) {
+					// silently skip
+				} catch (Exception e) {
+					log.error("Failed to close extsource after structure synchronization.", e);
+				}
 			}
 		}
-
-		List<String> mergeAttributes = getAttributesListFromExtSource(source, MERGE_GROUP_ATTRIBUTES);
-
-		List<CandidateGroup> candidateGroups = getPerunBl().getExtSourcesManagerBl().generateCandidateGroups(sess, subjectGroups, source, loginPrefix);
-
-		categorizeGroupsForSynchronization(actualGroups, candidateGroups, candidateGroupsToAdd, groupsToUpdate, groupsToRemove);
-
-		//order of operations is important here
-		//removing need to go first to be able to replace groups with same name but different login
-		//updating need to be last to set right order of groups again
-		List<Integer> removedGroupsIds = removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
-		addMissingGroupsWhileSynchronization(sess, baseGroup, candidateGroupsToAdd, loginAttributeDefinition, skippedGroups, mergeAttributes);
-		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, removedGroupsIds, loginAttributeDefinition, skippedGroups, mergeAttributes);
-
-		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source, loginAttributeDefinition, loginPrefix);
-
-		syncResourcesForSynchronization(sess, baseGroup, loginAttributeDefinition, skippedGroups);
-
-		log.info("Group structure synchronization {}: ended.", baseGroup);
-
-		return skippedGroups;
 	}
 
 	/**

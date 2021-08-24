@@ -180,6 +180,16 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				invalidUsers.add(user);
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getSubjectByLogin", source.getName());
+			} finally {
+				if (source instanceof ExtSourceSimpleApi) {
+					try {
+						((ExtSourceSimpleApi) source).close();
+					} catch (ExtSourceUnsupportedOperationException e) {
+						// silently skip
+					} catch (Exception e) {
+						log.error("Failed to close connection to extsource", e);
+					}
+				}
 			}
 		}
 
