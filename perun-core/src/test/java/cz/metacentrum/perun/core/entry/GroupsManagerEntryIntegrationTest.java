@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -34,8 +35,8 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -67,6 +68,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -5052,7 +5054,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		String invalidName = "invalid";
 		Group invalidGroup = new Group(invalidName, "");
 
-		assertThatExceptionOfType(InvalidGroupNameException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> groupsManager.createGroup(sess, vo, invalidGroup));
 
 		// cleanup
@@ -5314,6 +5316,74 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		List<RichMember> richMembers = groupsManager.getGroupRichMembersByIds(sess, group.getId(), List.of(member.getId()), attrNames);
 
 		assertFalse(richMembers.get(0).getGroupStatuses().isEmpty());
+	}
+
+	@Test
+	public void getTotalGroupStatusForMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getTotalGroupStatusForMembers");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberWithDifferentParam(vo, 111);
+		Member member2 = setUpMemberWithDifferentParam(vo, 222);
+		Member member3 = setUpMemberWithDifferentParam(vo, 333);
+		Member member4 = setUpMemberWithDifferentParam(vo, 444);
+
+		groupsManagerBl.createGroup(sess, vo, group);
+
+		groupsManagerBl.addMember(sess, group, member);
+		groupsManagerBl.addMember(sess, group, member2);
+		groupsManagerBl.addMember(sess, group, member3);
+		groupsManagerBl.addMember(sess, group, member4);
+
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+		groupsManagerBl.expireMemberInGroup(sess, member2, group);
+
+		Map<Integer, MemberGroupStatus> map = groupsManagerBl.getTotalGroupStatusForMembers(sess, group, List.of(member, member2, member3, member4));
+
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member.getId()));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member2.getId()));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, map.get(member3.getId()));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, map.get(member4.getId()));
+	}
+
+	@Test
+	public void getTotalGroupStatusForMembers_memberValidThroughSubgroup() throws Exception {
+		System.out.println(CLASS_NAME + "getTotalGroupStatusForMembers_memberValidThroughSubgroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, group, group2);
+
+		groupsManagerBl.addMember(sess, group, member);
+		groupsManagerBl.addMember(sess, group2, member);
+
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		Map<Integer, MemberGroupStatus> map = groupsManagerBl.getTotalGroupStatusForMembers(sess, group, List.of(member));
+
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.VALID, map.get(member.getId()));
+	}
+
+	@Test
+	public void getTotalGroupStatusForMembers_notMembersOfGroup() throws Exception {
+		System.out.println(CLASS_NAME + "getTotalGroupStatusForMembers_notMembersOfGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+
+		groupsManagerBl.addMember(sess, group, member);
+
+		Map<Integer, MemberGroupStatus> map = groupsManagerBl.getTotalGroupStatusForMembers(sess, group2, List.of(member));
+
+		assertTrue("There should be no relation between the group and the member", map.isEmpty());
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

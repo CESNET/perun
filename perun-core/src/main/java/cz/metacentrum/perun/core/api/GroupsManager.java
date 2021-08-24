@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlr
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
@@ -107,9 +106,8 @@ public interface GroupsManager {
 	 * @throws GroupExistsException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws InvalidGroupNameException when the given group name is invalid
 	 */
-	Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, PrivilegeException, VoNotExistsException, InvalidGroupNameException;
+	Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Creates a new subgroup of the existing group.
@@ -127,9 +125,8 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws GroupRelationNotAllowed
 	 * @throws GroupRelationAlreadyExists
-	 * @throws InvalidGroupNameException when the given group name is invalid
 	 */
-	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException, InvalidGroupNameException;
+	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException;
 
 	/**
 	 * If forceDelete is false, delete only group and if this group has members or subgroups, throw an exception.
@@ -226,9 +223,8 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws GroupExistsException if group with same name already exists in the same VO
 	 * @throws PrivilegeException
-	 * @throws InvalidGroupNameException when the given group name is invalid
 	 */
-	Group updateGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InvalidGroupNameException;
+	Group updateGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException;
 
 	/**
 	 * Search for the group with specified id in all VOs.
@@ -258,9 +254,8 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws InvalidGroupNameException when the given group name is invalid
 	 */
-	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException, PrivilegeException, VoNotExistsException, InvalidGroupNameException;
+	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException, PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Search for the groups with specified ids in all VOs.

@@ -393,7 +393,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 			//first we must assign group
 			try {
-				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource, GroupResourceStatus.PROCESSING);
+				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource);
+				getResourcesManagerImpl().assignGroupToResourceState(perunSession, g, resource, GroupResourceStatus.PROCESSING);
 				activateGroupResourceAssignment(perunSession, g, resource, async);
 			} catch (GroupAlreadyAssignedException e) {
 				// silently skip

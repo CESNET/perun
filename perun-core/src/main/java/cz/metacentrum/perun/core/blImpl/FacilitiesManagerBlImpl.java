@@ -46,8 +46,8 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -528,7 +528,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostExistsException, InvalidHostnameException {
+	public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostExistsException {
 		//check if hosts not exist in cluster
 		List<Host> alreadyAssignedHosts = getHosts(sess, facility);
 
@@ -548,7 +548,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws HostExistsException, WrongPatternException, InvalidHostnameException {
+	public List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws HostExistsException, WrongPatternException {
 		// generate hosts by pattern
 		List<Host> generatedHosts = new ArrayList<>();
 		for (String host : hosts) {
@@ -673,7 +673,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public Host addHost(PerunSession sess, Host host, Facility facility) throws InvalidHostnameException {
+	public Host addHost(PerunSession sess, Host host, Facility facility) {
 		getPerunBl().getAuditer().log(sess, new HostAddedToFacility(host, facility));
 		return facilitiesManagerImpl.addHost(sess, host, facility);
 	}

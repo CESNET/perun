@@ -89,6 +89,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private final static Logger log = LoggerFactory.getLogger(RegistrarManagerImpl.class);
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private final static boolean isFindSimilarUsersDisabled = BeansUtils.getCoreConfig().isFindSimilarUsersDisabled();
 
 	// identifiers for selected attributes
 	private static final String URN_USER_TITLE_BEFORE = "urn:perun:user:attribute-def:core:titleBefore";
@@ -191,7 +192,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	// regular expression to match alfanumeric contents
 	private static final Pattern alnumPattern = Pattern.compile(".*\\p{Alnum}+.*", Pattern.UNICODE_CHARACTER_CLASS);
-	
+
 	private final Set<String> runningCreateApplication = new HashSet<>();
 	private final Set<Integer> runningApproveApplication = new HashSet<>();
 	private final Set<Integer> runningRejectApplication = new HashSet<>();
@@ -620,16 +621,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			}
 
-			// FIND SIMILAR USERS
-			try {
-				List<Identity> similarUsers = getConsolidatorManager().checkForSimilarUsers(sess);
-				if (similarUsers != null && !similarUsers.isEmpty()) {
-					log.debug("Similar users found for {} / {}: {}", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), similarUsers);
+			// FIND SIMILAR USERS IF IT IS NOT DISABLED
+			if (!isFindSimilarUsersDisabled) {
+				try {
+					List<Identity> similarUsers = getConsolidatorManager().checkForSimilarUsers(sess);
+					if (similarUsers != null && !similarUsers.isEmpty()) {
+						log.debug("Similar users found for {} / {}: {}", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), similarUsers);
+					}
+					result.put("similarUsers", similarUsers);
+				} catch (Exception ex) {
+					// not relevant exception in this use-case
+					log.error("[REGISTRAR] Exception when searching for similar users.", ex);
 				}
-				result.put("similarUsers", similarUsers);
-			} catch (Exception ex) {
-				// not relevant exception in this use-case
-				log.error("[REGISTRAR] Exception when searching for similar users.", ex);
 			}
 
 		} catch (Exception ex) {
@@ -1300,13 +1303,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			// process rest only if it was not exception related to PASSWORDS creation
 			if (!applicationNotCreated) {
-
-				getMailManager().sendMessage(application, MailType.APP_CREATED_USER, null, null);
-				getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, exceptions);
+				processNotificationsAfterCreation(session, application, exceptions);
 				// if there were exceptions, throw some to let know GUI about it
 				if (!exceptions.isEmpty()) {
 					RegistrarException ex = new RegistrarException("Your application (ID="+ application.getId()+
-							") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to administrators directly.");
+						") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to administrators directly.");
 					log.error("[REGISTRAR] New application {} created with errors {}. This is case of PerunException {}",application, exceptions, ex.getErrorId());
 					throw ex;
 				}
@@ -2063,7 +2064,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (state == null || state.isEmpty()) {
 			// list all
 			try {
-				return jdbc.query(APP_SELECT + " where a.vo_id=? " 
+				return jdbc.query(APP_SELECT + " where a.vo_id=? "
 						+ (includeGroupApplications ? "" : " and a.group_id is null ")
 						+ " order by a.id desc", APP_MAPPER, vo.getId());
 			} catch (EmptyResultDataAccessException ex) {
@@ -2075,7 +2076,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 				sqlParameterSource.addValue("voId", vo.getId());
 				sqlParameterSource.addValue("states", state);
-				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) " 
+				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) "
 						+ (includeGroupApplications ? "" : " and a.group_id is null ")
 						+ " order by a.id desc", sqlParameterSource, APP_MAPPER);
 			} catch (EmptyResultDataAccessException ex) {
@@ -2202,6 +2203,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		try {
 			List<Application> allApplications = jdbc.query(APP_SELECT + " order by a.id desc", APP_MAPPER);
+			return filterPrincipalApplications(sess, allApplications);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		}
+
+	}
+
+	@Override
+	public List<Application> getOpenApplicationsForUserInVo(User user, Vo vo) {
+
+		try {
+			return jdbc.query(APP_SELECT + " where user_id=? and state in (?,?) and a.vo_id=? order by a.id desc",
+				APP_MAPPER, user.getId(), AppState.VERIFIED.toString(), AppState.NEW.toString(), vo.getId());
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		}
+
+	}
+
+	@Override
+	public List<Application> getOpenApplicationsForUserInVo(PerunSession sess, Vo vo) {
+
+		try {
+			List<Application> allApplications = jdbc.query(APP_SELECT + " where state in (?,?) and a.vo_id=? order by a.id desc",
+				APP_MAPPER, AppState.VERIFIED.toString(), AppState.NEW.toString(), vo.getId());
 			return filterPrincipalApplications(sess, allApplications);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
@@ -2392,11 +2418,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
 		Map<String, String> federValues = sess.getPerunPrincipal().getAdditionalInformations();
 
-		RegistrarModule module = getRegistrarModule(form);
-		if (module != null) module.canBeSubmitted(sess, appType, federValues);
-
 		// throws exception if user couldn't submit application - no reason to get form
 		checkDuplicateRegistrationAttempt(sess, appType, form);
+
+		RegistrarModule module = getRegistrarModule(form);
+		if (module != null) module.canBeSubmitted(sess, appType, federValues);
 
 		// PROCEED
 		Map<String, String> parsedName = extractNames(federValues);
@@ -2466,9 +2492,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// pending vo data for current user (if known to Perun) or session principal
 		if (group != null) {
-			Optional<Application> pendingVoApplication = getApplicationsForUser(sess)
+			Optional<Application> pendingVoApplication = getOpenApplicationsForUserInVo(sess, vo)
 				.stream()
-				.filter(voApp -> voApp.getGroup() == null && (voApp.getState().equals(AppState.NEW) || voApp.getState().equals(AppState.VERIFIED)))
+				.filter(voApp -> voApp.getGroup() == null)
 				.findFirst();
 			if (pendingVoApplication.isPresent()) {
 				pendingVoApplicationData = getApplicationDataById(sess, pendingVoApplication.get().getId());
@@ -3260,6 +3286,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		for (Application a : applications) {
 			setUserForApplication(a, user);
+			processDelayedGroupNotifications(sess, a);
 			autoApproveGroupApplication(sess, a);
 		}
 	}
@@ -4355,6 +4382,53 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 
+	/**
+	 * Processes delayed group notifications
+	 *
+	 * @param application for which will be notifications processed
+	 */
+	private void processDelayedGroupNotifications(PerunSession sess, Application application) throws MemberNotExistsException {
+
+		Member member = perun.getMembersManagerBl().getMemberByUser(sess, application.getVo(), application.getUser());
+
+		if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
+			getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
+		}
+	}
+
+
+	/**
+	 * Processes notifications for created application
+	 *
+	 * @param session Perun session
+	 * @param application for which notifications are processed
+	 * @param exceptions which occurred during the application creation
+	 */
+	private void processNotificationsAfterCreation(PerunSession session, Application application, List<Exception> exceptions) {
+		getMailManager().sendMessage(application, MailType.APP_CREATED_USER, null, null);
+
+		if (!exceptions.isEmpty()) {
+			// If there were errors, send the notification immediately to admins
+			getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, exceptions);
+		} else if (application.getGroup() == null) {
+			// If it is VO app, send the notification immediately to admins
+			getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
+		} else {
+			// If it is GROUP app, the member does not exist yet or the member is DISABLED or EXPIRED,
+			// do not send the notification to admins yet.
+			// It will be sent after the corresponding VO app will be approved.
+			if (application.getUser() != null) {
+				try {
+					Member member = perun.getMembersManagerBl().getMemberByUser(session, application.getVo(), application.getUser());
+					if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
+						getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
+					}
+				} catch (MemberNotExistsException e) {
+					// Means that we do not send notification to admins yet
+				}
+			}
+		}
+	}
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 
 	// FIXME - we are retrieving GROUP name using only "short_name" so it's not same as getGroupById()

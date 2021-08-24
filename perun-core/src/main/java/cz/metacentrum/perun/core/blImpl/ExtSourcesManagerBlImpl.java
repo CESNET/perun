@@ -24,8 +24,8 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
@@ -180,6 +180,16 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				invalidUsers.add(user);
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getSubjectByLogin", source.getName());
+			} finally {
+				if (source instanceof ExtSourceSimpleApi) {
+					try {
+						((ExtSourceSimpleApi) source).close();
+					} catch (ExtSourceUnsupportedOperationException e) {
+						// silently skip
+					} catch (Exception e) {
+						log.error("Failed to close connection to extsource", e);
+					}
+				}
 			}
 		}
 
@@ -307,7 +317,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		if(candidateGroup.asGroup().getName() != null) {
 			try {
 				Utils.validateGroupName(candidateGroup.asGroup().getName());
-			} catch (InvalidGroupNameException e) {
+			} catch (IllegalArgumentException e) {
 				throw new InternalErrorException("Group subject data has to contain valid group name!", e);
 			}
 		} else {

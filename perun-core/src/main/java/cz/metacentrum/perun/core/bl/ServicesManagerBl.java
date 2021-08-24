@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -629,10 +628,9 @@ public interface ServicesManagerBl {
 	 * @param destination (Id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set.
 	 * @throws PrivilegeException
-	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 * @throws DestinationAlreadyAssignedException
 	 */
-	Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException, InvalidDestinationException;
+	Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException;
 
 	/**
 	 * Adds an destination for the facility and all services. Destination id doesn't need to be filled. If destination doesn't exist it will be created.
@@ -642,9 +640,8 @@ public interface ServicesManagerBl {
 	 * @param facility
 	 * @param destination (id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set
-	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 */
-	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InvalidDestinationException;
+	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination);
 
 	/**
 	 * Adds destination for all services defined on the facility.
@@ -653,10 +650,9 @@ public interface ServicesManagerBl {
 	 * @param facility
 	 * @param destination
 	 * @return list of added destinations
-	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 * @throws DestinationAlreadyAssignedException
 	 */
-	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws DestinationAlreadyAssignedException, InvalidDestinationException;
+	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws DestinationAlreadyAssignedException;
 
 	/**
 	 * Defines service destination for all hosts using theirs hostnames.

@@ -38,7 +38,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlr
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MembershipMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -87,7 +86,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, PrivilegeException, VoNotExistsException, InvalidGroupNameException {
+	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(group, "group");
 		Utils.notNull(group.getName(), "group.name");
@@ -111,7 +110,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException, InvalidGroupNameException {
+	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, parentGroup);
 		Utils.notNull(group, "group");
@@ -195,7 +194,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group updateGroup(PerunSession sess, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InvalidGroupNameException {
+	public Group updateGroup(PerunSession sess, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		Utils.notNull(group, "group");
@@ -258,7 +257,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, PrivilegeException, VoNotExistsException, InvalidGroupNameException {
+	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		Utils.notNull(name, "name");

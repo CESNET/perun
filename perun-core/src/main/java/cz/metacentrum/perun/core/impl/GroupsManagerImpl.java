@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
@@ -39,6 +38,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -47,8 +47,10 @@ import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -70,8 +72,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
-	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources.status as groups_resources_status" +
-		", groups_resources.failure_cause as groups_resources_failure_cause";
+	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status" +
+		", groups_resources_state.failure_cause as groups_resources_state_failure_cause";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
@@ -103,14 +105,28 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	protected static final RowMapper<AssignedGroup> ASSIGNED_GROUP_MAPPER = (resultSet, i) -> {
 		Group group = GROUP_MAPPER.mapRow(resultSet, i);
 		EnrichedGroup enrichedGroup = new EnrichedGroup(group, null);
-		String failureCause = resultSet.getString("groups_resources_failure_cause");
-		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_status")), failureCause);
+		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
+		return new AssignedGroup(enrichedGroup, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), failureCause);
 	};
 
 	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = (resultSet, i) -> {
 		Pair<Group, Resource> pair = new Pair<>();
 		pair.put(GROUP_MAPPER.mapRow(resultSet, i), ResourcesManagerImpl.RESOURCE_MAPPER.mapRow(resultSet, i));
 		return pair;
+	};
+
+	private static final ResultSetExtractor<Map<Integer, List<Integer>>> MEMBERID_MEMBERGROUPSTATUS_EXTRACTOR = resultSet -> {
+		Map<Integer, List<Integer>> map = new HashMap<>();
+		while (resultSet.next()) {
+			Integer memberId = resultSet.getInt("member_id");
+			List<Integer> list = map.get(memberId);
+			if (list == null) {
+				list = new ArrayList<>();
+			}
+			list.add(resultSet.getInt("source_group_status"));
+			map.put(memberId, list);
+		}
+		return map;
 	};
 
 	/**
@@ -142,11 +158,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			}
 		}
 
-		try {
-			Utils.validateGroupName(group.getShortName());
-		} catch (InvalidGroupNameException e) {
-			throw new InternalErrorException(e);
-		}
+		Utils.validateGroupName(group.getShortName());
 
 		int newId;
 		try {
@@ -237,11 +249,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		// we allow only update on shortName part of name
 		if (!dbGroup.getShortName().equals(group.getShortName())) {
-			try {
-				Utils.validateGroupName(group.getShortName());
-			} catch (InvalidGroupNameException e) {
-				throw new InternalErrorException(e);
-			}
+			Utils.validateGroupName(group.getShortName());
 			dbGroup.setShortName(group.getShortName());
 			try {
 				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", dbGroup.getName(),
@@ -432,8 +440,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
-					" groups_resources on groups.id=groups_resources.group_id " +
-					" where groups_resources.resource_id=? and groups_resources.status=?::group_resource_status",
+					" groups_resources_state on groups.id=groups_resources_state.group_id " +
+					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
 					GROUP_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -446,8 +454,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
-							" groups_resources on groups.id=groups_resources.group_id and groups_resources.resource_id=? " +
-							" and groups_resources.status=?::group_resource_status" +
+							" groups_resources_state on groups.id=groups_resources_state.group_id and groups_resources_state.resource_id=? " +
+							" and groups_resources_state.status=?::group_resource_status" +
 							" join groups_members on groups_members.group_id=groups.id and groups_members.member_id=?",
 					GROUP_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), member.getId());
 		} catch (EmptyResultDataAccessException e) {
@@ -461,8 +469,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
-							" groups_resources on groups.id=groups_resources.group_id and groups_resources.status=?::group_resource_status " +
-							" join resources on groups_resources.resource_id=resources.id " +
+							" groups_resources_state on groups.id=groups_resources_state.group_id and groups_resources_state.status=?::group_resource_status " +
+							" join resources on groups_resources_state.resource_id=resources.id " +
 							"where resources.facility_id=?",
 					GROUP_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId());
 		} catch (EmptyResultDataAccessException e) {
@@ -975,6 +983,40 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return null;
 		}
 		catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public Map<Integer, MemberGroupStatus> getTotalGroupStatusForMembers(PerunSession session, Group group, List<Member> members) {
+		List<Integer> memberIds = new ArrayList<>();
+		members.forEach(member -> memberIds.add(member.getId()));
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("groupId", group.getId());
+		parameters.addValue("memberIds", memberIds);
+
+		try {
+			Map<Integer, List<Integer>> map = namedParameterJdbcTemplate.query("select member_id, source_group_status FROM groups_members" +
+				" join members on groups_members.member_id=members.id where group_id=(:groupId) and member_id in (:memberIds)", parameters, MEMBERID_MEMBERGROUPSTATUS_EXTRACTOR);
+
+			Map<Integer, MemberGroupStatus> resultMap = new HashMap<>();
+
+			if (map == null) {
+				return null;
+			}
+
+			for (Integer memberId : map.keySet()) {
+				if (map.get(memberId).contains(0)) {
+					resultMap.put(memberId, MemberGroupStatus.VALID);
+				} else {
+					resultMap.put(memberId, MemberGroupStatus.EXPIRED);
+				}
+			}
+
+			return resultMap;
+
+		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}

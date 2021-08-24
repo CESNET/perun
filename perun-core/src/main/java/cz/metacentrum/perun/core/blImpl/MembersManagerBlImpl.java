@@ -612,6 +612,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException("Can't find candidate for login " + login + " in extSource " + extSource, ex);
 		} catch (ExtSourceUnsupportedOperationException ex) {
 			throw new InternalErrorException("Some operation is not allowed for extSource " + extSource, ex);
+		} finally {
+			if (extSource instanceof ExtSourceSimpleApi) {
+				try {
+					((ExtSourceSimpleApi) extSource).close();
+				} catch (ExtSourceUnsupportedOperationException e) {
+					// silently skip
+				} catch (Exception e) {
+					log.error("Failed to close connection to extsource", e);
+				}
+			}
 		}
 
 		return this.createMember(sess, vo, candidate, groups);
