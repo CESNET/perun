@@ -3126,6 +3126,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAssignedMembersWithStatus_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getAssignedRichMembers_Resource_policy:
     policy_roles:
       - FACILITYADMIN: Facility

@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
@@ -495,6 +496,30 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join members on groups_members.member_id=members.id " +
 					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), GroupResourceStatus.ACTIVE.toString());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) {
+		try  {
+			// we do include all group statuses for such members
+			List<AssignedMember> assignedMembers = jdbc.query("select distinct " + MembersManagerImpl.groupsAssignedMembersMappingSelectQuery +
+					" from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id " +
+					" where groups_resources_state.resource_id=?",
+				MembersManagerImpl.ASSIGNED_MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
+
+			assignedMembers.removeIf(m1 -> assignedMembers.stream()
+				.anyMatch(m2 -> m2.getMember().equals(m1.getMember()) && m2.getStatus().isMoreImportantThan(m1.getStatus())));
+
+			return assignedMembers;
+
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

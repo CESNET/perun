@@ -149,6 +149,12 @@ components:
       discriminator:
         propertyName: beanName
 
+    AssignedMember:
+      type: object
+      properties:
+        member: { $ref: '#/components/schemas/Member' }
+        status: { $ref: '#/components/schemas/GroupResourceStatus' }
+
     RichMember:
       allOf:
         - $ref: '#/components/schemas/Member'
@@ -1305,6 +1311,22 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/RichMember"
+
+    AssignedMemberResponse:
+      description: returns AssignedMember
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AssignedMember"
+
+    ListOfAssignedMembersResponse:
+      description: "returns List<AssignedMember>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/AssignedMember"
 
     FacilityResponse:
       description: "returns Facility"
@@ -12196,6 +12218,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getAssignedMembersWithStatus:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedMembersWithStatus
+      summary: Returns members of groups assigned to resource with status of group-resource assignment.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAssignedMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

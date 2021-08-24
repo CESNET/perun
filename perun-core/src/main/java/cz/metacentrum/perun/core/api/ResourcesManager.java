@@ -416,6 +416,15 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException
 	 */
 	List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws PrivilegeException;
+
+	/**
+	 * Returns members of groups assigned to resource with status of group-resource assignment.
+	 * @param sess perunSession
+	 * @param resource resource
+	 * @return list of members of groups assigned to given resource
+	 */
+	List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) throws PrivilegeException;
+
 	/**
 	 * Returns all members assigned to the resource as RichMembers.
 	 *

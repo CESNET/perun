@@ -539,6 +539,22 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns members of groups assigned to resource with status of group-resource assignment.
+	 * @param sess perunSession
+	 * @param resource resource
+	 * @return list of members of groups assigned to given resource
+	 *
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	getAssignedMembersWithStatus {
+		@Override
+		public List<AssignedMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAssignedMembersWithStatus(ac.getSession(),
+				ac.getResourceById(parms.readInt("resource")));
+		}
+	},
+
+	/*#
 	 * Returns all members assigned to the resource as RichMembers.
 	 *
 	 * @param resource int Resource <code>id</code>
