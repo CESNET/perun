@@ -377,6 +377,16 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 				} catch (InternalErrorException e) {
 					log.error("Failed to get candidates from ExtSource: {}", source);
+				} finally {
+					if (source instanceof ExtSourceSimpleApi) {
+						try {
+							((ExtSourceSimpleApi) source).close();
+						} catch (ExtSourceUnsupportedOperationException e) {
+							// silently skip
+						} catch (Exception e) {
+							log.error("Failed to close connection to extsource", e);
+						}
+					}
 				}
 				// Stop walking through next sources if the number of already retrieved members exceeded the maxNumOfResults
 				if (maxNumOfResults > 0 && numOfResults >= maxNumOfResults) {
@@ -493,6 +503,16 @@ public class VosManagerBlImpl implements VosManagerBl {
 					}
 				} catch (InternalErrorException e) {
 					log.error("Failed to get candidates from ExtSource: {}", source);
+				} finally {
+					if (source instanceof ExtSourceSimpleApi) {
+						try {
+							((ExtSourceSimpleApi) source).close();
+						} catch (ExtSourceUnsupportedOperationException e) {
+							// silently skip
+						} catch (Exception e) {
+							log.error("Failed to close connection to extsource", e);
+						}
+					}
 				}
 			}
 
