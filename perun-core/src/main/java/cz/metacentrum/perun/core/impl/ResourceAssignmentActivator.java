@@ -61,6 +61,11 @@ public class ResourceAssignmentActivator implements ApplicationListener<ContextR
 	 * The activations run synchronously in one thread.
 	 */
 	private void activateGroupResourceAssignments() {
+		if (perunBl.isPerunReadOnly()) {
+			log.warn("This instance is just read only so skip activation of group-resource assignments.");
+			return;
+		}
+
 		try {
 			log.debug("ResourceAssignmentActivator starting to activate group-resource assignments in PROCESSING or FAILED state.");
 
