@@ -487,6 +487,21 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns all assigned resources with statuses where member is assigned through the groups.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @return List<AssignedResource> Resources with statuses
+	 */
+	getAssignedResourcesWithStatus {
+
+		@Override
+		public List<AssignedResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAssignedResourcesWithStatus(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/*#
 	 * Get all rich resources where the service and the member are assigned with facility property filled.
 	 *
 	 * @param member int Member <code>id</code>

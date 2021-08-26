@@ -828,6 +828,77 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void getAssignedResourcesForMemberWithStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedResourcesForMemberWithStatus");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		Resource resource2 = setUpResource2();
+
+		// both the resources assign to the group
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+		resourcesManager.assignGroupToResource(sess, group, resource2, false);
+
+		AssignedResource resource1Active = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, null, facility);
+		AssignedResource resource2Active = new AssignedResource(new EnrichedResource(resource2, null), GroupResourceStatus.ACTIVE, null, facility);
+		AssignedResource resource2Inactive = new AssignedResource(new EnrichedResource(resource2, null), GroupResourceStatus.INACTIVE, null, facility);
+
+		List<AssignedResource> resources = resourcesManager.getAssignedResourcesWithStatus(sess, member);
+		assertEquals("member should be assigned to 2 resources", 2, resources.size());
+		assertTrue("assigned resources should be in returned list", resources.containsAll(List.of(resource1Active, resource2Active)));
+
+		// deactivating group on resource should make the status inactive
+		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource2);
+
+		resources = resourcesManager.getAssignedResourcesWithStatus(sess, member);
+		assertEquals("member should be assigned to 2 resources", 2, resources.size());
+		assertTrue("assigned resources should be in returned list", resources.containsAll(List.of(resource1Active, resource2Inactive)));
+
+		// removing group should remove the resource
+		resourcesManager.removeGroupFromResource(sess, group, resource2);
+
+		resources = resourcesManager.getAssignedResourcesWithStatus(sess, member);
+		assertEquals("member should be assigned to a single resources", 1, resources.size());
+		assertTrue("assigned resource should be in returned list", resources.contains(resource1Active));
+	}
+
+	@Test
+	public void getAssignedResourcesForMemberWithStatus_twoGroupsToOneResource() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedResourcesForMemberWithStatus_twoGroupsToOneResource");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		Group group2 = new Group("ResourcesManagerTestGroup2","");
+		group2 = perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().addMember(sess, group2, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		// both the resources assign to the group
+		resourcesManager.assignGroupToResource(sess, group2, resource, false);
+		resourcesManager.deactivateGroupResourceAssignment(sess, group2, resource);
+		resourcesManager.assignGroupToResource(sess, group, resource, false);
+
+		AssignedResource resourceActive = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, null, facility);
+		AssignedResource resourceInactive = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.INACTIVE, null, facility);
+
+		List<AssignedResource> resources = resourcesManager.getAssignedResourcesWithStatus(sess, member);
+		assertEquals("member should be assigned to a single resources", 1, resources.size());
+		assertTrue("assigned resources should be in returned list", resources.contains(resourceActive));
+
+		// removing group should change the status
+		resourcesManager.removeGroupFromResource(sess, group, resource);
+
+		resources = resourcesManager.getAssignedResourcesWithStatus(sess, member);
+		assertEquals("member should be assigned to a single resources", 1, resources.size());
+		assertTrue("assigned resource should be in returned list", resources.contains(resourceInactive));
+	}
+
+	@Test
 	public void getAssignedRichResourcesForMemberAndService() throws Exception {
 		System.out.println(CLASS_NAME + "getAssignedRichResourcesForMemberAndService");
 

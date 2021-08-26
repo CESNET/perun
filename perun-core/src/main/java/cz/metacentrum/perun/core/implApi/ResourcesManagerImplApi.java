@@ -451,6 +451,15 @@ public interface ResourcesManagerImplApi {
 	List<Resource> getAssignedResources(PerunSession sess, Member member);
 
 	/**
+	 * Returns all assigned resources where member is assigned through the groups.
+	 *
+	 * @param sess perun session
+	 * @param member member
+	 * @return list of assigned resources
+	 */
+	List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member);
+
+	/**
 	 * Returns all resources where member and service are assigned together.
 	 *
 	 * @param sess

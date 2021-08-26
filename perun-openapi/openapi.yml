@@ -12054,6 +12054,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/resourcesManager/getAssignedResourcesWithStatus:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedResourcesWithStatus
+      summary: Returns all assigned resources with statuses where member is assigned through the groups.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAssignedResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/resourcesManager/getResourceAssignments:
     get:
       tags:
