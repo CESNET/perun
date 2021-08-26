@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
@@ -320,6 +321,18 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		return getResourcesManagerBl().getAssignedMembers(sess, resource);
+	}
+
+	@Override
+	public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedMembersWithStatus_Resource_policy")) {
+			throw new PrivilegeException(sess, "getAssignedMembersWithStatus");
+		}
+
+		return getResourcesManagerBl().getAssignedMembersWithStatus(sess, resource);
 	}
 
 	@Override

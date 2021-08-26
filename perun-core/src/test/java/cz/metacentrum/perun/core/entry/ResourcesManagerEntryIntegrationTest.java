@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -52,6 +53,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -936,6 +938,48 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		members = resourcesManager.getAssignedMembers(sess, sndResource);
 		assertTrue(members.isEmpty());
 
+	}
+
+	@Test
+	public void getAssignedMembersWithStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedMembersWithStatus");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		Group group1 = perun.getGroupsManager().createGroup(sess, vo, new Group("group1", "group1")); // active
+		Group group2 = perun.getGroupsManager().createGroup(sess, vo, new Group("group2", "group2")); // inactive
+		Group group3 = perun.getGroupsManager().createGroup(sess, vo, new Group("group3", "group3")); // not assigned
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+		Member notAssignedMember = setUpMember(vo);
+
+		perun.getGroupsManager().addMember(sess, group1, member1);
+		perun.getGroupsManager().addMember(sess, group2, member1);
+		perun.getGroupsManager().addMember(sess, group3, member1);
+		perun.getGroupsManager().addMember(sess, group2, member2);
+		perun.getGroupsManager().addMember(sess, group3, notAssignedMember);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource, false);
+		perun.getResourcesManagerBl().deactivateGroupResourceAssignment(sess, group2, resource);
+
+		List<AssignedMember> assignedMembers = perun.getResourcesManagerBl().getAssignedMembersWithStatus(sess, resource);
+		List<Member> members = assignedMembers.stream().map(AssignedMember::getMember).collect(toList());
+
+		// contains member1 and member2
+		assertTrue(members.size() == 2);
+		assertTrue(members.containsAll(List.of(member1, member2)));
+		assertFalse(members.contains(notAssignedMember));
+
+		AssignedMember assignedMem1 = assignedMembers.stream().filter(m -> m.getMember().equals(member1)).findAny().get();
+		AssignedMember assignedMem2 = assignedMembers.stream().filter(m -> m.getMember().equals(member2)).findAny().get();
+
+		// statuses are correctly prioritized
+		assertTrue(assignedMem1.getStatus().equals(GroupResourceStatus.ACTIVE));
+		assertTrue(assignedMem2.getStatus().equals(GroupResourceStatus.INACTIVE));
 	}
 
 	@Test

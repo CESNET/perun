@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
@@ -259,6 +260,14 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getAssignedMembers(PerunSession perunSession, Resource resource);
+
+	/**
+	 * Returns members of groups assigned to resource with status of group-resource assignment.
+	 * @param sess perunSession
+	 * @param resource resource
+	 * @return list of members of groups assigned to given resource
+	 */
+	List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource);
 
 	/**
 	 * Returns all members assigned to the resource as RichMembers.

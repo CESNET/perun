@@ -14,6 +14,7 @@ import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceUpdated;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceAssignedToResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceRemovedFromResource;
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -365,6 +366,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAssignedMembers(sess, resource);
+	}
+
+	@Override
+	public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) {
+		return getResourcesManagerImpl().getAssignedMembersWithStatus(sess, resource);
 	}
 
 	@Override

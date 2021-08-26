@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
@@ -79,6 +80,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	final static String groupsMembersMappingSelectQuery = memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
 			"groups_members.source_group_id as source_group_id, groups_members.source_group_status as source_group_status, groups_members.group_id as group_id";
+
+	final static String groupsAssignedMembersMappingSelectQuery = groupsMembersMappingSelectQuery + ", groups_resources_state.status as group_resource_status";
 
 	final static String memberSponsorshipSelectQuery = "members_sponsored.active as members_sponsored_active, " +
 			"members_sponsored.sponsored_id as members_sponsored_sponsored_id, " +
@@ -177,6 +180,31 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 					member.setSourceGroupId(null);
 					member.setMembershipType((String) null);
 					members.put(member.getId(), member);
+				}
+			}
+		}
+
+		return new ArrayList<>(members.values());
+	};
+
+	/**
+	 * AssignedMember extractor that also sets correctly all member group statues.
+	 *
+	 * Use with `groupsAssignedMembersMappingSelectQuery`
+	 */
+	public static final ResultSetExtractor<List<AssignedMember>> ASSIGNED_MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
+		Map<Integer, AssignedMember> members = new HashMap<>();
+
+		while(resultSet.next()) {
+			Member member = MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP.mapRow(resultSet, resultSet.getRow());
+			if (member != null) {
+				if (members.containsKey(member.getId())) {
+					members.get(member.getId()).getMember().putGroupStatuses(member.getGroupStatuses());
+				} else {
+					member.setSourceGroupId(null);
+					member.setMembershipType((String) null);
+					AssignedMember assignedMember = new AssignedMember(member, GroupResourceStatus.valueOf(resultSet.getString("group_resource_status")));
+					members.put(member.getId(), assignedMember);
 				}
 			}
 		}
