@@ -739,6 +739,20 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedResourcesWithStatus_Member_policy", member)) {
+			throw new PrivilegeException(sess, "getAssignedResourcesWithStatus");
+		}
+
+		return getResourcesManagerBl().getAssignedResourcesWithStatus(sess, member);
+	}
+
+	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws PrivilegeException, MemberNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 

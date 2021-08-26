@@ -631,6 +631,17 @@ public interface ResourcesManager {
 	List<Resource> getAssignedResources(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException;
 
 	/**
+	 * Returns all assigned resources where member is assigned through the groups.
+	 *
+	 * @param sess perun session
+	 * @param member member
+	 * @return list of assigned resources
+	 * @throws MemberNotExistsException if the member does not exist
+	 * @throws PrivilegeException
+	 */
+	List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException;
+
+	/**
 	 * Get all resources where the member and the service are assigned.
 	 *
 	 * @param sess

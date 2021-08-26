@@ -3478,6 +3478,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAssignedResourcesWithStatus_Member_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getAssignedResources_Member_Service_policy:
     policy_roles:
       - SELF: User

@@ -625,6 +625,27 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
+	public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) {
+		try {
+			List<AssignedResource> resources = jdbc.query("select distinct " + assignedResourceMappingSelectQuery + " from resources" +
+				" join groups_resources_state on resources.id=groups_resources_state.resource_id " +
+				" join facilities on resources.facility_id=facilities.id" +
+				" join groups on groups_resources_state.group_id=groups.id" +
+				" join groups_members on groups.id=groups_members.group_id" +
+				" where groups_members.member_id=?", ASSIGNED_RESOURCE_MAPPER, member.getId());
+
+			resources.removeIf(r1 -> resources.stream()
+				.anyMatch(r2 -> r2.getEnrichedResource().equals(r1.getEnrichedResource()) && r2.getStatus().isMoreImportantThan(r1.getStatus())));
+
+			return resources;
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +

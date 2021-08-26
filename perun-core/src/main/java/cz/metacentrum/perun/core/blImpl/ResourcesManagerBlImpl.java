@@ -684,6 +684,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) {
+		return getResourcesManagerImpl().getAssignedResourcesWithStatus(sess, member);
+	}
+
+	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) {
 		return getResourcesManagerImpl().getAssignedRichResources(sess, member, service);
 	}
