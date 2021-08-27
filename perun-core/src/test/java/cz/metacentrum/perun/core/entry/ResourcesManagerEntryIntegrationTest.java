@@ -1047,7 +1047,14 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		AssignedMember assignedMem1 = assignedMembers.stream().filter(m -> m.getMember().equals(member1)).findAny().get();
 		AssignedMember assignedMem2 = assignedMembers.stream().filter(m -> m.getMember().equals(member2)).findAny().get();
 
+		System.out.println(assignedMem1);
+		System.out.println(assignedMem2);
+
 		// statuses are correctly prioritized
+		System.out.println("Member 1 status: " + assignedMem1.getStatus());
+		System.out.println("Member 2 status: " + assignedMem2.getStatus());
+		System.out.println("Member 1 status is more important: " + assignedMem1.getStatus().isMoreImportantThan(assignedMem2.getStatus()));
+
 		assertTrue(assignedMem1.getStatus().equals(GroupResourceStatus.ACTIVE));
 		assertTrue(assignedMem2.getStatus().equals(GroupResourceStatus.INACTIVE));
 	}
