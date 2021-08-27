@@ -4032,8 +4032,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
-							"join groups_resources on resource_services.resource_id=groups_resources.resource_id " +
-							"where service_required_attrs.attr_id=? and groups_resources.group_id=?",
+							"join groups_resources_state on resource_services.resource_id=groups_resources_state.resource_id " +
+							"where service_required_attrs.attr_id=? and groups_resources_state.group_id=?",
 					attributeDefinition.getId(), group.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);

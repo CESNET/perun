@@ -365,6 +365,7 @@ components:
       properties:
         enrichedResource: { $ref: '#/components/schemas/EnrichedResource' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
+        sourceGroupId: { type: integer }
         failureCause: { type: string }
         facility: { $ref: '#/components/schemas/Facility'}
         resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
@@ -374,6 +375,7 @@ components:
       properties:
         enrichedGroup: { $ref: '#/components/schemas/EnrichedGroup' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
+        sourceGroupId: { type: integer }
         failureCause: { type: string }
 
     EnrichedHost:

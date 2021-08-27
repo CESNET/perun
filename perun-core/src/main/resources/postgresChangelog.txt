@@ -6,6 +6,17 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.86
+create table groups_resources_automatic(group_id integer not null, resource_id integer not null,source_group_id integer not null,created_at timestamp default statement_timestamp() not null,created_by varchar default user not null,modified_at timestamp default statement_timestamp() not null,modified_by varchar default user not null,created_by_uid integer,modified_by_uid integer,constraint grresaut_grp_res_sgrp_u unique (group_id,resource_id,source_group_id),constraint grresaut_gr_fk foreign key (group_id) references groups(id),constraint grresaut_res_fk foreign key (resource_id) references resources(id),constraint grresaut_sgr_fk foreign key (source_group_id) references groups(id));
+grant all on groups_resources_automatic to perun;
+create index idx_fk_grres_a_gr on groups_resources_automatic(group_id);
+create index idx_fk_grres_a_res on groups_resources_automatic(resource_id);
+create index idx_fk_grres_a_sgr on groups_resources_automatic(source_group_id);
+create or replace function relation_group_resource_exist(integer, integer) returns integer as 'select count(1) from (SELECT group_id, resource_id FROM groups_resources UNION SELECT group_id, resource_id FROM groups_resources_automatic) gr_res where group_id=$1 and resource_id=$2;' language sql;
+create or replace function delete_group_resource_status() returns trigger as 'begin if relation_group_resource_exist(OLD.group_id, OLD.resource_id) = 0 then delete from groups_resources_state where group_id=OLD.group_id and resource_id=OLD.resource_id; end if; return OLD; end;' language plpgsql;
+create trigger after_deleting_from_groups_resources_automatic after delete on groups_resources_automatic for each row execute procedure delete_group_resource_status();
+UPDATE configurations SET value='3.1.86' WHERE property='DATABASE VERSION';
+
 3.1.85
 create function relation_group_resource_exist(integer, integer) returns integer as 'select count(1) from groups_resources where group_id=$1 and resource_id=$2;' language sql;
 create table groups_resources_state (group_id integer not null, resource_id integer not null, failure_cause varchar default null, status group_resource_status not null default 'PROCESSING', check (relation_group_resource_exist(group_id, resource_id) != 0));
