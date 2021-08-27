@@ -841,9 +841,9 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource, false);
 		resourcesManager.assignGroupToResource(sess, group, resource2, false);
 
-		AssignedResource resource1Active = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, null, facility);
-		AssignedResource resource2Active = new AssignedResource(new EnrichedResource(resource2, null), GroupResourceStatus.ACTIVE, null, facility);
-		AssignedResource resource2Inactive = new AssignedResource(new EnrichedResource(resource2, null), GroupResourceStatus.INACTIVE, null, facility);
+		AssignedResource resource1Active = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, null, null, facility);
+		AssignedResource resource2Active = new AssignedResource(new EnrichedResource(resource2, null), GroupResourceStatus.ACTIVE, null, null, facility);
+		AssignedResource resource2Inactive = new AssignedResource(new EnrichedResource(resource2, null), GroupResourceStatus.INACTIVE, null, null, facility);
 
 		List<AssignedResource> resources = resourcesManager.getAssignedResourcesWithStatus(sess, member);
 		assertEquals("member should be assigned to 2 resources", 2, resources.size());
@@ -882,8 +882,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.deactivateGroupResourceAssignment(sess, group2, resource);
 		resourcesManager.assignGroupToResource(sess, group, resource, false);
 
-		AssignedResource resourceActive = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, null, facility);
-		AssignedResource resourceInactive = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.INACTIVE, null, facility);
+		AssignedResource resourceActive = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.ACTIVE, null, null, facility);
+		AssignedResource resourceInactive = new AssignedResource(new EnrichedResource(resource, null), GroupResourceStatus.INACTIVE, null, null, facility);
 
 		List<AssignedResource> resources = resourcesManager.getAssignedResourcesWithStatus(sess, member);
 		assertEquals("member should be assigned to a single resources", 1, resources.size());

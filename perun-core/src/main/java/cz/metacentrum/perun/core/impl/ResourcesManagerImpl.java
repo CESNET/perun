@@ -640,7 +640,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) {
 		try {
 			List<AssignedResource> resources = jdbc.query("select distinct " + assignedResourceMappingSelectQuery + " from resources" +
-				" join groups_resources_state on resources.id=groups_resources_state.resource_id " +
+				" join (SELECT group_id, resource_id, NULL as source_group_id FROM groups_resources" +
+				"	UNION" +
+				"	SELECT group_id, resource_id, source_group_id FROM groups_resources_automatic)" +
+				" 	groups_resources_automatic on groups_resources_automatic.resource_id = resources.id" +
+				" join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
 				" join facilities on resources.facility_id=facilities.id" +
 				" join groups on groups_resources_state.group_id=groups.id" +
 				" join groups_members on groups.id=groups_members.group_id" +
