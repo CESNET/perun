@@ -377,7 +377,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) {
-		return getResourcesManagerImpl().getAssignedMembersWithStatus(sess, resource);
+		List<AssignedMember> assignedMembers = getResourcesManagerImpl().getAssignedMembersWithStatus(sess, resource);
+
+		// fill incomplete RichMembers
+		assignedMembers.forEach(a -> a.setRichMember(getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, List.of(a.getRichMember())).get(0)));
+
+		return assignedMembers;
+
 	}
 
 	@Override

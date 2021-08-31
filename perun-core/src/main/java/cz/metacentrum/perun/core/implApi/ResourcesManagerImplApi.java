@@ -424,6 +424,7 @@ public interface ResourcesManagerImplApi {
 
 	/**
 	 * Returns members of groups assigned to resource with status of group-resource assignment.
+	 * RichMember attribute has only Member set.
 	 * @param sess perunSession
 	 * @param resource resource
 	 * @return list of members of groups assigned to given resource

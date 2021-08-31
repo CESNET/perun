@@ -152,7 +152,7 @@ components:
     AssignedMember:
       type: object
       properties:
-        member: { $ref: '#/components/schemas/Member' }
+        richMember: { $ref: '#/components/schemas/RichMember' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
 
     RichMember:

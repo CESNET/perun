@@ -209,6 +209,10 @@ $objectExamples{"List<MembersPageQuery>"} = $objectExamples{"List&lt;MembersPage
 $objectExamples{"Paginated&lt;RichMember&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichMember&gt;"} . "  }";
 $objectExamples{"Paginated<RichMember>"} = @objectExamples{"Paginated&lt;RichMember&gt;"};
 
+$objectExamples{"AssignedMember"} = "{ \"richMember\" : " . $objectExamples{"RichMember"} . " , \"status\" : \"ACTIVE\" }";
+$objectExamples{"List&lt;AssignedMember&gt;"} = $listPrepend . $objectExamples{"AssignedMember"} . $listAppend;
+$objectExamples{"List<AssignedMember>"} = $objectExamples{"List&lt;AssignedMember&gt;"};
+
 # SUB HELP
 # help info
 sub help {

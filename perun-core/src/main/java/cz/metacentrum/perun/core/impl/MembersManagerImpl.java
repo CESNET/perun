@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -197,13 +198,24 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		while(resultSet.next()) {
 			Member member = MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP.mapRow(resultSet, resultSet.getRow());
+
 			if (member != null) {
+
+				GroupResourceStatus assignmentStatus = GroupResourceStatus.valueOf(resultSet.getString("group_resource_status"));
+
+				// if member is repeated, only update assignment status and richmember's group statuses
 				if (members.containsKey(member.getId())) {
-					members.get(member.getId()).getMember().putGroupStatuses(member.getGroupStatuses());
+					AssignedMember storedMember = members.get(member.getId());
+					storedMember.getRichMember().putGroupStatuses(member.getGroupStatuses());
+					if (assignmentStatus.isMoreImportantThan(storedMember.getStatus())) {
+						storedMember.setStatus(assignmentStatus);
+					}
 				} else {
+					// else add member to map and use current assignment status
 					member.setSourceGroupId(null);
 					member.setMembershipType((String) null);
-					AssignedMember assignedMember = new AssignedMember(member, GroupResourceStatus.valueOf(resultSet.getString("group_resource_status")));
+					RichMember richMember = new RichMember(null, member, null, null, null);
+					AssignedMember assignedMember = new AssignedMember(richMember, assignmentStatus);
 					members.put(member.getId(), assignedMember);
 				}
 			}

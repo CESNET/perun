@@ -8,21 +8,21 @@ import java.util.Objects;
  * @author Johana Supikova <xsupikov@fi.muni.cz>
  */
 public class AssignedMember {
-	private Member member;
+	private RichMember richMember;
 	private GroupResourceStatus status;
 
-	public AssignedMember(Member member, GroupResourceStatus status) {
-		this.member = member;
+	public AssignedMember(RichMember richMember, GroupResourceStatus status) {
+		this.richMember = richMember;
 		this.status = status;
 	}
 
 
-	public Member getMember() {
-		return member;
+	public RichMember getRichMember() {
+		return richMember;
 	}
 
-	public void setMember(Member member) {
-		this.member = member;
+	public void setRichMember(RichMember richMember) {
+		this.richMember = richMember;
 	}
 
 	public GroupResourceStatus getStatus() {
@@ -38,18 +38,18 @@ public class AssignedMember {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AssignedMember that = (AssignedMember) o;
-		return Objects.equals(getMember(), that.getMember()) && getStatus() == that.getStatus();
+		return Objects.equals(getRichMember(), that.getRichMember()) && getStatus() == that.getStatus();
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getMember(), getStatus());
+		return Objects.hash(getRichMember(), getStatus());
 	}
 
 	@Override
 	public String toString() {
 		return "AssignedMember{" +
-			"member= " + member +
+			"richMember= " + richMember +
 			", status=" + status +
 			'}';
 	}
