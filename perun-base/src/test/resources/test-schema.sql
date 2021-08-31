@@ -783,7 +783,7 @@ create table groups_resources_automatic (
 );
 
 create function relation_group_resource_exist(integer, integer) returns integer
-	as 'select count(1) from (SELECT group_id, resource_id FROM groups_resources UNION SELECT group_id, resource_id FROM groups_resources_automatic) gr_res where group_id=$1 and resource_id=$2;'
+	as 'select count(1)::integer from (SELECT group_id, resource_id FROM groups_resources UNION SELECT group_id, resource_id FROM groups_resources_automatic) gr_res where group_id=$1 and resource_id=$2;'
 	language sql;
 
 create table groups_resources_state (
