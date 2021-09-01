@@ -167,4 +167,14 @@ sub assignResourceTagToResource {
 	return Perun::Common::callManagerMethod('assignResourceTagToResource', '', @_);
 }
 
+sub activateGroupResourceAssignment
+{
+	return Perun::Common::callManagerMethod('activateGroupResourceAssignment', '', @_);
+}
+
+sub deactivateGroupResourceAssignment
+{
+	return Perun::Common::callManagerMethod('deactivateGroupResourceAssignment', '', @_);
+}
+
 1;
