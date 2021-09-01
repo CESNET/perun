@@ -1037,15 +1037,15 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		perun.getResourcesManagerBl().deactivateGroupResourceAssignment(sess, group2, resource);
 
 		List<AssignedMember> assignedMembers = perun.getResourcesManagerBl().getAssignedMembersWithStatus(sess, resource);
-		List<Member> members = assignedMembers.stream().map(AssignedMember::getMember).collect(toList());
+		List<Member> members = assignedMembers.stream().map(AssignedMember::getRichMember).collect(toList());
 
 		// contains member1 and member2
 		assertTrue(members.size() == 2);
 		assertTrue(members.containsAll(List.of(member1, member2)));
 		assertFalse(members.contains(notAssignedMember));
 
-		AssignedMember assignedMem1 = assignedMembers.stream().filter(m -> m.getMember().equals(member1)).findAny().get();
-		AssignedMember assignedMem2 = assignedMembers.stream().filter(m -> m.getMember().equals(member2)).findAny().get();
+		AssignedMember assignedMem1 = assignedMembers.stream().filter(m -> m.getRichMember().equals(member1)).findAny().get();
+		AssignedMember assignedMem2 = assignedMembers.stream().filter(m -> m.getRichMember().equals(member2)).findAny().get();
 
 		// statuses are correctly prioritized
 		assertTrue(assignedMem1.getStatus().equals(GroupResourceStatus.ACTIVE));
