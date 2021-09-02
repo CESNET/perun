@@ -1169,10 +1169,10 @@ public class MembersManagerEntry implements MembersManager {
 		try {
 			if (ad.getEntity().equals("user")) {
 				User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
-				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, user, mailAttributeUrn);
+				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, mailAttributeUrn);
 			}
 			if (ad.getEntity().equals("member")) {
-				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, member, mailAttributeUrn);
+				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, mailAttributeUrn);
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -1207,10 +1207,10 @@ public class MembersManagerEntry implements MembersManager {
 		try {
 			if (attributeDefinition.getEntity().equals("user")) {
 				User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
-				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, user, mailAttributeUrn);
+				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, mailAttributeUrn);
 			}
 			if (attributeDefinition.getEntity().equals("member")) {
-				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, member, mailAttributeUrn);
+				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, mailAttributeUrn);
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
