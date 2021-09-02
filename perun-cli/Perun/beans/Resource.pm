@@ -158,7 +158,7 @@ sub setFacilityId
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_voId}, $self->{_name}, $self->{_facilityId}, $self->{_description});
+	return ($self->{_id}, $self->{_name}, $self->{_voId}, $self->{_facilityId}, $self->{_description});
 }
 
 sub getCommonArrayRepresentationHeading {

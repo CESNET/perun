@@ -38,7 +38,7 @@ unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getNa
 unless (defined $groupId) { die "ERROR: Group specification required.\n"; }
 
 my $resourcesAgent = $agent->getResourcesAgent;
-my @resources = $resourcesAgent->getAssignedResources( group => $groupId );
+my @resources = $resourcesAgent->getResourceAssignments( group => $groupId );
 unless (@resources) {
 	printMessage "No Group's Resources found", $batch;
 	exit 0;
