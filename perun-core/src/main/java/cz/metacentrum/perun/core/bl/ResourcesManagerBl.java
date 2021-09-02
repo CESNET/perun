@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
@@ -359,6 +360,22 @@ public interface ResourcesManagerBl {
 	 * @throws GroupResourceMismatchException
 	 */
 	void assignGroupsToResource(PerunSession perunSession, Iterable<Group> groups, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+
+	/**
+	 * Asynchronously assigns single subgroup to resource as automatically assigned source group's subgroup.
+	 * Source group must have existing assignment on resource with autoAssignSubgroups set to true.
+	 * @param perunSession sess
+	 * @param sourceGroup source group (containing groupToAssign in hierarchy as a subgroup)
+	 * @param groupToAssign source group's subgroup to be assigned on resource as by automatic assignment
+	 * @param resource resource
+	 * @param assignInactive assign subgroup to inactive state
+	 *
+	 * @throws GroupResourceMismatchException
+	 * @throws GroupAlreadyAssignedException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 */
+	void assignAutomaticGroupToResource(PerunSession perunSession, Group sourceGroup, Group groupToAssign, Resource resource, boolean assignInactive) throws GroupResourceMismatchException, GroupAlreadyAssignedException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Assign group to the resources. Check if attributes for each member from group are valid.

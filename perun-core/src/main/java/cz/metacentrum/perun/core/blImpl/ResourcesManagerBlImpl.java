@@ -421,25 +421,9 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			//first we must assign group
 			try {
 				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource, autoAssignSubgroups);
-				GroupResourceStatus status = assignInactive ? GroupResourceStatus.INACTIVE : GroupResourceStatus.PROCESSING;
-
-				// if group is not assigned with active status, activate it
-				if (!isGroupAssigned(perunSession, resource, g)) {
-					if (groupResourceAssignmentExists(perunSession, resource, g)) {
-						getResourcesManagerImpl().setGroupResourceStatus(perunSession, g, resource, status);
-					} else {
-						getResourcesManagerImpl().assignGroupToResourceState(perunSession, g, resource, status);
-					}
-
-					// if status is PROCESSING, activate group-resource assignment
-					if (!assignInactive) {
-						activateGroupResourceAssignment(perunSession, g, resource, async);
-					}
-				}
+				setAssignedGroupStatusAndActivate(perunSession, resource, async, assignInactive, g);
 			} catch (GroupAlreadyAssignedException e) {
 				// silently skip
-			} catch (GroupNotDefinedOnResourceException ex) {
-				throw new ConsistencyErrorException(ex);
 			}
 
 			if (autoAssignSubgroups) {
@@ -457,33 +441,59 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				for (Group subgroup : subgroups) {
 
 					try {
-						getResourcesManagerImpl().assignAutomaticGroupToResource(perunSession, subgroup, resource, g);
-						GroupResourceStatus status = assignInactive ? GroupResourceStatus.INACTIVE : GroupResourceStatus.PROCESSING;
-
-						// if group is assigned with active status, we do not want to activate it again
-						if (isGroupAssigned(perunSession, resource, subgroup)) {
-							continue;
-						}
-
-						if (groupResourceAssignmentExists(perunSession, resource, subgroup)) {
-							getResourcesManagerImpl().setGroupResourceStatus(perunSession, subgroup, resource, status);
-						} else {
-							getResourcesManagerImpl().assignGroupToResourceState(perunSession, subgroup, resource, status);
-						}
-
-						// if status is not ACTIVE and should be, activate group-resource assignment
-						if (!assignInactive) {
-							// automatic subgroups-resource assignment should be async
-							activateGroupResourceAssignment(perunSession, subgroup, resource, true);
-						}
+						assignAutomaticGroupToResource(perunSession, g, subgroup, resource, assignInactive);
 					} catch (GroupAlreadyAssignedException e) {
 						// silently skip
-					} catch (GroupNotDefinedOnResourceException ex) {
-						throw new ConsistencyErrorException(ex);
 					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Sets status to group-resource assignment. Does not overwrite ACTIVE status.
+	 * Puts new status to database if no status is saved, overwrites existing one otherwise.
+	 * Activates group-resource assignment according to async flag if assignInactive is not set to false.
+	 * @param perunSession perun session
+	 * @param resource resource
+	 * @param async if true, runs in asynchronous mode, synchronously otherwise
+	 * @param assignInactive if true, sets INACTIVE status and does not activate assignment
+	 * @param g group
+	 * @throws GroupNotDefinedOnResourceException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws GroupResourceMismatchException
+	 * @throws WrongAttributeValueException
+	 */
+	private void setAssignedGroupStatusAndActivate(PerunSession perunSession, Resource resource, boolean async, boolean assignInactive, Group g) throws WrongReferenceAttributeValueException, GroupResourceMismatchException, WrongAttributeValueException {
+		GroupResourceStatus status = assignInactive ? GroupResourceStatus.INACTIVE : GroupResourceStatus.PROCESSING;
+
+		// if group is assigned as ACTIVE, don't change status
+		if (isGroupAssigned(perunSession, resource, g)) {
+			return;
+		}
+
+		try {
+			if (groupResourceAssignmentExists(perunSession, resource, g)) {
+				getResourcesManagerImpl().setGroupResourceStatus(perunSession, g, resource, status);
+			} else {
+				getResourcesManagerImpl().assignGroupToResourceState(perunSession, g, resource, status);
+			}
+
+			// if status is PROCESSING, activate group-resource assignment
+			if (!assignInactive) {
+				activateGroupResourceAssignment(perunSession, g, resource, async);
+			}
+		} catch (GroupNotDefinedOnResourceException e) {
+			throw new ConsistencyErrorException(e);
+		}
+	}
+
+	@Override
+	public void assignAutomaticGroupToResource(PerunSession perunSession, Group sourceGroup, Group groupToAssign, Resource resource, boolean assignInactive) throws GroupResourceMismatchException, GroupAlreadyAssignedException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+		getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(perunSession, sourceGroup, resource);
+
+		getResourcesManagerImpl().assignAutomaticGroupToResource(perunSession, groupToAssign, resource, sourceGroup);
+		setAssignedGroupStatusAndActivate(perunSession, resource, true, assignInactive, groupToAssign);
 	}
 
 	@Override
@@ -513,7 +523,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	/**
-	 * Remove group from a resource.
+	 * Remove group from a resource. Remove subgroups automatic assignments.
 	 * After removing, check attributes and fix them if it is needed.
 	 *
 	 * @param sess
@@ -547,10 +557,23 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			getResourcesManagerImpl().removeAutomaticGroupFromResource(sess, group, resource, sourceGroupId);
 		} else {
 			getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
+
+			// Remove automatically assigned subgroups
+			List<AssignedGroup> subgroupsAssignments = getResourcesManagerImpl().getGroupAssignments(sess, resource).stream()
+				.filter(assignedGroup -> Objects.equals(assignedGroup.getSourceGroupId(), group.getId()))
+				.collect(Collectors.toList());
+
+			for (AssignedGroup assignedSubgroup : subgroupsAssignments) {
+				try {
+					removeAutomaticGroupFromResource(sess, assignedSubgroup.getEnrichedGroup().getGroup(), resource, group.getId());
+				} catch (GroupAlreadyRemovedFromResourceException e) {
+					// skip silently
+				}
+			}
 		}
 
 		// If it was the last ACTIVE assignment, we can delete group-resource attributes and audit the removal
-		if (isGroupAssigned(sess, resource, group)) {
+		if (!isGroupAssigned(sess, resource, group)) {
 			getPerunBl().getAuditer().log(sess, new GroupRemovedFromResource(group, resource));
 
 			// Remove group-resource attributes
