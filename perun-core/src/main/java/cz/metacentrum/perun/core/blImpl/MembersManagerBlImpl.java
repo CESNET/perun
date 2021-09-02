@@ -2768,7 +2768,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 
-		richMembers = convertMembersToRichMembersWithAttributes(sess, richMembers, attrDefs);
+		if (query.getGroupId() == null) {
+			richMembers = convertMembersToRichMembersWithAttributes(sess, richMembers, attrDefs);
+		} else {
+			try {
+				richMembers = convertMembersToRichMembersWithAttributes(sess, perunBl.getGroupsManagerBl().getGroupById(sess, query.getGroupId()), richMembers, attrDefs);
+			} catch (GroupNotExistsException | MemberGroupMismatchException e) {
+				throw new InternalErrorException(e);
+			}
+		}
 
 		return new Paginated<>(richMembers, paginatedMembers.getOffset(), paginatedMembers.getPageSize(),
 				paginatedMembers.getTotalCount());
