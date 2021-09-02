@@ -1,4 +1,3 @@
-
 openapi: 3.0.2
 info:
   version: 0.0.0
@@ -206,7 +205,7 @@ components:
         offset: { type: integer }
         order: { $ref: '#/components/schemas/SortingOrder' }
         sortColumn: { $ref: '#/components/schemas/MembersOrderColumn' }
-        searchString : { type: string }
+        searchString: { type: string }
         statuses: { type: array, items: { $ref: '#/components/schemas/VoMemberStatuses' } }
         groupId: { type: integer }
         groupStatuses: { type: array, items: { $ref: '#/components/schemas/MemberGroupStatus' } }
@@ -367,8 +366,9 @@ components:
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
         sourceGroupId: { type: integer }
         failureCause: { type: string }
-        facility: { $ref: '#/components/schemas/Facility'}
+        facility: { $ref: '#/components/schemas/Facility' }
         resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
+        autoAssignSubgroups: { type: boolean }
 
     AssignedGroup:
       type: object
@@ -377,6 +377,7 @@ components:
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
         sourceGroupId: { type: integer }
         failureCause: { type: string }
+        autoAssignSubgroups: { type: boolean }
 
     EnrichedHost:
       type: object
@@ -521,7 +522,7 @@ components:
       type: object
       properties:
         roleName: { type: string }
-        primaryObject: { type: string, nullable: true}
+        primaryObject: { type: string, nullable: true }
         privilegedRolesToManage:
           type: array
           items:
@@ -694,7 +695,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/Destination'
         - properties:
-            blocked: {type: boolean}
+            blocked: { type: boolean }
             service: { $ref: '#/components/schemas/Service' }
             facility: { $ref: '#/components/schemas/Facility' }
       discriminator:
@@ -764,8 +765,8 @@ components:
           additionalProperties: { $ref: '#/components/schemas/ItemTexts' }
         hiddenDependencyItemId: { type: integer }
         disabledDependencyItemId: { type: integer }
-        hidden: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ]}
-        disabled: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ]}
+        hidden: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ] }
+        disabled: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ] }
         forDelete: { type: boolean }
 
     ApplicationFormItemData:
@@ -1095,7 +1096,7 @@ components:
       type: object
       properties:
         member: { $ref: '#/components/schemas/RichMember' }
-        sponsors: { type: array, items: { $ref: '#/components/schemas/Sponsor' }}
+        sponsors: { type: array, items: { $ref: '#/components/schemas/Sponsor' } }
 
     RTMessage:
       type: object
@@ -1139,7 +1140,7 @@ components:
     PerunAppsConfig:
       type: object
       properties:
-        brands: { type: array, items: { $ref: '#/components/schemas/Brand' }}
+        brands: { type: array, items: { $ref: '#/components/schemas/Brand' } }
 
   #################################################
   #                                               #
@@ -2122,6 +2123,22 @@ components:
     async:
       name: async
       description: "asynchronous flag, if set to true, some operation will be performed asynchronously"
+      schema:
+        type: boolean
+      in: query
+      required: false
+
+    assignInactive:
+      name: assignInactive
+      description: "flag, if set to true, group-resource assignment will have status INACTIVE"
+      schema:
+        type: boolean
+      in: query
+      required: false
+
+    autoAssignSubgroups:
+      name: autoAssignSubgroups
+      description: "flag, if set to true, subgroups are assigned to resource as well"
       schema:
         type: boolean
       in: query
@@ -5254,11 +5271,11 @@ paths:
       summary: Returns all AttributeDefinitions in a namespace.
       parameters:
         - {
-            name: namespace,
-            description: "name of namespace to obtain attribute definitions from",
-            schema: { type: string },
-            in: query,
-            required: true          
+          name: namespace,
+          description: "name of namespace to obtain attribute definitions from",
+          schema: { type: string },
+          in: query,
+          required: true
         }
       responses:
         '200':
@@ -7761,14 +7778,14 @@ paths:
       tags:
         - UsersManager
       operationId: getUsers
-      summary: Returns all users 
-      description: Returns list of objects representing the User 
+      summary: Returns all users
+      description: Returns list of objects representing the User
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-  
+
   /json/usersManager/getAllRichUsersWithAttributes:
     get:
       tags:
@@ -8518,7 +8535,7 @@ paths:
       tags:
         - UsersManager
       operationId: anonymizeUser
-      summary:  Anonymizes user - according to configuration, each of user's attributes is either anonymized, kept untouched or deleted. Also deletes other user's related data, e.g. authorships of users publications, mail change and password reset requests, bans...
+      summary: Anonymizes user - according to configuration, each of user's attributes is either anonymized, kept untouched or deleted. Also deletes other user's related data, e.g. authorships of users publications, mail change and password reset requests, bans...
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
@@ -8969,8 +8986,8 @@ paths:
                 - data
                 - header
               properties:
-                data : { type: array, items: { type: string }, description: "values separated with semicolons" }
-                header: { type: string, description: "csv header for the given data, values are also split with semicolons"}
+                data: { type: array, items: { type: string }, description: "values separated with semicolons" }
+                header: { type: string, description: "csv header for the given data, values are also split with semicolons" }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
@@ -9003,7 +9020,7 @@ paths:
                 - sponsor
                 - namespace
               properties:
-                guestNames : { type: array, items: { type: string }, description: "names of members to create, single name should have the format {firstName};{lastName} to be parsed well" }
+                guestNames: { type: array, items: { type: string }, description: "names of members to create, single name should have the format {firstName};{lastName} to be parsed well" }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
@@ -9385,8 +9402,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/namespace'
-        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail"}
-        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message"}
+        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail" }
+        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9402,8 +9419,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/namespace'
-        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail"}
-        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message"}
+        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail" }
+        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9497,7 +9514,7 @@ paths:
                 - attrNames
               properties:
                 vo: { type: integer }
-                attrNames: { type: array, items: { type: string }}
+                attrNames: { type: array, items: { type: string } }
                 query: { $ref: '#/components/schemas/MembersPageQuery' }
 
   #################################################
@@ -11939,11 +11956,13 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignGroupToResource
-      summary: Assigns a group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value. Work in sync/async mode.
+      summary: Assigns a group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value. Work in sync/async mode. Provide options for creating inactive or automatic subgroups group-resource assignments.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/assignInactive'
+        - $ref: '#/components/parameters/autoAssignSubgroups'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -11955,11 +11974,13 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignGroupsToResource
-      summary: Assigns groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values. Work in sync/async mode.
+      summary: Assigns groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values. Work in sync/async mode. Provide options for creating inactive or automatic subgroups group-resource assignments.
       parameters:
         - $ref: '#/components/parameters/groupIds'
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/assignInactive'
+        - $ref: '#/components/parameters/autoAssignSubgroups'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -11971,11 +11992,13 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignGroupToResources
-      summary: Assigns a group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode.
+      summary: Assigns a group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode. Provide options for creating inactive or automatic subgroups group-resource assignments.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceIds'
         - $ref: '#/components/parameters/async'
+        - $ref: '#/components/parameters/assignInactive'
+        - $ref: '#/components/parameters/autoAssignSubgroups'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -12137,9 +12160,9 @@ paths:
         - ResourcesManager
       operationId: activateGroupResourceAssignment
       summary: Try to activate the group-resource status. If the async is set to false, the validation is performed
-          synchronously. The assignment will be either ACTIVE, in case of a sucessfull synchronous call, or it will be
-          PROCESSING in case of an asynchronous call. After the async validation, the state can be either ACTIVE or
-          FAILED.
+        synchronously. The assignment will be either ACTIVE, in case of a sucessfull synchronous call, or it will be
+        PROCESSING in case of an asynchronous call. After the async validation, the state can be either ACTIVE or
+        FAILED.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceId'
@@ -12156,7 +12179,7 @@ paths:
         - ResourcesManager
       operationId: deactivateGroupResourceAssignment
       summary: Deactivates the group-resource assignment. The assignment will become INACTIVE and will not be used to
-          allow users from the given group to the resource.
+        allow users from the given group to the resource.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceId'

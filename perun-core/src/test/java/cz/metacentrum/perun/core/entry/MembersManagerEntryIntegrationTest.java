@@ -307,7 +307,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 		perun.getGroupsManagerBl().addMember(sess, createdGroup, createdMember);
 
 		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
@@ -398,7 +398,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 		perun.getGroupsManagerBl().addMember(sess, createdGroup, createdMember);
 
 		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
@@ -2370,7 +2370,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 
 		// set attributes
 		Attribute memberAttribute = setUpAttribute(Integer.class.getName(), "testMemberAttribute", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
@@ -2458,7 +2458,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 
 		LocalDate today = LocalDate.now();
 		Date tommorow = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());

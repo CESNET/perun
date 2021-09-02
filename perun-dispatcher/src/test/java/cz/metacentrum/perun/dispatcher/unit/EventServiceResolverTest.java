@@ -55,7 +55,7 @@ public class EventServiceResolverTest extends AbstractDispatcherTest {
 		perun.getGroupsManagerBl().addMember(sess, group1, member1);
 
 		// assign the group to resource
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false, false, false);
 
 	}
 

@@ -219,14 +219,34 @@ public interface ResourcesManagerBl {
 	boolean isUserAllowed(PerunSession sess, User user, Resource resource);
 
 	/**
-	 * Returns true if the group is assigned to the current resource, false otherwise.
+	 * Returns true if the group is assigned to the current resource with ACTIVE status, false otherwise.
 	 * @param sess
-	 * @param group
 	 * @param resource
+	 * @param group
+	 * @return true if the group is assigned to the current resource with active status.
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupAssigned(PerunSession sess, Resource resource, Group group);
+
+	/**
+	 * Returns true if the group is assigned to the current resource with any status, false otherwise.
+	 * @param sess
+	 * @param resource
+	 * @param group
 	 * @return true if the group is assigned to the current resource.
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupAssigned(PerunSession sess, Group group, Resource resource);
+	boolean groupResourceAssignmentExists(PerunSession sess, Resource resource, Group group);
+
+	/**
+	 * Returns true if the group is assigned to the given resource manually, false otherwise.
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @return true if the group is assigned to the given resource manually.
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource);
 
 	/**
 	 * Returns all members who can access the resource.
@@ -301,55 +321,65 @@ public interface ResourcesManagerBl {
 	List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Resource resource);
 
 	/**
-	 * Assign group to a resource. Check if attributes for each member form group are valid. Fill members' attributes with missing value.
+	 * Assign group to a resource. Check if attributes for each member form group are valid.
+	 * Fill members' attributes with missing value.
+	 * Provide options for creating inactive or automatic subgroups group-resource assignments.
 	 *
 	 * @param perunSession
 	 * @param group
 	 * @param resource
-
 	 * @param async
+	 * @param assignInactive
+	 * @param autoAssignSubgroups
+	 *
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, boolean async) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Assign groups to a resource. Check if attributes for each member from all groups are valid.
 	 * Fill members' attributes with missing values.
+	 * Provide options for creating inactive or automatic subgroups group-resource assignments.
 	 *
 	 * Already assigned groups are silently skipped.
 	 *
 	 * @param perunSession
 	 * @param groups groups to assign
 	 * @param resource
-	 *
 	 * @param async
+	 * @param assignInactive
+	 * @param autoAssignSubgroups
+	 *
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupsToResource(PerunSession perunSession, Iterable<Group> groups, Resource resource, boolean async) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void assignGroupsToResource(PerunSession perunSession, Iterable<Group> groups, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Assign group to the resources. Check if attributes for each member from group are valid.
 	 * Fill members' attributes with missing values.
+	 * Provide options for creating inactive or automatic subgroups group-resource assignments.
 	 *
 	 * If the group is already assigned to some of the resources, the assignment is silently skipped.
 	 *
 	 * @param perunSession
 	 * @param group the group
 	 * @param resources list of resources
-	 *
 	 * @param async
+	 * @param assignInactive
+	 * @param autoAssignSubgroups
+	 *
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Remove group from a resource.

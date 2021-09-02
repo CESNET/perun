@@ -5424,7 +5424,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	private boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		this.checkNamespace(sess, attributeDefinition, NS_GROUP_RESOURCE_ATTR);
-		return getPerunBl().getResourcesManagerBl().isGroupAssigned(sess, group, resource) &&
+		return getPerunBl().getResourcesManagerBl().isGroupAssigned(sess, resource, group) &&
 				getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition);
 	}
 
