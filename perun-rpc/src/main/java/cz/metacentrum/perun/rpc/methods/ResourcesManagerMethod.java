@@ -286,6 +286,15 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resource int Resource <code>id</code>
+	 * @param async boolean asynchronous flag
+	 * @param assignInactive boolean flag for inactive group-resource assignment
+	 * @param autoAssignSubgroups boolean flag for automatic assignment of all subgroups
+	 */
+	/*#
+	 * Assign group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 */
 	assignGroupToResource {
 
@@ -309,6 +318,15 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values. Work in sync/async mode.Provide options for creating inactive or automatic subgroups group-resource assignments.
+	 *
+	 * @param groups List<Integer> list of groups IDs
+	 * @param resource int Resource <code>id</code>
+	 * @param async boolean asynchronous flag
+	 * @param assignInactive boolean flag for inactive group-resource assignment
+	 * @param autoAssignSubgroups boolean flag for automatic assignment of all subgroups
+	 */
+	/*#
+	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values.
 	 *
 	 * @param groups List<Integer> list of groups IDs
 	 * @param resource int Resource <code>id</code>
@@ -340,6 +358,15 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode.Provide options for creating inactive or automatic subgroups group-resource assignments.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resources List<Integer> list of resources IDs
+	 * @param async boolean asynchronous flag
+	 * @param assignInactive boolean flag for inactive group-resource assignment
+	 * @param autoAssignSubgroups boolean flag for automatic assignment of all subgroups
+	 */
+	/*#
+	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resources List<Integer> list of resources IDs
