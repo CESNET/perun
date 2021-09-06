@@ -8102,6 +8102,36 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getUserExtSourceByUniqueAttributeValue/id:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserExtSourceByUniqueAttributeValueAndAttributeId
+      summary: Return userExtSource for specific attribute definition (specified by id) and unique value.
+      parameters:
+        - $ref: '#/components/parameters/attributeId'
+        - $ref: '#/components/parameters/attributeValue'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUserExtSourceByUniqueAttributeValue/name:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserExtSourceByUniqueAttributeValueAndAttributeName
+      summary: Return userExtSource for specific attribute definition (specified by name) and unique value.
+      parameters:
+        - $ref: '#/components/parameters/attributeName'
+        - $ref: '#/components/parameters/attributeValue'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/requestPreferredEmailChange:
     post:
       tags:

@@ -464,6 +464,51 @@ public interface UsersManager {
 	List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException;
 
 	/**
+	 * Return userExtSource for specific attribute definition (specified by id) and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param sess Perun session
+	 * @param attrId attribute id used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+	 * @param uniqueValue value used for searching
+	 *
+	 * @return userExtSource found by attribute id and it's unique value
+	 *
+	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
+	 * @throws AttributeNotExistsException if attribute can't be found by it's id
+	 * @throws PrivilegeException if the principal does not have sufficient rights to call this method
+	 */
+	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws AttributeNotExistsException, UserExtSourceNotExistsException, PrivilegeException;
+
+	/**
+	 * Return userExtSource for specific attribute definition (specified by name) and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param sess Perun session
+	 * @param attrName attribute name used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+	 * @param uniqueValue value used for searching
+	 *
+	 * @return userExtSource found by attribute name and it's unique value
+	 *
+	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
+	 * @throws AttributeNotExistsException if attribute can't be found by it's name
+	 * @throws PrivilegeException if the principal does not have sufficient rights to call this method
+	 */
+	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, String attrName, String uniqueValue) throws AttributeNotExistsException, UserExtSourceNotExistsException, PrivilegeException;
+
+
+	/**
 	 * Adds user's external sources.
 	 *
 	 * @param perunSession

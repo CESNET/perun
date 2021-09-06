@@ -537,6 +537,30 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws AttributeNotExistsException, UserExtSourceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getUserExtSourceByUniqueAttributeValue_int_String_policy")) {
+			throw new PrivilegeException(sess, "getUserExtSourceByUniqueAttributeValue");
+		}
+
+		return getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attrId, uniqueValue);
+	}
+
+	@Override
+	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, String attrName, String uniqueValue) throws AttributeNotExistsException, UserExtSourceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getUserExtSourceByUniqueAttributeValue_String_String_policy")) {
+			throw new PrivilegeException(sess, "getUserExtSourceByUniqueAttributeValue");
+		}
+
+		return getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attrName, uniqueValue);
+	}
+
+	@Override
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserNotExistsException, PrivilegeException, UserExtSourceExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(userExtSource, "userExtSource");
