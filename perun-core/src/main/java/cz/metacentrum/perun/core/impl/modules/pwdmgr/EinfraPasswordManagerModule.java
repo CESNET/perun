@@ -151,7 +151,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 
 				// Store E-INFRA CERT IdP UES
 				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp-cert.e-infra.cz/idp/");
-				ues = new UserExtSource(extSource, userLogin + "@idp.e-infra.cz");
+				ues = new UserExtSource(extSource, userLogin + "@idp-cert.e-infra.cz");
 				ues.setLoa(0);
 
 				try {
