@@ -1332,7 +1332,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 		List<AssignedGroup> filteredGroups =  getResourcesManagerBl().getGroupAssignments(sess, resource, attrNames).stream()
 			.filter(assignedGroup -> AuthzResolver.authorizedInternal(sess,
-				"filter-getGroupAssignments_Resource_policy", assignedGroup.getEnrichedGroup().getGroup()))
+				"filter-getGroupAssignments_Resource_policy",
+				assignedGroup.getEnrichedGroup().getGroup(),
+				resource))
 			.collect(Collectors.toList());
 
 		filteredGroups.forEach(assignedGroup ->
