@@ -22,7 +22,7 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF;
 public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	/**
-	 * When KOS title before name is set, check if there is title from VEMA (personal system).
+	 * When KOS title before name is set, check if there is title from DC2 (personal system).
 	 * If not, update title in User.
 	 *
 	 * @param session
@@ -34,11 +34,11 @@ public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttribu
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
 
 		if (attribute.getValue() != null) {
-			Attribute titleBeforeVema;
+			Attribute titleBeforeDc2;
 			try {
-				titleBeforeVema = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, NS_USER_ATTR_DEF + ":titleBeforeVema");
-				if (titleBeforeVema.getValue() == null) {
-					// no title from VEMA - update from KOS
+				titleBeforeDc2 = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, NS_USER_ATTR_DEF + ":titleBeforeDc2");
+				if (titleBeforeDc2.getValue() == null) {
+					// no title from DC2 - update from KOS
 					user.setTitleBefore((String)attribute.getValue());
 					session.getPerunBl().getUsersManagerBl().updateNameTitles(session, user);
 				}
