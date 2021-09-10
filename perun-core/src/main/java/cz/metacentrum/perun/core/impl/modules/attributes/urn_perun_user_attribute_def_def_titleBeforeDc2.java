@@ -16,10 +16,10 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_titleBeforeVema extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_titleBeforeDc2 extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	/**
-	 * When title before name from VEMA changes, update User.
+	 * When title before name from DC2 changes, update User.
 	 *
 	 * @param session
 	 * @param user
@@ -42,10 +42,10 @@ public class urn_perun_user_attribute_def_def_titleBeforeVema extends UserAttrib
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("titleBeforeVema");
-		attr.setDisplayName("Title before (VEMA)");
+		attr.setFriendlyName("titleBeforeDc2");
+		attr.setDisplayName("Title before (DC2)");
 		attr.setType(Integer.class.getName());
-		attr.setDescription("Title before name from VEMA.");
+		attr.setDescription("Title before name from DC2.");
 		return attr;
 	}
 
