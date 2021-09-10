@@ -1337,7 +1337,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 		List<AssignedResource> filteredResources = getResourcesManagerBl().getResourceAssignments(sess, group, attrNames).stream()
 			.filter(assignedResource -> AuthzResolver.authorizedInternal(sess,
-				"filter-getResourceAssignments_Group_policy", assignedResource.getEnrichedResource().getResource()))
+				"filter-getResourceAssignments_Group_policy",
+				assignedResource.getEnrichedResource().getResource(),
+				group))
 			.collect(Collectors.toList());
 
 		filteredResources.forEach(assignedResource ->
