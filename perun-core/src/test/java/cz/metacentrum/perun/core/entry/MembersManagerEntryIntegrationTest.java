@@ -89,6 +89,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	private static final String A_U_NOTE = AttributesManager.NS_USER_ATTR_DEF + ":note";
 	private static final String A_U_ADDRESS = AttributesManager.NS_USER_ATTR_DEF + ":address";
 	private static final String A_M_MAIL = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
+	private static final String A_M_G_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
 
 	private Vo createdVo = null;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
@@ -307,7 +308,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 		perun.getGroupsManagerBl().addMember(sess, createdGroup, createdMember);
 
 		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
@@ -398,7 +399,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 		perun.getGroupsManagerBl().addMember(sess, createdGroup, createdMember);
 
 		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
@@ -2370,7 +2371,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 
 		// set attributes
 		Attribute memberAttribute = setUpAttribute(Integer.class.getName(), "testMemberAttribute", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
@@ -2458,7 +2459,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
 		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource, false, false, false);
 
 		LocalDate today = LocalDate.now();
 		Date tommorow = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -2933,6 +2934,40 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		assertThat(returnedMemberIds).containsExactly(member2.getId());
 		assertThat(result.getData().get(0).getMembershipType()).isEqualTo(MembershipType.DIRECT);
+	}
+
+	@Test
+	public void getGroupMembersPageWithMemberGroupAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersPageWithMemberGroupAttribute");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("test", "testPaginationInGroup"));
+
+		Member member = setUpMember(vo, "Doe", "John");
+
+		perun.getGroupsManager().addMember(sess, group, member);
+
+		AttributeDefinition expirationDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, A_M_G_EXPIRATION);
+		Attribute expiration = new Attribute(expirationDef);
+		expiration.setValue("2021-11-11");
+
+		perun.getAttributesManagerBl().setAttribute(sess, member, group, expiration);
+
+		MembersPageQuery query = new MembersPageQuery(1, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "doe", List.of(), group.getId(), List.of());
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of(expiration.getName()));
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member.getId());
+		assertThat(result.getData().get(0).getMemberAttributes().size())
+			.isEqualTo(1);
+		assertThat(result.getData().get(0).getMemberAttributes().get(0))
+			.isEqualTo(expiration);
+
 	}
 
 	private Member setUpMember(Vo vo, String lastName, String firstName) throws Exception {

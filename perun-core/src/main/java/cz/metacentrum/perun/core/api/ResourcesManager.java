@@ -232,6 +232,7 @@ public interface ResourcesManager {
 	/**
 	 * Assign group to a resource. Check if attributes for each member form group are valid.
 	 * Fill members' attributes with missing value. Work in sync/async mode.
+	 * Provide options for creating inactive or automatic subgroups group-resource assignments.
 	 *
 	 * If the group is already assigned, nothing it performed.
 	 *
@@ -239,6 +240,8 @@ public interface ResourcesManager {
 	 * @param group
 	 * @param resource
 	 * @param async
+	 * @param assignInactive
+	 * @param autoAssignSubgroups
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
@@ -248,15 +251,19 @@ public interface ResourcesManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, boolean async) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
-	 * Assign groups to a resource. Check if attributes for each member from all groups are valid. Fill members' attributes with missing values. Work in sync/async mode.
+	 * Assign groups to a resource. Check if attributes for each member from all groups are valid.
+	 * Fill members' attributes with missing values. Work in sync/async mode.
+	 * Provide options for creating inactive or automatic subgroups group-resource assignments.
 	 *
 	 * @param perunSession
 	 * @param groups list of resources
 	 * @param resource
 	 * @param async
+	 * @param assignInactive
+	 * @param autoAssignSubgroups
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -266,15 +273,19 @@ public interface ResourcesManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource, boolean async) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
-	 * Assign group to the resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode.
+	 * Assign group to the resources. Check if attributes for each member from group are valid.
+	 * Fill members' attributes with missing values. Work in sync/async mode.
+	 * Provide options for creating inactive or automatic subgroups group-resource assignments.
 	 *
 	 * @param perunSession
 	 * @param group the group
 	 * @param resources list of resources
 	 * @param async
+	 * @param assignInactive
+	 * @param autoAssignSubgroups
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -284,7 +295,7 @@ public interface ResourcesManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Remove group from a resource.
@@ -416,6 +427,15 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException
 	 */
 	List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws PrivilegeException;
+
+	/**
+	 * Returns members of groups assigned to resource with status of group-resource assignment.
+	 * @param sess perunSession
+	 * @param resource resource
+	 * @return list of members of groups assigned to given resource
+	 */
+	List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) throws PrivilegeException;
+
 	/**
 	 * Returns all members assigned to the resource as RichMembers.
 	 *
@@ -620,6 +640,17 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException
 	 */
 	List<Resource> getAssignedResources(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException;
+
+	/**
+	 * Returns all assigned resources where member is assigned through the groups.
+	 *
+	 * @param sess perun session
+	 * @param member member
+	 * @return list of assigned resources
+	 * @throws MemberNotExistsException if the member does not exist
+	 * @throws PrivilegeException
+	 */
+	List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException;
 
 	/**
 	 * Get all resources where the member and the service are assigned.

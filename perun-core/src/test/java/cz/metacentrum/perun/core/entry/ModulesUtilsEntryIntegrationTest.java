@@ -216,7 +216,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 		Attribute groupGID = null;
@@ -474,7 +474,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		gidRanges.setValue(gidRangesValue);
 		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 		List<Attribute> facilityAttributes = setUpFacilityGroupNameAndGIDNamespaceAttributes();

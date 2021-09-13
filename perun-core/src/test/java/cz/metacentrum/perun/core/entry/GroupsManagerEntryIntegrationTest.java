@@ -575,7 +575,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Facility f = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "test", "test"));
 		Resource r = perun.getResourcesManager().createResource(sess, new Resource(0, "test", "test", f.getId()), vo, f);
 
-		perun.getResourcesManager().assignGroupToResource(sess, g, r, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g, r, false, false, false);
 		perun.getGroupsManager().addMember(sess, g, m);
 
 		AttributeDefinition attrDef = new AttributeDefinition();
@@ -626,8 +626,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Facility f = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "test", "test"));
 		Resource r = perun.getResourcesManager().createResource(sess, new Resource(0, "test", "test", f.getId()), vo, f);
 
-		perun.getResourcesManager().assignGroupToResource(sess, g, r, false);
-		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
 		perun.getGroupsManager().addMember(sess, g, m);
 		perun.getGroupsManager().addMember(sess, g2, m);
 
@@ -698,7 +698,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Resource r = perun.getResourcesManager().createResource(sess, new Resource(0, "test", "test", f.getId()), vo, f);
 		Resource r2 = perun.getResourcesManager().createResource(sess, new Resource(0, "test", "test", f.getId()), vo2, f);
 
-		perun.getResourcesManager().assignGroupToResource(sess, g, r, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g, r, false, false, false);
 		perun.getGroupsManager().addMember(sess, g, m);
 
 		AttributeDefinition attrDef = new AttributeDefinition();
@@ -732,7 +732,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		// put member back
 		perun.getGroupsManager().addMember(sess, g, m);
 		// create second assignment
-		perun.getResourcesManager().assignGroupToResource(sess, g2, r2, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r2, false, false, false);
 		perun.getGroupsManager().addMember(sess, g2, m2);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
@@ -2609,8 +2609,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		resource.setName("TestForGetSubgroups");
 		resource.setDescription("Testovaci");
 		resource = sess.getPerun().getResourcesManager().createResource(sess, resource, createdVo, facility);
-		sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource, false);
-		sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource, false);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource, false, false, false);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource, false, false, false);
 
 		List<Group> groupsList = groupsManagerBl.getAssignedGroupsToResource(sess, resource, true);
 		assertNotNull(groupsList);
@@ -2695,8 +2695,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		resource.setName("TestForGetSubgroups");
 		resource.setDescription("Testovaci");
 		resource = sess.getPerun().getResourcesManager().createResource(sess, resource, createdVo, facility);
-		sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource, false);
-		sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource, false);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, parentGroup, resource, false, false, false);
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, subgroup1, resource, false, false, false);
 
 		List<Group> groupsList = groupsManagerBl.getAssignedGroupsToResource(sess, resource, false);
 		assertNotNull(groupsList);
@@ -3729,7 +3729,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		setUpGroup(vo);
 		Facility facility = setUpFacility();
 		Resource resource = setUpResource(vo, facility);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 		List<Attribute> groupAttributes = setUpGroupAttributes();
 		List<Attribute> groupResourceAttributes = setUpGroupResourceAttribute();
 		List<Attribute> allAttributes = new ArrayList<>();
@@ -3759,7 +3759,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		List<Group> groups = setUpGroups(vo);
 		Facility facility = setUpFacility();
 		Resource resource = setUpResource(vo, facility);
-		for(Group group: groups) perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
+		for(Group group: groups) perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
 		List<Attribute> groupAttributes = setUpGroupAttributes();
 		List<Attribute> groupResourceAttributes = setUpGroupResourceAttribute();
@@ -3794,7 +3794,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		Facility facility = setUpFacility();
 		Resource resource = setUpResource(vo, facility);
-		for(Group group: groups) perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false);
+		for(Group group: groups) perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
 		List<Attribute> groupAttributes = setUpGroupAttributes();
 		List<Attribute> groupResourceAttributes = setUpGroupResourceAttribute();
@@ -4049,8 +4049,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		group21 = perun.getGroupsManager().createGroup(sess, vo2, group21);
 		group22 = perun.getGroupsManager().createGroup(sess, vo2, group22);
 
-		perun.getResourcesManager().assignGroupToResource(sess, group11, resource1, false);
-		perun.getResourcesManager().assignGroupToResource(sess, group21, resource2, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group11, resource1, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group21, resource2, false, false, false);
 
 		// test new way - single select
 		List<Group> groups = perun.getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);

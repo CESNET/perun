@@ -20,6 +20,7 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
 import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -314,13 +315,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new RelationExistsException("Group group="+group+" contains members");
 		}
 
-		List<Resource> assignedResources  = getPerunBl().getResourcesManagerBl()
-			.getResourceAssignments(sess, group, List.of()).stream()
-			.map(res -> res.getEnrichedResource().getResource())
-			.collect(Collectors.toList());
+		List<AssignedResource> assignedResources  = getPerunBl().getResourcesManagerBl().getResourceAssignments(sess, group, List.of());
 		try {
-			for(Resource resource : assignedResources) {
-				getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, group, resource);
+			for (AssignedResource assignedResource : assignedResources) {
+				if (assignedResource.getSourceGroupId() == null) {
+					getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, group, assignedResource.getEnrichedResource().getResource());
+				} else {
+					getPerunBl().getResourcesManagerBl().removeAutomaticGroupFromResource(sess, group,
+						assignedResource.getEnrichedResource().getResource(), assignedResource.getSourceGroupId());
+				}
 			}
 			//remove group's attributes
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, group);
@@ -532,14 +535,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			//get all resources in relationship with the group (with any GroupResource status)
-			List<Resource> assignedResources  = getPerunBl().getResourcesManagerBl()
-				.getResourceAssignments(sess, group, List.of()).stream()
-				.map(res -> res.getEnrichedResource().getResource())
-				.collect(Collectors.toList());
+			List<AssignedResource> assignedResources  = getPerunBl().getResourcesManagerBl().getResourceAssignments(sess, group, List.of());
 			try {
-				for(Resource resource : assignedResources) {
-					getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, group, resource);
-					getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
+				for (AssignedResource assignedResource : assignedResources) {
+					if (assignedResource.getSourceGroupId() == null) {
+						getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, group, assignedResource.getEnrichedResource().getResource());
+					} else {
+						getPerunBl().getResourcesManagerBl().removeAutomaticGroupFromResource(sess, group,
+							assignedResource.getEnrichedResource().getResource(), assignedResource.getSourceGroupId());
+					}
 				}
 				//remove group's attributes
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, group);
@@ -547,8 +551,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new ConsistencyErrorException(ex);
 			} catch(AttributeValueException ex) {
 				throw new ConsistencyErrorException("All resources was removed from this group. So all attributes values can be removed.", ex);
-			} catch (GroupResourceMismatchException ex) {
-				throw new InternalErrorException(ex);
 			}
 
 			try {
@@ -1964,7 +1966,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		groupsToAssign.removeAll(perunBl.getResourcesManagerBl().getAssignedGroups(sess, resource));
 
 		try {
-			perunBl.getResourcesManagerBl().assignGroupsToResource(sess, groupsToAssign, resource, false);
+			perunBl.getResourcesManagerBl().assignGroupsToResource(sess, groupsToAssign, resource, false, false, false);
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | GroupResourceMismatchException e) {
 			log.error("Failed to assign groups during group structure synchronization. Groups {}, resource {}," +
 					" exception: {}", groups, resource, e);

@@ -10,12 +10,16 @@ import java.util.Objects;
 public class AssignedGroup {
 	private EnrichedGroup enrichedGroup;
 	private GroupResourceStatus status;
+	private Integer sourceGroupId;
 	private String failureCause;
+	private boolean autoAssignSubgroups;
 
-	public AssignedGroup(EnrichedGroup enrichedGroup, GroupResourceStatus status, String failureCause) {
+	public AssignedGroup(EnrichedGroup enrichedGroup, GroupResourceStatus status, Integer sourceGroupId, String failureCause, boolean autoAssignSubgroups) {
 		this.enrichedGroup = enrichedGroup;
 		this.status = status;
+		this.sourceGroupId = sourceGroupId;
 		this.failureCause = failureCause;
+		this.autoAssignSubgroups = autoAssignSubgroups;
 	}
 
 	public EnrichedGroup getEnrichedGroup() {
@@ -34,6 +38,14 @@ public class AssignedGroup {
 		this.status = status;
 	}
 
+	public Integer getSourceGroupId() {
+		return sourceGroupId;
+	}
+
+	public void setSourceGroupId(Integer sourceGroupId) {
+		this.sourceGroupId = sourceGroupId;
+	}
+
 	public String getFailureCause() {
 		return failureCause;
 	}
@@ -42,17 +54,27 @@ public class AssignedGroup {
 		this.failureCause = failureCause;
 	}
 
+	public boolean isAutoAssignSubgroups() {
+		return autoAssignSubgroups;
+	}
+
+	public void setAutoAssignSubgroups(boolean autoAssignSubgroups) {
+		this.autoAssignSubgroups = autoAssignSubgroups;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AssignedGroup that = (AssignedGroup) o;
-		return getEnrichedGroup().equals(that.getEnrichedGroup()) && getStatus() == that.getStatus();
+		return Objects.equals(getEnrichedGroup(), that.getEnrichedGroup()) && getStatus() == that.getStatus()
+			&& Objects.equals(getSourceGroupId(), that.getSourceGroupId()) && Objects.equals(getFailureCause(), that.getFailureCause())
+			&& Objects.equals(isAutoAssignSubgroups(), that.isAutoAssignSubgroups());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getEnrichedGroup(), getStatus());
+		return Objects.hash(getEnrichedGroup(), getStatus(), getSourceGroupId(), getFailureCause(), isAutoAssignSubgroups());
 	}
 
 	@Override
@@ -60,7 +82,9 @@ public class AssignedGroup {
 		return "AssignedGroup{" +
 			"enrichedGroup=" + enrichedGroup +
 			", status=" + status +
+			", sourceGroupId=" + sourceGroupId +
 			", failureCause=" + failureCause +
+			", autoAssignSubgroups=" + autoAssignSubgroups +
 			'}';
 	}
 }

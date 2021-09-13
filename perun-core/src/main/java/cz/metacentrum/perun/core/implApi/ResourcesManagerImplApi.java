@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
@@ -144,11 +145,25 @@ public interface ResourcesManagerImplApi {
 	 * @param perunSession
 	 * @param group
 	 * @param resource
-
+	 * @param autoAssignSubgroups
+	 *
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyAssignedException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyAssignedException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource, boolean autoAssignSubgroups) throws GroupAlreadyAssignedException;
+
+	/**
+	 * Assign group to a resource (automatic subgroup assignment).
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param resource
+	 * @param sourceGroup
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupAlreadyAssignedException
+	 */
+	void assignAutomaticGroupToResource(PerunSession perunSession, Group group, Resource resource, Group sourceGroup) throws GroupAlreadyAssignedException;
 
 	/**
 	 * Set initial status to group-resource assignment.
@@ -171,6 +186,18 @@ public interface ResourcesManagerImplApi {
 	 * @throws GroupAlreadyRemovedFromResourceException if there are 0 rows affected by removing group from resource
 	 */
 	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyRemovedFromResourceException;
+
+	/**
+	 * Remove automatically assigned group from resource.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param resource
+	 * @param sourceGroupId id of a source group through which was the group automatically assigned
+	 * @throws InternalErrorException
+	 * @throws GroupAlreadyRemovedFromResourceException if there are 0 rows affected by removing group from resource
+	 */
+	void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Check if the user is assigned as a member on the selected resource.
@@ -410,6 +437,15 @@ public interface ResourcesManagerImplApi {
 	List<Member> getAssignedMembers(PerunSession sess, Resource resource);
 
 	/**
+	 * Returns members of groups assigned to resource with status of group-resource assignment.
+	 * RichMember attribute has only Member set.
+	 * @param sess perunSession
+	 * @param resource resource
+	 * @return list of members of groups assigned to given resource
+	 */
+	List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource);
+
+	/**
 	 * Returns all members who are "allowed" on the resource disregarding their possible expired status
 	 * in a group. All members include all group statuses, through which they can be filtered if necessary.
 	 *
@@ -442,6 +478,15 @@ public interface ResourcesManagerImplApi {
 	List<Resource> getAssignedResources(PerunSession sess, Member member);
 
 	/**
+	 * Returns all assigned resources where member is assigned through the groups.
+	 *
+	 * @param sess perun session
+	 * @param member member
+	 * @return list of assigned resources
+	 */
+	List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member);
+
+	/**
 	 * Returns all resources where member and service are assigned together.
 	 *
 	 * @param sess
@@ -466,14 +511,36 @@ public interface ResourcesManagerImplApi {
 
 
 	/**
-	 * Returns true if the group is assigned to the current resource, false otherwise.
+	 * Returns true if the group is assigned to the current resource with ACTIVE status, false otherwise.
+	 *
 	 * @param sess
-	 * @param group
 	 * @param resource
+	 * @param group
+	 * @return true if the group is assigned to the current resource with active status.
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupAssigned(PerunSession sess, Resource resource, Group group);
+
+	/**
+	 * Returns true if the group is assigned to the current resource with any status, false otherwise.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @param group
 	 * @return true if the group is assigned to the current resource.
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupAssigned(PerunSession sess, Group group, Resource resource);
+	boolean groupResourceAssignmentExists(PerunSession sess, Resource resource, Group group);
+
+	/**
+	 * Returns true if the group is assigned to the given resource manually, false otherwise.
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @return true if the group is assigned to the given resource manually.
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource);
 
 	/**
 	 * Updates Resource.

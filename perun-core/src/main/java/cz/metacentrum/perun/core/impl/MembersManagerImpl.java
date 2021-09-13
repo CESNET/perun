@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
@@ -9,6 +10,7 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -79,6 +81,30 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	final static String groupsMembersMappingSelectQuery = memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
 			"groups_members.source_group_id as source_group_id, groups_members.source_group_status as source_group_status, groups_members.group_id as group_id";
+
+	/**
+	 * Member extractor that also sets correctly all member group statues.
+	 *
+	 * Use with `groupsMembersMappingSelectQuery`
+	 */
+	public static final ResultSetExtractor<List<Member>> MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
+		Map<Integer, Member> members = new HashMap<>();
+
+		while(resultSet.next()) {
+			Member member = MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP.mapRow(resultSet, resultSet.getRow());
+			if (member != null) {
+				if (members.containsKey(member.getId())) {
+					members.get(member.getId()).putGroupStatuses(member.getGroupStatuses());
+				} else {
+					member.setSourceGroupId(null);
+					member.setMembershipType((String) null);
+					members.put(member.getId(), member);
+				}
+			}
+		}
+
+		return new ArrayList<>(members.values());
+	};
 
 	final static String memberSponsorshipSelectQuery = "members_sponsored.active as members_sponsored_active, " +
 			"members_sponsored.sponsored_id as members_sponsored_sponsored_id, " +
@@ -159,30 +185,42 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	public static final String A_D_MEMBER_MAIl = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 	public static final String A_D_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
-
 	/**
-	 * Member extractor that also sets correctly all member group statues.
+	 * AssignedMember extractor that also sets correctly all member group statues.
 	 *
-	 * Use with `groupsMembersMappingSelectQuery`
+	 * Use with `groupsAssignedMembersMappingSelectQuery`
 	 */
-	public static final ResultSetExtractor<List<Member>> MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
-		Map<Integer, Member> members = new HashMap<>();
+	public static final ResultSetExtractor<List<AssignedMember>> ASSIGNED_MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
+		Map<Integer, AssignedMember> members = new HashMap<>();
 
 		while(resultSet.next()) {
 			Member member = MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP.mapRow(resultSet, resultSet.getRow());
+
 			if (member != null) {
+
+				GroupResourceStatus assignmentStatus = GroupResourceStatus.valueOf(resultSet.getString("group_resource_status"));
+
+				// if member is repeated, only update assignment status and richmember's group statuses
 				if (members.containsKey(member.getId())) {
-					members.get(member.getId()).putGroupStatuses(member.getGroupStatuses());
+					AssignedMember storedMember = members.get(member.getId());
+					storedMember.getRichMember().putGroupStatuses(member.getGroupStatuses());
+					if (assignmentStatus.isMoreImportantThan(storedMember.getStatus())) {
+						storedMember.setStatus(assignmentStatus);
+					}
 				} else {
+					// else add member to map and use current assignment status
 					member.setSourceGroupId(null);
 					member.setMembershipType((String) null);
-					members.put(member.getId(), member);
+					RichMember richMember = new RichMember(null, member, null, null, null);
+					AssignedMember assignedMember = new AssignedMember(richMember, assignmentStatus);
+					members.put(member.getId(), assignedMember);
 				}
 			}
 		}
 
 		return new ArrayList<>(members.values());
 	};
+	final static String groupsAssignedMembersMappingSelectQuery = groupsMembersMappingSelectQuery + ", groups_resources_state.status as group_resource_status";
 
 	/**
 	 * Constructor

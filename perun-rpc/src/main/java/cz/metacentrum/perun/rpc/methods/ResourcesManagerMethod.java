@@ -282,7 +282,16 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Assign group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value. Work in sync/async mode.
+	 * Assign group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value. Work in sync/async mode.Provide options for creating inactive or automatic subgroups group-resource assignments.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param async boolean asynchronous flag
+	 * @param assignInactive boolean flag for inactive group-resource assignment
+	 * @param autoAssignSubgroups boolean flag for automatic assignment of all subgroups
+	 */
+	/*#
+	 * Assign group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resource int Resource <code>id</code>
@@ -294,18 +303,30 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 
 			boolean async = parms.contains("async") ? parms.readBoolean("async") : false;
+			boolean assignInactive = parms.contains("assignInactive") ? parms.readBoolean("assignInactive") : false;
+			boolean autoAssignSubgroups = parms.contains("autoAssignSubgroups") ? parms.readBoolean("autoAssignSubgroups") : false;
 
 			ac.getResourcesManager().assignGroupToResource(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
 					ac.getResourceById(parms.readInt("resource")),
-					async
-				);
+					async,
+					assignInactive,
+					autoAssignSubgroups);
 			return null;
 		}
 	},
 
 	/*#
-	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values. Work in sync/async mode.
+	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values. Work in sync/async mode.Provide options for creating inactive or automatic subgroups group-resource assignments.
+	 *
+	 * @param groups List<Integer> list of groups IDs
+	 * @param resource int Resource <code>id</code>
+	 * @param async boolean asynchronous flag
+	 * @param assignInactive boolean flag for inactive group-resource assignment
+	 * @param autoAssignSubgroups boolean flag for automatic assignment of all subgroups
+	 */
+	/*#
+	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values.
 	 *
 	 * @param groups List<Integer> list of groups IDs
 	 * @param resource int Resource <code>id</code>
@@ -317,6 +338,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 
 			boolean async = parms.contains("async") ? parms.readBoolean("async") : false;
+			boolean assignInactive = parms.contains("assignInactive") ? parms.readBoolean("assignInactive") : false;
+			boolean autoAssignSubgroups = parms.contains("autoAssignSubgroups") ? parms.readBoolean("autoAssignSubgroups") : false;
 
 			List<Integer> ids = parms.readList("groups", Integer.class);
 			List<Group> groups = new ArrayList<Group>();
@@ -326,13 +349,24 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			ac.getResourcesManager().assignGroupsToResource(ac.getSession(),
 					groups,
 					ac.getResourceById(parms.readInt("resource")),
-					async);
+					async,
+					assignInactive,
+					autoAssignSubgroups);
 			return null;
 		}
 	},
 
 	/*#
-	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode.
+	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values. Work in sync/async mode.Provide options for creating inactive or automatic subgroups group-resource assignments.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resources List<Integer> list of resources IDs
+	 * @param async boolean asynchronous flag
+	 * @param assignInactive boolean flag for inactive group-resource assignment
+	 * @param autoAssignSubgroups boolean flag for automatic assignment of all subgroups
+	 */
+	/*#
+	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resources List<Integer> list of resources IDs
@@ -344,6 +378,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 
 			boolean async = parms.contains("async") ? parms.readBoolean("async") : false;
+			boolean assignInactive = parms.contains("assignInactive") ? parms.readBoolean("assignInactive") : false;
+			boolean autoAssignSubgroups = parms.contains("autoAssignSubgroups") ? parms.readBoolean("autoAssignSubgroups") : false;
 
 			List<Integer> ids = parms.readList("resources", Integer.class);
 			List<Resource> resources = new ArrayList<Resource>();
@@ -353,7 +389,9 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			ac.getResourcesManager().assignGroupToResources(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
 					resources,
-					async);
+					async,
+					assignInactive,
+					autoAssignSubgroups);
 			return null;
 		}
 	},
@@ -487,6 +525,21 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns all assigned resources with statuses where member is assigned through the groups.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @return List<AssignedResource> Resources with statuses
+	 */
+	getAssignedResourcesWithStatus {
+
+		@Override
+		public List<AssignedResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAssignedResourcesWithStatus(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/*#
 	 * Get all rich resources where the service and the member are assigned with facility property filled.
 	 *
 	 * @param member int Member <code>id</code>
@@ -534,6 +587,22 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getResourcesManager().getAssignedMembers(ac.getSession(),
+				ac.getResourceById(parms.readInt("resource")));
+		}
+	},
+
+	/*#
+	 * Returns members of groups assigned to resource with status of group-resource assignment.
+	 * @param sess perunSession
+	 * @param resource resource
+	 * @return list of members of groups assigned to given resource
+	 *
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	getAssignedMembersWithStatus {
+		@Override
+		public List<AssignedMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAssignedMembersWithStatus(ac.getSession(),
 				ac.getResourceById(parms.readInt("resource")));
 		}
 	},

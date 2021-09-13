@@ -14,6 +14,7 @@ import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceUpdated;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceAssignedToResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceRemovedFromResource;
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -36,6 +37,7 @@ import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
@@ -47,12 +49,10 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -69,6 +69,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
@@ -78,10 +79,10 @@ import org.springframework.scheduling.annotation.Async;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
@@ -170,8 +171,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			List<AssignedGroup> templateResourceGroups = perunBl.getResourcesManagerBl().getGroupAssignments(sess, templateResource, List.of());
 			try {
 				for (AssignedGroup assignedGroup : templateResourceGroups) {
-					//TODO: if INACTIVE, assign as INACTIVE
-					assignGroupToResource(sess, assignedGroup.getEnrichedGroup().getGroup(), newResource, false);
+
+					//assign only direct group-resource assignments
+					if (assignedGroup.getSourceGroupId() == null) {
+						assignGroupToResource(sess, assignedGroup.getEnrichedGroup().getGroup(), newResource, false, assignedGroup.getStatus().equals(GroupResourceStatus.INACTIVE), assignedGroup.isAutoAssignSubgroups());
+					}
+
 					List<Attribute> templateGroupResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, assignedGroup.getEnrichedGroup().getGroup());
 					//Remove all virt attributes before setting
 					templateGroupResourceAttributes.removeIf(groupResourceAttribute -> groupResourceAttribute.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT));
@@ -256,12 +261,14 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			}
 		}
 
-		List<Group> groups = getGroupAssignments(sess, resource, List.of()).stream()
-			.map(g -> g.getEnrichedGroup().getGroup())
-			.collect(Collectors.toList());
-		for (Group group: groups){
+		List<AssignedGroup> assignedGroups = getGroupAssignments(sess, resource, List.of());
+		for (AssignedGroup assignedGroup : assignedGroups) {
 			try {
-				removeGroupFromResource(sess, group, resource);
+				if (assignedGroup.getSourceGroupId() == null) {
+					removeGroupFromResource(sess, assignedGroup.getEnrichedGroup().getGroup(), resource);
+				} else {
+					removeAutomaticGroupFromResource(sess, assignedGroup.getEnrichedGroup().getGroup(), resource, assignedGroup.getSourceGroupId());
+				}
 			} catch (GroupNotDefinedOnResourceException ex) {
 				throw new GroupAlreadyRemovedFromResourceException(ex);
 			}
@@ -348,8 +355,18 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public boolean isGroupAssigned(PerunSession sess, Group group, Resource resource) {
-		return getResourcesManagerImpl().isGroupAssigned(sess, group, resource);
+	public boolean isGroupAssigned(PerunSession sess, Resource resource, Group group) {
+		return getResourcesManagerImpl().isGroupAssigned(sess, resource, group);
+	}
+
+	@Override
+	public boolean groupResourceAssignmentExists(PerunSession sess, Resource resource, Group group) {
+		return getResourcesManagerImpl().groupResourceAssignmentExists(sess, resource, group);
+	}
+
+	@Override
+	public boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource) {
+		return getResourcesManagerImpl().isGroupManuallyAssigned(sess, group, resource);
 	}
 
 	@Override
@@ -368,6 +385,17 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) {
+		List<AssignedMember> assignedMembers = getResourcesManagerImpl().getAssignedMembersWithStatus(sess, resource);
+
+		// fill incomplete RichMembers
+		assignedMembers.forEach(a -> a.setRichMember(getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, List.of(a.getRichMember())).get(0)));
+
+		return assignedMembers;
+
+	}
+
+	@Override
 	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) {
 		List<Member> listOfMembers = getResourcesManagerImpl().getAssignedMembers(sess, resource);
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, listOfMembers);
@@ -381,73 +409,93 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource, boolean async) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
-		assignGroupsToResource(sess, Collections.singletonList(group), resource, async);
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+		assignGroupsToResource(sess, Collections.singletonList(group), resource, async, assignInactive, autoAssignSubgroups);
 	}
 
 	@Override
-	public void assignGroupsToResource(PerunSession perunSession, Iterable<Group> groups, Resource resource, boolean async) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
-
+	public void assignGroupsToResource(PerunSession perunSession, Iterable<Group> groups, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		for(Group g: groups) {
 			getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(perunSession, g, resource);
 
 			//first we must assign group
 			try {
-				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource);
-				getResourcesManagerImpl().assignGroupToResourceState(perunSession, g, resource, GroupResourceStatus.PROCESSING);
-				activateGroupResourceAssignment(perunSession, g, resource, async);
+				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource, autoAssignSubgroups);
+				GroupResourceStatus status = assignInactive ? GroupResourceStatus.INACTIVE : GroupResourceStatus.PROCESSING;
+
+				// if group is not assigned with active status, activate it
+				if (!isGroupAssigned(perunSession, resource, g)) {
+					if (groupResourceAssignmentExists(perunSession, resource, g)) {
+						getResourcesManagerImpl().setGroupResourceStatus(perunSession, g, resource, status);
+					} else {
+						getResourcesManagerImpl().assignGroupToResourceState(perunSession, g, resource, status);
+					}
+
+					// if status is PROCESSING, activate group-resource assignment
+					if (!assignInactive) {
+						activateGroupResourceAssignment(perunSession, g, resource, async);
+					}
+				}
 			} catch (GroupAlreadyAssignedException e) {
 				// silently skip
 			} catch (GroupNotDefinedOnResourceException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
-		}
 
+			if (autoAssignSubgroups) {
+				GroupsManagerBl groupsManager = getPerunBl().getGroupsManagerBl();
+				List<Group> subgroups;
+
+				// If it is 'members' group, use all groups from corresponding VO (except for members, they've been assigned already)
+				if (g.getName().equals(VosManager.MEMBERS_GROUP)) {
+					subgroups = groupsManager.getAllGroups(perunSession, groupsManager.getVo(perunSession, g));
+					subgroups.removeIf((group -> group.getName().equals(VosManager.MEMBERS_GROUP)));
+				} else {
+					subgroups = groupsManager.getAllSubGroups(perunSession, g);
+				}
+
+				for (Group subgroup : subgroups) {
+
+					try {
+						getResourcesManagerImpl().assignAutomaticGroupToResource(perunSession, subgroup, resource, g);
+						GroupResourceStatus status = assignInactive ? GroupResourceStatus.INACTIVE : GroupResourceStatus.PROCESSING;
+
+						// if group is assigned with active status, we do not want to activate it again
+						if (isGroupAssigned(perunSession, resource, subgroup)) {
+							continue;
+						}
+
+						if (groupResourceAssignmentExists(perunSession, resource, subgroup)) {
+							getResourcesManagerImpl().setGroupResourceStatus(perunSession, subgroup, resource, status);
+						} else {
+							getResourcesManagerImpl().assignGroupToResourceState(perunSession, subgroup, resource, status);
+						}
+
+						// if status is not ACTIVE and should be, activate group-resource assignment
+						if (!assignInactive) {
+							// automatic subgroups-resource assignment should be async
+							activateGroupResourceAssignment(perunSession, subgroup, resource, true);
+						}
+					} catch (GroupAlreadyAssignedException e) {
+						// silently skip
+					} catch (GroupNotDefinedOnResourceException ex) {
+						throw new ConsistencyErrorException(ex);
+					}
+				}
+			}
+		}
 	}
 
 	@Override
-	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		for(Resource r: resources) {
-			this.assignGroupToResource(perunSession, group, r, async);
+			this.assignGroupToResource(perunSession, group, r, async, assignInactive, autoAssignSubgroups);
 		}
 	}
 
 	@Override
 	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
-		Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
-
-		// Check if the group and resource belongs to the same VO
-		if (!groupVo.equals(this.getVo(sess, resource))) {
-			throw new InternalErrorException("Group " + group + " and resource " + resource + " belongs to the different VOs");
-		}
-
-		// Check if the group was defined on the resource
-		boolean isDefined = getResourcesManagerImpl().getGroupAssignments(sess, resource).stream()
-			.map(assignedGroup -> assignedGroup.getEnrichedGroup().getGroup())
-			.anyMatch(thatGroup -> thatGroup.equals(group));
-		if (!isDefined) {
-			// Group is not defined on the resource
-			throw new GroupNotDefinedOnResourceException(group.getName());
-		}
-
-		// Remove group
-		getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
-		getPerunBl().getAuditer().log(sess, new GroupRemovedFromResource(group, resource));
-
-		// Remove group-resource attributes
-		try {
-			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
-		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (GroupResourceMismatchException ex) {
-			throw new ConsistencyErrorException(ex);
-		}
-
-		// FIXME - here we should call checkSemantics() and on error re-fill/set user-facility attributes
-		//  for the group members of removed group, which are still allowed on the facility, since we removed
-		//  one relation and attribute constraints might have changed (eg. for shell / default gid/group).
-		//  We don't do this for performance reasons.
-
+		removeGroupFromResource(sess, group, resource, null);
 	}
 
 	@Override
@@ -462,6 +510,69 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		for(Resource r: resources) {
 			this.removeGroupFromResource(perunSession, group, r);
 		}
+	}
+
+	/**
+	 * Remove group from a resource.
+	 * After removing, check attributes and fix them if it is needed.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @param sourceGroupId id of a source group if an automatic assignment should be deleted, null otherwise
+	 * @throws GroupNotDefinedOnResourceException when there is no such group-resource assignment
+	 * @throws GroupAlreadyRemovedFromResourceException when the assignment was already removed
+	 */
+	private void removeGroupFromResource(PerunSession sess, Group group, Resource resource, Integer sourceGroupId) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+		Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
+
+		// Check if the group and resource belongs to the same VO
+		if (!groupVo.equals(this.getVo(sess, resource))) {
+			throw new InternalErrorException("Group " + group + " and resource " + resource + " belongs to the different VOs");
+		}
+
+		// Check if the group-resource assignment is defined
+		Optional<AssignedGroup> assignmentToRemove = getResourcesManagerImpl().getGroupAssignments(sess, resource).stream()
+			.filter(assignedGroup -> assignedGroup.getEnrichedGroup().getGroup().equals(group)
+						&& Objects.equals(assignedGroup.getSourceGroupId(), sourceGroupId))
+			.findFirst();
+
+		if (assignmentToRemove.isEmpty()) {
+			// Group is not defined on the resource
+			throw new GroupNotDefinedOnResourceException(group.getName());
+		}
+
+		// Remove group
+		if (sourceGroupId != null) {
+			getResourcesManagerImpl().removeAutomaticGroupFromResource(sess, group, resource, sourceGroupId);
+		} else {
+			getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
+		}
+
+		// If it was the last ACTIVE assignment, we can delete group-resource attributes and audit the removal
+		if (isGroupAssigned(sess, resource, group)) {
+			getPerunBl().getAuditer().log(sess, new GroupRemovedFromResource(group, resource));
+
+			// Remove group-resource attributes
+			try {
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+				throw new InternalErrorException(e);
+			} catch (GroupResourceMismatchException ex) {
+				throw new ConsistencyErrorException(ex);
+			}
+		}
+
+		// FIXME - here we should call checkSemantics() and on error re-fill/set user-facility attributes
+		//  for the group members of removed group, which are still allowed on the facility, since we removed
+		//  one relation and attribute constraints might have changed (eg. for shell / default gid/group).
+		//  We don't do this for performance reasons.
+
+	}
+
+	@Override
+	public void removeAutomaticGroupFromResource(PerunSession sess, Group group, Resource resource, int sourceGroupId) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+		removeGroupFromResource(sess, group, resource, sourceGroupId);
 	}
 
 	@Override
@@ -678,6 +789,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) {
+		return getResourcesManagerImpl().getAssignedResourcesWithStatus(sess, member);
+	}
+
+	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) {
 		return getResourcesManagerImpl().getAssignedRichResources(sess, member, service);
 	}
@@ -818,8 +934,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) {
 		for (AssignedGroup group: getGroupAssignments(sess, sourceResource, List.of())) {
 			try {
-				//TODO: if INACTIVE, assign as inactive
-				assignGroupToResource(sess, group.getEnrichedGroup().getGroup(), destinationResource, false);
+
+				//assign only direct group-resource assignments
+				if (group.getSourceGroupId() == null) {
+					assignGroupToResource(sess, group.getEnrichedGroup().getGroup(), destinationResource, false, group.getStatus().equals(GroupResourceStatus.INACTIVE), group.isAutoAssignSubgroups());
+				}
 			} catch (GroupResourceMismatchException ex) {
 				// we can ignore the exception in this particular case, group can exists in both of the resources
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {

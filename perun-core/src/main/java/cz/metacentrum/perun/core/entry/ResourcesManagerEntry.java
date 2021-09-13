@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
@@ -323,6 +324,18 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedMembersWithStatus_Resource_policy")) {
+			throw new PrivilegeException(sess, "getAssignedMembersWithStatus");
+		}
+
+		return getResourcesManagerBl().getAssignedMembersWithStatus(sess, resource);
+	}
+
+	@Override
 	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -335,7 +348,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource, boolean async) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -345,11 +358,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "assignGroupToResource");
 		}
 
-		getResourcesManagerBl().assignGroupToResource(sess, group, resource, async);
+		getResourcesManagerBl().assignGroupToResource(sess, group, resource, async, assignInactive, autoAssignSubgroups);
 	}
 
 	@Override
-	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource, boolean async) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(groups, "groups");
 		getResourcesManagerBl().checkResourceExists(perunSession, resource);
@@ -361,11 +374,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			}
 		}
 
-		getResourcesManagerBl().assignGroupsToResource(perunSession, groups, resource, async);
+		getResourcesManagerBl().assignGroupsToResource(perunSession, groups, resource, async, assignInactive, autoAssignSubgroups);
 	}
 
 	@Override
-	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources, boolean async, boolean assignInactive, boolean autoAssignSubgroups) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(resources, "resources");
 		getPerunBl().getGroupsManagerBl().checkGroupExists(perunSession, group);
@@ -380,7 +393,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			}
 		}
 
-		getResourcesManagerBl().assignGroupToResources(perunSession, group, resources, async);
+		getResourcesManagerBl().assignGroupToResources(perunSession, group, resources, async, assignInactive, autoAssignSubgroups);
 	}
 
 	@Override
@@ -723,6 +736,20 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		return getResourcesManagerBl().getAssignedResources(sess, member);
+	}
+
+	@Override
+	public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedResourcesWithStatus_Member_policy", member)) {
+			throw new PrivilegeException(sess, "getAssignedResourcesWithStatus");
+		}
+
+		return getResourcesManagerBl().getAssignedResourcesWithStatus(sess, member);
 	}
 
 	@Override

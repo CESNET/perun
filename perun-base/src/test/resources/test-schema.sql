@@ -1,4 +1,4 @@
--- database version 3.1.85 (don't forget to update insert statement at the end of file)
+-- database version 3.1.87 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -32,7 +32,7 @@ create table users (
 						modified_by varchar default user not null,
 						service_acc boolean default false not null, --is it service account?
 						sponsored_acc boolean default false not null, --is it sponsored account?
-					    anonymized boolean default false not null, --was user anonymized?
+						anonymized boolean default false not null, --was user anonymized?
 						created_by_uid integer,
 						modified_by_uid integer,
 						constraint usr_pk primary key (id)
@@ -760,13 +760,31 @@ create table groups_resources (
 								   modified_by varchar default user not null,
 								   created_by_uid integer,
 								   modified_by_uid integer,
+								   auto_assign_subgroups boolean default false not null,
 								   constraint grres_grp_res_u unique (group_id,resource_id),
 								   constraint grres_gr_fk foreign key (group_id) references groups(id),
 								   constraint grres_res_fk foreign key (resource_id) references resources(id)
 );
 
+-- GROUPS_RESOURCES_AUTOMATIC - groups automatically assigned to resource through source group
+create table groups_resources_automatic (
+									group_id integer not null,     --identifier of group (groups.id)
+									resource_id integer not null,  --identifier of resource (resources.id)
+									source_group_id integer not null,  --identifier of source group (groups.id)
+									created_at timestamp default statement_timestamp() not null,
+									created_by varchar default user not null,
+									modified_at timestamp default statement_timestamp() not null,
+									modified_by varchar default user not null,
+									created_by_uid integer,
+									modified_by_uid integer,
+									constraint grresaut_grp_res_sgrp_u unique (group_id,resource_id,source_group_id),
+									constraint grresaut_gr_fk foreign key (group_id) references groups(id),
+									constraint grresaut_res_fk foreign key (resource_id) references resources(id),
+									constraint grresaut_sgr_fk foreign key (source_group_id) references groups(id)
+);
+
 create function relation_group_resource_exist(integer, integer) returns integer
-	as 'select count(1) from groups_resources where group_id=$1 and resource_id=$2;'
+	as 'select count(1)::integer from (SELECT group_id, resource_id FROM groups_resources UNION SELECT group_id, resource_id FROM groups_resources_automatic) gr_res where group_id=$1 and resource_id=$2;'
 	language sql;
 
 create table groups_resources_state (
@@ -777,18 +795,23 @@ create table groups_resources_state (
 										constraint grres_s_grp_res_u unique (group_id,resource_id),
 										constraint grres_s_gr_fk foreign key (group_id) references groups(id),
 										constraint grres_s_res_fk foreign key (resource_id) references resources(id),
-                                        check ( relation_group_resource_exist(group_id, resource_id) != 0 )
+										check ( relation_group_resource_exist(group_id, resource_id) != 0 )
 );
 
 create function delete_group_resource_status() returns trigger as
 	'
 	begin
-		delete from groups_resources_state where group_id=OLD.group_id and resource_id=OLD.resource_id;
-    	return OLD;
+		if relation_group_resource_exist(OLD.group_id, OLD.resource_id) = 0 then
+			delete from groups_resources_state where group_id=OLD.group_id and resource_id=OLD.resource_id;
+		end if;
+	return OLD;
 	end;
 	' language plpgsql;
 
 create trigger after_deleting_from_groups_resources after delete on groups_resources
+	for each row execute procedure delete_group_resource_status();
+
+create trigger after_deleting_from_groups_resources_automatic after delete on groups_resources_automatic
 	for each row execute procedure delete_group_resource_status();
 
 -- MEMBER_ATTR_VALUES - values of attributes assigned to members
@@ -1477,8 +1500,8 @@ create table authz (
 );
 
 create table groups_to_register (
-                        group_id integer,
-                        constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
+						group_id integer,
+						constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
 );
 
 
@@ -1613,6 +1636,9 @@ create index idx_fk_grres_gr on groups_resources(group_id);
 create index idx_fk_grres_res on groups_resources(resource_id);
 create index idx_fk_grres_s_gr on groups_resources_state(group_id);
 create index idx_fk_grres_s_res on groups_resources_state(resource_id);
+create index idx_fk_grres_a_gr on groups_resources_automatic(group_id);
+create index idx_fk_grres_a_res on groups_resources_automatic(resource_id);
+create index idx_fk_grres_a_sgr on groups_resources_automatic(source_group_id);
 create index idx_fk_grpmem_gr on groups_members(group_id);
 create index idx_fk_grpmem_mem on groups_members(member_id);
 create index idx_fk_grpmem_memtype on groups_members(membership_type);
@@ -1682,7 +1708,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.85');
+insert into configurations values ('DATABASE VERSION','3.1.87');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

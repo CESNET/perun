@@ -186,7 +186,7 @@ $objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Res
 $objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
 $objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
 
-$objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"FAILED\"" . " , \"failureCause\" : \"Wrong attribute value in group 1\"" . " , \"facility\" : " . $objectExamples{"Facility"} . " , \"resourceTags\" : " . $objectExamples{"List<ResourceTag>"} . " }";
+$objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"FAILED\" , \"sourceGroupId\" : 10 , \"failureCause\" : \"Wrong attribute value in group 1\"" . " , \"facility\" : " . $objectExamples{"Facility"} . " , \"resourceTags\" : " . $objectExamples{"List<ResourceTag>"} . " , \"autoAssignSubgroups\" : false }";
 $objectExamples{"List&lt;AssignedResource&gt;"} = $listPrepend . $objectExamples{"AssignedResource"} . $listAppend;
 $objectExamples{"List<AssignedResource>"} = $objectExamples{"List&lt;AssignedResource&gt;"};
 
@@ -194,7 +194,7 @@ $objectExamples{"EnrichedGroup"} = "{ \"group\" : " . $objectExamples{"Group"} .
 $objectExamples{"List&lt;EnrichedGroup&gt;"} = $listPrepend . $objectExamples{"EnrichedGroup"} . $listAppend;
 $objectExamples{"List<EnrichedGroup>"} = $objectExamples{"List&lt;EnrichedGroup&gt;"};
 
-$objectExamples{"AssignedGroup"} = "{ \"enrichedGroup\" : " . $objectExamples{"EnrichedGroup"} . " , \"status\" : \"FAILED\"" . " , \"failureCause\" : \"Wrong attribute value in group 1\" }";
+$objectExamples{"AssignedGroup"} = "{ \"enrichedGroup\" : " . $objectExamples{"EnrichedGroup"} . " , \"status\" : \"FAILED\" , \"sourceGroupId\" : 10 , \"failureCause\" : \"Wrong attribute value in group 1\" , \"autoAssignSubgroups\" : false }";
 $objectExamples{"List&lt;AssignedGroup&gt;"} = $listPrepend . $objectExamples{"AssignedGroup"} . $listAppend;
 $objectExamples{"List<AssignedGroup>"} = $objectExamples{"List&lt;AssignedGroup&gt;"};
 
@@ -208,6 +208,10 @@ $objectExamples{"List<MembersPageQuery>"} = $objectExamples{"List&lt;MembersPage
 
 $objectExamples{"Paginated&lt;RichMember&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichMember&gt;"} . "  }";
 $objectExamples{"Paginated<RichMember>"} = @objectExamples{"Paginated&lt;RichMember&gt;"};
+
+$objectExamples{"AssignedMember"} = "{ \"richMember\" : " . $objectExamples{"RichMember"} . " , \"status\" : \"ACTIVE\" }";
+$objectExamples{"List&lt;AssignedMember&gt;"} = $listPrepend . $objectExamples{"AssignedMember"} . $listAppend;
+$objectExamples{"List<AssignedMember>"} = $objectExamples{"List&lt;AssignedMember&gt;"};
 
 # SUB HELP
 # help info
