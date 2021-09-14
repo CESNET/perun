@@ -706,6 +706,54 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Return userExtSource for specific attribute definition (specified by id) and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param attributeId int value used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+	 * @param attributeValue String value used for searching
+	 * @return UserExtSource object found by attribute id and it's unique value
+	 */
+	/*#
+	 * Return userExtSource for specific attribute definition (specified by name) and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param attributeName String value used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+	 * @param attributeValue String value used for searching
+	 * @return UserExtSource object found by attribute name and it's unique value
+	 */
+	getUserExtSourceByUniqueAttributeValue {
+
+		@Override
+		public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("attributeId")) {
+				return ac.getUsersManager().getUserExtSourceByUniqueAttributeValue(
+					ac.getSession(),
+					parms.readInt("attributeId"),
+					parms.readString("attributeValue"));
+			}
+			if (parms.contains("attributeName")) {
+				return ac.getUsersManager().getUserExtSourceByUniqueAttributeValue(
+					ac.getSession(),
+					parms.readString("attributeName"),
+					parms.readString("attributeValue"));
+			}
+			throw new RpcException(RpcException.Type.MISSING_VALUE, "attrId or attrName");
+		}
+	},
+
+	/*#
 	 * Returns user by VO member.
 	 *
 	 * @param member int Member <code>id</code>

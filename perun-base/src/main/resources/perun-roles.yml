@@ -4969,6 +4969,18 @@ perun_policies:
 
   getUserExtSourcesByIds_List<Integer>_policy:
     policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUserExtSourceByUniqueAttributeValue_int_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUserExtSourceByUniqueAttributeValue_String_String_policy:
+    policy_roles:
       - RPC:
       - GROUPADMIN:
       - GROUPOBSERVER:
