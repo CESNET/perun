@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -622,6 +624,15 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<User> getUsersWithoutVoAssigned(PerunSession sess);
+
+	/**
+	 * Get page of users.
+	 *
+	 * @param sess session
+	 * @param query query with page information
+	 * @return page of requested users
+	 */
+	Paginated<User> getUsersPage(PerunSession sess, UsersPageQuery query);
 
 	/**
 	 * Returns true if the user is PERUNADMIN.

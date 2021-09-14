@@ -115,6 +115,18 @@ components:
       discriminator:
         propertyName: beanName
 
+    PaginatedRichUsers:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/RichUser' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
     Sponsor:
       type: object
       properties:
@@ -214,6 +226,27 @@ components:
         - offset
         - order
         - sortColumn
+
+    UsersOrderColumn:
+      type: string
+      enum:
+        - ID
+        - NAME
+
+    UsersPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+        sortColumn: { $ref: '#/components/schemas/UsersOrderColumn' }
+        searchString: { type: string }
+        withoutVo: { type: boolean }
+      required:
+        - pageSize
+        - offset
+        - order
+        - sortColumn
+
 
     UserExtSource:
       allOf:
@@ -1273,6 +1306,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RichUser"
+
+    PaginatedRichUsersResponse:
+      description: "returns Paginated<RichUser>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedRichUsers"
 
     ListOfSponsorsResponse:
       description: 'returns List<Sponsor>'
@@ -8603,6 +8643,32 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUsersPage:
+    post:
+      tags:
+        - UsersManager
+      operationId: getUsersPage
+      summary: Get page of users with the given attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedUsers
+              description: "input to getPaginatedUsers"
+              type: object
+              required:
+                - query
+                - attrNames
+              properties:
+                attrNames: { type: array, items: { type: string } }
+                query: { $ref: '#/components/schemas/UsersPageQuery' }
 
   #################################################
   #                                               #

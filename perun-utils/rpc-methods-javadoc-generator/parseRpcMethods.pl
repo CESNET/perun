@@ -213,6 +213,13 @@ $objectExamples{"AssignedMember"} = "{ \"richMember\" : " . $objectExamples{"Ric
 $objectExamples{"List&lt;AssignedMember&gt;"} = $listPrepend . $objectExamples{"AssignedMember"} . $listAppend;
 $objectExamples{"List<AssignedMember>"} = $objectExamples{"List&lt;AssignedMember&gt;"};
 
+$objectExamples{"UsersPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"searchString\" : \"Doe\" , \"withoutVo\" : false }";
+$objectExamples{"List&lt;UsersPageQuery&gt;"} = $listPrepend . $objectExamples{"UsersPageQuery"} . $listAppend;
+$objectExamples{"List<UsersPageQuery>"} = $objectExamples{"List&lt;UsersPageQuery&gt;"};
+
+$objectExamples{"Paginated&lt;RichUser&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichUser&gt;"} . "  }";
+$objectExamples{"Paginated<RichUser>"} = @objectExamples{"Paginated&lt;RichUser&gt;"};
+
 # SUB HELP
 # help info
 sub help {

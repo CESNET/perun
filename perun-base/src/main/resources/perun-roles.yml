@@ -5452,6 +5452,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getUsersPage_UsersPageQuery_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   #VosManagerEntry
   getVos_policy:
     policy_roles:

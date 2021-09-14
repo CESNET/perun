@@ -1,23 +1,34 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichGroup;
+import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
+import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersPageQuery;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public enum UsersManagerMethod implements ManagerMethod {
@@ -78,6 +89,28 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().getUsers(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Get page of users with the given attributes.
+	 * Query parameter specifies offset, page size, sorting order, sorting column, whether to return only users
+	 * without vo, and string to search users by (by default it searches in names, user and member ids,
+	 * user uuids, emails, logins of member or other attributes based on perun configuration), last two parameters
+	 * are optional and by default it finds all users.
+	 *
+	 * @param query UsersPageQuery Query with page information
+	 * @param attrNames List<String> List of attribute names
+	 *
+	 * @return Paginated<RichUser> page of requested rich users
+	 */
+	getUsersPage {
+
+		@Override
+		public Object call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getUsersManager().getUsersPage(ac.getSession(),
+				params.read("query", UsersPageQuery.class),
+				params.readList("attrNames", String.class));
 		}
 	},
 

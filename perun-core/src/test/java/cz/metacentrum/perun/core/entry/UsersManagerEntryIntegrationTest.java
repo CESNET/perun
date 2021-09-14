@@ -16,16 +16,20 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
+import cz.metacentrum.perun.core.api.UsersOrderColumn;
+import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -1684,6 +1688,89 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 				.isEqualTo(email);
 	}
 
+	@Test
+	public void getUsersPage_all() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_all");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		UsersPageQuery query = new UsersPageQuery(10, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertTrue(users.getData().size() > 1);
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+	}
+
+	@Test
+	public void getUsersPage_searchString() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_searchString");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "jane");
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
+	}
+
+	@Test
+	public void getUsersPage_orderByName() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_orderByName");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		UsersPageQuery query = new UsersPageQuery(10, 0, SortingOrder.ASCENDING, UsersOrderColumn.NAME, "smith");
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(users.getData().get(0), usersManager.getRichUser(sess, user2));
+		assertEquals(users.getData().get(1), usersManager.getRichUser(sess, user));
+	}
+
+	@Test
+	public void getUsersPage_withoutVo() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_withoutVo");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		UsersPageQuery query = new UsersPageQuery(10, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, true);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertTrue(users.getData().size() > 1);
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+	}
+
+	@Test
+	public void getUsersPage_withAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_withAttributes");
+
+		User user = setUpUser("john", "smith");
+
+		AttributeDefinition prefMailAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_USER_PREFERRED_MAIL);
+		Attribute prefMail = new Attribute(prefMailAttrDef);
+		prefMail.setValue("mail@mail.com");
+
+		perun.getAttributesManagerBl().setAttribute(sess, user, prefMail);
+
+		UsersPageQuery query = new UsersPageQuery(1, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "smith");
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of(URN_ATTR_USER_PREFERRED_MAIL));
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user)));
+		assertThat(users.getData().get(0).getUserAttributes()).containsOnly(prefMail);
+	}
+
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	/**
@@ -1734,6 +1821,21 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// create new user in database
 		usersForDeletion.add(user);
 		// save user for deletion after testing
+	}
+
+	private User setUpUser(String firstName, String lastName) throws Exception {
+
+		User user = new User();
+		user.setFirstName(firstName);
+		user.setMiddleName("");
+		user.setLastName(lastName);
+		user.setTitleBefore("");
+		user.setTitleAfter("");
+		assertNotNull(perun.getUsersManagerBl().createUser(sess, user));
+		// create new user in database
+		usersForDeletion.add(user);
+		// save user for deletion after testing
+		return user;
 	}
 
 	private User setUpEmptyUser() throws Exception {
