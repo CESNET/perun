@@ -251,7 +251,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @return int 1 = true if it is possible, 0 = false if not
 	 */
 	/*#
-	 * Forces service propagation on defined facility.
+	 * Forces service propagation for defined service on all facilities.
 	 *
 	 * @param service int Service <code>id</code>
 	 * @return int 1 = true if it is possible, 0 = false if not
@@ -368,7 +368,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Deletes a service.
 	 *
 	 * @param service int Service <code>id</code>
-	 * @param force boolean if true, service will be removed with all dependant objects from the db instead of raising exception 
+	 * @param force boolean if true, service will be removed with all dependant objects from the db instead of raising exception
 	 */
 	deleteService {
 
