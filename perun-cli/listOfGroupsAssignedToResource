@@ -39,11 +39,10 @@ unless (defined $resourceId) { die "ERROR: Resource identifier required.\n"; }
 my $agent = Perun::Agent->new();
 my $resourcesAgent = $agent->getResourcesAgent;
 
-my @groups = $resourcesAgent->getAssignedGroups( resource => $resourceId );
+my @groups = $resourcesAgent->getGroupAssignments( resource => $resourceId );
 unless (@groups) {
 	printMessage "No group found.", $batch;
 	exit 0;
 }
-
 #output
 printTable($sortingFunction, @groups);

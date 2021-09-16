@@ -177,4 +177,14 @@ sub deactivateGroupResourceAssignment
 	return Perun::Common::callManagerMethod('deactivateGroupResourceAssignment', '', @_);
 }
 
+sub getGroupAssignments
+{
+	return Perun::Common::callManagerMethod('getGroupAssignments', '[]AssignedGroup', @_);
+}
+
+sub getResourceAssignments
+{
+	return Perun::Common::callManagerMethod('getResourceAssignments', '[]AssignedResource', @_);
+}
+
 1;

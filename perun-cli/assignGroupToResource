@@ -16,20 +16,24 @@ sub help {
 	--voId        | -v vo id
 	--voShortName | -V vo short name
 	--resource    | -r resource id
+	--async       | -a assigns group asynchronously
+	--inactive    | -i assigns group as inactive
+	--subgroups   | -s assigns group's subgroups automatically
 	--batch       | -b batch
 	--help        | -h prints this help
 
 	};
 }
 
-my ($groupId, $groupName, $voId, $voShortName, $resourceId, $batch);
+my ($groupId, $groupName, $voId, $voShortName, $resourceId, $async, $inactive, $subgroups, $batch);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
 	}, "batch|b"     => \$batch,
 	"groupId|g=i"    => \$groupId, "groupName|G=s" => \$groupName,
 	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
-	"resourceId|r=i" => \$resourceId) || die help();
+	"resourceId|r=i" => \$resourceId, "async|a" => \$async,
+	"inactive|i" => \$inactive, "subgroups|s" => \$subgroups) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -50,6 +54,24 @@ if (!defined($groupId)) {
 	$groupId = $group->getId;
 }
 
-$resourcesAgent->assignGroupToResource( group => $groupId, resource => $resourceId );
+if (defined($async)) {
+	$async = 1;
+} else {
+	$async = 0;
+}
+
+if (defined($inactive)) {
+	$inactive = 1;
+} else {
+	$inactive = 0;
+}
+
+if (defined($subgroups)) {
+	$subgroups = 1;
+} else {
+	$subgroups = 0;
+}
+$resourcesAgent->assignGroupToResource(group => $groupId, resource => $resourceId, async => $async,
+	assignInactive => $inactive, autoAssignSubgroups => $subgroups );
 
 printMessage("Group Id: $groupId successfully assigned to the resource Id:$resourceId", $batch);
