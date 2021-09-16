@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
@@ -66,6 +67,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -250,6 +252,24 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		getPerunBl().getAuditer().log(sess, new GroupCreatedAsSubgroup(group, vo, parentGroup));
+
+		// check if new subgroup should be automatically assigned to resources
+		List<AssignedResource> assignedResources = getPerunBl().getResourcesManagerBl().getResourceAssignments(sess, parentGroup, null)
+			.stream()
+			.filter(AssignedResource::isAutoAssignSubgroups)
+			.collect(toList());
+
+		for (AssignedResource assignedResource : assignedResources) {
+			try {
+				Group sourceGroup = assignedResource.getSourceGroupId() == null ? parentGroup : getPerunBl().getGroupsManagerBl().getGroupById(sess, assignedResource.getSourceGroupId());
+				boolean asInactive = assignedResource.getStatus().equals(GroupResourceStatus.INACTIVE);
+				getPerunBl().getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup, group, assignedResource.getEnrichedResource().getResource(), asInactive);
+			} catch (GroupResourceMismatchException | GroupNotExistsException | WrongReferenceAttributeValueException | WrongAttributeValueException e) {
+				// silently skip, assignment will have to be repeated after failure cause is solved
+			} catch (GroupAlreadyAssignedException e) {
+				// skip, periodic checker might have assigned it already
+			}
+		}
 
 		return group;
 	}
@@ -789,6 +809,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// We have to properly set all subGroups names level by level
 		setSubGroupsNames(sess, getSubGroups(sess, movingGroup), movingGroup);
 
+		// Remove movingGroup-resource autoassignments where destination group is not subgroup of assignment's source group
+		fixMovedTreeAutoassignments(sess, destinationGroup, movingGroup);
+
 		// And finally update parentGroupId for moving group in database
 		this.updateParentGroupId(sess, movingGroup);
 
@@ -803,6 +826,84 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		getPerunBl().getAuditer().log(sess, new GroupMoved(movingGroup));
+
+		// Check if moved group should be autoassigned to destination's group resource
+		if (destinationGroup != null) {
+			autoassignMovedTree(sess, destinationGroup, movingGroup);
+		}
+	}
+
+	/**
+	 * Checks, if moved group and subgroups should be automatically assigned to any group
+	 * @param sess
+	 * @param destinationGroup
+	 * @param movingGroup
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 */
+	private void autoassignMovedTree(PerunSession sess, Group destinationGroup, Group movingGroup) throws WrongReferenceAttributeValueException, WrongAttributeValueException {
+		List<AssignedResource> resourcesToAutoassign = perunBl.getResourcesManagerBl().getResourceAssignments(sess, destinationGroup, List.of()).stream()
+			.filter(AssignedResource::isAutoAssignSubgroups)
+			.collect(toList());
+
+		for (AssignedResource resourceToAutoassign : resourcesToAutoassign) {
+			Group sourceGroup;
+			try {
+				sourceGroup = resourceToAutoassign.getSourceGroupId() == null ? destinationGroup : this.getGroupById(sess, resourceToAutoassign.getSourceGroupId());
+			} catch (GroupNotExistsException e) {
+				throw new ConsistencyErrorException(e);
+			}
+
+			List<Group> groupsToAutoAssign = perunBl.getGroupsManagerBl().getAllSubGroups(sess, movingGroup);
+			groupsToAutoAssign.add(movingGroup);
+
+			for (Group groupToAutoassign : groupsToAutoAssign) {
+				try {
+					perunBl.getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup, groupToAutoassign, resourceToAutoassign.getEnrichedResource().getResource(),
+						resourceToAutoassign.getStatus().equals(GroupResourceStatus.INACTIVE));
+				} catch (GroupAlreadyAssignedException e) {
+					// skip
+				} catch (GroupResourceMismatchException e) {
+					log.error("Could not autoassign group " + groupToAutoassign + " to resource " + resourceToAutoassign, e);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks, if moving group would still belong under source group tree of automatic assignments on all assigned resources
+	 * and removes together with subgroups from source group's autoassignments if not
+	 * @param sess
+	 * @param destinationGroup
+	 * @param movingGroup
+	 */
+	private void fixMovedTreeAutoassignments(PerunSession sess, Group destinationGroup, Group movingGroup) {
+		List<AssignedResource> autoAssignedResources = perunBl.getResourcesManagerBl().getResourceAssignments(sess, movingGroup, List.of()).stream()
+			.filter(g -> g.getSourceGroupId() != null)
+			.collect(toList());
+
+		for (AssignedResource autoAssignedResource : autoAssignedResources) {
+			int sourceGroupId = autoAssignedResource.getSourceGroupId();
+			try {
+				Group sourceGroup = this.getGroupById(sess, sourceGroupId);
+				List<Group> sourceSubgroups = this.getAllSubGroups(sess, sourceGroup);
+
+				if (destinationGroup == null || !sourceSubgroups.contains(destinationGroup)) {
+					// remove automatic group and subgroups' assignments
+					List<Group> groupsToRemove = this.getAllSubGroups(sess, movingGroup);
+					groupsToRemove.add(movingGroup);
+					for (Group groupToRemove : groupsToRemove) {
+						try {
+							perunBl.getResourcesManagerBl().removeAutomaticGroupFromResource(sess, groupToRemove, autoAssignedResource.getEnrichedResource().getResource(), sourceGroupId);
+						} catch (GroupAlreadyRemovedFromResourceException | GroupNotDefinedOnResourceException e) {
+							// skip
+						}
+					}
+				}
+			} catch (GroupNotExistsException e) {
+				log.error("Assignment source group doesn't exist: " + autoAssignedResource, e);
+			}
+		}
 	}
 
 	@Override
