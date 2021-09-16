@@ -56,6 +56,7 @@ import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.ResourceAssignmentChecker;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,7 @@ public class PerunBlImpl implements PerunBl {
 	private SecurityTeamsManager securityTeamsManager = null;
 	private Searcher searcher = null;
 	private TasksManager tasksManager = null;
+	private ResourceAssignmentChecker resourceAssignmentChecker = null;
 
 	private ModulesUtilsBl modulesUtilsBl = null;
 	private VosManagerBl vosManagerBl = null;
@@ -538,6 +540,15 @@ public class PerunBlImpl implements PerunBl {
 
 	public AttributesManagerImplApi getAttributesManagerImpl() {
 		return attributesManagerImpl;
+	}
+
+	@Override
+	public ResourceAssignmentChecker getResourceAssignmentChecker() {
+		return resourceAssignmentChecker;
+	}
+
+	public void setResourceAssignmentChecker(ResourceAssignmentChecker resourceAssignmentChecker) {
+		this.resourceAssignmentChecker = resourceAssignmentChecker;
 	}
 
 	@Override
