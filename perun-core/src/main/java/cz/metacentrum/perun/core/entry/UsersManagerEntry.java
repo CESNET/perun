@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -23,6 +24,7 @@ import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
+import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
@@ -68,7 +70,6 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -254,6 +255,21 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		return getUsersManagerBl().getUsers(sess);
+	}
+
+	@Override
+	public Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getUsersPage_UsersPageQuery_List<String>_policy")) {
+			throw new PrivilegeException(sess, "getUsersPage");
+		}
+
+		Paginated<RichUser> result = usersManagerBl.getUsersPage(sess, query, attrNames);
+		result.setData(getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, result.getData()));
+
+		return result;
 	}
 
 	@Override

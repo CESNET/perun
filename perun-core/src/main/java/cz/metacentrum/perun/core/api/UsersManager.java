@@ -197,6 +197,15 @@ public interface UsersManager {
 	List<User> getUsers(PerunSession sess) throws PrivilegeException;
 
 	/**
+	 * Get page of users with the given attributes.
+	 *
+	 * @param sess session
+	 * @param query query with page information
+	 * @return page of requested rich users
+	 */
+	Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames) throws PrivilegeException;
+
+	/**
 	 * Get User to RichUser without attributes.
 	 * @param sess
 	 * @param user

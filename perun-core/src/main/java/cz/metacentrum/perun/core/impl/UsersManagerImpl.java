@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -63,6 +65,7 @@ import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPE
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceMappingSelectQuery;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceTagMappingSelectQuery;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 /**
  * UsersManager implementation.
@@ -165,6 +168,28 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
             return result;
         };
+
+	/**
+	 * Returns ResultSetExtractor that can be used to extract returned paginated users
+	 * from db.
+	 *
+	 * @param query query data
+	 * @return extractor, that can be used to extract returned paginated users from db
+	 */
+	private static ResultSetExtractor<Paginated<User>> getPaginatedUsersExtractor(UsersPageQuery query) {
+		return resultSet -> {
+			List<User> users = new ArrayList<>();
+			int total_count = 0;
+			int row = 0;
+			while (resultSet.next()) {
+				total_count = resultSet.getInt("total_count");
+				users.add(USER_MAPPER.mapRow(resultSet, row));
+				row++;
+			}
+			return new Paginated<>(users, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
+
 
 	/**
 	 * Constructor.
@@ -968,6 +993,30 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public Paginated<User> getUsersPage(PerunSession sess, UsersPageQuery query) {
+		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+		MapSqlParameterSource namedParams =
+			Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
+
+		String select = getSQLSelectForUsersPage(query);
+		String searchQuery = getSQLWhereForUsersPage(query, namedParams);
+
+		namedParams.addValue("offset", query.getOffset());
+		namedParams.addValue("limit", query.getPageSize());
+
+		String withoutVoString = getWithoutVoSQLConditionForUsersPage(query);
+
+		return namedParameterJdbcTemplate.query(
+			select +
+				withoutVoString +
+				searchQuery +
+				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
+				" OFFSET (:offset)" +
+				" LIMIT (:limit)"
+			, namedParams, getPaginatedUsersExtractor(query));
+	}
+
+	@Override
 	public boolean isUserPerunAdmin(PerunSession sess, User user) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.toLowerCase());
@@ -1404,6 +1453,39 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	private String getSQLSelectForUsersPage(UsersPageQuery query) {
+		String select =
+			"SELECT " + userMappingSelectQuery +
+				" ,count(*) OVER() AS total_count" +
+				" FROM users";
+
+		String selectWithMembers =
+			"SELECT " + userMappingSelectQuery +
+				" ,count(*) OVER() AS total_count" +
+				" FROM users LEFT JOIN members on members.user_id = users.id";
+
+
+		return !query.isWithoutVo() && isEmpty(query.getSearchString()) ? select : selectWithMembers;
+	}
+
+	private String getSQLWhereForUsersPage(UsersPageQuery query, MapSqlParameterSource namedParams) {
+		if (isEmpty(query.getSearchString())) {
+			return "";
+		}
+		if (query.isWithoutVo()) {
+			return " AND " + Utils.prepareSqlWhereForUserMemberSearch(query.getSearchString(), namedParams, false);
+		}
+		return " WHERE " + Utils.prepareSqlWhereForUserMemberSearch(query.getSearchString(), namedParams, false);
+	}
+
+	private String getWithoutVoSQLConditionForUsersPage(UsersPageQuery query) {
+		String withoutVoQueryString = "";
+		if (query.isWithoutVo()) {
+			withoutVoQueryString = " WHERE users.id not in (select user_id from members) ";
+		}
+		return withoutVoQueryString;
 	}
 
 }

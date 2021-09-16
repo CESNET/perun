@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -36,6 +37,7 @@ import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
@@ -900,6 +902,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<User> getUsersWithoutVoAssigned(PerunSession sess) {
 		return usersManagerImpl.getUsersWithoutVoAssigned(sess);
+	}
+
+	@Override
+	public Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames) {
+		Paginated<User> paginatedUsers = usersManagerImpl.getUsersPage(sess, query);
+		List<RichUser> richUsers = convertUsersToRichUsersWithAttributesByNames(sess, paginatedUsers.getData(), attrNames);
+
+		return new Paginated<>(richUsers, paginatedUsers.getOffset(), paginatedUsers.getPageSize(),
+			paginatedUsers.getTotalCount());
 	}
 
 	@Override
