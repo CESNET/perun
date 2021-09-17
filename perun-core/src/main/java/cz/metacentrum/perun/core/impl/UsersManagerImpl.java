@@ -1462,7 +1462,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				" FROM users";
 
 		String selectWithMembers =
-			"SELECT " + userMappingSelectQuery +
+			"SELECT distinct " + userMappingSelectQuery +
 				" ,count(*) OVER() AS total_count" +
 				" FROM users LEFT JOIN members on members.user_id = users.id";
 
