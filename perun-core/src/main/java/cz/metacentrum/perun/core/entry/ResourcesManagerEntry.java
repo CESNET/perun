@@ -328,7 +328,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedMembersWithStatus_Resource_policy")) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedMembersWithStatus_Resource_policy", resource)) {
 			throw new PrivilegeException(sess, "getAssignedMembersWithStatus");
 		}
 
