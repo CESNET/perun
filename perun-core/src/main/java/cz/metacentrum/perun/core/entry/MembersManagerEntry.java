@@ -1579,7 +1579,13 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		Paginated<RichMember> result = membersManagerBl.getMembersPage(sess, vo, query, attrNames);
-		result.setData(getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, result.getData()));
+
+		if (query.getGroupId() == null) {
+			result.setData(getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, result.getData()));
+		} else {
+			Group group = getPerunBl().getGroupsManagerBl().getGroupById(sess, query.getGroupId());
+			result.setData(getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, result.getData(), group, true));
+		}
 
 		return result;
 	}
