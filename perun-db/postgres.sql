@@ -1,4 +1,4 @@
--- database version 3.1.87 (don't forget to update insert statement at the end of file)
+-- database version 3.1.88 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -782,7 +782,7 @@ create table groups_resources_automatic (
 );
 
 create function relation_group_resource_exist(integer, integer) returns integer as
-    'select count(1)::integer from (SELECT group_id, resource_id FROM groups_resources UNION SELECT group_id, resource_id FROM groups_resources_automatic) gr_res where group_id=$1 and resource_id=$2;' language sql;
+    'select count(1)::integer from (SELECT group_id, resource_id FROM perun.groups_resources UNION SELECT group_id, resource_id FROM perun.groups_resources_automatic) gr_res where group_id=$1 and resource_id=$2;' language sql;
 
 create table groups_resources_state (
 	group_id integer not null,
@@ -1806,7 +1806,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.87');
+insert into configurations values ('DATABASE VERSION','3.1.88');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
