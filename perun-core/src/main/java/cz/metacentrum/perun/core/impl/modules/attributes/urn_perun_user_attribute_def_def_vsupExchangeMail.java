@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -38,10 +39,10 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
  * Artistic names have preference over normal: "u:d:artisticFirstName", "u:d:artisticLastName".
  * Value can be empty or manually changed.
  * In case of users name change, attribute value must be changed manually !!
- * Value is filled/generated only for normal users (service users must have value set manually)!!
+ * Value is filled/generated only for normal users (service users shouldn't have this attribute set)!!
  *
  * On value change, map of usedMails in entityless attributes is checked and updated.
- * Also u:d:vsupPreferredMail is set to current value, if is empty.
+ * Also u:d:vsupPreferredMail is set to current value, if is empty or equals u:d:vsupMail.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -97,11 +98,6 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMail extends UserAttri
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
-		return new Attribute(attribute);
-
-		// FIXME - UNCOMMENT DURING MAIL MIGRATION (once we manually migrate old values from vsupMailAlias).
-
-		/*
 		if (user.isSpecificUser()) {
 			// Do not fill value for service/sponsored users
 			return new Attribute(attribute);
@@ -147,7 +143,6 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMail extends UserAttri
 		}
 
 		return filledAttribute;
-		*/
 
 	}
 
