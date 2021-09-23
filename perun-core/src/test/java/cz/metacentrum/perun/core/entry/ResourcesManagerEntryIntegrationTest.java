@@ -397,6 +397,25 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void deleteResourceWithSubgroupsAssigned() throws Exception {
+		System.out.println(CLASS_NAME + "deleteResourceWithSubgroupsAssigned");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		setUpSubGroup(group);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, true);
+
+		perun.getResourcesManagerBl().deleteResource(sess, resource);
+
+		List<Resource> resources = resourcesManager.getResources(sess, vo);
+		assertTrue("resource not deleted", resources.isEmpty());
+	}
+
+	@Test
 	public void getFacility() throws Exception {
 		System.out.println(CLASS_NAME + "getFacility");
 
@@ -540,7 +559,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		subGroup = setUpSubGroup(group);
 		AssignedGroup expectedGroup = new AssignedGroup(new EnrichedGroup(group, null), GroupResourceStatus.ACTIVE, null, null, true);
 		AssignedGroup expectedSubGroup = new AssignedGroup(new EnrichedGroup(subGroup, null), GroupResourceStatus.ACTIVE, expectedGroup.getEnrichedGroup().getGroup().getId(), null, true);
-		AssignedGroup expectedSubGroupProcessing = new AssignedGroup(new EnrichedGroup(subGroup, null), GroupResourceStatus.PROCESSING, expectedGroup.getEnrichedGroup().getGroup().getId(), null, true);
 
 		resourcesManager.assignGroupToResource(sess, group, resource, false, false, true);
 
@@ -548,7 +566,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertEquals("two groups (group with subgroup) should be assigned to our Resource", 2, assignedGroups.size());
 
 		assertTrue("Our group should be assigned to resource.", assignedGroups.contains(expectedGroup));
-		assertTrue("Our subgroup should be assigned to resource.", assignedGroups.contains(expectedSubGroup) || assignedGroups.contains(expectedSubGroupProcessing));
+		assertTrue("Our subgroup should be assigned to resource.", assignedGroups.contains(expectedSubGroup));
 	}
 
 	@Test
@@ -565,14 +583,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		Group members = sess.getPerun().getGroupsManager().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
 		AssignedGroup expectedMembersGroupActive = new AssignedGroup(new EnrichedGroup(members, null), GroupResourceStatus.ACTIVE, null,null, true);
 		AssignedGroup expectedGroupActive = new AssignedGroup(new EnrichedGroup(group, null), GroupResourceStatus.ACTIVE, expectedMembersGroupActive.getEnrichedGroup().getGroup().getId(), null, true);
-		AssignedGroup expectedGroupActiveProcessing = new AssignedGroup(new EnrichedGroup(group, null), GroupResourceStatus.PROCESSING, expectedMembersGroupActive.getEnrichedGroup().getGroup().getId(), null, true);
 
 		resourcesManager.assignGroupToResource(sess, members, resource, false, false, true);
 
 		List<AssignedGroup> assignedGroups = resourcesManager.getGroupAssignments(sess, resource, null);
 		assertEquals("two groups should be assigned to our Resource('members' and other test group)", 2, assignedGroups.size());
 
-		assertTrue("our group should be assigned to resource.", assignedGroups.contains(expectedGroupActive) || assignedGroups.contains(expectedGroupActiveProcessing));
+		assertTrue("our group should be assigned to resource.", assignedGroups.contains(expectedGroupActive));
 		assertTrue("our members group should be assigned to resource", assignedGroups.contains(expectedMembersGroupActive));
 	}
 
@@ -705,6 +722,81 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.removeGroupFromResource(sess, subGroup, resource);
 		// shouldn't remove subGroup when parent group was assigned
 
+	}
+
+	@Test
+	public void removeGroupFromResourceWithSubgroups() throws Exception {
+		System.out.println(CLASS_NAME + "removeGroupFromResourceWithSubgroups");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		subGroup = setUpSubGroup(group);
+		Group subGroup2 = setUpSubGroup(subGroup);
+		Group subGroup3 = setUpSubGroup(subGroup2);
+		Group subGroup4 = setUpSubGroup(subGroup3);
+
+		resourcesManager.assignGroupToResource(sess, group, resource, false, false, true);
+
+		List<AssignedGroup> assignedGroups = resourcesManager.getGroupAssignments(sess, resource, null);
+		assertThat(assignedGroups.size()).isEqualTo(5);
+
+		// removing parent group from resource should unassign all subgroups
+		resourcesManager.removeGroupFromResource(sess, group, resource);
+		assignedGroups = resourcesManager.getGroupAssignments(sess, resource, null);
+		assertThat(assignedGroups).isEmpty();
+	}
+
+	@Test
+	public void removeGroupFromResourceWithoutParentGroup() throws Exception {
+		System.out.println(CLASS_NAME + "removeGroupFromResourceWithoutParentGroup");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		subGroup = setUpSubGroup(group);
+		setUpSubGroup(subGroup);
+
+		resourcesManager.assignGroupToResource(sess, group, resource, false, false, false);
+		resourcesManager.assignGroupToResource(sess, subGroup, resource, false, false, true);
+
+		List<Group> assignedGroups = resourcesManager.getAssignedGroups(sess, resource);
+		assertThat(assignedGroups.size()).isEqualTo(3);
+
+		// parent group shouldn't be affected
+		resourcesManager.removeGroupFromResource(sess, subGroup, resource);
+		assignedGroups = resourcesManager.getAssignedGroups(sess, resource);
+		assertThat(assignedGroups).containsExactly(group);
+	}
+
+	@Test
+	public void removeGroupFromResourceWithoutManuallyAssignedSubgroup() throws Exception {
+		System.out.println(CLASS_NAME + "removeGroupFromResourceWithoutManuallyAssignedSubgroup");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		// subgroups should get assigned to resource upon creation
+		resourcesManager.assignGroupToResource(sess, group, resource, false, false, true);
+		subGroup = setUpSubGroup(group);
+
+		// manually assign subgroup
+		resourcesManager.assignGroupToResource(sess, subGroup, resource, false, false, false);
+
+		resourcesManager.removeGroupFromResource(sess, group, resource);
+		List<AssignedGroup> assignedGroups = resourcesManager.getGroupAssignments(sess, resource, null);
+
+		AssignedGroup assignedSubgroup = new AssignedGroup(new EnrichedGroup(subGroup, List.of()), GroupResourceStatus.ACTIVE, null, null, false);
+		assertThat(assignedGroups).containsExactly(assignedSubgroup);
 	}
 
 	@Test(expected = GroupNotDefinedOnResourceException.class)
@@ -2475,6 +2567,27 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void activateGroupResourceAssignmentAsync() throws Exception {
+		System.out.println(CLASS_NAME + "activateGroupResourceAssignmentAsync");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource, false, true, false);
+
+		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource);
+		assertThat(groups).isEmpty();
+
+		resourcesManager.activateGroupResourceAssignment(sess, group, resource, true);
+
+		groups = resourcesManager.getAssignedGroups(sess, resource);
+		assertThat(groups).containsExactly(group);
+	}
+
+	@Test
 	public void deactivateGroupResourceAssignment() throws Exception {
 		System.out.println(CLASS_NAME + "deactivateGroupResourceAssignment");
 
@@ -2515,6 +2628,77 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		assertThatExceptionOfType(GroupNotExistsException.class)
 			.isThrownBy(() -> resourcesManager.deactivateGroupResourceAssignment(sess, new Group(), resource));
+	}
+
+	@Test
+	public void createGroupAssignsSubgroup() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupAssignsSubgroup");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, group, resource, false, false, true);
+
+		// subgroup gets assigned upon creation
+		subGroup = setUpSubGroup(group);
+
+		AssignedGroup assignedGroup = new AssignedGroup(new EnrichedGroup(group, List.of()), GroupResourceStatus.ACTIVE, null, null, true);
+		AssignedGroup assignedSubgroup = new AssignedGroup(new EnrichedGroup(subGroup, List.of()), GroupResourceStatus.ACTIVE, group.getId(), null, true);
+
+		List<AssignedGroup> assignedGroups = sess.getPerun().getResourcesManager().getGroupAssignments(sess, resource, List.of());
+		assertThat(assignedGroups).containsExactlyInAnyOrder(assignedGroup, assignedSubgroup);
+	}
+
+	@Test
+	public void createGroupAssignsSubgroupTree() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupAssignsSubgroupTree");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, group, resource, false, false, true);
+
+		// subgroup gets assigned on creation
+		subGroup = setUpSubGroup(group);
+		Group subGroup2 = setUpSubGroup(subGroup);
+		Group subGroup3 = setUpSubGroup(subGroup2);
+
+		AssignedGroup assignedSubgroup21 = new AssignedGroup(new EnrichedGroup(subGroup2, List.of()), GroupResourceStatus.ACTIVE, group.getId(), null, true);
+		AssignedGroup assignedSubgroup22 = new AssignedGroup(new EnrichedGroup(subGroup3, List.of()), GroupResourceStatus.ACTIVE, group.getId(), null, true);
+
+
+		List<AssignedGroup> assignedGroups = sess.getPerun().getResourcesManager().getGroupAssignments(sess, resource, List.of());
+		assertThat(assignedGroups).contains(assignedSubgroup21, assignedSubgroup22);
+	}
+
+	@Test
+	public void autoAssignSubgroupInactive() throws Exception {
+		System.out.println(CLASS_NAME + "autoAssignSubgroupInactive");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		Resource inactiveResource = setUpResource();
+
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, group, inactiveResource, false, true, true);
+		sess.getPerun().getResourcesManager().deactivateGroupResourceAssignment(sess, group, inactiveResource);
+
+		// subgroup gets assigned on creation
+		subGroup = setUpSubGroup(group);
+
+		List<AssignedGroup> assignedGroups = sess.getPerun().getResourcesManager().getGroupAssignments(sess, inactiveResource, List.of());
+
+		AssignedGroup assignedGroup = new AssignedGroup(new EnrichedGroup(group, List.of()), GroupResourceStatus.INACTIVE, null, null, true);
+		AssignedGroup assignedSubgroup = new AssignedGroup(new EnrichedGroup(subGroup, List.of()), GroupResourceStatus.INACTIVE, group.getId(), null, true);
+
+		assertThat(assignedGroups).containsExactlyInAnyOrder(assignedGroup, assignedSubgroup);
 	}
 
 	// PRIVATE METHODS -----------------------------------------------------------

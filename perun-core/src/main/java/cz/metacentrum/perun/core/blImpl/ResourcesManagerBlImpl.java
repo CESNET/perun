@@ -263,14 +263,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		List<AssignedGroup> assignedGroups = getGroupAssignments(sess, resource, List.of());
 		for (AssignedGroup assignedGroup : assignedGroups) {
-			try {
-				if (assignedGroup.getSourceGroupId() == null) {
+			if (assignedGroup.getSourceGroupId() == null) {
+				try {
 					removeGroupFromResource(sess, assignedGroup.getEnrichedGroup().getGroup(), resource);
-				} else {
-					removeAutomaticGroupFromResource(sess, assignedGroup.getEnrichedGroup().getGroup(), resource, assignedGroup.getSourceGroupId());
+				} catch (GroupNotDefinedOnResourceException ex) {
+					throw new GroupAlreadyRemovedFromResourceException(ex);
 				}
-			} catch (GroupNotDefinedOnResourceException ex) {
-				throw new GroupAlreadyRemovedFromResourceException(ex);
 			}
 		}
 
