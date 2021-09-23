@@ -139,8 +139,8 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 				}
 
 				// Store E-INFRA IdP UES
-				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp.e-infra.cz/idp/");
-				ues = new UserExtSource(extSource, userLogin + "@idp.e-infra.cz");
+				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp.einfra.cesnet.cz/idp/");
+				ues = new UserExtSource(extSource, userLogin + "@idp.einfra.cesnet.cz");
 				ues.setLoa(0);
 
 				try {
@@ -150,8 +150,8 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 				}
 
 				// Store E-INFRA CERT IdP UES
-				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp-cert.e-infra.cz/idp/");
-				ues = new UserExtSource(extSource, userLogin + "@idp-cert.e-infra.cz");
+				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp-cert.einfra.cesnet.cz/idp/");
+				ues = new UserExtSource(extSource, userLogin + "@idp-cert.einfra.cesnet.cz");
 				ues.setLoa(0);
 
 				try {
