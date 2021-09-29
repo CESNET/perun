@@ -166,9 +166,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		</tx:attributes>
 	</tx:advice>
 
-	<!-- Enabling Spring's @Async execution	-->
-	<task:executor id="asyncExecutor" pool-size="20-20" queue-capacity="5000" keep-alive="120" rejection-policy="DISCARD_OLDEST" />
-	<task:annotation-driven executor="asyncExecutor"/>
 
 	<!--FIXME   a hack which forces Spring to call a static method -->
 	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl" scope="singleton">
@@ -494,6 +491,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 			<property name="auditer" ref="auditer"/>
 		</bean>
 
+		<!-- Enabling Spring's @Async execution	-->
+		<task:executor id="asyncExecutor" pool-size="20-20" queue-capacity="5000" keep-alive="120" rejection-policy="DISCARD_OLDEST" />
+		<task:annotation-driven executor="asyncExecutor"/>
+
 		<!-- PerunRolesLoader implementation -->
 		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
 			<property name="configurationPath" value="classpath:perun-roles.yml"/>
@@ -549,6 +550,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<!-- Loader for the perunAppsConfig-->
 		<bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader" init-method="initialize">
 			<property name="configPath" value="classpath:perun-apps-config.yml"/>
+		</bean>
+
+		<!-- Spring's @Async execution runs synchronously	-->
+		<bean id="asyncExecutor" class="org.springframework.core.task.SyncTaskExecutor">
 		</bean>
 	</beans>
 

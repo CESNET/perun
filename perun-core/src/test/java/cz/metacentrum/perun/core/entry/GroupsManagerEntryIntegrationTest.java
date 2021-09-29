@@ -5386,6 +5386,88 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue("There should be no relation between the group and the member", map.isEmpty());
 	}
 
+	@Test
+	public void moveGroupOutOfAutoassigningGroup() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupOutOfAutoassigningGroup");
+
+		vo = setUpVo();
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group3);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource, false, false, true);
+		assertTrue(perun.getResourcesManagerBl().getAssignedResources(sess, group3).size() == 1);
+
+		// moving out of autoassigning tree, should get unassigned
+		groupsManagerBl.moveGroup(sess , null, group3);
+		assertThat(perun.getResourcesManagerBl().getAssignedResources(sess, group3).isEmpty());
+	}
+
+	@Test
+	public void moveGroupOutOfAutoassigningGroupRemovesAlsoSubgroups() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupOutOfAutoassigningGroupRemovesAlsoSubgroups");
+
+		vo = setUpVo();
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource, false, false, true);
+		assertTrue(perun.getResourcesManagerBl().getAssignedResources(sess, group3).size() == 1);
+		assertTrue(perun.getResourcesManagerBl().getAssignedResources(sess, group4).size() == 1);
+
+		groupsManagerBl.moveGroup(sess , null, group3);
+		assertThat(perun.getResourcesManagerBl().getAssignedResources(sess, group3).isEmpty());
+		assertThat(perun.getResourcesManagerBl().getAssignedResources(sess, group4).isEmpty());
+	}
+
+	@Test
+	public void moveGroupToAutoassigningGroup() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupToAutoassigningGroup");
+
+		vo = setUpVo();
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group3, resource, false, false, true);
+		assertThat(perun.getResourcesManagerBl().getAssignedResources(sess, group2).isEmpty());
+
+		// moving to autoassigning tree, should get autoassigned
+		groupsManagerBl.moveGroup(sess , group3, group2);
+		assertTrue(perun.getResourcesManagerBl().getAssignedResources(sess, group2).size() == 1);
+	}
+
+	@Test
+	public void moveGroupKeepAutoassignment() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupKeepAutoassignment");
+
+		vo = setUpVo();
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group3);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, true);
+		assertTrue(perun.getResourcesManagerBl().getResourceAssignments(sess, group3, List.of()).size() == 1);
+
+		// moving inside autoassigning tree, should keep assignment
+		groupsManagerBl.moveGroup(sess , group, group3);
+		assertTrue(perun.getResourcesManagerBl().getResourceAssignments(sess, group3, List.of()).size() == 1);
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
