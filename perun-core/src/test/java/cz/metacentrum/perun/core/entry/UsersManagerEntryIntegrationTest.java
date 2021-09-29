@@ -1770,6 +1770,32 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertThat(users.getData().get(0).getUserAttributes()).containsOnly(prefMail);
 	}
 
+	@Test
+	public void getUsersPage_userHasMembersInMultipleVos() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_userHasMembersInMultipleVos");
+
+		User user = setUpUser("jane", "smith");
+
+		Vo newVo = new Vo(1, "UserManagerTestV1o", "UMTestVo1");
+		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
+		Member member = perun.getMembersManagerBl().createMember(sess, returnedVo, user);
+
+		newVo = new Vo(2, "UserManagerTestV2o", "UMTestVo2");
+		returnedVo = perun.getVosManager().createVo(sess, newVo);
+		member = perun.getMembersManagerBl().createMember(sess, returnedVo, user);
+
+		newVo = new Vo(3, "UserManagerTestV3o", "UMTestVo3");
+		returnedVo = perun.getVosManager().createVo(sess, newVo);
+		member = perun.getMembersManagerBl().createMember(sess, returnedVo, user);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "jane");
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user)));
+	}
 
 	// PRIVATE METHODS -------------------------------------------------------------
 
