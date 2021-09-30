@@ -54,9 +54,16 @@ sub TO_JSON
 		$userId = 0;
 	}
 
+	my $lastAccess;
+	if (defined($self->{_lastAccess})) {
+		$lastAccess = $self->{_lastAccess};
+	} else {
+		$lastAccess = undef;
+	}
+
 	my $extSource = $self->{_extSource};
 
-	return { id => $id, login => $login, loa => $loa, userId => $userId, persistent => $persistent, extSource => $extSource };
+	return { id => $id, login => $login, loa => $loa, userId => $userId, persistent => $persistent, lastAccess=> $lastAccess, extSource => $extSource };
 }
 
 sub getId
@@ -145,6 +152,21 @@ sub setUserId
 {
 	my $self = shift;
 	$self->{_userId} = shift;
+
+	return;
+}
+
+sub getLastAccess
+{
+	my $self = shift;
+
+	return $self->{_lastAccess};
+}
+
+sub setLastAccess
+{
+	my $self = shift;
+	$self->{_lastAccess} = shift;
 
 	return;
 }
