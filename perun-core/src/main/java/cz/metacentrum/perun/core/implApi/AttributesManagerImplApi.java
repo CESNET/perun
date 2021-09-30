@@ -652,6 +652,19 @@ public interface AttributesManagerImplApi {
 	 */
 	Attribute getAttribute(PerunSession sess, User user, String attributeName) throws AttributeNotExistsException;
 
+	/**
+	 * Get particular attribute for the user for update - locking the attribute for user.
+	 *
+	 * @param sess
+	 * @param attrId
+	 * @param userId
+	 * @return attribute value
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 */
+	String getUserAttrValueForUpdate(PerunSession sess, int attrId, int userId) throws AttributeNotExistsException;
+
 	Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws AttributeNotExistsException;
 
 	Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws AttributeNotExistsException;
@@ -917,6 +930,19 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if runtimeException is thrown
 	 */
 	boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute);
+
+	/**
+	 * Set user attribute with null value (for user and attribute). Shouldn't be called from upper layer !!!
+	 *
+	 * @param sess
+	 * @param userId ID of User to store attribute for
+	 * @param attribute attribute to set
+	 *
+	 * @return true if insert is ok
+	 *
+	 * @throws InternalErrorException if runtimeException is thrown
+	 */
+	boolean setAttributeWithNullValue(final PerunSession sess, final int userId, final Attribute attribute);
 
 	/**
 	 * Store the particular virtual attribute associated with the facility.
