@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.emailPattern;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailUrn;
@@ -34,13 +34,16 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
  */
 public class urn_perun_user_attribute_def_def_vsupExchangeMailAliases extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	// VŠUP ALIASES MAIL PATTERN !!
+	public static final Pattern vsupAliasesMailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@(vsup|umprum)\\.cz$");
+
 	@Override
 	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		List<String> mails = (attribute.getValue() != null) ? (attribute.valueAsList()) : (new ArrayList<>());
 
 		for (String mail : mails) {
-			Matcher emailMatcher = emailPattern.matcher(mail);
+			Matcher emailMatcher = vsupAliasesMailPattern.matcher(mail);
 			if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Following value of primary mail alias is not in a correct form: '"+mail+"'.");
 		}
 
