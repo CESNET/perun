@@ -16,15 +16,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.emailPattern;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsKeyVsup;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailUrn;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailUrn;
@@ -55,9 +51,9 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMailAliases extends Us
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
-		// map of reserved vsup mails
+		// list of reserved mails for user
 		Attribute reservedMailsAttribute;
-		Map<String,String> reservedMailsAttributeValue;
+		ArrayList<String> reservedMailsAttributeValue;
 
 		// other vsup mail attributes to get values from
 		Attribute vsupMailAttribute;
@@ -69,9 +65,8 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMailAliases extends Us
 		Set<String> actualMailsOfUser = new HashSet<>();
 
 		// get related attributes
-
 		try {
-			reservedMailsAttribute = session.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(session, usedMailsKeyVsup, usedMailsUrn);
+			reservedMailsAttribute = session.getPerunBl().getAttributesManagerBl().getAttributeForUpdate(session, user, usedMailsUrn);
 			vsupMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
 			vsupPreferredMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupPreferredMailUrn);
 			vsupExchangeMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailUrn);
@@ -84,39 +79,19 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMailAliases extends Us
 		// if REMOVE action and reserved map is empty -> consistency error
 
 		if (attribute.getValue() == null && reservedMailsAttribute.getValue() == null) {
-			throw new ConsistencyErrorException("Entityless attribute 'urn:perun:entityless:attribute-def:def:usedMails' is empty, but we are removing 'vsupExchangeMailAliases' value, so there should have been entry in entityless attribute.");
+			throw new ConsistencyErrorException("User attribute 'urn:perun:user:attribute-def:def:usedMails' is empty, but we are removing 'vsupExchangeMailAliases' value, so there should have been entry in usedMails attribute.");
 		}
 
 		// get value from reserved mails attribute
 
 		if (reservedMailsAttribute.getValue() == null) {
-			reservedMailsAttributeValue = new LinkedHashMap<>();
+			reservedMailsAttributeValue = new ArrayList<>();
 		} else {
-			reservedMailsAttributeValue = reservedMailsAttribute.valueAsMap();
+			reservedMailsAttributeValue = reservedMailsAttribute.valueAsList();
 		}
 
-		// if SET action and mail is already reserved by other user
-		if (attribute.getValue() != null) {
-
-			List<String> mails = attribute.valueAsList();
-			for (String mail : mails) {
-				String ownersUserId = reservedMailsAttributeValue.get(mail);
-				if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
-					// TODO - maybe get actual owners attribute and throw WrongReferenceAttributeException to be nice in a GUI ?
-					throw new InternalErrorException("One of VŠUP mail aliases: '"+mail+"' is already in use by User ID: " + ownersUserId + ".");
-				}
-			}
-
-		}
-
-		// fill output sets for comparison
-
-		for (Map.Entry<String,String> entry : reservedMailsAttributeValue.entrySet()) {
-			if (Objects.equals(entry.getValue(), String.valueOf(user.getId()))) {
-				// reserved mails of a user
-				reservedMailsOfUser.add(entry.getKey());
-			}
-		}
+		// fill set for comparison
+		reservedMailsOfUser.addAll(reservedMailsAttributeValue);
 
 		if (vsupMailAttribute.getValue() != null) {
 			actualMailsOfUser.add(vsupMailAttribute.valueAsString());
@@ -128,9 +103,7 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMailAliases extends Us
 			actualMailsOfUser.add(vsupExchangeMailAttribute.valueAsString());
 		}
 
-		// Find which is in the map (reserved) but not in attributes anymore and remove it from the map
-		// handles remove and change action on attribute
-
+		// Remove values, which are no longer set to any of user mail attributes
 		for (String mail : reservedMailsOfUser) {
 			if (!actualMailsOfUser.contains(mail)) {
 				// Remove mail, which is not in attributes anymore
@@ -138,19 +111,21 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMailAliases extends Us
 			}
 		}
 
-		// Put in which is in attribute but not in a map
+		// if SET action and new mails are not present (prevent duplicates within the value)
 		if (attribute.getValue() != null) {
 			List<String> mails = attribute.valueAsList();
 			for (String mail : mails) {
-				reservedMailsAttributeValue.putIfAbsent(mail, String.valueOf(user.getId()));
+				if (!reservedMailsAttributeValue.contains(mail)) {
+					reservedMailsAttributeValue.add(mail);
+				}
 			}
 		}
 
-		// save changes in entityless attribute
+		// save changes in reserved mails attribute
 		try {
-			// always set value to attribute, since we might start with null in attribute and empty map in variable !!
+			// always set value to attribute, since we might start with null in attribute and empty list in variable !!
 			reservedMailsAttribute.setValue(reservedMailsAttributeValue);
-			session.getPerunBl().getAttributesManagerBl().setAttribute(session, usedMailsKeyVsup, reservedMailsAttribute);
+			session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, reservedMailsAttribute);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
