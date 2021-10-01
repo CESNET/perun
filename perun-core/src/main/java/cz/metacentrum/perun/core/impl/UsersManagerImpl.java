@@ -1010,6 +1010,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			select +
 				withoutVoString +
 				searchQuery +
+				" GROUP BY users_id" +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
 				" LIMIT (:limit)"
@@ -1462,7 +1463,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				" FROM users";
 
 		String selectWithMembers =
-			"SELECT distinct " + userMappingSelectQuery +
+			"SELECT " + userMappingSelectQuery +
 				" ,count(*) OVER() AS total_count" +
 				" FROM users LEFT JOIN members on members.user_id = users.id";
 
