@@ -11429,27 +11429,31 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/groupsManager/deleteGroups:
+  /json/groupsManager/deleteGroups:
     post:
       tags:
         - GroupsManager
       operationId: deleteGroups
       summary: Forcefully deletes a list of groups (remove all group members, remove group from resources).
-      parameters:
-        - $ref: '#/components/parameters/groupIds'
-        - { name: forceDelete,
-            description: "If true use force delete",
-            schema: {
-              type: boolean
-            },
-            in: query,
-            required: true
-        }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputDeleteGroups
+              description: "input to deleteGroup"
+              type: object
+              required:
+                - groups
+                - forceDelete
+              properties:
+                groups: { type: array, items: {type: integer} }
+                forceDelete: { type: boolean, description: "boolean for force delete"}
 
   /urlinjsonout/groupsManager/moveGroup/dg-mg:
     post:
