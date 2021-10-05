@@ -60,9 +60,6 @@
 		<!-- by default we run perun in memory -->
 		<spring.profiles.default>default</spring.profiles.default>
 
-		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
-		<tomcat.version>8.5.57</tomcat.version>
-
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.4</commons-cli.version>
 		<commons-text.version>1.9</commons-text.version>
