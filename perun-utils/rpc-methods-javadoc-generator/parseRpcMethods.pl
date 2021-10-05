@@ -143,6 +143,13 @@ $objectExamples{"AuditMessage"} = "{ \"id\" : 249053 , \"msg\" : \"Something hap
 $objectExamples{"List&lt;AuditMessage&gt;"} = $listPrepend . $objectExamples{"AuditMessage"} . $listAppend;
 $objectExamples{"List<AuditMessage>"} = $objectExamples{"List&lt;AuditMessage&gt;"};
 
+$objectExamples{"MessagesPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" }";
+$objectExamples{"List&lt;MessagesPageQuery&gt;"} = $listPrepend . $objectExamples{"MessagesPageQuery"} . $listAppend;
+$objectExamples{"List<MessagesPageQuery>"} = $objectExamples{"List&lt;MessagesPageQuery&gt;"};
+
+$objectExamples{"Paginated&lt;AuditMessage&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;AuditMessage&gt;"} . "  }";
+$objectExamples{"Paginated<AuditMessage>"} = @objectExamples{"Paginated&lt;AuditMessage&gt;"};
+
 $objectExamples{"String"} = "\"text\"";
 $objectExamples{"boolean"} = "true";
 

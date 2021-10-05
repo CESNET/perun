@@ -319,6 +319,28 @@ components:
         createdAt: { type: string }
         createdByUid: { type: integer }
 
+    PaginatedAuditMessages:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/AuditMessage' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    AuditMessagesPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+      required:
+        - pageSize
+        - offset
+        - order
+
     ActionType:
       type: string
       description: "Action types for attributes."
@@ -1429,6 +1451,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/AuditMessage"
+
+    PaginatedMessagesResponse:
+      description: "returns Paginated<AuditMessage>"
+      content:
+        application/json:
+          schema:
+              $ref: "#/components/schemas/PaginatedAuditMessages"
 
     PublicationSystemResponse:
       description: "returns PublicationSystem"
@@ -6782,6 +6811,30 @@ paths:
           $ref: '#/components/responses/ListOfAuditMessagesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/auditMessagesManager/getMessagesPage:
+    post:
+      tags:
+        - AuditMessagesManager
+      operationId: getMessagesPage
+      summary: Get page of audit messages.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedMessagesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedMessages
+              description: "input to get paginated messages"
+              type: object
+              required:
+                - query
+              properties:
+                query: { $ref: '#/components/schemas/AuditMessagesPageQuery' }
 
   /json/auditMessagesManager/pollConsumerMessages:
     get:

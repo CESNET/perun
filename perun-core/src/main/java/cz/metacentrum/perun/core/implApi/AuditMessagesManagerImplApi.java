@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.core.api.MessagesPageQuery;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
@@ -36,6 +38,15 @@ public interface AuditMessagesManagerImplApi {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count);
+
+	/**
+	 * Returns page of audit messages. Query parameter specifies offset and page size.
+	 *
+	 * @param perunSession perun session
+	 * @return Page of audit messages
+	 * @throws InternalErrorException When implementation fails
+	 */
+	Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query);
 
 	/**
 	 * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId for registered auditer consumer.

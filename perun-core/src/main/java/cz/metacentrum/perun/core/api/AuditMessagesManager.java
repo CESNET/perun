@@ -50,6 +50,15 @@ public interface AuditMessagesManager {
 	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count);
 
 	/**
+	 * Returns page of audit messages. Query parameter specifies offset and page size.
+	 *
+	 * @param perunSession perun session
+	 * @return Page of audit messages
+	 * @throws InternalErrorException When implementation fails
+	 */
+	Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) throws PrivilegeException;
+
+	/**
 	 * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
 	 *
 	 * @param perunSession perun session
