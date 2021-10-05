@@ -83,6 +83,11 @@ sub getUserExtSourceByExtLogin
 	return Perun::Common::callManagerMethod('getUserExtSourceByExtLogin', 'UserExtSource', @_);
 }
 
+sub getUserExtSourceByExtLoginAndExtSourceName
+{
+	return Perun::Common::callManagerMethod('getUserExtSourceByExtLoginAndExtSourceName', 'UserExtSource', @_);
+}
+
 sub getUserExtSourceById
 {
 	return Perun::Common::callManagerMethod('getUserExtSourceById', 'UserExtSource', @_);
