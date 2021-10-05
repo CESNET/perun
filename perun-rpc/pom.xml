@@ -33,11 +33,11 @@
 				and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
-				<artifactId>cargo-maven2-plugin</artifactId>
-				<version>1.8.2</version>
+				<artifactId>cargo-maven3-plugin</artifactId>
+				<version>1.9.6</version>
 				<configuration>
 					<container>
-						<containerId>tomcat8x</containerId>
+						<containerId>tomcat9x</containerId>
 						<artifactInstaller>
 							<groupId>org.apache.tomcat</groupId>
 							<artifactId>tomcat</artifactId>
@@ -52,7 +52,7 @@
 						 -->
 					</container>
 					<configuration>
-						<home>${basedir}/target/cargo/tomcat8x</home>
+						<home>${basedir}/target/cargo/tomcat9x</home>
 						<files>
 							<copy>
 								<file>${basedir}/tomcat.xml</file>

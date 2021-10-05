@@ -22,10 +22,10 @@
 	           address="127.0.0.1"
 	           tomcatAuthentication="false"
 	           URIEncoding="UTF-8"
-	           packetSize="36000"
+	           packetSize="65536"
 	           redirectPort="8080"
 	           secretRequired="false"
-	           allowedRequestAttributesPattern=".*"/>
+	           allowedRequestAttributesPattern=".*" />
 
 	<Engine name="Catalina" defaultHost="localhost" debug="FINE">
 
