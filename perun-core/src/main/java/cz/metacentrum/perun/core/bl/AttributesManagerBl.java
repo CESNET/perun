@@ -1126,6 +1126,19 @@ public interface AttributesManagerBl {
 	Attribute getAttribute(PerunSession sess, User user, String attributeName) throws WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
+	 * Get particular attribute for the user for update - locking the attribute for user.
+	 *
+	 * @param sess
+	 * @param user to get attribute from
+	 * @param attributeName attribute name defined in the particular manager
+	 * @return attribute
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	Attribute getAttributeForUpdate(PerunSession sess, User user, String attributeName) throws WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
 	 * Get particular attribute for the host
 	 * @param sess
 	 * @param host host to get attribute from
