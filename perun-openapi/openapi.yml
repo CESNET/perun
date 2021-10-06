@@ -6749,7 +6749,7 @@ paths:
   #                                               #
   #################################################
 
-  /json/AuditMessagesManager/getMessages:
+  /json/auditMessagesManager/getMessages:
     get:
       tags:
         - AuditMessagesManager
@@ -6766,7 +6766,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getMessagesByCount:
+  /json/auditMessagesManager/getMessagesByCount:
     get:
       tags:
         - AuditMessagesManager
@@ -6783,7 +6783,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/pollConsumerMessages:
+  /json/auditMessagesManager/pollConsumerMessages:
     get:
       tags:
         - AuditMessagesManager
@@ -6799,7 +6799,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/AuditMessagesManager/setLastProcessedId:
+  /urlinjsonout/auditMessagesManager/setLastProcessedId:
     post:
       tags:
         - AuditMessagesManager
@@ -6815,7 +6815,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/AuditMessagesManager/createAuditerConsumer:
+  /urlinjsonout/auditMessagesManager/createAuditerConsumer:
     post:
       tags:
         - AuditMessagesManager
@@ -6830,7 +6830,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getAllAuditerConsumers:
+  /json/auditMessagesManager/getAllAuditerConsumers:
     get:
       tags:
         - AuditMessagesManager
@@ -6849,7 +6849,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getLastMessageId:
+  /json/auditMessagesManager/getLastMessageId:
     get:
       tags:
         - AuditMessagesManager
@@ -6862,7 +6862,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getAuditerMessagesCount:
+  /json/auditMessagesManager/getAuditerMessagesCount:
     get:
       tags:
         - AuditMessagesManager
@@ -6875,7 +6875,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/AuditMessagesManager/log:
+  /urlinjsonout/auditMessagesManager/log:
     post:
       tags:
         - AuditMessagesManager
