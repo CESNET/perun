@@ -1010,6 +1010,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			select +
 				withoutVoString +
 				searchQuery +
+				" GROUP BY users_id" +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
 				" LIMIT (:limit)"

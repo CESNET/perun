@@ -1426,6 +1426,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, user, attributeName);
 	}
 
+	@Override
+	public Attribute getAttributeForUpdate(PerunSession sess, User user, String attributeName) throws WrongAttributeAssignmentException, AttributeNotExistsException {
+		//check namespace
+		if (!attributeName.startsWith(AttributesManager.NS_USER_ATTR))
+			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
+
+		AttributeDefinition attrDef = this.getAttributeDefinition(sess, attributeName);
+		Attribute attr = new Attribute(attrDef);
+
+		String value = getAttributesManagerImpl().getUserAttrValueForUpdate(sess, attrDef.getId(), user.getId());
+
+		if (value != null) {
+			attr.setValue(BeansUtils.stringToAttributeValue(value, attr.getType()));
+		}
+
+		return attr;
+
+	}
+
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws WrongAttributeAssignmentException, AttributeNotExistsException {

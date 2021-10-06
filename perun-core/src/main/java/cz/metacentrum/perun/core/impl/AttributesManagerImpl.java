@@ -88,6 +88,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1469,6 +1470,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public String getUserAttrValueForUpdate(PerunSession sess, int attrId, int userId) throws AttributeNotExistsException {
+		try {
+			return jdbc.queryForObject("SELECT attr_value FROM user_attr_values WHERE user_id=? AND attr_id=? FOR UPDATE", String.class, userId, attrId);
+		} catch (EmptyResultDataAccessException ex) {
+			//If there is no such user attribute, create new one with null value and return null (insert is for transaction same like select for update)
+			Attribute attr = new Attribute(this.getAttributeDefinitionById(sess, attrId));
+			this.setAttributeCreatedAndModified(sess, attr);
+			self.setAttributeWithNullValue(sess, userId, attr);
+			return null;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws AttributeNotExistsException {
@@ -2020,6 +2035,18 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			jdbc.update("insert into entityless_attr_values (attr_id, subject, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
 							+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), key, null,
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			return true;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public boolean setAttributeWithNullValue(final PerunSession sess, final int userId, final Attribute attribute) {
+		try {
+			jdbc.update("insert into user_attr_values (attr_id, user_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
+							+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), userId, null,
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			return true;
 		} catch (RuntimeException ex) {
@@ -4722,7 +4749,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			Map<String, Object> map = jdbc.queryForMap("SELECT attr_name, friendly_name, namespace, type, dsc, display_name, is_unique FROM attr_names WHERE id=?", attributeDefinition.getId());
 
 			//update description
-			if (!attributeDefinition.getDescription().equals(map.get("dsc"))) {
+			if (!Objects.equals(attributeDefinition.getDescription(), map.get("dsc"))) {
 				this.setAttributeDefinitionModified(perunSession, attributeDefinition);
 				jdbc.update("update attr_names set dsc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", attributeDefinition.getDescription(), perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), attributeDefinition.getId());
 			}
@@ -4731,7 +4758,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			// if stored value was null and new isn't, update
 			// if values not null && not equals, update
 			if ((map.get("display_name") == null && attributeDefinition.getDisplayName() != null) ||
-					(map.get("display_name") != null && !map.get("display_name").equals(attributeDefinition.getDisplayName()))) {
+					(map.get("display_name") != null && !Objects.equals(map.get("display_name"), attributeDefinition.getDisplayName()))) {
 				this.setAttributeDefinitionModified(perunSession, attributeDefinition);
 				jdbc.update("update attr_names set display_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", attributeDefinition.getDisplayName(), perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), attributeDefinition.getId());
 			}
