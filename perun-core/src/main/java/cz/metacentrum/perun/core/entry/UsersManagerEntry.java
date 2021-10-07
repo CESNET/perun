@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -19,6 +20,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.User;
@@ -51,6 +53,8 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
@@ -70,6 +74,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -258,11 +263,17 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames) throws PrivilegeException {
+	public Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException, VoNotExistsException, FacilityNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		List<PerunBean> beans = createListOfBeans(sess, query);
+
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getUsersPage_UsersPageQuery_List<String>_policy")) {
+		if (!AuthzResolver.authorizedInternal(sess, "getUsersPage_UsersPageQuery_List<String>_policy")
+			&& ((query.getResourceId() == null) || !AuthzResolver.authorizedInternal(sess, "resource-getUsersPage_UsersPageQuery_List<String>_policy",
+				perunBl.getResourcesManagerBl().getResourceById(sess, query.getResourceId())))
+			&& ((beans.isEmpty()) || !AuthzResolver.authorizedInternal(sess, "facility-getUsersPage_UsersPageQuery_List<String>_policy",
+				beans))) {
 			throw new PrivilegeException(sess, "getUsersPage");
 		}
 
@@ -1571,5 +1582,37 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		return perunBl.getUsersManagerBl().createServiceUser(sess, candidate, owners);
+	}
+
+	/**
+	 * Create a list of PerunBeans from UserPageQuery.
+	 * If beanIds are not null it also checks if they exist. It will skip them otherwise.
+	 *
+	 * @param sess
+	 * @param query
+	 * @return list of PerunBeans created from the given parameters
+	 * @throws FacilityNotExistsException
+	 * @throws VoNotExistsException
+	 * @throws ServiceNotExistsException
+	 */
+	private List<PerunBean> createListOfBeans(PerunSession sess, UsersPageQuery query) throws FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException {
+		List<PerunBean> beans = new ArrayList<>();
+		if (query.getFacilityId() != null) {
+			Facility facility = perunBl.getFacilitiesManagerBl().getFacilityById(sess, query.getFacilityId());
+			perunBl.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+			beans.add(facility);
+			if(query.getVoId() != null) {
+				Vo vo = perunBl.getVosManagerBl().getVoById(sess, query.getVoId());
+				getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+				beans.add(vo);
+			}
+			if(query.getServiceId() != null) {
+				Service service = perunBl.getServicesManagerBl().getServiceById(sess, query.getServiceId());
+				getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+				beans.add(service);
+			}
+		}
+		return beans;
 	}
 }
