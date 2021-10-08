@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -22,7 +23,7 @@ import java.util.List;
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
-public class ResourceAssignmentActivator implements ApplicationListener<ContextRefreshedEvent> {
+public class ResourceAssignmentActivator implements ResourceAssignmentActivatorApi, ApplicationListener<ContextRefreshedEvent> {
 
 	private final static Logger log = LoggerFactory.getLogger(ResourceAssignmentActivator.class);
 
@@ -73,15 +74,24 @@ public class ResourceAssignmentActivator implements ApplicationListener<ContextR
 				.getGroupResourceAssignments(sess, List.of(GroupResourceStatus.PROCESSING, GroupResourceStatus.FAILED));
 
 			for (GroupResourceAssignment assignment : assignments) {
-				try {
-					perunBl.getResourcesManagerBl()
-						.activateGroupResourceAssignment(sess, assignment.getGroup(), assignment.getResource(), false);
-				} catch (Exception e) {
-					log.error("Cannot activate group-resource assignment: " + assignment, e);
-				}
+				perunBl.getResourceAssignmentActivator().tryActivateAssignment(assignment);
 			}
 		} catch (Exception e) {
 			log.error("Error during activating group-resource assignments: ", e);
+		}
+	}
+
+	/**
+	 * Tries to activate assignment in transaction.
+	 * @param assignment
+	 */
+	@Override
+	public void tryActivateAssignment(GroupResourceAssignment assignment) {
+		try {
+			perunBl.getResourcesManagerBl()
+				.activateGroupResourceAssignment(sess, assignment.getGroup(), assignment.getResource(), false);
+		} catch (Exception e) {
+			log.error("Cannot activate group-resource assignment: " + assignment, e);
 		}
 	}
 }
