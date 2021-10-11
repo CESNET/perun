@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.ResourceAssignmentChecker;
 
 /**
  * Perun himself.
@@ -134,6 +135,12 @@ public interface PerunBl extends Perun {
 	 * @return TasksManager
 	 */
 	TasksManager getTasksManager();
+
+	/**
+	 * Gets a ResourceAssignmentChecker
+	 * @return ResourceAssignmentChecker
+	 */
+	ResourceAssignmentChecker getResourceAssignmentChecker();
 
 	/**
 	 * Gets a AuditMessages manager business logic.
