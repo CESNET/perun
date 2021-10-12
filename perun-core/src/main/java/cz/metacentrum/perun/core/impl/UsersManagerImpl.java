@@ -1000,6 +1000,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		String select = getSQLSelectForUsersPage(query);
 		String searchQuery = getSQLWhereForUsersPage(query, namedParams);
+		String joinFacility = getSQLJoinFacility(query, namedParams);
+		String whereForFacility = getSQLWhereForFacility(query, namedParams);
+		String filterOnlyAllowed = getOnlyAllowed(query, namedParams);
 
 		namedParams.addValue("offset", query.getOffset());
 		namedParams.addValue("limit", query.getPageSize());
@@ -1008,8 +1011,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		return namedParameterJdbcTemplate.query(
 			select +
+				joinFacility +
 				withoutVoString +
 				searchQuery +
+				whereForFacility +
+				filterOnlyAllowed +
 				" GROUP BY users_id" +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
@@ -1487,6 +1493,94 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			withoutVoQueryString = " WHERE users.id not in (select user_id from members) ";
 		}
 		return withoutVoQueryString;
+	}
+
+	private String getSQLJoinFacility(UsersPageQuery query, MapSqlParameterSource namedParams) {
+		String joinString = "";
+
+		if (query.getFacilityId() == null && query.getResourceId() == null) {
+			return joinString;
+		}
+
+		if (isEmpty(query.getSearchString())) {
+			joinString += " LEFT JOIN members on members.user_id = users.id";
+		}
+
+		namedParams.addValue("groupResourceStatus", GroupResourceStatus.ACTIVE.toString());
+		joinString += " join groups_members on members.id = groups_members.member_id" +
+			" join groups_resources_state on groups_members.group_id = groups_resources_state.group_id and groups_resources_state.status=(:groupResourceStatus)::group_resource_status";
+
+		if (query.getFacilityId() != null) {
+			namedParams.addValue("facilityId", query.getFacilityId());
+
+			 joinString += " join resources on resources.id = groups_resources_state.resource_id and resources.facility_id=(:facilityId)";
+
+			if (query.getServiceId() != null) {
+				namedParams.addValue("serviceId", query.getServiceId());
+				joinString += " join resource_services on resources.id=resource_services.resource_id and resource_services.service_id=(:serviceId)";
+			}
+		}
+
+		return joinString;
+	}
+
+	private String getSQLWhereForFacility(UsersPageQuery query, MapSqlParameterSource namedParams) {
+		String sqlWhereForResource = "";
+
+		if (query.getFacilityId() == null && query.getResourceId() == null) {
+			return sqlWhereForResource;
+		}
+
+		if (isEmpty(query.getSearchString())) {
+			sqlWhereForResource = " where";
+		} else {
+			sqlWhereForResource = " and";
+		}
+
+		if (query.getResourceId() == null) {
+			if (query.getVoId() != null && query.getServiceId() != null) {
+				namedParams.addValue("voId", query.getVoId());
+				namedParams.addValue("serviceId", query.getServiceId());
+
+				return sqlWhereForResource + " groups_resources_state.resource_id in (" +
+					"select resources.id from resource_services " +
+					"join resources on resource_services.resource_id=resources.id " +
+					"where facility_id=(:facilityId) and vo_id=(:voId) and service_id=(:serviceId))";
+			}
+
+			if (query.getVoId() != null) {
+				namedParams.addValue("voId", query.getVoId());
+
+				return sqlWhereForResource + " groups_resources_state.resource_id in (" +
+					"select resources.id from resources " +
+					"where facility_id=(:facilityId) and vo_id=(:voId))";
+			}
+
+			if (query.getServiceId() != null) {
+				namedParams.addValue("serviceId", query.getServiceId());
+
+				return sqlWhereForResource + " groups_resources_state.resource_id in (" +
+					"select resources.id from resource_services " +
+					"join resources on resource_services.resource_id=resources.id " +
+					"where facility_id=(:facilityId) and service_id=(:serviceId))";
+			}
+		} else {
+			namedParams.addValue("resourceId", query.getResourceId());
+			return sqlWhereForResource + " groups_resources_state.resource_id=(:resourceId)";
+		}
+
+		return "";
+	}
+
+	private String getOnlyAllowed(UsersPageQuery query, MapSqlParameterSource namedParams) {
+		if (query.isOnlyAllowed()) {
+			namedParams.addValue("invalidStatus", Status.INVALID.getCode());
+			namedParams.addValue("disabledStatus", Status.DISABLED.getCode());
+
+			return " and members.status!=(:invalidStatus) and members.status!=(:disabledStatus)";
+		}
+
+		return "";
 	}
 
 }

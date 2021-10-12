@@ -94,15 +94,20 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get page of users with the given attributes.
-	 * Query parameter specifies offset, page size, sorting order, sorting column, whether to return only users
-	 * without vo, and string to search users by (by default it searches in names, user and member ids,
-	 * user uuids, emails, logins of member or other attributes based on perun configuration), last two parameters
-	 * are optional and by default it finds all users.
+	 * Query parameter specifies offset, page size, sorting order, and sorting column, by default it finds all users,
+	 * but the search can be customized by optional parameters: whether to return only users without vo, string to
+	 * search users by (by default it searches in names, user and member ids, user uuids, emails, logins of member or
+	 * other attributes based on perun configuration), facility id, vo id, service id and resource id to filter users to
+	 * search only for those assigned to these entities, and option whether to return only allowed users.
 	 *
 	 * @param query UsersPageQuery Query with page information
 	 * @param attrNames List<String> List of attribute names
 	 *
 	 * @return Paginated<RichUser> page of requested rich users
+	 * @throw ResourceNotExistsException When the Resource specified by <code>id</code> in query does not exist.
+	 * @throw VoNotExistsException When the Vo specified by <code>id</code> in query does not exist.
+	 * @throw FacilityNotExistsException When the Facility specified by <code>id</code> in query does not exist.
+	 * @throw ServiceNotExistsException When the Service specified by <code>id</code> in query does not exist.
 	 */
 	getUsersPage {
 

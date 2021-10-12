@@ -241,6 +241,11 @@ components:
         sortColumn: { $ref: '#/components/schemas/UsersOrderColumn' }
         searchString: { type: string }
         withoutVo: { type: boolean }
+        facilityId: { type: integer }
+        voId: { type: integer }
+        serviceId: { type: integer }
+        resourceId: { type: integer }
+        onlyAllowed: { type: boolean }
       required:
         - pageSize
         - offset

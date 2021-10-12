@@ -5458,6 +5458,24 @@ perun_policies:
     include_policies:
       - default_policy
 
+  resource-getUsersPage_UsersPageQuery_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  facility-getUsersPage_UsersPageQuery_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   #VosManagerEntry
   getVos_policy:
     policy_roles:
