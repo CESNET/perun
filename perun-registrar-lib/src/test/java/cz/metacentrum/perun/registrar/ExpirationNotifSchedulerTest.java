@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.CesnetEligibleExpiration;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.SponsorshipExpirationInAMonth;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.SponsorshipExpirationInDays;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
@@ -33,6 +35,7 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +52,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.validateMockitoUsage;
 import static org.mockito.Mockito.verify;
@@ -67,6 +71,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	private final static String GROUP_EXPIRATION_URN = "urn:perun:member_group:attribute-def:def:groupMembershipExpiration";
 	private final static String VO_MEMBERSHIP_RULES_URN = "urn:perun:vo:attribute-def:def:membershipExpirationRules";
 	private final static String MEMBER_EXPIRATION_URN = "urn:perun:member:attribute-def:def:membershipExpiration";
+	private final static String IS_CESNET_ELIGIBLE_URN = "urn:perun:user:attribute-def:def:isCesnetEligibleLastSeen";
 	private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Vo vo = new Vo(0, "SynchronizerTestVo", "SyncTestVo");
 
@@ -106,6 +111,13 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 			perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN);
 		} catch (AttributeNotExistsException ex) {
 			setUpGroupMembershipExpirationAttribute();
+		}
+
+		//set up isCesnetEligible expiration attribute
+		try {
+			perun.getAttributesManager().getAttributeDefinition(session, IS_CESNET_ELIGIBLE_URN);
+		} catch (AttributeNotExistsException ex) {
+			setUpIsCesnetEligibleAttribute();
 		}
 
 		ReflectionTestUtils.setField(spyScheduler.getPerun(), "auditer", auditerMock);
@@ -546,6 +558,133 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 				(oldExpiration, newExpiration) -> assertThat(newExpiration).isAfter(oldExpiration));
 	}
 
+	@Test
+	public void isCesnetEligible_week() throws Exception {
+		System.out.println(CLASS_NAME + "isCesnetEligible_week");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		String lastSeen = "2019-02-09 17:18:28";
+		when(spyScheduler.getCurrentLocalDate())
+			.thenReturn(today);
+
+		User user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		checkDaysIsCesnetEligibleExpiration(lastSeen, 7, user, null);
+	}
+
+	@Test
+	public void isCesnetEligible_twoWeeks() throws Exception {
+		System.out.println(CLASS_NAME + "isCesnetEligible_twoWeeks");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		String lastSeen = "2019-02-16 17:18:28";
+		when(spyScheduler.getCurrentLocalDate())
+			.thenReturn(today);
+
+		User user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		checkDaysIsCesnetEligibleExpiration(lastSeen, 14, user, null);
+	}
+
+	@Test
+	public void isCesnetEligible_tomorrow() throws Exception {
+		System.out.println(CLASS_NAME + "isCesnetEligible_tomorrow");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		String lastSeen = "2019-02-03 17:18:28";
+		when(spyScheduler.getCurrentLocalDate())
+			.thenReturn(today);
+
+		User user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		checkDaysIsCesnetEligibleExpiration(lastSeen, 1, user, "tomorrow");
+	}
+
+	@Test
+	public void isCesnetEligible_today() throws Exception {
+		System.out.println(CLASS_NAME + "isCesnetEligible_today");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		String lastSeen = "2019-02-02 17:18:28";
+		when(spyScheduler.getCurrentLocalDate())
+			.thenReturn(today);
+
+		User user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		checkDaysIsCesnetEligibleExpiration(lastSeen, 0, user, "today");
+	}
+
+	@Test
+	public void isCesnetEligible_month() throws Exception {
+		System.out.println(CLASS_NAME + "isCesnetEligible_month");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		String lastSeen = "2019-03-02 17:18:28";
+		when(spyScheduler.getCurrentLocalDate())
+			.thenReturn(today);
+
+		User user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		int daysLeft = (int) ChronoUnit.DAYS.between(today, today.plusMonths(1));
+		checkDaysIsCesnetEligibleExpiration(lastSeen, daysLeft, user, "in a month");
+	}
+
+	private void checkDaysIsCesnetEligibleExpiration(String timestamp, int daysToExpiration, User user, String message) throws Exception {
+		Attribute eligibleAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, IS_CESNET_ELIGIBLE_URN));
+		eligibleAttr.setValue(timestamp);
+		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
+
+		// richUser is sent
+		RichUser richUser = perun.getUsersManagerBl().convertUserToRichUserWithAttributesByNames(session, user, List.of(IS_CESNET_ELIGIBLE_URN));
+		CesnetEligibleExpiration event = new CesnetEligibleExpiration(richUser, daysToExpiration);
+		if (message != null) {
+			event = new CesnetEligibleExpiration(richUser, daysToExpiration, message);
+		}
+
+		ReflectionTestUtils.invokeMethod(spyScheduler, "checkIsCesnetEligible");
+
+		// verify the event was logged
+		verify(auditerMock).log(any(), eq(event));
+	}
+
+	@Test
+	public void isCesnetEligible_ignoredCases() throws Exception {
+		System.out.println(CLASS_NAME + "isCesnetEligible_ignoredCases");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		when(spyScheduler.getCurrentLocalDate())
+			.thenReturn(today);
+
+		User user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		Attribute eligibleAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, IS_CESNET_ELIGIBLE_URN));
+
+		eligibleAttr.setValue("");
+		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
+		isCesnetEligibleNotLogged();
+
+		eligibleAttr.setValue(null);
+		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
+		isCesnetEligibleNotLogged();
+
+		eligibleAttr.setValue("2019-02-01 17:18:28"); //yesterday expired
+		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
+		isCesnetEligibleNotLogged();
+
+		eligibleAttr.setValue("2019-02-04 17:18:28"); //2 days to expire
+		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
+		isCesnetEligibleNotLogged();
+
+		eligibleAttr.setValue("2019-01-02 17:18:28"); //last month expired
+		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
+		isCesnetEligibleNotLogged();
+
+		eligibleAttr.setValue("2020-02-02 17:18:28"); //year to expire
+		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
+		isCesnetEligibleNotLogged();
+	}
+
+	private void isCesnetEligibleNotLogged() {
+		ReflectionTestUtils.invokeMethod(spyScheduler, "checkIsCesnetEligible");
+
+		// verify the event was not logged
+		verify(auditerMock, never()).log(any(), any(CesnetEligibleExpiration.class));
+	}
+
 
 	/**
 	 * Performs test of sponsorship expiration being audited n days before its expiration.
@@ -684,6 +823,19 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
 
 		return perun.getAttributesManager().createAttribute(session, attr);
+	}
+
+	private AttributeDefinition setUpIsCesnetEligibleAttribute() throws Exception {
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("isCesnetEligibleLastSeen");
+		attr.setType(String.class.getName());
+		attr.setDisplayName("isCesnetEligibleLastSeen");
+		attr.setDescription("isCesnetEligibleLastSeen");
+
+		return perun.getAttributesManager().createAttribute(session, attr);
+
 	}
 
 }
