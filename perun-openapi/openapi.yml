@@ -6833,8 +6833,8 @@ paths:
         content:
           application/json:
             schema:
-              title: InputGetPaginatedMessages
-              description: "input to get paginated messages"
+              title: InputGetMessagesPage
+              description: "input to get messages page"
               type: object
               required:
                 - query

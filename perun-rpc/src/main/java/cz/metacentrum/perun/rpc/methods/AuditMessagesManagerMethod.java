@@ -53,7 +53,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * @param query MessagesPageQuery Query with page information
 	 * @return Paginated<AuditMessage> page of requested audit messages
 	 */
-	getPaginatedMessages {
+	getMessagesPage {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getAuditMessagesManager().getMessagesPage(ac.getSession(),
