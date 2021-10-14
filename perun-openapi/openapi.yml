@@ -11346,6 +11346,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupMembers:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupMembers
+      summary: Returns list of members of a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/isGroupMember:
     get:
       tags:
