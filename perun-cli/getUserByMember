@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint);
+use Perun::Common qw(printMessage tableContentToPrint);
 
 sub help {
 	return qq{
@@ -35,9 +35,10 @@ my $usersAgent = $agent->getUsersAgent;
 my $user = $usersAgent->getUserByMember( member => $memberId );
 
 #output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'ID', 'Name' );
 my $name = $user->getFirstName." ".($user->getMiddleName ? $user->getMiddleName." " : "" ).$user->getLastName;
-$table->addRow( $user->getId, $name );
-print tableToPrint($table, $batch);
+my @rows = ();
+my @row = ($user->getId, $name);
+push(@rows, \@row);
+my @columnsNames = ('ID', 'Name');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);
 

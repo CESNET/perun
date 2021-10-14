@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint);
+use Perun::Common qw(printMessage tableContentToPrint);
 
 sub help {
 	return qq{
@@ -47,8 +47,9 @@ unless (defined $voId) {
 my $member = $membersAgent->getMemberByUser( user => $userId, vo => $voId );
 
 #output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'ID', 'VO' );
-$table->addRow( $member->getId, $voId );
-print tableToPrint($table, $batch);
+my @rows = ();
+my @row = ($member->getId, $voId);
+push(@rows, \@row);
+my @columnsNames = ('ID', 'VO');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);
 

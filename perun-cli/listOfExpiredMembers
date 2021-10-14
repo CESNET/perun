@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -79,10 +79,9 @@ unless (@richMembers) {
 }
 
 # output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'MemberId','Logname', 'Name', 'Expiration' );
 my @lognames;
 
+my @rows = ();
 foreach my $member (sort $sortingFunction @richMembers) {
 	my @mattributes = $member->getMemberAttributes;
 	my $val = $mattributes[0]->getValue;
@@ -91,14 +90,16 @@ foreach my $member (sort $sortingFunction @richMembers) {
 	unless (defined $login) {$login = ' ';}
 	my $eyear = substr($val, 0, 4);
 	if ($actualyear - $eyear >= $years) {
-		$table->addRow( $member->getMemberId, $login, $member->getCommonName, $val );
+		my @row = ($member->getMemberId, $login, $member->getCommonName, $val);
+		push(@rows, \@row);
 		push (@lognames, $login);
 	}
 }
 
 #output
 unless (defined $lo) {
-	print tableToPrint($table, $batch);
+	my @columnsNames = ('MemberId','Logname', 'Name', 'Expiration');
+	print tableContentToPrint(\@columnsNames, \@rows, $batch);
 } else {
 	while (@lognames) {
 		printMessage(shift(@lognames), $batch);

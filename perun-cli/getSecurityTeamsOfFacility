@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 #use Data::Dumper;
 
 sub help {
@@ -59,12 +59,10 @@ unless (@securityTeams) {
 }
 
 #output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-
-$table->setCols( 'Id', 'Name' );
-
+my @rows = ();
 foreach my $securityTeam (sort $sortingFunction @securityTeams) {
-	$table->addRow( $securityTeam->getId(), $securityTeam->getName() );
+	my @row = ($securityTeam->getId(), $securityTeam->getName());
+	push(@rows, \@row);
 }
-print tableToPrint($table, $batch);
-
+my @columnsNames = ('Id', 'Name');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);

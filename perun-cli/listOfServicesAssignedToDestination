@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint);
+use Perun::Common qw(printMessage tableContentToPrint);
 use Perun::beans::Destination;
 use Perun::beans::Facility;
 
@@ -67,11 +67,11 @@ while (@facilities) {
 
 #output
 
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'Service for '.$destination );
-
+my @rows = ();
 foreach my $service (sort keys (%services)) {
-	$table->addRow( $service );
+	my @row = ($service);
+	push(@rows, \@row);
 }
 
-print tableToPrint($table, $batch);
+my @columnsNames = ('Service for '.$destination);
+print tableContentToPrint(\@columnsNames, \@rows, $batch);
