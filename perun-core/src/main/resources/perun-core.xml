@@ -128,6 +128,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<!-- ResourceAssignmentChecker -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.removeSubgroupFromResource(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.assignSubgroupsToResource(..))"/>
+		<!-- ResourceAssignmentActivator -->
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentActivator.tryActivateAssignment(..))"/>
 		<!-- END OF NESTED TRANSACTIONS FOR COMPATIBILITY WITH POSTGRESQL -->
 	</aop:config>
 
@@ -222,6 +224,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<property name="databaseManager" ref="databaseManager"/>
 		<property name="coreConfig" ref="coreConfig"/>
 		<property name="resourceAssignmentChecker" ref="resourceAssignmentChecker"/>
+		<property name="resourceAssignmentActivator" ref="resourceAssignmentActivator"/>
 	</bean>
 
 	<bean id="vosManager" class="cz.metacentrum.perun.core.entry.VosManagerEntry" scope="singleton" depends-on="databaseManagerBl">

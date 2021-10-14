@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.ResourceAssignmentChecker;
+import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
 
 /**
  * Perun himself.
@@ -141,6 +142,12 @@ public interface PerunBl extends Perun {
 	 * @return ResourceAssignmentChecker
 	 */
 	ResourceAssignmentChecker getResourceAssignmentChecker();
+
+	/**
+	 * Gets a ResourceAssignmentActivatorApi
+	 * @return ResourceAssignmentActivatorApi
+	 */
+	ResourceAssignmentActivatorApi getResourceAssignmentActivator();
 
 	/**
 	 * Gets a AuditMessages manager business logic.
