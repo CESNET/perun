@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -5468,11 +5467,49 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue(perun.getResourcesManagerBl().getResourceAssignments(sess, group3, List.of()).size() == 1);
 	}
 
+	@Test
+	public void getGroupsFromAllVos_returnsGroupsFromMultipleVos() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsFromAllVos_returnsGroupsFromMultipleVos");
+
+		Vo vo1 = setUpVo("vo1", "vo1");
+		Vo vo2 = setUpVo("vo2", "vo2");
+
+		Group vo1Group = new Group("g-vo-1", "");
+		Group vo2Group = new Group("g-vo-2", "");
+
+		vo1Group = groupsManagerBl.createGroup(sess, vo1, vo1Group);
+		vo2Group = groupsManagerBl.createGroup(sess, vo2, vo2Group);
+
+		List<Group> groups = groupsManager.getAllGroups(sess);
+
+		assertThat(groups).contains(vo1Group, vo2Group);
+	}
+
+	@Test
+	public void getGroupsFromAllVos_returnsMultipleGroupsFromSingleVo() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsFromAllVos_returnsMultipleGroupsFromSingleVo");
+
+		Vo vo = setUpVo();
+
+		Group group1 = new Group("g1", "");
+		Group group2 = new Group("g2", "");
+
+		group1 = groupsManagerBl.createGroup(sess, vo, group1);
+		group2 = groupsManagerBl.createGroup(sess, vo, group2);
+
+		List<Group> groups = groupsManager.getAllGroups(sess);
+
+		assertThat(groups).contains(group1, group2);
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
+		return setUpVo("UserManagerTestVo", "UMTestVo");
+	}
 
-		Vo newVo = new Vo(0, "UserManagerTestVo", "UMTestVo");
+	private Vo setUpVo(String name, String shortname) throws Exception {
+		Vo newVo = new Vo(0, name, shortname);
 		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
 		// create test VO in database
 		assertNotNull("unable to create testing Vo",returnedVo);

@@ -583,6 +583,15 @@ public interface GroupsManager {
 	Map<MemberGroupStatus, Integer> getGroupMembersCountsByGroupStatus(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException;
 
 	/**
+	 * Get all groups from all vos. Returned groups are filtered based on the principal rights.
+	 *
+	 * @param sess session
+	 * @return list of all groups
+	 * @throws PrivilegeException if the principal has insufficient permission
+	 */
+	List<Group> getAllGroups(PerunSession sess) throws PrivilegeException;
+
+	/**
 	 * Get groups of Vo by ACCESS RIGHTS:
 	 * If user is:
 	 * - PERUNADMIN or VOADMIN : all groups in vo

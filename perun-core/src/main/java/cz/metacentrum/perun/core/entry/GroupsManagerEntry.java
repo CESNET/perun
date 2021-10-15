@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -61,6 +60,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * GroupsManager entry logic
@@ -820,6 +821,19 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getDirectRichAdminsWithSpecificAttributes(perunSession, group, specificAttributes));
+	}
+
+	@Override
+	public List<Group> getAllGroups(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getAllGroups_policy")) {
+			throw new PrivilegeException(sess, "getAllGroups");
+		}
+
+		return groupsManagerBl.getAllGroups(sess).stream()
+			.filter(group -> AuthzResolver.authorizedInternal(sess, "filter-getAllGroups_policy", group))
+			.collect(toList());
 	}
 
 	@Override

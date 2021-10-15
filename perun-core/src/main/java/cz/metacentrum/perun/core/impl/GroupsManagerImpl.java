@@ -507,6 +507,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getAllGroups(PerunSession sess) {
+		try {
+			return jdbc.query("select  " + groupMappingSelectQuery + " from groups order by " +
+					Compatibility.orderByBinary("groups.name" + Compatibility.castToVarchar()),
+				GROUP_MAPPER);
+
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups where vo_id=?", GROUP_MAPPER, vo.getId());
