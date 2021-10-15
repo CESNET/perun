@@ -10,18 +10,14 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -753,6 +749,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get all groups from all vos. Returned groups are filtered based on the principal rights.
+	 *
+	 * @return List<Group> Groups
+	 */
+	/*#
 	 * Returns all groups in a VO.
 	 *
 	 * @throw VoNotExistsException When the Vo doesn't exist
@@ -763,7 +764,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	getAllGroups {
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			if (parms.contains("vo")) {
+				return ac.getGroupsManager().getAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			}
+			return ac.getGroupsManager().getAllGroups(ac.getSession());
 		}
 	},
 

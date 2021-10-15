@@ -325,6 +325,14 @@ public interface GroupsManagerImplApi {
 	List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType);
 
 	/**
+	 * Get all groups from all vos.
+	 *
+	 * @param sess session
+	 * @return list of all groups
+	 */
+	List<Group> getAllGroups(PerunSession sess);
+
+	/**
 	 * Get all groups of the VO.
 	 *
 	 * @param perunSession

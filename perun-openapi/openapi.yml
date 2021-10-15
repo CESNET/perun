@@ -11389,6 +11389,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getAllGroups/all:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllGroupsFromAllVos
+      summary: Get all groups from all vos. Returned groups are filtered based on the principal rights.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getAllGroups:
     get:
       tags:

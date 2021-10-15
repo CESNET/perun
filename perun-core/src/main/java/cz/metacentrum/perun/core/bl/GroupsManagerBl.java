@@ -42,6 +42,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -685,6 +686,14 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	boolean isUserMemberOfGroup(PerunSession sess, User user, Group group);
+
+	/**
+	 * Get all groups from all vos.
+	 *
+	 * @param sess session
+	 * @return list of all groups
+	 */
+	List<Group> getAllGroups(PerunSession sess);
 
 	/**
 	 * Get all groups of the VO.
