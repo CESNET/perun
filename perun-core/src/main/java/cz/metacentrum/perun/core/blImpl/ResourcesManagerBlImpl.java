@@ -632,6 +632,15 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			getResourcesManagerImpl().assignService(sess, resource, service);
 			getPerunBl().getAuditer().log(sess, new ServiceAssignedToResource(service, resource));
 		}
+
+		boolean requiresAttributes = services.stream()
+			.anyMatch(s -> !getPerunBl().getAttributesManagerBl().getRequiredAttributesDefinition(sess, s).isEmpty());
+
+		if (!requiresAttributes) {
+			// there are new no attributes to check or add
+			return;
+		}
+
 		try {
 			fillAndSetRequiredAttributesForGroups(sess, services, resource);
 
