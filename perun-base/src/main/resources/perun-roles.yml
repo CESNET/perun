@@ -1495,6 +1495,32 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getGroupsPage_Vo_GroupsPageQuery_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getSubgroupsPage_Group_GroupsPageQuery_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getAllGroups_Vo_policy:
     policy_roles:
       - RESOURCEADMIN: Vo

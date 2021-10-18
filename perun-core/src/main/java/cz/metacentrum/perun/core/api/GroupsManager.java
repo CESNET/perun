@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -590,6 +589,30 @@ public interface GroupsManager {
 	 * @throws PrivilegeException if the principal has insufficient permission
 	 */
 	List<Group> getAllGroups(PerunSession sess) throws PrivilegeException;
+
+	/**
+	 * Get page of groups from the given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 *
+	 * @return page of requested rich groups
+	 */
+	Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Get page of subgroups from the given parent group.
+	 *
+	 * @param sess session
+	 * @param group parent group
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 *
+	 * @return page of requested rich groups
+	 */
+	Paginated<RichGroup> getSubgroupsPage(PerunSession sess, Group group, GroupsPageQuery query, List<String> attrNames) throws GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Get groups of Vo by ACCESS RIGHTS:

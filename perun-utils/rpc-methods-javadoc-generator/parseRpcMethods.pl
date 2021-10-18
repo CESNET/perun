@@ -227,6 +227,13 @@ $objectExamples{"List<UsersPageQuery>"} = $objectExamples{"List&lt;UsersPageQuer
 $objectExamples{"Paginated&lt;RichUser&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichUser&gt;"} . "  }";
 $objectExamples{"Paginated<RichUser>"} = @objectExamples{"Paginated&lt;RichUser&gt;"};
 
+$objectExamples{"GroupsPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"searchString\" : \"My group\" }";
+$objectExamples{"List&lt;GroupsPageQuery&gt;"} = $listPrepend . $objectExamples{"GroupsPageQuery"} . $listAppend;
+$objectExamples{"List<GroupsPageQuery>"} = $objectExamples{"List&lt;GroupsPageQuery&gt;"};
+
+$objectExamples{"Paginated&lt;RichGroup&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichGroup&gt;"} . "  }";
+$objectExamples{"Paginated<RichGroup>"} = @objectExamples{"Paginated&lt;RichGroup&gt;"};
+
 # SUB HELP
 # help info
 sub help {

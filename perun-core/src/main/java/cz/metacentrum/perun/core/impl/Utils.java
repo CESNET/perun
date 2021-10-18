@@ -2061,6 +2061,67 @@ public class Utils {
 	}
 
 	/**
+	 * Returns search query to search by group name or description (similar match) based on databased in use.
+	 *
+	 * @return search query
+	 */
+	public static String prepareGroupNameDscSearchQuerySimilarMatch() {
+		return "(strpos(lower("+Compatibility.convertToAscii("COALESCE(groups.dsc,'') || COALESCE(groups.name,'')")+"), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+	}
+
+	/**
+	 * Returns search query to search by subgroup name or description (similar match) based on databased in use.
+	 *
+	 * @return search query
+	 */
+	public static String prepareSubgroupNameDscSearchQuerySimilarMatch() {
+		return "(strpos(lower("+Compatibility.convertToAscii("COALESCE(groups_dsc,'') || COALESCE(groups_name,'')")+"), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+	}
+
+	/**
+	 * Returns a part of WHERE condition to search groups in their ids, uuids, names and descriptions
+	 * by given search string.
+	 *
+	 * @param searchString string to search by
+	 * @param namedParams parameters used in the query
+	 * @param subgroups if the WHERE condition should be prepared for parent group
+	 * @return search query
+	 */
+	public static String prepareSqlWhereForGroupSearch(String searchString, MapSqlParameterSource namedParams, boolean subgroups) {
+		if (isEmpty(searchString)) {
+			return "";
+		}
+
+		String uuidQueryString = "";
+		try {
+			UUID uuid = UUID.fromString(searchString);
+			uuidQueryString = subgroups ? " OR groups_uu_id=:uuid" : " OR groups.uu_id=:uuid";
+			namedParams.addValue("uuid", uuid);
+		} catch (java.lang.IllegalArgumentException ex) {
+			// IGNORE wrong format of UUID
+		}
+
+		String idQueryString = "";
+		try {
+			int id = Integer.parseInt(searchString);
+			idQueryString = subgroups ? " OR groups_id=" : " OR groups.id=";
+			idQueryString += id;
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of ID
+		}
+
+		String groupNameDscQueryString = subgroups ? prepareSubgroupNameDscSearchQuerySimilarMatch() : prepareGroupNameDscSearchQuerySimilarMatch();
+		namedParams.addValue("searchString", searchString);
+
+		return
+			"(" +
+			groupNameDscQueryString +
+			idQueryString +
+			uuidQueryString +
+			")";
+	}
+
+	/**
 	 * Takes attributes from CoreConfig used in users or members search and divides them into correct categories based
 	 * on attribute type (member, user, userExtSource).
 	 *

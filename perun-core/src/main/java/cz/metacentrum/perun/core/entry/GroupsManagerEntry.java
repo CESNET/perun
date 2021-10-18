@@ -6,9 +6,11 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -834,6 +836,36 @@ public class GroupsManagerEntry implements GroupsManager {
 		return groupsManagerBl.getAllGroups(sess).stream()
 			.filter(group -> AuthzResolver.authorizedInternal(sess, "filter-getAllGroups_policy", group))
 			.collect(toList());
+	}
+
+	@Override
+	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsPage_Vo_GroupsPageQuery_List<String>_policy", vo)) {
+			throw new PrivilegeException(sess, "getGroupsPage");
+		}
+
+		Paginated<RichGroup> result = groupsManagerBl.getGroupsPage(sess, vo, query, attrNames);
+		result.setData(getGroupsManagerBl().filterOnlyAllowedAttributes(sess, result.getData(), null, true));
+
+		return result;
+	}
+
+	@Override
+	public Paginated<RichGroup> getSubgroupsPage(PerunSession sess, Group group, GroupsPageQuery query, List<String> attrNames) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getSubgroupsPage_Group_GroupsPageQuery_List<String>_policy", group)) {
+			throw new PrivilegeException(sess, "getSubgroupsPage");
+		}
+
+		Paginated<RichGroup> result = groupsManagerBl.getSubgroupsPage(sess, group, query, attrNames);
+		result.setData(getGroupsManagerBl().filterOnlyAllowedAttributes(sess, result.getData(), null, true));
+
+		return result;
 	}
 
 	@Override
