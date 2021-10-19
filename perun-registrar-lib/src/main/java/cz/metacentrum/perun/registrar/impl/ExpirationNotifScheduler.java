@@ -3,6 +3,7 @@ package cz.metacentrum.perun.registrar.impl;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpirationInDays;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpirationInMonthNotification;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpired;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.CesnetEligibleExpiration;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInDays;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInMonthNotification;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpired;
@@ -21,6 +22,7 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -48,7 +50,9 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,6 +61,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -905,6 +910,70 @@ public class ExpirationNotifScheduler {
 			return true;
 		}
 
+	}
+
+	/**
+	 * Checks expiration of user attribute isCesnetEligibleLastSeen for every user.
+	 * Method logs audit messages about expiration X days before.
+	 *
+	 * Method is triggered by Spring scheduler (after midnight everyday).
+	 */
+	public void checkIsCesnetEligible() {
+		if (perun.isPerunReadOnly()) {
+			log.debug("This instance is just read only so skip checking isCesnetEligible expiration.");
+			return;
+		}
+
+		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen";
+		List<RichUser> users;
+
+		try {
+			// get all users with attribute
+			users = perun.getUsersManagerBl().getAllRichUsersWithAttributes(sess, true, List.of(attributeName));
+		} catch (InternalErrorException | UserNotExistsException e) {
+			log.error("Synchronizer: checkIsCesnetEligible, failed to get all users with attribute exception.", e);
+			return;
+		}
+
+		log.debug("Processing isCesnetEligible expiration notifications.");
+		LocalDate today = getCurrentLocalDate();
+
+		// check attribute expiration date
+		for (RichUser user : users) {
+			Optional<Attribute> attribute = user.getUserAttributes().stream().filter(
+				a -> a.getName().equals(attributeName)
+					&& a.getValue() != null
+					&& !a.getValue().toString().isEmpty())
+				.findAny();
+
+			if (attribute.isEmpty()) {
+				// no attribute matches criteria
+				continue;
+			}
+
+			auditIsCesnetEligibleExpiration(today, user, attribute.get().getValue().toString());
+		}
+
+		log.debug("Processing isCesnetEligible expiration notifications DONE!");
+
+	}
+
+	private void auditIsCesnetEligibleExpiration(LocalDate today, User user, String isEligibleTimestamp) {
+		LocalDate lastAccess = LocalDate.parse(isEligibleTimestamp, lastAccessFormatter);
+		LocalDate expiration = lastAccess.plusYears(1);
+		Period period = today.until(expiration);
+		if (period.getYears() == 0 && period.getMonths() == 1 && period.getDays() == 0) {
+			// get also actual number of days
+			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, (int) ChronoUnit.DAYS.between(today, expiration), "in a month"));
+		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 14) {
+			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 14));
+		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 7) {
+			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 7));
+		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 1) {
+			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 1, "tomorrow"));
+		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 0) {
+			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 0, "today"));
+		}
 	}
 
 }
