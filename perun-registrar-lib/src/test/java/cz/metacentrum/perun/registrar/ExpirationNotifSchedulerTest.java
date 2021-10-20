@@ -611,17 +611,22 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	}
 
 	@Test
-	public void isCesnetEligible_month() throws Exception {
-		System.out.println(CLASS_NAME + "isCesnetEligible_month");
+	public void isCesnetEligible_28days() throws Exception {
+		System.out.println(CLASS_NAME + "isCesnetEligible_28days");
 
-		LocalDate today = LocalDate.of(2020, 2, 2);
-		String lastSeen = "2019-03-02 17:18:28";
+		LocalDate today = LocalDate.of(2020, 1, 1);
+		String lastSeen = "2019-01-29 17:18:28";
 		when(spyScheduler.getCurrentLocalDate())
 			.thenReturn(today);
-
 		User user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
-		int daysLeft = (int) ChronoUnit.DAYS.between(today, today.plusMonths(1));
-		checkDaysIsCesnetEligibleExpiration(lastSeen, daysLeft, user, "in a month");
+		checkDaysIsCesnetEligibleExpiration(lastSeen, 28, user, null);
+
+		today = LocalDate.of(2019, 2, 1);
+		lastSeen = "2018-03-01 17:18:28";
+		when(spyScheduler.getCurrentLocalDate())
+			.thenReturn(today);
+		user = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		checkDaysIsCesnetEligibleExpiration(lastSeen, 28, user, null);
 	}
 
 	private void checkDaysIsCesnetEligibleExpiration(String timestamp, int daysToExpiration, User user, String message) throws Exception {
