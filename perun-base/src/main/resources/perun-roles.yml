@@ -2166,6 +2166,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllMembers_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getMembers_Vo_policy:
     policy_roles:
       - GROUPADMIN: Vo

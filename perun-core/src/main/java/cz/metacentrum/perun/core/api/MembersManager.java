@@ -433,6 +433,14 @@ public interface MembersManager {
 	List<Member> getMembersByUser(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException;
 
 	/**
+	 * Get all members from all vos.
+	 *
+	 * @param sess session
+	 * @return list of all members from all Vos.
+	 */
+	List<Member> getAllMembers(PerunSession sess) throws PrivilegeException;
+
+	/**
 	 * Get all VO members.
 	 *
 	 * @param sess
