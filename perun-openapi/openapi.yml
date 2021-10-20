@@ -8838,6 +8838,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getAllMembers:
+    get:
+      tags:
+        - MembersManager
+      operationId: getAllMembers
+      summary: Get all members from all vos.
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getMembers:
     get:
       tags:
