@@ -6,7 +6,7 @@ use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
 use Term::ReadKey;
-use Perun::Common qw(printMessage tableToPrint);
+use Perun::Common qw(printMessage tableContentToPrint);
 
 sub help {
 	return qq{
@@ -63,8 +63,7 @@ if ((scalar(@candidates) > 1) && $batch) {
 # We are not in the batch mode, so there can be more then one matching user for the searchString, let the user select
 my $candidate;
 if (!$batch) {
-	my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-	$table->setCols( "Candidate\nnumber", 'name', 'login in the external source', 'external source' );
+	my @rows = ();
 
 	my $i = 0;
 	foreach my $tmpCandidate (@candidates) {
@@ -82,9 +81,11 @@ if (!$batch) {
 			bless($auesExtSource, 'Perun::beans::ExtSource');
 			$userExtSourceNames .= "\n".$auesExtSource->getName;
 		}
-		$table->addRow( $i, $candidateName, $userExtSourceLogins, $userExtSourceNames );
+		my @row = ($i, $candidateName, $userExtSourceLogins, $userExtSourceNames);
+		push(@rows, \@row);
 	}
-	print tableToPrint($table, $batch);
+	my @columnsNames = ("Candidate\nnumber", 'name', 'login in the external source', 'external source');
+	print tableContentToPrint(\@columnsNames, \@rows, $batch);
 
 	print "\nEnter the candidate number (empty string to exit): ";
 	my $candidateNumber = <>;

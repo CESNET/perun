@@ -2,7 +2,7 @@ package Perun::Common;
 
 use Exporter;
 @ISA = ('Exporter');
-@EXPORT_OK = ('tableToPrint', 'printMessage', 'getSortingFunction', 'printTable');
+@EXPORT_OK = ('printMessage', 'getSortingFunction', 'printTable', 'tableContentToPrint');
 
 use strict;
 binmode STDOUT, ":utf8";
@@ -190,6 +190,36 @@ sub tableToPrint {
 	}
 }
 
+#Convert column names and rows to Text::ASCIITable and returns its string representation (for printing)
+# tableContentToPrint(columnsNames, rows [,batchmode])
+#columnsNames is array of strings representing names of columns in table's header
+#rows is array of arrays representing individual rows of table
+#batchmode is boolean. If it's set, this function use simplier format to generate output.
+#                      If it isn't set, it's get from PERUN_BATCH environmental variable.
+#
+#Returns string.  (Do not print anything)
+sub tableContentToPrint {
+	my $columnsNames = shift;
+	my $rows = shift;
+	my $batch = shift || $ENV{'PERUN_BATCH'};
+
+	my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+	$table->setCols( @$columnsNames );
+	if ($batch) {
+		foreach my $values ( @$rows ) {
+			foreach my $value ( @$values ) {
+				$value =~ s/[|]/\\|/g; # replace | with \|
+			}
+			$table->addRow( @$values );
+		}
+	} else {
+		foreach my $values ( @$rows ) {
+			$table->addRow( @$values );
+		}
+	}
+	return tableToPrint($table, $batch);
+}
+
 #Print message unless batch mode is activated
 #Act as build-in print function, except last parametr muset be boolean BatchMode
 #Batch mode is also active if PERUN_BATCH environmental variable is set
@@ -242,8 +272,18 @@ sub printTable($@) {
 	my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 	$table->setCols( $objects[0]->getCommonArrayRepresentationHeading );
 
-	for(sort $sortingFunction @objects) {
-		$table->addRow( $_->getCommonArrayRepresentation );
+	if ($::batch) {
+		for(sort $sortingFunction @objects) {
+			my @values = $_->getCommonArrayRepresentation;
+			foreach my $value ( @values ) {
+				$value =~ s/[|]/\\|/g; # replace | with \|
+			}
+			$table->addRow( @values );
+		}
+	} else {
+		for(sort $sortingFunction @objects) {
+			$table->addRow( $_->getCommonArrayRepresentation );
+		}
 	}
 
 	print tableToPrint($table, $::batch);

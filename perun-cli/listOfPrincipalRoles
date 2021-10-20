@@ -4,7 +4,7 @@ use strict;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -33,12 +33,12 @@ unless ($role) {
 }
 
 #output
-my $table = Text::ASCIITable->new({ reportErrors => 0, utf8 => 0 });
-$table->setCols('Role Name');
-
+my @rows = ();
 my @roles = @$role;
 foreach my $rol (@roles) {
-	$table->addRow($rol);
+	my @row = ($rol);
+	push(@rows, \@row);
 }
 
-print tableToPrint($table, $batch);
+my @columnsNames = ('Role Name');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);

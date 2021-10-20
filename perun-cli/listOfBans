@@ -6,7 +6,7 @@ use Time::Local;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 use Switch;
 
 sub help {
@@ -45,7 +45,8 @@ if (defined($resourceId) and defined($memberId)) { die "ERROR: only one of resou
 if (defined($facilityId) and defined($userId)) { die "ERROR: only one of facility or use can be entered \n";}
 
 my $agent = Perun::Agent->new();
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+my @rows = ();
+my @columnsNames;
 
 unless (defined $sortingFunction) {$sortingFunction = getSortingFunction('getValidityTo');}
 
@@ -57,11 +58,11 @@ if (defined($resourceId) or defined($memberId)) {
 
 	if (defined($resourceId)) {
 		@bans = $banOnResourceAgent->getBansForResource( resourceId => $resourceId );
-		$table->setCols( 'BanId', 'MemberId', 'BannedTo', 'Description' );
+		@columnsNames = ('BanId', 'MemberId', 'BannedTo', 'Description');
 	}
 	if (defined($memberId)) {
 		@bans = $banOnResourceAgent->getBansForMember( memberId => $memberId );
-		$table->setCols( 'BanId', 'ResourceId', 'BannedTo', 'Description' );
+		@columnsNames = ('BanId', 'ResourceId', 'BannedTo', 'Description');
 	}
 	unless (@bans) {
 		printMessage "No Bans found\n", $batch;
@@ -75,9 +76,10 @@ if (defined($resourceId) or defined($memberId)) {
 		my $entityId;
 		$entityId = $ban->getMemberId if defined $resourceId;
 		$entityId = $ban->getResourceId if defined $memberId;
-		$table->addRow( $ban->getId, $entityId, $valTo, $ban->getDescription );
+		my @row = ($ban->getId, $entityId, $valTo, $ban->getDescription);
+		push(@rows, \@row);
 	}
-	print tableToPrint($table, $batch);
+	print tableContentToPrint(\@columnsNames, \@rows, $batch);
 }
 
 if (defined($facilityId) or defined($userId)) {
@@ -88,11 +90,11 @@ if (defined($facilityId) or defined($userId)) {
 
 	if (defined($facilityId)) {
 		@bans = $banOnFacilityAgent->getBansForFacility( facilityId => $facilityId );
-		$table->setCols( 'BanId', 'UserId', 'BannedTo', 'Description' );
+		@columnsNames = ('BanId', 'UserId', 'BannedTo', 'Description');
 	}
 	if (defined($userId)) {
 		@bans = $banOnFacilityAgent->getBansForUser( userId => $userId );
-		$table->setCols( 'BanId', 'FacilityId', 'BannedTo', 'Description' );
+		@columnsNames = ('BanId', 'FacilityId', 'BannedTo', 'Description');
 	}
 	unless (@bans) {
 		printMessage "No Bans found\n", $batch;
@@ -106,8 +108,9 @@ if (defined($facilityId) or defined($userId)) {
 		my $entityId;
 		$entityId = $ban->getUserId if defined $facilityId;
 		$entityId = $ban->getFacilityId if defined $userId;
-		$table->addRow( $ban->getId, $entityId, $valTo, $ban->getDescription );
+		my @row = ($ban->getId, $entityId, $valTo, $ban->getDescription);
+		push(@rows, \@row);
 	}
-	print tableToPrint($table, $batch);
+	print tableContentToPrint(\@columnsNames, \@rows, $batch);
 }
 

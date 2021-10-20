@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -47,12 +47,12 @@ $attribute->setValueFromArray( @attributeValue );
 my @users = $usersAgent->getUsersByAttribute( attributeName => $attributeName, attributeValue => $attribute->getValue );
 
 #output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'ID', 'Name' );
-
+my @rows = ();
 foreach my $user (sort $sortingFunction @users) {
 	my $name = $user->getFirstName." ".($user->getMiddleName ? $user->getMiddleName." " : "" ).$user->getLastName;
-	$table->addRow( $user->getId, $name );
+	my @row = ($user->getId, $name);
+	push(@rows, \@row);
 }
 
-print tableToPrint($table, $batch);
+my @columnsNames = ('ID', 'Name');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);

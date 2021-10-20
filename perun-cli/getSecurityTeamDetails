@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -45,24 +45,28 @@ my @users = $securityTeamsAgent->getBlacklist( securityTeam => $securityTeamId )
 unless (@users) { printMessage "No blacklisted users found", $batch; }
 
 #output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'Id:'.$securityTeamId.','.$securityTeam->getName, 'User Id', 'User Name' );
 $ii = 0;
+my @rows = ();
 foreach my $admin (sort $sortingFunction @admins) {
+	my @row;
 	if ($ii == 0) {
-		$table->addRow( 'ADMINS', $admin->getId, $admin->getCommonName );
+		@row = ('ADMINS', $admin->getId, $admin->getCommonName);
 	} else {
-		$table->addRow( '', $admin->getId, $admin->getCommonName );
+		@row = ('', $admin->getId, $admin->getCommonName);
 	}
 	$ii++;
+	push(@rows, \@row);
 }
 $ii = 0;
 foreach my $user (sort $sortingFunction @users) {
+	my @row;
 	if ($ii == 0) {
-		$table->addRow( 'BLACKLISTED USERS', $user->getId, $user->getCommonName );
+		@row = ('BLACKLISTED USERS', $user->getId, $user->getCommonName);
 	} else {
-		$table->addRow( '', $user->getId, $user->getCommonName );
+		@row = ('', $user->getId, $user->getCommonName);
 	}
 	$ii++;
+	push(@rows, \@row);
 }
-print tableToPrint($table, $batch);
+my @columnsNames = ('Id:'.$securityTeamId.','.$securityTeam->getName, 'User Id', 'User Name');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);

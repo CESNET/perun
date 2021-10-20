@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction printTable tableToPrint);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -33,7 +33,6 @@ GetOptions("help|h"    => sub {
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 my $groupsAgent = $agent->getGroupsAgent;
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 
 #options check
 if (defined $byName) {
@@ -59,30 +58,37 @@ unless (@richUsers or @groups ) {
 	printMessage "No Managers found", $batch;
 }
 
-$table->setCols('Managers group', 'User Id', 'Name');
-
 # direct managers
 my $ii=0;
+my @rows = ();
 foreach my $richUser (sort $sortingFunction @richUsers) {
 	if ($ii++ == 0) {
-		$table->addRow ('Direct Managers',$richUser->getId, $richUser->getDisplayName);
+		my @row = ('Direct Managers',$richUser->getId, $richUser->getDisplayName);
+		push(@rows, \@row);
 	} else {
-		$table->addRow ('',$richUser->getId, $richUser->getDisplayName);
+		my @row = ('',$richUser->getId, $richUser->getDisplayName);
+		push(@rows, \@row);
 	}
 }
 
 # groups of managers
 while (@groups) {
-	$table->addRow (' ',' ',' ') if $ii;
+	if ($ii) {
+		my @row = (' ',' ',' ');
+		push(@rows, \@row);
+	}
 	my $group=shift (@groups);
 	my @members = $groupsAgent->getGroupRichMembers ( group => $group->getId);
 	$ii=0;
 	foreach my $member (sort $sortingFunction2 @members) {
 		if ($ii++ == 0) {
-			$table->addRow ($group->getName,$member->getUserId, $member->getDisplayName);
+			my @row = ($group->getName,$member->getUserId, $member->getDisplayName);
+			push(@rows, \@row);
 		} else {
-			$table->addRow ('',$member->getUserId, $member->getDisplayName);
+			my @row = ('',$member->getUserId, $member->getDisplayName);
+			push(@rows, \@row);
 		}
 	}
 }
-print tableToPrint($table, $batch);
+my @columnsNames = ('Managers group', 'User Id', 'Name');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);
