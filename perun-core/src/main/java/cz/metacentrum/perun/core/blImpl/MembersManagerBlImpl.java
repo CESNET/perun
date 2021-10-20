@@ -708,6 +708,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public List<Member> getAllMembers(PerunSession sess) {
+		return getMembersManagerImpl().getAllMembers(sess);
+	}
+
+	@Override
 	public List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) {
 		return getMembersManagerImpl().getMembersByUserWithStatus(sess, user, status);
 	}

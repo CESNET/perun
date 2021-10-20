@@ -293,6 +293,15 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getAllMembers(PerunSession sess) {
+		try {
+			return jdbc.query("SELECT " + memberMappingSelectQuery + " FROM members", MEMBER_MAPPER);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) {
 		try {
 			return jdbc.query("SELECT " + memberMappingSelectQuery + " FROM" +

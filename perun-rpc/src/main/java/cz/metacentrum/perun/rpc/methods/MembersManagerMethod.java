@@ -977,6 +977,18 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get all members from all vos.
+	 *
+	 * @return List<Member> all members from all Vos.
+	 */
+	getAllMembers {
+		@Override
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getAllMembers(ac.getSession());
+		}
+	},
+
+	/*#
 	 * Returns all members of a VO.
 	 *
 	 * @param vo int VO <code>id</code>

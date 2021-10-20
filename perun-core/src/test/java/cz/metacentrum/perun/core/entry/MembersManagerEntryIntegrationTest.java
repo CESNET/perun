@@ -2970,6 +2970,41 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	}
 
+	@Test
+	public void getAllMembers_membersFromTwoVos() throws Exception {
+		System.out.println(CLASS_NAME + "getAllMembers_membersFromTwoVos");
+
+		Vo vo1 = setUpVo("vo1");
+		Vo vo2 = setUpVo("vo2");
+
+		var vo1Member = setUpMember(vo1, "Doe", "John");
+		var vo2Member = setUpMember(vo2, "Zeman", "Miloš");
+
+		var allMembers = membersManagerEntry.getAllMembers(sess);
+
+		assertThat(allMembers)
+			.contains(vo1Member, vo2Member);
+	}
+
+	@Test
+	public void getAllMembers_twoMembersFromOneVo() throws Exception {
+		System.out.println(CLASS_NAME + "getAllMembers_twoMembersFromOneVo");
+
+		Vo vo = setUpVo("vo");
+
+		var member1 = setUpMember(vo, "Ovčáček", "Jiří");
+		var member2 = setUpMember(vo, "Babiš", "Andrej");
+
+		var allMembers = membersManagerEntry.getAllMembers(sess);
+
+		assertThat(allMembers)
+			.contains(member1, member2);
+	}
+
+	private Vo setUpVo(String name) throws Exception {
+		return perun.getVosManagerBl().createVo(sess, new Vo(0, name, name));
+	}
+
 	private Member setUpMember(Vo vo, String lastName, String firstName) throws Exception {
 		User user = new User();
 		user.setFirstName(firstName);
