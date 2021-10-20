@@ -961,17 +961,16 @@ public class ExpirationNotifScheduler {
 	private void auditIsCesnetEligibleExpiration(LocalDate today, User user, String isEligibleTimestamp) {
 		LocalDate lastAccess = LocalDate.parse(isEligibleTimestamp, lastAccessFormatter);
 		LocalDate expiration = lastAccess.plusYears(1);
-		Period period = today.until(expiration);
-		if (period.getYears() == 0 && period.getMonths() == 1 && period.getDays() == 0) {
-			// get also actual number of days
-			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, (int) ChronoUnit.DAYS.between(today, expiration), "in a month"));
-		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 14) {
+		if (ChronoUnit.DAYS.between(today, expiration) == 28) {
+			// don't use plusMonth(1) as some days could be skipped or duplicated
+			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 28));
+		} else if (ChronoUnit.DAYS.between(today, expiration) == 14) {
 			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 14));
-		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 7) {
+		} else if (ChronoUnit.DAYS.between(today, expiration) == 7) {
 			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 7));
-		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 1) {
+		} else if (ChronoUnit.DAYS.between(today, expiration) == 1) {
 			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 1, "tomorrow"));
-		} else if (period.getYears() == 0 && period.getMonths() == 0 && period.getDays() == 0) {
+		} else if (ChronoUnit.DAYS.between(today, expiration) == 0) {
 			getPerun().getAuditer().log(sess, new CesnetEligibleExpiration(user, 0, "today"));
 		}
 	}
