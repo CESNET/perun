@@ -5,9 +5,11 @@ import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -904,6 +906,30 @@ public interface GroupsManagerBl {
 	 * @return list of groups
 	 */
 	List<Group> getGroups(PerunSession sess, Vo vo);
+
+	/**
+	 * Get page of groups from the given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 *
+	 * @return page of requested rich groups
+	 */
+	Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames);
+
+	/**
+	 * Get page of subgroups from the given parent group.
+	 *
+	 * @param sess session
+	 * @param group parent group
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 *
+	 * @return page of requested rich groups
+	 */
+	Paginated<RichGroup> getSubgroupsPage(PerunSession sess, Group group, GroupsPageQuery query, List<String> attrNames);
 
 	/**
 	 * @param sess

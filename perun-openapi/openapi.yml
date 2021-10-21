@@ -652,6 +652,38 @@ components:
       discriminator:
         propertyName: beanName
 
+    PaginatedRichGroups:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/RichGroup' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    GroupsOrderColumn:
+      type: string
+      enum:
+        - ID
+        - NAME
+        - DESCRIPTION
+
+    GroupsPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+        sortColumn: { $ref: '#/components/schemas/GroupsOrderColumn' }
+        searchString: { type: string }
+      required:
+        - pageSize
+        - offset
+        - order
+        - sortColumn
+
     Resource:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1677,6 +1709,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RichGroup"
+
+    PaginatedRichGroupsResponse:
+      description: "returns Paginated<RichGroup>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedRichGroups"
 
     PaginatedRichMembersResponse:
       description: "returns Paginated<RichMember>"
@@ -11911,6 +11950,62 @@ paths:
           $ref: '#/components/responses/ListOfRichMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroupsPage:
+    post:
+      tags:
+        - GroupsManager
+      operationId: getGroupsPage
+      summary: Get page of groups from the given vo.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedGroups
+              description: "input to getPaginatedGroups"
+              type: object
+              required:
+                - vo
+                - query
+                - attrNames
+              properties:
+                vo: { type: integer }
+                attrNames: { type: array, items: { type: string } }
+                query: { $ref: '#/components/schemas/GroupsPageQuery' }
+
+  /json/groupsManager/getSubgroupsPage:
+    post:
+      tags:
+        - GroupsManager
+      operationId: getSubgroupsPage
+      summary: Get page of subgroups from the given parent group.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedGroups
+              description: "input to getPaginatedGroups"
+              type: object
+              required:
+                - group
+                - query
+                - attrNames
+              properties:
+                group: { type: integer }
+                attrNames: { type: array, items: { type: string } }
+                query: { $ref: '#/components/schemas/GroupsPageQuery' }
 
   #################################################
   #                                               #

@@ -11,12 +11,16 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.GroupsOrderColumn;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -5500,6 +5504,320 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		List<Group> groups = groupsManager.getAllGroups(sess);
 
 		assertThat(groups).contains(group1, group2);
+	}
+
+	@Test
+	public void getGroupsPage_Vo_all () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_all");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 5);
+		assertTrue(groups.getData().containsAll(groupsManager.getAllRichGroupsWithAttributesByNames(sess, vo, List.of())));
+	}
+
+	@Test
+	public void getGroupsPage_Vo_all_totalCount_5 () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_all");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+		perun.getGroupsManager().createGroup(sess, group21, group4);
+		perun.getGroupsManager().createGroup(sess, group21, group5);
+		perun.getGroupsManager().createGroup(sess, group21, group6);
+
+		GroupsPageQuery query = new GroupsPageQuery(5, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 5);
+		assertEquals(groups.getTotalCount(), 8);
+	}
+
+	@Test
+	public void getGroupsPage_Vo_OrderByNameASC () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_OrderByNameASC");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		Group groupA = new Group("A_group","testovaci_A");
+		perun.getGroupsManager().createGroup(sess, vo, groupA);
+		Group groupZ = new Group("Z_group","testovaci_Z");
+		perun.getGroupsManager().createGroup(sess, vo, groupZ);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.NAME);
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 4);
+		assertEquals(groups.getData().get(0), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupA, List.of()));
+		assertEquals(groups.getData().get(3), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupZ, List.of()));
+	}
+
+	@Test
+	public void getGroupsPage_Vo_OrderByDescriptionDSC () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_OrderByDescriptionDSC");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		Group groupA = new Group("A_group","A_testovaci");
+		perun.getGroupsManager().createGroup(sess, vo, groupA);
+		Group groupZ = new Group("Z_group","Z_testovaci");
+		perun.getGroupsManager().createGroup(sess, vo, groupZ);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.DESCENDING, GroupsOrderColumn.DESCRIPTION);
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 4);
+		assertEquals(groups.getData().get(0), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupZ, List.of()));
+		assertEquals(groups.getData().get(3), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupA, List.of()));
+	}
+
+	@Test
+	public void getGroupsPage_Vo_searchStringName () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_searchStringName");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "GroupsManagerTestGroup");
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 4);
+	}
+
+	@Test
+	public void getGroupsPage_Vo_searchStringDescription () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_searchStringDescription");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "testovaci2");
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 2);
+		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group2, List.of())));
+		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group21, List.of())));
+	}
+
+	@Test
+	public void getGroupsPage_Vo_ReturnsAttributes () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_ReturnsAttributes");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+
+		// set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of(extendMembershipRulesAttribute.getName()));
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 2);
+		assertEquals(groups.getData().get(1), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group, List.of(extendMembershipRulesAttribute.getName())));
+		assertThat(groups.getData().get(1).getAttributes()).containsOnly(extendMembershipRulesAttribute);
+	}
+
+	@Test
+	public void getGroupsPage_ParentGroup_all () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_ParentGroup_all");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+		perun.getGroupsManager().createGroup(sess, group, group4);
+		perun.getGroupsManager().createGroup(sess, group, group5);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> subgroups = groupsManager.getSubgroupsPage(sess, group, query, List.of());
+		Paginated<RichGroup> subgroups2 = groupsManager.getSubgroupsPage(sess, group2, query, List.of());
+
+		assertNotNull(subgroups);
+		assertEquals(subgroups.getData().size(), 5);
+
+		assertNotNull(subgroups2);
+		assertEquals(subgroups2.getData().size(), 2);
+	}
+
+	@Test
+	public void getGroupsPage_ParentGroup_all_totalCount_5 () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_ParentGroup_all");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+		perun.getGroupsManager().createGroup(sess, group, group4);
+		perun.getGroupsManager().createGroup(sess, group, group5);
+		perun.getGroupsManager().createGroup(sess, group, group6);
+		perun.getGroupsManager().createGroup(sess, group, group7);
+
+		GroupsPageQuery query = new GroupsPageQuery(5, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> subgroups = groupsManager.getSubgroupsPage(sess, group, query, List.of());
+
+		assertNotNull(subgroups);
+		assertEquals(subgroups.getData().size(), 5);
+		assertEquals(subgroups.getTotalCount(), 7);
+	}
+
+	@Test
+	public void getGroupsPage_ParentGroup_OrderByNameASC () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_ParentGroup_OrderByNameASC");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		Group groupA = new Group("A_group","testovaci_A");
+		perun.getGroupsManager().createGroup(sess, group, groupA);
+		Group groupZ = new Group("Z_group","testovaci_Z");
+		perun.getGroupsManager().createGroup(sess, group, groupZ);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.NAME);
+		Paginated<RichGroup> subgroups = groupsManager.getSubgroupsPage(sess, group, query, List.of());
+
+		assertNotNull(subgroups);
+		assertEquals(subgroups.getData().size(), 4);
+		assertEquals(subgroups.getData().get(0), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupA, List.of()));
+		assertEquals(subgroups.getData().get(3), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupZ, List.of()));
+	}
+
+	@Test
+	public void getGroupsPage_ParentGroup_OrderByDescriptionDSC () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_ParentGroup_OrderByDescriptionDSC");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		Group groupA = new Group("A_group","A_testovaci");
+		perun.getGroupsManager().createGroup(sess, group, groupA);
+		Group groupZ = new Group("Z_group","Z_testovaci");
+		perun.getGroupsManager().createGroup(sess, group, groupZ);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.DESCENDING, GroupsOrderColumn.DESCRIPTION);
+		Paginated<RichGroup> subgroups = groupsManager.getSubgroupsPage(sess, group, query, List.of());
+
+		assertNotNull(subgroups);
+		assertEquals(subgroups.getData().size(), 4);
+		assertEquals(subgroups.getData().get(0), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupZ, List.of()));
+		assertEquals(subgroups.getData().get(3), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, groupA, List.of()));
+	}
+
+	@Test
+	public void getGroupsPage_ParentGroup_searchStringName () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_ParentGroup_searchStringName");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group2, group3);
+		perun.getGroupsManager().createGroup(sess, group21, group4);
+		perun.getGroupsManager().createGroup(sess, group3, group5);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "GroupsManagerTestGroup");
+		Paginated<RichGroup> subgroups = groupsManager.getSubgroupsPage(sess, group, query, List.of());
+		Paginated<RichGroup> subgroups2 = groupsManager.getSubgroupsPage(sess, group21, query, List.of());
+
+		assertNotNull(subgroups);
+		assertEquals(subgroups.getData().size(), 5);
+
+		assertNotNull(subgroups2);
+		assertEquals(subgroups2.getData().size(), 1);
+	}
+
+	@Test
+	public void getGroupsPage_ParentGroup_searchStringDescription () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_ParentGroup_searchStringName");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group2, group3);
+		perun.getGroupsManager().createGroup(sess, group21, group4);
+		perun.getGroupsManager().createGroup(sess, group3, group5);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "testovaci2");
+		Paginated<RichGroup> subgroups = groupsManager.getSubgroupsPage(sess, group, query, List.of());
+		Paginated<RichGroup> subgroups2 = groupsManager.getSubgroupsPage(sess, group21, query, List.of());
+
+		assertNotNull(subgroups);
+		assertEquals(subgroups.getData().size(), 2);
+
+		assertEquals(subgroups2.getData().size(), 0);
+	}
+
+	@Test
+	public void getGroupsPage_ParentGroup_ReturnsAttributes () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_Vo_ReturnsAttributes");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		// set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group2, extendMembershipRulesAttribute);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> groups = groupsManager.getSubgroupsPage(sess, group, query, List.of(extendMembershipRulesAttribute.getName()));
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 1);
+		assertEquals(groups.getData().get(0), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group2, List.of(extendMembershipRulesAttribute.getName())));
+		assertThat(groups.getData().get(0).getAttributes()).containsOnly(extendMembershipRulesAttribute);
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

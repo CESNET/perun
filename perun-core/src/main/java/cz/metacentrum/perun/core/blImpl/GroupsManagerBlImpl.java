@@ -35,10 +35,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
@@ -1669,6 +1671,26 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Collections.sort(groups);
 
 		return groups;
+	}
+
+	@Override
+	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) {
+		Paginated<Group> paginatedGroups = groupsManagerImpl.getGroupsPage(sess, vo, query);
+
+		List<RichGroup> richGroups = convertGroupsToRichGroupsWithAttributes(sess, paginatedGroups.getData(), attrNames);
+
+		return new Paginated<>(richGroups, paginatedGroups.getOffset(), paginatedGroups.getPageSize(),
+		paginatedGroups.getTotalCount());
+	}
+
+	@Override
+	public Paginated<RichGroup> getSubgroupsPage(PerunSession sess, Group group, GroupsPageQuery query, List<String> attrNames) {
+		Paginated<Group> paginatedGroups = groupsManagerImpl.getSubgroupsPage(sess, group, query);
+
+		List<RichGroup> richGroups = convertGroupsToRichGroupsWithAttributes(sess, paginatedGroups.getData(), attrNames);
+
+		return new Paginated<>(richGroups, paginatedGroups.getOffset(), paginatedGroups.getPageSize(),
+			paginatedGroups.getTotalCount());
 	}
 
 	@Override

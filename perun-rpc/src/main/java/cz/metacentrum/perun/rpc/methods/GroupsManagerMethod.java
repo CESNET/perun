@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
@@ -768,6 +769,52 @@ public enum GroupsManagerMethod implements ManagerMethod {
 				return ac.getGroupsManager().getAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
 			}
 			return ac.getGroupsManager().getAllGroups(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Get page of groups from the given vo.
+	 * Query parameter specifies offset, page size, sorting order, sorting column and string to search groups by
+	 * (by default it searches in names, ids, uuids and descriptions), last parameter is optional and by default it
+	 * finds all groups in vo.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param query GroupsPageQuery Query with page information
+	 * @param attrNames List<String> List of attribute names
+	 *
+	 * @return Paginated<RichGroup> page of requested rich groups
+	 * @throw VoNotExistsException if there is no such vo
+	 */
+	getGroupsPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupsPage(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				parms.read("query", GroupsPageQuery.class),
+				parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
+	 * Get page of subgroups from the parent group.
+	 * Query parameter specifies offset, page size, sorting order, sorting column and string to search groups by
+	 * (by default it searches in names, ids, uuids and descriptions), last parameter is optional and by default it
+	 * finds all subgroups for the given parent group.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param query GroupsPageQuery Query with page information
+	 * @param attrNames List<String> List of attribute names
+	 *
+	 * @return Paginated<RichGroup> page of requested rich groups
+	 * @throw GroupNotExistsException if there is no such query group
+	 */
+	getSubgroupsPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getSubgroupsPage(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				parms.read("query", GroupsPageQuery.class),
+				parms.readList("attrNames", String.class));
 		}
 	},
 
