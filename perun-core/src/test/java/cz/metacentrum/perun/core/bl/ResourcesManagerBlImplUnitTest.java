@@ -94,13 +94,6 @@ public class ResourcesManagerBlImplUnitTest {
             verify(auditerMock, times(1))
 	            .log(sessionMock, new ServiceAssignedToResource(service, resource));
         }
-
-        verify(resourcesManagerBlMock)
-	        .fillAndSetRequiredAttributesForGroups(sessionMock, services, resource);
-        verify(resourcesManagerBlMock)
-	        .checkSemanticsOfFacilityAndResourceRequiredAttributes(sessionMock, resource);
-        verify(resourcesManagerBlMock)
-	        .updateAllRequiredAttributesForAllowedMembers(sessionMock, resource, services);
 	}
 
 	@Test
