@@ -8,6 +8,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -190,6 +191,10 @@ public class JsonPostClient {
 
 		// request building
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, requestUrl);
+
+		if (Cookies.getCookie("XSRF-TOKEN") != null) {
+			builder.setHeader("X-XSRF-TOKEN", Cookies.getCookie("XSRF-TOKEN"));
+		}
 		try {
 			// sends the request
 			onRequestLoadingStart();
