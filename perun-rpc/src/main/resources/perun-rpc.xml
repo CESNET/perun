@@ -19,5 +19,6 @@
 	<import resource="classpath:perun-notification-scheduler.xml"/>
 	<import resource="classpath:perun-dispatcher.xml"/>
 	<import resource="classpath:perun-dispatcher-scheduler.xml"/>
+	<import resource="classpath:perun-integration.xml"/>
 
 </beans>

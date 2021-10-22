@@ -22,6 +22,10 @@ public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
 	public Group() {
 	}
 
+	public Group(int id) {
+		super(id);
+	}
+
 	/**
 	 * Constructor.
 	 *
