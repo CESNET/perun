@@ -6518,6 +6518,13 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #integrationManagerEntry
+  getGroupMemberRelations_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 perun_roles_management:
 

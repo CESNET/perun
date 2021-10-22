@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
@@ -21,7 +20,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 <!--	&lt;!&ndash; Scans for @Repository, @Service and @Component &ndash;&gt;-->
 <!--	<context:component-scan base-package="cz.metacentrum.perun.integration"/>-->
 
-	<bean id="integrationManager" class="cz.metacentrum.perun.integration.entry.IntegrationManagerEntry">
+	<bean id="integrationManager" class="cz.metacentrum.perun.integration.apiImpl.IntegrationManagerEntry">
 		<property name="perun" ref="perun" />
 		<property name="integrationManagerBl" ref="integrationManagerBl" />
 	</bean>
@@ -31,8 +30,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="integrationManagerImplApi" ref="integrationManagerImpl" />
 	</bean>
 
-	<bean id="integrationManagerImpl" class="cz.metacentrum.perun.integration.impl.IntegrationManagerImpl">
-		<property name="jdbc" ref="dataSource" />
+	<bean id="integrationManagerImpl" class="cz.metacentrum.perun.integration.daoImpl.IntegrationManagerImpl">
+		<property name="dataSource" ref="dataSource" />
 	</bean>
 
 </beans>

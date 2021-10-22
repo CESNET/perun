@@ -28,7 +28,7 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
-	</build>
+    </build>
 
 	<dependencies>
 		<!-- PERUN -->
