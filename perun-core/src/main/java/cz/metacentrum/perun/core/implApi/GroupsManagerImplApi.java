@@ -463,6 +463,16 @@ public interface GroupsManagerImplApi {
 	List<Group> getGroups(PerunSession perunSession, Vo vo);
 
 	/**
+	 * Get all groups ids for given vo.
+	 *
+	 * @param sess perun session
+	 * @param vo vo
+	 *
+	 * @return list of groups ids
+	 */
+	List<Integer> getGroupsIds(PerunSession sess, Vo vo);
+
+	/**
 	 * @param perunSession
 	 * @param vo
 	 *
