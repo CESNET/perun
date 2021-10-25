@@ -3,8 +3,9 @@ package cz.metacentrum.perun.core.blImpl;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.core.api.MessagesPageQuery;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
@@ -56,6 +57,11 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	@Override
 	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) {
 		return getAuditMessagesManagerImpl().getMessagesByCount(perunSession, count);
+	}
+
+	@Override
+	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
+		return getAuditMessagesManagerImpl().getMessagesPage(perunSession, query);
 	}
 
 	@Override

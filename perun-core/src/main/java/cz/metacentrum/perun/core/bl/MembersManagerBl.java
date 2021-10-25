@@ -510,6 +510,14 @@ public interface MembersManagerBl {
 	List<Member> getMembersByUser(PerunSession sess, User user);
 
 	/**
+	 * Get all members from all vos.
+	 *
+	 * @param sess session
+	 * @return list of all members from all Vos.
+	 */
+	List<Member> getAllMembers(PerunSession sess);
+
+	/**
 	 * Return all VO Members of the User, which have specified Status in their VO.
 	 *
 	 * @param sess

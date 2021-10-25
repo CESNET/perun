@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -36,10 +36,8 @@ my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-my $table = Text::ASCIITable->new();
-$table->setCols( 'Id', 'Host name', 'Number of cores', 'Facility name' );
-
 my @hosts = $facilitiesAgent->getHostsByHostname( hostname => $hostName );
+my @rows = ();
 while (@hosts) {
 	my $host = shift(@hosts);
 	my $hostId = $host->getId;
@@ -53,7 +51,9 @@ while (@hosts) {
 	unless ($facility) {$facilityName = " ";}
 	$facilityName = $facility->getName;
 
-	$table->addRow( $hostId, $hostName, $numCores, $facilityName );
+	my @row = ($hostId, $hostName, $numCores, $facilityName);
+	push(@rows, \@row);
 }
 
-print tableToPrint($table, $batch);
+my @columnsNames = ('Id', 'Host name', 'Number of cores', 'Facility name');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);

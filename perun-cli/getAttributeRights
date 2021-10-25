@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 #use Data::Dumper;
 
 sub help {
@@ -44,8 +44,7 @@ my @rights;
 @rights = $attributesAgent->getAttributeRights(attributeId => $attributeId);
 #output
 printMessage "\n.-----------------------------.\n| Attribute : ".$attributeId."\t      |", $batch;
-my $table = Text::ASCIITable->new({ reportErrors => 0, utf8 => 0 });
-$table->setCols('Role','Rights' );
+my @rows = ();
 foreach my $right (@rights) {
 	#print Dumper($right);
 	my @actions=$right->getRights;
@@ -60,7 +59,9 @@ foreach my $right (@rights) {
 	} else {
 		$out=$out."      ";
 	}
-	$table->addRow($right->getRole,$out);
+	my @row = ($right->getRole, $out);
+	push(@rows, \@row);
 } 
-print tableToPrint($table, $batch);
+my @columnsNames = ('Role', 'Rights');
+print tableContentToPrint(\@columnsNames, \@rows, $batch);
 

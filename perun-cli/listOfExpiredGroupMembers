@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -73,18 +73,18 @@ unless (@richMembers) {
 }
 
 # output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'MemberId', 'Name', 'VO status','Group status','Expiration' );
-
+my @rows = ();
 foreach my $member (sort $sortingFunction @richMembers) {
 	my @mattributes = $member->getMemberAttributes;
 	my $val = $mattributes[0]->getValue;
 	my $stat = $member->getGroupStatus;
 	if ($stat eq 'EXPIRED' ) {
 		if (not defined $val) { $val="UNSET";} 
-		$table->addRow( $member->getMemberId, $member->getCommonName, $member->getStatus, $stat, $val );
+		my @row = ($member->getMemberId, $member->getCommonName, $member->getStatus, $stat, $val);
+		push(@rows, \@row);
 	}
 }
 
 #output
-print tableToPrint($table, $batch) unless defined $unsetDate;
+my @columnsNames = ('MemberId', 'Name', 'VO status','Group status', 'Expiration');
+print tableContentToPrint(\@columnsNames, \@rows, $batch) unless defined $unsetDate;

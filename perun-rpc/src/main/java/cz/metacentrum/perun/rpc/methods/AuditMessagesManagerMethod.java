@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.core.api.MessagesPageQuery;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -43,6 +44,20 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 		@Override
 		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getAuditMessagesManager().getMessagesByCount(ac.getSession(), parms.readInt("count"));
+		}
+	},
+
+	/*#
+	 * Get page of audit messages. Query parameter specifies offset and page size.
+	 *
+	 * @param query MessagesPageQuery Query with page information
+	 * @return Paginated<AuditMessage> page of requested audit messages
+	 */
+	getMessagesPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAuditMessagesManager().getMessagesPage(ac.getSession(),
+				parms.read("query", MessagesPageQuery.class));
 		}
 	},
 

@@ -7,21 +7,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -753,6 +750,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get all groups from all vos. Returned groups are filtered based on the principal rights.
+	 *
+	 * @return List<Group> Groups
+	 */
+	/*#
 	 * Returns all groups in a VO.
 	 *
 	 * @throw VoNotExistsException When the Vo doesn't exist
@@ -763,7 +765,56 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	getAllGroups {
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			if (parms.contains("vo")) {
+				return ac.getGroupsManager().getAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			}
+			return ac.getGroupsManager().getAllGroups(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Get page of groups from the given vo.
+	 * Query parameter specifies offset, page size, sorting order, sorting column and string to search groups by
+	 * (by default it searches in names, ids, uuids and descriptions), last parameter is optional and by default it
+	 * finds all groups in vo.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param query GroupsPageQuery Query with page information
+	 * @param attrNames List<String> List of attribute names
+	 *
+	 * @return Paginated<RichGroup> page of requested rich groups
+	 * @throw VoNotExistsException if there is no such vo
+	 */
+	getGroupsPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupsPage(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				parms.read("query", GroupsPageQuery.class),
+				parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
+	 * Get page of subgroups from the parent group.
+	 * Query parameter specifies offset, page size, sorting order, sorting column and string to search groups by
+	 * (by default it searches in names, ids, uuids and descriptions), last parameter is optional and by default it
+	 * finds all subgroups for the given parent group.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param query GroupsPageQuery Query with page information
+	 * @param attrNames List<String> List of attribute names
+	 *
+	 * @return Paginated<RichGroup> page of requested rich groups
+	 * @throw GroupNotExistsException if there is no such query group
+	 */
+	getSubgroupsPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getSubgroupsPage(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				parms.read("query", GroupsPageQuery.class),
+				parms.readList("attrNames", String.class));
 		}
 	},
 

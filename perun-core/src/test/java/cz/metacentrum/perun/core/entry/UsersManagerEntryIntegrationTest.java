@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Sponsor;
@@ -1795,6 +1796,407 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals(1, users.getData().size());
 		assertEquals(1, users.getTotalCount());
 		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user)));
+	}
+
+	@Test
+	public void getUsersPage_facilitySearchString() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilitySearchString");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "jane", facility.getId());
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
+	}
+
+	@Test
+	public void getUsersPage_facility() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facility");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId());
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(2, users.getTotalCount());
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+	}
+
+	@Test
+	public void getUsersPage_facilityOnlyAllowed() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityOnlyAllowed");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
+		perun.getMembersManagerBl().setStatus(sess, member2, Status.VALID);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), true);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
+	}
+
+	@Test
+	public void getUsersPage_facilityVo() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityVo");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), vo.getId(), null, null);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(2, users.getTotalCount());
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+	}
+
+	@Test
+	public void getUsersPage_facilityVoOnlyAllowed() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityVoOnlyAllowed");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
+		perun.getMembersManagerBl().setStatus(sess, member2, Status.VALID);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), vo.getId(), null, null, true);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
+	}
+
+	@Test
+	public void getUsersPage_facilityResource() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityResource");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, null, r.getId());
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(2, users.getTotalCount());
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+	}
+
+	@Test
+	public void getUsersPage_facilityResourceOnlyAllowed() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityResourceOnlyAllowed");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
+		perun.getMembersManagerBl().setStatus(sess, member2, Status.VALID);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, null, r.getId(), true);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
+	}
+
+	@Test
+	public void getUsersPage_facilityVoService() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityVoService");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Service service = new Service(0, "dummy_service");
+		service = perun.getServicesManagerBl().createService(sess, service);
+
+		perun.getResourcesManagerBl().assignService(sess, r, service);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), vo.getId(), service.getId(), null);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(2, users.getTotalCount());
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+	}
+
+	@Test
+	public void getUsersPage_facilityVoServiceOnlyAllowed() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityVoServiceOnlyAllowed");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Service service = new Service(0, "dummy_service");
+		service = perun.getServicesManagerBl().createService(sess, service);
+
+		perun.getResourcesManagerBl().assignService(sess, r, service);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
+		perun.getMembersManagerBl().setStatus(sess, member2, Status.VALID);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), vo.getId(), service.getId(), null, true);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
+	}
+
+	@Test
+	public void getUsersPage_facilityService() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityService");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Vo newVo = new Vo(2, "UserManagerTestV2o", "UMTestVo2");
+		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
+
+		Resource r2 = new Resource(1, "name1", "description1", facility.getId());
+		r2 = perun.getResourcesManager().createResource(sess, r2, returnedVo, facility);
+
+		Service service = new Service(0, "dummy_service");
+		service = perun.getServicesManagerBl().createService(sess, service);
+
+		perun.getResourcesManagerBl().assignService(sess, r, service);
+		perun.getResourcesManagerBl().assignService(sess, r2, service);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, returnedVo, user2);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(returnedVo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r2, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, service.getId(), null);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(2, users.getTotalCount());
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+	}
+
+	@Test
+	public void getUsersPage_facilityServiceOnlyAllowed() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityServiceOnlyAllowed");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Vo newVo = new Vo(2, "UserManagerTestV2o", "UMTestVo2");
+		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
+
+		Resource r2 = new Resource(1, "name1", "description1", facility.getId());
+		r2 = perun.getResourcesManager().createResource(sess, r2, returnedVo, facility);
+
+		Service service = new Service(0, "dummy_service");
+		service = perun.getServicesManagerBl().createService(sess, service);
+
+		perun.getResourcesManagerBl().assignService(sess, r, service);
+		perun.getResourcesManagerBl().assignService(sess, r2, service);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, returnedVo, user2);
+
+		perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
+		perun.getMembersManagerBl().setStatus(sess, member2, Status.VALID);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(returnedVo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r2, false, false, false);
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, service.getId(), null, true);
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

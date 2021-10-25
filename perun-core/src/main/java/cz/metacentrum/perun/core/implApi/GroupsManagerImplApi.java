@@ -4,10 +4,12 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -325,6 +327,14 @@ public interface GroupsManagerImplApi {
 	List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType);
 
 	/**
+	 * Get all groups from all vos.
+	 *
+	 * @param sess session
+	 * @return list of all groups
+	 */
+	List<Group> getAllGroups(PerunSession sess);
+
+	/**
 	 * Get all groups of the VO.
 	 *
 	 * @param perunSession
@@ -335,6 +345,29 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAllGroups(PerunSession perunSession, Vo vo);
+
+
+	/**
+	 * Get page of groups from the given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 *
+	 * @return page of requested groups
+	 */
+	Paginated<Group> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query);
+
+	/**
+	 * Get page of subgroups from the given parent group.
+	 *
+	 * @param sess session
+	 * @param group parent group
+	 * @param query query with page information
+	 *
+	 * @return page of requested groups
+	 */
+	Paginated<Group> getSubgroupsPage(PerunSession sess, Group group, GroupsPageQuery query);
 
 	/**
 	 * Get parent group.

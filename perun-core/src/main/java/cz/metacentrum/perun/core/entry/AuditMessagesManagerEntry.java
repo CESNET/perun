@@ -4,8 +4,9 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.MessagesPageQuery;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
@@ -42,6 +43,14 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) {
 		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
 		return getAuditMessagesManagerBl().getMessagesByCount(perunSession, count);
+	}
+
+	@Override
+	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) throws PrivilegeException {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getMessagesPage_MessagesPageQuery_policy")) {
+			throw new PrivilegeException(perunSession, "getMessagesPage");
+		}
+		return getAuditMessagesManagerBl().getMessagesPage(perunSession, query);
 	}
 
 	@Override

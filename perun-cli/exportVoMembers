@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
 
 sub help {
 	return qq{
@@ -94,11 +94,7 @@ unless (@richMembers) {
 }
 
 #output
-my $table = Text::ASCIITable->new( { utf8 => 0 } );
-#my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-
-$table->setCols( 'Name', 'Status', sort keys(%attrShort) );
-
+my @rows = ();
 foreach my $richMember (sort $sortingFunction @richMembers) {
 	my @uattributes = $richMember->getUserAttributes;
 	my @mattributes = $richMember->getMemberAttributes;
@@ -116,8 +112,10 @@ foreach my $richMember (sort $sortingFunction @richMembers) {
 			}
 		}
 	}
-	$table->addRow( $richMember->getDisplayName, $richMember->getStatus, @dispAtt );
+	my @row = ($richMember->getDisplayName, $richMember->getStatus, @dispAtt);
+	push( @rows, \@row );
 }
 
-print tableToPrint($table, $batch);
+my @columnsNames = ( 'Name', 'Status', sort keys(%attrShort) );
+print tableContentToPrint( \@columnsNames, \@rows, $batch );
 

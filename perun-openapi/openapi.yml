@@ -241,6 +241,11 @@ components:
         sortColumn: { $ref: '#/components/schemas/UsersOrderColumn' }
         searchString: { type: string }
         withoutVo: { type: boolean }
+        facilityId: { type: integer }
+        voId: { type: integer }
+        serviceId: { type: integer }
+        resourceId: { type: integer }
+        onlyAllowed: { type: boolean }
       required:
         - pageSize
         - offset
@@ -318,6 +323,28 @@ components:
         actor: { type: string }
         createdAt: { type: string }
         createdByUid: { type: integer }
+
+    PaginatedAuditMessages:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/AuditMessage' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    AuditMessagesPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+      required:
+        - pageSize
+        - offset
+        - order
 
     ActionType:
       type: string
@@ -624,6 +651,38 @@ components:
             attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
       discriminator:
         propertyName: beanName
+
+    PaginatedRichGroups:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/RichGroup' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    GroupsOrderColumn:
+      type: string
+      enum:
+        - ID
+        - NAME
+        - DESCRIPTION
+
+    GroupsPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+        sortColumn: { $ref: '#/components/schemas/GroupsOrderColumn' }
+        searchString: { type: string }
+      required:
+        - pageSize
+        - offset
+        - order
+        - sortColumn
 
     Resource:
       allOf:
@@ -1430,6 +1489,13 @@ components:
             items:
               $ref: "#/components/schemas/AuditMessage"
 
+    PaginatedMessagesResponse:
+      description: "returns Paginated<AuditMessage>"
+      content:
+        application/json:
+          schema:
+              $ref: "#/components/schemas/PaginatedAuditMessages"
+
     PublicationSystemResponse:
       description: "returns PublicationSystem"
       content:
@@ -1643,6 +1709,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RichGroup"
+
+    PaginatedRichGroupsResponse:
+      description: "returns Paginated<RichGroup>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedRichGroups"
 
     PaginatedRichMembersResponse:
       description: "returns Paginated<RichMember>"
@@ -6749,7 +6822,7 @@ paths:
   #                                               #
   #################################################
 
-  /json/AuditMessagesManager/getMessages:
+  /json/auditMessagesManager/getMessages:
     get:
       tags:
         - AuditMessagesManager
@@ -6766,7 +6839,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getMessagesByCount:
+  /json/auditMessagesManager/getMessagesByCount:
     get:
       tags:
         - AuditMessagesManager
@@ -6783,7 +6856,31 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/pollConsumerMessages:
+  /json/auditMessagesManager/getMessagesPage:
+    post:
+      tags:
+        - AuditMessagesManager
+      operationId: getMessagesPage
+      summary: Get page of audit messages.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedMessagesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetMessagesPage
+              description: "input to get messages page"
+              type: object
+              required:
+                - query
+              properties:
+                query: { $ref: '#/components/schemas/AuditMessagesPageQuery' }
+
+  /json/auditMessagesManager/pollConsumerMessages:
     get:
       tags:
         - AuditMessagesManager
@@ -6799,7 +6896,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/AuditMessagesManager/setLastProcessedId:
+  /urlinjsonout/auditMessagesManager/setLastProcessedId:
     post:
       tags:
         - AuditMessagesManager
@@ -6815,7 +6912,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/AuditMessagesManager/createAuditerConsumer:
+  /urlinjsonout/auditMessagesManager/createAuditerConsumer:
     post:
       tags:
         - AuditMessagesManager
@@ -6830,7 +6927,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getAllAuditerConsumers:
+  /json/auditMessagesManager/getAllAuditerConsumers:
     get:
       tags:
         - AuditMessagesManager
@@ -6849,7 +6946,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getLastMessageId:
+  /json/auditMessagesManager/getLastMessageId:
     get:
       tags:
         - AuditMessagesManager
@@ -6862,7 +6959,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/AuditMessagesManager/getAuditerMessagesCount:
+  /json/auditMessagesManager/getAuditerMessagesCount:
     get:
       tags:
         - AuditMessagesManager
@@ -6875,7 +6972,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/AuditMessagesManager/log:
+  /urlinjsonout/auditMessagesManager/log:
     post:
       tags:
         - AuditMessagesManager
@@ -8776,6 +8873,18 @@ paths:
         - $ref: '#/components/parameters/userId'
       responses:
         '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getAllMembers:
+    get:
+      tags:
+        - MembersManager
+      operationId: getAllMembers
+      summary: Get all members from all vos.
+      responses:
+        200:
           $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -11288,6 +11397,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupMembers:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupMembers
+      summary: Returns list of members of a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/isGroupMember:
     get:
       tags:
@@ -11325,6 +11448,18 @@ paths:
       summary: Returns all groups for a member including group 'members'
       parameters:
         - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getAllGroups/all:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllGroupsFromAllVos
+      summary: Get all groups from all vos. Returned groups are filtered based on the principal rights.
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
@@ -11429,27 +11564,31 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/groupsManager/deleteGroups:
+  /json/groupsManager/deleteGroups:
     post:
       tags:
         - GroupsManager
       operationId: deleteGroups
       summary: Forcefully deletes a list of groups (remove all group members, remove group from resources).
-      parameters:
-        - $ref: '#/components/parameters/groupIds'
-        - { name: forceDelete,
-            description: "If true use force delete",
-            schema: {
-              type: boolean
-            },
-            in: query,
-            required: true
-        }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputDeleteGroups
+              description: "input to deleteGroup"
+              type: object
+              required:
+                - groups
+                - forceDelete
+              properties:
+                groups: { type: array, items: {type: integer} }
+                forceDelete: { type: boolean, description: "boolean for force delete"}
 
   /urlinjsonout/groupsManager/moveGroup/dg-mg:
     post:
@@ -11811,6 +11950,62 @@ paths:
           $ref: '#/components/responses/ListOfRichMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroupsPage:
+    post:
+      tags:
+        - GroupsManager
+      operationId: getGroupsPage
+      summary: Get page of groups from the given vo.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedGroups
+              description: "input to getPaginatedGroups"
+              type: object
+              required:
+                - vo
+                - query
+                - attrNames
+              properties:
+                vo: { type: integer }
+                attrNames: { type: array, items: { type: string } }
+                query: { $ref: '#/components/schemas/GroupsPageQuery' }
+
+  /json/groupsManager/getSubgroupsPage:
+    post:
+      tags:
+        - GroupsManager
+      operationId: getSubgroupsPage
+      summary: Get page of subgroups from the given parent group.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedGroups
+              description: "input to getPaginatedGroups"
+              type: object
+              required:
+                - group
+                - query
+                - attrNames
+              properties:
+                group: { type: integer }
+                attrNames: { type: array, items: { type: string } }
+                query: { $ref: '#/components/schemas/GroupsPageQuery' }
 
   #################################################
   #                                               #

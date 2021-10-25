@@ -901,6 +901,7 @@ public interface UsersManagerBl {
 	 *
 	 * @param sess session
 	 * @param query query with page information
+	 * @param attrNames list of attribute names
 	 * @return page of requested rich users
 	 */
 	Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames);

@@ -478,6 +478,17 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public List<Member> getAllMembers(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getAllMembers_policy")) {
+			throw new PrivilegeException(sess, "getAllMembers");
+		}
+
+		return getPerunBl().getMembersManagerBl().getAllMembers(sess);
+	}
+
+	@Override
 	public List<Member> getMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 

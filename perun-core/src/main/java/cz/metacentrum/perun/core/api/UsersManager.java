@@ -23,6 +23,8 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
@@ -201,9 +203,14 @@ public interface UsersManager {
 	 *
 	 * @param sess session
 	 * @param query query with page information
+	 * @param attrNames list of attribute names
 	 * @return page of requested rich users
+	 * @throws ResourceNotExistsException if resource with id from query does not exist
+	 * @throws VoNotExistsException if vo with id from query does not exist
+	 * @throws FacilityNotExistsException if facility with id from query does not exist
+	 * @throws ServiceNotExistsException if service with id from query does not exist
 	 */
-	Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames) throws PrivilegeException;
+	Paginated<RichUser> getUsersPage(PerunSession sess, UsersPageQuery query, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException, VoNotExistsException, FacilityNotExistsException, ServiceNotExistsException;
 
 	/**
 	 * Get User to RichUser without attributes.

@@ -9,10 +9,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -53,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 /**
  * Implementation of GroupsManager
@@ -102,6 +106,27 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		else g.setCreatedByUid(resultSet.getInt("groups_created_by_uid"));
 		return g;
 	};
+
+	/**
+	 * Returns ResultSetExtractor that can be used to extract returned paginated groups
+	 * from db.
+	 *
+	 * @param query query data
+	 * @return extractor, that can be used to extract returned paginated groups from db
+	 */
+	private static ResultSetExtractor<Paginated<Group>> getPaginatedGroupsExtractor(GroupsPageQuery query) {
+		return resultSet -> {
+			List<Group> groups = new ArrayList<>();
+			int total_count = 0;
+			int row = 0;
+			while (resultSet.next()) {
+				total_count = resultSet.getInt("total_count");
+				groups.add(GROUP_MAPPER.mapRow(resultSet, row));
+				row++;
+			}
+			return new Paginated<>(groups, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
 
 	protected static final RowMapper<AssignedGroup> ASSIGNED_GROUP_MAPPER = (resultSet, i) -> {
 		Group group = GROUP_MAPPER.mapRow(resultSet, i);
@@ -507,6 +532,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getAllGroups(PerunSession sess) {
+		try {
+			return jdbc.query("select  " + groupMappingSelectQuery + " from groups order by " +
+					Compatibility.orderByBinary("groups.name" + Compatibility.castToVarchar()),
+				GROUP_MAPPER);
+
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups where vo_id=?", GROUP_MAPPER, vo.getId());
@@ -514,6 +551,59 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 
+	}
+
+	@Override
+	public Paginated<Group> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+
+		namedParams.addValue("voId", vo.getId());
+		namedParams.addValue("offset", query.getOffset());
+		namedParams.addValue("limit", query.getPageSize());
+
+		String searchQuery = getSQLWhereForGroupsPage(query, namedParams);
+
+		return namedParameterJdbcTemplate.query(
+			"SELECT " + groupMappingSelectQuery +
+			", count(*) OVER() AS total_count" +
+			" FROM groups" +
+			" WHERE groups.vo_id=(:voId)" +
+			searchQuery +
+			" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
+			" OFFSET (:offset)" +
+			" LIMIT (:limit);",
+			namedParams,
+			getPaginatedGroupsExtractor(query));
+	}
+
+	@Override
+	public Paginated<Group> getSubgroupsPage(PerunSession sess, Group group, GroupsPageQuery query) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+
+		namedParams.addValue("parentGroupId", group.getId());
+		namedParams.addValue("offset", query.getOffset());
+		namedParams.addValue("limit", query.getPageSize());
+
+		String searchQuery = getSQLWhereForGroupsPageParentGroup(query, namedParams);
+
+		return namedParameterJdbcTemplate.query(
+			"WITH RECURSIVE subgroups AS (" +
+					" SELECT " + groupMappingSelectQuery +
+					" FROM groups" +
+					" WHERE groups.parent_group_id=(:parentGroupId)" +
+					" UNION" +
+						" SELECT " + groupMappingSelectQuery +
+						" FROM groups" +
+						" INNER JOIN subgroups s ON s.groups_id = groups.parent_group_id" +
+				") SELECT *" +
+				", count(*) OVER() AS total_count" +
+				" FROM subgroups" +
+				searchQuery +
+				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
+				" OFFSET (:offset)" +
+				" LIMIT (:limit);",
+				namedParams,
+				getPaginatedGroupsExtractor(query));
 	}
 
 	@Override
@@ -1123,4 +1213,19 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(err);
 		}
 	}
+
+	private String getSQLWhereForGroupsPage(GroupsPageQuery query, MapSqlParameterSource namedParams) {
+		if (isEmpty(query.getSearchString())) {
+			return "";
+		}
+		return " AND " + Utils.prepareSqlWhereForGroupSearch(query.getSearchString(), namedParams, false);
+	}
+
+	private String getSQLWhereForGroupsPageParentGroup(GroupsPageQuery query, MapSqlParameterSource namedParams) {
+		if (isEmpty(query.getSearchString())) {
+			return "";
+		}
+		return " WHERE " + Utils.prepareSqlWhereForGroupSearch(query.getSearchString(), namedParams, true);
+	}
+
 }

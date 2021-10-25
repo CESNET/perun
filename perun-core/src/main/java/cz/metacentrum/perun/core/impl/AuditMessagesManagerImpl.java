@@ -20,6 +20,8 @@ import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MessagesPageQuery;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
@@ -147,6 +149,26 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 		return auditerConsumers;
 	};
 
+	/**
+	 * Returns ResultSetExtractor that can be used to extract returned paginated audit messages from db.
+	 *
+	 * @param query query data
+	 * @return extractor, that can be used to extract returned paginated audit messages from db
+	 */
+	private static ResultSetExtractor<Paginated<AuditMessage>> getPaginatedMessagesExtractor(MessagesPageQuery query) {
+		return resultSet -> {
+			List<AuditMessage> messages = new ArrayList<>();
+			int total_count = 0;
+			int row = 0;
+			while (resultSet.next()) {
+				total_count = resultSet.getInt("total_count");
+				messages.add(AUDIT_MESSAGE_MAPPER.mapRow(resultSet, row));
+				row++;
+			}
+			return new Paginated<>(messages, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
+
 	public AuditMessagesManagerImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
@@ -172,6 +194,12 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
+	}
+
+	@Override
+	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
+		return jdbc.query("select " + auditMessageMappingSelectQuery + ", count(*) OVER() AS total_count from auditer_log order by id " + query.getOrder().getSqlValue()
+				+ " offset " + query.getOffset() + " limit " + query.getPageSize(), getPaginatedMessagesExtractor(query));
 	}
 
 	@Override

@@ -35,10 +35,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
@@ -147,7 +149,6 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 import static java.util.Collections.reverseOrder;
@@ -546,7 +547,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// get parent groups
 		List<Group> groups = getGroupsManagerImpl().getGroups(sess, vo).stream()
 			.filter(group -> group.getParentGroupId() == null)
-			.collect(Collectors.toList());
+			.collect(toList());
 		for(Group group: groups) {
 
 			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
@@ -1573,6 +1574,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Group> getAllGroups(PerunSession sess) {
+		return groupsManagerImpl.getAllGroups(sess).stream()
+			.sorted()
+			.collect(toList());
+	}
+
+	@Override
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) {
 		List<Group> groups = getGroupsManagerImpl().getAllGroups(sess, vo);
 
@@ -1663,6 +1671,26 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Collections.sort(groups);
 
 		return groups;
+	}
+
+	@Override
+	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) {
+		Paginated<Group> paginatedGroups = groupsManagerImpl.getGroupsPage(sess, vo, query);
+
+		List<RichGroup> richGroups = convertGroupsToRichGroupsWithAttributes(sess, paginatedGroups.getData(), attrNames);
+
+		return new Paginated<>(richGroups, paginatedGroups.getOffset(), paginatedGroups.getPageSize(),
+		paginatedGroups.getTotalCount());
+	}
+
+	@Override
+	public Paginated<RichGroup> getSubgroupsPage(PerunSession sess, Group group, GroupsPageQuery query, List<String> attrNames) {
+		Paginated<Group> paginatedGroups = groupsManagerImpl.getSubgroupsPage(sess, group, query);
+
+		List<RichGroup> richGroups = convertGroupsToRichGroupsWithAttributes(sess, paginatedGroups.getData(), attrNames);
+
+		return new Paginated<>(richGroups, paginatedGroups.getOffset(), paginatedGroups.getPageSize(),
+			paginatedGroups.getTotalCount());
 	}
 
 	@Override
@@ -2816,8 +2844,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<String> memberGroupAttrNames = new ArrayList<>();
 		if(attrNames != null && !attrNames.isEmpty()) {
 			groupAndGroupResourceAttrNames = attrNames.stream().filter(attrName ->
-				attrName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR) || attrName.startsWith(AttributesManager.NS_GROUP_ATTR)).collect(Collectors.toList());
-			memberGroupAttrNames = attrNames.stream().filter(attrName -> attrName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)).collect(Collectors.toList());
+				attrName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR) || attrName.startsWith(AttributesManager.NS_GROUP_ATTR)).collect(toList());
+			memberGroupAttrNames = attrNames.stream().filter(attrName -> attrName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)).collect(toList());
 		}
 
 		for(Group group: groups) {
