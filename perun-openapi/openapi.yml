@@ -1234,6 +1234,18 @@ components:
       properties:
         brands: { type: array, items: { $ref: '#/components/schemas/Brand' } }
 
+    MemberWithAttributes:
+      type: object
+      properties:
+        memberId: { type: integer }
+        memberGroupAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute'} }
+
+    GroupMemberRelations:
+      type: object
+      properties:
+        groupId: { type: integer }
+        memberWithAttributes: { type: array, items: { $ref: '#/components/schemas/MemberWithAttributes'} }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2208,6 +2220,15 @@ components:
           schema:
             $ref: "#/components/schemas/PerunAppsConfig"
 
+    ListGroupMemberRelationsResponse:
+      description: "returns member-groups relations with attributes"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/GroupMemberRelations"
+
 
   #####################################################
   #                                                   #
@@ -3022,6 +3043,10 @@ tags:
     description: RTMessagesManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-RTMessagesManager.html
+  - name: IntegrationManager
+    description: IntegrationManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-IntegrationManager.html
 
 
 #################################################
@@ -16304,5 +16329,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RTMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # IntegrationManager                            #
+  #                                               #
+  #################################################
+
+  /jsonsimple/integrationManager/getGroupMemberRelations:
+    get:
+      tags:
+        - IntegrationManager
+      operationId: getGroupMemberRelations
+      summary: Get all member-group relations for all groups with all member-group attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListGroupMemberRelationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
