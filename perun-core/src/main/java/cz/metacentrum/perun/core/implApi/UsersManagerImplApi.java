@@ -417,10 +417,11 @@ public interface UsersManagerImplApi {
 	 * @param sess
 	 * @param namespace namespace for login
 	 * @param login login to check
+	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @return true if login exist, false if not exist
 	 * @throws InternalErrorException
 	 */
-	boolean isLoginReserved(PerunSession sess, String namespace, String login);
+	boolean isLoginReserved(PerunSession sess, String namespace, String login, boolean ignoreCase);
 
 	/**
 	 * Check if login in specified namespace exists.
@@ -428,10 +429,11 @@ public interface UsersManagerImplApi {
 	 * @param sess
 	 * @param namespace namespace for login
 	 * @param login login to check
+	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @throws InternalErrorException
 	 * @throws AlreadyReservedLoginException throw this exception if login already exist in table of reserved logins
 	 */
-	void checkReservedLogins(PerunSession sess, String namespace, String login) throws AlreadyReservedLoginException;
+	void checkReservedLogins(PerunSession sess, String namespace, String login, boolean ignoreCase) throws AlreadyReservedLoginException;
 
 	/**
 	 * Check if user exists in underlaying data source.
@@ -594,6 +596,18 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<User> getUsersByAttribute(PerunSession sess, Attribute attribute);
+
+	/**
+	 * Returns all users who have set the attribute with the value IGNORING CASE in the comparison.
+	 * Searching only def and opt attributes.
+	 *
+	 * @param sess
+	 * @param attribute
+	 * @param ignoreCase TRUE to perform case-insensitive check
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> getUsersByAttribute(PerunSession sess, Attribute attribute, boolean ignoreCase);
 
 	/**
 	 * Returns all users who have the attribute with the value. attributeValue is not converted to the attribute type, it is always type of String.
