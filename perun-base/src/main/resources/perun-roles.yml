@@ -5731,6 +5731,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  filter-getCompleteCandidates_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   addAdmin_Vo_User_policy:
     policy_roles:
       - VOADMIN: Vo

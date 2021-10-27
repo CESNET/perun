@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -35,6 +36,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -264,7 +266,11 @@ public class VosManagerEntry implements VosManager {
 			throw new PrivilegeException(sess, "getCompleteCandidates");
 		}
 
-		return vosManagerBl.getCompleteCandidates(sess, vo, attrNames, searchString);
+		List<MemberCandidate> candidates = vosManagerBl.getCompleteCandidates(sess, vo, attrNames, searchString);
+
+		List<ExtSource> voExtSources = perunBl.getExtSourcesManagerBl().getVoExtSources(sess, vo);
+
+		return filterMemberCandidates(sess, candidates, voExtSources);
 	}
 
 	@Override
@@ -292,7 +298,62 @@ public class VosManagerEntry implements VosManager {
 			throw new PrivilegeException(sess, "getCompleteCandidates");
 		}
 
-		return vosManagerBl.getCompleteCandidates(sess, vo, group, attrNames, searchString, extSources);
+		List<MemberCandidate> candidates = vosManagerBl.getCompleteCandidates(sess, vo, group, attrNames, searchString, extSources);
+
+		return filterMemberCandidates(sess, candidates, extSources);
+	}
+
+	/**
+	 * Filters member candidates which were found via extSource of given group / vo or principal has right to read them
+	 * @param sess session
+	 * @param candidates candidates
+	 * @param extSources extSources of group or vo where candidate is suggested
+	 * @return list of eligible candidates
+	 */
+	private List<MemberCandidate> filterMemberCandidates(PerunSession sess, List<MemberCandidate> candidates, List<ExtSource> extSources) {
+		List<MemberCandidate> eligibleCandidates = new ArrayList<>();
+
+		// check principal can see candidates
+		for (MemberCandidate candidate : candidates) {
+			if (candidate.getRichUser() == null) {
+				continue;
+			}
+
+			if (candidate.getRichUser().getUserExtSources().stream().map(UserExtSource::getExtSource).anyMatch(extSources::contains)) {
+				// ext sources of candidate match some of vo's / group's ext sources
+				eligibleCandidates.add(candidate);
+				continue;
+			}
+
+			if (isEligibleCandidate(sess, candidate)) {
+				eligibleCandidates.add(candidate);
+			}
+		}
+
+		return eligibleCandidates;
+	}
+
+	/**
+	 * Checks if candidate is member of vo or group where principal has right to read
+	 * @param sess
+	 * @param candidate
+	 * @return true if principal can read candidate from some group/vo
+	 */
+	private boolean isEligibleCandidate(PerunSession sess, MemberCandidate candidate) {
+		List<Vo> membersVos = perunBl.getUsersManagerBl().getVosWhereUserIsMember(sess, candidate.getRichUser());
+		for (Vo memberVo : membersVos) {
+			try {
+				Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, memberVo, candidate.getRichUser());
+				List<Group> membersGroups = perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member);
+				if (membersGroups.stream().anyMatch(memberGroup -> AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy", memberGroup))) {
+					return true;
+				}
+			} catch (MemberNotExistsException e) {
+				// skip
+			}
+		}
+
+		return false;
 	}
 
 	@Override
