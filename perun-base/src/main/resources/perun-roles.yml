@@ -1508,6 +1508,19 @@ perun_policies:
     include_policies:
       - default_policy
 
+  filter-getGroupsPage_Vo_GroupsPageQuery_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getSubgroupsPage_Group_GroupsPageQuery_List<String>_policy:
     policy_roles:
       - VOADMIN: Vo

@@ -17,6 +17,9 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -48,6 +51,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -5651,6 +5655,39 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(groups.getData().size(), 2);
 		assertEquals(groups.getData().get(1), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group, List.of(extendMembershipRulesAttribute.getName())));
 		assertThat(groups.getData().get(1).getAttributes()).containsOnly(extendMembershipRulesAttribute);
+	}
+
+	@Test
+	public void getGroupsPage_filterByPolicyForGroupAdmin () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_checkPolicy");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+		perun.getGroupsManager().createGroup(sess, group21, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+		perun.getGroupsManager().createGroup(sess, group5, group6);
+
+		Member member1 = setUpMember(vo);
+		User user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
+		groupsManager.addAdmin(sess, group4, user1);
+
+		PerunSession sess2 = new PerunSessionImpl(
+			perun,
+			new PerunPrincipal("groupAdmin1", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+			new PerunClient()
+		);
+
+		sess2.getPerunPrincipal().setUser(user1);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess2, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 3);
 	}
 
 	@Test

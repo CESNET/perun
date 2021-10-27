@@ -1004,6 +1004,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	public static boolean isAuthorizedForGroup(PerunSession sess, String policy, Integer groupId, Integer voId) {
+		Group group = new Group();
+		group.setId(groupId);
+		group.setVoId(voId);
+
+		try {
+			return authorized(sess, policy, Collections.singletonList(group));
+		} catch (PolicyNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	/**
 	 * Return map of roles, with allowed actions, which are authorized for doing "action" on "attribute".
 	 *
