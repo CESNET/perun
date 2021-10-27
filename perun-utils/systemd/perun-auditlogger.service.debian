@@ -1,0 +1,45 @@
+[Unit]
+Description=Perun-AuditLogger
+After=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/perun/perun-auditlogger/
+User=perun
+Group=perun
+ProtectSystem=strict
+ReadOnlyPaths=/etc/perun/
+ReadWritePaths=/var/log/perun/
+
+# Default settings
+Environment="PERUN_CONF_DIR=/etc/perun/"
+Environment="PERUN_LOG_CONF=/etc/perun/logback-auditlogger.xml"
+Environment="JAR=/home/perun/perun-auditlogger/perun-auditlogger.jar"
+Environment="SYSLOG_HOST=localhost"
+Environment="SYSLOG_FACILITY=LOCAL0"
+
+# Override default systemd unit environment using our config file
+# "-" at start means "don't fail if not present/readable"
+#
+# File content example:
+#
+# SYSLOG_HOST=localhost
+# SYSLOG_FACILITY=LOCAL7
+#
+EnvironmentFile=-/etc/perun/perun-auditlogger
+
+# Start Engine
+ExecStart=/usr/bin/java \
+  -Dperun.conf.custom=${PERUN_CONF_DIR} \
+  -Dlogback.configurationFile=${PERUN_LOG_CONF} \
+  -Dauditlogger.syslog.host=${SYSLOG_HOST} \
+  -Dauditlogger.syslog.facility=${SYSLOG_FACILITY} \
+  -Dspring.profiles.default=production \
+  -DApplicationName=AuditLogger \
+  -jar $JAR
+
+# If no ExecStop is specified, systemd uses SIGTERM and SIGKILL to stop java process, hence: 143 = 128 + 15 (SIGTERM).
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
