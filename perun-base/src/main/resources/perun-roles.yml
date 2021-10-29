@@ -1495,6 +1495,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllRichGroups_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getGroupsPage_Vo_GroupsPageQuery_List<String>_policy:
     policy_roles:
       - VOADMIN: Vo

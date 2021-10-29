@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -769,6 +770,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 				return ac.getGroupsManager().getAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
 			}
 			return ac.getGroupsManager().getAllGroups(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Get all groups with their specified attributes. If the attrNames are null or empty,
+	 * all group attributes are returned.
+	 *
+	 * @param attrNames List<String> list of attribute names to get
+	 * @return List<RichGroup> list of all groups with specified attributes
+	 */
+	getAllRichGroups {
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer params) throws PerunException {
+			List<String> attrNames = null;
+			if (params.contains("attrNames")) {
+				attrNames = params.readList("attrNames", String.class);
+			}
+			return ac.getGroupsManager().getAllRichGroups(ac.getSession(), attrNames);
 		}
 	},
 
