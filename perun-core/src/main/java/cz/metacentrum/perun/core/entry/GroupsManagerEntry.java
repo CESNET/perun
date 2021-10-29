@@ -839,6 +839,23 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public List<RichGroup> getAllRichGroups(PerunSession sess) throws PrivilegeException {
+		return getAllRichGroups(sess, null);
+	}
+
+	@Override
+	public List<RichGroup> getAllRichGroups(PerunSession sess, List<String> attrNames) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getAllRichGroups_policy")) {
+			throw new PrivilegeException("getAllRichGroups");
+		}
+
+		return groupsManagerBl
+			.convertGroupsToRichGroupsWithAttributes(sess, groupsManagerBl.getAllGroups(sess), attrNames);
+	}
+
+	@Override
 	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
