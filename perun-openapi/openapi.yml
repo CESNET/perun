@@ -11505,6 +11505,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getAllRichGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllRichGroups
+      summary: Get all groups with their specified attributes. If the attrNames are null or empty, all group attributes are returned.
+      parameters:
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getAllRichGroupsWithAttributesByNames:
     get:
       tags:
