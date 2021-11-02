@@ -16338,7 +16338,7 @@ paths:
   #                                               #
   #################################################
 
-  /jsonsimple/integrationManager/getGroupMemberRelations:
+  /json/integrationManager/getGroupMemberRelations:
     get:
       tags:
         - IntegrationManager
