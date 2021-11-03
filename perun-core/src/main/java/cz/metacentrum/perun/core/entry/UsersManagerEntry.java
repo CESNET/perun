@@ -1147,7 +1147,7 @@ public class UsersManagerEntry implements UsersManager {
 		} else {
 			// RESERVED BY ATTRIBUTE OR REGISTRAR
 			try {
-				getPerunBl().getUsersManagerBl().checkReservedLogins(sess, loginNamespace, userLogin);
+				getPerunBl().getUsersManagerBl().checkReservedLogins(sess, loginNamespace, userLogin, false);
 				// RESERVED BY ATTRIBUTE ONLY - we don't want to delete logins in use
 				throw new PasswordDeletionFailedException("Login " + userLogin + " in namespace " + loginNamespace + " can't be delete, because it's already in use.");
 			} catch (AlreadyReservedLoginException ex) {

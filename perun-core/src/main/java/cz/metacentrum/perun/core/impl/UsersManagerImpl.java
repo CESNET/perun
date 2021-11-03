@@ -813,11 +813,23 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) {
+		return getUsersByAttribute(sess, attribute,false);
+	}
+
+	@Override
+	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute, boolean ignoreCase) {
 		try {
-			return jdbc.query("select " + userMappingSelectQuery +
-					" from users, user_attr_values where " +
-					" user_attr_values.attr_value=? and users.id=user_attr_values.user_id and user_attr_values.attr_id=?",
+			if (ignoreCase) {
+				return jdbc.query("select " + userMappingSelectQuery +
+						" from users, user_attr_values where " +
+						" lower(user_attr_values.attr_value)=lower(?) and users.id=user_attr_values.user_id and user_attr_values.attr_id=?",
 					USER_MAPPER, BeansUtils.attributeValueToString(attribute), attribute.getId());
+			} else {
+				return jdbc.query("select " + userMappingSelectQuery +
+						" from users, user_attr_values where " +
+						" user_attr_values.attr_value=? and users.id=user_attr_values.user_id and user_attr_values.attr_id=?",
+					USER_MAPPER, BeansUtils.attributeValueToString(attribute), attribute.getId());
+			}
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -1077,18 +1089,24 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public void checkReservedLogins(PerunSession sess, String namespace, String login) throws AlreadyReservedLoginException {
-		if(isLoginReserved(sess, namespace, login)) throw new AlreadyReservedLoginException(namespace, login);
+	public void checkReservedLogins(PerunSession sess, String namespace, String login, boolean ignoreCase) throws AlreadyReservedLoginException {
+		if(isLoginReserved(sess, namespace, login, ignoreCase)) throw new AlreadyReservedLoginException(namespace, login);
 	}
 
 	@Override
-	public boolean isLoginReserved(PerunSession sess, String namespace, String login) {
+	public boolean isLoginReserved(PerunSession sess, String namespace, String login, boolean ignoreCase) {
 		Utils.notNull(namespace, "loginNamespace");
 		Utils.notNull(login, "userLogin");
 
 		try {
-			int numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and login=?",
+			int numberOfExistences = 0;
+			if (ignoreCase) {
+				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and lower(login)=lower(?)",
 					namespace, login);
+			} else {
+				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and login=?",
+					namespace, login);
+			}
 			if (numberOfExistences == 1) {
 				return true;
 			} else if (numberOfExistences > 1) {

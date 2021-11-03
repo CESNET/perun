@@ -85,7 +85,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		}
 
 		try {
-			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), userLogin);
+			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), userLogin, false);
 		} catch (AlreadyReservedLoginException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null, "Login in specific namespace already reserved.", ex);
 		}

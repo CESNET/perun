@@ -991,6 +991,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return this.getUsersManagerImpl().getUsersByAttribute(sess, attribute);
 	}
 
+	@Override
+	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute, boolean ignoreCase) {
+		return this.getUsersManagerImpl().getUsersByAttribute(sess, attribute, ignoreCase);
+	}
+
 	/**
 	 * Search attributes directly in the DB only if the attr is def or opt and value is type of String, otherwise load all users and search in a loop.
 	 */
@@ -1116,8 +1121,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void checkReservedLogins(PerunSession sess, String namespace, String login) throws AlreadyReservedLoginException {
-		getUsersManagerImpl().checkReservedLogins(sess, namespace, login);
+	public void checkReservedLogins(PerunSession sess, String namespace, String login, boolean ignoreCase) throws AlreadyReservedLoginException {
+		getUsersManagerImpl().checkReservedLogins(sess, namespace, login, ignoreCase);
 	}
 
 	@Override
