@@ -986,14 +986,13 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	/**
-	 * Creates MemberCandidates for given RichUsers, group and candidates. If the given group is not null
-	 * then to all members who are in this group is assigned the sourceGroupId of the given group.
-	 * The given group can be null.
+	 * Creates MemberCandidates for given RichUsers, vo and candidates.
 	 *
 	 * @param sess session
 	 * @param users users
 	 * @param candidates candidates
-	 * @return list of MemberCandidates for given RichUsers, group and candidates
+	 * @param attrNames names of attributes that will be returned
+	 * @return list of MemberCandidates for given RichUsers, vo and candidates
 	 * @throws InternalErrorException internal error
 	 */
 	private List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, List<Candidate> candidates, List<String> attrNames) {
@@ -1009,6 +1008,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @param users users
 	 * @param group group
 	 * @param candidates candidates
+	 * @param attrNames names of attributes that will be returned
 	 * @return list of MemberCandidates for given RichUsers, group and candidates
 	 * @throws InternalErrorException internal error
 	 */
