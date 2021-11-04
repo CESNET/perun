@@ -6,6 +6,8 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -13,8 +15,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.integration.apiImpl.IntegrationManagerEntry;
-import cz.metacentrum.perun.integration.model.GroupMemberRelations;
-import cz.metacentrum.perun.integration.model.MemberWithAttributes;
+import cz.metacentrum.perun.integration.model.GroupMemberRelation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,12 +61,41 @@ public class IntegrationManagerEntryIntegrationTest {
 	public void getGroupMembersRelations_returnsDirectMember() throws Exception {
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 
-		var groupMembers = integrationManagerEntry.getGroupMemberRelations(sess);
+		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
 
-		var expectedGroupWithMember = createGroupMembersData(group.getId(), member.getId());
+		var expectedRelation = directRelation(group.getId(), member.getId());
 
-		assertThat(groupMembers)
-			.contains(expectedGroupWithMember);
+		assertThat(groupMemberData.relations())
+			.contains(expectedRelation);
+	}
+
+	@Test
+	public void getGroupMembersRelations_returnsExpiredMember() throws Exception {
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
+
+		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
+
+		var expectedRelation = directRelation(group.getId(), member.getId(), MemberGroupStatus.EXPIRED);
+
+		assertThat(groupMemberData.relations())
+			.contains(expectedRelation);
+	}
+
+	@Test
+	public void getGroupMembersRelations_returnsMultipleRelations() throws Exception {
+		var subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroup", "ss"));
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+		perun.getGroupsManagerBl().addMember(sess, subgroup, member);
+
+		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
+
+		var directRelation = directRelation(group.getId(), member.getId());
+		var indirectRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId());
+
+		assertThat(groupMemberData.relations())
+			.contains(directRelation)
+			.contains(indirectRelation);
 	}
 
 	@Test
@@ -76,14 +103,12 @@ public class IntegrationManagerEntryIntegrationTest {
 		var subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroup", "ss"));
 		perun.getGroupsManagerBl().addMember(sess, subgroup, member);
 
-		var groupMembers = integrationManagerEntry.getGroupMemberRelations(sess);
+		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
 
-		var subGroupWithMember = createGroupMembersData(subgroup.getId(), member.getId());
-		var parentGroupWithMember = createGroupMembersData(group.getId(), member.getId());
+		var expectedRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId());
 
-		assertThat(groupMembers)
-			.contains(parentGroupWithMember)
-			.contains(subGroupWithMember);
+		assertThat(groupMemberData.relations())
+			.contains(expectedRelation);
 	}
 
 	@Test
@@ -95,12 +120,28 @@ public class IntegrationManagerEntryIntegrationTest {
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 		perun.getAttributesManagerBl().setAttribute(sess, member, group, attr);
 
-		var groupMembers = integrationManagerEntry.getGroupMemberRelations(sess);
+		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
 
-		var expectedGroupWithMember = createGroupMembersData(group.getId(), member.getId(), attr);
+		var returnedAttributes = groupMemberData.groupMemberAttributes();
+		assertThat(returnedAttributes.get(group.getId()))
+			.isNotNull();
+		assertThat(returnedAttributes.get(group.getId()).get(member.getId()))
+			.isNotNull()
+			.contains(attr);
+	}
 
-		assertThat(groupMembers)
-			.contains(expectedGroupWithMember);
+	private GroupMemberRelation directRelation(int groupId, int memberId) {
+		return directRelation(groupId, memberId, MemberGroupStatus.VALID);
+	}
+	private GroupMemberRelation directRelation(int groupId, int memberId, MemberGroupStatus status) {
+		return new GroupMemberRelation(groupId, memberId, groupId, status, MembershipType.DIRECT);
+	}
+
+	private GroupMemberRelation inDirectRelation(int groupId, int sourceGroupId, int memberId) {
+		return inDirectRelation(groupId, sourceGroupId, memberId, MemberGroupStatus.VALID);
+	}
+	private GroupMemberRelation inDirectRelation(int groupId, int sourceGroupId, int memberId, MemberGroupStatus status) {
+		return new GroupMemberRelation(groupId, memberId, sourceGroupId, status, MembershipType.INDIRECT);
 	}
 
 	private AttributeDefinition createMemberGroupAttr(String friendlyName) throws Exception {
@@ -109,19 +150,5 @@ public class IntegrationManagerEntryIntegrationTest {
 		attrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
 		attrDef.setType(String.class.getName());
 		return perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-	}
-
-	private GroupMemberRelations createGroupMembersData(Integer groupId, Integer... memberIds) {
-		var members = new HashSet<MemberWithAttributes>();
-		for (Integer memberId : memberIds) {
-			members.add(new MemberWithAttributes(memberId, new HashSet<>()));
-		}
-		return new GroupMemberRelations(groupId, members);
-	}
-
-	private GroupMemberRelations createGroupMembersData(Integer groupId, Integer memberId, Attribute memberGroupAttr) {
-		var members = new HashSet<MemberWithAttributes>();
-		members.add(new MemberWithAttributes(memberId, Set.of(memberGroupAttr)));
-		return new GroupMemberRelations(groupId, members);
 	}
 }

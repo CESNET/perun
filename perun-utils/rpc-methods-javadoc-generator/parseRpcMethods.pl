@@ -234,8 +234,8 @@ $objectExamples{"List<GroupsPageQuery>"} = $objectExamples{"List&lt;GroupsPageQu
 $objectExamples{"Paginated&lt;RichGroup&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichGroup&gt;"} . "  }";
 $objectExamples{"Paginated<RichGroup>"} = @objectExamples{"Paginated&lt;RichGroup&gt;"};
 
-$objectExamples{"GroupMemberRelations"} = "{\"groupId\" : 69, \"memberWithAttributes\" : " . $listPrepend . $objectExamples{"Attribute"} . $listAppend . " }";
-$objectExamples{"List&lt;GroupMemberRelations&gt;"} = $listPrepend . $objectExamples{"GroupMemberRelations"} . $listAppend;
+$objectExamples{"GroupMemberRelation"} = "{\"groupId\" : 69, \"memberId\" : 55, \"sourceGroupId\", \"sourceGroupStatus\" : \"EXPIRED\", \"membershipType\" : \"DIRECT\" }";
+$objectExamples{"GroupMemberData"} = "{\"relations\" : " . $listPrepend . $objectExamples{"GroupMemberRelation"} . $listAppend . ", \"groupMemberAttributes\": { \"69\": { \"55\": ".$listPrepend . $objectExamples{"Attribute"} . $listAppend. " } } }";
 
 # SUB HELP
 # help info

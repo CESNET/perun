@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.integration.bl;
 
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.integration.model.GroupMemberRelations;
-
-import java.util.List;
+import cz.metacentrum.perun.integration.model.GroupMemberData;
 
 public interface IntegrationManagerBl {
 
@@ -13,5 +11,5 @@ public interface IntegrationManagerBl {
 	 * @param sess session
 	 * @return list of all member-group relations
 	 */
-	List<GroupMemberRelations> getGroupMemberRelations(PerunSession sess);
+	GroupMemberData getGroupMemberData(PerunSession sess);
 }

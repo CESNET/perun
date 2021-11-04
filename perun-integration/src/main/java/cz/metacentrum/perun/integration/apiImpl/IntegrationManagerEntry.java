@@ -7,9 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.integration.api.IntegrationManager;
 import cz.metacentrum.perun.integration.bl.IntegrationManagerBl;
-import cz.metacentrum.perun.integration.model.GroupMemberRelations;
-
-import java.util.List;
+import cz.metacentrum.perun.integration.model.GroupMemberData;
 
 public class IntegrationManagerEntry implements IntegrationManager {
 
@@ -17,14 +15,14 @@ public class IntegrationManagerEntry implements IntegrationManager {
 	private Perun perun;
 
 	@Override
-	public List<GroupMemberRelations> getGroupMemberRelations(PerunSession sess) throws PrivilegeException {
+	public GroupMemberData getGroupMemberData(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		if (!AuthzResolver.authorizedInternal(sess, "getGroupMemberRelations_policy")) {
-			throw new PrivilegeException("getGroupMemberRelations");
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupMemberData_policy")) {
+			throw new PrivilegeException("getGroupMemberData");
 		}
 
-		return integrationManagerBl.getGroupMemberRelations(sess);
+		return integrationManagerBl.getGroupMemberData(sess);
 	}
 
 	public IntegrationManagerBl getIntegrationManagerBl() {
