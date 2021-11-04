@@ -1,46 +1,41 @@
 package cz.metacentrum.perun.integration.daoImpl;
 
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.integration.dao.IntegrationManagerImplApi;
-import cz.metacentrum.perun.integration.model.GroupMembers;
+import cz.metacentrum.perun.integration.model.GroupMemberRelation;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toList;
 
 public class IntegrationManagerImpl implements IntegrationManagerImplApi {
 
 	private JdbcPerunTemplate jdbc;
 
-	private static final ResultSetExtractor<List<GroupMembers>> GROUP_MEMBERS_EXTRACTOR = (resultSet) -> {
-		Map<Integer, Set<Integer>> membersByGroups = new HashMap<>();
+	private static final ResultSetExtractor<List<GroupMemberRelation>> GROUP_MEMBERS_EXTRACTOR = (resultSet) -> {
+		List<GroupMemberRelation> relations = new ArrayList<>();
 
 		while(resultSet.next()) {
-			int groupId = resultSet.getInt("group_id");
-			int memberId = resultSet.getInt("member_id");
+			var groupId = resultSet.getInt("group_id");
+			var memberId = resultSet.getInt("member_id");
+			var sourceGroupId = resultSet.getInt("source_group_id");
+			var memberGroupStatus = MemberGroupStatus.getMemberGroupStatus(resultSet.getInt("source_group_status"));
+			var type = MembershipType.getMembershipType(resultSet.getInt("membership_type"));
 
-			if (!membersByGroups.containsKey(groupId)) {
-				membersByGroups.put(groupId, new HashSet<>());
-			}
-
-			membersByGroups.get(groupId).add(memberId);
+			relations.add(new GroupMemberRelation(groupId, memberId, sourceGroupId, memberGroupStatus, type));
 		}
 
-		return membersByGroups.entrySet().stream()
-			.map((entry) -> new GroupMembers(entry.getKey(), entry.getValue()))
-			.collect(toList());
+		return relations;
 	};
 
 	@Override
-	public List<GroupMembers> getGroupMemberRelations(PerunSession sess) {
-		return jdbc.query("SELECT member_id, group_id FROM groups_members",	GROUP_MEMBERS_EXTRACTOR);
+	public List<GroupMemberRelation> getGroupMemberRelations(PerunSession sess) {
+		return jdbc.query("SELECT member_id, group_id, source_group_id, source_group_status, membership_type" +
+			              " FROM groups_members", GROUP_MEMBERS_EXTRACTOR);
 	}
 
 	public void setDataSource(DataSource dataSource) {
