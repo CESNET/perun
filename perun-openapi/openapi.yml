@@ -1234,17 +1234,34 @@ components:
       properties:
         brands: { type: array, items: { $ref: '#/components/schemas/Brand' } }
 
-    MemberWithAttributes:
-      type: object
+    SimpleAttribute:
+      description: Attribute returned using the JsonSimple serializator
       properties:
-        memberId: { type: integer }
-        memberGroupAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute'} }
+        friendlyName: { type: string }
+        namespace: { type: string }
+        unique: { type: boolean }
+        value: { type: object }
 
-    GroupMemberRelations:
+    GroupMemberRelation:
       type: object
       properties:
-        groupId: { type: integer }
-        memberWithAttributes: { type: array, items: { $ref: '#/components/schemas/MemberWithAttributes'} }
+        m: { type: integer, description: "member id" }
+        g: { type: integer, description: "group id" }
+        sg: { type: integer, description: "source group id" }
+        s: { type: integer, description: "source group status" }
+        t: { type: integer, description: "membership type" }
+
+    GroupMemberData:
+      type: object
+      properties:
+        relations: { type: array, items: { $ref: '#/components/schemas/GroupMemberRelation' } }
+        groupMemberAttributes:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: array
+              items: { $ref: '#/components/schemas/SimpleAttribute' }
 
     Identity:
       type: object
@@ -1515,7 +1532,7 @@ components:
       content:
         application/json:
           schema:
-              $ref: "#/components/schemas/PaginatedAuditMessages"
+            $ref: "#/components/schemas/PaginatedAuditMessages"
 
     PublicationSystemResponse:
       description: "returns PublicationSystem"
@@ -2229,14 +2246,12 @@ components:
           schema:
             $ref: "#/components/schemas/PerunAppsConfig"
 
-    ListGroupMemberRelationsResponse:
+    GroupMemberDataResponse:
       description: "returns member-groups relations with attributes"
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/GroupMemberRelations"
+            $ref: "#/components/schemas/GroupMemberData"
 
     ListOfIdentityResponse:
       description: "List<Identity> Identities"
@@ -16383,14 +16398,14 @@ paths:
   #                                               #
   #################################################
 
-  /json/integrationManager/getGroupMemberRelations:
+  /jsonsimple/integrationManager/getGroupMemberData:
     get:
       tags:
         - IntegrationManager
-      operationId: getGroupMemberRelations
+      operationId: getGroupMemberData
       summary: Get all member-group relations for all groups with all member-group attributes.
       responses:
         '200':
-          $ref: '#/components/responses/ListGroupMemberRelationsResponse'
+          $ref: '#/components/responses/GroupMemberDataResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
