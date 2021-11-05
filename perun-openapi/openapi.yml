@@ -12034,8 +12034,8 @@ paths:
         content:
           application/json:
             schema:
-              title: InputGetPaginatedGroups
-              description: "input to getPaginatedGroups"
+              title: InputGetPaginatedSubgroups
+              description: "input to getSubgroupsPage"
               type: object
               required:
                 - group
