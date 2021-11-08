@@ -773,6 +773,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get all groups with their specified attributes. If the attrNames are null or empty,
+	 * all group attributes are returned.
+	 *
+	 * @param attrNames List<String> list of attribute names to get
+	 * @return List<RichGroup> list of all groups with specified attributes
+	 */
+	getAllRichGroups {
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer params) throws PerunException {
+			List<String> attrNames = null;
+			if (params.contains("attrNames")) {
+				attrNames = params.readList("attrNames", String.class);
+			}
+			return ac.getGroupsManager().getAllRichGroups(ac.getSession(), attrNames);
+		}
+	},
+
+	/*#
 	 * Get page of groups from the given vo.
 	 * Query parameter specifies offset, page size, sorting order, sorting column and string to search groups by
 	 * (by default it searches in names, ids, uuids and descriptions), last parameter is optional and by default it

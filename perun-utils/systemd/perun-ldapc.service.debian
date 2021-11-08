@@ -1,0 +1,37 @@
+[Unit]
+Description=Perun-LDAPc
+After=slapd.service
+After=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/perun/perun-ldapc/
+User=perun
+Group=perun
+ProtectSystem=strict
+ReadOnlyPaths=/etc/perun/
+ReadWritePaths=/var/log/perun/
+
+# Default settings
+Environment="PERUN_CONF_DIR=/etc/perun/"
+Environment="PERUN_LOG_CONF=/etc/perun/logback-ldapc.xml"
+Environment="JAR=/home/perun/perun-ldapc/perun-ldapc.jar"
+Environment="LAST_PROCESSED_ID='--sync'"
+
+# Override default systemd unit environment using our config file
+# "-" at start means "don't fail if not present/readable"
+EnvironmentFile=-/etc/perun/perun-ldapc
+
+# Start LDAPC
+ExecStart=/usr/bin/java \
+  -Dperun.conf.custom=${PERUN_CONF_DIR} \
+  -Dlogback.configurationFile=${PERUN_LOG_CONF} \
+  -Dspring.profiles.default=production \
+  -DApplicationName=LDAPc \
+  -jar $JAR $LAST_PROCESSED_ID
+
+# If no ExecStop is specified, systemd uses SIGTERM and SIGKILL to stop java process, hence: 143 = 128 + 15 (SIGTERM).
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

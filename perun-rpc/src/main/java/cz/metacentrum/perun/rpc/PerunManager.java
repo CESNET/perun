@@ -11,6 +11,7 @@ import cz.metacentrum.perun.rpc.methods.DatabaseManagerMethod;
 import cz.metacentrum.perun.rpc.methods.ExtSourcesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.FacilitiesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.GroupsManagerMethod;
+import cz.metacentrum.perun.rpc.methods.IntegrationManagerMethod;
 import cz.metacentrum.perun.rpc.methods.MembersManagerMethod;
 import cz.metacentrum.perun.rpc.methods.NotificationManagerMethod;
 import cz.metacentrum.perun.rpc.methods.OwnersManagerMethod;
@@ -142,6 +143,13 @@ public enum PerunManager {
 		@Override
 		public ManagerMethod getMethod(String methodName) {
 			return SecurityTeamsManagerMethod.valueOf(methodName);
+		}
+	},
+
+	integrationManager {
+		@Override
+		protected ManagerMethod getMethod(String methodName) {
+			return IntegrationManagerMethod.valueOf(methodName);
 		}
 	},
 

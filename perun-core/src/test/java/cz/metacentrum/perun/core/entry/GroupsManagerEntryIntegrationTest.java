@@ -17,6 +17,9 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -48,7 +51,10 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
+import org.assertj.core.api.Condition;
+import org.hamcrest.core.AnyOf;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.Assert;
@@ -5507,6 +5513,49 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getAllRichGroups_returnsGroupsFromMultipleVos() throws Exception {
+		System.out.println(CLASS_NAME + "getAllRichGroups_returnsGroupsFromMultipleVos");
+
+		Vo vo1 = setUpVo("vo1", "vo1");
+		Vo vo2 = setUpVo("vo2", "vo2");
+
+		Group vo1Group = groupsManagerBl.createGroup(sess, vo1, new Group("g-vo-1", ""));
+		Group vo2Group = groupsManagerBl.createGroup(sess, vo2, new Group("g-vo-2", ""));
+
+		List<RichGroup> richGroups = groupsManager.getAllRichGroups(sess);
+
+		assertThat(richGroups)
+			.anyMatch(group -> group.getId() == vo1Group.getId())
+			.anyMatch(group -> group.getId() == vo2Group.getId());
+	}
+
+	@Test
+	public void getAllRichGroups_returnsGroupAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getAllRichGroups_returnsGroupAttributes");
+
+		String attrName = "testAttr";
+		String attrValue = "testValue";
+
+		Vo vo = setUpVo("vo1", "vo1");
+		Group testGroup = groupsManagerBl.createGroup(sess, vo, new Group("g-vo-1", ""));
+
+		var groupAttrDef = setUpGroupAttribute(attrName);
+		var groupAttr = new Attribute(groupAttrDef, attrValue);
+		perun.getAttributesManagerBl().setAttribute(sess, testGroup, groupAttr);
+
+		List<RichGroup> richGroups = groupsManager.getAllRichGroups(sess);
+
+		var foundRichGroup = richGroups.stream()
+			.filter((RichGroup group) -> group.getId() == testGroup.getId())
+			.findAny()
+			.orElseThrow();
+
+		assertThat(foundRichGroup.getAttributes())
+			.anyMatch(attr -> attrName.equals(attr.getFriendlyName()) &&
+		                      attrValue.equals(attr.getValue()));
+	}
+
+	@Test
 	public void getGroupsPage_Vo_all () throws Exception {
 		System.out.println(CLASS_NAME + "getGroupsPage_Vo_all");
 
@@ -5651,6 +5700,39 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(groups.getData().size(), 2);
 		assertEquals(groups.getData().get(1), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group, List.of(extendMembershipRulesAttribute.getName())));
 		assertThat(groups.getData().get(1).getAttributes()).containsOnly(extendMembershipRulesAttribute);
+	}
+
+	@Test
+	public void getGroupsPage_filterByPolicyForGroupAdmin () throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPage_checkPolicy");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group21);
+		perun.getGroupsManager().createGroup(sess, group21, group3);
+		perun.getGroupsManager().createGroup(sess, group21, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+		perun.getGroupsManager().createGroup(sess, group5, group6);
+
+		Member member1 = setUpMember(vo);
+		User user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
+		groupsManager.addAdmin(sess, group4, user1);
+
+		PerunSession sess2 = new PerunSessionImpl(
+			perun,
+			new PerunPrincipal("groupAdmin1", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+			new PerunClient()
+		);
+
+		sess2.getPerunPrincipal().setUser(user1);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID);
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess2, vo, query, List.of());
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 3);
 	}
 
 	@Test
@@ -6070,6 +6152,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		expirationRulesAttribute.setValue(values);
 
 		attributesManager.setAttribute(sess, group, expirationRulesAttribute);
+	}
+
+	private AttributeDefinition setUpGroupAttribute(String friendlyName) throws Exception {
+		var attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName(friendlyName);
+		return perun.getAttributesManagerBl().createAttribute(sess, attr);
 	}
 
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {

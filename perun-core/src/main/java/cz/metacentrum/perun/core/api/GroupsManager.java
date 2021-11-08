@@ -591,6 +591,26 @@ public interface GroupsManager {
 	List<Group> getAllGroups(PerunSession sess) throws PrivilegeException;
 
 	/**
+	 * Get all groups with their specified attributes. If the {@code attrNames} are null or empty,
+	 * all group attributes are returned.
+	 *
+	 * @param sess session
+	 * @param attrNames list of attribute names to get
+	 * @return list of all groups with specified attributes
+	 * @throws PrivilegeException if the principal has insufficient permission
+	 */
+	List<RichGroup> getAllRichGroups(PerunSession sess, List<String> attrNames) throws PrivilegeException;
+
+	/**
+	 * Get all groups with all attributes.
+	 *
+	 * @param sess session
+	 * @return list of all groups with specified attributes
+	 * @throws PrivilegeException if the principal has insufficient permission
+	 */
+	List<RichGroup> getAllRichGroups(PerunSession sess) throws PrivilegeException;
+
+	/**
 	 * Get page of groups from the given vo.
 	 *
 	 * @param sess session

@@ -776,6 +776,19 @@ public interface UsersManagerBl {
 	List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue);
 
 	/**
+	 * Returns all users who have set the attribute with the value IGNORING CASE in the comparison.
+	 * Searching only def and opt attributes.
+	 *
+	 * @param sess
+	 * @param attribute
+	 * @param ignoreCase TRUE to perform case-insensitive check
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> getUsersByAttribute(PerunSession sess, Attribute attribute, boolean ignoreCase);
+
+
+	/**
 	 * Returns all users who have the attribute with the value. attributeValue is not converted to the attribute type, it is always type of String.
 	 *
 	 * @param sess
@@ -1151,10 +1164,11 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param namespace namespace for login
 	 * @param login     login to check
+	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @throws InternalErrorException
 	 * @throws AlreadyReservedLoginException throw this exception if login already exist in table of reserved logins
 	 */
-	void checkReservedLogins(PerunSession sess, String namespace, String login) throws AlreadyReservedLoginException;
+	void checkReservedLogins(PerunSession sess, String namespace, String login, boolean ignoreCase) throws AlreadyReservedLoginException;
 
 	void checkUserExists(PerunSession sess, User user) throws UserNotExistsException;
 

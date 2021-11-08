@@ -1,0 +1,48 @@
+[Unit]
+Description=Perun-Engine
+After=tomcat9.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/perun/perun-engine/
+User=perun
+Group=perun
+ProtectSystem=strict
+ReadOnlyPaths=/etc/perun/
+ReadWritePaths=/var/log/perun/
+
+# Default settings
+Environment="PERUN_CONF_DIR=/etc/perun/"
+Environment="PERUN_LOG_CONF=/etc/perun/logback-engine.xml"
+Environment="JAR=/home/perun/perun-engine/perun-engine.jar"
+# Default PERL lib paths for gen scripts
+Environment="PERL5LIB='/opt/perun-cli/lib/:.'"
+# Disable Kerberos if someone under the same user creates the ticket
+Environment="KRB5CCNAME='/dev/null'"
+
+# Override default systemd unit environment using our config file
+# "-" at start means "don't fail if not present/readable"
+#
+# File content example:
+#
+# PERUN_USER=perun-engine/password
+# PERUN_URL=https://perundomain.com/ba/rpc/
+# PERL5LIB='/opt/perun-cli/lib/:.'
+# PERL_LWP_SSL_VERIFY_HOSTNAME=0
+# KRB5CCNAME='/path/to/ticket_or_dev_null'
+#
+EnvironmentFile=-/etc/perun/perun-engine
+
+# Start Engine
+ExecStart=/usr/bin/java \
+  -Dperun.conf.custom=${PERUN_CONF_DIR} \
+  -Dlogback.configurationFile=${PERUN_LOG_CONF} \
+  -Dspring.profiles.default=production \
+  -DApplicationName=Engine \
+  -jar $JAR
+
+# If no ExecStop is specified, systemd uses SIGTERM and SIGKILL to stop java process, hence: 143 = 128 + 15 (SIGTERM).
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

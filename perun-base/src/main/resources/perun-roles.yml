@@ -1495,12 +1495,31 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllRichGroups_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getGroupsPage_Vo_GroupsPageQuery_List<String>_policy:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getGroupsPage_Vo_GroupsPageQuery_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -5731,6 +5750,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  filter-getCompleteCandidates_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   addAdmin_Vo_User_policy:
     policy_roles:
       - VOADMIN: Vo
@@ -6502,6 +6531,13 @@ perun_policies:
 
   updateFormItemData_int_ApplicationFormItemData_policy:
     policy_roles: []
+    include_policies:
+      - default_policy
+
+  #integrationManagerEntry
+  getGroupMemberRelations_policy:
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 

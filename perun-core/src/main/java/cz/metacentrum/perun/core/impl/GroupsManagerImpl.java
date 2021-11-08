@@ -466,6 +466,15 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Integer> getGroupsIds(PerunSession sess, Vo vo) {
+		try {
+			return jdbc.query("select id from groups where vo_id=?", (resultSet, i) -> resultSet.getInt("id"),vo.getId());
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
@@ -557,7 +566,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public Paginated<Group> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
+		List<Integer> authorizedGroupsIds = getGroupsIds(sess, vo);
+		authorizedGroupsIds.removeIf(groupId ->
+			!AuthzResolverBlImpl.isAuthorizedForGroup(sess, "filter-getGroupsPage_Vo_GroupsPageQuery_List<String>_policy", groupId, vo.getId()));
+
 		namedParams.addValue("voId", vo.getId());
+		namedParams.addValue("groupsIds", authorizedGroupsIds);
 		namedParams.addValue("offset", query.getOffset());
 		namedParams.addValue("limit", query.getPageSize());
 
@@ -568,6 +582,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			", count(*) OVER() AS total_count" +
 			" FROM groups" +
 			" WHERE groups.vo_id=(:voId)" +
+			" AND groups.id IN (:groupsIds)" +
 			searchQuery +
 			" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 			" OFFSET (:offset)" +

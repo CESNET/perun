@@ -122,6 +122,11 @@
 			<version>${tomcat.version}</version>
 			<scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
 	</dependencies>
 

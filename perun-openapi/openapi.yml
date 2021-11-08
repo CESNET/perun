@@ -1234,6 +1234,18 @@ components:
       properties:
         brands: { type: array, items: { $ref: '#/components/schemas/Brand' } }
 
+    MemberWithAttributes:
+      type: object
+      properties:
+        memberId: { type: integer }
+        memberGroupAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute'} }
+
+    GroupMemberRelations:
+      type: object
+      properties:
+        groupId: { type: integer }
+        memberWithAttributes: { type: array, items: { $ref: '#/components/schemas/MemberWithAttributes'} }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2208,6 +2220,15 @@ components:
           schema:
             $ref: "#/components/schemas/PerunAppsConfig"
 
+    ListGroupMemberRelationsResponse:
+      description: "returns member-groups relations with attributes"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/GroupMemberRelations"
+
 
   #####################################################
   #                                                   #
@@ -3022,6 +3043,10 @@ tags:
     description: RTMessagesManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-RTMessagesManager.html
+  - name: IntegrationManager
+    description: IntegrationManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-IntegrationManager.html
 
 
 #################################################
@@ -11480,6 +11505,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getAllRichGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllRichGroups
+      summary: Get all groups with their specified attributes. If the attrNames are null or empty, all group attributes are returned.
+      parameters:
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getAllRichGroupsWithAttributesByNames:
     get:
       tags:
@@ -11712,7 +11751,7 @@ paths:
         }
       responses:
         '200':
-          $ref: '#/components/responses/VoidResponse'
+          $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -11995,8 +12034,8 @@ paths:
         content:
           application/json:
             schema:
-              title: InputGetPaginatedGroups
-              description: "input to getPaginatedGroups"
+              title: InputGetPaginatedSubgroups
+              description: "input to getSubgroupsPage"
               type: object
               required:
                 - group
@@ -16304,5 +16343,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RTMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # IntegrationManager                            #
+  #                                               #
+  #################################################
+
+  /json/integrationManager/getGroupMemberRelations:
+    get:
+      tags:
+        - IntegrationManager
+      operationId: getGroupMemberRelations
+      summary: Get all member-group relations for all groups with all member-group attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListGroupMemberRelationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
