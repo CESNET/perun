@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.integration.bl.IntegrationManagerBl;
-import cz.metacentrum.perun.integration.dao.IntegrationManagerImplApi;
+import cz.metacentrum.perun.integration.dao.IntegrationManagerDao;
 import cz.metacentrum.perun.integration.model.GroupMemberData;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 
 public class IntegrationManagerBlImpl implements IntegrationManagerBl {
 
-	private IntegrationManagerImplApi integrationManagerImplApi;
+	private IntegrationManagerDao integrationManagerDao;
 	private PerunBl perun;
 
 	private record GroupMember(int groupId, int memberId) { }
@@ -27,7 +27,7 @@ public class IntegrationManagerBlImpl implements IntegrationManagerBl {
 
 	@Override
 	public GroupMemberData getGroupMemberData(PerunSession sess) {
-		var groupMembersRelations = integrationManagerImplApi.getGroupMemberRelations(sess);
+		var groupMembersRelations = integrationManagerDao.getGroupMemberRelations(sess);
 		var attributesByGroupIdMemberId = groupMembersRelations.stream()
 			.map(groupMemberRelation -> new GroupMember(groupMemberRelation.groupId(), groupMemberRelation.memberId()))
 			.distinct()
@@ -58,12 +58,12 @@ public class IntegrationManagerBlImpl implements IntegrationManagerBl {
 		}
 	}
 
-	public IntegrationManagerImplApi getIntegrationManagerImplApi() {
-		return integrationManagerImplApi;
+	public IntegrationManagerDao getIntegrationManagerDao() {
+		return integrationManagerDao;
 	}
 
-	public void setIntegrationManagerImplApi(IntegrationManagerImplApi integrationManagerImplApi) {
-		this.integrationManagerImplApi = integrationManagerImplApi;
+	public void setIntegrationManagerDao(IntegrationManagerDao integrationManagerDao) {
+		this.integrationManagerDao = integrationManagerDao;
 	}
 
 	public PerunBl getPerun() {

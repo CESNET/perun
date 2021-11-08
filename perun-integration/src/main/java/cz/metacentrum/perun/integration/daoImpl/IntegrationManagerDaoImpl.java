@@ -3,7 +3,7 @@ package cz.metacentrum.perun.integration.daoImpl;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.integration.dao.IntegrationManagerImplApi;
+import cz.metacentrum.perun.integration.dao.IntegrationManagerDao;
 import cz.metacentrum.perun.integration.model.GroupMemberRelation;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IntegrationManagerImpl implements IntegrationManagerImplApi {
+public class IntegrationManagerDaoImpl implements IntegrationManagerDao {
 
 	private JdbcPerunTemplate jdbc;
 
