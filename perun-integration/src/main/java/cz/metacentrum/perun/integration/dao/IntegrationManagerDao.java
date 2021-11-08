@@ -5,7 +5,7 @@ import cz.metacentrum.perun.integration.model.GroupMemberRelation;
 
 import java.util.List;
 
-public interface IntegrationManagerImplApi {
+public interface IntegrationManagerDao {
 
 	/**
 	 * Return all group-member relations from db.

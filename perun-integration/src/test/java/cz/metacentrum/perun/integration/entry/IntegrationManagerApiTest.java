@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.integration.apiImpl.IntegrationManagerEntry;
+import cz.metacentrum.perun.integration.apiImpl.IntegrationManagerApiImpl;
 import cz.metacentrum.perun.integration.model.GroupMemberRelation;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-integration.xml" } )
 @Transactional(transactionManager = "perunTransactionManager")
-public class IntegrationManagerEntryIntegrationTest {
+public class IntegrationManagerApiTest {
 
 	@Autowired
-	private IntegrationManagerEntry integrationManagerEntry;
+	private IntegrationManagerApiImpl integrationManagerApiImpl;
 
 	@Autowired
 	private PerunBl perun;
@@ -61,7 +61,7 @@ public class IntegrationManagerEntryIntegrationTest {
 	public void getGroupMembersRelations_returnsDirectMember() throws Exception {
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 
-		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
+		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
 		var expectedRelation = directRelation(group.getId(), member.getId());
 
@@ -74,7 +74,7 @@ public class IntegrationManagerEntryIntegrationTest {
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
 
-		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
+		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
 		var expectedRelation = directRelation(group.getId(), member.getId(), MemberGroupStatus.EXPIRED);
 
@@ -88,7 +88,7 @@ public class IntegrationManagerEntryIntegrationTest {
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 		perun.getGroupsManagerBl().addMember(sess, subgroup, member);
 
-		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
+		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
 		var directRelation = directRelation(group.getId(), member.getId());
 		var indirectRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId());
@@ -103,7 +103,7 @@ public class IntegrationManagerEntryIntegrationTest {
 		var subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroup", "ss"));
 		perun.getGroupsManagerBl().addMember(sess, subgroup, member);
 
-		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
+		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
 		var expectedRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId());
 
@@ -120,7 +120,7 @@ public class IntegrationManagerEntryIntegrationTest {
 		perun.getGroupsManagerBl().addMember(sess, group, member);
 		perun.getAttributesManagerBl().setAttribute(sess, member, group, attr);
 
-		var groupMemberData = integrationManagerEntry.getGroupMemberData(sess);
+		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
 		var returnedAttributes = groupMemberData.groupMemberAttributes();
 		assertThat(returnedAttributes.get(group.getId()))

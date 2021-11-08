@@ -20,17 +20,17 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 <!--	&lt;!&ndash; Scans for @Repository, @Service and @Component &ndash;&gt;-->
 <!--	<context:component-scan base-package="cz.metacentrum.perun.integration"/>-->
 
-	<bean id="integrationManager" class="cz.metacentrum.perun.integration.apiImpl.IntegrationManagerEntry">
+	<bean id="integrationManagerApi" class="cz.metacentrum.perun.integration.apiImpl.IntegrationManagerApiImpl">
 		<property name="perun" ref="perun" />
 		<property name="integrationManagerBl" ref="integrationManagerBl" />
 	</bean>
 
 	<bean id="integrationManagerBl" class="cz.metacentrum.perun.integration.blImpl.IntegrationManagerBlImpl">
 		<property name="perun" ref="perun" />
-		<property name="integrationManagerImplApi" ref="integrationManagerImpl" />
+		<property name="integrationManagerDao" ref="integrationManagerDao" />
 	</bean>
 
-	<bean id="integrationManagerImpl" class="cz.metacentrum.perun.integration.daoImpl.IntegrationManagerImpl">
+	<bean id="integrationManagerDao" class="cz.metacentrum.perun.integration.daoImpl.IntegrationManagerDaoImpl">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
