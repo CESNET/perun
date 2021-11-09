@@ -8810,6 +8810,21 @@ paths:
                 attrNames: { type: array, items: { type: string } }
                 query: { $ref: '#/components/schemas/UsersPageQuery' }
 
+  /urlinjsonout/usersManager/generateAccount/name:
+    post:
+      tags:
+        - UsersManager
+      operationId: generateAccountForName
+      summary: Generates user account in a backend system associated with login-namespace in Perun. Parameters are implementation-dependent for each login-namespace. Returns map with 1) key=login-namespace attribute urn, value=generated login 2) rest of opt response attributes.
+      parameters:
+        - $ref: '#/components/parameters/namespace'
+        - { name: name, schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
