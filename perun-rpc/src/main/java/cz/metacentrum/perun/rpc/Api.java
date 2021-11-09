@@ -97,6 +97,9 @@ public class Api extends HttpServlet {
 	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
 	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
 	private static final String OIDC_CLAIM_ISS = "OIDC_CLAIM_iss";
+	private static final String OIDC_CLAIM_NAME = "OIDC_CLAIM_name";
+	private static final String OIDC_CLAIM_GIVEN_NAME = "OIDC_CLAIM_given_name";
+	private static final String OIDC_CLAIM_FAMILY_NAME = "OIDC_CLAIM_family_name";
 	private static final String EXTSOURCE = "EXTSOURCE";
 	private static final String EXTSOURCETYPE = "EXTSOURCETYPE";
 	private static final String EXTSOURCELOA = "EXTSOURCELOA";
@@ -105,6 +108,7 @@ public class Api extends HttpServlet {
 	private static final String DELEGATED_EXTSOURCE_NAME = "delegatedExtSourceName";
 	private static final String DELEGATED_EXTSOURCE_TYPE = "delegatedExtSourceType";
 	private static final String LOA = "loa";
+
 
 	@Override
 	public void init() {
@@ -254,6 +258,10 @@ public class Api extends HttpServlet {
 				}
 			} else {
 				throw new InternalErrorException("OIDC issuer not send by Authorization Server");
+			}
+			var name = mapFullNameForOidc(req);
+			if(isNotEmpty(name)) {
+				additionalInformations.put("displayName", name);
 			}
 			extSourceLoaString = "-1";
 			log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
@@ -832,6 +840,19 @@ public class Api extends HttpServlet {
 			default:
 				throw new RpcException(RpcException.Type.UNKNOWN_DESERIALIZER_FORMAT, format);
 		}
+	}
+
+	private static String mapFullNameForOidc(HttpServletRequest req) {
+		var name = req.getHeader(OIDC_CLAIM_NAME);
+		if(isNotEmpty(name)) {
+			return name;
+		}
+		var firstName = req.getHeader(OIDC_CLAIM_GIVEN_NAME);
+		var familyName = req.getHeader(OIDC_CLAIM_FAMILY_NAME);
+		if(isNotEmpty(firstName) && isNotEmpty(familyName)) {
+			return firstName + " " + familyName;
+		}
+		return null;
 	}
 
 	/**
