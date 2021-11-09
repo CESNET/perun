@@ -20,7 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
-import cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader;
+import cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -444,11 +444,11 @@ public interface MembersManagerImplApi {
 	void moveMembersApplications(PerunSession sess, Member sourceMember, Member targetMember);
 
 	/**
-	 * Set Sponsored accounts config loader property
+	 * Set Login-namespaces rules config loader property
 	 *
-	 * @param sponsoredAccountsConfigLoader to set
+	 * @param loginNamespacesRulesConfigLoader to set
 	 */
-	void setSponsoredAccountsConfigLoader(SponsoredAccountsConfigLoader sponsoredAccountsConfigLoader);
+	void setLoginNamespacesRulesConfigLoader(LoginNamespacesRulesConfigLoader loginNamespacesRulesConfigLoader);
 
 	/**
 	 * Return all loaded namespaces rules.
@@ -458,7 +458,7 @@ public interface MembersManagerImplApi {
 	List<NamespaceRules> getAllNamespacesRules();
 
 	/**
-	 * Get NamespaceRules for the namespace from the SponsoredAccountsConfigContainer
+	 * Get NamespaceRules for the namespace from the LoginNamespacesRulesConfigContainer
 	 *
 	 * @param namespace for which will be the rules fetched
 	 * @return NamespaceRules for the namespace

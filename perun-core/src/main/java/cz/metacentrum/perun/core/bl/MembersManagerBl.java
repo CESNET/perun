@@ -1799,7 +1799,7 @@ public interface MembersManagerBl {
 	List<NamespaceRules> getAllNamespacesRules();
 
 	/**
-	 * Get NamespaceRules for the namespace from the SponsoredAccountsConfigContainer
+	 * Get NamespaceRules for the namespace from the LoginNamespacesRulesConfigContainer
 	 *
 	 * @param namespace for which will be the rules fetched
 	 * @return NamespaceRules for the namespace

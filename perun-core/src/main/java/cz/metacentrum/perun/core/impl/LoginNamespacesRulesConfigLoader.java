@@ -19,10 +19,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class SponsoredAccountsConfigLoader {
+public class LoginNamespacesRulesConfigLoader {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-	private static final Logger log = LoggerFactory.getLogger(SponsoredAccountsConfigLoader.class);
+	private static final Logger log = LoggerFactory.getLogger(LoginNamespacesRulesConfigLoader.class);
 
 	private Resource configurationPath;
 
@@ -30,7 +30,7 @@ public class SponsoredAccountsConfigLoader {
 		this.configurationPath = configurationPath;
 	}
 
-	public Map<String, NamespaceRules> loadSponsoredAccountsConfig() {
+	public Map<String, NamespaceRules> loadNamespacesRulesConfig() {
 		Map<String, NamespaceRules> namespacesRules = new HashMap<>();
 
 		try {

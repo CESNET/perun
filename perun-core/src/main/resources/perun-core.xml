@@ -383,7 +383,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	</bean>
 	<bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
-		<property name="sponsoredAccountsConfigLoader" ref="sponsoredAccountsConfigLoader"/>
+		<property name="loginNamespacesRulesConfigLoader" ref="loginNamespacesRulesConfigLoader"/>
 	</bean>
 	<bean id="resourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ResourcesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
@@ -515,9 +515,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 			<property name="secondaryConfigurationPath" value="file:@perun.conf@perun-roles.yml"/>
 		</bean>
 
-		<!-- SponsoredAccountsConfigLoader implementation -->
-		<bean id="sponsoredAccountsConfigLoader" class="cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader">
-			<property name="configurationPath" value="file:@perun.conf@sponsored-accounts-config.yml"/>
+		<!-- LoginNamespacesRulesConfigLoader implementation -->
+		<bean id="loginNamespacesRulesConfigLoader" class="cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader">
+			<property name="configurationPath" value="file:@perun.conf@login-namespaces-rules-config.yml"/>
 		</bean>
 
 		<!-- Loader for the perunAppsConfig-->
@@ -556,9 +556,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 			<property name="secondaryConfigurationPath" value="classpath:test-roles.yml"/>
 		</bean>
 
-		<!-- SponsoredAccountsConfigLoader implementation -->
-		<bean id="sponsoredAccountsConfigLoader" class="cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader">
-			<property name="configurationPath" value="classpath:sponsored-accounts-config.yml"/>
+		<!-- LoginNamespacesRulesConfigLoader implementation -->
+		<bean id="loginNamespacesRulesConfigLoader" class="cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader">
+			<property name="configurationPath" value="classpath:login-namespaces-rules-config.yml"/>
 		</bean>
 
 		<!-- Loader for the perunAppsConfig-->
