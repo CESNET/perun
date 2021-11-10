@@ -1246,6 +1246,15 @@ components:
         groupId: { type: integer }
         memberWithAttributes: { type: array, items: { $ref: '#/components/schemas/MemberWithAttributes'} }
 
+    Identity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        organization: { type: string }
+        email: { type: string }
+        identities: { type: array, items: { $ref: '#/components/schemas/ExtSource' } }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2228,6 +2237,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/GroupMemberRelations"
+
+    ListOfIdentityResponse:
+      description: "List<Identity> Identities"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Identity"
 
 
   #####################################################
@@ -14697,6 +14715,18 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/checkForSimilarUsers/authInfo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: checkForSimilarUsersWithAuthInfo
+      summary: Check for similar users by name and email in session (authz) information
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfIdentityResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
