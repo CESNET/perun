@@ -9,6 +9,8 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -1831,14 +1833,27 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param namespace String Namespace to change password in (member must have login in it)
 	 * @param emailAttributeURN urn of the attribute with stored mail
 	 * @param language language of the message
+	 * @param baseUrl String base url of Perun instance (optional)
 	 */
 	sendPasswordResetLinkEmail {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			String url = parms.getServletRequest().getRequestURL().toString();
+			String baseUrl = parms.contains("baseUrl") ? parms.readString("baseUrl") : null;
+
+			if (baseUrl != null) {
+				try {
+					URL testBaseUrl = new URL(baseUrl);
+				} catch (MalformedURLException e) {
+					throw new RpcException(RpcException.Type.INVALID_URL, "Invalid base url of Perun instance.");
+				}
+				url = baseUrl;
+			}
+
 			ac.getMembersManager().sendPasswordResetLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
-					parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString(),
+					parms.readString("namespace"), url,
 					parms.readString("emailAttributeURN"), parms.readString("language"));
 
 			return null;

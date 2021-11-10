@@ -9652,6 +9652,7 @@ paths:
         - $ref: '#/components/parameters/namespace'
         - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail" }
         - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message" }
+        - { name: baseUrl, schema: { type: string }, in: query, required: false, description: "base url of Perun instance (optional)" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
