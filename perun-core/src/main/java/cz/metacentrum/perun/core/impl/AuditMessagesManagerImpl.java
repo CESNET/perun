@@ -65,6 +65,8 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 	private final static String auditMessageMappingSelectQuery = "id, msg, actor, created_at, created_by_uid";
 
+	private static final int PAGE_COUNT_PRECISION = 1000;
+
 	private final JdbcPerunTemplate jdbc;
 
 	static {
@@ -165,6 +167,11 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 				messages.add(AUDIT_MESSAGE_MAPPER.mapRow(resultSet, row));
 				row++;
 			}
+
+			if (messages.size() > 0 && total_count == 0) {
+				total_count = PAGE_COUNT_PRECISION + 1;
+			}
+
 			return new Paginated<>(messages, query.getOffset(), query.getPageSize(), total_count);
 		};
 	}
@@ -198,8 +205,12 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	@Override
 	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
-		return jdbc.query("select " + auditMessageMappingSelectQuery + ", count(*) OVER() AS total_count from auditer_log order by id " + query.getOrder().getSqlValue()
-				+ " offset " + query.getOffset() + " limit " + query.getPageSize(), getPaginatedMessagesExtractor(query));
+		// take exact total count up to PAGE_COUNT_PRECISION entries, estimate it otherwise
+		return jdbc.query("select " + auditMessageMappingSelectQuery
+			+ ", case when (select count(*) from (select 1 from auditer_log limit" + PAGE_COUNT_PRECISION + ") as sample) < " + PAGE_COUNT_PRECISION + " then (select count(*) from auditer_log) else " +
+			"(select 100 * count(*) FROM auditer_log TABLESAMPLE SYSTEM (1)) end as total_count "
+			+ "from auditer_log order by id " + query.getOrder().getSqlValue() + " offset " + query.getOffset()
+			+ " limit " + query.getPageSize(), getPaginatedMessagesExtractor(query));
 	}
 
 	@Override

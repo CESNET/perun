@@ -6904,7 +6904,7 @@ paths:
       tags:
         - AuditMessagesManager
       operationId: getMessagesPage
-      summary: Get page of audit messages.
+      summary: Get page of audit messages. Total count is only estimated.
       responses:
         '200':
           $ref: '#/components/responses/PaginatedMessagesResponse'

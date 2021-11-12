@@ -48,7 +48,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get page of audit messages. Query parameter specifies offset and page size.
+	 * Get page of audit messages. Query parameter specifies offset and page size. Total count is only estimated.
 	 *
 	 * @param query MessagesPageQuery Query with page information
 	 * @return Paginated<AuditMessage> page of requested audit messages
