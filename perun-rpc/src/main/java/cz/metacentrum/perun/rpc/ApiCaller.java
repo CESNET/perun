@@ -443,7 +443,7 @@ public class ApiCaller {
 		// Initialize Notifications
 		this.notificationManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perunNotifNotificationManager", PerunNotifNotificationManager.class);
 
-		this.integrationManagerApi = WebApplicationContextUtils.getWebApplicationContext(context).getBean("integrationManager", IntegrationManagerApi.class);
+		this.integrationManagerApi = WebApplicationContextUtils.getWebApplicationContext(context).getBean("integrationManagerApi", IntegrationManagerApi.class);
 		// Initialize SCIM Manager
 		this.scimManager = new SCIM();
 
