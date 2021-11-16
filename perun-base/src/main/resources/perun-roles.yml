@@ -5462,6 +5462,7 @@ perun_policies:
   generateAccount_String_Map<String_String>_policy:
     policy_roles:
       - REGISTRAR:
+      - VOADMIN:
     include_policies:
       - default_policy
 

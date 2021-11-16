@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SponsoredAccountsConfigContainer {
+public class LoginNamespacesRulesConfigContainer {
 
-	private static final Logger log = LoggerFactory.getLogger(SponsoredAccountsConfigContainer.class);
+	private static final Logger log = LoggerFactory.getLogger(LoginNamespacesRulesConfigContainer.class);
 
 	private Map<String, NamespaceRules> namespacesRules = new HashMap<>();
 
@@ -20,7 +20,7 @@ public class SponsoredAccountsConfigContainer {
 	}
 
 	/**
-	 * Get Rules for a specific namespace from the SponsoredAccountsConfigContainer
+	 * Get Rules for a specific namespace from the LoginNamespacesRulesConfigContainer
 	 *
 	 * @param namespace for which will be rules fetched
 	 * @return NamespaceRules for the namespace name
@@ -28,7 +28,7 @@ public class SponsoredAccountsConfigContainer {
 	 */
 	public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
 		if (namespacesRules.get(namespace) == null) {
-			throw new NamespaceRulesNotExistsException("Namespace with name '"+ namespace + "' does not exist in the SponsoredAccountsConfigContainer.");
+			throw new NamespaceRulesNotExistsException("Namespace with name '"+ namespace + "' does not exist in the LoginNamespacesRulesConfigContainer.");
 		}
 
 		return namespacesRules.get(namespace);

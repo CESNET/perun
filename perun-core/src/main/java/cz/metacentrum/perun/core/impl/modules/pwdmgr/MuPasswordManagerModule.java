@@ -84,11 +84,11 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	@Override
 	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws PasswordStrengthException {
 
-		String password = null;
 		if (parameters.get(PASSWORD_KEY) != null && !parameters.get(PASSWORD_KEY).isEmpty()) {
-			password = parameters.get(PASSWORD_KEY);
+			checkPasswordStrength(session, "--not yet known--", parameters.get(PASSWORD_KEY));
+		} else {
+			parameters.put(PASSWORD_KEY, generateRandomPassword(session, "--not yet known--"));
 		}
-		checkPasswordStrength(session, "--not yet known--", password);
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;

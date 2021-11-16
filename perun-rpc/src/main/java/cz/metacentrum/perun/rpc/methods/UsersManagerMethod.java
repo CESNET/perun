@@ -1575,16 +1575,36 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @return Map<String, String> Map of data from backed response
 	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
+	/*#
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 * Login-namespace might require more parameters, call this method with map of all parameters in a map then.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param namespace String
+	 * @param name String
+	 *
+	 * @return Map<String, String> Map of data from backed response
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 */
 	generateAccount {
 
 		@Override
 		public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
-			return ac.getUsersManager().generateAccount(ac.getSession(),
+			if (parms.contains("name")) {
+				String name = parms.readString("name");
+				return ac.getUsersManager().generateAccount(ac.getSession(),
+					parms.readString("namespace"),
+					new HashMap<>() {{put("urn:perun:user:attribute-def:core:lastName", name);}});
+			} else {
+				return ac.getUsersManager().generateAccount(ac.getSession(),
 					parms.readString("namespace"),
 					parms.read("parameters", HashMap.class));
+			}
 		}
-
 	},
 
 	/*#
