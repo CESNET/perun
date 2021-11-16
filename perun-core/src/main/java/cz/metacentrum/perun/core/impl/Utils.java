@@ -1066,6 +1066,7 @@ public class Utils {
 	 * Sends email with link to non-authz account activation where user can activate his account by setting a password.
 	 *  @param user user to send notification for
 	 * @param email user's email to send notification to
+	 * @param login user's login which will be used in message, if tag {@code {login}} is used.
 	 * @param namespace namespace to reset password in
 	 * @param url base URL of Perun instance
 	 * @param uuid UUID of account activation request
@@ -1073,7 +1074,7 @@ public class Utils {
 	 * @param subject subject of the email (use default if null)
 	 * @param validityTo time till link is valid
 	 */
-	public static void sendAccountActivationEmail(User user, String email, String namespace, String url, UUID uuid, String messageTemplate, String subject, LocalDateTime validityTo) {
+	public static void sendAccountActivationEmail(User user, String email, String login, String namespace, String url, UUID uuid, String messageTemplate, String subject, LocalDateTime validityTo) {
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", uuid, user, namespace, true);
@@ -1096,6 +1097,8 @@ public class Utils {
 		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
 		bodyParametersToReplace.put("{namespace}", namespace);
 		bodyParametersToReplace.put("{validity}", validityToString);
+		bodyParametersToReplace.put("{login}", login);
+
 		// allow enforcing per-language links
 		if (messageTemplate != null && messageTemplate.contains("{link-")) {
 			Pattern pattern = Pattern.compile("\\{link-[^}]+}");

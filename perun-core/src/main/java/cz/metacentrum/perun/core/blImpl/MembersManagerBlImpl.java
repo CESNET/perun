@@ -148,6 +148,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String ATTR_PREFIX = "urn:perun:";
 	private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
 	private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+	private static final String A_U_LOGIN_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:";
 
 	private static final String DEFAULT_NO_REPLY_EMAIL = "no-reply@perun-aai.org";
 
@@ -2351,7 +2352,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		//IMPORTANT: we are using the same requests for password reset and account activation
 		UUID uuid = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
-		Utils.sendAccountActivationEmail(user, mailAddress, namespace, url, uuid, message, subject, validityTo);
+		String userLogin = getUserLogin(sess, user, namespace);
+		Utils.sendAccountActivationEmail(user, mailAddress, userLogin, namespace, url, uuid, message, subject, validityTo);
 	}
 
 	@Override
@@ -3410,4 +3412,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return email;
 	}
 
+	/**
+	 * Get user's login for given namespace.
+	 *
+	 * @param sess session
+	 * @param user user to get the login for
+	 * @param namespace namespace from which the searched login should be
+	 * @return found login, or null if the given user doesn't have login set in the given namespace
+	 */
+	private String getUserLogin(PerunSession sess, User user, String namespace) {
+		Objects.requireNonNull(user, "User was null when trying to get login attribute.");
+		Objects.requireNonNull(namespace, "Namespace was null when trying to get user login.");
+		try {
+			return perunBl.getAttributesManagerBl().getAttribute(sess, user, A_U_LOGIN_PREFIX + namespace)
+				.valueAsString();
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			log.error("Failed to get namespace login for user: {}", user, e);
+			throw new InternalErrorException("Failed to get namespace login for user: " + user, e);
+		}
+	}
 }
