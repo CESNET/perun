@@ -2700,4 +2700,10 @@ public interface AttributesManagerImplApi {
 	 * Deletes all values of the attribute from table _attr_u_values which has unique constraint. And returns how many rows were deleted.
 	 */
 	int convertAttributeValuesToNonunique(PerunSession session, AttributeDefinition attrDef);
+
+	/**
+	 * Escapes QUERY PARAMETER VALUES in URL value. Does not modify domain or parameters names.
+	 * e.g. 'domain/?vo=vo name' => 'domain/?vo=vo+name'
+	 */
+	String escapeQueryParameters(String value);
 }
