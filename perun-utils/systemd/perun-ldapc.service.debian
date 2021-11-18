@@ -24,6 +24,7 @@ EnvironmentFile=-/etc/perun/perun-ldapc
 
 # Start LDAPC
 ExecStart=/usr/bin/java \
+  --add-exports java.naming/com.sun.jndi.ldap=ALL-UNNAMED \
   -Dperun.conf.custom=${PERUN_CONF_DIR} \
   -Dlogback.configurationFile=${PERUN_LOG_CONF} \
   -Dspring.profiles.default=production \
