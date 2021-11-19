@@ -1248,8 +1248,8 @@ components:
         m: { type: integer, description: "member id" }
         g: { type: integer, description: "group id" }
         sg: { type: integer, description: "source group id" }
-        s: { type: integer, description: "source group status" }
-        t: { type: integer, description: "membership type" }
+        s: { type: string, description: "source group status" }
+        t: { type: string, description: "membership type" }
 
     GroupMemberData:
       type: object
