@@ -1261,7 +1261,7 @@ components:
             type: object
             additionalProperties:
               type: array
-              items: { $ref: '#/components/schemas/SimpleAttribute' }
+              items: { $ref: '#/components/schemas/Attribute' }
 
     Identity:
       type: object
@@ -16413,7 +16413,7 @@ paths:
   #                                               #
   #################################################
 
-  /jsonsimple/integrationManager/getGroupMemberData:
+  /json/integrationManager/getGroupMemberData:
     get:
       tags:
         - IntegrationManager
