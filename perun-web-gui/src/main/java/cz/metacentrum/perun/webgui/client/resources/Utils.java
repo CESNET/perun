@@ -1436,6 +1436,11 @@ public class Utils {
 		var req = new XMLHttpRequest();
 		req.open("POST", url, false);  // The last parameter determines whether the request is asynchronous.
 		req.overrideMimeType('text/plain; charset=x-user-defined');
+		// CSRF protection
+		var cookieValue = @com.google.gwt.user.client.Cookies::getCookie(Ljava/lang/String;)("XSRF-TOKEN");
+		if (cookieValue !== null && cookieValue.length > 0) {
+			req.setRequestHeader("X-XSRF-TOKEN", cookieValue);
+		}
 		req.send(data);
 		if (req.status == 200) {
 			return base64Encode(req.responseText);
