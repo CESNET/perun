@@ -325,35 +325,14 @@ public class VosManagerEntry implements VosManager {
 				continue;
 			}
 
-			if (isEligibleCandidate(sess, candidate)) {
+			List<Vo> membersVos = perunBl.getUsersManagerBl().getVosWhereUserIsMember(sess, candidate.getRichUser());
+			boolean isEligible = membersVos.stream().anyMatch(vo -> AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy", vo));
+			if (isEligible) {
 				eligibleCandidates.add(candidate);
 			}
 		}
 
 		return eligibleCandidates;
-	}
-
-	/**
-	 * Checks if candidate is member of vo or group where principal has right to read
-	 * @param sess
-	 * @param candidate
-	 * @return true if principal can read candidate from some group/vo
-	 */
-	private boolean isEligibleCandidate(PerunSession sess, MemberCandidate candidate) {
-		List<Vo> membersVos = perunBl.getUsersManagerBl().getVosWhereUserIsMember(sess, candidate.getRichUser());
-		for (Vo memberVo : membersVos) {
-			try {
-				Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, memberVo, candidate.getRichUser());
-				List<Group> membersGroups = perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member);
-				if (membersGroups.stream().anyMatch(memberGroup -> AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy", memberGroup))) {
-					return true;
-				}
-			} catch (MemberNotExistsException e) {
-				// skip
-			}
-		}
-
-		return false;
 	}
 
 	@Override
