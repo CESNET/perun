@@ -908,6 +908,7 @@ components:
       type: string
       enum:
         - APP_CREATED_USER
+        - APPROVABLE_GROUP_APP_USER
         - APP_CREATED_VO_ADMIN
         - MAIL_VALIDATION
         - APP_APPROVED_USER

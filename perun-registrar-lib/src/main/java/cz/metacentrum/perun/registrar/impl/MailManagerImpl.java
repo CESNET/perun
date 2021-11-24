@@ -32,7 +32,6 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
-import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
@@ -414,6 +413,9 @@ public class MailManagerImpl implements MailManager {
 				case APP_CREATED_USER:
 					sendUserMessage(app, mail, data, reason, exceptions, MailType.APP_CREATED_USER);
 					break;
+				case APPROVABLE_GROUP_APP_USER:
+					sendUserMessage(app, mail, data, reason, exceptions, MailType.APPROVABLE_GROUP_APP_USER);
+					break;
 				case APP_CREATED_VO_ADMIN:
 					appCreatedVoAdmin(app, mail, data, reason, exceptions);
 					break;
@@ -471,6 +473,7 @@ public class MailManagerImpl implements MailManager {
 
 			switch (mailType) {
 				case APP_CREATED_USER:
+				case APPROVABLE_GROUP_APP_USER:
 				case APP_CREATED_VO_ADMIN: {
 					if (app.getState().equals(Application.AppState.NEW) || app.getState().equals(Application.AppState.VERIFIED)) {
 						sendMessage(app, mailType, null, null);
