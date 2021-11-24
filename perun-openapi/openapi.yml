@@ -1372,6 +1372,17 @@ components:
               additionalProperties:
                 type: string
 
+    ListOfMapStringStringResponse:
+      description: "returns List<Map<String,String>>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              additionalProperties:
+                type: string
+
     UserResponse:
       description: returns User
       content:
@@ -9246,7 +9257,7 @@ paths:
       summary: Creates new sponsored members in a given VO and namespace.
       responses:
         '200':
-          $ref: '#/components/responses/MapStringMapStringStringResponse'
+          $ref: '#/components/responses/ListOfMapStringStringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:
@@ -9281,7 +9292,7 @@ paths:
       summary: Creates new sponsored members in a given VO and namespace.
       responses:
         '200':
-          $ref: '#/components/responses/MapStringMapStringStringResponse'
+          $ref: '#/components/responses/ListOfMapStringStringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:

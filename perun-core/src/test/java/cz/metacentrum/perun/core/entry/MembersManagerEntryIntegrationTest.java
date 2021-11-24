@@ -1712,12 +1712,12 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 				"Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"",
 				"Obi-wan;Kenobi;obi@ics.muni.cz;\"He has the high ground\""
 		);
-		Map<String, Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
+		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
 				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null, Validation.SYNC, null);
 		assertThat(allResults).hasSize(2);
 
-		Map<String, String> user1Data = allResults.get("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"");
-		Map<String, String> user2Data = allResults.get("Obi-wan;Kenobi;obi@ics.muni.cz;\"He has the high ground\"");
+		Map<String, String> user1Data = allResults.stream().filter(m -> m.get("name").equals("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"")).findFirst().get();
+		Map<String, String> user2Data = allResults.stream().filter(m -> m.get("name").equals("Obi-wan;Kenobi;obi@ics.muni.cz;\"He has the high ground\"")).findFirst().get();
 
 
 		User createdUser1 = getUserByDummyLogin(user1Data.get("login"));
@@ -1767,11 +1767,11 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		List<String> data = List.of(
 				"Darth;Vader;vader@ics.muni.cz;\"Best dad ever\""
 		);
-		Map<String, Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
+		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
 				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null,
 				Validation.SYNC, List.of(createdGroup));
 
-		Map<String, String> user1Data = allResults.get("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"");
+		Map<String, String> user1Data = allResults.stream().filter(m -> m.get("name").equals("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"")).findFirst().get();
 		User createdUser = getUserByDummyLogin(user1Data.get("login"));
 		Member member = perun.getMembersManager().getMemberByUser(sess, createdVo, createdUser);
 
@@ -1792,12 +1792,13 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		//create guests
-		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
+		List<Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
 		assertEquals("there should be two members", 2, loginAndPassword.size());
-		for (String name : loginAndPassword.keySet()) {
-			assertEquals("status should be OK", "OK", loginAndPassword.get(name).get("status"));
-			assertNotNull("login should not be null", loginAndPassword.get(name).get("login"));
-			assertNotNull("password should not be null", loginAndPassword.get(name).get("password"));
+		for (Map<String, String> dataMap: loginAndPassword) {
+			assertEquals("status should be OK", "OK", dataMap.get("status"));
+			assertNotNull("login should not be null", dataMap.get("login"));
+			assertNotNull("password should not be null", dataMap.get("password"));
+			assertNotNull("name should not be null", dataMap.get("name"));
 		}
 	}
 
@@ -1813,14 +1814,14 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		String lastName = "Doe1";
 
 		//create guests
-		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess,
+		List<Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess,
 				createdVo, "dummy", Collections.singletonList(firstName + ";" + lastName), null, sponsorUser, null, false, null, Validation.SYNC);
 
 		assertThat(loginAndPassword).hasSize(1);
 
 		extSource = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
 		UserExtSource ues = new UserExtSource(extSource,
-				loginAndPassword.values().iterator().next().get("login") + "@dummy");
+				loginAndPassword.iterator().next().get("login") + "@dummy");
 
 		User createdUser = perun.getUsersManagerBl().getUserByUserExtSource(sess, ues);
 		assertThat(createdUser.getFirstName()).isEqualTo(firstName);
@@ -1839,20 +1840,37 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		//create guests
-		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Novák", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
-		assertEquals("there should be two members", 3, loginAndPassword.size());
+		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Novák", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
+		assertEquals("there should be three members", 3, allResults.size());
 
-		assertEquals("status should be OK", "OK", loginAndPassword.get("Ing. Jiří Novák, CSc.").get("status"));
-		assertNotNull("login should not be null", loginAndPassword.get("Ing. Jiří Novák, CSc.").get("login"));
-		assertNotNull("password should not be null", loginAndPassword.get("Ing. Jiří Novák, CSc.").get("password"));
+		Map<String, String> user1Data = allResults.stream().filter(m -> m.get("name").equals("Ing. Jiří Novák, CSc.")).findFirst().get();
+		assertEquals("status should be OK", "OK", user1Data.get("status"));
+		assertNotNull("login should not be null", user1Data.get("login"));
+		assertNotNull("password should not be null", user1Data.get("password"));
 
-		assertEquals("status should be OK", "OK", loginAndPassword.get("Jan Novák").get("status"));
-		assertNotNull("login should not be null", loginAndPassword.get("Jan Novák").get("login"));
-		assertNotNull("password should not be null", loginAndPassword.get("Jan Novák").get("password"));
+		Map<String, String> user2Data = allResults.stream().filter(m -> m.get("name").equals("Jan Novák")).findFirst().get();
+		assertEquals("status should be OK", "OK", user2Data.get("status"));
+		assertNotNull("login should not be null", user2Data.get("login"));
+		assertNotNull("password should not be null", user2Data.get("password"));
 
-		assertNotNull("status should be some kind of error", loginAndPassword.get("Novák").get("status"));
-		assertNull("login should not be null", loginAndPassword.get("Novák").get("login"));
-		assertNull("password should not be null", loginAndPassword.get("Novák").get("password"));
+		Map<String, String> user3Data = allResults.stream().filter(m -> m.get("name").equals("Novák")).findFirst().get();
+		assertNotNull("status should be some kind of error", user3Data.get("status"));
+		assertNull("login should be null", user3Data.get("login"));
+		assertNull("password should be null", user3Data.get("password"));
+	}
+
+	@Test
+	public void createSponsoredMembersWithSameName() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMembersWithSameName");
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors", "users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess, createdVo, sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess, sponsors, sponsorMember);
+
+		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Jan Novák", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
+		assertEquals("there should be two members", 2, allResults.size());
 	}
 
 	@Test
