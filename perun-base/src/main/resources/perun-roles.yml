@@ -5753,8 +5753,8 @@ perun_policies:
 
   filter-getCompleteCandidates_policy:
     policy_roles:
-      - GROUPADMIN: Group
-      - GROUPOBSERVER: Group
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
