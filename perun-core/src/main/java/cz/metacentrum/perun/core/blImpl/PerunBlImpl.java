@@ -149,7 +149,7 @@ public class PerunBlImpl implements PerunBl {
 				User user = usersManagerBl.getUserByExtSourceInformation(internalSession, principal);
 				principal.setUser(user);
 
-				if (client.getType() != PerunClient.Type.OAUTH) {
+//				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
 					UserExtSource ues = null;
 					String shibIdentityProvider = principal.getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
@@ -179,7 +179,7 @@ public class PerunBlImpl implements PerunBl {
 						setUserExtSourceAttributes(perunSession, ues, principal.getAdditionalInformations());
 					}
 
-				}
+//				}
 			} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException | UserExtSourceExistsException e) {
 				// OK - We don't know user yet or we are modifying more than a LoA and we shouldn't !!
 			}

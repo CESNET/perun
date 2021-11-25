@@ -1337,6 +1337,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+	/*#
+	* Join user identities by access tokens.
+	* @param accessToken access token
+	* @throw IdentityUnknownException When neither current or previous identity is associated with a user in Perun.
+	* @throw IdentityIsSameException User used same identity (authz) to get token and to request joining.
+	* @throw IdentitiesAlreadyJoinedException Both identities used in a process belong to the same user in Perun (already joined).
+	* @throw IdentityAlreadyInUseException Both identities used in a process are associated with different users. In order to join two user accounts contact support.
+	* @throw InvalidTokenException when some of the access token is expired
+	 */
+	consolidate {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws  PerunException {
+
+			return ac.getRegistrarManager().getConsolidatorManager().consolidate(ac.getSession(), parms.readString("accessToken"));
+		}
+	},
 
 	/*#
 	 * Update data of specific application form item, which was originally submitted by the user.

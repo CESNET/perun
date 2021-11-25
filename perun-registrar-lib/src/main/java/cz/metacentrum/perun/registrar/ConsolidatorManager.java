@@ -103,4 +103,12 @@ public interface ConsolidatorManager {
 	 */
 	List<UserExtSource> consolidateIdentityUsingToken(PerunSession sess, String token) throws PerunException;
 
+	/**
+	 * Join user identities by access tokens.
+	 * @param sess PerunSession for authz (identity)
+	 * @param accessToken second access token(first is in sess)
+	 * @throws PerunException When error occurs
+	 */
+	Void consolidate(PerunSession sess, String accessToken) throws PerunException;
+
 }

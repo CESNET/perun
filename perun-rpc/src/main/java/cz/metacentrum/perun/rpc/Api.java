@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
@@ -32,6 +33,10 @@ import cz.metacentrum.perun.rpc.serializer.Serializer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -97,9 +102,7 @@ public class Api extends HttpServlet {
 	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
 	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
 	private static final String OIDC_CLAIM_ISS = "OIDC_CLAIM_iss";
-	private static final String OIDC_CLAIM_NAME = "OIDC_CLAIM_name";
-	private static final String OIDC_CLAIM_GIVEN_NAME = "OIDC_CLAIM_given_name";
-	private static final String OIDC_CLAIM_FAMILY_NAME = "OIDC_CLAIM_family_name";
+	private static final String OIDC_ACCESS_TOKEN = "OIDC_access_token";
 	private static final String EXTSOURCE = "EXTSOURCE";
 	private static final String EXTSOURCETYPE = "EXTSOURCETYPE";
 	private static final String EXTSOURCELOA = "EXTSOURCELOA";
@@ -108,7 +111,6 @@ public class Api extends HttpServlet {
 	private static final String DELEGATED_EXTSOURCE_NAME = "delegatedExtSourceName";
 	private static final String DELEGATED_EXTSOURCE_TYPE = "delegatedExtSourceType";
 	private static final String LOA = "loa";
-
 
 	@Override
 	public void init() {
@@ -247,7 +249,6 @@ public class Api extends HttpServlet {
 
 		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
 		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-			extLogin = req.getHeader(OIDC_CLAIM_SUB);
 			//this is configurable, as the OIDC server has the source of sub claim also configurable
 			String iss = req.getHeader(OIDC_CLAIM_ISS);
 			if (iss != null) {
@@ -259,12 +260,11 @@ public class Api extends HttpServlet {
 			} else {
 				throw new InternalErrorException("OIDC issuer not send by Authorization Server");
 			}
-			var name = mapFullNameForOidc(req);
-			if(isNotEmpty(name)) {
-				additionalInformations.put("displayName", name);
-			}
-			extSourceLoaString = "-1";
-			log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
+			var oidcSubIssuer = initOidcAuth(req, additionalInformations);
+			extLogin = oidcSubIssuer.sub;
+			extSourceName = oidcSubIssuer.issuer;
+			extSourceLoaString = "3";
+			log.debug("detected OIDC/OAuth2 client for sub={},iss={}", extLogin, extSourceName);
 		}
 
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
@@ -842,17 +842,66 @@ public class Api extends HttpServlet {
 		}
 	}
 
-	private static String mapFullNameForOidc(HttpServletRequest req) {
-		var name = req.getHeader(OIDC_CLAIM_NAME);
+	private record OidcSubIssuer(String sub, String issuer) {}
+
+	private static OidcSubIssuer initOidcAuth(HttpServletRequest req, Map<String, String> additionalInformations) {
+		var accessToken = req.getHeader(OIDC_ACCESS_TOKEN);
+		var restTemplate = new RestTemplate();
+		var issuer = req.getHeader(OIDC_CLAIM_ISS);
+		var config = restTemplate.getForObject(issuer + "/.well-known/openid-configuration", JsonNode.class);
+		var headers = new HttpHeaders();
+		headers.setBearerAuth(accessToken);
+		HttpEntity<Void> entity = new HttpEntity<>(headers);
+		var userInfoResponse = restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
+		var userInfo = userInfoResponse.getBody();
+		if (userInfo == null) {
+			log.error("Failed to initialize oidc auth, userInfo was null");
+			throw new InternalErrorException("Failed to initialize oidc auth, userInfo was null");
+		}
+		var name = userInfo.path("name").asText();
+		if(isEmpty(name)) {
+			var firstName = userInfo.path("given_name").asText();
+			var familyName = userInfo.path("family_name").asText();
+			if(isNotEmpty(firstName) && isNotEmpty(familyName)) {
+				name =  firstName + " " + familyName;
+			}
+		}
+		var email = userInfo.path("email").asText();
+		if(isNotEmpty(email)) {
+			additionalInformations.put("mail", email);
+		}
 		if(isNotEmpty(name)) {
-			return name;
+			additionalInformations.put("displayName", name);
 		}
-		var firstName = req.getHeader(OIDC_CLAIM_GIVEN_NAME);
-		var familyName = req.getHeader(OIDC_CLAIM_FAMILY_NAME);
-		if(isNotEmpty(firstName) && isNotEmpty(familyName)) {
-			return firstName + " " + familyName;
+		var idpNames = userInfo
+			.path("target_backend")
+			.path("display_name")
+			.elements();
+		log.debug("found idp names: {}", idpNames);
+		if(idpNames.hasNext()) {
+			var idpName = idpNames.next().path("text").asText();
+			log.debug("found idp name: {}", idpName);
+			additionalInformations.put("sourceIdPName", idpName);
 		}
-		return null;
+		var originalIssuer = userInfo.path("target_issuer").asText();
+		if(isEmpty(originalIssuer)) {
+			log.error("issuer was empty or null: {}", originalIssuer);
+			throw new InternalErrorException("sub and issuer were null: " + originalIssuer);
+		}
+		var login = userInfo.path("eduperson_unique_id").asText();
+		if(isEmpty(login)) {
+			login = userInfo.path("eduperson_principal_name").asText();
+			if(isEmpty(login)) {
+				login = userInfo.path("saml2_nameid_persistent").asText();
+				if(isEmpty(login)) {
+					login = userInfo.path("eduperson_targeted_id").get(0).asText();
+					if(isEmpty(login)) {
+						login = userInfo.path("sub").asText();
+					}
+				}
+			}
+		}
+		return new OidcSubIssuer(login, originalIssuer);
 	}
 
 	/**

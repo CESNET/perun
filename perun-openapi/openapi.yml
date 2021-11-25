@@ -15316,6 +15316,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/consolidate:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: consolidate
+      summary: Join user identities by access tokens.
+      description: |
+        Join user identities by access tokens.
+      parameters:
+        - { name: accessToken, schema: { type: string }, in: query, description: "second access token" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/updateFormItemData:
     post:
       tags:

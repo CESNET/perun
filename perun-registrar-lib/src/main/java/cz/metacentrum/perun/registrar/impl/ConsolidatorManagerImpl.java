@@ -1,40 +1,40 @@
 package cz.metacentrum.perun.registrar.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.*;
 import net.jodah.expiringmap.ExpirationPolicy;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
-import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
-import cz.metacentrum.perun.registrar.model.Identity;
 import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Comparator.comparing;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Manager for Identity consolidation in Registrar.
@@ -460,6 +460,176 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 	}
 
+	@Override
+	public Void consolidate(PerunSession sess, String accessToken) throws PerunException {
+		OidcUserInfo userInfo2 = getOidcSubIssuer(accessToken, BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().keySet().iterator().next());
+
+		User user1 = sess.getPerunPrincipal().getUser();
+
+		ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(sess, userInfo2.issuer);
+		UserExtSource ues = new UserExtSource();
+		ues.setLogin(userInfo2.sub);
+		ues.setExtSource(extSource);
+		User user2;
+		try {
+			user2 = perun.getUsersManagerBl().getUserByUserExtSource(sess, ues);
+		} catch (UserNotExistsException ex) {
+			user2 = null;
+		}
+
+		log.debug("User who called consolidation is: {}, Previously logged user is: {}", user1, user2);
+
+		if(userInfo2.issuer.equals(sess.getPerunPrincipal().getExtSourceName()) &&
+			userInfo2.sub.equals(sess.getPerunPrincipal().getActor())) {
+			IdentityIsSameException ex = new IdentityIsSameException("You tried to join same identity with itself. Please try again but select different identity.");
+			log.warn("User tried to join identity with itself.");
+			throw ex;
+		}
+
+		if(user1 == null && user2 == null) {
+			IdentityUnknownException ex = new IdentityUnknownException("Neither original or current identity is know to Perun. Please use at least one identity known to Perun.");
+			ex.setLogin(ues.getLogin());
+			ex.setSource2(ues.getExtSource().getName());
+			ex.setSourceType2(ues.getExtSource().getType());
+			ex.setLogin2(sess.getPerunPrincipal().getActor());
+			ex.setSource2(sess.getPerunPrincipal().getExtSourceName());
+			ex.setSourceType2(sess.getPerunPrincipal().getExtSourceType());
+			log.warn("None of identities is known to Perun. Current identity: {}, previous identity: {}",
+				StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "),
+				StringUtils.join(Arrays.asList(ex.getLogin2(), ex.getSource2(), ex.getSourceType2()), " | "));
+			throw ex;
+		} else if(user1 != null && user2 != null) {
+			if(user1.getId() == user2.getId()) {
+				IdentitiesAlreadyJoinedException ex = new IdentitiesAlreadyJoinedException("You already have both identities joined.");
+				log.warn("User already have both identities joined. User: {}, Current identity: {}, Original identity: {}", user1,
+					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType()), " | "),
+					StringUtils.join(Arrays.asList(ues.getLogin(), ues.getExtSource().getName(), ues.getExtSource().getType()), " | "));
+				throw ex;
+			} else {
+				IdentityAlreadyInUseException ex = new IdentityAlreadyInUseException("Your identity is already associated with a different user. If you are really the same person, please contact support to help you.", user1, user2);
+				log.warn("Identity to be joined is already used by different user. Current user: {}, Current identity: {}, Original user: {}, Original identity: {}",
+					user1, StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType()), " | "),
+					user2, StringUtils.join(Arrays.asList(ues.getLogin(), ues.getExtSource().getName(), ues.getExtSource().getType()), " | "));
+				throw ex;
+			}
+		}
+		UserExtSource createdUes;
+		if(user1 != null) {
+			createdUes = createExtSourceAndUserExtSource(user1, userInfo2.sub,
+				userInfo2.issuer, sess.getPerunPrincipal().getExtSourceType(),
+				sess.getPerunPrincipal().getExtSourceLoa());
+			Map<String, String> additionalInformations = new HashMap<>();
+			getAdditionalInformations(accessToken, additionalInformations);
+
+			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, createdUes, additionalInformations);
+			log.info("{} joined identities. Current identity: {}, Original identity: {}", user1,
+				StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(), " | ")),
+				StringUtils.join(Arrays.asList(userInfo2.sub, userInfo2.issuer, sess.getPerunPrincipal().getExtSourceType()), " | "));
+
+		} else {
+			createdUes = createExtSourceAndUserExtSource(user2, sess.getPerunPrincipal().getActor(),
+				sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(),
+				sess.getPerunPrincipal().getExtSourceLoa());
+			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, createdUes, sess.getPerunPrincipal().getAdditionalInformations());
+			log.info("{} joined identities. Current identity: {}, Original identity: {}", user2,
+				StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(), " | ")),
+				StringUtils.join(Arrays.asList(userInfo2.sub, userInfo2.issuer, sess.getPerunPrincipal().getExtSourceType()), " | "));
+
+		}
+
+		AuthzResolverBlImpl.refreshSession(sess);
+
+		if (BeansUtils.getCoreConfig().isSendIdentityAlerts()) {
+			try {
+				Utils.sendIdentityAddedAlerts(sess, createdUes);
+			} catch (Exception e) {
+				log.error("Failed to send identity added alerts.", e);
+			}
+		}
+		return null;
+	}
+
+	private record OidcUserInfo(String sub, String issuer, Object userInfo) {}
+
+	private static OidcUserInfo getOidcSubIssuer(String accessToken, String issuer) throws PerunException {
+		RestTemplate restTemplate = new RestTemplate();
+		JsonNode config = restTemplate.getForObject(issuer + "/.well-known/openid-configuration", JsonNode.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(accessToken);
+		HttpEntity<Void> entity = new HttpEntity<>(headers);
+		var userInfoResponse = restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
+		if(userInfoResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+			log.info("Token {} for joining identities is no longer valid for issuer: {}", accessToken, issuer);
+			InvalidTokenException ex = new InvalidTokenException("Your token for joining identities is no longer valid. Please retry from the start.");
+			throw ex;
+		} else if(userInfoResponse.getStatusCode().series() != HttpStatus.Series.SUCCESSFUL) {
+			log.info("Failed to get userInfoResponse for access token: {}. The response code was: {}", accessToken, userInfoResponse.getStatusCode());
+			InternalErrorException ex = new InternalErrorException("Failed to get userInfoResponse for access token: " + accessToken + ". The response code was: " + userInfoResponse.getStatusCode());
+			throw ex;
+		}
+		var userInfo = userInfoResponse.getBody();
+		var originalIssuer = userInfo.path("target_issuer").asText();
+		if(isEmpty(originalIssuer)) {
+			log.error("issuer was empty or null: {}", originalIssuer);
+			throw new InternalErrorException("sub and issuer were null: " + originalIssuer);
+		}
+
+		var login = userInfo.path("eduperson_unique_id").asText();
+		if(isEmpty(login)) {
+			login = userInfo.path("eduperson_principal_name").asText();
+			if(isEmpty(login)) {
+				login = userInfo.path("saml2_nameid_persistent").asText();
+				if(isEmpty(login)) {
+					login = userInfo.path("eduperson_targeted_id").get(0).asText();
+					if(isEmpty(login)) {
+						login = userInfo.path("sub").asText();
+					}
+				}
+			}
+		}
+		return new OidcUserInfo(login, originalIssuer, userInfo);
+	}
+
+	private static void getAdditionalInformations(String accessToken, Map<String, String> additionalInformations) {
+		var restTemplate = new RestTemplate();
+		var issuer = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().keySet().iterator().next();
+		var config = restTemplate.getForObject(issuer + "/.well-known/openid-configuration", JsonNode.class);
+		var headers = new HttpHeaders();
+		headers.setBearerAuth(accessToken);
+		HttpEntity<Void> entity = new HttpEntity<>(headers);
+		var userInfoResponse = restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
+		var userInfo = userInfoResponse.getBody();
+		if (userInfo == null) {
+			log.error("Failed to initialize oidc auth, userInfo was null");
+			throw new InternalErrorException("Failed to initialize oidc auth, userInfo was null");
+		}
+		var name = userInfo.path("name").asText();
+		if(isEmpty(name)) {
+			var firstName = userInfo.path("given_name").asText();
+			var familyName = userInfo.path("family_name").asText();
+			if(isNotEmpty(firstName) && isNotEmpty(familyName)) {
+				name =  firstName + " " + familyName;
+			}
+		}
+		var email = userInfo.path("email").asText();
+		if(isNotEmpty(email)) {
+			additionalInformations.put("mail", email);
+		}
+		if(isNotEmpty(name)) {
+			additionalInformations.put("displayName", name);
+		}
+		var idpNames = userInfo
+			.path("target_backend")
+			.path("display_name")
+			.elements();
+		log.debug("found idp names: {}", idpNames);
+		if(idpNames.hasNext()) {
+			var idpName = idpNames.next().path("text").asText();
+			log.debug("found idp name: {}", idpName);
+			additionalInformations.put("sourceIdPName", idpName);
+		}
+	}
+
 
 	/**
 	 * Creates ExtSource and UserExtSource if necessary for the purpose of joining users identities.
@@ -590,6 +760,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 						// FOR FOREIGN PROXIES WHICH CREATES NEW IDENTITY ON ANY ATTRIBUTE CHANGE WE MUST USE
 						// SOURCING IDENTITY, SO USER CAN RELATE
+						Attribute nameAttr = null;
 						try {
 							Attribute uesAttr = perun.getAttributesManagerBl().getAttribute(registrarSession, ues, AttributesManager.NS_UES_ATTR_DEF + ":authenticating-authority");
 							if (uesAttr.getValue() != null && !((String) uesAttr.getValue()).isEmpty()) {
@@ -600,7 +771,19 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 						} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 							// don't care
 						}
-						es.add(ues.getExtSource());
+						try {
+							nameAttr = perun.getAttributesManagerBl().getAttribute(registrarSession, ues, AttributesManager.NS_UES_ATTR_DEF + ":sourceIdPName");
+						} catch (Exception e) {
+							log.debug("Failed to get sourceIdpName attribute" + e);
+						}
+						var richExtSource = new RichExtSource(ues.getExtSource());
+						if (nameAttr != null) {
+							richExtSource.setAttributes(List.of(nameAttr));
+						} else {
+							richExtSource.setAttributes(Collections.emptyList());
+						}
+						es.add(richExtSource);
+
 					} else if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_KERBEROS)) {
 						es.add(ues.getExtSource());
 					}
