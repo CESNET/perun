@@ -470,7 +470,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		}
 	}
 
-	@Test (expected=InternalErrorException.class)
+	@Test
 	public void addIDPExtSourcesWithSameLogin() throws Exception {
 		System.out.println(CLASS_NAME + "addIDPExtSourcesWithSameLogin");
 
@@ -483,9 +483,52 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
 		UserExtSource ues2 = new UserExtSource(ext2, 1, "testExtLogin@test");
 
-
+		// should be allowed since user is the same
 		usersManager.addUserExtSource(sess, user, ues1);
 		usersManager.addUserExtSource(sess, user, ues2);
+
+	}
+
+	@Test
+	public void addIDPExtSourcesWithSameLoginFailing() throws Exception {
+		System.out.println(CLASS_NAME + "addIDPExtSourcesWithSameLoginFailing");
+
+		ExtSource ext1 = new ExtSource("test1", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+		ExtSource ext2 = new ExtSource("test2", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+		ExtSource ext3 = new ExtSource("test3", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+
+		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1, null);
+		ext2 = perun.getExtSourcesManagerBl().createExtSource(sess, ext2, null);
+		ext3 = perun.getExtSourcesManagerBl().createExtSource(sess, ext3, null);
+
+		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
+		UserExtSource ues2 = new UserExtSource(ext2, 1, "testExtLogin@test");
+		UserExtSource ues3 = new UserExtSource(ext3, 1, "testExtLogin@test");
+
+		// should fail since we allow only 2 duplicates for same user
+		usersManager.addUserExtSource(sess, user, ues1);
+		usersManager.addUserExtSource(sess, user, ues2);
+		usersManager.addUserExtSource(sess, user, ues3);
+
+	}
+
+	@Test (expected=InternalErrorException.class)
+	public void addIDPExtSourcesWithSameLoginDifferentUser() throws Exception {
+		System.out.println(CLASS_NAME + "addIDPExtSourcesWithSameLoginDifferentUser");
+
+		ExtSource ext1 = new ExtSource("test1", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+		ExtSource ext2 = new ExtSource("test2", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+
+		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1, null);
+		ext2 = perun.getExtSourcesManagerBl().createExtSource(sess, ext2, null);
+
+		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
+		UserExtSource ues2 = new UserExtSource(ext2, 1, "testExtLogin@test");
+
+		// should fail since there are different users
+		usersManager.addUserExtSource(sess, user, ues1);
+		usersManager.addUserExtSource(sess, sponsoredUser, ues2);
+
 	}
 
 	@Test

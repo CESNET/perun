@@ -101,6 +101,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -811,8 +812,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			// If extSource of this userExtSource is type of IDP, test uniqueness of login in this extSource type for all users
 			String login = userExtSource.getLogin();
 			List<UserExtSource> userExtSources = getAllUserExtSourcesByTypeAndLogin(sess, ExtSourcesManager.EXTSOURCE_IDP, login);
-			if(userExtSources.size() == 1) throw new InternalErrorException("ExtLogin: " + login + " is already in used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
-			else if(userExtSources.size() > 1) throw new ConsistencyErrorException("There are " + userExtSources.size() + "   extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+			// FIXME - Allow duplicate logins if the identity belongs to the same User -> Do we want to limit in which IdPs?
+			if(userExtSources.size() == 1) {
+				if (!Objects.equals(user.getId() , userExtSources.get(0).getUserId())) {
+					// Duplicate identity belongs to different user - block it!!
+					// FIXME - this might break moving identities between users during manual join, check its implementation.
+					throw new InternalErrorException("ExtLogin: " + login + " is already in used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+				}
+			} else if (userExtSources.size() == 2) {
+				if (!userExtSources.stream().allMatch(ues -> ues.getUserId() == user.getId())) {
+					// Duplicate identities for different users
+					throw new ConsistencyErrorException("There are " + userExtSources.size() + " extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+				}
+			} else if (userExtSources.size() > 2) {
+				// more than two duplicates are wrong, right?
+				throw new ConsistencyErrorException("There are " + userExtSources.size() + "   extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+			}
 		}
 
 		userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);

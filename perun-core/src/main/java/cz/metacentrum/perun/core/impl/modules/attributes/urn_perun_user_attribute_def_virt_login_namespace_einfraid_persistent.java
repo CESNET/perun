@@ -28,23 +28,23 @@ public class urn_perun_user_attribute_def_virt_login_namespace_einfraid_persiste
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute elixirPersistent = new Attribute(attributeDefinition);
+		Attribute einfraPersistent = new Attribute(attributeDefinition);
 
 		try {
-			Attribute elixirPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+			Attribute einfraPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-			if (elixirPersistentShadow.getValue() == null) {
+			if (einfraPersistentShadow.getValue() == null) {
 
-				elixirPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, elixirPersistentShadow);
+				einfraPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, einfraPersistentShadow);
 
-				if (elixirPersistentShadow.getValue() == null) {
+				if (einfraPersistentShadow.getValue() == null) {
 					throw new InternalErrorException("Einfra ID couldn't be set automatically");
 				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, elixirPersistentShadow);
+				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, einfraPersistentShadow);
 			}
 
-			elixirPersistent.setValue(elixirPersistentShadow.getValue());
-			return elixirPersistent;
+			einfraPersistent.setValue(einfraPersistentShadow.getValue());
+			return einfraPersistent;
 
 		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
