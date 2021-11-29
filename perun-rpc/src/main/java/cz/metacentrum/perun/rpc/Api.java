@@ -858,6 +858,7 @@ public class Api extends HttpServlet {
 			log.error("Failed to initialize oidc auth, userInfo was null");
 			throw new InternalErrorException("Failed to initialize oidc auth, userInfo was null");
 		}
+		log.debug("user info retreated: {}", userInfo);
 		var name = userInfo.path("name").asText();
 		if(isEmpty(name)) {
 			var firstName = userInfo.path("given_name").asText();
@@ -886,7 +887,7 @@ public class Api extends HttpServlet {
 		var originalIssuer = userInfo.path("target_issuer").asText();
 		if(isEmpty(originalIssuer)) {
 			log.error("issuer was empty or null: {}", originalIssuer);
-			throw new InternalErrorException("sub and issuer were null: " + originalIssuer);
+			throw new InternalErrorException("issuer was null: " + originalIssuer);
 		}
 		var login = userInfo.path("eduperson_unique_id").asText();
 		if(isEmpty(login)) {
@@ -894,7 +895,8 @@ public class Api extends HttpServlet {
 			if(isEmpty(login)) {
 				login = userInfo.path("saml2_nameid_persistent").asText();
 				if(isEmpty(login)) {
-					login = userInfo.path("eduperson_targeted_id").get(0).asText();
+					var edupersonTargetedId = userInfo.path("eduperson_targeted_id").get(0);
+					login = (edupersonTargetedId == null) ? "" : edupersonTargetedId.asText();
 					if(isEmpty(login)) {
 						login = userInfo.path("sub").asText();
 					}
