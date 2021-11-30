@@ -48,6 +48,12 @@ public class ApplicationMail {
 		APP_CREATED_USER,
 
 		/**
+		 * Notification for user when group application is created and it can be approved
+		 * (when the user becomes member in VO).
+		 */
+		APPROVABLE_GROUP_APP_USER,
+
+		/**
 		 * Notification to VO administrator when application is created
 		 */
 		APP_CREATED_VO_ADMIN,

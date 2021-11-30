@@ -4393,6 +4393,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
 			getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
+			getMailManager().sendMessage(application, MailType.APPROVABLE_GROUP_APP_USER, null, null);
 		}
 	}
 
@@ -4406,6 +4407,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 */
 	private void processNotificationsAfterCreation(PerunSession session, Application application, List<Exception> exceptions) {
 		getMailManager().sendMessage(application, MailType.APP_CREATED_USER, null, null);
+
+		// Send APPROVABLE_GROUP_APP_USER notifications if possible (if user is already VO member)
+		if (application.getUser() != null && application.getGroup() != null) {
+			try {
+				Member member = perun.getMembersManagerBl().getMemberByUser(session, application.getVo(), application.getUser());
+				if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
+					getMailManager().sendMessage(application, MailType.APPROVABLE_GROUP_APP_USER, null, null);
+				}
+			} catch (MemberNotExistsException e) {
+				// Means that we do not send notification to user yet
+			}
+		}
 
 		if (!exceptions.isEmpty()) {
 			// If there were errors, send the notification immediately to admins
