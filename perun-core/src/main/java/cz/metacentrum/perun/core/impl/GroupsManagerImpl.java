@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
@@ -75,6 +76,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.uu_id as groups_uu_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_name, groups.dsc as groups_dsc, "
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
+
+	protected final static String memberGroupsMappingSelectQuery = groupMappingSelectQuery + ", groups_members.member_id as group_member_id, "
+		+ "groups_members.created_at as group_member_created_at, groups_members.created_by as group_member_created_by, groups_members.modified_at as group_member_modified_at, "
+		+ "groups_members.modified_by as group_member_modified_by, groups_members.source_group_status as group_member_source_group_status, "
+		+ "groups_members.created_by_uid as group_member_created_by_uid, groups_members.modified_by as group_member_modified_by, "
+		+ "groups_members.membership_type as group_member_membership_type, groups_members.source_group_id as group_member_source_group_id ";
 
 	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, " +
 		"groups_resources_automatic.auto_assign_subgroups as auto_assign_subgroups, groups_resources_state.failure_cause as groups_resources_state_failure_cause, groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id";
@@ -562,6 +569,26 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	}
 
+	private String getSQLSelectForGroupsPage(GroupsPageQuery query) {
+		String voGroupsSelect =
+			"SELECT " + groupMappingSelectQuery +
+				", count(*) OVER() AS total_count" +
+				" FROM groups";
+
+		String memberGroupsSelect =
+			"SELECT " + memberGroupsMappingSelectQuery +
+				", count(*) OVER() AS total_count" +
+				" FROM (SELECT * " +
+					" FROM groups" +
+					" WHERE groups.name!='members' OR groups.parent_group_id IS NOT NULL) AS groups" +
+					" JOIN (SELECT * " +
+					" FROM groups_members" +
+					" WHERE member_id = (:memberId)) AS groups_members" +
+					" ON groups.id = groups_members.group_id";
+
+		return query.getMemberId() == null ? voGroupsSelect : memberGroupsSelect;
+	}
+
 	@Override
 	public Paginated<Group> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
@@ -575,20 +602,23 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		namedParams.addValue("offset", query.getOffset());
 		namedParams.addValue("limit", query.getPageSize());
 
+		if (query.getMemberId() != null) namedParams.addValue("memberId", query.getMemberId());
+
+		String selectQuery = getSQLSelectForGroupsPage(query);
 		String searchQuery = getSQLWhereForGroupsPage(query, namedParams);
 
-		return namedParameterJdbcTemplate.query(
-			"SELECT " + groupMappingSelectQuery +
-			", count(*) OVER() AS total_count" +
-			" FROM groups" +
-			" WHERE groups.vo_id=(:voId)" +
-			" AND groups.id IN (:groupsIds)" +
-			searchQuery +
-			" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
-			" OFFSET (:offset)" +
-			" LIMIT (:limit);",
+		Paginated<Group> groups = namedParameterJdbcTemplate.query(
+			selectQuery +
+				" WHERE groups.vo_id=(:voId)" +
+				" AND groups.id IN (:groupsIds)" +
+				searchQuery +
+				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
+				" OFFSET (:offset)" +
+				" LIMIT (:limit);",
 			namedParams,
 			getPaginatedGroupsExtractor(query));
+
+		return groups;
 	}
 
 	@Override

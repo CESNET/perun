@@ -802,6 +802,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * @return Paginated<RichGroup> page of requested rich groups
 	 * @throw VoNotExistsException if there is no such vo
+	 * @throw MemberNotExistsException if member was specified but not found
+	 * @throw GroupNotExistsException if group was not found for given parameters
+	 * @throw MemberGroupMismatchException if given Member is not in specified group
 	 */
 	getGroupsPage {
 		@Override
