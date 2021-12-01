@@ -26,12 +26,12 @@ public class RichGroup extends Group {
 		this.groupAttributes = attrs;
 	}
 
-	public List<Attribute> getAttributes() {
+	public List<Attribute> getGroupAttributes() {
 		return this.groupAttributes;
 	}
 
-	public void setAttributes(List<Attribute> attributes) {
-		this.groupAttributes = attributes;
+	public void setGroupAttributes(List<Attribute> groupAttributes) {
+		this.groupAttributes = groupAttributes;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class RichGroup extends Group {
 		ret.append("', voId='");
 		ret.append(this.getVoId());
 		ret.append("', groupAttributes='");
-		ret.append(this.getAttributes());
+		ret.append(this.getGroupAttributes());
 		ret.append("']");
 		return ret.toString();
 	}
@@ -65,7 +65,9 @@ public class RichGroup extends Group {
 
 		String sGroupAttrs;
 		List<String> nAttrs = new ArrayList<>();
-		List<Attribute> oAttrs = this.getAttributes();
+
+		// serialize group attributes
+		List<Attribute> oAttrs = this.getGroupAttributes();
 		if (oAttrs == null) {
 			sGroupAttrs = "\\0";
 		} else {
@@ -110,10 +112,10 @@ public class RichGroup extends Group {
 			return false;
 		}
 		if (groupAttributes == null) {
-			if (other.getAttributes() != null) {
+			if (other.getGroupAttributes() != null) {
 				return false;
 			}
-		} else if (!this.getAttributes().equals(other.getAttributes())) {
+		} else if (!this.getGroupAttributes().equals(other.getGroupAttributes())) {
 			return false;
 		}
 		return true;

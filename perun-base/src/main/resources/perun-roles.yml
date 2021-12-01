@@ -1514,6 +1514,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  member-getGroupsPage_Vo_GroupsPageQuery_List<String>_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   filter-getGroupsPage_Vo_GroupsPageQuery_List<String>_policy:
     policy_roles:
       - VOADMIN: Vo

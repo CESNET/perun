@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlr
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
@@ -620,7 +621,7 @@ public interface GroupsManager {
 	 *
 	 * @return page of requested rich groups
 	 */
-	Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException;
+	Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException;
 
 	/**
 	 * Get page of subgroups from the given parent group.

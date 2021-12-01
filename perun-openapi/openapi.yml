@@ -677,6 +677,7 @@ components:
         offset: { type: integer }
         order: { $ref: '#/components/schemas/SortingOrder' }
         sortColumn: { $ref: '#/components/schemas/GroupsOrderColumn' }
+        memberId: { type: integer }
         searchString: { type: string }
       required:
         - pageSize
