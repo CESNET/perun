@@ -156,6 +156,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String LOGIN = "login";
 	private static final String PASSWORD = "password";
 	private static final String STATUS = "status";
+	private static final String NAME = "name";
 	private static final String GROUP_ADDING_ERRORS = "group_adding_errors";
 	private static final String MEMBER = "member";
 
@@ -2500,11 +2501,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+	public List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink,
 			String url, Validation validation, List<Group> groups) {
 
-		Map<String, Map<String, String>> totalResult = new HashMap<>();
+		List<Map<String, String>> totalResult = new ArrayList<>();
 		Set<Member> createdMembers = new HashSet<>();
 
 		List<String> dataWithHeader = new ArrayList<>();
@@ -2543,7 +2544,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				// error when creating
 				newResult.put(STATUS, (String)originalResult.get(STATUS));
 			}
-			totalResult.put(data.get(processedCounter++), newResult);
+
+			newResult.put(NAME, data.get(processedCounter++));
+			totalResult.add(newResult);
 		}
 
 		// perform async validation if necessary
@@ -2557,18 +2560,18 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) {
-		Map<String, Map<String, String>> result = new HashMap<>();
+	public List<Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) {
+		List<Map<String, String>> result = new ArrayList<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
 		Set<Member> createdMembers = new HashSet<>();
 
 
 		for (String name : names) {
+			Map<String, String> accountDataToReturn = new HashMap<>();
 			SponsoredUserData data = new SponsoredUserData();
 			data.setNamespace(namespace);
 
-			Map<String, String> mapName = new HashMap<>();
 			if (name.contains(";")) {
 				String[] split = name.split(";", 2);
 				data.setFirstName(split[0]);
@@ -2588,19 +2591,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
-				Map<String, String> statusWithLogin = new HashMap<>();
-				statusWithLogin.put(STATUS, OK);
-				statusWithLogin.put(LOGIN, login);
-				statusWithLogin.put(PASSWORD, password);
+				accountDataToReturn.put(STATUS, OK);
+				accountDataToReturn.put(LOGIN, login);
+				accountDataToReturn.put(PASSWORD, password);
+				accountDataToReturn.put(NAME, name);
 
-				result.put(name, statusWithLogin);
+				result.add(accountDataToReturn);
 
 				createdMembers.add(member);
 
 			} catch (Exception e) {
-				Map<String, String> status = new HashMap<>();
-				status.put(STATUS, e.getMessage());
-				result.put(name, status);
+				accountDataToReturn.put(NAME, name);
+				accountDataToReturn.put(STATUS, e.getMessage());
+				result.add(accountDataToReturn);
 			}
 		}
 

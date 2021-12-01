@@ -1546,13 +1546,14 @@ public interface MembersManagerBl {
 	/**
 	 * Creates new sponsored members.
 	 *
-	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and
-	 * start over, exceptions during member creation are not thrown and the returned map has this structure:
+	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and start over,
+	 * exceptions during member creation are not thrown and the returned list has this structure:
 	 *
-	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 * [{"name" -> name, "status" -> "OK" or "Error...", "login" -> login, "password" -> password}]
 	 *
-	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * Each list element represents member as map containing keys "name", "status", "login" and "password".
 	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "name" contains full entry as received (e.g. first name; last name; email),
 	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
 	 *
 	 * @param sess perun session
@@ -1569,9 +1570,9 @@ public interface MembersManagerBl {
 	 * @param url base URL of Perun Instance
 	 * @param validation Type of members validation, when ASYNC do not call this method in a cycle!
 	 * @param groups groups, to which will be the created users assigned
-	 * @return map of names to map of status, login, password, user and member
+	 * @return list of maps of name, status, login and password
 	 */
-	Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+	List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               List<String> data, String header, User sponsor,
 	                                                               LocalDate validityTo, boolean sendActivationLink,
 																   String url, Validation validation, List<Group> groups);
@@ -1580,12 +1581,13 @@ public interface MembersManagerBl {
 	 * Creates new sponsored members.
 	 *
 	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and start over,
-	 * exceptions during member creation are not thrown and the returned map has this structure:
+	 * exceptions during member creation are not thrown and the returned list has this structure:
 	 *
-	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 * [{"name" -> name, "status" -> "OK" or "Error...", "login" -> login, "password" -> password}]
 	 *
-	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * Each list element represents member as map containing keys "name", "status", "login" and "password".
 	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "name" contains full entry as received (e.g. first name; last name; email),
 	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
 	 *
 	 * @param session perun session
@@ -1600,9 +1602,9 @@ public interface MembersManagerBl {
 	 *                           to the email, be careful when using with empty (no-reply) email
 	 * @param url base URL of Perun Instance
 	 * @param validation Type of members validation, when ASYNC do not call this method in a cycle!
-	 * @return map of names to map of status, login, password
+	 * @return list of maps of name, status, login and password
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation);
+	List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation);
 
 	/**
 	 * Links sponsored member and sponsoring user.

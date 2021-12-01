@@ -326,12 +326,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * If the sponsor is not specified, the current principal becomes the SPONSOR, if he has such privileges.
 	 *
 	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and
-	 * start over, exceptions during member creation are not thrown and the returned map has this structure:
+	 * start over, exceptions during member creation are not thrown and the returned list has this structure:
 	 *
-	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 * [{"name" -> name, "status" -> "OK" or "Error...", "login" -> login, "password" -> password}]
 	 *
-	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * Each list element represents member as map containing keys "name", "status", "login" and "password".
 	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "name" contains full entry as received (e.g. first name; last name; email),
 	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
 	 *
 	 * @param data List<String> csv file values separated by semicolon ';' characters
@@ -348,11 +349,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *                           account will be send to the email (can't be used with empty email parameter), default is false
 	 *                           If set to true, a non-empty namespace has to be provided.
 	 * @param groups int[] group ids, to which will be the created users assigned (has to be from the given vo)
-	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
+	 * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
 	 */
 	createSponsoredMembersFromCSV {
 		@Override
-		public Map<String, Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
+		public List<Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
 			params.stateChangingCheck();
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = null;
@@ -404,12 +405,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
 	 *
 	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and start over,
-	 * exceptions during member creation are not thrown and the returned map has this structure:
+	 * exceptions during member creation are not thrown and the returned list has this structure:
 	 *
-	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 * [{"name" -> name, "status" -> "OK" or "Error...", "login" -> login, "password" -> password}]
 	 *
-	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * Each list element represents member as map containing keys "name", "status", "login" and "password".
 	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "name" contains full entry as received (e.g. first name; last name; email),
 	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
 	 *
 	 * @param guestNames List<String> names of members to create, single name should have the format
@@ -422,11 +424,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member account will be send
 	 *                           to the email, be careful when using with empty (no-reply) email, default is false
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
-	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
+	 * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
 	 */
 	createSponsoredMembers {
 		@Override
-		public Map<String, Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
+		public List<Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
 			params.stateChangingCheck();
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
