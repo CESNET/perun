@@ -580,7 +580,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			if(isEmpty(login)) {
 				login = userInfo.path("saml2_nameid_persistent").asText();
 				if(isEmpty(login)) {
-					login = userInfo.path("eduperson_targeted_id").get(0).asText();
+					var edupersonTargetedId = userInfo.path("eduperson_targeted_id").get(0);
+					login = (edupersonTargetedId == null) ? "" : edupersonTargetedId.asText();
 					if(isEmpty(login)) {
 						login = userInfo.path("sub").asText();
 					}
