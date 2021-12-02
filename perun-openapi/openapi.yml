@@ -648,7 +648,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/Group'
         - properties:
-            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+            groupAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
       discriminator:
         propertyName: beanName
 
