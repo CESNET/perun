@@ -525,6 +525,18 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public List<RichUserExtSource> getAllRichUserExtSources(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getAllRichUserExtSources_policy")) {
+			throw new PrivilegeException(sess, "getAllRichUserExtSources");
+		}
+
+		return getUsersManagerBl().getAllRichUserExtSources(sess);
+	}
+
+	@Override
 	public List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames) throws UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

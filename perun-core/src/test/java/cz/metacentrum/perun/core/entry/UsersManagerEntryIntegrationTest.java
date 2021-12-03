@@ -2199,7 +2199,64 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
 	}
 
+	@Test
+	public void getAllRichUserExtSources() throws Exception {
+		System.out.println(CLASS_NAME + "getAllRichUserExtSources");
+
+		var user = setUpUser("john", "smith");
+		var ues = setUpUserExtSource(user, extSource, "johnny");
+
+		var allRues = usersManager.getAllRichUserExtSources(sess);
+
+		assertThat(allRues.stream().map(RichUserExtSource::asUserExtSource))
+			.contains(ues);
+	}
+
+	@Test
+	public void getAllRichUserExtSources_returnsDefAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getAllRichUserExtSources_returnsDefAttribute");
+
+		var user = setUpUser("john", "smith");
+		var ues = setUpUserExtSource(user, extSource, "johnny");
+
+		var attrDef = setUpUesDefAttribute("defAttr");
+		var uesAttr = new Attribute(attrDef, "value");
+		perun.getAttributesManagerBl().setAttribute(sess, ues, uesAttr);
+
+		var allRues = usersManager.getAllRichUserExtSources(sess);
+
+		assertThat(allRues
+				.stream()
+				.filter(rues -> rues.asUserExtSource().equals(ues))
+				.findFirst().orElseThrow()
+			.getAttributes())
+			.contains(uesAttr);
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
+
+	private AttributeDefinition setUpUesDefAttribute(String name) throws Exception {
+		return setUpUesAttribute(name, AttributesManager.NS_UES_ATTR_DEF);
+	}
+
+	private AttributeDefinition setUpUesVirtAttribute(String name) throws Exception {
+		return setUpUesAttribute(name, AttributesManager.NS_UES_ATTR_VIRT);
+	}
+
+	private AttributeDefinition setUpUesAttribute(String name, String namespace) throws Exception {
+		var attrDef = new AttributeDefinition();
+		attrDef.setFriendlyName(name);
+		attrDef.setNamespace(namespace);
+		attrDef.setType(String.class.getName());
+		return perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+	}
+
+	private UserExtSource setUpUserExtSource(User user, ExtSource extSource, String login) throws Exception {
+		var ues = new UserExtSource();
+		ues.setExtSource(extSource);
+		ues.setLogin(login);
+		return usersManager.addUserExtSource(sess, user, ues);
+	}
 
 	/**
 	 * This method is used to test attributes of returned richUserExtSource from given call.

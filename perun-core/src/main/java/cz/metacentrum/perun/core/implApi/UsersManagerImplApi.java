@@ -369,6 +369,14 @@ public interface UsersManagerImplApi {
 	List<UserExtSource> getUserExtSources(PerunSession sess, User user);
 
 	/**
+	 * Get list of all userExtSources from perun
+	 *
+	 * @param sess session
+	 * @return list of all userExtSources
+	 */
+	List<UserExtSource> getAllUserExtSources(PerunSession sess);
+
+	/**
 	 * Adds user's external sources.
 	 *
 	 * @param perunSession

@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongModuleTypeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 import java.util.HashMap;
@@ -2645,6 +2646,14 @@ public interface AttributesManagerImplApi {
 	UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute);
 
 	/**
+	 * Get user external source attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance user ext source attribute module, null if the module doesn't exists
+	 */
+	UserExtSourceAttributesModuleImplApi getUserExtSourceAttributeModule(PerunSession sess, AttributeDefinition attribute);
+
+	/**
 	 * Init attribute modules map in Impl layer. And register them in Auditer for message listening.
 	 *
 	 * @see AttributesManagerBlImpl#initialize()
@@ -2706,4 +2715,18 @@ public interface AttributesManagerImplApi {
 	 * e.g. 'domain/?vo=vo name' => 'domain/?vo=vo+name'
 	 */
 	String escapeQueryParameters(String value);
+
+	/**
+	 * For all userExtSources, returns all def attr raw values from DB. Raw values needs to be parsed
+	 * to get List or Map values.
+	 *
+	 * @param sess session
+	 * @return all raw attr values for all userExtSources
+	 */
+	List<AttrRawValue> getAllUesAttrValues(PerunSession sess);
+
+	/**
+	 * Object used to hold raw attr values
+	 */
+	record AttrRawValue(int attrId, int uesId, String rawValue) { }
 }

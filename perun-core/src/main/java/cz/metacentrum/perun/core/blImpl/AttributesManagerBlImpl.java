@@ -66,6 +66,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -92,6 +93,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
@@ -101,8 +103,10 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribu
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
+import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi.AttrRawValue;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.utils.graphs.Graph;
@@ -132,6 +136,7 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_ENTITYLESS_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
@@ -146,6 +151,9 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_UES_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * AttributesManager buisness logic.
@@ -718,6 +726,55 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, ues));
 		return attributes;
+	}
+
+	@Override
+	public List<RichUserExtSource> convertToRichUserExtSources(PerunSession sess, List<UserExtSource> allUes) {
+		List<AttributeDefinition> allUesAttrDefs = getAttributeDefinitionsByNamespaces(sess, List.of(
+			AttributesManager.NS_UES_ATTR_DEF,
+			AttributesManager.NS_UES_ATTR_VIRT
+		));
+		List<AttrRawValue> allUesAttrValues = attributesManagerImpl.getAllUesAttrValues(sess);
+
+		Map<AttributeDefinition, UserExtSourceVirtualAttributesModuleImplApi> virtModulesByAttrs = allUesAttrDefs.stream()
+			.filter(attrDef -> attrDef.getNamespace().endsWith(":virt"))
+			.collect(
+				toMap(
+					identity(), attrDef -> (UserExtSourceVirtualAttributesModuleImplApi)
+						attributesManagerImpl.getUserExtSourceAttributeModule(sess, attrDef)));
+
+		List<RichUserExtSource> richUserExtSources = new ArrayList<>();
+
+		Map<Integer, Map<Integer, String>> attrRawValuesByUes = allUesAttrValues.stream()
+			.collect(
+				groupingBy(AttrRawValue::uesId,
+					toMap(AttrRawValue::attrId, AttrRawValue::rawValue)));
+
+		for (UserExtSource ues : allUes) {
+			Map<Integer, String> uesAttrRawValues = attrRawValuesByUes.get(ues.getId());
+
+			List<Attribute> uesAttrs = new ArrayList<>();
+			for (AttributeDefinition attrDef : allUesAttrDefs) {
+				Object attrValue;
+				if (attrDef.getNamespace().endsWith(":virt")) {
+					attrValue = virtModulesByAttrs.get(attrDef).getAttributeValue((PerunSessionImpl) sess, ues, attrDef);
+				} else if (uesAttrRawValues == null) {
+					attrValue = null;
+				} else {
+					attrValue = BeansUtils.stringToAttributeValue(uesAttrRawValues.get(attrDef.getId()), attrDef.getType());
+				}
+				var uesAttr = new Attribute(attrDef);
+				uesAttr.setValue(attrValue);
+
+				if (attrValue != null) {
+					uesAttrs.add(uesAttr);
+				}
+			}
+
+			richUserExtSources.add(new RichUserExtSource(ues, uesAttrs));
+		}
+
+		return richUserExtSources;
 	}
 
 	@Override
@@ -5653,6 +5710,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		return mergeAttributeValue(sess, member, attribute);
+	}
+
+	@Override
+	public List<AttributeDefinition> getAttributeDefinitionsByNamespaces(PerunSession sess, List<String> namespaces) {
+		if (namespaces.isEmpty()) {
+			throw new InternalErrorException("Namespaces cannot be empty.");
+		}
+		return namespaces.stream()
+			.flatMap(namespace -> attributesManagerImpl.getAttributesDefinitionByNamespace(sess, namespace).stream())
+			.collect(Collectors.toList());
 	}
 
 	public void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler) throws WrongAttributeAssignmentException {

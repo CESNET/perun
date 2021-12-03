@@ -733,6 +733,16 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public List<UserExtSource> getAllUserExtSources(PerunSession sess) {
+		try {
+			return jdbc.query("SELECT " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+			        " FROM user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id", USEREXTSOURCE_MAPPER);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserExtSourceAlreadyRemovedException {
 		try {
 			int numAffected = jdbc.update("delete from user_ext_sources where id=?", userExtSource.getId());

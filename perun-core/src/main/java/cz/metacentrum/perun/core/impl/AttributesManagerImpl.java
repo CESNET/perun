@@ -2490,6 +2490,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public List<AttrRawValue> getAllUesAttrValues(PerunSession sess) {
+		return jdbc.query("SELECT attr_value, attr_id, user_ext_source_id FROM user_ext_source_attr_values", (rs, rowNum) ->
+			new AttrRawValue(
+				rs.getInt("attr_id"),
+				rs.getInt("user_ext_source_id"),
+				rs.getString("attr_value")
+		));
+	}
+
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
@@ -4440,13 +4450,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	/**
-	 * Get user external source attribute module for the attribute.
-	 *
-	 * @param attribute attribute for which you get the module
-	 * @return instance user ext source attribute module, null if the module doesn't exists
-	 */
-	private UserExtSourceAttributesModuleImplApi getUserExtSourceAttributeModule(PerunSession sess, AttributeDefinition attribute) {
+	@Override
+	public UserExtSourceAttributesModuleImplApi getUserExtSourceAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 

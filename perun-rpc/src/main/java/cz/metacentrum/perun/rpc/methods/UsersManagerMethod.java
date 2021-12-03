@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -613,6 +614,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 				return ac.getUsersManager().getRichUserExtSources(ac.getSession(),
 						ac.getUserById(parms.readInt("user")));
 			}
+		}
+	},
+
+	/*#
+	 * Gets list of all userExtSources with all of their attributes
+	 *
+	 * @return List<RichUserExtSource> list of RichUserExtSources
+	 */
+	getAllRichUserExtSources {
+		@Override
+		public List<RichUserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getAllRichUserExtSources(ac.getSession());
 		}
 	},
 

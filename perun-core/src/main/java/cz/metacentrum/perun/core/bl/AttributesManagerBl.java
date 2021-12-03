@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -568,6 +569,15 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues);
+
+	/**
+	 * Converts the given userExtSources to richUserExtSources with all attributes
+	 *
+	 * @param sess session
+	 * @param allUes list of all userExtSources that will be converted
+	 * @return list of all richUserExtSources
+	 */
+	List<RichUserExtSource> convertToRichUserExtSources(PerunSession sess, List<UserExtSource> allUes);
 
 	/**
 	 * Get all entityless attributes with attributeName
@@ -4752,5 +4762,14 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if both handlers are empty or namespace for handlers can't be found
 	 */
 	void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler1, PerunBean handler2) throws WrongAttributeAssignmentException;
+
+	/**
+	 * Returns attribute definitions with the given namespace.
+	 *
+	 * @param sess session
+	 * @param namespaces list of namespaces
+	 * @return all attribute definitions with any of the given namespaces
+	 */
+	List<AttributeDefinition> getAttributeDefinitionsByNamespaces(PerunSession sess, List<String> namespaces);
 }
 

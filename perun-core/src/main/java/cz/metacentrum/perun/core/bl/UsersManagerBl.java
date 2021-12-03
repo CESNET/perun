@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
@@ -506,6 +507,14 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames);
+
+	/**
+	 * Gets list of all userExtSources with all of their attributes
+	 *
+	 * @param sess Perun session
+	 * @return list of RichUserExtSources
+	 */
+	List<RichUserExtSource> getAllRichUserExtSources(PerunSession sess);
 
 	/**
 	 * From given list of {@link RichUserExtSource} removes the attributes which are not allowed for

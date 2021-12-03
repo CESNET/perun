@@ -94,6 +94,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -104,6 +105,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * UsersManager business logic
@@ -691,7 +695,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				.map(ues -> new RichUserExtSource(ues,
 						attrsNames == null ? getPerunBl().getAttributesManagerBl().getAttributes(sess, ues)
 								: getPerunBl().getAttributesManagerBl().getAttributes(sess, ues, attrsNames)))
-				.collect(Collectors.toList());
+				.collect(toList());
+	}
+
+	@Override
+	public List<RichUserExtSource> getAllRichUserExtSources(PerunSession sess) {
+		var allUes = usersManagerImpl.getAllUserExtSources(sess);
+		return perunBl.getAttributesManagerBl().convertToRichUserExtSources(sess, allUes);
 	}
 
 	@Override

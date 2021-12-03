@@ -443,6 +443,15 @@ public interface UsersManager {
 	List<RichUserExtSource> getRichUserExtSources(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
+	 * Gets list of all userExtSources with all of their attributes
+	 *
+	 * @param sess Perun session
+	 * @return list of RichUserExtSources
+	 * @throws PrivilegeException if the current principal has insufficient permissions
+	 */
+	List<RichUserExtSource> getAllRichUserExtSources(PerunSession sess) throws PrivilegeException;
+
+	/**
 	 * Gets list of all user's external sources with attributes. If any of the attribute names is incorrect
 	 * then the value is silently skipped. If the attrsNames is null, then this method returns all ues attributes.
 	 *
