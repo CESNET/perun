@@ -8237,6 +8237,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getAllRichUserExtSources:
+    get:
+      tags:
+        - UsersManager
+      operationId: getAllRichUserExtSources
+      summary: Gets list of all userExtSources with all of their attributes
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/createAlternativePassword:
     post:
       tags:
