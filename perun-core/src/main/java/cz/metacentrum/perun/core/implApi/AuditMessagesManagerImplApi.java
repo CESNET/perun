@@ -40,7 +40,7 @@ public interface AuditMessagesManagerImplApi {
 	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count);
 
 	/**
-	 * Returns page of audit messages. Query parameter specifies offset and page size.
+	 * Returns page of audit messages. Query parameter specifies offset and page size. Total count is only estimated.
 	 *
 	 * @param perunSession perun session
 	 * @return Page of audit messages

@@ -917,7 +917,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @return page of requested rich groups
 	 */
-	Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames);
+	Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws GroupNotExistsException, MemberNotExistsException, MemberGroupMismatchException;
 
 	/**
 	 * Get page of subgroups from the given parent group.
@@ -1351,6 +1351,17 @@ public interface GroupsManagerBl {
 	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups);
 
 	/**
+	 * This method takes list of groups and member and then creates list of RichGroups containing all group and member-group attributes
+	 *
+	 * @param sess
+	 * @param member specified member which is assigned to groups
+	 * @param groups list of groups
+	 * @return list of RichGroups with attributes
+	 * @throws MemberGroupMismatchException
+	 */
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, List<Group> groups) throws MemberGroupMismatchException;
+
+	/**
 	 * This method takes list of groups and resource and then creates list of RichGroups containing all group and group-resource attributes
 	 *
 	 * @param sess
@@ -1389,6 +1400,23 @@ public interface GroupsManagerBl {
 	 * @throws GroupResourceMismatchException
 	 */
 	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws GroupResourceMismatchException;
+
+	/**
+	 * This method takes list of groups, member and list of attrNames and then creates list of RichGroups containing
+	 * all selected group and member-group attributes by list (attributes from other namespaces are skipped).
+	 * If attribute is in the list, it can be return with empty value if it is not set.
+	 *
+	 * @param sess
+	 * @param member
+	 * @param groups
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
+	 * @return list of RichGroups with selected attributes
+	 * @throws InternalErrorException
+	 * @throws GroupResourceMismatchException
+	 */
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, List<Group> groups, List<String> attrNames) throws MemberGroupMismatchException, MemberNotExistsException, GroupNotExistsException;
 
 	/**
 	 * This method takes list of groups, resource, member and list of attrNames and then creates list of RichGroups containing

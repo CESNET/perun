@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.integration.blImpl;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -7,67 +8,62 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.integration.bl.IntegrationManagerBl;
-import cz.metacentrum.perun.integration.dao.IntegrationManagerImplApi;
-import cz.metacentrum.perun.integration.model.GroupMembers;
-import cz.metacentrum.perun.integration.model.GroupMemberRelations;
-import cz.metacentrum.perun.integration.model.MemberWithAttributes;
+import cz.metacentrum.perun.integration.dao.IntegrationManagerDao;
+import cz.metacentrum.perun.integration.model.GroupMemberData;
 
-import java.util.HashSet;
 import java.util.List;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 public class IntegrationManagerBlImpl implements IntegrationManagerBl {
 
-	private IntegrationManagerImplApi integrationManagerImplApi;
+	private IntegrationManagerDao integrationManagerDao;
 	private PerunBl perun;
 
+	private record GroupMember(int groupId, int memberId) { }
+	private record GroupMemberAttribute(int groupId, int memberId, Attribute attribute) { }
+
 	@Override
-	public List<GroupMemberRelations> getGroupMemberRelations(PerunSession sess) {
-		var groupMembersRelations = integrationManagerImplApi.getGroupMemberRelations(sess);
-		return groupMembersRelations.stream()
-			.map(groupMembers -> loadMemberGroupAttributes(sess, groupMembers))
-			.collect(toList());
+	public GroupMemberData getGroupMemberData(PerunSession sess) {
+		var groupMembersRelations = integrationManagerDao.getGroupMemberRelations(sess);
+		var attributesByGroupIdMemberId = groupMembersRelations.stream()
+			.map(groupMemberRelation -> new GroupMember(groupMemberRelation.groupId(), groupMemberRelation.memberId()))
+			.distinct()
+			.flatMap(groupMember -> getAttributesForMemberGroup(sess, groupMember).stream())
+			.collect(
+				groupingBy(GroupMemberAttribute::groupId,
+					groupingBy(GroupMemberAttribute::memberId,
+						mapping(GroupMemberAttribute::attribute, toList()))));
+
+		return new GroupMemberData(groupMembersRelations, attributesByGroupIdMemberId);
 	}
 
 	/**
-	 * For the given group members, load all group-member attributes.
+	 * For the given groupMember data, load all member-group attributes.
 	 *
 	 * @param sess session
-	 * @param groupMembers group with members for which the attributes will be loaded
-	 * @return group with members and their member-group attributes
-	 */
-	private GroupMemberRelations loadMemberGroupAttributes(PerunSession sess, GroupMembers groupMembers) {
-		var membersWithAttributes = groupMembers.memberIds().stream()
-			.map(memberId -> getAttributesForMemberGroup(sess, memberId, groupMembers.groupId()))
-			.collect(toSet());
-		return new GroupMemberRelations(groupMembers.groupId(), membersWithAttributes);
-	}
-
-	/**
-	 * For the given member and group, load all member-group attributes.
-	 *
-	 * @param sess session
-	 * @param memberId member id
-	 * @param groupId group id
+	 * @param groupMember groupId with memberId
 	 * @return member with his member-group attributes
 	 */
-	private MemberWithAttributes getAttributesForMemberGroup(PerunSession sess, Integer memberId, Integer groupId) {
+	private List<GroupMemberAttribute> getAttributesForMemberGroup(PerunSession sess, GroupMember groupMember) {
 		try {
-			var attrs = perun.getAttributesManagerBl().getAttributes(sess, new Member(memberId), new Group(groupId));
-			return new MemberWithAttributes(memberId, new HashSet<>(attrs));
+			return perun.getAttributesManagerBl().getAttributes(sess, new Member(groupMember.memberId()), new Group(groupMember.groupId))
+				.stream()
+				.map(attr -> new GroupMemberAttribute(groupMember.groupId(), groupMember.memberId(), attr))
+				.collect(toList());
 		} catch (MemberGroupMismatchException e) {
-			throw new InternalErrorException(e);
+			throw new InternalErrorException("Failed to load member-group attributes.", e);
 		}
 	}
 
-	public IntegrationManagerImplApi getIntegrationManagerImplApi() {
-		return integrationManagerImplApi;
+	public IntegrationManagerDao getIntegrationManagerDao() {
+		return integrationManagerDao;
 	}
 
-	public void setIntegrationManagerImplApi(IntegrationManagerImplApi integrationManagerImplApi) {
-		this.integrationManagerImplApi = integrationManagerImplApi;
+	public void setIntegrationManagerDao(IntegrationManagerDao integrationManagerDao) {
+		this.integrationManagerDao = integrationManagerDao;
 	}
 
 	public PerunBl getPerun() {

@@ -5467,6 +5467,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public String escapeQueryParameters(String value) {
+		return getAttributesManagerImpl().escapeQueryParameters(value);
+	}
+
+	@Override
 	public void doTheMagic(PerunSession sess, Member member) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		doTheMagic(sess, member, false);
 	}

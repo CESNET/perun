@@ -1,11 +1,11 @@
 package cz.metacentrum.perun.integration.dao;
 
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.integration.model.GroupMembers;
+import cz.metacentrum.perun.integration.model.GroupMemberRelation;
 
 import java.util.List;
 
-public interface IntegrationManagerImplApi {
+public interface IntegrationManagerDao {
 
 	/**
 	 * Return all group-member relations from db.
@@ -13,5 +13,5 @@ public interface IntegrationManagerImplApi {
 	 * @param sess session
 	 * @return list of all group-member relations
 	 */
-	List<GroupMembers> getGroupMemberRelations(PerunSession sess);
+	List<GroupMemberRelation> getGroupMemberRelations(PerunSession sess);
 }

@@ -39,6 +39,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlr
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MembershipMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -54,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
@@ -856,16 +858,27 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException {
+	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
-		if (!AuthzResolver.authorizedInternal(sess, "getGroupsPage_Vo_GroupsPageQuery_List<String>_policy", vo)) {
+		Member member = query.getMemberId() == null ? null : perunBl.getMembersManagerBl().getMemberById(sess, query.getMemberId());
+		if (member != null) {
+			perunBl.getMembersManagerBl().checkMemberExists(sess, member);
+		}
+
+		// Authorization
+		if (member != null) {
+			if (!AuthzResolver.authorizedInternal(sess, "member-getGroupsPage_Vo_GroupsPageQuery_List<String>_policy",  member)) {
+				throw new PrivilegeException(sess, "getGroupsPage");
+			}
+		} else if (!AuthzResolver.authorizedInternal(sess, "getGroupsPage_Vo_GroupsPageQuery_List<String>_policy", vo)) {
 			throw new PrivilegeException(sess, "getGroupsPage");
 		}
 
 		Paginated<RichGroup> result = groupsManagerBl.getGroupsPage(sess, vo, query, attrNames);
-		result.setData(getGroupsManagerBl().filterOnlyAllowedAttributes(sess, result.getData(), null, true));
+
+		result.setData(getGroupsManagerBl().filterOnlyAllowedAttributes(sess, result.getData(), member, null, true));
 
 		return result;
 	}

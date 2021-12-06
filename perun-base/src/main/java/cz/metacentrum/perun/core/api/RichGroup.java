@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class RichGroup extends Group {
 
-	private List<Attribute> groupAttributes;
+	private List<Attribute> attributes;
 
 	public RichGroup() {
 	}
@@ -23,15 +23,15 @@ public class RichGroup extends Group {
 				group.getModifiedByUid());
 		this.setVoId(group.getVoId());
 		this.setUuid(group.getUuid());
-		this.groupAttributes = attrs;
+		this.attributes = attrs;
 	}
 
 	public List<Attribute> getAttributes() {
-		return this.groupAttributes;
+		return this.attributes;
 	}
 
 	public void setAttributes(List<Attribute> attributes) {
-		this.groupAttributes = attributes;
+		this.attributes = attributes;
 	}
 
 	@Override
@@ -65,6 +65,8 @@ public class RichGroup extends Group {
 
 		String sGroupAttrs;
 		List<String> nAttrs = new ArrayList<>();
+
+		// serialize group attributes
 		List<Attribute> oAttrs = this.getAttributes();
 		if (oAttrs == null) {
 			sGroupAttrs = "\\0";
@@ -90,7 +92,7 @@ public class RichGroup extends Group {
 	@Override
 	public int hashCode() {
 		int hash = 5;
-		hash = 53 * hash + Objects.hashCode(this.groupAttributes);
+		hash = 53 * hash + Objects.hashCode(this.attributes);
 		return hash;
 	}
 
@@ -109,7 +111,7 @@ public class RichGroup extends Group {
 		if (getId() != other.getId()) {
 			return false;
 		}
-		if (groupAttributes == null) {
+		if (attributes == null) {
 			if (other.getAttributes() != null) {
 				return false;
 			}

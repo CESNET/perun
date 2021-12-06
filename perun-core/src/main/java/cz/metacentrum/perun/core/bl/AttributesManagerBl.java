@@ -4341,6 +4341,16 @@ public interface AttributesManagerBl {
 	boolean isTrulyRequiredAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException, MemberGroupMismatchException;
 
 	/**
+	 * Escapes QUERY PARAMETER VALUES in URL value. Does not modify domain or parameters names.
+	 * e.g. 'domain/?vo=vo name' => 'domain/?vo=vo+name'
+	 *
+	 * @param value url
+	 *
+	 * @return url with escaped special characters in query parameter's values
+	 */
+	String escapeQueryParameters(String value);
+
+	/**
 	 * Same as doTheMagic(sess, member, false);
 	 */
 	void doTheMagic(PerunSession sess, Member member) throws WrongAttributeValueException, WrongReferenceAttributeValueException;

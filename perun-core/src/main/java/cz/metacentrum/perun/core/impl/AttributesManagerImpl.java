@@ -59,6 +59,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttribut
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -75,6 +76,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -4109,6 +4112,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		value = value.replace(Character.toString(KEY_VALUE_DELIMITER), "\\" + KEY_VALUE_DELIMITER); //escape KEY_VALUE_DELIMITER
 
 		return value;
+	}
+
+	/**
+	 * Escapes QUERY PARAMETER VALUES in URL value. Does not modify domain or parameters names.
+	 * e.g. 'domain/?vo=vo name' => 'domain/?vo=vo+name'
+	 *
+	 * @return url with escaped special characters in query parameter's values
+	 */
+	public String escapeQueryParameters(String value) {
+		if (value == null) {
+			return null;
+		}
+
+		String queryDelimiter = "[?&].*?=";
+		String[] values = value.split(queryDelimiter);
+		String result = values[0]; // domain
+
+		for (int i = 0; i < values.length - 1; i++) {
+			// find which query parameter was the delimiter between values
+			String parameter = StringUtils.substringBetween(value, values[i], values[i+1]);
+
+			// escape special characters in the query parameter value, but don't overwrite it in values
+			result = result.concat(parameter).concat(URLEncoder.encode(values[i+1], StandardCharsets.UTF_8));
+		}
+
+		return result;
 	}
 
 	/**

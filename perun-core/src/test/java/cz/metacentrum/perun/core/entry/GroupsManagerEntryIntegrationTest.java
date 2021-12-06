@@ -53,8 +53,6 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
-import org.assertj.core.api.Condition;
-import org.hamcrest.core.AnyOf;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.Assert;
@@ -70,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -5900,6 +5899,90 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(groups.getData().size(), 1);
 		assertEquals(groups.getData().get(0), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group2, List.of(extendMembershipRulesAttribute.getName())));
 		assertThat(groups.getData().get(0).getAttributes()).containsOnly(extendMembershipRulesAttribute);
+	}
+
+	@Test
+	public void getGroupsPageForMemberWithSpecifiedAttributes() throws Exception {
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+
+		Member member = setUpMember(vo);
+
+		groupsManagerBl.addMember(sess, group, member);
+		groupsManagerBl.addMember(sess, group2, member);
+
+		List<String> attributeNames = new ArrayList<>();
+		Map<UUID, List<Attribute>> memberGroupAttributes = new HashMap<>();
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+		attr.setFriendlyName("groupStatus");
+		attr.setDisplayName("Group membership status");
+		attr.setType(String.class.getName());
+		attr.setDescription("Whether member is VALID or EXPIRED in a group.");
+
+		attributesManager.createAttribute(sess, attr);
+
+		attributeNames.add(new Attribute(attr).getName());
+		attributeNames.add(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +":groupMembershipExpiration");
+
+		memberGroupAttributes.put(group.getUuid(), new ArrayList<>());
+		memberGroupAttributes.get(group.getUuid()).add(attributesManager.getAttribute(sess, member, group, attr.getName()));
+		memberGroupAttributes.get(group.getUuid()).add(attributesManager.getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +":groupMembershipExpiration"));
+
+		memberGroupAttributes.put(group2.getUuid(), new ArrayList<>());
+		memberGroupAttributes.get(group2.getUuid()).add(attributesManager.getAttribute(sess, member, group2, attr.getName()));
+		memberGroupAttributes.get(group2.getUuid()).add(attributesManager.getAttribute(sess, member, group2, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +":groupMembershipExpiration"));
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "", member.getId());
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, attributeNames);
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 2);
+
+		for (RichGroup g : groups.getData()) {
+			assertTrue(g.getAttributes().containsAll(memberGroupAttributes.get(g.getUuid())));
+		}
+	}
+
+	@Test
+	public void getGroupsPageForMemberWithAllAttributes() throws Exception {
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+
+		Member member = setUpMember(vo);
+
+		groupsManagerBl.addMember(sess, group, member);
+		groupsManagerBl.addMember(sess, group2, member);
+
+		Map<UUID, List<Attribute>> attributes = new HashMap<>();
+		setUpMemberGroupAttributes();
+
+		attributes.put(group.getUuid(), new ArrayList<>());
+		attributes.get(group.getUuid()).addAll(attributesManager.getAttributes(sess, group));
+		attributes.get(group.getUuid()).addAll(attributesManager.getAttributes(sess, member, group));
+
+		attributes.put(group2.getUuid(), new ArrayList<>());
+		attributes.get(group2.getUuid()).addAll(attributesManager.getAttributes(sess, group2));
+		attributes.get(group2.getUuid()).addAll(attributesManager.getAttributes(sess, member, group2));
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "", member.getId());
+		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, null);
+
+		assertNotNull(groups);
+		assertEquals(groups.getData().size(), 2);
+
+		for (RichGroup g : groups.getData()) {
+			assertEquals(new HashSet<>(g.getAttributes()), new HashSet<>(attributes.get(g.getUuid())));
+		}
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

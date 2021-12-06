@@ -677,6 +677,7 @@ components:
         offset: { type: integer }
         order: { $ref: '#/components/schemas/SortingOrder' }
         sortColumn: { $ref: '#/components/schemas/GroupsOrderColumn' }
+        memberId: { type: integer }
         searchString: { type: string }
       required:
         - pageSize
@@ -908,6 +909,7 @@ components:
       type: string
       enum:
         - APP_CREATED_USER
+        - APPROVABLE_GROUP_APP_USER
         - APP_CREATED_VO_ADMIN
         - MAIL_VALIDATION
         - APP_APPROVED_USER
@@ -1234,17 +1236,43 @@ components:
       properties:
         brands: { type: array, items: { $ref: '#/components/schemas/Brand' } }
 
-    MemberWithAttributes:
-      type: object
+    SimpleAttribute:
+      description: Attribute returned using the JsonSimple serializator
       properties:
-        memberId: { type: integer }
-        memberGroupAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute'} }
+        friendlyName: { type: string }
+        namespace: { type: string }
+        unique: { type: boolean }
+        value: { type: object }
 
-    GroupMemberRelations:
+    GroupMemberRelation:
       type: object
       properties:
-        groupId: { type: integer }
-        memberWithAttributes: { type: array, items: { $ref: '#/components/schemas/MemberWithAttributes'} }
+        m: { type: integer, description: "member id" }
+        g: { type: integer, description: "group id" }
+        sg: { type: integer, description: "source group id" }
+        s: { type: string, description: "source group status" }
+        t: { type: string, description: "membership type" }
+
+    GroupMemberData:
+      type: object
+      properties:
+        relations: { type: array, items: { $ref: '#/components/schemas/GroupMemberRelation' } }
+        groupMemberAttributes:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: array
+              items: { $ref: '#/components/schemas/Attribute' }
+
+    Identity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        organization: { type: string }
+        email: { type: string }
+        identities: { type: array, items: { $ref: '#/components/schemas/ExtSource' } }
 
   #################################################
   #                                               #
@@ -1342,6 +1370,17 @@ components:
           schema:
             type: object
             additionalProperties:
+              type: object
+              additionalProperties:
+                type: string
+
+    ListOfMapStringStringResponse:
+      description: "returns List<Map<String,String>>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
               type: object
               additionalProperties:
                 type: string
@@ -1506,7 +1545,7 @@ components:
       content:
         application/json:
           schema:
-              $ref: "#/components/schemas/PaginatedAuditMessages"
+            $ref: "#/components/schemas/PaginatedAuditMessages"
 
     PublicationSystemResponse:
       description: "returns PublicationSystem"
@@ -2220,14 +2259,21 @@ components:
           schema:
             $ref: "#/components/schemas/PerunAppsConfig"
 
-    ListGroupMemberRelationsResponse:
+    GroupMemberDataResponse:
       description: "returns member-groups relations with attributes"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GroupMemberData"
+
+    ListOfIdentityResponse:
+      description: "List<Identity> Identities"
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/GroupMemberRelations"
+              $ref: "#/components/schemas/Identity"
 
 
   #####################################################
@@ -6886,7 +6932,7 @@ paths:
       tags:
         - AuditMessagesManager
       operationId: getMessagesPage
-      summary: Get page of audit messages.
+      summary: Get page of audit messages. Total count is only estimated.
       responses:
         '200':
           $ref: '#/components/responses/PaginatedMessagesResponse'
@@ -8792,6 +8838,21 @@ paths:
                 attrNames: { type: array, items: { type: string } }
                 query: { $ref: '#/components/schemas/UsersPageQuery' }
 
+  /urlinjsonout/usersManager/generateAccount/name:
+    post:
+      tags:
+        - UsersManager
+      operationId: generateAccountForName
+      summary: Generates user account in a backend system associated with login-namespace in Perun. Parameters are implementation-dependent for each login-namespace. Returns map with 1) key=login-namespace attribute urn, value=generated login 2) rest of opt response attributes.
+      parameters:
+        - $ref: '#/components/parameters/namespace'
+        - { name: name, schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
@@ -9198,7 +9259,7 @@ paths:
       summary: Creates new sponsored members in a given VO and namespace.
       responses:
         '200':
-          $ref: '#/components/responses/MapStringMapStringStringResponse'
+          $ref: '#/components/responses/ListOfMapStringStringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:
@@ -9233,7 +9294,7 @@ paths:
       summary: Creates new sponsored members in a given VO and namespace.
       responses:
         '200':
-          $ref: '#/components/responses/MapStringMapStringStringResponse'
+          $ref: '#/components/responses/ListOfMapStringStringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:
@@ -9634,6 +9695,7 @@ paths:
         - $ref: '#/components/parameters/namespace'
         - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail" }
         - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message" }
+        - { name: baseUrl, schema: { type: string }, in: query, required: false, description: "base url of Perun instance (optional)" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14700,6 +14762,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/registrarManager/checkForSimilarUsers/authInfo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: checkForSimilarUsersWithAuthInfo
+      summary: Check for similar users by name and email in session (authz) information
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfIdentityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getConsolidatorToken:
     get:
       tags:
@@ -16352,14 +16426,14 @@ paths:
   #                                               #
   #################################################
 
-  /json/integrationManager/getGroupMemberRelations:
+  /json/integrationManager/getGroupMemberData:
     get:
       tags:
         - IntegrationManager
-      operationId: getGroupMemberRelations
+      operationId: getGroupMemberData
       summary: Get all member-group relations for all groups with all member-group attributes.
       responses:
         '200':
-          $ref: '#/components/responses/ListGroupMemberRelationsResponse'
+          $ref: '#/components/responses/GroupMemberDataResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'

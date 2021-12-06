@@ -114,8 +114,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	private final JdbcPerunTemplate jdbc;
 	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-	private SponsoredAccountsConfigLoader sponsoredAccountsConfigLoader;
-	private SponsoredAccountsConfigContainer sponsoredAccountsConfigContainer = new SponsoredAccountsConfigContainer();
+	private LoginNamespacesRulesConfigLoader loginNamespacesRulesConfigLoader;
+	private LoginNamespacesRulesConfigContainer loginNamespacesRulesConfigContainer = new LoginNamespacesRulesConfigContainer();
 
 	/**
 	 * Simple member mapper.
@@ -233,12 +233,12 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	/**
-	 * Load all namespaces rules for sponsored accounts
+	 * Load all namespaces rules for login-namespaces
 	 *
 	 */
 	public void initialize() {
-		this.sponsoredAccountsConfigLoader.loadSponsoredAccountsConfig();
-		sponsoredAccountsConfigContainer.setNamespacesRules(this.sponsoredAccountsConfigLoader.loadSponsoredAccountsConfig());
+		this.loginNamespacesRulesConfigLoader.loadNamespacesRulesConfig();
+		loginNamespacesRulesConfigContainer.setNamespacesRules(this.loginNamespacesRulesConfigLoader.loadNamespacesRulesConfig());
 	}
 
 	@Override
@@ -789,18 +789,18 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void setSponsoredAccountsConfigLoader(SponsoredAccountsConfigLoader sponsoredAccountsConfigLoader) {
-		this.sponsoredAccountsConfigLoader = sponsoredAccountsConfigLoader;
+	public void setLoginNamespacesRulesConfigLoader(LoginNamespacesRulesConfigLoader loginNamespacesRulesConfigLoader) {
+		this.loginNamespacesRulesConfigLoader = loginNamespacesRulesConfigLoader;
 	}
 
 	@Override
 	public List<NamespaceRules> getAllNamespacesRules() {
-		return sponsoredAccountsConfigContainer.getAllNamespacesRules();
+		return loginNamespacesRulesConfigContainer.getAllNamespacesRules();
 	}
 
 	@Override
 	public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
-		return sponsoredAccountsConfigContainer.getNamespaceRules(namespace);
+		return loginNamespacesRulesConfigContainer.getNamespaceRules(namespace);
 	}
 
 	@Override

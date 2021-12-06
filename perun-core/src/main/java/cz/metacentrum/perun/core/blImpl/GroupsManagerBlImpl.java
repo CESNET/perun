@@ -1674,10 +1674,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) {
+	public Paginated<RichGroup> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query, List<String> attrNames) throws GroupNotExistsException, MemberNotExistsException, MemberGroupMismatchException {
 		Paginated<Group> paginatedGroups = groupsManagerImpl.getGroupsPage(sess, vo, query);
 
-		List<RichGroup> richGroups = convertGroupsToRichGroupsWithAttributes(sess, paginatedGroups.getData(), attrNames);
+		List<RichGroup> richGroups;
+		if (query.getMemberId() == null) {
+			richGroups = convertGroupsToRichGroupsWithAttributes(sess, paginatedGroups.getData(), attrNames);
+		} else {
+			richGroups = convertGroupsToRichGroupsWithAttributes(sess, perunBl.getMembersManagerBl().getMemberById(sess, query.getMemberId()), paginatedGroups.getData(), attrNames);
+		}
 
 		return new Paginated<>(richGroups, paginatedGroups.getOffset(), paginatedGroups.getPageSize(),
 		paginatedGroups.getTotalCount());
@@ -2807,6 +2812,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, List<Group> groups) throws MemberGroupMismatchException {
+		List<RichGroup> richGroups = new ArrayList<>();
+		for(Group group: groups) {
+			List<Attribute> attributes = this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group);
+			attributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group));
+			richGroups.add(new RichGroup(group, attributes));
+		}
+		return richGroups;
+	}
+
+	@Override
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws GroupResourceMismatchException {
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
@@ -2821,6 +2837,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
 			richGroups.add(new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames)));
+		}
+		return richGroups;
+	}
+
+	@Override
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, List<Group> groups, List<String> attrNames) throws MemberGroupMismatchException, MemberNotExistsException, GroupNotExistsException {
+		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, member, groups);
+		List<RichGroup> richGroups = new ArrayList<>();
+
+		// separate group and member-group attribute names
+		List<String> groupAttrNames = attrNames.stream().filter(attrName ->
+			attrName.startsWith(AttributesManager.NS_GROUP_ATTR)).collect(toList());
+		List<String> memberGroupAttrNames = attrNames.stream().filter(attrName ->
+			attrName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)).collect(toList());
+
+		for(Group group: groups) {
+			List<Attribute> attributes = new ArrayList<>();
+
+			attributes.addAll(getPerunBl().getAttributesManager().getAttributes(sess, member, group, memberGroupAttrNames));
+			attributes.addAll(getPerunBl().getAttributesManager().getAttributes(sess, group, groupAttrNames));
+
+			richGroups.add(new RichGroup(group, attributes));
 		}
 		return richGroups;
 	}

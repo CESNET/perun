@@ -1300,7 +1300,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+	public List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink,
 			String url, List<Group> groups) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
@@ -1331,7 +1331,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException {
+	public List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");

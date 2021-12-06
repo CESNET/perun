@@ -11,7 +11,7 @@ import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
-import cz.metacentrum.perun.integration.api.IntegrationManager;
+import cz.metacentrum.perun.integration.api.IntegrationManagerApi;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.TasksManager;
@@ -93,7 +93,7 @@ public class ApiCaller {
 	private CabinetManager cabinetManager;
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
-	private IntegrationManager integrationManager;
+	private IntegrationManagerApi integrationManagerApi;
 	private SCIM scimManager = null;
 
 	private final static String RPCPRINCIPAL = "perunRpc";
@@ -225,8 +225,8 @@ public class ApiCaller {
 		return notificationManager;
 	}
 
-	public IntegrationManager getIntegrationManager() {
-		return integrationManager;
+	public IntegrationManagerApi getIntegrationManager() {
+		return integrationManagerApi;
 	}
 
 	public SCIM getSCIMManager(){
@@ -443,7 +443,7 @@ public class ApiCaller {
 		// Initialize Notifications
 		this.notificationManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perunNotifNotificationManager", PerunNotifNotificationManager.class);
 
-		this.integrationManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("integrationManager", IntegrationManager.class);
+		this.integrationManagerApi = WebApplicationContextUtils.getWebApplicationContext(context).getBean("integrationManagerApi", IntegrationManagerApi.class);
 		// Initialize SCIM Manager
 		this.scimManager = new SCIM();
 
