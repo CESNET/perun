@@ -233,6 +233,8 @@ public class ApplicationMail extends JavaScriptObject {
 			return ObjectTranslation.INSTANCE.applicationMailTypeAppErrorVoAdmin();
 		} else if ("USER_INVITE".equalsIgnoreCase(type)) {
 			return ObjectTranslation.INSTANCE.applicationMailTypeInvitationUser();
+		} else if ("APPROVABLE_GROUP_APP_USER".equalsIgnoreCase(type)) {
+			return ObjectTranslation.INSTANCE.applicationMailTypeApprovableUser();
 		} else {
 			return "";
 		}
@@ -246,6 +248,7 @@ public class ApplicationMail extends JavaScriptObject {
 		APP_CREATED_USER,
 		APP_CREATED_VO_ADMIN,
 		MAIL_VALIDATION,
+		APPROVABLE_GROUP_APP_USER,
 		APP_APPROVED_USER,
 		APP_REJECTED_USER,
 		APP_ERROR_VO_ADMIN,

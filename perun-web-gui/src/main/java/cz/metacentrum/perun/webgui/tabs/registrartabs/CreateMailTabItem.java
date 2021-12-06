@@ -222,6 +222,10 @@ public class CreateMailTabItem implements TabItem {
 		// inputs - filling
 		mailTypeListbox.clear();
 		for (ApplicationMail.MailType type : ApplicationMail.MailType.values()) {
+			if (group == null && type.equals(ApplicationMail.MailType.APPROVABLE_GROUP_APP_USER)) {
+				// This notification is relevant only for the groups, so skip it from the offering
+				continue;
+			}
 			mailTypeListbox.addItem(ApplicationMail.getTranslatedMailType(type.toString()), type.toString());
 		}
 
