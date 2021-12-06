@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class RichGroup extends Group {
 
-	private List<Attribute> groupAttributes;
+	private List<Attribute> attributes;
 
 	public RichGroup() {
 	}
@@ -23,15 +23,15 @@ public class RichGroup extends Group {
 				group.getModifiedByUid());
 		this.setVoId(group.getVoId());
 		this.setUuid(group.getUuid());
-		this.groupAttributes = attrs;
+		this.attributes = attrs;
 	}
 
-	public List<Attribute> getGroupAttributes() {
-		return this.groupAttributes;
+	public List<Attribute> getAttributes() {
+		return this.attributes;
 	}
 
-	public void setGroupAttributes(List<Attribute> groupAttributes) {
-		this.groupAttributes = groupAttributes;
+	public void setAttributes(List<Attribute> attributes) {
+		this.attributes = attributes;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class RichGroup extends Group {
 		ret.append("', voId='");
 		ret.append(this.getVoId());
 		ret.append("', groupAttributes='");
-		ret.append(this.getGroupAttributes());
+		ret.append(this.getAttributes());
 		ret.append("']");
 		return ret.toString();
 	}
@@ -67,7 +67,7 @@ public class RichGroup extends Group {
 		List<String> nAttrs = new ArrayList<>();
 
 		// serialize group attributes
-		List<Attribute> oAttrs = this.getGroupAttributes();
+		List<Attribute> oAttrs = this.getAttributes();
 		if (oAttrs == null) {
 			sGroupAttrs = "\\0";
 		} else {
@@ -92,7 +92,7 @@ public class RichGroup extends Group {
 	@Override
 	public int hashCode() {
 		int hash = 5;
-		hash = 53 * hash + Objects.hashCode(this.groupAttributes);
+		hash = 53 * hash + Objects.hashCode(this.attributes);
 		return hash;
 	}
 
@@ -111,11 +111,11 @@ public class RichGroup extends Group {
 		if (getId() != other.getId()) {
 			return false;
 		}
-		if (groupAttributes == null) {
-			if (other.getGroupAttributes() != null) {
+		if (attributes == null) {
+			if (other.getAttributes() != null) {
 				return false;
 			}
-		} else if (!this.getGroupAttributes().equals(other.getGroupAttributes())) {
+		} else if (!this.getAttributes().equals(other.getAttributes())) {
 			return false;
 		}
 		return true;

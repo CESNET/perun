@@ -2674,8 +2674,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if(richGroup == null) throw new InternalErrorException("RichGroup can't be null.");
 
 		//Filtering richGroup attributes
-		if(richGroup.getGroupAttributes() != null) {
-			List<Attribute> groupAttributes = richGroup.getGroupAttributes();
+		if(richGroup.getAttributes() != null) {
+			List<Attribute> groupAttributes = richGroup.getAttributes();
 			List<Attribute> allowedGroupAttributes = new ArrayList<>();
 			for(Attribute groupAttr : groupAttributes) {
 				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup)) {
@@ -2684,7 +2684,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 
-			richGroup.setGroupAttributes(allowedGroupAttributes);
+			richGroup.setAttributes(allowedGroupAttributes);
 		}
 		return richGroup;
 	}
@@ -2733,8 +2733,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			//Filtering group attributes
-			if(richGroup.getGroupAttributes() != null) {
-				List<Attribute> groupAttributes = richGroup.getGroupAttributes();
+			if(richGroup.getAttributes() != null) {
+				List<Attribute> groupAttributes = richGroup.getAttributes();
 				List<Attribute> allowedGroupAttributes = new ArrayList<>();
 				for(Attribute groupAttr: groupAttributes) {
 					//if there is record in contextMap, use it
@@ -2772,7 +2772,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						}
 					}
 				}
-				richGroup.setGroupAttributes(allowedGroupAttributes);
+				richGroup.setAttributes(allowedGroupAttributes);
 			}
 			filteredRichGroups.add(richGroup);
 		}
