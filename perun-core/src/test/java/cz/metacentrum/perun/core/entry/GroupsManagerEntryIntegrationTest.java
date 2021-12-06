@@ -45,7 +45,6 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -4849,11 +4848,11 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		//get rich group with all possible attributes (not-null)
 		List<RichGroup> richGroups = groupsManagerBl.getMemberRichGroupsWithAttributesByNames(sess, member, null);
 		assertEquals(group.getId(), richGroups.get(0).getId());
-		assertTrue(richGroups.get(0).getGroupAttributes().containsAll(allAttributes));
+		assertTrue(richGroups.get(0).getAttributes().containsAll(allAttributes));
 		//get rich groups with selected attributes (not-null)
 		richGroups = groupsManagerBl.getMemberRichGroupsWithAttributesByNames(sess, member, allAttributes.stream().map(Attribute::getName).collect(Collectors.toList()));
 		assertEquals(group.getId(), richGroups.get(0).getId());
-		assertEquals(allAttributes, richGroups.get(0).getGroupAttributes());
+		assertEquals(allAttributes, richGroups.get(0).getAttributes());
 	}
 
 	@Test(expected=MemberNotExistsException.class)
@@ -5550,7 +5549,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			.findAny()
 			.orElseThrow();
 
-		assertThat(foundRichGroup.getGroupAttributes())
+		assertThat(foundRichGroup.getAttributes())
 			.anyMatch(attr -> attrName.equals(attr.getFriendlyName()) &&
 		                      attrValue.equals(attr.getValue()));
 	}
@@ -5699,7 +5698,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull(groups);
 		assertEquals(groups.getData().size(), 2);
 		assertEquals(groups.getData().get(1), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group, List.of(extendMembershipRulesAttribute.getName())));
-		assertThat(groups.getData().get(1).getGroupAttributes()).containsOnly(extendMembershipRulesAttribute);
+		assertThat(groups.getData().get(1).getAttributes()).containsOnly(extendMembershipRulesAttribute);
 	}
 
 	@Test
@@ -5899,7 +5898,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull(groups);
 		assertEquals(groups.getData().size(), 1);
 		assertEquals(groups.getData().get(0), groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group2, List.of(extendMembershipRulesAttribute.getName())));
-		assertThat(groups.getData().get(0).getGroupAttributes()).containsOnly(extendMembershipRulesAttribute);
+		assertThat(groups.getData().get(0).getAttributes()).containsOnly(extendMembershipRulesAttribute);
 	}
 
 	@Test
@@ -5946,7 +5945,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(groups.getData().size(), 2);
 
 		for (RichGroup g : groups.getData()) {
-			assertTrue(g.getGroupAttributes().containsAll(memberGroupAttributes.get(g.getUuid())));
+			assertTrue(g.getAttributes().containsAll(memberGroupAttributes.get(g.getUuid())));
 		}
 	}
 
@@ -5982,7 +5981,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(groups.getData().size(), 2);
 
 		for (RichGroup g : groups.getData()) {
-			assertEquals(new HashSet<>(g.getGroupAttributes()), new HashSet<>(attributes.get(g.getUuid())));
+			assertEquals(new HashSet<>(g.getAttributes()), new HashSet<>(attributes.get(g.getUuid())));
 		}
 	}
 
