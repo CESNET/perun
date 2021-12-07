@@ -904,7 +904,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				attributesToSet.add(attribute);
 			}
 		}
-		removeAttributes(sess, member, attributesToRemove);
+		removeAttributes(sess, member, workWithUserAttributes, attributesToRemove);
 		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
 		checkAttributesSyntax(sess, member, attributesToSet, workWithUserAttributes);
 		// fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
