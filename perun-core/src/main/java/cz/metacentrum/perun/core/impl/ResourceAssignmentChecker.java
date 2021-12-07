@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -107,7 +106,7 @@ public class ResourceAssignmentChecker {
 
 		for (Group subgroup : sourceGroupSubgroups) {
 			try {
-				perunBl.getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup.getEnrichedGroup().getGroup(), subgroup, resource, sourceGroup.getStatus().equals(GroupResourceStatus.INACTIVE));
+				perunBl.getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup.getEnrichedGroup().getGroup(), subgroup, resource);
 			} catch (GroupResourceMismatchException e) {
 				log.error("Cannot activate group (id = " + subgroup.getId() + ") assignment on resource " + resource, e);
 			} catch (GroupAlreadyAssignedException | WrongReferenceAttributeValueException | WrongAttributeValueException e) {

@@ -416,7 +416,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		for(Group g: groups) {
 			getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(perunSession, g, resource);
 
-			//first we must assign group
+			// assign source group
 			try {
 				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource, autoAssignSubgroups);
 				setAssignedGroupStatusAndActivate(perunSession, resource, async, assignInactive, g);
@@ -439,7 +439,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				for (Group subgroup : subgroups) {
 
 					try {
-						assignAutomaticGroupToResource(perunSession, g, subgroup, resource, assignInactive);
+						assignAutomaticGroupToResource(perunSession, g, subgroup, resource);
 					} catch (GroupAlreadyAssignedException e) {
 						// silently skip
 					}
@@ -487,11 +487,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignAutomaticGroupToResource(PerunSession perunSession, Group sourceGroup, Group groupToAssign, Resource resource, boolean assignInactive) throws GroupResourceMismatchException, GroupAlreadyAssignedException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public void assignAutomaticGroupToResource(PerunSession perunSession, Group sourceGroup, Group groupToAssign, Resource resource) throws GroupResourceMismatchException, GroupAlreadyAssignedException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(perunSession, sourceGroup, resource);
 
 		getResourcesManagerImpl().assignAutomaticGroupToResource(perunSession, groupToAssign, resource, sourceGroup);
-		setAssignedGroupStatusAndActivate(perunSession, resource, true, assignInactive, groupToAssign);
+
+		// subgroups should not be assigned as inactive, thus 'assignInactive' flag is always false
+		setAssignedGroupStatusAndActivate(perunSession, resource, true, false, groupToAssign);
 	}
 
 	@Override
