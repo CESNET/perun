@@ -49,7 +49,7 @@ GetOptions("help|h"       => sub {
 	"voId|v=i"            => \$voId,
 	"voShortName|V=s"     => \$voShortName,
 	'attrList|am=s@{1,}'  => \@attributes,
-	'statusList|s=s@{0,}' => \@statuses,
+	'statuses|s=s@{0,}'   => \@statuses,
 	"orderByName|n"       => sub { $sortingFunction = getSortingFunction("getLastName", 1) },
 	"batch|b"             => \$batch) || die help;
 
