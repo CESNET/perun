@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -2215,6 +2216,899 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		@Override
 		public List<PerunBean> apply(PerunBean object) {
 			return function.apply(object);
+		}
+	}
+
+	/**
+	 * Functional interface defining action for member-resource related objects
+	 */
+	@FunctionalInterface
+	private interface MemberResourceRelatedObjectAction<TA extends PerunSession, TS extends Member, TM extends Resource, TV extends Set<Integer>> {
+		TV callOn(TA session, TS member, TM resource) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the member and resource objects.
+	 */
+	private enum RelatedMemberResourceObjectsResolver implements MemberResourceRelatedObjectAction<PerunSession, Member, Resource, Set<Integer>> {
+		Vo((sess, member, resource) -> {
+			return Collections.singleton(member.getVoId());
+		}),
+		Facility((sess, member, resource) -> {
+			return Collections.singleton(resource.getFacilityId());
+		}),
+		User((sess, member, resource) -> {
+			return Collections.singleton(member.getUserId());
+		}),
+		Group((sess, member, resource) -> {
+			List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
+			Set<Integer> ids = new HashSet<>();
+			groups.forEach(group -> ids.add(group.getId()));
+			return ids;
+		}),
+		Member((sess, member, resource) -> {
+			return Collections.singleton(member.getId());
+		}),
+		Resource((sess, member, resource) -> {
+			return Collections.singleton(resource.getId());
+		}),
+		Default((sess, member, resource) -> {
+			return Collections.emptySet();
+		});
+
+		private MemberResourceRelatedObjectAction<PerunSession, Member, Resource, Set<Integer>> function;
+
+		RelatedMemberResourceObjectsResolver(final MemberResourceRelatedObjectAction<PerunSession, Member, Resource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedMemberResourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedMemberResourceObjectsResolver value.
+		 */
+		public static RelatedMemberResourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedMemberResourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedMemberResourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, Member member, Resource resource) {
+			return function.callOn(sess, member, resource);
+		}
+	}
+
+	/**
+	 * Functional interface defining action for group-resource related objects
+	 */
+	@FunctionalInterface
+	private interface GroupResourceRelatedObjectAction<TA extends PerunSession, TS extends Group, TM extends Resource, TV extends Set<Integer>> {
+		TV callOn(TA session, TS group, TM resource) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the group and resource objects.
+	 */
+	private enum RelatedGroupResourceObjectsResolver implements GroupResourceRelatedObjectAction<PerunSession, Group, Resource, Set<Integer>> {
+		Vo((sess, group, resource) -> {
+			return Collections.singleton(resource.getVoId());
+		}),
+		Facility((sess, group, resource) -> {
+			return Collections.singleton(resource.getFacilityId());
+		}),
+		User((sess, group, resource) -> {
+			List<User> users = perunBl.getUsersManagerBl().getUsersByPerunBean(sess, group);
+			Set<Integer> userIds = new HashSet<>();
+			users.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, group, resource) -> {
+			return Collections.singleton(group.getId());
+		}),
+		Member((sess, group, resource) -> {
+			List<Member> members = perunBl.getGroupsManagerBl().getGroupMembersExceptInvalid(sess, group);
+			Set<Integer> memberIds = new HashSet<>();
+			members.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, group, resource) -> {
+			return Collections.singleton(resource.getId());
+		}),
+		Default((sess, group, resource) -> {
+			return Collections.emptySet();
+		});
+
+		private GroupResourceRelatedObjectAction<PerunSession, Group, Resource, Set<Integer>> function;
+
+		RelatedGroupResourceObjectsResolver(final GroupResourceRelatedObjectAction<PerunSession, Group, Resource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedGroupResourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedGroupResourceObjectsResolver value.
+		 */
+		public static RelatedGroupResourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedGroupResourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedGroupResourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, Group group, Resource resource) {
+			return function.callOn(sess, group, resource);
+		}
+	}
+
+	/**
+	 * Functional interface defining action for user-facility related objects
+	 */
+	@FunctionalInterface
+	private interface UserFacilityRelatedObjectAction<TA extends PerunSession, TS extends User, TM extends Facility, TV extends Set<Integer>> {
+		TV callOn(TA session, TS user, TM facility) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the user and facility objects.
+	 */
+	private enum RelatedUserFacilityObjectsResolver implements UserFacilityRelatedObjectAction<PerunSession, User, Facility, Set<Integer>> {
+		Vo((sess, user, facility) -> {
+			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			HashSet<Resource> resourcesFromUser = new HashSet<>();
+			for (Member memberElement : membersFromUser) {
+				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
+			}
+			resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+			Set<Integer> voIds = new HashSet<>();
+			resourcesFromUser.forEach(resource -> voIds.add(resource.getVoId()));
+			return voIds;
+		}),
+		Facility((sess, user, facility) -> {
+			return Collections.singleton(facility.getId());
+		}),
+		User((sess, user, facility) -> {
+			return Collections.singleton(user.getId());
+		}),
+		Group((sess, user, facility) -> {
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, user);
+			List<Group> facilityGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, facility);
+			userGroups.retainAll(facilityGroups);
+			Set<Integer> groupIds = new HashSet<>();
+			userGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, user, facility) -> {
+			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			Set<Integer> memberIds = new HashSet<>();
+			membersFromUser.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, user, facility) -> {
+			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			HashSet<Resource> resourcesFromUser = new HashSet<>();
+			for (Member memberElement : membersFromUser) {
+				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
+			}
+			resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+			Set<Integer> resourceIds = new HashSet<>();
+			resourcesFromUser.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, user, facility) -> {
+			return Collections.emptySet();
+		});
+
+		private UserFacilityRelatedObjectAction<PerunSession, User, Facility, Set<Integer>> function;
+
+		RelatedUserFacilityObjectsResolver(final UserFacilityRelatedObjectAction<PerunSession, User, Facility, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedUserFacilityObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedUserFacilityObjectsResolver value.
+		 */
+		public static RelatedUserFacilityObjectsResolver getValue(String name) {
+			try {
+				return RelatedUserFacilityObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedUserFacilityObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, User user, Facility facility) {
+			return function.callOn(sess, user, facility);
+		}
+	}
+
+	/**
+	 * Functional interface defining action for member-group related objects
+	 */
+	@FunctionalInterface
+	private interface MemberGroupRelatedObjectAction<TA extends PerunSession, TS extends Member, TM extends Group, TV extends Set<Integer>> {
+		TV callOn(TA session, TS member, TM group) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the member and group objects.
+	 */
+	private enum RelatedMemberGroupObjectsResolver implements MemberGroupRelatedObjectAction<PerunSession, Member, Group, Set<Integer>> {
+		Vo((sess, member, group) -> {
+			return Collections.singleton(member.getVoId());
+		}),
+		Facility((sess, member, group) -> {
+			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+			memberResources.retainAll(groupResources);
+			Set<Integer> facilityIds = new HashSet<>();
+			memberResources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			return facilityIds;
+		}),
+		User((sess, member, group) -> {
+			return Collections.singleton(member.getUserId());
+		}),
+		Group((sess, member, group) -> {
+			return Collections.singleton(group.getId());
+		}),
+		Member((sess, member, group) -> {
+			return Collections.singleton(member.getId());
+		}),
+		Resource((sess, member, group) -> {
+			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+			memberResources.retainAll(groupResources);
+			Set<Integer> resourceIds = new HashSet<>();
+			memberResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, member, group) -> {
+			return Collections.emptySet();
+		});
+
+		private MemberGroupRelatedObjectAction<PerunSession, Member, Group, Set<Integer>> function;
+
+		RelatedMemberGroupObjectsResolver(final MemberGroupRelatedObjectAction<PerunSession, Member, Group, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedMemberGroupObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedMemberGroupObjectsResolver value.
+		 */
+		public static RelatedMemberGroupObjectsResolver getValue(String name) {
+			try {
+				return RelatedMemberGroupObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedMemberGroupObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, Member member, Group group) {
+			return function.callOn(sess, member, group);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the User object.
+	 */
+	private enum RelatedUserObjectsResolver implements BiFunction<PerunSession, User, Set<Integer>> {
+		Vo((sess, user) -> {
+			List<Vo> vosFromUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromUser.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, user) -> {
+			List<Facility> userFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, user);
+			Set<Integer> facilityIds = new HashSet<>();
+			userFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			return facilityIds;
+		}),
+		User((sess, user) -> {
+			return Collections.singleton(user.getId());
+		}),
+		Group((sess, user) -> {
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, user);
+			Set<Integer> groupIds = new HashSet<>();
+			userGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, user) -> {
+			List<Member> userMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			Set<Integer> memberIds = new HashSet<>();
+			userMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, user) -> {
+			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssignedResources(sess, user);
+			Set<Integer> resourceIds = new HashSet<>();
+			userResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, user) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, User, Set<Integer>> function;
+
+		RelatedUserObjectsResolver(final BiFunction<PerunSession, User, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedUserObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedUserObjectsResolver value.
+		 */
+		public static RelatedUserObjectsResolver getValue(String name) {
+			try {
+				return RelatedUserObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedUserObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, User user) {
+			return function.apply(sess, user);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the member object.
+	 */
+	private enum RelatedMemberObjectsResolver implements BiFunction<PerunSession, Member, Set<Integer>> {
+		Vo((sess, member) -> {
+			List<Vo> vosFromMember = getPerunBl().getVosManagerBl().getVosByPerunBean(sess, member);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromMember.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, member) -> {
+			List<Facility> memberFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, member);
+			Set<Integer> facilityIds = new HashSet<>();
+			memberFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			return facilityIds;
+		}),
+		User((sess, member) -> {
+			return Collections.singleton(member.getUserId());
+		}),
+		Group((sess, member) -> {
+			List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, member);
+			Set<Integer> groupIds = new HashSet<>();
+			memberGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, member) -> {
+			return Collections.singleton(member.getId());
+		}),
+		Resource((sess, member) -> {
+			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+			Set<Integer> resourceIds = new HashSet<>();
+			memberResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, member) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Member, Set<Integer>> function;
+
+		RelatedMemberObjectsResolver(final BiFunction<PerunSession, Member, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedMemberObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedMemberObjectsResolver value.
+		 */
+		public static RelatedMemberObjectsResolver getValue(String name) {
+			try {
+				return RelatedMemberObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedMemberObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Member member) {
+			return function.apply(sess, member);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Vo object.
+	 */
+	private enum RelatedVoObjectsResolver implements BiFunction<PerunSession, Vo, Set<Integer>> {
+		Vo((sess, vo) -> {
+			return Collections.singleton(vo.getId());
+		}),
+		Facility((sess, vo) -> {
+			List<Facility> voFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, vo);
+			Set<Integer> facilityIds = new HashSet<>();
+			voFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			return facilityIds;
+		}),
+		User((sess, vo) -> {
+			List<User> voUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, vo);
+			Set<Integer> userIds = new HashSet<>();
+			voUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, vo) -> {
+			List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getGroups(sess, vo);
+			Set<Integer> groupIds = new HashSet<>();
+			memberGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, vo) -> {
+			List<Member> voMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+			Set<Integer> memberIds = new HashSet<>();
+			voMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, vo) -> {
+			List<Resource> voResources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+			Set<Integer> resourceIds = new HashSet<>();
+			voResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, vo) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Vo, Set<Integer>> function;
+
+		RelatedVoObjectsResolver(final BiFunction<PerunSession, Vo, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedVoObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedVoObjectsResolver value.
+		 */
+		public static RelatedVoObjectsResolver getValue(String name) {
+			try {
+				return RelatedVoObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedVoObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Vo vo) {
+			return function.apply(sess, vo);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Group object.
+	 */
+	private enum RelatedGroupObjectsResolver implements BiFunction<PerunSession, Group, Set<Integer>> {
+		Vo((sess, group) -> {
+			return Collections.singleton(group.getVoId());
+		}),
+		Facility((sess, group) -> {
+			List<Facility> groupFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, group);
+			Set<Integer> facilityIds = new HashSet<>();
+			groupFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			return facilityIds;
+		}),
+		User((sess, group) -> {
+			List<User> groupUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, group);
+			Set<Integer> userIds = new HashSet<>();
+			groupUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, group) -> {
+			return Collections.singleton(group.getId());
+		}),
+		Member((sess, group) -> {
+			List<Member> groupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+			Set<Integer> memberIds = new HashSet<>();
+			groupMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, group) -> {
+			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+			Set<Integer> resourceIds = new HashSet<>();
+			groupResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, group) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Group, Set<Integer>> function;
+
+		RelatedGroupObjectsResolver(final BiFunction<PerunSession, Group, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedGroupObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedGroupObjectsResolver value.
+		 */
+		public static RelatedGroupObjectsResolver getValue(String name) {
+			try {
+				return RelatedGroupObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedGroupObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Group group) {
+			return function.apply(sess, group);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the resource object.
+	 */
+	private enum RelatedResourceObjectsResolver implements BiFunction<PerunSession, Resource, Set<Integer>> {
+		Vo((sess, resource) -> {
+			return Collections.singleton(resource.getVoId());
+		}),
+		Facility((sess, resource) -> {
+			return Collections.singleton(resource.getFacilityId());
+		}),
+		User((sess, resource) -> {
+			List<User> resourceUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, resource);
+			Set<Integer> userIds = new HashSet<>();
+			resourceUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, resource) -> {
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
+			Set<Integer> groupIds = new HashSet<>();
+			resourceGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, resource) -> {
+			List<Member> resourceMembers = getPerunBl().getResourcesManagerBl().getAssignedMembers(sess, resource);
+			Set<Integer> memberIds = new HashSet<>();
+			resourceMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, resource) -> {
+			return Collections.singleton(resource.getId());
+		}),
+		Default((sess, resource) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Resource, Set<Integer>> function;
+
+		RelatedResourceObjectsResolver(final BiFunction<PerunSession, Resource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedResourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedResourceObjectsResolver value.
+		 */
+		public static RelatedResourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedResourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedResourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Resource resource) {
+			return function.apply(sess, resource);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Facility object.
+	 */
+	private enum RelatedFacilityObjectsResolver implements BiFunction<PerunSession, Facility, Set<Integer>> {
+		Vo((sess, facility) -> {
+			List<Vo> vosFromMember = getPerunBl().getVosManagerBl().getVosByPerunBean(sess, facility);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromMember.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, facility) -> {
+			return Collections.singleton(facility.getId());
+		}),
+		User((sess, facility) -> {
+			List<User> resourceUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, facility);
+			Set<Integer> userIds = new HashSet<>();
+			resourceUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, facility) -> {
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, facility);
+			Set<Integer> groupIds = new HashSet<>();
+			resourceGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, facility) -> {
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			List<Member> resourceMembers = new ArrayList<>();
+			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedMembers(sess, resource)));
+			Set<Integer> memberIds = new HashSet<>();
+			resourceMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, facility) -> {
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			Set<Integer> resourceIds = new HashSet<>();
+			facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, facility) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Facility, Set<Integer>> function;
+
+		RelatedFacilityObjectsResolver(final BiFunction<PerunSession, Facility, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedFacilityObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedFacilityObjectsResolver value.
+		 */
+		public static RelatedFacilityObjectsResolver getValue(String name) {
+			try {
+				return RelatedFacilityObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedFacilityObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Facility facility) {
+			return function.apply(sess, facility);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Host object.
+	 */
+	private enum RelatedHostObjectsResolver implements BiFunction<PerunSession, Host, Set<Integer>> {
+		Vo((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Vo> vosFromMember = getPerunBl().getVosManagerBl().getVosByPerunBean(sess, facility);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromMember.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			return Collections.singleton(facility.getId());
+		}),
+		User((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<User> resourceUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, facility);
+			Set<Integer> userIds = new HashSet<>();
+			resourceUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, facility);
+			Set<Integer> groupIds = new HashSet<>();
+			resourceGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			List<Member> resourceMembers = new ArrayList<>();
+			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedMembers(sess, resource)));
+			Set<Integer> memberIds = new HashSet<>();
+			resourceMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			Set<Integer> resourceIds = new HashSet<>();
+			facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, host) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Host, Set<Integer>> function;
+
+		RelatedHostObjectsResolver(final BiFunction<PerunSession, Host, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedHostObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedHostObjectsResolver value.
+		 */
+		public static RelatedHostObjectsResolver getValue(String name) {
+			try {
+				return RelatedHostObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedHostObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Host host) {
+			return function.apply(sess, host);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the UserExtSource object.
+	 */
+	private enum RelatedUserExtSourceObjectsResolver implements BiFunction<PerunSession, UserExtSource, Set<Integer>> {
+		Vo((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Vo> vosFromUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromUser.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Facility> userFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, user);
+			Set<Integer> facilityIds = new HashSet<>();
+			userFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			return facilityIds;
+		}),
+		User((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			return Collections.singleton(user.getId());
+		}),
+		Group((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, user);
+			Set<Integer> groupIds = new HashSet<>();
+			userGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Member> userMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			Set<Integer> memberIds = new HashSet<>();
+			userMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssignedResources(sess, user);
+			Set<Integer> resourceIds = new HashSet<>();
+			userResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, user) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, UserExtSource, Set<Integer>> function;
+
+		RelatedUserExtSourceObjectsResolver(final BiFunction<PerunSession, UserExtSource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedUserExtSourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedUserExtSourceObjectsResolver value.
+		 */
+		public static RelatedUserExtSourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedUserExtSourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedUserExtSourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, UserExtSource ues) {
+			return function.apply(sess, ues);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Entityless object.
+	 */
+	private enum RelatedEntitylessObjectsResolver implements BiFunction<PerunSession, String, Set<Integer>> {
+		Default((sess, key) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, String, Set<Integer>> function;
+
+		RelatedEntitylessObjectsResolver(final BiFunction<PerunSession, String, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedEntitylessObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedEntitylessObjectsResolver value.
+		 */
+		public static RelatedEntitylessObjectsResolver getValue(String name) {
+			try {
+				return RelatedEntitylessObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedEntitylessObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, String key) {
+			return function.apply(sess, key);
 		}
 	}
 
