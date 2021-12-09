@@ -25,25 +25,62 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Jakub Peschel <jakubpeschel@gmail.com>
  */
 public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-	private final Pattern pattern = Pattern.compile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$");
-	final String RSA = "ssh-rsa";
-	final String DSA = "ssh-dsa";
-	final String ECDSA_SHA2_NISTP256 = "ecdsa-sha2-nistp256";
-	final String ECDSA_SHA2_NISTP384 = "ecdsa-sha2-nistp384";
-	final String ECDSA_SHA2_NISTP521 = "ecdsa-sha2-nistp521";
-	final String ED25519 = "ssh-ed25519";
-	final String SK_ED25519 = "sk-ed25519";
-	final String SK_ECDSA = "sk-ecdsa";
+	private static final String SSH_RSA = "ssh-rsa";
+	private static final String SSH_DSS = "ssh-dss";
+	private static final String ECDSA_SHA2_NISTP256 = "ecdsa-sha2-nistp256";
+	private static final String ECDSA_SHA2_NISTP384 = "ecdsa-sha2-nistp384";
+	private static final String ECDSA_SHA2_NISTP521 = "ecdsa-sha2-nistp521";
+	private static final String SSH_ED25519 = "ssh-ed25519";
+	private static final String SSH_ED25519_CERT = "ssh-ed25519-cert-v01@openssh.com";
+	private static final String SK_SSH_ED25519 = "sk-ssh-ed25519@openssh.com";
+	private static final String SK_SSH_ED25519_CERT = "sk-ssh-ed25519-cert-v01@openssh.com";
+	private static final String SK_ECDSA_SHA2_NISTP256 = "sk-ecdsa-sha2-nistp256@openssh.com";
+	private static final String SSH_RSA_CERT = "ssh-rsa-cert-v01@openssh.com";
+	private static final String SSH_DSS_CERT = "ssh-dss-cert-v01@openssh.com";
+	private static final String ECDSA_SHA2_NISTP256_CERT = "ecdsa-sha2-nistp256-cert-v01@openssh.com";
+	private static final String ECDSA_SHA2_NISTP384_CERT = "ecdsa-sha2-nistp384-cert-v01@openssh.com";
+	private static final String ECDSA_SHA2_NISTP521_CERT = "ecdsa-sha2-nistp521-cert-v01@openssh.com";
+	private static final String SK_ECDSA_SHA2_NISTP256_CERT = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
+
+	private static final List<String> ALLOWED_SSH_TYPES = List.of(
+		SSH_RSA,
+		SSH_DSS,
+		ECDSA_SHA2_NISTP256,
+		ECDSA_SHA2_NISTP384,
+		ECDSA_SHA2_NISTP521,
+		SSH_ED25519,
+		SSH_ED25519_CERT,
+		SK_SSH_ED25519,
+		SK_SSH_ED25519_CERT,
+		SK_ECDSA_SHA2_NISTP256,
+		SSH_RSA_CERT,
+		SSH_DSS_CERT,
+		ECDSA_SHA2_NISTP256_CERT,
+		ECDSA_SHA2_NISTP384_CERT,
+		ECDSA_SHA2_NISTP521_CERT,
+		SK_ECDSA_SHA2_NISTP256_CERT);
+
+	// for now without cert variant
+	private static final List<String> RSA_SSH_TYPES = List.of(
+		SSH_RSA);
+
+	// for now without cert variant
+	private static final List<String> ECDSA_SSH_TYPES = List.of(
+		ECDSA_SHA2_NISTP256,
+		ECDSA_SHA2_NISTP384,
+		ECDSA_SHA2_NISTP521,
+		SK_ECDSA_SHA2_NISTP256);
+
+	// for now without cert variant
+	private static final List<String> DSA_SSH_TYPES = List.of(
+		SSH_DSS);
 
 	@Override
 	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
@@ -72,56 +109,38 @@ public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttribute
 	 * @throws Exception that is thrown whenever SSH key is not in correct format
 	 */
 	private void validateSSH(String sshKey) throws Exception {
-		byte[] bytes = null;
 		int[] pos = {0};
+		byte[] sshBase64KeyBytes;
 
-		// look for the Base64 encoded part of the line to decode
-		boolean typeFound = false;
-		String sshKeyTypeValue = "";
-
-		List<String> sshTypes = Arrays.asList(RSA, DSA, ECDSA_SHA2_NISTP256, ECDSA_SHA2_NISTP384, ECDSA_SHA2_NISTP521, ED25519);
-
-		for (String part : sshKey.split(" ")) {
-			Matcher matcher = pattern.matcher(part);
-			if (matcher.matches()) {
-				if (typeFound) {
-					bytes = Base64.decodeBase64(part);
-					break;
-				} else {
-					throw new IllegalArgumentException("type hasn't been found before the key part");
-				}
-			} else if (typeFound) {
-				throw new IllegalArgumentException("Base64 encoded part expected to be right after ssh type");
-			}
-			typeFound = sshTypes.contains(part) || part.startsWith(SK_ECDSA) || part.startsWith(SK_ED25519);
-			if (typeFound) {
-				sshKeyTypeValue = part;
-			}
-		}
-		if (bytes == null) {
-			throw new IllegalArgumentException("Base64 part hasn't been found");
+		String[] sshKeyParts = sshKey.split(" ");
+		if (sshKeyParts.length < 2) {
+			throw new IllegalArgumentException("SSH public key has to consists at least from the key type and the Base64 encoded public key.");
 		}
 
-		String sshKeyType = decodeType(bytes, pos);
-		if (!sshKeyType.equals(sshKeyTypeValue)) {
-			throw new IllegalArgumentException("the type in the key part and the type before the key part does not match");
+		String sshKeyType = sshKeyParts[0];
+		if (!ALLOWED_SSH_TYPES.contains(sshKeyType)) {
+			throw new IllegalArgumentException("The " + sshKeyType + " key type is not allowed. Allowed types are: " + ALLOWED_SSH_TYPES + ".");
 		}
 
 		try {
-			if (sshKeyType.equals(RSA)) {
-				decodeRSA(bytes, pos);
-			} else if (sshKeyType.equals(DSA)) {
-				decodeDSA(bytes, pos);
-			} else if (sshKeyType.equals(ECDSA_SHA2_NISTP256)
-				|| sshKeyType.equals(ECDSA_SHA2_NISTP384)
-				|| sshKeyType.equals(ECDSA_SHA2_NISTP521)) {
-				decodeEcdsa(bytes, pos);
-			} else if (!(sshKeyType.startsWith(SK_ECDSA) || sshKeyType.equals(ED25519) || sshKeyType.startsWith(SK_ED25519))) {
-				throw new IllegalArgumentException("unknown type " + sshKeyType);
-			}
-		} catch (InvalidKeySpecException e) {
-			throw new IllegalArgumentException("wrong key specification");
+			sshBase64KeyBytes = Base64.decodeBase64(sshKeyParts[1]);
+		} catch (Exception exception) {
+			throw new IllegalArgumentException("The " + sshKeyParts[1] + " is not a valid Base64 encoded public key.");
 		}
+
+		String sshBase64KeyType = decodeType(sshBase64KeyBytes, pos);
+		if (!sshBase64KeyType.equals(sshKeyType)) {
+			throw new IllegalArgumentException("SSH types are not same. Type defined before the Base64 is: " + sshKeyType + "and type inside the Base64 is: " + sshBase64KeyType + ".");
+		}
+
+		if (RSA_SSH_TYPES.contains(sshKeyType)) {
+			decodeRSA(sshBase64KeyBytes, pos);
+		} else if (DSA_SSH_TYPES.contains(sshKeyType)) {
+			decodeDSA(sshBase64KeyBytes, pos);
+		} else if (ECDSA_SSH_TYPES.contains(sshKeyType)) {
+			decodeEcdsa(sshBase64KeyBytes, pos);
+		}
+
 	}
 
 	/**
@@ -160,7 +179,7 @@ public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttribute
 	}
 
 	/**
-	 * Checks whether is the key in the correct ecdsa format.
+	 * Checks whether is the key in the correct rsa format.
 	 *
 	 * @param bytes Data of SSH key encoded in Base64
 	 * @param pos   Position in the 'bytes'
