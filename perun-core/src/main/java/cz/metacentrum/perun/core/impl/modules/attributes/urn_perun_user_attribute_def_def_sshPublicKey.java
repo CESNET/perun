@@ -125,20 +125,24 @@ public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttribute
 		try {
 			sshBase64KeyBytes = Base64.decodeBase64(sshKeyParts[1]);
 		} catch (Exception exception) {
-			throw new IllegalArgumentException("The " + sshKeyParts[1] + " is not a valid Base64 encoded public key.");
+			throw new IllegalArgumentException("Provided Base64 encoded public key is not valid.");
 		}
 
 		String sshBase64KeyType = decodeType(sshBase64KeyBytes, pos);
 		if (!sshBase64KeyType.equals(sshKeyType)) {
-			throw new IllegalArgumentException("SSH types are not same. Type defined before the Base64 is: " + sshKeyType + "and type inside the Base64 is: " + sshBase64KeyType + ".");
+			throw new IllegalArgumentException("SSH types are not same. Type defined before the Base64 is: " + sshKeyType + " and type inside the Base64 is: " + sshBase64KeyType + ".");
 		}
 
-		if (RSA_SSH_TYPES.contains(sshKeyType)) {
-			decodeRSA(sshBase64KeyBytes, pos);
-		} else if (DSA_SSH_TYPES.contains(sshKeyType)) {
-			decodeDSA(sshBase64KeyBytes, pos);
-		} else if (ECDSA_SSH_TYPES.contains(sshKeyType)) {
-			decodeEcdsa(sshBase64KeyBytes, pos);
+		try {
+			if (RSA_SSH_TYPES.contains(sshKeyType)) {
+				decodeRSA(sshBase64KeyBytes, pos);
+			} else if (DSA_SSH_TYPES.contains(sshKeyType)) {
+				decodeDSA(sshBase64KeyBytes, pos);
+			} else if (ECDSA_SSH_TYPES.contains(sshKeyType)) {
+				decodeEcdsa(sshBase64KeyBytes, pos);
+			}
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Provided Base64 encoded public key is not valid.");
 		}
 
 	}
