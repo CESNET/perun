@@ -1992,6 +1992,35 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getAssociatedMembersForUserAndFacility() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedMembersForUserAndFacility");
+
+		Vo vo2 = new Vo(0, "TestVO2", "TestVO2");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Member member1 = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member1);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo2, user);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Group group1 = setUpGroup(vo, member1);
+		Group group2 = setUpGroup(vo2, member2);
+
+		perun.getMembersManager().setStatus(sess, member1, Status.INVALID);
+		perun.getMembersManager().setStatus(sess, member2, Status.EXPIRED);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false, true, false);
+
+		List<Member> members = perun.getFacilitiesManagerBl().getAssociatedMembers(sess, facility, user);
+
+		assertTrue( members.size() == 2);
+		assertTrue("Our members are not part of result list.", members.containsAll(List.of(member1, member2)));
+	}
+
+	@Test
 	public void getAssignedResourcesWithVoOrServiceFilter() throws Exception {
 		System.out.println(CLASS_NAME + "getAssignedResourcesWithVoOrServiceFilter");
 

@@ -1900,6 +1900,24 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getUserGroups() throws Exception {
+		System.out.println(CLASS_NAME + "getUserGroups");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+		List<Group> groups = setUpGroups(vo);
+
+		Member member = setUpMember(vo);
+		groupsManagerBl.addMember(sess, group, member);
+		User u = perun.getUsersManager().getUserByMember(sess, member);
+
+		List<Group> resultGroups = groupsManagerBl.getUserGroups(sess, u);
+		assertTrue("User should be member of two groups.", resultGroups.size() == 2);
+		assertTrue("Returned groups should contain expected group.", resultGroups.contains(group));
+		assertTrue("Returned groups should contain VO's members group", resultGroups.stream().anyMatch(g -> g.getName().equals("members")));
+	}
+
+	@Test
 	public void testGroupNameLength() throws Exception {
 		System.out.println(CLASS_NAME + "testGroupNameLength");
 

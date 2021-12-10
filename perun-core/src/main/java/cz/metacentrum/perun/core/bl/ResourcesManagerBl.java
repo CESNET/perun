@@ -261,6 +261,17 @@ public interface ResourcesManagerBl {
 	List<Member> getAllowedMembers(PerunSession perunSession, Resource resource);
 
 	/**
+	 * Returns all members who are associated with the resource.
+	 * Does not require ACTIVE group-resource status or any specific member status.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAssociatedMembers(PerunSession sess, Resource resource);
+
+	/**
 	 * Returns all members who can access the resource and who are also valid in at least one group associated to the resource.
 	 *
 	 * @param perunSession
@@ -310,6 +321,17 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<User> getAllowedUsers(PerunSession sess, Resource resource);
+
+	/**
+	 * Returns all users who are associated with the defined resource.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> getAssociatedUsers(PerunSession sess, Resource resource);
 
 	/**
 	 * Get all users, who can assess the resource and who are not expired in at least one group associated to the resource.
@@ -493,7 +515,21 @@ public interface ResourcesManagerBl {
 	List<Group> getAssignedGroups(PerunSession perunSession, Resource resource, Member member);
 
 	/**
-	 * List all resources associated with the group.
+	 * Return list of groups associated with the resource with specified member.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param member
+	 *
+	 * @return list of groups, which are associated with the resource with specified member
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssociatedGroups(PerunSession perunSession, Resource resource, Member member);
+
+	/**
+	 * List all resources to which the group is assigned.
 	 *
 	 * @param perunSession
 	 * @param group
@@ -503,6 +539,18 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession perunSession, Group group);
+
+	/**
+	 * List all resources associated with the group.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @throws InternalErrorException
+	 * @return list of associated resources
+	 */
+	List<Resource> getAssociatedResources(PerunSession perunSession, Group group);
 
 	/**
 	 * List all rich resources associated with the group with facility property filled.
@@ -690,6 +738,17 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession sess, Member member);
+
+	/**
+	 * Returns all resources with which the member is associated through the groups.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param sess
+	 * @param member
+	 * @return list of resources
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAssociatedResources(PerunSession sess, Member member);
 
 	/**
 	 * Returns all assigned resources where member is assigned through the groups.

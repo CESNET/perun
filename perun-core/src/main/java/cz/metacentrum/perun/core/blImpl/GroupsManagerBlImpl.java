@@ -1352,6 +1352,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Group> getUserGroups(PerunSession perunSession, User user) {
+		return new ArrayList<>(new HashSet<>(getGroupsManagerImpl().getUserGroups(perunSession, user)));
+	}
+
+	@Override
 	public List<Member> getGroupMembersExceptInvalid(PerunSession sess, Group group) {
 		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupMembers(sess, group, Collections.singletonList(Status.INVALID), true));
 	}
@@ -1540,6 +1545,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Group> getAssociatedGroupsToResource(PerunSession sess, Resource resource, Member member) {
+		return getGroupsManagerImpl().getAssociatedGroupsToResource(sess, resource, member);
+	}
+
+	@Override
+	public List<Group> getAssociatedGroupsToResource(PerunSession sess, Resource resource) {
+		return getGroupsManagerImpl().getAssociatedGroupsToResource(sess, resource);
+	}
+
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession sess, Resource resource, boolean withSubGroups) {
 		List<Group> assignedGroups = getGroupsManagerImpl().getAssignedGroupsToResource(sess, resource);
 		if(!withSubGroups) return assignedGroups;
@@ -1571,6 +1586,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// Sort
 		Collections.sort(assignedGroups);
 		return assignedGroups;
+	}
+
+	@Override
+	public List<Group> getAssociatedGroupsToFacility(PerunSession sess, Facility facility) {
+		return getGroupsManagerImpl().getAssociatedGroupsToFacility(sess, facility);
 	}
 
 	@Override

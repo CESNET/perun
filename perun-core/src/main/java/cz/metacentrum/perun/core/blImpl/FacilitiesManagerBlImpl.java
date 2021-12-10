@@ -223,6 +223,11 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
+	public List<User> getAssociatedUsers(PerunSession sess, Facility facility) {
+		return getFacilitiesManagerImpl().getAssociatedUsers(sess, facility);
+	}
+
+	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) {
 
 		//Get all facilities resources
@@ -253,6 +258,11 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) {
 		return getFacilitiesManagerImpl().getAllowedMembers(sess, facility);
+	}
+
+	@Override
+	public List<Member> getAssociatedMembers(PerunSession sess, Facility facility, User user) {
+		return getFacilitiesManagerImpl().getAssociatedMembers(sess, facility, user);
 	}
 
 	@Override

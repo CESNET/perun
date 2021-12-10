@@ -1433,6 +1433,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, User user) {
+		try  {
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+				" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
+				" join groups on groups_resources_state.group_id=groups.id" +
+				" join groups_members on groups.id=groups_members.group_id" +
+				" join members on groups_members.member_id=members.id" +
+				" where members.user_id=?", RESOURCE_MAPPER, user.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, User user) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
@@ -1457,6 +1473,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" where resources.facility_id=? and members.user_id=?",
 					RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(), user.getId());
 		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, Facility facility, User user) {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources "+
+					" join groups_resources_state on groups_resources_state.resource_id=resources.id" +
+					" join groups_members on groups_members.group_id=groups_resources_state.group_id" +
+					" join members on members.id=groups_members.member_id" +
+					" where resources.facility_id=? and members.user_id=?",
+				RESOURCE_MAPPER, facility.getId(), user.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		}catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}

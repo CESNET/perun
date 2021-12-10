@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
@@ -384,6 +383,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getUserGroups(PerunSession sess, User user) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + "from groups join groups_members on groups.id=groups_members.group_id" +
+				" join members on members.id=groups_members.member_id where members.user_id=?", GROUP_MAPPER, user.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public boolean isUserMemberOfGroup(PerunSession sess, User user, Group group) {
 		try {
 			return 1 <= jdbc.queryForInt("select count(1) from groups_members join members on members.id = member_id where members.user_id=? and groups_members.group_id=?", user.getId(), group.getId());
@@ -496,6 +507,20 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getAssociatedGroupsToResource(PerunSession perunSession, Resource resource) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
+					" groups_resources_state on groups.id=groups_resources_state.group_id " +
+					" where groups_resources_state.resource_id=?",
+				GROUP_MAPPER, resource.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
@@ -511,6 +536,20 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getAssociatedGroupsToResource(PerunSession perunSession, Resource resource, Member member) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
+					" groups_resources_state on groups.id=groups_resources_state.group_id and groups_resources_state.resource_id=? " +
+					" join groups_members on groups_members.group_id=groups.id and groups_members.member_id=?",
+				GROUP_MAPPER, resource.getId(), member.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
@@ -518,6 +557,21 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 							" join resources on groups_resources_state.resource_id=resources.id " +
 							"where resources.facility_id=?",
 					GROUP_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getAssociatedGroupsToFacility(PerunSession perunSession, Facility facility) {
+		try {
+			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
+					" groups_resources_state on groups.id=groups_resources_state.group_id" +
+					" join resources on groups_resources_state.resource_id=resources.id " +
+					"where resources.facility_id=?",
+				GROUP_MAPPER, facility.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

@@ -338,6 +338,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<User> getAssociatedUsers(PerunSession sess, Resource resource) {
+		return getResourcesManagerImpl().getAssociatedUsers(sess, resource);
+	}
+
+	@Override
 	public List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAllowedUsersNotExpiredInGroup(sess, resource);
 	}
@@ -370,6 +375,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAllowedMembers(sess, resource);
+	}
+
+	@Override
+	public List<Member> getAssociatedMembers(PerunSession sess, Resource resource) {
+		return getResourcesManagerImpl().getAssociatedMembers(sess, resource);
 	}
 
 	@Override
@@ -612,8 +622,18 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<Group> getAssociatedGroups(PerunSession sess, Resource resource, Member member) {
+		return getPerunBl().getGroupsManagerBl().getAssociatedGroupsToResource(sess, resource, member);
+	}
+
+	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Group group) {
 		return getResourcesManagerImpl().getAssignedResources(sess, group);
+	}
+
+	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, Group group) {
+		return getResourcesManagerImpl().getAssociatedResources(sess, group);
 	}
 
 	@Override
@@ -806,6 +826,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Member member) {
 		return getResourcesManagerImpl().getAssignedResources(sess, member);
+	}
+
+	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, Member member) {
+		return getResourcesManagerImpl().getAssociatedResources(sess, member);
 	}
 
 	@Override

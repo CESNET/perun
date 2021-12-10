@@ -375,6 +375,23 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getAssociatedMembers(PerunSession sess, Facility facility, User user) {
+		try  {
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id " +
+					" join resources on groups_resources_state.resource_id=resources.id " +
+					" where resources.facility_id=? and members.user_id=?",
+				MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(), user.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility) {
 		try  {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from resources" +
@@ -385,6 +402,21 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" where resources.facility_id=? and members.status!=? and members.status!=?",
 					UsersManagerImpl.USER_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(),
 					Status.INVALID.getCode(), Status.DISABLED.getCode());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<User> getAssociatedUsers(PerunSession sess, Facility facility) {
+		try  {
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from resources" +
+					" join groups_resources_state on groups_resources_state.resource_id=resources.id"+
+					" join groups_members on groups_resources_state.group_id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id" +
+					" join users on members.user_id=users.id" +
+					" where resources.facility_id=?",
+				UsersManagerImpl.USER_MAPPER, facility.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

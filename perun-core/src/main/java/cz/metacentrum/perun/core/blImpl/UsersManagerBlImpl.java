@@ -932,6 +932,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, Facility facility, User user) {
+		return getUsersManagerImpl().getAssociatedResources(sess, facility, user);
+	}
+
+	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, User user) {
 		return getUsersManagerImpl().getAllowedResources(sess, user);
 	}
@@ -944,6 +949,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) {
 		return getUsersManagerImpl().getAssignedRichResources(sess, user);
+	}
+
+	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, User user) {
+		return getUsersManagerImpl().getAssociatedResources(sess, user);
 	}
 
 	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) {

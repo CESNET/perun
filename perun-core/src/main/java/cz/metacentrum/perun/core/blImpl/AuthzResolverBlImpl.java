@@ -2241,7 +2241,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(member.getUserId());
 		}),
 		Group((sess, member, resource) -> {
-			List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
+			List<Group> groups = getPerunBl().getResourcesManagerBl().getAssociatedGroups(sess, resource, member);
 			Set<Integer> ids = new HashSet<>();
 			groups.forEach(group -> ids.add(group.getId()));
 			return ids;
@@ -2301,7 +2301,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(resource.getFacilityId());
 		}),
 		User((sess, group, resource) -> {
-			List<User> users = perunBl.getUsersManagerBl().getUsersByPerunBean(sess, group);
+			List<User> users = perunBl.getGroupsManagerBl().getGroupUsers(sess, group);
 			Set<Integer> userIds = new HashSet<>();
 			users.forEach(user -> userIds.add(user.getId()));
 			return userIds;
@@ -2310,7 +2310,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(group.getId());
 		}),
 		Member((sess, group, resource) -> {
-			List<Member> members = perunBl.getGroupsManagerBl().getGroupMembersExceptInvalid(sess, group);
+			List<Member> members = perunBl.getGroupsManagerBl().getGroupMembers(sess, group);
 			Set<Integer> memberIds = new HashSet<>();
 			members.forEach(member -> memberIds.add(member.getId()));
 			return memberIds;
@@ -2361,14 +2361,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	private enum RelatedUserFacilityObjectsResolver implements UserFacilityRelatedObjectAction<PerunSession, User, Facility, Set<Integer>> {
 		Vo((sess, user, facility) -> {
-			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-			HashSet<Resource> resourcesFromUser = new HashSet<>();
-			for (Member memberElement : membersFromUser) {
-				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
-			}
-			resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+			List<Resource> resources = perunBl.getUsersManagerBl().getAssociatedResources(sess, facility, user);
 			Set<Integer> voIds = new HashSet<>();
-			resourcesFromUser.forEach(resource -> voIds.add(resource.getVoId()));
+			resources.forEach(resource -> voIds.add(resource.getVoId()));
 			return voIds;
 		}),
 		Facility((sess, user, facility) -> {
@@ -2378,28 +2373,23 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(user.getId());
 		}),
 		Group((sess, user, facility) -> {
-			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, user);
-			List<Group> facilityGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, facility);
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getUserGroups(sess, user);
+			List<Group> facilityGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToFacility(sess, facility);
 			userGroups.retainAll(facilityGroups);
 			Set<Integer> groupIds = new HashSet<>();
 			userGroups.forEach(group -> groupIds.add(group.getId()));
 			return groupIds;
 		}),
 		Member((sess, user, facility) -> {
-			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			List<Member> membersFromUser = getPerunBl().getFacilitiesManagerBl().getAssociatedMembers(sess, facility, user);
 			Set<Integer> memberIds = new HashSet<>();
 			membersFromUser.forEach(member -> memberIds.add(member.getId()));
 			return memberIds;
 		}),
 		Resource((sess, user, facility) -> {
-			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-			HashSet<Resource> resourcesFromUser = new HashSet<>();
-			for (Member memberElement : membersFromUser) {
-				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
-			}
-			resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+			List<Resource> resources = perunBl.getUsersManagerBl().getAssociatedResources(sess, facility, user);
 			Set<Integer> resourceIds = new HashSet<>();
-			resourcesFromUser.forEach(resource -> resourceIds.add(resource.getId()));
+			resources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
 		}),
 		Default((sess, user, facility) -> {
@@ -2448,11 +2438,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(member.getVoId());
 		}),
 		Facility((sess, member, group) -> {
-			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
-			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-			memberResources.retainAll(groupResources);
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
 			Set<Integer> facilityIds = new HashSet<>();
-			memberResources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
 			return facilityIds;
 		}),
 		User((sess, member, group) -> {
@@ -2465,11 +2453,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(member.getId());
 		}),
 		Resource((sess, member, group) -> {
-			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
-			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-			memberResources.retainAll(groupResources);
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
 			Set<Integer> resourceIds = new HashSet<>();
-			memberResources.forEach(resource -> resourceIds.add(resource.getId()));
+			resources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
 		}),
 		Default((sess, member, group) -> {
@@ -2513,16 +2499,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return voIds;
 		}),
 		Facility((sess, user) -> {
-			List<Facility> userFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, user);
+			List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
 			Set<Integer> facilityIds = new HashSet<>();
-			userFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
 			return facilityIds;
 		}),
 		User((sess, user) -> {
 			return Collections.singleton(user.getId());
 		}),
 		Group((sess, user) -> {
-			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, user);
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getUserGroups(sess, user);
 			Set<Integer> groupIds = new HashSet<>();
 			userGroups.forEach(group -> groupIds.add(group.getId()));
 			return groupIds;
@@ -2534,7 +2520,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return memberIds;
 		}),
 		Resource((sess, user) -> {
-			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssignedResources(sess, user);
+			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
 			Set<Integer> resourceIds = new HashSet<>();
 			userResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
@@ -2574,15 +2560,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	private enum RelatedMemberObjectsResolver implements BiFunction<PerunSession, Member, Set<Integer>> {
 		Vo((sess, member) -> {
-			List<Vo> vosFromMember = getPerunBl().getVosManagerBl().getVosByPerunBean(sess, member);
-			Set<Integer> voIds = new HashSet<>();
-			vosFromMember.forEach(vo -> voIds.add(vo.getId()));
-			return voIds;
+			return Collections.singleton(member.getVoId());
 		}),
 		Facility((sess, member) -> {
-			List<Facility> memberFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, member);
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, member);
 			Set<Integer> facilityIds = new HashSet<>();
-			memberFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
 			return facilityIds;
 		}),
 		User((sess, member) -> {
@@ -2598,7 +2581,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(member.getId());
 		}),
 		Resource((sess, member) -> {
-			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, member);
 			Set<Integer> resourceIds = new HashSet<>();
 			memberResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
@@ -2641,15 +2624,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(vo.getId());
 		}),
 		Facility((sess, vo) -> {
-			List<Facility> voFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, vo);
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 			Set<Integer> facilityIds = new HashSet<>();
-			voFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
 			return facilityIds;
 		}),
 		User((sess, vo) -> {
-			List<User> voUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, vo);
+			List<Member> voMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 			Set<Integer> userIds = new HashSet<>();
-			voUsers.forEach(user -> userIds.add(user.getId()));
+			voMembers.forEach(member -> userIds.add(member.getId()));
 			return userIds;
 		}),
 		Group((sess, vo) -> {
@@ -2708,13 +2691,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(group.getVoId());
 		}),
 		Facility((sess, group) -> {
-			List<Facility> groupFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, group);
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
 			Set<Integer> facilityIds = new HashSet<>();
-			groupFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
 			return facilityIds;
 		}),
 		User((sess, group) -> {
-			List<User> groupUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, group);
+			List<User> groupUsers = getPerunBl().getGroupsManagerBl().getGroupUsers(sess, group);
 			Set<Integer> userIds = new HashSet<>();
 			groupUsers.forEach(user -> userIds.add(user.getId()));
 			return userIds;
@@ -2729,7 +2712,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return memberIds;
 		}),
 		Resource((sess, group) -> {
-			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
 			Set<Integer> resourceIds = new HashSet<>();
 			groupResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
@@ -2775,19 +2758,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(resource.getFacilityId());
 		}),
 		User((sess, resource) -> {
-			List<User> resourceUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, resource);
+			List<User> resourceUsers = getPerunBl().getResourcesManagerBl().getAssociatedUsers(sess, resource);
 			Set<Integer> userIds = new HashSet<>();
 			resourceUsers.forEach(user -> userIds.add(user.getId()));
 			return userIds;
 		}),
 		Group((sess, resource) -> {
-			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToResource(sess, resource);
 			Set<Integer> groupIds = new HashSet<>();
 			resourceGroups.forEach(group -> groupIds.add(group.getId()));
 			return groupIds;
 		}),
 		Member((sess, resource) -> {
-			List<Member> resourceMembers = getPerunBl().getResourcesManagerBl().getAssignedMembers(sess, resource);
+			List<Member> resourceMembers = getPerunBl().getResourcesManagerBl().getAssociatedMembers(sess, resource);
 			Set<Integer> memberIds = new HashSet<>();
 			resourceMembers.forEach(member -> memberIds.add(member.getId()));
 			return memberIds;
@@ -2839,13 +2822,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return Collections.singleton(facility.getId());
 		}),
 		User((sess, facility) -> {
-			List<User> resourceUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, facility);
+			List<User> resourceUsers = getPerunBl().getFacilitiesManagerBl().getAssociatedUsers(sess, facility);
 			Set<Integer> userIds = new HashSet<>();
 			resourceUsers.forEach(user -> userIds.add(user.getId()));
 			return userIds;
 		}),
 		Group((sess, facility) -> {
-			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, facility);
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToFacility(sess, facility);
 			Set<Integer> groupIds = new HashSet<>();
 			resourceGroups.forEach(group -> groupIds.add(group.getId()));
 			return groupIds;
@@ -2853,7 +2836,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Member((sess, facility) -> {
 			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 			List<Member> resourceMembers = new ArrayList<>();
-			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedMembers(sess, resource)));
+			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssociatedMembers(sess, resource)));
 			Set<Integer> memberIds = new HashSet<>();
 			resourceMembers.forEach(member -> memberIds.add(member.getId()));
 			return memberIds;
@@ -2911,14 +2894,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}),
 		User((sess, host) -> {
 			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-			List<User> resourceUsers = getPerunBl().getUsersManagerBl().getUsersByPerunBean(sess, facility);
+			List<User> resourceUsers = getPerunBl().getFacilitiesManagerBl().getAssociatedUsers(sess, facility);
 			Set<Integer> userIds = new HashSet<>();
 			resourceUsers.forEach(user -> userIds.add(user.getId()));
 			return userIds;
 		}),
 		Group((sess, host) -> {
 			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, facility);
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToFacility(sess, facility);
 			Set<Integer> groupIds = new HashSet<>();
 			resourceGroups.forEach(group -> groupIds.add(group.getId()));
 			return groupIds;
@@ -2927,7 +2910,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 			List<Member> resourceMembers = new ArrayList<>();
-			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedMembers(sess, resource)));
+			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssociatedMembers(sess, resource)));
 			Set<Integer> memberIds = new HashSet<>();
 			resourceMembers.forEach(member -> memberIds.add(member.getId()));
 			return memberIds;
@@ -2994,9 +2977,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				log.warn("User not exists for the userExtSource: " + ues);
 				return Collections.emptySet();
 			}
-			List<Facility> userFacilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByPerunBean(sess, user);
+			List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
 			Set<Integer> facilityIds = new HashSet<>();
-			userFacilities.forEach(facility -> facilityIds.add(facility.getId()));
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
 			return facilityIds;
 		}),
 		User((sess, ues) -> {
@@ -3017,7 +3000,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				log.warn("User not exists for the userExtSource: " + ues);
 				return Collections.emptySet();
 			}
-			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, user);
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getUserGroups(sess, user);
 			Set<Integer> groupIds = new HashSet<>();
 			userGroups.forEach(group -> groupIds.add(group.getId()));
 			return groupIds;
@@ -3043,7 +3026,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				log.warn("User not exists for the userExtSource: " + ues);
 				return Collections.emptySet();
 			}
-			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssignedResources(sess, user);
+			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
 			Set<Integer> resourceIds = new HashSet<>();
 			userResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
