@@ -237,6 +237,14 @@ $objectExamples{"Paginated<RichGroup>"} = @objectExamples{"Paginated&lt;RichGrou
 $objectExamples{"GroupMemberRelation"} = "{\"groupId\" : 69, \"memberId\" : 55, \"sourceGroupId\", \"sourceGroupStatus\" : \"EXPIRED\", \"membershipType\" : \"DIRECT\" }";
 $objectExamples{"GroupMemberData"} = "{\"relations\" : " . $listPrepend . $objectExamples{"GroupMemberRelation"} . $listAppend . ", \"groupMemberAttributes\": { \"69\": { \"55\": ".$listPrepend . $objectExamples{"Attribute"} . $listAppend. " } } }";
 
+$objectExamples{"AttributePolicy"} = "{ \"id\" : 290 , \"role\" : \"RESOURCEADMIN\" , \"object\" : \"Resource\" , \"policyCollectionId\" : 10 }";
+$objectExamples{"List&lt;AttributePolicy&gt;"} = $listPrepend . $objectExamples{"AttributePolicy"} . $listAppend;
+$objectExamples{"List<AttributePolicy>"} = $objectExamples{"List&lt;AttributePolicy&gt;"};
+
+$objectExamples{"AttributePolicyCollection"} = "{ \"id\" : 10 , \"attributeId\" : 2220 , \"action\" : \"READ\" , \"policies\" : " . $objectExamples{"List&lt;AttributePolicyCollection&gt;"} . " }";
+$objectExamples{"List&lt;AttributePolicyCollection&gt;"} = $listPrepend . $objectExamples{"AttributePolicyCollection"} . $listAppend;
+$objectExamples{"List<AttributePolicyCollection>"} = $objectExamples{"List&lt;AttributePolicyCollection&gt;"};
+
 # SUB HELP
 # help info
 sub help {
