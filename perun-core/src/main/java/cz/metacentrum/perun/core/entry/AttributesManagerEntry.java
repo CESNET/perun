@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -4509,6 +4510,19 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 
 		getAttributesManagerBl().setAttributeRights(sess, rights);
+	}
+
+	@Override
+	public List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		getAttributeDefinitionById(sess, attributeId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAttributePolicyCollections_int_policy")) {
+			throw new PrivilegeException("getAttributePolicyCollections");
+		}
+
+		return getAttributesManagerBl().getAttributePolicyCollections(sess, attributeId);
 	}
 
 	@Override

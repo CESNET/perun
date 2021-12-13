@@ -4044,6 +4044,16 @@ public interface AttributesManager {
 	void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
 
 	/**
+	 * Gets attribute policy collections for an attribute definition with given id.
+	 *
+	 * @param sess perun session
+	 * @param attributeId id of the attribute definition
+	 * @return all policy collections of the attribute definition
+	 * @throws AttributeNotExistsException when there is no attribute definition with such id
+	 */
+	List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException;
+
+	/**
 	 * Converts attribute to unique.
 	 * Marks the attribute definition as unique, and copies all values to a special table with unique constraint
 	 * that ensures that all values remain unique. Values of type ArrayList and LinkedHashMap are splitted into
