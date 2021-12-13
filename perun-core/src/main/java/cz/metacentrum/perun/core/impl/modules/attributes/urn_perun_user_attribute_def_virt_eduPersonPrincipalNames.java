@@ -6,14 +6,15 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		List<String> idpLogins = new ArrayList<>();
+
+		// prevent duplicate entries in EPPN
+		Set<String> idpLogins = new HashSet<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
 		for(UserExtSource uES: userExtSources) {
@@ -48,7 +51,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
 		}
 
 		Attribute attribute = new Attribute(attributeDefinition);
-		attribute.setValue(idpLogins);
+		attribute.setValue(new ArrayList<>(idpLogins));
 		return attribute;
 	}
 

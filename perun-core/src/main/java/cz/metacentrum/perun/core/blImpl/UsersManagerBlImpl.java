@@ -101,6 +101,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -811,8 +812,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			// If extSource of this userExtSource is type of IDP, test uniqueness of login in this extSource type for all users
 			String login = userExtSource.getLogin();
 			List<UserExtSource> userExtSources = getAllUserExtSourcesByTypeAndLogin(sess, ExtSourcesManager.EXTSOURCE_IDP, login);
-			if(userExtSources.size() == 1) throw new InternalErrorException("ExtLogin: " + login + " is already in used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
-			else if(userExtSources.size() > 1) throw new ConsistencyErrorException("There are " + userExtSources.size() + "   extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+			if (!userExtSources.stream().allMatch(ues -> ues.getUserId() == user.getId())) {
+				if (userExtSources.stream().allMatch(ues -> ues.getUserId() == userExtSources.get(0).getUserId())) {
+					// Duplicate identity belongs to different user - block it!!
+					throw new InternalErrorException("ExtLogin: " + login + " is already used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+				} else {
+					// more users cannot have the same login
+					throw new ConsistencyErrorException("There are " + userExtSources.size() + " extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+				}
+			}
 		}
 
 		userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);
@@ -838,6 +846,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		List<Attribute> userExtSourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, userExtSource);
 		//remove all virtual attributes (we don't need to take care about them)
 		userExtSourceAttributes.removeIf(attribute -> getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute));
+
+		//cannot move duplicated IDPs
+		if (Objects.equals(userExtSource.getExtSource().getType(), ExtSourcesManager.EXTSOURCE_IDP)
+			&& getAllUserExtSourcesByTypeAndLogin(sess, ExtSourcesManager.EXTSOURCE_IDP, userExtSource.getLogin()).size() > 1) {
+			throw new InternalErrorException("IDP UserExtSource " + userExtSource + " with duplicated login cannot be moved.");
+		}
 
 		//remove userExtSource
 		try {
