@@ -58,6 +58,9 @@ public interface ObjectTranslation extends Messages {
 	@DefaultMessage("Invitation / user")
 	String applicationMailTypeInvitationUser();
 
+	@DefaultMessage("Approvable / user")
+	String applicationMailTypeApprovableUser();
+
 	/* ========== OWNER OBJECT ============ */
 
 	@DefaultMessage("administrative")

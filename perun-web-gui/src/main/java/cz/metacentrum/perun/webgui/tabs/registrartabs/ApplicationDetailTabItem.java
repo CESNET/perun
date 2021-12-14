@@ -331,6 +331,8 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 					}
 
+					// FIXME - how to handle APPROVABLE_GROUP_APP_USER
+
 				}
 
 				ft.setHTML(0, 0, "Select notification:");
