@@ -368,14 +368,12 @@ public interface ResourcesManagerBl {
 	 * @param sourceGroup source group (containing groupToAssign in hierarchy as a subgroup)
 	 * @param groupToAssign source group's subgroup to be assigned on resource as by automatic assignment
 	 * @param resource resource
-	 * @param assignInactive assign subgroup to inactive state
-	 *
 	 * @throws GroupResourceMismatchException
 	 * @throws GroupAlreadyAssignedException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	void assignAutomaticGroupToResource(PerunSession perunSession, Group sourceGroup, Group groupToAssign, Resource resource, boolean assignInactive) throws GroupResourceMismatchException, GroupAlreadyAssignedException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void assignAutomaticGroupToResource(PerunSession perunSession, Group sourceGroup, Group groupToAssign, Resource resource) throws GroupResourceMismatchException, GroupAlreadyAssignedException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Assign group to the resources. Check if attributes for each member from group are valid.

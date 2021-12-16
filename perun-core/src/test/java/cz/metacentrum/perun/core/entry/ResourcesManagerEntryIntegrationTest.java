@@ -2678,8 +2678,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
-	public void autoAssignSubgroupInactive() throws Exception {
-		System.out.println(CLASS_NAME + "autoAssignSubgroupInactive");
+	public void autoAssignSubgroupWithInactiveSourceGroup() throws Exception {
+		System.out.println(CLASS_NAME + "autoAssignSubgroupWithInactiveSourceGroup");
 
 		vo = setUpVo();
 		member = setUpMember(vo);
@@ -2696,7 +2696,30 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		List<AssignedGroup> assignedGroups = sess.getPerun().getResourcesManager().getGroupAssignments(sess, inactiveResource, List.of());
 
 		AssignedGroup assignedGroup = new AssignedGroup(new EnrichedGroup(group, List.of()), GroupResourceStatus.INACTIVE, null, null, true);
-		AssignedGroup assignedSubgroup = new AssignedGroup(new EnrichedGroup(subGroup, List.of()), GroupResourceStatus.INACTIVE, group.getId(), null, true);
+		AssignedGroup assignedSubgroup = new AssignedGroup(new EnrichedGroup(subGroup, List.of()), GroupResourceStatus.ACTIVE, group.getId(), null, true);
+
+		assertThat(assignedGroups).containsExactlyInAnyOrder(assignedGroup, assignedSubgroup);
+	}
+
+	@Test
+	public void assignInactiveGroupToResourceActivatesItsSubgroups() throws Exception {
+		System.out.println(CLASS_NAME + "assignInactiveGroupToResourceActivatesItsSubgroups");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		facility = setUpFacility();
+		Resource inactiveResource = setUpResource();
+
+		group = setUpGroup(vo, member);
+		subGroup = setUpSubGroup(group);
+
+		sess.getPerun().getResourcesManager().assignGroupToResource(sess, group, inactiveResource, false, true, true);
+
+		List<AssignedGroup> assignedGroups = sess.getPerun().getResourcesManager().getGroupAssignments(sess, inactiveResource, List.of());
+
+		AssignedGroup assignedGroup = new AssignedGroup(new EnrichedGroup(group, List.of()), GroupResourceStatus.INACTIVE, null, null, true);
+
+		AssignedGroup assignedSubgroup = new AssignedGroup(new EnrichedGroup(subGroup, List.of()), GroupResourceStatus.ACTIVE, group.getId(), null, true);
 
 		assertThat(assignedGroups).containsExactlyInAnyOrder(assignedGroup, assignedSubgroup);
 	}

@@ -3729,16 +3729,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						// FIXME do not set hash map attributes - not supported in GUI and registrar
 						continue;
 					} else if (a.getType().equalsIgnoreCase(ArrayList.class.getName())) {
-						// we expects that list contains strings
+
+						// we expect that list contains strings
 						ArrayList<String> value = a.valueAsList();
-						// if value not present in list => add
-						if (value == null) {
-							// set as new value
-							value = new ArrayList<>();
-							value.add(newValue);
-						} else if (!value.contains(newValue)) {
-							// add value between old values
-							value.add(newValue);
+
+						if (Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":sshPublicKey", a.getName())) {
+							// normalize value for SSH keys
+							value = handleSSHKeysValue(value, newValue);
+						} else {
+
+							if (value == null) {
+								// set as new value
+								value = new ArrayList<>();
+								value.add(newValue);
+							} else if (!value.contains(newValue)) {
+								// add value between old values
+								value.add(newValue);
+							}
+
 						}
 						a.setValue(value);
 						attributes.add(a);
@@ -3756,6 +3764,35 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (!attributes.isEmpty()) {
 			// set them if not empty (member+user)
 			attrManager.setAttributes(registrarSession, member, attributes, true);
+		}
+
+	}
+
+	/**
+	 * Normalize input value from registration form for SSH keys and correctly merge them with the originalValue from User.
+	 *
+	 * @param originalValue Value from Users attribute currently stored in Perun
+	 * @param newValue Value provided by registration form
+	 * @return List of SSH keys after merge
+	 */
+	private ArrayList<String> handleSSHKeysValue(ArrayList<String> originalValue, String newValue) {
+
+		// Normalize value of SSH keys
+		String preparedVal = newValue.replaceAll("(\n)+", ",");
+		preparedVal = preparedVal.replaceAll("(,)+", ",");
+		if (!preparedVal.endsWith(",")) {
+			preparedVal = preparedVal + ",";
+		}
+		List<String> newVals = (ArrayList<String>)BeansUtils.stringToAttributeValue(preparedVal, ArrayList.class.getName());
+		if (originalValue == null) {
+			return new ArrayList<>(newVals);
+		} else {
+			for (String s : newVals) {
+				if (!originalValue.contains(s)) {
+					originalValue.add(s);
+				}
+			}
+			return originalValue;
 		}
 
 	}

@@ -263,8 +263,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for (AssignedResource assignedResource : assignedResources) {
 			try {
 				Group sourceGroup = assignedResource.getSourceGroupId() == null ? parentGroup : getPerunBl().getGroupsManagerBl().getGroupById(sess, assignedResource.getSourceGroupId());
-				boolean asInactive = assignedResource.getStatus().equals(GroupResourceStatus.INACTIVE);
-				getPerunBl().getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup, group, assignedResource.getEnrichedResource().getResource(), asInactive);
+				getPerunBl().getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup, group, assignedResource.getEnrichedResource().getResource());
 			} catch (GroupResourceMismatchException | GroupNotExistsException | WrongReferenceAttributeValueException | WrongAttributeValueException e) {
 				// silently skip, assignment will have to be repeated after failure cause is solved
 			} catch (GroupAlreadyAssignedException e) {
@@ -860,8 +859,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			for (Group groupToAutoassign : groupsToAutoAssign) {
 				try {
-					perunBl.getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup, groupToAutoassign, resourceToAutoassign.getEnrichedResource().getResource(),
-						resourceToAutoassign.getStatus().equals(GroupResourceStatus.INACTIVE));
+					perunBl.getResourcesManagerBl().assignAutomaticGroupToResource(sess, sourceGroup, groupToAutoassign, resourceToAutoassign.getEnrichedResource().getResource());
 				} catch (GroupAlreadyAssignedException e) {
 					// skip
 				} catch (GroupResourceMismatchException e) {

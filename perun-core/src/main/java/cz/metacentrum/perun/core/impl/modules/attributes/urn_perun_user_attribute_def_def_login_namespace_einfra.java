@@ -26,6 +26,17 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfra extends urn
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_einfra.class);
 
 	/**
+	 * Temporarily allows case ignore collision for specific logins
+	 * FIXME
+	 *
+	 * @param login user login in EINFRA namespace
+	 * @return Whether collision is allowed or not
+	 * */
+	private static boolean allowCaseIgnoreCollision(String login) {
+		return login.equalsIgnoreCase("idu") || login.equalsIgnoreCase("kb");
+	}
+
+	/**
 	 * Checks if the user's login is unique in the namespace organization
 	 *
 	 * @param sess PerunSession
@@ -40,7 +51,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfra extends urn
 
 		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
 
-		List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute, true);
+		boolean ignoreCase = !allowCaseIgnoreCollision(attribute.getValue().toString());
+
+		List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute, ignoreCase);
 
 		usersWithSameLogin.remove(user); //remove self
 
@@ -50,7 +63,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfra extends urn
 		}
 
 		try {
-			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), attribute.valueAsString(), true);
+			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), attribute.valueAsString(), ignoreCase);
 		} catch (AlreadyReservedLoginException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null, "Login in specific namespace already reserved.", ex);
 		}
