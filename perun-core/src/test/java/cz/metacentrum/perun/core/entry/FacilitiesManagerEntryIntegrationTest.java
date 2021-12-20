@@ -442,6 +442,41 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getAssociatedUsersForFacility() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedUsersForFacility");
+
+		Vo vo2 = new Vo(1, "TestVO2", "TestVO2");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo2);
+		Member member3 = setUpMember(vo2);
+
+		User user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
+		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
+		User user3 = perun.getUsersManagerBl().getUserByMember(sess, member3);
+
+		Group group1 = setUpGroup(vo, member1);
+		Group group2 = setUpGroup(vo2, member2);
+		Group group3 = setUpGroup2(vo2, member3);
+
+		perun.getMembersManager().setStatus(sess, member1, Status.INVALID);
+		perun.getMembersManager().setStatus(sess, member2, Status.EXPIRED);
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, member2, group2);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false, true, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2, false, false, false);
+
+		List<User> users = perun.getFacilitiesManagerBl().getAssociatedUsers(sess, facility);
+		assertTrue("our facility should have 2 associated user", users.size() == 2);
+		assertTrue("user not associated with resource should not be returned", !users.contains(user3));
+		assertTrue("our users should be associated with facility", users.containsAll(List.of(user1, user2)));
+	}
+
+	@Test
 	public void getAllowedUsersCheckUniqueness() throws Exception {
 		System.out.println(CLASS_NAME + "getAllowedUsersCheckUniqueness");
 
