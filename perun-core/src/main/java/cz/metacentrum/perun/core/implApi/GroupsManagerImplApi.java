@@ -213,6 +213,19 @@ public interface GroupsManagerImplApi {
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource);
 
 	/**
+	 * Return list of assigned groups on the resource.
+	 * Similar to assigned groups, but does not require ACTIVE group-resource status.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 *
+	 * @return list of groups, which are assigned on the resource
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssociatedGroupsToResource(PerunSession perunSession, Resource resource);
+
+	/**
 	 * Return list of assigned groups on the resource with specified member.
 	 *
 	 * @param perunSession
@@ -224,6 +237,20 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member);
+
+	/**
+	 * Return list of groups associated with the resource with specified member.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param member
+	 *
+	 * @return list of groups, which are assigned on the resource with specified member
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssociatedGroupsToResource(PerunSession perunSession, Resource resource, Member member);
 
 	/**
 	 * Return list of assigned groups from all facility resources
@@ -238,6 +265,18 @@ public interface GroupsManagerImplApi {
 	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility);
 
 	/**
+	 * Return list of all associated groups from all facility resources (does not require ACTIVE group-resource status)
+	 *
+	 * @param perunSession
+	 * @param facility
+	 *
+	 * @return list of groups, which are associated with all facility resources
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssociatedGroupsToFacility(PerunSession perunSession, Facility facility);
+
+	/**
 	 * Return group users sorted by name.
 	 *
 	 * @param sess
@@ -248,6 +287,18 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<User> getGroupUsers(PerunSession sess, Group group);
+
+	/**
+	 * Return groups where user is member.
+	 *
+	 * @param sess
+	 * @param user
+	 *
+	 * @return list of groups
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getUserGroups(PerunSession sess, User user);
 
 	/**
 	 * Checks whether the user is member of the group.

@@ -418,6 +418,23 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
+	public List<User> getAssociatedUsers(PerunSession sess, Resource resource) {
+		try  {
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id" +
+					" join users on users.id=members.user_id" +
+					" where groups_resources_state.resource_id=?",
+				UsersManagerImpl.USER_MAPPER, resource.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) {
 		try  {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
@@ -517,6 +534,23 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" where groups_resources_state.resource_id=?",
 				MembersManagerImpl.ASSIGNED_MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
 
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Member> getAssociatedMembers(PerunSession sess, Resource resource) {
+		try  {
+			// we do include all group statuses for such members
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id " +
+					" where groups_resources_state.resource_id=?",
+				MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -635,6 +669,20 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, Group group) {
+		try {
+			return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
+					" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
+					" where groups_resources_state.group_id=?",
+				RESOURCE_MAPPER, group.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Member member) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
@@ -643,6 +691,22 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join groups_members on groups.id=groups_members.group_id " +
 					" where groups_members.member_id=?",
 				RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, Member member) {
+		try  {
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+					" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
+					" join groups on groups_resources_state.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" where groups_members.member_id=?",
+				RESOURCE_MAPPER, member.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

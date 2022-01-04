@@ -1103,6 +1103,42 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void getAssociatedResources() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedResources");
+
+		Member member = setUpMember(vo);
+		User user = usersManager.getUserByMember(sess, member);
+		Group group = setUpGroup(vo, member);
+
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(facility, vo);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, true, false);
+
+		List<Resource> resources = perun.getUsersManagerBl().getAssociatedResources(sess, user);
+		assertThat(resources).containsExactly(resource);
+
+	}
+
+	@Test
+	public void getAssociatedResourcesForFacility() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedResourcesForFacility");
+
+		Member member = setUpMember(vo);
+		User user = usersManager.getUserByMember(sess, member);
+		Group group = setUpGroup(vo, member);
+
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(facility, vo);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, true, false);
+
+		List<Resource> resources = perun.getUsersManagerBl().getAssociatedResources(sess, facility, user);
+		assertThat(resources).containsExactly(resource);
+
+	}
+
+	@Test
 	public void findUsers() throws Exception {
 		System.out.println(CLASS_NAME + "findUsers");
 
@@ -2512,5 +2548,18 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attrLogin.setFriendlyName("login-namespace:dummy");
 		attrLogin.setType(String.class.getName());
 		perun.getAttributesManager().createAttribute(sess, attrLogin);
+	}
+
+	private Facility setUpFacility() throws Exception {
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		return perun.getFacilitiesManager().createFacility(sess, facility);
+	}
+
+	private Resource setUpResource(Facility facility, Vo vo) throws Exception {
+		Resource resource = new Resource();
+		resource.setName("UsersManagerTestResource");
+		resource.setDescription("Testovaci");
+		return perun.getResourcesManager().createResource(sess, resource, vo, facility);
 	}
 }

@@ -221,7 +221,7 @@ public interface ResourcesManagerImplApi {
 	boolean isUserAllowed(PerunSession sess, User user, Resource resource);
 
 	/**
-	 * List all resources associated with the group.
+	 * List all resources to which the group is assigned.
 	 *
 	 * @param perunSession
 	 * @param group
@@ -230,6 +230,18 @@ public interface ResourcesManagerImplApi {
 	 * @return list of assigned resources
 	 */
 	List<Resource> getAssignedResources(PerunSession perunSession, Group group);
+
+	/**
+	 * List all resources associated with the group.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @throws InternalErrorException
+	 * @return list of associated resources
+	 */
+	List<Resource> getAssociatedResources(PerunSession perunSession, Group group);
 
 	/**
 	 * List of all rich resources associated with the group.
@@ -404,6 +416,17 @@ public interface ResourcesManagerImplApi {
 	List<User> getAllowedUsers(PerunSession sess, Resource resource);
 
 	/**
+	 * Returns all users who are associated with the defined resource.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> getAssociatedUsers(PerunSession sess, Resource resource);
+
+	/**
 	 * Returns all users which are allowed on the resource and are not expired within their assigned groups.
 	 * It means if user is allowed on the resource, but only through expired groups, it is filtered out.
 	 *
@@ -457,6 +480,17 @@ public interface ResourcesManagerImplApi {
 	List<Member> getAllowedMembers(PerunSession sess, Resource resource);
 
 	/**
+	 * Returns all members who are associated with the resource.
+	 * Does not require ACTIVE group-resource status or any specific member status.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAssociatedMembers(PerunSession sess, Resource resource);
+
+	/**
 	 * Returns all members which are allowed on the resource and are not expired within their assigned groups.
 	 * It means if member is allowed on the resource, but only through expired groups, it is filtered out.
 	 *
@@ -476,6 +510,17 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession sess, Member member);
+
+	/**
+	 * Returns all resources with which the member is associated through the groups.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param sess
+	 * @param member
+	 * @return list of resources
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAssociatedResources(PerunSession sess, Member member);
 
 	/**
 	 * Returns all assigned resources where member is assigned through the groups.

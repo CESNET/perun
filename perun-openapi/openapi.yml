@@ -12462,7 +12462,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedResourcesWithGroup
-      summary: List all resources associated with a group.
+      summary: List all resources to which the group is assigned.
       parameters:
         - $ref: '#/components/parameters/groupId'
       responses:

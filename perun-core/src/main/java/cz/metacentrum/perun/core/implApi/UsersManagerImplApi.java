@@ -857,6 +857,17 @@ public interface UsersManagerImplApi {
 	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user);
 
 	/**
+	 * Return all resources of specified facility with which user is associated through all his members.
+	 * Does not require ACTIVE group-resource assignment.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param user
+	 * @return All resources with which user is associated
+	 */
+	List<Resource> getAssociatedResources(PerunSession sess, Facility facility, User user);
+
+	/**
 	 * Return all rich resources, where user is assigned through all his members.
 	 *
 	 * @param sess
@@ -864,5 +875,15 @@ public interface UsersManagerImplApi {
 	 * @return All resources where user is assigned
 	 */
 	List<RichResource> getAssignedRichResources(PerunSession sess, User user);
+
+	/**
+	 * Get all resources with which user can be associated (similar to assigned resources,
+	 * but does not require ACTIVE group-resource assignment).
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of resources with which user is associated
+	 */
+	List<Resource> getAssociatedResources(PerunSession sess, User user);
 
 }
