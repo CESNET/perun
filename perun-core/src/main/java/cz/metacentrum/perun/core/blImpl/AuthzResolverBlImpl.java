@@ -7,7 +7,10 @@ import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleUnsetForUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -28,6 +31,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
@@ -77,6 +81,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -1005,9 +1010,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Member member, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		//TODO create more complex check and change tests accordingly
 		if (member == null && resource != null) {
 			return isAuthorizedForAttribute(sess, actionType, attrDef, resource);
 		} else if (resource == null && member != null) {
@@ -1017,34 +1021,35 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, member);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource, member);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource, member);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedMemberResourceObjectsResolver.getValue(objectType).callOn(sess, member, resource);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedMemberResourceObjectsResolver.getValue(objectType.name()).callOn(sess, member, resource);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Group group, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		//TODO create more complex check and change tests accordingly
 		if (group == null && resource != null) {
 			return isAuthorizedForAttribute(sess, actionType, attrDef, resource);
 		} else if (resource == null && group != null) {
@@ -1054,34 +1059,35 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, resource);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group, resource);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group, resource);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedGroupResourceObjectsResolver.getValue(objectType).callOn(sess, group, resource);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedGroupResourceObjectsResolver.getValue(objectType.name()).callOn(sess, group, resource);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, User user, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		//TODO create more complex check and change tests accordingly
 		if (user == null && facility != null) {
 			return isAuthorizedForAttribute(sess, actionType, attrDef, facility);
 		} else if (facility == null && user != null) {
@@ -1091,34 +1097,35 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, facility);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user, facility);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user, facility);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedUserFacilityObjectsResolver.getValue(objectType).callOn(sess, user, facility);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedUserFacilityObjectsResolver.getValue(objectType.name()).callOn(sess, user, facility);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Member member, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		//TODO create more complex check and change tests accordingly
 		if (group == null && member != null) {
 			return isAuthorizedForAttribute(sess, actionType, attrDef, member);
 		} else if (member == null && group != null) {
@@ -1128,299 +1135,318 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, group);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member, group);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member, group);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedMemberGroupObjectsResolver.getValue(objectType).callOn(sess, member, group);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedMemberGroupObjectsResolver.getValue(objectType.name()).callOn(sess, member, group);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedUserObjectsResolver.getValue(objectType).apply(sess, user);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedUserObjectsResolver.getValue(objectType.name()).apply(sess, user);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Member member) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedMemberObjectsResolver.getValue(objectType).apply(sess, member);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedMemberObjectsResolver.getValue(objectType.name()).apply(sess, member);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Vo vo) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Vo vo) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, vo, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, vo);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, vo);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedVoObjectsResolver.getValue(objectType).apply(sess, vo);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedVoObjectsResolver.getValue(objectType.name()).apply(sess, vo);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedGroupObjectsResolver.getValue(objectType).apply(sess, group);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedGroupObjectsResolver.getValue(objectType.name()).apply(sess, group);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedResourceObjectsResolver.getValue(objectType).apply(sess, resource);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedResourceObjectsResolver.getValue(objectType.name()).apply(sess, resource);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, facility, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, facility);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, facility);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedFacilityObjectsResolver.getValue(objectType).apply(sess, facility);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedFacilityObjectsResolver.getValue(objectType.name()).apply(sess, facility);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, Host host) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Host host) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, host, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, host);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, host);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedHostObjectsResolver.getValue(objectType).apply(sess, host);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedHostObjectsResolver.getValue(objectType.name()).apply(sess, host);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, UserExtSource ues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, UserExtSource ues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, ues, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Test if handlers are correct for attribute namespace
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, ues);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, ues);
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedUserExtSourceObjectsResolver.getValue(objectType).apply(sess, ues);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedUserExtSourceObjectsResolver.getValue(objectType.name()).apply(sess, ues);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
 
-		//This method get all possible roles which can do action on attribute
-		Map<String, Set<ActionType>> roles = getRolesPrivilegedToOperateOnAttribute(sess, actionType, attrDef);
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if (sess.getPerunPrincipal().getRoles() == null && !roles.containsKey(Role.MEMBERSHIP)) {
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
 			return false;
 		}
 
 		//Get all unique objects from the roles' action types
-		Set<String> uniqueObjectTypes = fetchUniqueObjectTypes(roles);
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
 
 		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
-		Map<String, Set<Integer>> mapOfObjectsToCheck = new HashMap<>();
-		for (String objectType: uniqueObjectTypes) {
-			Set<Integer> retrievedObjects = RelatedEntitylessObjectsResolver.getValue(objectType).apply(sess, key);
-			mapOfObjectsToCheck.put(objectType, retrievedObjects);
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedEntitylessObjectsResolver.getValue(objectType.name()).apply(sess, key);
+			associatedObjects.put(objectType, retrievedObjects);
 		}
 
-		//Resolve principal's the privileges for the attribute according the rules and objects
-		return resolveAttributeAuthorization(sess, roles, mapOfObjectsToCheck);
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
 	}
 
 	/**
-	 * Get map of roles with their action types which can provide the type of action on the attribute.
-	 *
-	 * @param sess principals session
-	 * @param actionType which will be done on attribute.
-	 * @param attrDef for which will be the privileged roles fetched.
-	 * @return
-	 * @throws AttributeNotExistsException if the attribute definition does not exist.
+	 * Retrieves all attribute policy collections for given attribute definition and action type
+	 * @param sess session
+	 * @param actionType type of action (READ / WRITE)
+	 * @param attrDef attribute definition
+	 * @return list of attribute collections for given attribute definition and action type
+	 * @throws AttributeNotExistsException
 	 */
-	private static Map<String, Set<ActionType>> getRolesPrivilegedToOperateOnAttribute(PerunSession sess, String actionType, AttributeDefinition attrDef) throws AttributeNotExistsException {
+	private static List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef) throws AttributeNotExistsException {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(actionType, "ActionType");
 		Utils.notNull(attrDef, "AttributeDefinition");
@@ -1431,60 +1457,82 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			refreshAuthz(sess);
 		}
 
-		return AuthzResolverImpl.getRolesPrivilegedToOperateOnAttribute(actionType, attrDef);
+		return perunBl.getAttributesManagerBl().getAttributePolicyCollections(sess, attrDef.getId()).stream()
+			.filter(c -> c.getAction().equals(actionType)).toList();
 	}
 
 	/**
 	 * Resolve authorization for attribute according to map of privileged roles and map of objects.
+	 * Expects policy collection filtered by required action type.
 	 *
 	 * @param sess PerunSession which want to operate on attribute
-	 * @param roles map of roles which action types
-	 * @param mapOfObjectsToCheck map of object types with actual objects
-	 * @return true if principal is privileged to operate on attribute, false otherwise.
+	 * @param policyCollections policy collections containing only required action type collections
+	 * @param associatedObjects map of object types with actual associated objects
+	 * @return true if principal is privileged to operate on attribute (satisfies at least one collection's policies), false otherwise.
 	 */
-	private static boolean resolveAttributeAuthorization(PerunSession sess, Map<String, Set<ActionType>> roles, Map<String, Set<Integer>> mapOfObjectsToCheck) {
-		for (String role : roles.keySet()) {
-			Set<ActionType> roleActionTypes = roles.get(role);
-			for (ActionType roleActionType : roleActionTypes) {
-				if (roleActionType.getActionTypeObject() == null) {
-					if (sess.getPerunPrincipal().getRoles().hasRole(role)) return true;
-				} else {
-					String objectType = roleActionType.getActionTypeObject();
-					if (mapOfObjectsToCheck.containsKey(objectType)) {
-						Set<Integer> objectsToCheck = mapOfObjectsToCheck.get(objectType);
-						for (Integer objectId : objectsToCheck) {
-							if (sess.getPerunPrincipal().getRoles().hasRole(role, objectType, objectId))
-								return true;
-						}
-					}
+	private static boolean resolveAttributeAuthorization(PerunSession sess, List<AttributePolicyCollection> policyCollections, Map<RoleObject, Set<Integer>> associatedObjects) {
+		for (AttributePolicyCollection policyCollection : policyCollections) {
+			boolean collectionSatisfied = true;
+
+			if (policyCollection.getPolicies().isEmpty()) {
+				throw new InternalErrorException("Policy collection with id " + policyCollection.getId() + " contains no policies.");
+			}
+
+			for (AttributePolicy policy : policyCollection.getPolicies()) {
+				if (!resolvePolicyPrivileges(sess, associatedObjects, policy) && !resolveMembershipPrivileges(sess, policy, associatedObjects)) {
+					collectionSatisfied = false;
+					break;
 				}
+			}
+
+			if (collectionSatisfied) {
+				return true;
 			}
 		}
 
-		return resolveMembershipPrivileges(sess, roles, mapOfObjectsToCheck);
+		return false;
 	}
 
 	/**
-	 * Resolve membership privileges for the principal
-	 *
-	 * @param sess from which will be principal fetched
-	 * @param roles which may contain Membership privileges
-	 * @param mapOfObjectsToCheck to which will be membership checked
-	 * @return true if roles contains MEMBERSHIP role and the principal satisfies that, false otherwise.
+	 * Resolves single attribute policy - checks, if principal has required role in at least one of retrieved associated objects
+	 * @param sess session
+	 * @param associatedObjects map of object types with actual associated objects
+	 * @param policy attribute policy to be checked
+	 * @return true if principal is privileged for attribute, false otherwise
 	 */
-	private static boolean resolveMembershipPrivileges(PerunSession sess, Map<String, Set<ActionType>> roles, Map<String, Set<Integer>> mapOfObjectsToCheck) {
-		if (roles.containsKey(Role.MEMBERSHIP)) {
-			Set<ActionType> membershipActions = roles.get(Role.MEMBERSHIP);
+	private static boolean resolvePolicyPrivileges(PerunSession sess, Map<RoleObject, Set<Integer>> associatedObjects, AttributePolicy policy) {
+		AuthzRoles principalRoles = sess.getPerunPrincipal().getRoles();
 
-			for (ActionType membershipAction : membershipActions) {
-				String object = membershipAction.getActionTypeObject();
-				if (object == null) return true;
-
-				if (MembershipPrivilegesResolver.getValue(object).apply(sess, mapOfObjectsToCheck.get(object)))
-					return true;
-			}
+		if (policy.getObject().equals(RoleObject.None) && principalRoles.hasRole(policy.getRole())) {
+			return true;
 		}
 
+		if (associatedObjects.containsKey(policy.getObject())) {
+			Set<Integer> objectsToCheck = associatedObjects.get(policy.getObject());
+			for (Integer objectId : objectsToCheck) {
+				if (principalRoles.hasRole(policy.getRole(), policy.getObject().name(), objectId)) {
+					return true;
+				}
+			}
+		} else {
+			throw new InternalErrorException("Objects of type " + policy.getObject().name() + " were not retrieved for attribute policy check.");
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolve membership privileges of single policy for the principal
+	 *
+	 * @param sess from which will be principal fetched
+	 * @param policy policy which may contain MEMBERSHIP role
+	 * @param associatedObjects map of object types with actual associated objects to which will be membership checked
+	 * @return true if roles contains MEMBERSHIP role and the principal satisfies that, false otherwise.
+	 */
+	private static boolean resolveMembershipPrivileges(PerunSession sess, AttributePolicy policy, Map<RoleObject, Set<Integer>> associatedObjects) {
+		if (policy.getRole().equals(Role.MEMBERSHIP)) {
+			return MembershipPrivilegesResolver.getValue(policy.getObject().name()).apply(sess, associatedObjects.get(policy.getObject()));
+		}
 		return false;
 	}
 
@@ -2607,23 +2655,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * fetch all unique object types from the given map
+	 * Fetch all unique object types from the given policy collections.
 	 *
-	 * @param roles map from which will be the object types fetched.
-	 * @return set of object type names
+	 * @param policyCollections policy collections from which the object types will be fetched.
+	 * @return set of object type names occurring in the policies
 	 */
-	private static Set<String> fetchUniqueObjectTypes(Map<String, Set<ActionType>> roles) {
-		Set<String> uniqueObjectTypes = new HashSet<>();
-
-		for (String roleName: roles.keySet()) {
-			Set<ActionType> roleActionTypes = roles.get(roleName);
-			roleActionTypes.forEach(actionType -> {
-				if (actionType.getActionTypeObject() != null)
-					uniqueObjectTypes.add(actionType.getActionTypeObject());
-			});
-		}
-
-		return uniqueObjectTypes;
+	private static Set<RoleObject> fetchUniqueObjectTypes(List<AttributePolicyCollection> policyCollections) {
+		List<AttributePolicy> policies = policyCollections.stream().flatMap(c -> c.getPolicies().stream()).toList();
+		return policies.stream().map(AttributePolicy::getObject).collect(Collectors.toSet());
 	}
 
 	/**
