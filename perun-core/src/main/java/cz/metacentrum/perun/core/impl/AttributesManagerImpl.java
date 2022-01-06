@@ -1,8 +1,11 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Auditable;
@@ -18,6 +21,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -213,6 +217,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					"roles.name as role_name," +
 					"action_types.action_type as action_type";
 
+	private final static String attributePolicyCollectionMappingSelectQuery =
+		"attribute_policy_collections.id as attribute_policy_collections_id, " +
+		"attribute_policy_collections.attr_id as attribute_policy_collections_attr_id, " +
+		"attribute_policy_collections.action as attribute_policy_collections_action, " +
+		"attribute_policies.id as attribute_policies_id, " +
+		"attribute_policies.role_id as attribute_policies_role_id, " +
+		"attribute_policies.object as attribute_policies_object, " +
+		"attribute_policies.policy_collection_id as attribute_policies_policy_collection_id, " +
+		"roles.name as roles_name ";
+
 	static String getAttributeMappingSelectQuery(String nameOfValueTable) {
 		return attributeDefinitionMappingSelectQuery + ", attr_value" +
 				", " + nameOfValueTable + ".created_at as attr_value_created_at" +
@@ -263,6 +277,40 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 		return attribute;
 	};
+
+	private static final RowMapper<AttributePolicy> ATTRIBUTE_POLICY_MAPPER = (rs, i) -> new AttributePolicy(
+		rs.getInt("attribute_policies_id"),
+		rs.getString("roles_name").toUpperCase(),
+		RoleObject.valueOf(rs.getString("attribute_policies_object")),
+		rs.getInt("attribute_policies_policy_collection_id")
+	);
+
+	private static ResultSetExtractor<List<AttributePolicyCollection>> getAttributePoliciesExtractor() {
+		return resultSet -> {
+			Map<Integer, AttributePolicyCollection> attributePolicyCollections = new HashMap<>();
+			while (resultSet.next()) {
+				AttributePolicy policy = ATTRIBUTE_POLICY_MAPPER.mapRow(resultSet, resultSet.getRow());
+
+				int policyCollectionId = resultSet.getInt("attribute_policy_collections_id");
+				int attributeId = resultSet.getInt("attribute_policy_collections_attr_id");
+				AttributeAction action = AttributeAction.valueOf(resultSet.getString("attribute_policy_collections_action"));
+
+				AttributePolicyCollection policyCollection = attributePolicyCollections.get(policyCollectionId);
+				if (policyCollection != null) {
+					policyCollection.addPolicy(policy);
+				} else {
+					attributePolicyCollections.put(policyCollectionId,
+						new AttributePolicyCollection(
+							policyCollectionId,
+							attributeId,
+							action,
+							new ArrayList<>(Collections.singletonList(policy))));
+				}
+			}
+
+			return new ArrayList<>(attributePolicyCollections.values());
+		};
+	}
 
 	private static final RowMapper<String> ENTITYLESS_KEYS_MAPPER = (rs, i) -> rs.getString("subject");
 
@@ -4921,6 +4969,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, final int attributeId) {
+		List<AttributePolicyCollection> attributePolicyCollections;
+		try {
+			attributePolicyCollections = jdbc.query("SELECT " + attributePolicyCollectionMappingSelectQuery  +
+				" FROM attribute_policies " +
+				" JOIN attribute_policy_collections ON attribute_policies.policy_collection_id=attribute_policy_collections.id " +
+				" JOIN roles ON attribute_policies.role_id=roles.id " +
+				" WHERE attr_id=?", getAttributePoliciesExtractor(), attributeId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+
+		return attributePolicyCollections;
 	}
 
 	private Attribute setAttributeCreatedAndModified(PerunSession sess, Attribute attribute) {

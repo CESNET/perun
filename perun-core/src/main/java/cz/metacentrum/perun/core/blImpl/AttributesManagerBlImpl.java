@@ -50,6 +50,7 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.FacilityAllAttr
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -8253,6 +8254,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				getPerunBl().getAuditer().log(sess, new AttributeRightsSet(right));
 			}
 		}
+	}
+
+	@Override
+	public List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId) {
+		return getAttributesManagerImpl().getAttributePolicyCollections(sess, attributeId);
 	}
 
 	@Override
