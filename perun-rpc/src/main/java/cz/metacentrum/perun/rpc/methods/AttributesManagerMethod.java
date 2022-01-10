@@ -3958,6 +3958,24 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Deletes old attribute policy collections and sets all new attribute policy collections.
+	 *
+	 * @param policyCollections List<AttributePolicyCollection> list of AttributePolicyCollection to set
+	 * @param attributeId int attribute for which policies are set
+	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 * @throw RoleNotSupportedException When some of the AttributePolicyCollection does have a role which does not exist
+	 */
+	setAttributePolicyCollections {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getAttributesManager().setAttributePolicyCollections(ac.getSession(),
+				parms.readList("policyCollections", AttributePolicyCollection.class)
+			);
+			return null;
+		}
+	},
+
+	/*#
 	 * Gets attribute policy collections for an attribute definition with given id.
 	 *
 	 * @param attributeId int AttributeDefinition <code>id</code>

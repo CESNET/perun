@@ -4622,6 +4622,15 @@ public interface AttributesManagerBl {
 	void setAttributeRights(PerunSession sess, List<AttributeRights> rights);
 
 	/**
+	 * Deletes old attribute policy collections and sets all new attribute policy collections.
+	 *
+	 * @param sess perun session
+	 * @param policyCollections list of policy collections to set
+	 * @throws InternalErrorException
+	 */
+	void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections);
+
+	/**
 	 * Gets attribute policy collections for an attribute definition with given id.
 	 *
 	 * @param sess perun session

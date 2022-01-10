@@ -264,6 +264,11 @@ perun_policies:
     include_policies:
       - default_policy
 
+  setAttributePolicyCollections_List<AttributePolicyCollection>_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   convertAttributeToUnique_int_policy:
     policy_roles: []
     include_policies:

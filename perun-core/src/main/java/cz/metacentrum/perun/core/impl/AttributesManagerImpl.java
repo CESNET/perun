@@ -4972,6 +4972,40 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) {
+		try {
+			// deleting old attribute policies
+			List<Integer> attributeIds = policyCollections.stream()
+				.map(AttributePolicyCollection::getAttributeId)
+				.distinct()
+				.collect(Collectors.toList());
+
+			for (Integer attributeId : attributeIds) {
+				jdbc.update("DELETE FROM attribute_policy_collections WHERE attr_id=?", attributeId);
+			}
+
+			// inserting new policies
+			for (AttributePolicyCollection apc : policyCollections) {
+
+				int next_id = jdbc.queryForInt("SELECT nextval('attribute_policy_collections_id_seq')");
+
+				jdbc.update("INSERT INTO attribute_policy_collections (id, attr_id, action) VALUES "
+					+ "(?, ?, ?::attribute_action)",
+					next_id, apc.getAttributeId(), apc.getAction().toString());
+
+				for (AttributePolicy ap : apc.getPolicies()) {
+					jdbc.update("INSERT INTO attribute_policies (id, role_id, object, policy_collection_id) VALUES "
+						+ "((nextval('attribute_policies_id_seq')), (SELECT id FROM roles WHERE name=?), ?::role_object, ?)",
+						ap.getRole().toLowerCase(), ap.getObject().toString(), next_id);
+				}
+			}
+
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, final int attributeId) {
 		List<AttributePolicyCollection> attributePolicyCollections;
 		try {
