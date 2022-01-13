@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class urn_perun_group_attribute_def_def_adGroupName extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("[A-Za-z0-9 _-]+");
+	private static final Pattern pattern = Pattern.compile("[A-Za-z0-9_-]|([A-Za-z0-9_-][A-Za-z0-9 _-]*[A-Za-z0-9_-])");
 	private static final String A_R_D_AD_RESOURCE_REPRESENTATION = AttributesManager.NS_RESOURCE_ATTR_DEF + ":adResourceRepresentation";
 	private static final String A_G_D_AD_GROUP_NAME = AttributesManager.NS_GROUP_ATTR_DEF + ":adGroupName";
 

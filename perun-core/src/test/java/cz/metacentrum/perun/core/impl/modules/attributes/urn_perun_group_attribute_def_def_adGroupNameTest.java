@@ -66,6 +66,22 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
 		classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
 	}
 
+	@Test(expected = WrongAttributeValueException.class)
+	public void testWrongSyntaxWithSpaceAtStart() throws Exception {
+		System.out.println("testWrongSyntaxWithSpaceAtStart()");
+		attributeToCheck.setValue(" badValue");
+
+		classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
+	}
+
+	@Test(expected = WrongAttributeValueException.class)
+	public void testWrongSyntaxWithSpaceAtEnd() throws Exception {
+		System.out.println("testWrongSyntaxWithSpaceAtEnd()");
+		attributeToCheck.setValue("badValue ");
+
+		classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
+	}
+
 	@Test
 	public void testCorrectSyntax() {
 		System.out.println("testCorrectSyntax()");
@@ -77,8 +93,26 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
 
 	@Test
 	public void testCorrectSyntaxWithDash() {
-		System.out.println("testCorrectSyntax()");
-		attributeToCheck.setValue("correct-Value-with-Dash");
+		System.out.println("testCorrectSyntaxWithDash()");
+		attributeToCheck.setValue("-correct-Value-with-Dash-");
+
+		assertThatNoException().isThrownBy(
+			() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+	}
+
+	@Test
+	public void testCorrectSyntaxWithUnderscore() {
+		System.out.println("testCorrectSyntaxWithUnderscore()");
+		attributeToCheck.setValue("_correct_Value_with_Dash_");
+
+		assertThatNoException().isThrownBy(
+			() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+	}
+
+	@Test
+	public void testCorrectSyntaxWithSpace() {
+		System.out.println("testCorrectSyntaxWithSpace()");
+		attributeToCheck.setValue("correct Value with Dash");
 
 		assertThatNoException().isThrownBy(
 			() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
