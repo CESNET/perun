@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use YAML::XS 'LoadFile';
+use File::Basename;
+
+my $dirname = dirname(__FILE__);
+
+#Load configuration
+my $filename = $dirname . '/oidc_config.yml';
+unless (-e $filename) {
+	print "OIDC configuration file is missing!";
+	exit 0;
+}
+
+my $config = LoadFile($filename);
+
+my $client_id = $config->{"client_id"};
+my $oidc_device_code_uri = $config->{"oidc_device_code_uri"};
+my $oidc_token_endpoint_uri = $config->{"oidc_token_endpoint_uri"};
+my $acr_values = $config->{"acr_values"};
+my $scopes = $config->{"scopes"};
+my $perun_api_endpoint = $config->{"perun_api_endpoint"};

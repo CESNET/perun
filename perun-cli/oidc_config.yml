@@ -1,0 +1,6 @@
+client_id: "perun_cli_cesnet" # Identifier of the CLI app on the OIDC server
+oidc_device_code_uri: "https://login.cesnet.cz/oidc/devicecode" # Here the CLI requests from the OIDC server to start the authentication
+oidc_token_endpoint_uri: "https://login.cesnet.cz/oidc/token" # Token endpoint URI
+acr_values: "" # List of ACR values for authentication
+scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
+perun_api_endpoint: "https://perun.cesnet.cz/oauth/rpc"
