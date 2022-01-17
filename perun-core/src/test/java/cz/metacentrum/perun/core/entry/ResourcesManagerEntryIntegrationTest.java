@@ -890,6 +890,46 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+	@Test
+	public void getAssociatedResources() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedResources");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource, false, true, false);
+
+		List<Resource> resources = perun.getResourcesManagerBl().getAssociatedResources(sess, group);
+		assertTrue("group should be associated with 1 resource", resources.size() == 1);
+		assertTrue("our resource should be associated with our group", resources.contains(resource));
+
+	}
+
+	@Test
+	public void getAssociatedResourcesForMember() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedResourcesForMember");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource, false, true, false);
+
+		List<Resource> resources = perun.getResourcesManagerBl().getAssociatedResources(sess, member);
+		assertThat(resources).containsExactly(resource);
+
+		resources = perun.getResourcesManagerBl().getAssociatedResources(sess, member2);
+		assertThat(resources).doesNotContain(resource);
+
+	}
+
 	@Test(expected = GroupNotExistsException.class)
 	public void getAssignedResourcesWhenGroupNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getAssignedResourcesWhenGroupNotExists");
@@ -1213,6 +1253,62 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		// statuses are correctly prioritized
 		assertTrue(assignedMem1.getStatus().equals(GroupResourceStatus.ACTIVE));
 		assertTrue(assignedMem2.getStatus().equals(GroupResourceStatus.INACTIVE));
+	}
+
+	@Test
+	public void getAssociatedMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedMembers");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+		Member member3 = setUpMember(vo);
+
+		Group group1 = setUpGroup(vo, member1);
+		Group group2 = perun.getGroupsManager().createGroup(sess, vo, new Group("Test2", "Test2"));
+		perun.getGroupsManagerBl().addMember(sess, group2, member2);
+		Group group3 = perun.getGroupsManager().createGroup(sess, vo, new Group("Test3", "Test3"));
+		perun.getGroupsManagerBl().addMember(sess, group3, member3);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource, false, false, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource, false, true, false);
+
+		List<Member> result = perun.getResourcesManagerBl().getAssociatedMembers(sess, resource);
+		assertThat(result).containsExactlyInAnyOrderElementsOf(List.of(member1, member2));
+		assertThat(result).doesNotContain(member3);
+	}
+
+	@Test
+	public void getAssociatedUsers() throws Exception {
+		System.out.println(CLASS_NAME + "getAssociatedUsers");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+		Member member3 = setUpMember(vo);
+
+		User user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
+		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
+		User user3 = perun.getUsersManagerBl().getUserByMember(sess, member3);
+
+		Group group1 = setUpGroup(vo, member1);
+		Group group2 = perun.getGroupsManager().createGroup(sess, vo, new Group("Test2", "Test2"));
+		perun.getGroupsManagerBl().addMember(sess, group2, member2);
+		Group group3 = perun.getGroupsManager().createGroup(sess, vo, new Group("Test3", "Test3"));
+		perun.getGroupsManagerBl().addMember(sess, group3, member3);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource, false, false, false);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource, false, true, false);
+
+		List<User> result = perun.getResourcesManagerBl().getAssociatedUsers(sess, resource);
+		assertThat(result).containsExactlyInAnyOrderElementsOf(List.of(user1, user2));
+		assertThat(result).doesNotContain(user3);
 	}
 
 	@Test

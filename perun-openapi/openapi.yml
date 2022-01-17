@@ -371,6 +371,54 @@ components:
           items:
             $ref: '#/components/schemas/ActionType'
 
+    AttributeAction:
+      type: string
+      description: "Represents types of actions that users can perform upon attributes."
+      enum:
+        - "WRITE"
+        - "READ"
+
+    RoleObject:
+      type: string
+      description: "Represents objects, upon which Perun roles can be set, e.g. role RESOURCEADMIN can be set upon Resource, Vo, Facility or no object (None)."
+      enum:
+        - "None"
+        - "Group"
+        - "Vo"
+        - "Facility"
+        - "Resource"
+        - "User"
+        - "Member"
+
+    AttributePolicy:
+      type: object
+      required:
+        - id
+        - role
+        - object
+        - policyCollectionId
+      properties:
+        id: { type: integer }
+        role: { type: string }
+        object: { $ref: '#/components/schemas/RoleObject' }
+        policyCollectionId: { type: integer }
+
+    AttributePolicyCollection:
+      type: object
+      required:
+        - id
+        - attributeId
+        - action
+        - policies
+      properties:
+        id: { type: integer }
+        attributeId: { type: integer }
+        action: { $ref: '#/components/schemas/AttributeAction' }
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributePolicy'
+
     Facility:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1667,6 +1715,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/AttributeRights"
+
+    ListOfAttributePolicyCollectionResponse:
+      description: "returns List<AttributePolicyCollection>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/AttributePolicyCollection"
 
     AttributeResponse:
       description: "returns Attribute"
@@ -6804,6 +6861,19 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getAttributePolicyCollections:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributePolicyCollections
+      summary: "Gets attribute policy collections for an attribute definition with given id."
+      parameters:
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributePolicyCollectionResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/attributesManager/convertAttributeToUnique:
     post:
@@ -12462,7 +12532,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedResourcesWithGroup
-      summary: List all resources associated with a group.
+      summary: List all resources to which the group is assigned.
       parameters:
         - $ref: '#/components/parameters/groupId'
       responses:

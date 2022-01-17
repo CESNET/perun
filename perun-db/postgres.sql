@@ -1,4 +1,4 @@
--- database version 3.1.88 (don't forget to update insert statement at the end of file)
+-- database version 3.1.89 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -278,7 +278,7 @@ create table attr_names (
   constraint attfullnam_u unique (friendly_name,namespace)
 );
 
--- ATTRIBUTES_AUTHZ - controles permissions for access to attributes
+-- ATTRIBUTES_AUTHZ - controls permissions for access to attributes
 create table attributes_authz (
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
 	role_id integer not null,  --identifier of role (roles.id)
@@ -288,6 +288,42 @@ create table attributes_authz (
   constraint attrauthz_role_fk foreign key (role_id) references roles(id),
   constraint attrauthz_actiontyp_fk foreign key (action_type_id) references action_types(id)
 );
+
+create type attribute_action as enum (
+	'READ',
+	'WRITE'
+	);
+
+-- ATTRIBUTE_POLICY_COLLECTIONS - controls permissions for access to attributes
+create table attribute_policy_collections (
+	id integer not null,
+	attr_id integer not null,  --identifier of attribute (attr_names.id)
+	action attribute_action not null,  --action on attribute (READ/WRITE)
+	constraint attrpolcol_pk primary key (id),
+	constraint attrpolcol_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade
+);
+
+create type role_object as enum (
+	'None',
+	'Group',
+	'Vo',
+	'Facility',
+	'Resource',
+	'User',
+	'Member'
+	);
+
+-- ATTRIBUTE_POLICIES - controls permissions for access to attributes
+create table attribute_policies (
+	id integer not null,
+	role_id integer not null,  --identifier of role (roles.id)
+	object role_object not null, --object upon which the role is set (e.g. Group)
+	policy_collection_id integer not null, --identifier of attribute policy collection (attribute_policy_collections.id)
+	constraint attrpol_pk primary key (id),
+	constraint attrpol_attr_fk foreign key (policy_collection_id) references attribute_policy_collections (id) on delete cascade,
+	constraint attrpol_role_fk foreign key (role_id) references roles (id)
+);
+
 
 
 -- HOSTS - detail information about hosts and cluster nodes
@@ -1503,6 +1539,8 @@ create table groups_to_register (
 
 
 create sequence "attr_names_id_seq";
+create sequence "attribute_policies_id_seq";
+create sequence "attribute_policy_collections_id_seq";
 create sequence "auditer_consumers_id_seq";
 create sequence "auditer_log_id_seq";
 create sequence "destinations_id_seq";
@@ -1670,6 +1708,9 @@ create index idx_fk_grp_grp_ogid on groups_groups(operand_gid);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
 create index idx_fk_attrauthz_role on attributes_authz(role_id);
 create index idx_fk_attrauthz_attr on attributes_authz(attr_id);
+create index idx_fk_attrpol_role on attribute_policies(role_id);
+create index idx_fk_attrpol_colid on attribute_policies(policy_collection_id);
+create index idx_fk_attrpolcol_attr on attribute_policy_collections(attr_id);
 create index idx_fk_restags_vos on res_tags(vo_id);
 create index idx_fk_tags_res_tags on tags_resources(tag_id);
 create index idx_fk_tags_res_res on tags_resources(resource_id);
@@ -1788,6 +1829,8 @@ grant all on specific_user_users to perun;
 grant all on groups_groups to perun;
 grant all on action_types to perun;
 grant all on attributes_authz to perun;
+grant all on attribute_policies to perun;
+grant all on attribute_policy_collections to perun;
 grant all on res_tags to perun;
 grant all on tags_resources to perun;
 grant all on configurations to perun;
@@ -1806,7 +1849,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.88');
+insert into configurations values ('DATABASE VERSION','3.1.89');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

@@ -727,6 +727,17 @@ public interface UsersManagerBl {
 	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user);
 
 	/**
+	 * Return all resources of specified facility with which user is associated through all his members.
+	 * Does not require ACTIVE group-resource assignment.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param user
+	 * @return All resources with which user is associated
+	 */
+	List<Resource> getAssociatedResources(PerunSession sess, Facility facility, User user);
+
+	/**
 	 * Get all resources which have the user access on.
 	 *
 	 * @param sess
@@ -752,6 +763,16 @@ public interface UsersManagerBl {
 	 * @return list of rich resources which have the user access on
 	 */
 	List<RichResource> getAssignedRichResources(PerunSession sess, User user);
+
+	/**
+	 * Get all resources with which user can be associated (similar to assigned resources,
+	 * but does not require ACTIVE group-resource assignment).
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of resources with which the user is associated
+	 */
+	List<Resource> getAssociatedResources(PerunSession sess, User user);
 
 	/**
 	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.

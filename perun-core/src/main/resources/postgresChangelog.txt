@@ -6,6 +6,20 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.89
+create type attribute_action as enum ('READ', 'WRITE');
+create table attribute_policy_collections (id integer not null, attr_id integer not null, action attribute_action not null, constraint attrpolcol_pk primary key (id), constraint attrpolcol_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade);
+create type role_object as enum ('None', 'Group', 'Vo', 'Facility', 'Resource', 'User', 'Member');
+create table attribute_policies (id integer not null, role_id integer not null, object role_object not null, policy_collection_id integer not null, constraint attrpol_pk primary key (id), constraint attrpol_attr_fk foreign key (policy_collection_id) references attribute_policy_collections (id) on delete cascade, constraint attrpol_role_fk foreign key (role_id) references roles (id));
+grant all on attribute_policies to perun;
+grant all on attribute_policy_collections to perun;
+create index idx_fk_attrpol_role on attribute_policies(role_id);
+create index idx_fk_attrpol_colid on attribute_policies(policy_collection_id);
+create index idx_fk_attrpolcol_attr on attribute_policy_collections(attr_id);
+create sequence "attribute_policies_id_seq";
+create sequence "attribute_policy_collections_id_seq";
+UPDATE configurations SET value='3.1.89' WHERE property='DATABASE VERSION';
+
 3.1.88
 create or replace function relation_group_resource_exist(integer, integer) returns integer as 'select count(1)::integer from (SELECT group_id, resource_id FROM perun.groups_resources UNION SELECT group_id, resource_id FROM perun.groups_resources_automatic) gr_res where group_id=$1 and resource_id=$2;' language sql;
 UPDATE configurations SET value='3.1.88' WHERE property='DATABASE VERSION';

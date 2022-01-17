@@ -95,6 +95,9 @@
 # SPONSORSHIP role that is set for all members who are sponsored by the principal. This role is not
 # explicitly saved in DB!!
 #
+# MEMBERSHIP role represents principal's membership in a group, VO or association with facility. This role is not
+## explicitly saved in DB!!
+#
 # UNKNOWN exists, but it is not used in Perun.
 #
 
@@ -122,6 +125,7 @@ perun_roles:
   - SECURITYADMIN
   - CABINETADMIN
   - SPONSORSHIP
+  - MEMBERSHIP
   - UNKNOWN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
@@ -255,6 +259,12 @@ perun_policies:
 
   setAttributeRights_List<AttributeRights>_policy:
     policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAttributePolicyCollections_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -6880,6 +6890,16 @@ perun_roles_management:
       - PERUNADMIN:
       - PERUNOBSERVER:
       - CABINETADMIN:
+
+  MEMBERSHIP:
+    primary_object:
+    assign_to_objects:
+      Group: group_id
+      Vo: vo_id
+      Facility: facility_id
+    entities_to_manage: {}
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   UNKNOWN:
     primary_object:

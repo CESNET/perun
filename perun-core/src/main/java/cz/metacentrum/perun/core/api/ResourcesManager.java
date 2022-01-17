@@ -377,7 +377,7 @@ public interface ResourcesManager {
 	List<Group> getAssignedGroups(PerunSession perunSession, Resource resource, Member member) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException;
 
 	/**
-	 * List all resources associated with the group.
+	 * List all resources to which the group is assigned.
 	 *
 	 * @param perunSession
 	 * @param group

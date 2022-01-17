@@ -6,6 +6,7 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -2706,4 +2707,14 @@ public interface AttributesManagerImplApi {
 	 * e.g. 'domain/?vo=vo name' => 'domain/?vo=vo+name'
 	 */
 	String escapeQueryParameters(String value);
+
+	/**
+	 * Gets attribute policy collections for an attribute definition with given id.
+	 *
+	 * @param sess perun session
+	 * @param attributeId id of the attribute definition
+	 * @return all policy collections of the attribute definition
+	 * @throws InternalErrorException
+	 */
+	List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId);
 }

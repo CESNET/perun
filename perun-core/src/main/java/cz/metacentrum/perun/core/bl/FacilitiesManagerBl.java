@@ -263,6 +263,16 @@ public interface FacilitiesManagerBl {
 	List<User> getAllowedUsers(PerunSession sess, Facility facility);
 
 	/**
+	 * Return all users, which are associated with facility through any member/resource.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of associated users
+	 */
+	List<User> getAssociatedUsers(PerunSession sess, Facility facility);
+
+	/**
 	 * Return all users who can use this facility
 	 * You can specify VO or Service you are interested in to filter resulting users (they must be members of VO and from Resource with assigned Service).
 	 * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
@@ -301,6 +311,20 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getAllowedMembers(PerunSession sess, Facility facility);
+
+	/**
+	 * Return all members, which are associated with the facility and belong to given user.
+	 * Does not require ACTIVE group-resource status or any specific member status.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param user
+	 *
+	 * @return list of associated members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAssociatedMembers(PerunSession sess, Facility facility, User user);
 
 	/**
 	 * Returns all resources assigned to the facility.

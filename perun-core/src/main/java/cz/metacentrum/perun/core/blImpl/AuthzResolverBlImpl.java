@@ -7,7 +7,10 @@ import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleUnsetForUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -28,6 +31,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
@@ -75,7 +79,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -1001,6 +1007,532 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		// only perun admin can work with entityless attributes
+		return false;
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+
+		if (member == null && resource != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, resource);
+		} else if (resource == null && member != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, member);
+		}
+
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, resource, member);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource, member);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedMemberResourceObjectsResolver.getValue(objectType.name()).callOn(sess, member, resource);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+
+		if (group == null && resource != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, resource);
+		} else if (resource == null && group != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, group);
+		}
+
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, group, resource);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group, resource);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedGroupResourceObjectsResolver.getValue(objectType.name()).callOn(sess, group, resource);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+
+		if (user == null && facility != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, facility);
+		} else if (facility == null && user != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, user);
+		}
+
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, user, facility);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user, facility);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedUserFacilityObjectsResolver.getValue(objectType.name()).callOn(sess, user, facility);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+
+		if (group == null && member != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, member);
+		} else if (member == null && group != null) {
+			return isAuthorizedForAttribute(sess, actionType, attrDef, group);
+		}
+
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, member, group);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member, group);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedMemberGroupObjectsResolver.getValue(objectType.name()).callOn(sess, member, group);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, user, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedUserObjectsResolver.getValue(objectType.name()).apply(sess, user);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, member, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedMemberObjectsResolver.getValue(objectType.name()).apply(sess, member);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Vo vo) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, vo, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, vo);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedVoObjectsResolver.getValue(objectType.name()).apply(sess, vo);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, group, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedGroupObjectsResolver.getValue(objectType.name()).apply(sess, group);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, resource, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedResourceObjectsResolver.getValue(objectType.name()).apply(sess, resource);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, facility, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, facility);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedFacilityObjectsResolver.getValue(objectType.name()).apply(sess, facility);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Host host) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, host, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, host);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedHostObjectsResolver.getValue(objectType.name()).apply(sess, host);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, UserExtSource ues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, ues, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, ues);
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedUserExtSourceObjectsResolver.getValue(objectType.name()).apply(sess, ues);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
+
+		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
+
+		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
+		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
+			&& policyCollections.stream()
+			.flatMap(c -> c.getPolicies().stream())
+			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+			return false;
+		}
+
+		//Get all unique objects from the roles' action types
+		Set<RoleObject> uniqueObjectTypes = fetchUniqueObjectTypes(policyCollections);
+
+		//Fetch all possible related objects from the member and the resource according the uniqueObjectTypes
+		Map<RoleObject, Set<Integer>> associatedObjects = new HashMap<>();
+		for (RoleObject objectType: uniqueObjectTypes) {
+			Set<Integer> retrievedObjects = RelatedEntitylessObjectsResolver.getValue(objectType.name()).apply(sess, key);
+			associatedObjects.put(objectType, retrievedObjects);
+		}
+
+		//Resolve principal's privileges for the attribute according to the rules and objects
+		return resolveAttributeAuthorization(sess, policyCollections, associatedObjects);
+	}
+
+	/**
+	 * Retrieves all attribute policy collections for given attribute definition and action type
+	 * @param sess session
+	 * @param actionType type of action (READ / WRITE)
+	 * @param attrDef attribute definition
+	 * @return list of attribute collections for given attribute definition and action type
+	 * @throws AttributeNotExistsException
+	 */
+	private static List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef) throws AttributeNotExistsException {
+		Utils.notNull(sess, "sess");
+		Utils.notNull(actionType, "ActionType");
+		Utils.notNull(attrDef, "AttributeDefinition");
+		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
+
+		// We need to load additional information about the principal
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		return perunBl.getAttributesManagerBl().getAttributePolicyCollections(sess, attrDef.getId()).stream()
+			.filter(c -> c.getAction().equals(actionType)).toList();
+	}
+
+	/**
+	 * Resolve authorization for attribute according to map of privileged roles and map of objects.
+	 * Expects policy collection filtered by required action type.
+	 *
+	 * @param sess PerunSession which want to operate on attribute
+	 * @param policyCollections policy collections containing only required action type collections
+	 * @param associatedObjects map of object types with actual associated objects
+	 * @return true if principal is privileged to operate on attribute (satisfies at least one collection's policies), false otherwise.
+	 */
+	private static boolean resolveAttributeAuthorization(PerunSession sess, List<AttributePolicyCollection> policyCollections, Map<RoleObject, Set<Integer>> associatedObjects) {
+		for (AttributePolicyCollection policyCollection : policyCollections) {
+			boolean collectionSatisfied = true;
+
+			if (policyCollection.getPolicies().isEmpty()) {
+				throw new InternalErrorException("Policy collection with id " + policyCollection.getId() + " contains no policies.");
+			}
+
+			for (AttributePolicy policy : policyCollection.getPolicies()) {
+				if (!resolvePolicyPrivileges(sess, associatedObjects, policy) && !resolveMembershipPrivileges(sess, policy, associatedObjects)) {
+					collectionSatisfied = false;
+					break;
+				}
+			}
+
+			if (collectionSatisfied) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolves single attribute policy - checks, if principal has required role in at least one of retrieved associated objects
+	 * @param sess session
+	 * @param associatedObjects map of object types with actual associated objects
+	 * @param policy attribute policy to be checked
+	 * @return true if principal is privileged for attribute, false otherwise
+	 */
+	private static boolean resolvePolicyPrivileges(PerunSession sess, Map<RoleObject, Set<Integer>> associatedObjects, AttributePolicy policy) {
+		AuthzRoles principalRoles = sess.getPerunPrincipal().getRoles();
+
+		if (policy.getObject().equals(RoleObject.None) && principalRoles.hasRole(policy.getRole())) {
+			return true;
+		}
+
+		if (associatedObjects.containsKey(policy.getObject())) {
+			Set<Integer> objectsToCheck = associatedObjects.get(policy.getObject());
+			for (Integer objectId : objectsToCheck) {
+				if (principalRoles.hasRole(policy.getRole(), policy.getObject().name(), objectId)) {
+					return true;
+				}
+			}
+		} else {
+			throw new InternalErrorException("Objects of type " + policy.getObject().name() + " were not retrieved for attribute policy check.");
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolve membership privileges of single policy for the principal
+	 *
+	 * @param sess from which will be principal fetched
+	 * @param policy policy which may contain MEMBERSHIP role
+	 * @param associatedObjects map of object types with actual associated objects to which will be membership checked
+	 * @return true if roles contains MEMBERSHIP role and the principal satisfies that, false otherwise.
+	 */
+	private static boolean resolveMembershipPrivileges(PerunSession sess, AttributePolicy policy, Map<RoleObject, Set<Integer>> associatedObjects) {
+		if (policy.getRole().equals(Role.MEMBERSHIP)) {
+			return MembershipPrivilegesResolver.getValue(policy.getObject().name()).apply(sess, associatedObjects.get(policy.getObject()));
+		}
 		return false;
 	}
 
@@ -2123,6 +2655,17 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Fetch all unique object types from the given policy collections.
+	 *
+	 * @param policyCollections policy collections from which the object types will be fetched.
+	 * @return set of object type names occurring in the policies
+	 */
+	private static Set<RoleObject> fetchUniqueObjectTypes(List<AttributePolicyCollection> policyCollections) {
+		List<AttributePolicy> policies = policyCollections.stream().flatMap(c -> c.getPolicies().stream()).toList();
+		return policies.stream().map(AttributePolicy::getObject).collect(Collectors.toSet());
+	}
+
+	/**
 	 * Enum defines PerunBean's name and action. The action retrieves all related objects for the object with that name.
 	 * The source object is returned alongside its related objects.
 	 */
@@ -2216,6 +2759,952 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		public List<PerunBean> apply(PerunBean object) {
 			return function.apply(object);
 		}
+	}
+
+	/**
+	 * Functional interface defining action for member-resource related objects
+	 */
+	@FunctionalInterface
+	private interface MemberResourceRelatedObjectAction<TA extends PerunSession, TS extends Member, TM extends Resource, TV extends Set<Integer>> {
+		TV callOn(TA session, TS member, TM resource) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the member and resource objects.
+	 */
+	private enum RelatedMemberResourceObjectsResolver implements MemberResourceRelatedObjectAction<PerunSession, Member, Resource, Set<Integer>> {
+		Vo((sess, member, resource) -> {
+			return Collections.singleton(member.getVoId());
+		}),
+		Facility((sess, member, resource) -> {
+			return Collections.singleton(resource.getFacilityId());
+		}),
+		User((sess, member, resource) -> {
+			return Collections.singleton(member.getUserId());
+		}),
+		Group((sess, member, resource) -> {
+			List<Group> groups = getPerunBl().getResourcesManagerBl().getAssociatedGroups(sess, resource, member);
+			Set<Integer> ids = new HashSet<>();
+			groups.forEach(group -> ids.add(group.getId()));
+			return ids;
+		}),
+		Member((sess, member, resource) -> {
+			return Collections.singleton(member.getId());
+		}),
+		Resource((sess, member, resource) -> {
+			return Collections.singleton(resource.getId());
+		}),
+		Default((sess, member, resource) -> {
+			return Collections.emptySet();
+		});
+
+		private MemberResourceRelatedObjectAction<PerunSession, Member, Resource, Set<Integer>> function;
+
+		RelatedMemberResourceObjectsResolver(final MemberResourceRelatedObjectAction<PerunSession, Member, Resource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedMemberResourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedMemberResourceObjectsResolver value.
+		 */
+		public static RelatedMemberResourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedMemberResourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedMemberResourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, Member member, Resource resource) {
+			return function.callOn(sess, member, resource);
+		}
+	}
+
+	/**
+	 * Functional interface defining action for group-resource related objects
+	 */
+	@FunctionalInterface
+	private interface GroupResourceRelatedObjectAction<TA extends PerunSession, TS extends Group, TM extends Resource, TV extends Set<Integer>> {
+		TV callOn(TA session, TS group, TM resource) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the group and resource objects.
+	 */
+	private enum RelatedGroupResourceObjectsResolver implements GroupResourceRelatedObjectAction<PerunSession, Group, Resource, Set<Integer>> {
+		Vo((sess, group, resource) -> {
+			return Collections.singleton(resource.getVoId());
+		}),
+		Facility((sess, group, resource) -> {
+			return Collections.singleton(resource.getFacilityId());
+		}),
+		User((sess, group, resource) -> {
+			List<User> users = perunBl.getGroupsManagerBl().getGroupUsers(sess, group);
+			Set<Integer> userIds = new HashSet<>();
+			users.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, group, resource) -> {
+			return Collections.singleton(group.getId());
+		}),
+		Member((sess, group, resource) -> {
+			List<Member> members = perunBl.getGroupsManagerBl().getGroupMembers(sess, group);
+			Set<Integer> memberIds = new HashSet<>();
+			members.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, group, resource) -> {
+			return Collections.singleton(resource.getId());
+		}),
+		Default((sess, group, resource) -> {
+			return Collections.emptySet();
+		});
+
+		private GroupResourceRelatedObjectAction<PerunSession, Group, Resource, Set<Integer>> function;
+
+		RelatedGroupResourceObjectsResolver(final GroupResourceRelatedObjectAction<PerunSession, Group, Resource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedGroupResourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedGroupResourceObjectsResolver value.
+		 */
+		public static RelatedGroupResourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedGroupResourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedGroupResourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, Group group, Resource resource) {
+			return function.callOn(sess, group, resource);
+		}
+	}
+
+	/**
+	 * Functional interface defining action for user-facility related objects
+	 */
+	@FunctionalInterface
+	private interface UserFacilityRelatedObjectAction<TA extends PerunSession, TS extends User, TM extends Facility, TV extends Set<Integer>> {
+		TV callOn(TA session, TS user, TM facility) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the user and facility objects.
+	 */
+	private enum RelatedUserFacilityObjectsResolver implements UserFacilityRelatedObjectAction<PerunSession, User, Facility, Set<Integer>> {
+		Vo((sess, user, facility) -> {
+			List<Resource> resources = perunBl.getUsersManagerBl().getAssociatedResources(sess, facility, user);
+			Set<Integer> voIds = new HashSet<>();
+			resources.forEach(resource -> voIds.add(resource.getVoId()));
+			return voIds;
+		}),
+		Facility((sess, user, facility) -> {
+			return Collections.singleton(facility.getId());
+		}),
+		User((sess, user, facility) -> {
+			return Collections.singleton(user.getId());
+		}),
+		Group((sess, user, facility) -> {
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getUserGroups(sess, user);
+			List<Group> facilityGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToFacility(sess, facility);
+			userGroups.retainAll(facilityGroups);
+			Set<Integer> groupIds = new HashSet<>();
+			userGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, user, facility) -> {
+			List<Member> membersFromUser = getPerunBl().getFacilitiesManagerBl().getAssociatedMembers(sess, facility, user);
+			Set<Integer> memberIds = new HashSet<>();
+			membersFromUser.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, user, facility) -> {
+			List<Resource> resources = perunBl.getUsersManagerBl().getAssociatedResources(sess, facility, user);
+			Set<Integer> resourceIds = new HashSet<>();
+			resources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, user, facility) -> {
+			return Collections.emptySet();
+		});
+
+		private UserFacilityRelatedObjectAction<PerunSession, User, Facility, Set<Integer>> function;
+
+		RelatedUserFacilityObjectsResolver(final UserFacilityRelatedObjectAction<PerunSession, User, Facility, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedUserFacilityObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedUserFacilityObjectsResolver value.
+		 */
+		public static RelatedUserFacilityObjectsResolver getValue(String name) {
+			try {
+				return RelatedUserFacilityObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedUserFacilityObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, User user, Facility facility) {
+			return function.callOn(sess, user, facility);
+		}
+	}
+
+	/**
+	 * Functional interface defining action for member-group related objects
+	 */
+	@FunctionalInterface
+	private interface MemberGroupRelatedObjectAction<TA extends PerunSession, TS extends Member, TM extends Group, TV extends Set<Integer>> {
+		TV callOn(TA session, TS member, TM group) throws InternalErrorException;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the member and group objects.
+	 */
+	private enum RelatedMemberGroupObjectsResolver implements MemberGroupRelatedObjectAction<PerunSession, Member, Group, Set<Integer>> {
+		Vo((sess, member, group) -> {
+			return Collections.singleton(member.getVoId());
+		}),
+		Facility((sess, member, group) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
+			Set<Integer> facilityIds = new HashSet<>();
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			return facilityIds;
+		}),
+		User((sess, member, group) -> {
+			return Collections.singleton(member.getUserId());
+		}),
+		Group((sess, member, group) -> {
+			return Collections.singleton(group.getId());
+		}),
+		Member((sess, member, group) -> {
+			return Collections.singleton(member.getId());
+		}),
+		Resource((sess, member, group) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
+			Set<Integer> resourceIds = new HashSet<>();
+			resources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, member, group) -> {
+			return Collections.emptySet();
+		});
+
+		private MemberGroupRelatedObjectAction<PerunSession, Member, Group, Set<Integer>> function;
+
+		RelatedMemberGroupObjectsResolver(final MemberGroupRelatedObjectAction<PerunSession, Member, Group, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedMemberGroupObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedMemberGroupObjectsResolver value.
+		 */
+		public static RelatedMemberGroupObjectsResolver getValue(String name) {
+			try {
+				return RelatedMemberGroupObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedMemberGroupObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> callOn(PerunSession sess, Member member, Group group) {
+			return function.callOn(sess, member, group);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the User object.
+	 */
+	private enum RelatedUserObjectsResolver implements BiFunction<PerunSession, User, Set<Integer>> {
+		Vo((sess, user) -> {
+			List<Vo> vosFromUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromUser.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, user) -> {
+			List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
+			Set<Integer> facilityIds = new HashSet<>();
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			return facilityIds;
+		}),
+		User((sess, user) -> {
+			return Collections.singleton(user.getId());
+		}),
+		Group((sess, user) -> {
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getUserGroups(sess, user);
+			Set<Integer> groupIds = new HashSet<>();
+			userGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, user) -> {
+			List<Member> userMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			Set<Integer> memberIds = new HashSet<>();
+			userMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, user) -> {
+			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
+			Set<Integer> resourceIds = new HashSet<>();
+			userResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, user) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, User, Set<Integer>> function;
+
+		RelatedUserObjectsResolver(final BiFunction<PerunSession, User, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedUserObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedUserObjectsResolver value.
+		 */
+		public static RelatedUserObjectsResolver getValue(String name) {
+			try {
+				return RelatedUserObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedUserObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, User user) {
+			return function.apply(sess, user);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the member object.
+	 */
+	private enum RelatedMemberObjectsResolver implements BiFunction<PerunSession, Member, Set<Integer>> {
+		Vo((sess, member) -> {
+			return Collections.singleton(member.getVoId());
+		}),
+		Facility((sess, member) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, member);
+			Set<Integer> facilityIds = new HashSet<>();
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			return facilityIds;
+		}),
+		User((sess, member) -> {
+			return Collections.singleton(member.getUserId());
+		}),
+		Group((sess, member) -> {
+			List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, member);
+			Set<Integer> groupIds = new HashSet<>();
+			memberGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, member) -> {
+			return Collections.singleton(member.getId());
+		}),
+		Resource((sess, member) -> {
+			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, member);
+			Set<Integer> resourceIds = new HashSet<>();
+			memberResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, member) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Member, Set<Integer>> function;
+
+		RelatedMemberObjectsResolver(final BiFunction<PerunSession, Member, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedMemberObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedMemberObjectsResolver value.
+		 */
+		public static RelatedMemberObjectsResolver getValue(String name) {
+			try {
+				return RelatedMemberObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedMemberObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Member member) {
+			return function.apply(sess, member);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Vo object.
+	 */
+	private enum RelatedVoObjectsResolver implements BiFunction<PerunSession, Vo, Set<Integer>> {
+		Vo((sess, vo) -> {
+			return Collections.singleton(vo.getId());
+		}),
+		Facility((sess, vo) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+			Set<Integer> facilityIds = new HashSet<>();
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			return facilityIds;
+		}),
+		User((sess, vo) -> {
+			List<Member> voMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+			Set<Integer> userIds = new HashSet<>();
+			voMembers.forEach(member -> userIds.add(member.getId()));
+			return userIds;
+		}),
+		Group((sess, vo) -> {
+			List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getGroups(sess, vo);
+			Set<Integer> groupIds = new HashSet<>();
+			memberGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, vo) -> {
+			List<Member> voMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+			Set<Integer> memberIds = new HashSet<>();
+			voMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, vo) -> {
+			List<Resource> voResources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+			Set<Integer> resourceIds = new HashSet<>();
+			voResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, vo) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Vo, Set<Integer>> function;
+
+		RelatedVoObjectsResolver(final BiFunction<PerunSession, Vo, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedVoObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedVoObjectsResolver value.
+		 */
+		public static RelatedVoObjectsResolver getValue(String name) {
+			try {
+				return RelatedVoObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedVoObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Vo vo) {
+			return function.apply(sess, vo);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Group object.
+	 */
+	private enum RelatedGroupObjectsResolver implements BiFunction<PerunSession, Group, Set<Integer>> {
+		Vo((sess, group) -> {
+			return Collections.singleton(group.getVoId());
+		}),
+		Facility((sess, group) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
+			Set<Integer> facilityIds = new HashSet<>();
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			return facilityIds;
+		}),
+		User((sess, group) -> {
+			List<User> groupUsers = getPerunBl().getGroupsManagerBl().getGroupUsers(sess, group);
+			Set<Integer> userIds = new HashSet<>();
+			groupUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, group) -> {
+			return Collections.singleton(group.getId());
+		}),
+		Member((sess, group) -> {
+			List<Member> groupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+			Set<Integer> memberIds = new HashSet<>();
+			groupMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, group) -> {
+			List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
+			Set<Integer> resourceIds = new HashSet<>();
+			groupResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, group) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Group, Set<Integer>> function;
+
+		RelatedGroupObjectsResolver(final BiFunction<PerunSession, Group, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedGroupObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedGroupObjectsResolver value.
+		 */
+		public static RelatedGroupObjectsResolver getValue(String name) {
+			try {
+				return RelatedGroupObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedGroupObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Group group) {
+			return function.apply(sess, group);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the resource object.
+	 */
+	private enum RelatedResourceObjectsResolver implements BiFunction<PerunSession, Resource, Set<Integer>> {
+		Vo((sess, resource) -> {
+			return Collections.singleton(resource.getVoId());
+		}),
+		Facility((sess, resource) -> {
+			return Collections.singleton(resource.getFacilityId());
+		}),
+		User((sess, resource) -> {
+			List<User> resourceUsers = getPerunBl().getResourcesManagerBl().getAssociatedUsers(sess, resource);
+			Set<Integer> userIds = new HashSet<>();
+			resourceUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, resource) -> {
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToResource(sess, resource);
+			Set<Integer> groupIds = new HashSet<>();
+			resourceGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, resource) -> {
+			List<Member> resourceMembers = getPerunBl().getResourcesManagerBl().getAssociatedMembers(sess, resource);
+			Set<Integer> memberIds = new HashSet<>();
+			resourceMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, resource) -> {
+			return Collections.singleton(resource.getId());
+		}),
+		Default((sess, resource) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Resource, Set<Integer>> function;
+
+		RelatedResourceObjectsResolver(final BiFunction<PerunSession, Resource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedResourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedResourceObjectsResolver value.
+		 */
+		public static RelatedResourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedResourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedResourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Resource resource) {
+			return function.apply(sess, resource);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Facility object.
+	 */
+	private enum RelatedFacilityObjectsResolver implements BiFunction<PerunSession, Facility, Set<Integer>> {
+		Vo((sess, facility) -> {
+			List<Vo> vosFromMember = getPerunBl().getVosManagerBl().getVosByPerunBean(sess, facility);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromMember.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, facility) -> {
+			return Collections.singleton(facility.getId());
+		}),
+		User((sess, facility) -> {
+			List<User> resourceUsers = getPerunBl().getFacilitiesManagerBl().getAssociatedUsers(sess, facility);
+			Set<Integer> userIds = new HashSet<>();
+			resourceUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, facility) -> {
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToFacility(sess, facility);
+			Set<Integer> groupIds = new HashSet<>();
+			resourceGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, facility) -> {
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			List<Member> resourceMembers = new ArrayList<>();
+			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssociatedMembers(sess, resource)));
+			Set<Integer> memberIds = new HashSet<>();
+			resourceMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, facility) -> {
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			Set<Integer> resourceIds = new HashSet<>();
+			facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, facility) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Facility, Set<Integer>> function;
+
+		RelatedFacilityObjectsResolver(final BiFunction<PerunSession, Facility, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedFacilityObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedFacilityObjectsResolver value.
+		 */
+		public static RelatedFacilityObjectsResolver getValue(String name) {
+			try {
+				return RelatedFacilityObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedFacilityObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Facility facility) {
+			return function.apply(sess, facility);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Host object.
+	 */
+	private enum RelatedHostObjectsResolver implements BiFunction<PerunSession, Host, Set<Integer>> {
+		Vo((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Vo> vosFromMember = getPerunBl().getVosManagerBl().getVosByPerunBean(sess, facility);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromMember.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			return Collections.singleton(facility.getId());
+		}),
+		User((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<User> resourceUsers = getPerunBl().getFacilitiesManagerBl().getAssociatedUsers(sess, facility);
+			Set<Integer> userIds = new HashSet<>();
+			resourceUsers.forEach(user -> userIds.add(user.getId()));
+			return userIds;
+		}),
+		Group((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Group> resourceGroups = getPerunBl().getGroupsManagerBl().getAssociatedGroupsToFacility(sess, facility);
+			Set<Integer> groupIds = new HashSet<>();
+			resourceGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			List<Member> resourceMembers = new ArrayList<>();
+			facilityResources.forEach(resource -> resourceMembers.addAll(getPerunBl().getResourcesManagerBl().getAssociatedMembers(sess, resource)));
+			Set<Integer> memberIds = new HashSet<>();
+			resourceMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, host) -> {
+			Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+			Set<Integer> resourceIds = new HashSet<>();
+			facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, host) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, Host, Set<Integer>> function;
+
+		RelatedHostObjectsResolver(final BiFunction<PerunSession, Host, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedHostObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedHostObjectsResolver value.
+		 */
+		public static RelatedHostObjectsResolver getValue(String name) {
+			try {
+				return RelatedHostObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedHostObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, Host host) {
+			return function.apply(sess, host);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the UserExtSource object.
+	 */
+	private enum RelatedUserExtSourceObjectsResolver implements BiFunction<PerunSession, UserExtSource, Set<Integer>> {
+		Vo((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Vo> vosFromUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			Set<Integer> voIds = new HashSet<>();
+			vosFromUser.forEach(vo -> voIds.add(vo.getId()));
+			return voIds;
+		}),
+		Facility((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
+			Set<Integer> facilityIds = new HashSet<>();
+			resources.forEach(resource -> facilityIds.add(resource.getFacilityId()));
+			return facilityIds;
+		}),
+		User((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			return Collections.singleton(user.getId());
+		}),
+		Group((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Group> userGroups = getPerunBl().getGroupsManagerBl().getUserGroups(sess, user);
+			Set<Integer> groupIds = new HashSet<>();
+			userGroups.forEach(group -> groupIds.add(group.getId()));
+			return groupIds;
+		}),
+		Member((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Member> userMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			Set<Integer> memberIds = new HashSet<>();
+			userMembers.forEach(member -> memberIds.add(member.getId()));
+			return memberIds;
+		}),
+		Resource((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Resource> userResources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
+			Set<Integer> resourceIds = new HashSet<>();
+			userResources.forEach(resource -> resourceIds.add(resource.getId()));
+			return resourceIds;
+		}),
+		Default((sess, user) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, UserExtSource, Set<Integer>> function;
+
+		RelatedUserExtSourceObjectsResolver(final BiFunction<PerunSession, UserExtSource, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedUserExtSourceObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedUserExtSourceObjectsResolver value.
+		 */
+		public static RelatedUserExtSourceObjectsResolver getValue(String name) {
+			try {
+				return RelatedUserExtSourceObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedUserExtSourceObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, UserExtSource ues) {
+			return function.apply(sess, ues);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects of that name for the Entityless object.
+	 */
+	private enum RelatedEntitylessObjectsResolver implements BiFunction<PerunSession, String, Set<Integer>> {
+		Default((sess, key) -> {
+			return Collections.emptySet();
+		});
+
+		private BiFunction<PerunSession, String, Set<Integer>> function;
+
+		RelatedEntitylessObjectsResolver(final BiFunction<PerunSession, String, Set<Integer>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedEntitylessObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedEntitylessObjectsResolver value.
+		 */
+		public static RelatedEntitylessObjectsResolver getValue(String name) {
+			try {
+				return RelatedEntitylessObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedEntitylessObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public Set<Integer> apply(PerunSession sess, String key) {
+			return function.apply(sess, key);
+		}
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action checks if the principal is a valid member of at least one related object of that name from the given ids.
+	 */
+	private enum MembershipPrivilegesResolver implements BiFunction<PerunSession, Set<Integer>, Boolean> {
+		Vo((sess, objectIds) -> {
+			if (sess.getPerunPrincipal().getUser() == null) return false;
+			List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+			for (Integer objectId: objectIds) {
+				for (Member userMember : principalUserMembers) {
+					if (userMember.getVoId() == objectId && userMember.getStatus() == Status.VALID) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}),
+		Facility((sess, objectIds) -> {
+			if (sess.getPerunPrincipal().getUser() == null) return false;
+			HashSet<Resource> resourcesFromUser = new HashSet<>();
+			List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+			for (Member member : principalUserMembers) {
+				if (member.getStatus() != Status.VALID) continue;
+				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member));
+			}
+			for (Resource resource: resourcesFromUser) {
+				if (objectIds.contains(resource.getFacilityId())) return true;
+			}
+			return false;
+		}),
+		Group((sess, objectIds) -> {
+			if (sess.getPerunPrincipal().getUser() == null) return false;
+			List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+			for (Member member : principalUserMembers) {
+				if (member.getStatus() != Status.VALID) continue;
+				List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, member);
+				for (Group group : memberGroups) {
+					if (objectIds.contains(group.getId())) return true;
+				}
+			}
+			return false;
+		}),
+		Default((sess, objectIds) -> false);
+
+		private BiFunction<PerunSession, Set<Integer>, Boolean> function;
+
+		MembershipPrivilegesResolver(final BiFunction<PerunSession, Set<Integer>, Boolean> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get MembershipPrivilegesResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return MembershipPrivilegesResolver value.
+		 */
+		public static MembershipPrivilegesResolver getValue(String name) {
+			try {
+				return MembershipPrivilegesResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return MembershipPrivilegesResolver.Default;
+			}
+		}
+
+		@Override
+		public Boolean apply(PerunSession sess, Set<Integer> objectIds) {
+			return function.apply(sess, objectIds);
+		}
+
 	}
 
 	/**

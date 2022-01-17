@@ -351,6 +351,33 @@ public interface GroupsManagerBl {
 	 */
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member);
 
+	/**
+	 * Return list of groups associated with the resource with specified member.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param member
+	 *
+	 * @return list of groups, which are associated with the resource with specified member
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssociatedGroupsToResource(PerunSession perunSession, Resource resource, Member member);
+
+	/**
+	 * Return list of assigned groups on the resource.
+	 * Similar to assigned groups, but does not require ACTIVE group-resource status.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 *
+	 * @return list of groups, which are associated with the resource
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssociatedGroupsToResource(PerunSession perunSession, Resource resource);
+
 	/** Return list of assigned groups on the resource.
 	 *
 	 * @param perunSession
@@ -373,6 +400,19 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility);
+
+
+	/**
+	 * Return list of all associated groups from all facility resources (does not require ACTIVE group-resource status)
+	 *
+	 * @param perunSession
+	 * @param facility
+	 *
+	 * @return list of groups, which are associated with all facility resources
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssociatedGroupsToFacility(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Removes member form the group. But not from members or administrators group.
@@ -571,6 +611,18 @@ public interface GroupsManagerBl {
 	 * @return list users sorted or empty list if there are no users on specified page
 	 */
 	List<User> getGroupUsers(PerunSession perunSession, Group group);
+
+	/**
+	 * Return groups where user is member.
+	 *
+	 * @param sess
+	 * @param user
+	 *
+	 * @return list of groups
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getUserGroups(PerunSession sess, User user);
 
 	/**
 	 * Returns group members in the RichMember object, which contains Member+User data.

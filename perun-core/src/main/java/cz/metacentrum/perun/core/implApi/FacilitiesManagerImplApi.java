@@ -189,6 +189,20 @@ public interface FacilitiesManagerImplApi {
 	List<Member> getAllowedMembers(PerunSession sess, Facility facility);
 
 	/**
+	 * Return all members, which are associated with the facility and belong to given user.
+	 * Does not require ACTIVE group-resource status or any specific member status.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param user
+	 *
+	 * @return list of associated members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAssociatedMembers(PerunSession sess, Facility facility, User user);
+
+	/**
 	 * Return all users, which are "allowed" on facility through any member/resource.
 	 *
 	 * @param sess
@@ -196,6 +210,16 @@ public interface FacilitiesManagerImplApi {
 	 * @return list of allowed users
 	 */
 	List<User> getAllowedUsers(PerunSession sess, Facility facility);
+
+	/**
+	 * Return all users, which are associated with facility through any member/resource.
+	 * Does not require ACTIVE group-resource status.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of allowed users
+	 */
+	List<User> getAssociatedUsers(PerunSession sess, Facility facility);
 
 	/**
 	 * Return all allowed facilities of the user.

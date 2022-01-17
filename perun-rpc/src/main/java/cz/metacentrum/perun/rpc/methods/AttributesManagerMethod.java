@@ -3958,6 +3958,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets attribute policy collections for an attribute definition with given id.
+	 *
+	 * @param attributeId int AttributeDefinition <code>id</code>
+	 * @return List<AttributePolicyCollection> all policy collections of attribute definition
+	 * @throw AttributeNotExistsException When AttributeDefinition with <code>id</code> doesn't exist.
+	 */
+	getAttributePolicyCollections {
+		@Override
+		public List<AttributePolicyCollection> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAttributesManager().getAttributePolicyCollections(ac.getSession(),
+				parms.readInt("attributeId"));
+		}
+	},
+
+	/*#
 	 * Converts attribute to unique - marks its definition as unique and ensures that all its values are unique.
 	 * Entityless attributes cannot be converted to unique, only attributes attached to PerunBeans or pairs of PerunBeans.
 	 *

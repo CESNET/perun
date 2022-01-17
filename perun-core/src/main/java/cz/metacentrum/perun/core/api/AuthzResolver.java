@@ -372,6 +372,254 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Checks if the principal is authorized to do some action of group-resource attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param group primary Bean of Attribute (can't be null)
+	 * @param resource secondary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group, Resource resource) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group, resource);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of resource-member attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param resource primary Bean of Attribute (can't be null)
+	 * @param member secondary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Resource resource) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, resource);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of user-facility attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param user primary Bean of Attribute (can't be null)
+	 * @param facility secondary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user, Facility facility) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user, facility);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of member-group attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param member primary Bean of Attribute (can't be null)
+	 * @param group secondary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Group group) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, group);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of user attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param user primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of member attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param member primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of vo attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param vo primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Vo vo) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, vo);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of PerunBean attribute.
+	 *
+	 * @param sess session
+	 * @param actionType action type
+	 * @param attrDef attr def
+	 * @param bean bean
+	 * @return true, if principal is authorized for attribute and action
+	 */
+	@SuppressWarnings("unused")
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, PerunBean bean) throws InternalErrorException {
+		if (bean instanceof Vo) return isAuthorizedForAttribute(sess, actionType, attrDef, (Vo)bean);
+		if (bean instanceof User) return isAuthorizedForAttribute(sess, actionType, attrDef, (User)bean);
+		if (bean instanceof Member) return isAuthorizedForAttribute(sess, actionType, attrDef, (Member)bean);
+		if (bean instanceof Group) return isAuthorizedForAttribute(sess, actionType, attrDef, (Group)bean);
+		if (bean instanceof Resource) return isAuthorizedForAttribute(sess, actionType, attrDef, (Resource)bean);
+		if (bean instanceof Facility) return isAuthorizedForAttribute(sess, actionType, attrDef, (Facility)bean);
+		if (bean instanceof Host) return isAuthorizedForAttribute(sess, actionType, attrDef, (Host)bean);
+		if (bean instanceof UserExtSource) return isAuthorizedForAttribute(sess, actionType, attrDef, (UserExtSource)bean);
+		throw new UnsupportedOperationException(
+			"method - isAuthorizedForAttribute - called with unsupported PerunBean type - " + bean.getBeanName());
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of group attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param group primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of resource attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param resource primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Resource resource) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, resource);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of facility attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param facility primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Facility facility) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, facility);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of host attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param host primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Host host) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, host);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of ues attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param ues primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, UserExtSource ues) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, ues);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized to do some action of entityless attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute
+	 * @param attrDef attribute what principal want to work with
+	 * @param key primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, String key) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
 	 * Checks if the principal is authorized.
 	 *
 	 * @param sess perun session

@@ -43,6 +43,8 @@ import java.util.Objects;
  *
  * On approval of initial application add all members to "storage" group.
  * On approval of any application sort them in statistic groups.
+ * On approval of initial application add all new members into einfra VO.
+ * On approval of any application add all members into e-infra.cz VO.
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
@@ -56,11 +58,15 @@ public class Metacentrum extends DefaultRegistrarModule {
 	protected final static String A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN = AttributesManager.NS_USER_ATTR_DEF+":isCesnetEligibleLastSeen";
 	private final static String A_MEMBER_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration";
 	protected final static String METACENTRUM_IDP = "https://login.ics.muni.cz/idp/shibboleth";
+	protected final static String EINFRA_IDP = "https://https://idp.e-infra.cz/idp/";
+	protected final static String EINFRA_IDP_CERT = "https://idp-cert.e-infra.cz/idp/";
 
 	/**
 	 * Add all new Metacentrum members to "storage" group.
 	 * Sort them in the statistics groups.
 	 * Set shorter expiration to users, which are not eligible for CESNET services.
+	 * On approval of initial application add all new members into einfra VO.
+	 * On approval of any application add all members into e-infra.cz VO.
 	 */
 	@Override
 	public Application approveApplication(PerunSession session, Application app) throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, RegistrarException {
@@ -107,6 +113,8 @@ public class Metacentrum extends DefaultRegistrarModule {
 		}
 
 		if (Application.AppType.INITIAL.equals(app.getType())) {
+
+			// CESNET EINFRA
 			try {
 				Vo einfraVo = perun.getVosManagerBl().getVoByShortName(session, "einfra");
 				Member einfraMember = perun.getMembersManagerBl().createMember(session, einfraVo, user);
@@ -119,6 +127,22 @@ public class Metacentrum extends DefaultRegistrarModule {
 				// can't be member of einfra, shouldn't happen
 				log.error("Metacentrum member can't be added to EINFRA VO.", e);
 			}
+
+		}
+
+		// Handle e-INFRA CZ (for both initial and extension)
+		try {
+			Vo einfraVo = perun.getVosManagerBl().getVoByShortName(session, "e-infra.cz");
+			Member einfraMember = perun.getMembersManagerBl().createMember(session, einfraVo, user);
+			log.debug("{} member added to \"e-INFRA CZ\": {}", vo.getName(), einfraMember);
+			perun.getMembersManagerBl().validateMemberAsync(session, einfraMember);
+		} catch (VoNotExistsException e) {
+			log.warn("e-INFRA CZ VO doesn't exists, {} member can't be added into it.", vo.getName());
+		} catch (AlreadyMemberException ignore) {
+			// user is already in e-INFRA CZ
+		} catch (ExtendMembershipException e) {
+			// can't be member of e-INFRA CZ, shouldn't happen
+			log.error("{} member can't be added to \"e-INFRA CZ\": {}", vo.getName(), e);
 		}
 
 		// Support statistic groups
@@ -180,6 +204,13 @@ public class Metacentrum extends DefaultRegistrarModule {
 			throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
 					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
 					"NOT_ELIGIBLE_METAIDP", null, null);
+		}
+
+		if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName()) ||
+				EINFRA_IDP_CERT.equals(session.getPerunPrincipal().getExtSourceName())) {
+			throw new CantBeSubmittedException("You are currently logged-in using e-INFRA CZ IdP." +
+					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
+					"NOT_ELIGIBLE_EINFRAIDP", null, null);
 		}
 
 		User user = session.getPerunPrincipal().getUser();
