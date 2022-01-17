@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,67 +105,84 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		if (user == null) {
 			log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
 		} else {
+
+			PerunBl perunBl = ((PerunBl) sess.getPerun());
+
+			// Set Timestamp when password has been changed
+			// FIXME - find out more convenient place and support other namespaces
+			try {
+				Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":lastPwdChangeTimestamp:einfra");
+				LocalDateTime now = LocalDateTime.now();
+				String value = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+				attribute.setValue(value);
+				perunBl.getAttributesManagerBl().setAttribute(sess, user, attribute);
+			} catch (AttributeNotExistsException ignore) {
+				// not supported by namespace
+			} catch (Exception ex) {
+				log.warn("Unable to set last password change timestamp for {} in {}", userLogin, actualLoginNamespace, ex);
+			}
+
 			// set extSources and extSource related attributes
 			try {
 				List<String> kerberosLogins = new ArrayList<>();
 
 				// Set META and EINFRA userExtSources
-				ExtSource extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "META");
+				ExtSource extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "META");
 				UserExtSource ues = new UserExtSource(extSource, userLogin + "@META");
 				ues.setLoa(0);
 
 				try {
-					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+					perunBl.getUsersManagerBl().addUserExtSource(sess, user, ues);
 				} catch (UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
-				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA");
+				extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA");
 				ues = new UserExtSource(extSource, userLogin + "@EINFRA");
 				ues.setLoa(0);
 
 				try {
-					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+					perunBl.getUsersManagerBl().addUserExtSource(sess, user, ues);
 				} catch (UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
-				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.ics.muni.cz/idp/shibboleth");
+				extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.ics.muni.cz/idp/shibboleth");
 				ues = new UserExtSource(extSource, userLogin + "@meta.cesnet.cz");
 				ues.setLoa(0);
 
 				try {
-					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+					perunBl.getUsersManagerBl().addUserExtSource(sess, user, ues);
 				} catch (UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store E-INFRA IdP UES
-				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp.e-infra.cz/idp/");
+				extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp.e-infra.cz/idp/");
 				ues = new UserExtSource(extSource, userLogin + "@idp.e-infra.cz");
 				ues.setLoa(0);
 
 				try {
-					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+					perunBl.getUsersManagerBl().addUserExtSource(sess, user, ues);
 				} catch (UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store E-INFRA CERT IdP UES
-				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp-cert.e-infra.cz/idp/");
+				extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp-cert.e-infra.cz/idp/");
 				ues = new UserExtSource(extSource, userLogin + "@idp-cert.e-infra.cz");
 				ues.setLoa(0);
 
 				try {
-					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+					perunBl.getUsersManagerBl().addUserExtSource(sess, user, ues);
 				} catch (UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				Attribute kerberosLoginsAttr = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
 				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					kerberosLogins.addAll(kerberosLoginsAttr.valueAsList());
 				}
 
 				boolean someChange = false;
@@ -178,8 +197,9 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 
 				if (someChange && kerberosLoginsAttr != null) {
 					kerberosLoginsAttr.setValue(kerberosLogins);
-					((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+					perunBl.getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
 				}
+
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException | ExtSourceNotExistsException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
