@@ -52,7 +52,7 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"beanName", "uuid"})
 	private interface PerunBeanMixIn {}
 
-	@JsonIgnoreProperties({"userExtSources", "uuid"})
+	@JsonIgnoreProperties({"userExtSources", "commonName", "displayName", "specificUser", "majorSpecificType", "beanName", "uuid"})
 	private interface CandidateMixIn {}
 
 	@JsonIgnoreProperties({"name"})
