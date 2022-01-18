@@ -881,7 +881,7 @@ public interface FacilitiesManagerBl {
 	/**
 	 * Copy all managers(admins) of the source facility to the destination facility.
 	 * The admins, that are in the destination facility and aren't in the source facility, are retained.
-	 * The common admins are replaced with admins from source facility.
+	 * The common admins are also retained in destination facility.
 	 *
 	 * @param sess
 	 * @param sourceFacility
