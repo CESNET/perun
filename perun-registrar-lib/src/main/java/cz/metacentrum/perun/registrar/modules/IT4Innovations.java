@@ -88,7 +88,7 @@ public class IT4Innovations extends DefaultRegistrarModule {
 		if (user != null) {
 			// Check if user is not prevented from registration.
 			Attribute a = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":it4iBlockCollision");
-			return a.valueAsBoolean();
+			return (a.valueAsBoolean() != null) ? a.valueAsBoolean() : false;
 		}
 		return false;
 
