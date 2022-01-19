@@ -63,6 +63,17 @@ sub new {
 		$format = $wanted_format;
 	}
 
+	# OIDC authoriztion
+	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
+		my $dirname = dirname(__FILE__);
+
+		#
+		my $filename = $dirname . '/oidc_config.yml';
+		# 1. use access token
+		my $ret = `/usr/bin/pdf2txt.py arg1 arg2 2>&1`;
+
+	}
+
 	# Check if the PERUN_URL is defined
 	if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash( { type => MISSING_URL } ); };
 	$self->{_url} = $ENV{PERUN_URL};
@@ -70,7 +81,7 @@ sub new {
 	# Extract login/password from ENV if available
 	my ($login, $pass) = split '/', $ENV{PERUN_USER}, 2 if $ENV{PERUN_USER};
 
-	# Extrat RPC type from ENV (if not defined, use "Perun RPC")
+	# Extract RPC type from ENV (if not defined, use "Perun RPC")
 	my $rpcType = "Perun RPC";
 	if (defined($ENV{PERUN_RPC_TYPE})) {
 		$rpcType = $ENV{PERUN_RPC_TYPE};
