@@ -25,6 +25,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -94,12 +95,36 @@ public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttribute
 				if (sshKey.contains("\n"))
 					throw new WrongAttributeValueException(attribute, user, "One of keys in attribute contains new line character. New line character is not allowed here.");
 				try {
+					sshKey = removeSSHKeyCommandPrefix(sshKey);
 					validateSSH(sshKey);
 				} catch (Exception e) {
 					throw new WrongAttributeValueException("Invalid SSH key format: " + e.getMessage());
 				}
 			}
 		}
+	}
+
+	/**
+	 * Removes any potential command prefix before the ssh key
+	 *
+	 * @param sshKey raw ssh key value from the attribute
+	 * @return SSH key without the command prefix
+	 */
+	private String removeSSHKeyCommandPrefix(String sshKey) {
+		// entries in authorized_keys are of this format (from man page):
+		// "Public keys consist of the following space-separated fields: options, keytype, base64-encoded key, comment.
+		// The options field is optional."
+
+		// split on spaces outside of quotes
+		String[] sshKeyParts = sshKey.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+
+		// check whether key has options, cut them if so
+		if (!ALLOWED_SSH_TYPES.contains(sshKeyParts[0])) {
+			String[] keyPartsWithoutPrefix = Arrays.copyOfRange(sshKeyParts, 1, sshKeyParts.length - 1);
+			return String.join(" ", keyPartsWithoutPrefix);
+		}
+		return sshKey;
+
 	}
 
 	/**
