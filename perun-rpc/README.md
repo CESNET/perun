@@ -66,6 +66,9 @@ export PERL5LIB="[folder_with_cli_tools]"
 
 # Keep empty or setup to match REALM returned by Apache (e.g. for Kerberos)
 export PERUN_RPC_TYPE="Perun RPC"
+
+# Currently optional OIDC authentication is used if OIDC variable is set
+export PERUN_OIDC="1"
 ```
 
 You can then test connection by listing VOs like: ``./listOfVos``

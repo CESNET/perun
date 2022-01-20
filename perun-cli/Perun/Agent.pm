@@ -85,17 +85,15 @@ sub new {
 
 		# set Perun endpoint
 		my $config = LoadFile($filename);
-		$self->{_url} = $config->{"perun_api_endpoint"};
+		$self->{_url} = $config->{"perun_api_endpoint"} . "/";
 
 		# get current access token
 		my $ret = `$dirname/oidc_auth.py -g`;
 		if (rindex($ret, 'access_token', 0) eq 0) {
 			my @authResult = split(':', $ret);
-			print "So now we have the access token: " . $authResult[1];
-			$accessToken = $authResult[1]
-			#exit 1;
+			$accessToken = $authResult[1];
 		} else {
-			print "Could not get access token, received message: " . $ret;
+			print "\nOIDC authentication failed.\n";
 			exit 0;
 		}
 
@@ -143,16 +141,38 @@ sub new {
 	unless ($response->is_success) {
 		my $code = $response->code;
 
-		# Connection was OK, so check the return code
-		switch($code) {
-			case 401 { die Perun::Exception->fromHash( { type => AUTHENTICATION_FAILED } ); }
-			case 500 { die Perun::Exception->fromHash( { type => SERVER_ERROR, errorInfo =>
-						("HTTP STATUS CODE: $code") } ); }
-			case 302 { next; }
-			case 405 { next; }
-			case 404 { die Perun::Exception->fromHash( { type => WRONG_URL, errorInfo => $self->{_url} } ); }
-			else { die Perun::Exception->fromHash( { type => SERVER_ERROR, errorInfo =>
-						("HTTP STATUS CODE: $code") } ); }
+		# if using OIDC and ended with 401, token might be expired
+		if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1" && $code eq 401) {
+			my $accessToken;
+
+			#try to refresh tokens
+			my $ret = `$dirname/oidc_auth.py -r`;
+			if (rindex($ret, 'access_token', 0) eq 0) {
+				my @authResult = split(':', $ret);
+				$accessToken = $authResult[1];
+			} else {
+				print "\nOIDC authentication failed.\n";
+				exit 0;
+			}
+
+			$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+
+			# Reconnect to the Perun server
+			$response = $self->{_lwpUserAgent}->request( GET($self->{_url}) );
+		}
+
+		unless ($response->is_success) {
+			# Connection was OK, so check the return code
+			switch($code) {
+				case 401 {die Perun::Exception->fromHash({ type => AUTHENTICATION_FAILED });}
+				case 500 {die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo =>
+					("HTTP STATUS CODE: $code") });}
+				case 302 {next;}
+				case 405 {next;}
+				case 404 {die Perun::Exception->fromHash({ type => WRONG_URL, errorInfo => $self->{_url} });}
+				else {die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo =>
+					("HTTP STATUS CODE: $code") });}
+			}
 		}
 	}
 
@@ -173,15 +193,6 @@ sub new {
 		die Perun::Exception->fromHash( { type => WRONG_AGENT_VERSION, errorInfo =>
 					"Tools version $agentVersion, Perun version $perunVersion" } );
 	}
-
-	#my $ret = `$dirname/oidc_auth.py -r`;
-	#if (rindex($ret, 'access_token', 0) eq 0) {
-	#	my @auth_result = split(':', $ret);
-	#	print "So now we have the access token: " . $auth_result[1];
-	#	exit 1;
-	#} else {
-	#	print "Could not get access token, received message: " . $ret;
-	#
 
 	return $self;
 }
