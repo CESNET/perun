@@ -16,6 +16,7 @@ use Switch;
 use HTTP::Request::Common;
 use LWP::UserAgent;
 use JSON::XS;
+use YAML::XS 'LoadFile';
 use URI;
 use Perun::Common;
 use Perun::Exception;
@@ -65,8 +66,15 @@ sub new {
 		$format = $wanted_format;
 	}
 
+	# Extract RPC type from ENV (if not defined, use "Perun RPC")
+	my $rpcType = "Perun RPC";
+	if (defined($ENV{PERUN_RPC_TYPE})) {
+		$rpcType = $ENV{PERUN_RPC_TYPE};
+	}
+
 	# OIDC authorization
 	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
+		my $accessToken;
 
 		# load configuration
 		my $filename = $dirname . '/oidc_config.yml';
@@ -82,87 +90,51 @@ sub new {
 		# get current access token
 		my $ret = `$dirname/oidc_auth.py -g`;
 		if (rindex($ret, 'access_token', 0) eq 0) {
-			my @auth_result = split(':', $ret);
-			print "So now we have the access token: " . $auth_result[1];
+			my @authResult = split(':', $ret);
+			print "So now we have the access token: " . $authResult[1];
+			$accessToken = $authResult[1]
 			#exit 1;
 		} else {
 			print "Could not get access token, received message: " . $ret;
 			exit 0;
 		}
 
-		# Extract RPC type from ENV (if not defined, use "Perun RPC")
-		my $rpcType = "Perun RPC";
-		if (defined($ENV{PERUN_RPC_TYPE})) {
-			$rpcType = $ENV{PERUN_RPC_TYPE};
-		}
-
 		$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 4000 );
-		# Enable cookies if enviromental variable with path exists or home env is available
-		if (defined($ENV{PERUN_COOKIE})) {
-			local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-			$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 } );
-		} elsif (defined($ENV{HOME})) {
-			my $hostname = hostname();
-			my $grp = getpgrp;
-			local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-			$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{HOME}."/perun-cookie-$hostname-$grp.txt", autosave => 1,
-				ignore_discard                     => 1 } );
-		}
+		$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+
+	} else {
+
+		# Check if the PERUN_URL is defined
+		if (!defined($ENV{PERUN_URL})) {die Perun::Exception->fromHash({ type => MISSING_URL });};
+		$self->{_url} = $ENV{PERUN_URL};
+
+		# Extract login/password from ENV if available
+		my ($login, $pass) = split '/', $ENV{PERUN_USER}, 2 if $ENV{PERUN_USER};
+
+		$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion", timeout => 4000);
 
 		# if $login is defined then use login/password authentication
 		if (defined($login)) {
-			my $uri = URI->new( $self->{_url} );
+			my $uri = URI->new($self->{_url});
 			my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
-			$self->{_lwpUserAgent}->credentials( $uri->host.":".$port, $rpcType, $login => $pass );
+			$self->{_lwpUserAgent}->credentials($uri->host . ":" . $port, $rpcType, $login => $pass);
 		}
-
-
-
-			#my $ret = `$dirname/oidc_auth.py -r`;
-			#if (rindex($ret, 'access_token', 0) eq 0) {
-			#	my @auth_result = split(':', $ret);
-			#	print "So now we have the access token: " . $auth_result[1];
-			#	exit 1;
-			#} else {
-			#	print "Could not get access token, received message: " . $ret;
-			#
-
 	}
 
-	# Check if the PERUN_URL is defined
-	if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash( { type => MISSING_URL } ); };
-	$self->{_url} = $ENV{PERUN_URL};
-
-	# Extract login/password from ENV if available
-	my ($login, $pass) = split '/', $ENV{PERUN_USER}, 2 if $ENV{PERUN_USER};
-
-	# Extract RPC type from ENV (if not defined, use "Perun RPC")
-	my $rpcType = "Perun RPC";
-	if (defined($ENV{PERUN_RPC_TYPE})) {
-		$rpcType = $ENV{PERUN_RPC_TYPE};
-	}
-
-	$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 4000 );
 	# Enable cookies if enviromental variable with path exists or home env is available
 	if (defined($ENV{PERUN_COOKIE})) {
-		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-		$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 } );
-	} elsif (defined($ENV{HOME})) {
+		local $SIG{'__WARN__'} = sub {warn @_ unless $_[0] =~ /does not seem to contain cookies$/;}; #supress one concrete warning message from package HTTP::Cookies
+		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 });
+	}
+	elsif (defined($ENV{HOME})) {
 		my $hostname = hostname();
 		my $grp = getpgrp;
-		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-		$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{HOME}."/perun-cookie-$hostname-$grp.txt", autosave => 1,
-				ignore_discard                     => 1 } );
+		local $SIG{'__WARN__'} = sub {warn @_ unless $_[0] =~ /does not seem to contain cookies$/;}; #supress one concrete warning message from package HTTP::Cookies
+		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/perun-cookie-$hostname-$grp.txt", autosave => 1,
+			ignore_discard                        => 1 });
 	}
 
 	$self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
-
-	# if $login is defined then use login/password authentication
-	if (defined($login)) {
-		my $uri = URI->new( $self->{_url} );
-		my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
-		$self->{_lwpUserAgent}->credentials( $uri->host.":".$port, $rpcType, $login => $pass );
-	}
 
 	# Connect to the Perun server
 	my $response = $self->{_lwpUserAgent}->request( GET($self->{_url}) );
@@ -201,6 +173,15 @@ sub new {
 		die Perun::Exception->fromHash( { type => WRONG_AGENT_VERSION, errorInfo =>
 					"Tools version $agentVersion, Perun version $perunVersion" } );
 	}
+
+	#my $ret = `$dirname/oidc_auth.py -r`;
+	#if (rindex($ret, 'access_token', 0) eq 0) {
+	#	my @auth_result = split(':', $ret);
+	#	print "So now we have the access token: " . $auth_result[1];
+	#	exit 1;
+	#} else {
+	#	print "Could not get access token, received message: " . $ret;
+	#
 
 	return $self;
 }

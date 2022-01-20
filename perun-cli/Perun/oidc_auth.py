@@ -7,10 +7,11 @@ def refreshAccessToken():
 	if getRefreshToken() != None:
 		# if available, use refresh token to get new AT
 		# print new access token
+		#val = input("Please log in at: ")
 		pass
 	else:
 		# get new access token
-		#print new access token
+		# print new access token
 		pass
 
 
