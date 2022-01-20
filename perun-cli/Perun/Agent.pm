@@ -40,7 +40,9 @@ use Perun::SecurityTeamsAgent;
 use Perun::BanOnResourceAgent;
 use Perun::BanOnFacilityAgent;
 use Sys::Hostname;
+use File::Basename;
 
+my $dirname = dirname(__FILE__);
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
@@ -63,14 +65,67 @@ sub new {
 		$format = $wanted_format;
 	}
 
-	# OIDC authoriztion
+	# OIDC authorization
 	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
-		my $dirname = dirname(__FILE__);
 
-		#
+		# load configuration
 		my $filename = $dirname . '/oidc_config.yml';
-		# 1. use access token
-		my $ret = `/usr/bin/pdf2txt.py arg1 arg2 2>&1`;
+		unless (-e $filename) {
+			print "OIDC configuration file is missing!";
+			exit 0;
+		}
+
+		# set Perun endpoint
+		my $config = LoadFile($filename);
+		$self->{_url} = $config->{"perun_api_endpoint"};
+
+		# get current access token
+		my $ret = `$dirname/oidc_auth.py -g`;
+		if (rindex($ret, 'access_token', 0) eq 0) {
+			my @auth_result = split(':', $ret);
+			print "So now we have the access token: " . $auth_result[1];
+			#exit 1;
+		} else {
+			print "Could not get access token, received message: " . $ret;
+			exit 0;
+		}
+
+		# Extract RPC type from ENV (if not defined, use "Perun RPC")
+		my $rpcType = "Perun RPC";
+		if (defined($ENV{PERUN_RPC_TYPE})) {
+			$rpcType = $ENV{PERUN_RPC_TYPE};
+		}
+
+		$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 4000 );
+		# Enable cookies if enviromental variable with path exists or home env is available
+		if (defined($ENV{PERUN_COOKIE})) {
+			local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
+			$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 } );
+		} elsif (defined($ENV{HOME})) {
+			my $hostname = hostname();
+			my $grp = getpgrp;
+			local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
+			$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{HOME}."/perun-cookie-$hostname-$grp.txt", autosave => 1,
+				ignore_discard                     => 1 } );
+		}
+
+		# if $login is defined then use login/password authentication
+		if (defined($login)) {
+			my $uri = URI->new( $self->{_url} );
+			my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
+			$self->{_lwpUserAgent}->credentials( $uri->host.":".$port, $rpcType, $login => $pass );
+		}
+
+
+
+			#my $ret = `$dirname/oidc_auth.py -r`;
+			#if (rindex($ret, 'access_token', 0) eq 0) {
+			#	my @auth_result = split(':', $ret);
+			#	print "So now we have the access token: " . $auth_result[1];
+			#	exit 1;
+			#} else {
+			#	print "Could not get access token, received message: " . $ret;
+			#
 
 	}
 

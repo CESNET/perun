@@ -47,7 +47,7 @@ def main(arguments):
 		if access_token == None:
 			refreshAccessToken()
 		else:
-			print(access_token)
+			print("access_token:" + access_token)
 	else:
 		refreshAccessToken()
 
