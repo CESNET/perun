@@ -60,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -723,6 +724,27 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("unable to create Facility", returnedFacility);
 		assertEquals("created and returned facility should be the same", returnedFacility, facility);
 
+	}
+
+	@Test
+	public void copyFacilityAdminAlreadyExists() throws Exception {
+		System.out.println(CLASS_NAME + "copyFacilityAdminAlreadyExists");
+
+		Facility f2 = new Facility();
+		f2.setName("FacilitiesManagerTestSecondFacility");
+		f2.setDescription("TestSecondFacilityDescription");
+		Facility facility2 = perun.getFacilitiesManager().createFacility(sess, f2);
+
+		Member member = setUpMember(vo);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+		facilitiesManagerEntry.addAdmin(sess, facility, u);
+		facilitiesManagerEntry.addAdmin(sess, facility2, u);
+
+		Group group = setUpGroup(vo, member);
+		facilitiesManagerEntry.addAdmin(sess, facility, group);
+		facilitiesManagerEntry.addAdmin(sess, facility2, group);
+
+		assertThatNoException().isThrownBy(() -> perun.getFacilitiesManager().copyManagers(sess, facility, facility2));
 	}
 
 	@Test (expected=FacilityExistsException.class)
