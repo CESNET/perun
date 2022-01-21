@@ -77,12 +77,12 @@ components:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
         - properties:
-            createdAt: { type: string }
-            createdBy: { type: string }
-            modifiedAt: { type: string }
-            modifiedBy: { type: string }
-            createdByUid: { type: integer }
-            modifiedByUid: { type: integer }
+            createdAt: { type: string, nullable: true }
+            createdBy: { type: string, nullable: true }
+            modifiedAt: { type: string, nullable: true }
+            modifiedBy: { type: string, nullable: true }
+            createdByUid: { type: integer, nullable: true }
+            modifiedByUid: { type: integer, nullable: true }
       discriminator:
         propertyName: beanName
 
@@ -90,11 +90,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/Auditable'
         - properties:
-            firstName: { type: string }
-            lastName: { type: string }
-            middleName: { type: string }
-            titleBefore: { type: string }
-            titleAfter: { type: string }
+            firstName: { type: string, nullable: true }
+            lastName: { type: string, nullable: true }
+            middleName: { type: string, nullable: true }
+            titleBefore: { type: string, nullable: true }
+            titleAfter: { type: string, nullable: true }
             serviceUser: { type: boolean }
             sponsoredUser: { type: boolean }
             uuid: { type: string, format: uuid }
@@ -150,7 +150,7 @@ components:
             voId: { type: integer }
             status: { type: string }
             membershipType: { type: string }
-            sourceGroupId: { type: integer }
+            sourceGroupId: { type: integer, nullable: true }
             sponsored: { type: boolean }
             groupStatus: { type: string }
             groupStatuses:
