@@ -312,6 +312,18 @@ components:
     AuditEvent:
       type: object
       properties:
+        attribute: { $ref: '#/components/schemas/AttributeDefinition' }
+        extSource: { $ref: '#/components/schemas/ExtSource' }
+        source: { $ref: '#/components/schemas/ExtSource' }
+        facility: { $ref: '#/components/schemas/Facility' }
+        group: { $ref: '#/components/schemas/Group' }
+        parentGroup: { $ref: '#/components/schemas/Group' }
+        member: { $ref: '#/components/schemas/Member' }
+        resource: { $ref: '#/components/schemas/Resource' }
+        service: { $ref: '#/components/schemas/Service' }
+        user: { $ref: '#/components/schemas/User' }
+        userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+        vo: { $ref: '#/components/schemas/Vo' }
         name: { type: string }
         message: { type: string }
 
