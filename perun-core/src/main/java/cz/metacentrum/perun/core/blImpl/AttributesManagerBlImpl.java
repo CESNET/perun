@@ -18,6 +18,7 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllUserFacility
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeAuthzDeleted;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeCreated;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeDeleted;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributePolicyCollectionSet;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForFacility;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForFacilityAndUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForGroup;
@@ -8253,6 +8254,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				getAttributesManagerImpl().setAttributeRight(sess, right);
 				getPerunBl().getAuditer().log(sess, new AttributeRightsSet(right));
 			}
+		}
+	}
+
+	@Override
+	public void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) {
+		getAttributesManagerImpl().setAttributePolicyCollections(sess, policyCollections);
+		for (AttributePolicyCollection apc : policyCollections) {
+			getPerunBl().getAuditer().log(sess, new AttributePolicyCollectionSet(apc));
 		}
 	}
 

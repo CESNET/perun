@@ -6887,6 +6887,33 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/setAttributePolicyCollections:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setAttributePolicyCollections
+      summary: "Deletes old attribute policy collections and sets attribute policy collections for an attribute definition provided in given policy collections."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAttributePolicyCollections
+              description: Input to setAttributePolicyCollections
+              type: object
+              required:
+                - policyCollections
+              properties:
+                policyCollections:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AttributePolicyCollection'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/attributesManager/convertAttributeToUnique:
     post:
       tags:
