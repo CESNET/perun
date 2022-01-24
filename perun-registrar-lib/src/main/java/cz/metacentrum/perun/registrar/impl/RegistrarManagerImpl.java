@@ -1376,6 +1376,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 			}
 			perun.getAuditer().log(sess, new ApplicationDeleted(app));
+			log.info("Application {} deleted.", app.getId());
 
 		} finally {
 			synchronized (runningDeleteApplication) {
