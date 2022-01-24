@@ -68,6 +68,7 @@ export PERL5LIB="[folder_with_cli_tools]"
 export PERUN_RPC_TYPE="Perun RPC"
 
 # Currently optional OIDC authentication is used if OIDC variable is set
+# Configuration file is located in perun-cli/Perun/auth folder
 export PERUN_OIDC="1"
 ```
 

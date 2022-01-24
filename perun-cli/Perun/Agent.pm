@@ -16,7 +16,6 @@ use Switch;
 use HTTP::Request::Common;
 use LWP::UserAgent;
 use JSON::XS;
-use YAML::XS 'LoadFile';
 use URI;
 use Perun::Common;
 use Perun::Exception;
@@ -40,10 +39,9 @@ use Perun::RegistrarAgent;
 use Perun::SecurityTeamsAgent;
 use Perun::BanOnResourceAgent;
 use Perun::BanOnFacilityAgent;
+use Perun::auth::OidcAuth;
 use Sys::Hostname;
-use File::Basename;
 
-my $dirname = dirname(__FILE__);
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
@@ -76,26 +74,10 @@ sub new {
 	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
 		my $accessToken;
 
-		# load configuration
-		my $filename = $dirname . '/oidc_config.yml';
-		unless (-e $filename) {
-			print "OIDC configuration file is missing!";
-			exit 0;
-		}
-
-		# set Perun endpoint
-		my $config = LoadFile($filename);
+		my $config = Perun::auth::OidcAuth::loadConfiguration();
 		$self->{_url} = $config->{"perun_api_endpoint"} . "/";
 
-		# get current access token
-		my $ret = `$dirname/oidc_auth.py -g`;
-		if (rindex($ret, 'access_token', 0) eq 0) {
-			my @authResult = split(':', $ret);
-			$accessToken = $authResult[1];
-		} else {
-			print "\nOIDC authentication failed.\n";
-			exit 0;
-		}
+		$accessToken = Perun::auth::OidcAuth::loadAccessToken();
 
 		$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 4000 );
 		$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
@@ -146,14 +128,8 @@ sub new {
 			my $accessToken;
 
 			#try to refresh tokens
-			my $ret = `$dirname/oidc_auth.py -r`;
-			if (rindex($ret, 'access_token', 0) eq 0) {
-				my @authResult = split(':', $ret);
-				$accessToken = $authResult[1];
-			} else {
-				print "\nOIDC authentication failed.\n";
-				exit 0;
-			}
+			Perun::auth::OidcAuth::refreshAccessToken();
+			$accessToken = Perun::auth::OidcAuth::getAccessToken();
 
 			$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
 
