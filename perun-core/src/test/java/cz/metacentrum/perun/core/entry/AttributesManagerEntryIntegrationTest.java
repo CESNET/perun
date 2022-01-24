@@ -9840,6 +9840,55 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getAttributePolicyCollections() throws Exception {
+		System.out.println(CLASS_NAME + "getAttributePolicyCollections");
+
+		Attribute groupAttribute1 = setUpAttribute(String.class.getName(), "testGroupAttribute1", AttributesManager.NS_GROUP_ATTR_DEF, "TEST VALUE");
+
+		List<AttributePolicyCollection> policyCollections = new ArrayList<>();
+		List<AttributePolicy> policies = new ArrayList<>();
+
+		policies.add(new AttributePolicy(123, Role.GROUPADMIN, RoleObject.Group, 1));
+		policies.add(new AttributePolicy(789, Role.PERUNOBSERVER, RoleObject.None, 1));
+		policyCollections.add(new AttributePolicyCollection(42, groupAttribute1.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+
+		policies.clear();
+		policies.add(new AttributePolicy(123, Role.GROUPADMIN, RoleObject.Group, 1));
+		policyCollections.add(new AttributePolicyCollection(43, groupAttribute1.getId(), AttributeAction.WRITE, new ArrayList<>(policies)));
+
+		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
+
+		List<AttributePolicyCollection> insertedGroupCollections = perun.getAttributesManager().getAttributePolicyCollections(sess, groupAttribute1.getId());
+		List<AttributePolicy> insertedPolicies;
+
+		assertEquals(2, insertedGroupCollections.size());
+
+		for (AttributePolicyCollection apc : insertedGroupCollections) {
+			insertedPolicies = apc.getPolicies();
+
+			assertTrue(apc.getAction().equals(AttributeAction.READ) ? insertedPolicies.size() == 2 : insertedPolicies.size() == 1);
+			assertEquals(groupAttribute1.getId(), apc.getAttributeId());
+
+			for (AttributePolicy ap : insertedPolicies) {
+				assertEquals(apc.getId(), ap.getPolicyCollectionId());
+
+				if (apc.getAction().equals(AttributeAction.READ)) {
+					if (ap.getRole().equals(Role.GROUPADMIN)) {
+						assertEquals(RoleObject.Group, ap.getObject());
+					} else {
+						assertEquals(Role.PERUNOBSERVER, ap.getRole());
+						assertEquals(RoleObject.None, ap.getObject());
+					}
+				} else {
+					assertEquals(AttributeAction.WRITE, apc.getAction());
+					assertEquals(Role.GROUPADMIN, ap.getRole());
+					assertEquals(RoleObject.Group, ap.getObject());
+				}
+			}
+		}
+	}
+
+	@Test
 	public void setAttributePolicyCollections() throws Exception {
 		System.out.println(CLASS_NAME + "setAttributePolicyCollections");
 
