@@ -316,6 +316,9 @@ public class VosManagerEntry implements VosManager {
 		// check principal can see candidates
 		for (MemberCandidate candidate : candidates) {
 			if (candidate.getRichUser() == null) {
+				if (candidate.getCandidate().getUserExtSources().stream().map(UserExtSource::getExtSource).anyMatch(extSources::contains)) {
+					eligibleCandidates.add(candidate);
+				}
 				continue;
 			}
 
