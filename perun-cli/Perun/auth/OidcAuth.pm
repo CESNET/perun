@@ -95,7 +95,7 @@ sub polling
 			} elsif ($error eq "expired_token") {
 				print("Expired token, try again....\n");  # TODO start auth again
 			} else {
-				print $error, ": ", $response->{"error_description", "\n"};
+				print STDERR $error, ": ", $response->{"error_description", "\n"};
 			}
 
 			return $response;
@@ -191,13 +191,7 @@ sub refreshTokenRequest
 		}
 	);
 
-	if ($response->is_success) {
-		return decode_json $response->decoded_content;
-	}
-	else {
-		print STDERR $response->status_line, "\n";
-		exit 0;
-	}
+	return decode_json $response->decoded_content;
 }
 
 sub refreshAccessToken
@@ -221,7 +215,7 @@ sub loadConfiguration
 {
 	my $filename = $dirname . '/oidc_config.yml';
 	unless (-e $filename) {
-		print "OIDC configuration file is missing!\n";
+		print STDERR "OIDC configuration file is missing!\n";
 		exit 0;
 	}
 
