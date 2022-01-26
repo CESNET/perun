@@ -3,37 +3,52 @@ package Perun::auth::OidcAuth;
 use strict;
 use warnings;
 
-use Passwd::Keyring::Auto;
 use YAML::XS 'LoadFile';
-use File::Basename;
-use LWP::UserAgent;
 use JSON::XS;
+use LWP::UserAgent;
+use File::Basename;
 
-my $USERNAME = "perun_oidc";
+my $PERUN_OIDC = "perun_oidc";
+my $PYTHON = "python3";
 my $dirname = dirname(__FILE__);
-my $keyring = get_keyring(app=>"Perun", group=>"OIDC tokens");
 my $contentType = "application/x-www-form-urlencoded";
 
 sub getAccessToken
 {
-	return $keyring->get_password($USERNAME, "access_token");
+	my $ret = `$PYTHON -c "import keyring; print('token:' + str(keyring.get_password('$PERUN_OIDC', 'access_token')), end='')"`;
+	return processToken($ret);
 }
 
 sub getRefreshToken
 {
-	return $keyring->get_password($USERNAME, "refresh_token");
+	my $ret = `$PYTHON -c "import keyring; print('token:' + str(keyring.get_password('$PERUN_OIDC', 'refresh_token')), end='')"`;
+	return processToken($ret);
+}
+
+# separate token from result or print error and exit
+sub processToken
+{
+	my $ret = shift;
+	if (rindex($ret, 'token', 0) eq 0) {
+		my @authResult = split(':', $ret);
+		my $token = $authResult[1];
+		return ($token eq 'None') ? undef : $token;
+	} else {
+		print STDERR $ret;
+		exit 0;
+	}
 }
 
 sub setAccessToken
 {
 	my $token = shift;
-	$keyring->set_password($USERNAME, $token, "access_token");
+	`$PYTHON -c "import keyring; keyring.set_password('$PERUN_OIDC', 'access_token', '$token')"`;
 }
 
 sub setRefreshToken
 {
 	my $token = shift;
-	$keyring->set_password($USERNAME, $token, "refresh_token");
+	`$PYTHON -c "import keyring; keyring.set_password('$PERUN_OIDC', 'refresh_token', '$token')"`;
 }
 
 # Performs OIDC authentication using device code flow.
