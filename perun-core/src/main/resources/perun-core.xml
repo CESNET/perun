@@ -54,8 +54,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.changedAttributeHook(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttributeDefinition(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeRight(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributePolicyCollections(..))"/>
 		<!-- AuthzResolverImpl -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addAdmin(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.setRole(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addVoRole(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.makeUserPerunAdmin(..))"/>
 		<!-- ExtSourcesManagerImpl -->

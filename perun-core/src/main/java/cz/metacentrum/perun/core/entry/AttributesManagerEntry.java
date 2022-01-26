@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -14,7 +15,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -50,7 +50,6 @@ import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 import cz.metacentrum.perun.utils.graphs.GraphDTO;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -4510,6 +4509,28 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 
 		getAttributesManagerBl().setAttributeRights(sess, rights);
+	}
+
+	@Override
+	public void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException {
+		Utils.checkPerunSession(sess);
+
+		// check validity of roles, existence of attributes
+		for (AttributePolicyCollection apc : policyCollections) {
+			for (AttributePolicy ap : apc.getPolicies()) {
+				if (!AuthzResolver.roleExists(ap.getRole())) {
+					throw new RoleNotSupportedException("Role: " + ap.getRole() + " does not exists.", ap.getRole());
+				}
+				getAttributeDefinitionById(sess, apc.getAttributeId());
+			}
+		}
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "setAttributePolicyCollections_List<AttributePolicyCollection>_int_policy")) {
+			throw new PrivilegeException("setAttributePolicyCollections");
+		}
+
+		getAttributesManagerBl().setAttributePolicyCollections(sess, policyCollections);
 	}
 
 	@Override

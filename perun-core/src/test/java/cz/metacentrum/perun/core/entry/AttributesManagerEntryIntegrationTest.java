@@ -4,7 +4,10 @@ import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -23,6 +26,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -9833,6 +9837,40 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 				assertTrue("our attribute 1 should not have rights for VOADMIN", attributeRights.getRights().isEmpty());
 			}
 		}
+	}
+
+	@Test
+	public void setAttributePolicyCollections() throws Exception {
+		System.out.println(CLASS_NAME + "setAttributePolicyCollections");
+
+		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+
+		List<AttributePolicyCollection> policyCollections = new ArrayList<>();
+		List<AttributePolicy> policies = new ArrayList<>();
+
+		policies.add(new AttributePolicy(42, Role.VOADMIN, RoleObject.Vo, 1));
+		policies.add(new AttributePolicy(43, Role.PERUNOBSERVER, RoleObject.None, 1));
+		policyCollections.add(new AttributePolicyCollection(100, userAttribute1.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+
+		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
+
+		List<AttributePolicyCollection> insertedCollections = perun.getAttributesManager().getAttributePolicyCollections(sess, userAttribute1.getId());
+
+		assertEquals(insertedCollections.size(), policyCollections.size());
+		assertEquals(insertedCollections.get(0).getAttributeId(), userAttribute1.getId());
+		assertEquals(insertedCollections.get(0).getAction(), policyCollections.get(0).getAction());
+
+		List<AttributePolicy> insertedPolicies = insertedCollections.get(0).getPolicies();
+
+		assertEquals(insertedPolicies.size(), 2);
+
+		assertEquals(insertedPolicies.get(0).getPolicyCollectionId(), insertedCollections.get(0).getId());
+		assertEquals(insertedPolicies.get(0).getObject(), policyCollections.get(0).getPolicies().get(0).getObject());
+		assertEquals(insertedPolicies.get(0).getRole(), policyCollections.get(0).getPolicies().get(0).getRole());
+
+		assertEquals(insertedPolicies.get(1).getPolicyCollectionId(), insertedCollections.get(0).getId());
+		assertEquals(insertedPolicies.get(1).getObject(), policyCollections.get(0).getPolicies().get(1).getObject());
+		assertEquals(insertedPolicies.get(1).getRole(), policyCollections.get(0).getPolicies().get(1).getRole());
 	}
 
 

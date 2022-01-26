@@ -4044,6 +4044,17 @@ public interface AttributesManager {
 	void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
 
 	/**
+	 * Deletes old attribute policy collections and sets all new attribute policy collections.
+	 *
+	 * @param sess perun session
+	 * @param policyCollections list of policy collections to set
+	 * @throws AttributeNotExistsException when there is no attribute definition with such id
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws RoleNotSupportedException when some of the AttributePolicyCollection does have a role which does not exist
+	 */
+	void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
+
+	/**
 	 * Gets attribute policy collections for an attribute definition with given id.
 	 *
 	 * @param sess perun session

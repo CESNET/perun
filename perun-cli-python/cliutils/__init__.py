@@ -1,4 +1,7 @@
 import perun_openapi
+import perun_openapi.api.users_manager_api
+import perun_openapi.api.members_manager_api
+import perun_openapi.api.attributes_manager_api
 import os
 import sys
 import argparse
@@ -40,13 +43,13 @@ class PerunRpc:
 		self.api_client.user_agent = "Perun OpenAPI Python CLI"
 
 	def users_manager(self):
-		return perun_openapi.api.UsersManagerApi(self.api_client)
+		return perun_openapi.api.users_manager_api.UsersManagerApi(self.api_client)
 
 	def members_manager(self):
-		return perun_openapi.api.MembersManagerApi(self.api_client)
+		return perun_openapi.api.members_manager_api.MembersManagerApi(self.api_client)
 
 	def attributes_manager(self):
-		return perun_openapi.api.AttributesManagerApi(self.api_client)
+		return perun_openapi.api.attributes_manager_api.AttributesManagerApi(self.api_client)
 
 class PerunCliConfiguration(perun_openapi.configuration.Configuration):
 	def auth_settings(self):
