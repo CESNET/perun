@@ -57,12 +57,8 @@ sub setRefreshToken
 sub authentication
 {
 	my $response = authenticationRequest();
-	if (exists($response->{"error"})) {
-		print $response->{"error"}, ": ", $response->{"error_description"}, "\n";
-		return;
-	}
 
-	print "Please, authenticate at ", $response->{"verification_uri_complete"}, "\nHit enter after you authenticate.\n";
+	print "Please, authenticate at ", $response->{"verification_uri_complete"}, "\nHit enter after you authenticate.";
 	<STDIN>;
 
 	my $interval = exists $response->{"interval"} ? $response->{"interval"} : 10;
@@ -95,7 +91,7 @@ sub polling
 			} elsif ($error eq "expired_token") {
 				print("Expired token, try again....\n");  # TODO start auth again
 			} else {
-				print STDERR $error, ": ", $response->{"error_description", "\n"};
+				die Perun::Exception->fromHash({ type => $error, errorInfo => $response->{"error_description"} });
 			}
 
 			return $response;
@@ -110,7 +106,9 @@ sub polling
 # Arguments:
 # deviceCode - unique code for the device returned by initial authentication request
 #
-# Returns structure containing response (e.g. structure->{"access_token"}).
+# Throws Perun::Exception when the response isn't successful and it's not an OIDC error.
+# Returns structure containing response (e.g. structure->{"access_token"}). If an OIDC error
+# occurred, the structure contains "error" key and possibly "error_description" key.
 sub tokenRequest
 {
 	my $deviceCode = shift;
@@ -132,9 +130,8 @@ sub tokenRequest
 		return decode_json $response->decoded_content;
 	} else {
 		my $content = eval { decode_json $response->decoded_content };
-		if ($@ or !exists($content->{"error"}) or !exists($content->{"error_description"})) {
-			print STDERR $response->status_line, "\n";
-			exit 0;
+		if ($@ or !exists($content->{"error"})) {
+			die Perun::Exception->fromHash({ type => $response->code, errorInfo => $response->message });
 		}
 		return $content;
 	}
@@ -142,6 +139,7 @@ sub tokenRequest
 
 # Sends authentication device code flow request.
 #
+# Throws Perun::Exception when the response isn't successful.
 # Returns structure containing response (e.g. structure->{"device_code"}).
 sub authenticationRequest
 {
@@ -149,7 +147,7 @@ sub authenticationRequest
 
 	my $ua = LWP::UserAgent->new;
 	my $scope = $config->{"scopes"};
-	$scope =~ s/ /+/g;
+	$scope =~ s/ /+/g; # spaces are replaced by '+' so it is in urlencoded format
 	my $response = $ua->post(
 		$config->{"oidc_device_code_uri"},
 		"content_type" => $contentType,
@@ -161,10 +159,13 @@ sub authenticationRequest
 
 	if ($response->is_success) {
 		return decode_json $response->decoded_content;
-	}
-	else {
-		print STDERR $response->status_line, "\n";
-		exit 0;
+	} else {
+		my $content = eval { decode_json $response->decoded_content };
+		if ($@ or !exists($content->{"error"})) {
+			die Perun::Exception->fromHash({ type => $response->code, errorInfo => $response->message });
+		} else {
+			die Perun::Exception->fromHash({ type => $content->{"error"}, errorInfo => $content->{"error_description"} });
+		}
 	}
 }
 
@@ -191,7 +192,16 @@ sub refreshTokenRequest
 		}
 	);
 
-	return decode_json $response->decoded_content;
+	if ($response->is_success) {
+		return decode_json $response->decoded_content;
+	} else {
+		my $content = eval { decode_json $response->decoded_content };
+		if ($@ or !exists($content->{"error"})) {
+			die Perun::Exception->fromHash({ type => $response->code, errorInfo => $response->message });
+		} else {
+			die Perun::Exception->fromHash({ type => $content->{"error"}, errorInfo => $content->{"error_description"} });
+		}
+	}
 }
 
 sub refreshAccessToken
