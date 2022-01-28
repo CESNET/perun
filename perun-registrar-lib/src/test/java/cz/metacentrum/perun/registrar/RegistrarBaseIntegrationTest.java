@@ -317,7 +317,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i10.setRequired(true);
 		i10.setRegex("[a-z][a-z0-9_]+");
 		i10.setType(ApplicationFormItem.Type.TEXTFIELD);
-		i10.setPerunDestinationAttribute("urn:perun:user:attribute-def:def:login-namespace:meta");
+		i10.setPerunDestinationAttribute("urn:perun:user:attribute-def:def:login-namespace:einfra");
 		i10.getTexts(CS).setLabel("Zvolte si uživatelské jméno");
 		i10.getTexts(CS).setHelp("Uživatelské jméno musí začínat malým písmenem, a obsahovat pouze malá písmena, číslice a podtržení. Doporučujeme délku nanejvýš 8 znaků.");
 		i10.getTexts(EN).setLabel("Choose you user name");

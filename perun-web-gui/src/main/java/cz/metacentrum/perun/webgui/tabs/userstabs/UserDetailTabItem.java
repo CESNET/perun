@@ -904,7 +904,6 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		set.add("urn:perun:user:attribute-def:def:login-namespace:sitola");
 		set.add("urn:perun:user:attribute-def:def:login-namespace:egi-ui");
 		set.add("urn:perun:user:attribute-def:def:login-namespace:cesnet");
-		set.add("urn:perun:user:attribute-def:def:login-namespace:meta");
 		set.add("urn:perun:user:attribute-def:def:login-namespace:einfra-services");
 		set.add("urn:perun:user:attribute-def:def:login-namespace:shongo");
 		// TODO - FIXME - must be dynamic !!
