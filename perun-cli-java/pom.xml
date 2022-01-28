@@ -20,23 +20,28 @@
 	</description>
 
 	<properties>
-		<start-class>cz.metacentrum.perun.cli.PerunCLI</start-class>
 		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
 	<build>
 		<finalName>${project.name}</finalName>
 		<plugins>
-			<!-- Package JAR with Main class and all libraries -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<!-- Main-Class taken from property ${start-class} -->
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<!-- https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#deployment.installing -->
+					<executable>true</executable>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-openapi</artifactId>
