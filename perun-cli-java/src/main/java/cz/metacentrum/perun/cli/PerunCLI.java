@@ -14,6 +14,9 @@ import org.apache.commons.cli.ParseException;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.kerberos.client.KerberosRestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
@@ -24,7 +27,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class PerunCLI {
+@SpringBootApplication
+public class PerunCLI implements CommandLineRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(PerunCLI.class);
 
@@ -35,7 +39,12 @@ public class PerunCLI {
 	private static final String DEBUG_OPTION = "D";
 	private static final String HELP_OPTION = "h";
 
-	public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ParseException {
+	public static void main(String[] args) {
+		SpringApplication.run(PerunCLI.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
 		//find all classes implementing commands and put them into the "commands" variable
 		log.debug("finding available commands...");
 		Reflections reflections = new Reflections("cz.metacentrum.perun.cli.commands");
