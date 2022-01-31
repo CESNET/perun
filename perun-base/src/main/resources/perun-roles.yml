@@ -25,6 +25,8 @@
 # SELF role is a user’s primary role through which the user is able to read and to change
 # only their personal information. It is assigned to all the authenticated users and cannot be removed.
 #
+# AUDITCONSUMERADMIN role has access to methods in AuditMessagesManagerEntry (except logger method).
+#
 # FACILITYADMIN role has complete control over a facility that is associated with the role.
 # For example, Facility administrators have a right to create facility resources, to set up attributes and destinations
 # for services, or to propagate these services. This role may be set by a Perun administrator
@@ -124,6 +126,7 @@ perun_roles:
   - TOPGROUPCREATOR
   - SECURITYADMIN
   - CABINETADMIN
+  - AUDITCONSUMERADMIN
   - SPONSORSHIP
   - MEMBERSHIP
   - UNKNOWN
@@ -298,32 +301,43 @@ perun_policies:
   #AuditMessagesManagerEntry
 
   getMessagesPage_MessagesPageQuery_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
+      - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
 
   pollConsumerMessages_String_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
+      - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
 
   pollConsumerMessages_String_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
+      - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
 
   pollConsumerEvents_String_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
+      - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
 
   pollConsumerEvents_String_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
+      - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
 
   createAuditerConsumer_String_policy:
-    policy_roles: []
+    policy_roles:
+      - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
 
@@ -333,7 +347,8 @@ perun_policies:
       - default_policy
 
   setLastProcessedId_String_int_policy:
-    policy_roles: []
+    policy_roles:
+      - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
 
@@ -6583,6 +6598,17 @@ perun_roles_management:
       - PERUNOBSERVER:
 
   PERUNOBSERVER:
+    primary_object:
+    assign_to_objects: {}
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+
+  AUDITCONSUMERADMIN:
     primary_object:
     assign_to_objects: {}
     entities_to_manage:

@@ -400,6 +400,22 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	public void authorizedAuditAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedAuditAdmin");
+
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.setRole(sess, createdUser, null, Role.AUDITCONSUMERADMIN);
+
+
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_audit", Arrays.asList()));
+	}
+
+	@Test
 	public void authorizedSelf() throws Exception {
 		System.out.println(CLASS_NAME + "authorizedSelf");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
@@ -458,6 +474,75 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 					new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 					new PerunClient()
 				), Role.PERUNADMIN));
+	}
+
+	@Test
+	public void isAuthorizedAuditConsumerAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "isAuthorizedAuditConsumerAdmin");
+
+		PerunPrincipal pp1 = new PerunPrincipal("test", "test", "test");
+		pp1.setRoles(new AuthzRoles(Role.AUDITCONSUMERADMIN));
+		pp1.setAuthzInitialized(true);
+
+		PerunSession sess1 = perun.getPerunSession(pp1, new PerunClient());
+
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "createAuditerConsumer_String_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerEvents_String_int_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerEvents_String_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerMessages_String_int_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerMessages_String_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "getMessagesPage_MessagesPageQuery_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "setLastProcessedId_String_int_policy"));
+	}
+
+	@Test
+	public void isAuthorizedPerunObserver() throws Exception {
+		System.out.println(CLASS_NAME + "isAuthorizedPerunObserver");
+
+		PerunPrincipal pp1 = new PerunPrincipal("test", "test", "test");
+		pp1.setRoles(new AuthzRoles(Role.PERUNOBSERVER));
+		pp1.setAuthzInitialized(true);
+
+		PerunSession sess1 = perun.getPerunSession(pp1, new PerunClient());
+
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerEvents_String_int_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerEvents_String_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerMessages_String_int_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "pollConsumerMessages_String_policy"));
+		assertTrue(AuthzResolver.authorizedInternal(sess1, "getMessagesPage_MessagesPageQuery_policy"));
+	}
+
+	@Test
+	public void isUnauthorizedPerunObserver() throws Exception {
+		System.out.println(CLASS_NAME + "isUnauthorizedPerunObserver");
+
+		PerunPrincipal pp1 = new PerunPrincipal("test", "test", "test");
+		pp1.setRoles(new AuthzRoles(Role.PERUNOBSERVER));
+		pp1.setAuthzInitialized(true);
+
+		PerunSession sess1 = perun.getPerunSession(pp1, new PerunClient());
+
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "setLastProcessedId_String_int_policy"));
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "createAuditerConsumer_String_policy"));
+	}
+
+	@Test
+	public void isUnauthorizedOther() throws Exception {
+		System.out.println(CLASS_NAME + "isUnauthorizedOther");
+
+		PerunPrincipal pp1 = new PerunPrincipal("test", "test", "test");
+		pp1.setRoles(new AuthzRoles(Role.GROUPADMIN));
+		pp1.setAuthzInitialized(true);
+
+		PerunSession sess1 = perun.getPerunSession(pp1, new PerunClient());
+
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "createAuditerConsumer_String_policy"));
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "pollConsumerEvents_String_int_policy"));
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "pollConsumerEvents_String_policy"));
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "pollConsumerMessages_String_int_policy"));
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "pollConsumerMessages_String_policy"));
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "getMessagesPage_MessagesPageQuery_policy"));
+		assertFalse(AuthzResolver.authorizedInternal(sess1, "setLastProcessedId_String_int_policy"));
 	}
 
 	@Test

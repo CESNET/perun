@@ -69,6 +69,11 @@ perun_policies:
       - CABINETADMIN:
     include_policies: []
 
+  test_audit:
+    policy_roles:
+      - AUDITCONSUMERADMIN
+    include_policies: []
+
   test_self:
     policy_roles:
       - SELF: User

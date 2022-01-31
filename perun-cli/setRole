@@ -76,6 +76,17 @@ if ($role eq "PERUNADMIN") {
 		$authzResolverAgent->setRole( authorizedGroup => $authorizedGroupId, role => $role );
 		printMessage("PERUNOBSERVER role is successfully set for authorizedGroup $authorizedGroupId", $batch);
 	}
+} elsif ($role eq "AUDITCONSUMERADMIN") {
+	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
+		die "ERROR: no other object needed when setting role $role\n";
+	}
+	if (defined($userId)) {
+		$authzResolverAgent->setRole( user => $userId, role => $role );
+		printMessage("AUDITCONSUMERADMIN role is successfully set for user $userId", $batch);
+	} else {
+		$authzResolverAgent->setRole( authorizedGroup => $authorizedGroupId, role => $role );
+		printMessage("AUDITCONSUMERADMIN role is successfully set for authorizedGroup $authorizedGroupId", $batch);
+	}
 } elsif ($role eq "CABINETADMIN") {
 	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
 		die "ERROR: no other object needed when setting role $role\n";
