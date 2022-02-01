@@ -7,6 +7,7 @@ use YAML::XS 'LoadFile';
 use JSON::XS;
 use LWP::UserAgent;
 use File::Basename;
+use URL::Encode;
 
 my $PERUN_OIDC = "perun_oidc";
 my $PYTHON = "python3";
@@ -147,7 +148,7 @@ sub authenticationRequest
 
 	my $ua = LWP::UserAgent->new;
 	my $scope = $config->{"scopes"};
-	$scope =~ s/ /+/g; # spaces are replaced by '+' so it is in urlencoded format
+	$scope =~ URL::Encode::url_encode_utf8($scope);
 	my $response = $ua->post(
 		$config->{"oidc_device_code_uri"},
 		"content_type" => $contentType,
@@ -174,7 +175,9 @@ sub authenticationRequest
 # Arguments:
 # refreshToken - refreshToken to use
 #
-# Returns structure containing response (e.g. structure->{"access_token"}).
+# Throws Perun::Exception when the response isn't successful and it's not an OIDC error.
+# Returns structure containing response (e.g. structure->{"access_token"}). If an OIDC error
+# occurred, the structure contains "error" key and possibly "error_description" key.
 sub refreshTokenRequest
 {
 	my $refreshToken = shift;
@@ -198,9 +201,8 @@ sub refreshTokenRequest
 		my $content = eval { decode_json $response->decoded_content };
 		if ($@ or !exists($content->{"error"})) {
 			die Perun::Exception->fromHash({ type => $response->code, errorInfo => $response->message });
-		} else {
-			die Perun::Exception->fromHash({ type => $content->{"error"}, errorInfo => $content->{"error_description"} });
 		}
+		return $content;
 	}
 }
 
