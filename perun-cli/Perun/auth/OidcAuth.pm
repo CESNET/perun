@@ -40,10 +40,27 @@ sub processToken
 	}
 }
 
+sub isAccessTokenValid
+{
+	my $ret = `$PYTHON -c "import keyring; print('token:' + str(keyring.get_password('$PERUN_OIDC', 'access_token_validity')), end='')"`;
+	my $validity = processToken($ret);
+	if ($validity) {
+		$validity = $validity - 5;
+		return time() < $validity;
+	}
+	return 0;
+}
+
 sub setAccessToken
 {
 	my $token = shift;
 	`$PYTHON -c "import keyring; keyring.set_password('$PERUN_OIDC', 'access_token', '$token')"`;
+}
+
+sub setAccessTokenValidity
+{
+	my $validity = shift;
+	`$PYTHON -c "import keyring; keyring.set_password('$PERUN_OIDC', 'access_token_validity', '$validity')"`;
 }
 
 sub setRefreshToken
@@ -147,14 +164,12 @@ sub authenticationRequest
 	my $config = loadConfiguration();
 
 	my $ua = LWP::UserAgent->new;
-	my $scope = $config->{"scopes"};
-	$scope =~ URL::Encode::url_encode_utf8($scope);
 	my $response = $ua->post(
 		$config->{"oidc_device_code_uri"},
 		"content_type" => $contentType,
 		Content => {
 			"client_id" => $config->{"client_id"},
-			"scope" => $scope
+			"scope" => URL::Encode::url_encode_utf8($config->{"scopes"})
 		}
 	);
 
@@ -213,6 +228,7 @@ sub refreshAccessToken
 		my $res = refreshTokenRequest($refreshToken);
 		unless ($res->{"error"}) {
 			setAccessToken($res->{"access_token"});
+			setAccessTokenValidity(time() + $res->{"expires_in"});
 			setRefreshToken($res->{"refresh_token"});
 			return;
 		}
@@ -220,6 +236,7 @@ sub refreshAccessToken
 
 	my $auth = authentication();
 	setAccessToken($auth->{"access_token"});
+	setAccessTokenValidity(time() + $auth->{"expires_in"});
 	setRefreshToken($auth->{"refresh_token"});
 }
 
@@ -237,7 +254,7 @@ sub loadConfiguration
 sub loadAccessToken
 {
 	my $accessToken = getAccessToken();
-	unless ($accessToken) {
+	unless ($accessToken and isAccessTokenValid) {
 		refreshAccessToken();
 		$accessToken = getAccessToken();
 	}
