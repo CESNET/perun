@@ -24,8 +24,8 @@ def main(args):
 
 		# Attribute.value can be a JSON object, a string, an integer, a list, but OpenAPI 3.0 does not allow this
 		# see https://stackoverflow.com/questions/48111459/how-to-define-a-property-that-can-be-string-or-null-in-openapi-swagger
-		# attr = attributes_manager.get_member_attribute_by_name(member.id,"urn:perun:member:attribute-def:def:membershipExpiration")
-		# pprint(attr)
+		attr = attributes_manager.get_member_attribute_by_name(member.id,"urn:perun:member:attribute-def:def:membershipExpiration")
+		pprint(attr)
 	f.close()
 
 # calling main when invoked from CLI

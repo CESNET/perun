@@ -301,11 +301,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/AttributeDefinition'
         - properties:
-            valueCreatedAt: { type: string }
-            valueCreatedBy: { type: string }
-            valueModifiedAt: { type: string }
-            valueModifiedBy: { type: string }
-            value: { type: object }
+            valueCreatedAt: { type: string, nullable: true }
+            valueCreatedBy: { type: string, nullable: true }
+            valueModifiedAt: { type: string, nullable: true }
+            valueModifiedBy: { type: string, nullable: true }
+            value: {}
       discriminator:
         propertyName: beanName
 

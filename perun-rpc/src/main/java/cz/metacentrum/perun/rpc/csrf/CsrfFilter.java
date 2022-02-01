@@ -116,7 +116,9 @@ public final class CsrfFilter implements Filter {
 				log.trace("Invalid CSRF token found for {} COOKIE: {} | HEADER: {}.", request.getRequestURI(), cookieCsrfToken.getValue(), actualToken);
 
 				// token is either invalid or missing
-				response.setStatus(HttpStatus.SC_FORBIDDEN);
+				response.sendError(HttpStatus.SC_FORBIDDEN, "This domain is under CSRF protection; however, " +
+				    "a valid CSRF token was not provided. Configure the client to provide the token in header " +
+					"or use the domain reserved only for API calls - without CSRF protection");
 				return;
 			}
 
@@ -128,7 +130,9 @@ public final class CsrfFilter implements Filter {
 				log.trace("Invalid CSRF token found for {} SESSION: {} | HEADER: {}.", request.getRequestURI(), httpSessionToken.getValue(), actualToken);
 
 				// token is either invalid or missing
-				response.setStatus(HttpStatus.SC_FORBIDDEN);
+				response.sendError(HttpStatus.SC_FORBIDDEN, "This domain is under CSRF protection; however, " +
+					"a valid CSRF token was not provided. Configure the client to provide the token in header " +
+					"or use the domain reserved only for API calls - without CSRF protection");
 				return;
 			}
 
