@@ -244,4 +244,14 @@ sub loadAccessToken
 	return $accessToken;
 }
 
+sub removeAccessToken
+{
+	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'access_token')"`;
+}
+
+sub removeRefreshToken
+{
+	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'refresh_token')"`;
+}
+
 1;
