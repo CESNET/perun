@@ -48,7 +48,7 @@ Perun can be managed using CLI tools (Perl scripts). You can find them in *perun
 In order to use them, you must install following Perl packages (example for Debian):
 
 ```bash
-apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl
+apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl liburl-encode-perl
 ```
 
 Then you must setup environmental variables to locate your Perun instance:
@@ -67,9 +67,14 @@ export PERL5LIB="[folder_with_cli_tools]"
 # Keep empty or setup to match REALM returned by Apache (e.g. for Kerberos)
 export PERUN_RPC_TYPE="Perun RPC"
 
-# Currently optional OIDC authentication is used if OIDC variable is set
-# Configuration file is located in perun-cli/Perun/auth folder
-export PERUN_OIDC="1"
 ```
+
+For using OIDC authentication instead:
+
+* Install Python 3.
+* Install its keyring library: ``` pip install keyring ```.
+* Set variable ```export PERUN_OIDC="1"```.
+* Specify endpoints in configuration file in ```perun-cli/Perun/auth folder```.
+
 
 You can then test connection by listing VOs like: ``./listOfVos``
