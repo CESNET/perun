@@ -12,6 +12,7 @@ my $PERUN_OIDC = "perun_oidc";
 my $PYTHON = "python3";
 my $dirname = dirname(__FILE__);
 my $contentType = "application/x-www-form-urlencoded";
+my $authenticationFailed = "Authentication failed";
 
 sub getAccessToken
 {
@@ -111,11 +112,11 @@ sub polling
 				print("Expired token, restarting authentication\n");
 				return authentication;
 			} else {
-				die Perun::Exception->fromHash({ type => $error, errorInfo => $response->{"error_description"} });
+				die Perun::Exception->fromHash({ type => $authenticationFailed, name => $error, errorInfo => $response->{"error_description"} });
 			}
 		}
 	}
-	die Perun::Exception->fromHash({ type => "Timeout", errorInfo => "Authentication timed-out." });
+	die Perun::Exception->fromHash({ type => $authenticationFailed, errorInfo => "Authentication timed-out." });
 }
 
 # Sends token device code flow request.
@@ -148,7 +149,7 @@ sub tokenRequest
 	} else {
 		my $content = eval { decode_json $response->decoded_content };
 		if ($@ or !exists($content->{"error"})) {
-			die Perun::Exception->fromHash({ type => $response->code, errorInfo => $response->message });
+			die Perun::Exception->fromHash({ type => $authenticationFailed, name => $response->code, errorInfo => $response->message });
 		}
 		return $content;
 	}
@@ -178,9 +179,9 @@ sub authenticationRequest
 	} else {
 		my $content = eval { decode_json $response->decoded_content };
 		if ($@ or !exists($content->{"error"})) {
-			die Perun::Exception->fromHash({ type => $response->code, errorInfo => $response->message });
+			die Perun::Exception->fromHash({ type => $authenticationFailed, name => $response->code, errorInfo => $response->message });
 		} else {
-			die Perun::Exception->fromHash({ type => $content->{"error"}, errorInfo => $content->{"error_description"} });
+			die Perun::Exception->fromHash({ type => $authenticationFailed, name => $content->{"error"}, errorInfo => $content->{"error_description"} });
 		}
 	}
 }
@@ -215,7 +216,7 @@ sub refreshTokenRequest
 	} else {
 		my $content = eval { decode_json $response->decoded_content };
 		if ($@ or !exists($content->{"error"})) {
-			die Perun::Exception->fromHash({ type => $response->code, errorInfo => $response->message });
+			die Perun::Exception->fromHash({ type => $authenticationFailed, name => $response->code, errorInfo => $response->message });
 		}
 		return $content;
 	}
@@ -266,6 +267,7 @@ sub loadAccessToken
 sub removeAccessToken
 {
 	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'access_token')"`;
+	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'access_token_validity')"`;
 }
 
 sub removeRefreshToken
