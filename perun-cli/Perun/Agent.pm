@@ -123,6 +123,20 @@ sub new {
 	unless ($response->is_success) {
 		my $code = $response->code;
 
+		# if using OIDC and ended with 401, token might be expired
+		if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1" && $code eq 401) {
+			my $accessToken;
+
+			# try to refresh tokens
+			Perun::auth::OidcAuth::refreshAccessToken();
+			$accessToken = Perun::auth::OidcAuth::getAccessToken();
+
+			$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+
+			# Reconnect to the Perun server
+			$response = $self->{_lwpUserAgent}->request( GET($self->{_url}) );
+		}
+
 		unless ($response->is_success) {
 			# Connection was OK, so check the return code
 			switch($code) {
@@ -175,6 +189,18 @@ sub call
 
 	#print $response->decoded_content;
 	#print "\n\n\n";
+
+	# if using OIDC and ended with 401, token might be expired
+	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1" && $code eq 401) {
+		# try to refresh tokens
+		Perun::auth::OidcAuth::refreshAccessToken();
+		$accessToken = Perun::auth::OidcAuth::getAccessToken();
+
+		# retry
+		$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+		$response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
+		$code = $response->code;
+	}
 
 	unless ($code == 200 || $code == 400 || $code == 500) {
 		die Perun::Exception->fromHash( { type => 'http', errorInfo =>
