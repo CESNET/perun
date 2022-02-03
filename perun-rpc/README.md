@@ -48,7 +48,7 @@ Perun can be managed using CLI tools (Perl scripts). You can find them in *perun
 In order to use them, you must install following Perl packages (example for Debian):
 
 ```bash
-apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl liburl-encode-perl
+apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl
 ```
 
 Then you must setup environmental variables to locate your Perun instance:
