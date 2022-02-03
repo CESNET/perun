@@ -7,7 +7,6 @@ use YAML::XS 'LoadFile';
 use JSON::XS;
 use LWP::UserAgent;
 use File::Basename;
-use URL::Encode;
 
 my $PERUN_OIDC = "perun_oidc";
 my $PYTHON = "python3";
@@ -44,11 +43,8 @@ sub isAccessTokenValid
 {
 	my $ret = `$PYTHON -c "import keyring; print('token:' + str(keyring.get_password('$PERUN_OIDC', 'access_token_validity')), end='')"`;
 	my $validity = processToken($ret);
-	if ($validity) {
-		$validity = $validity - 5;
-		return time() < $validity;
-	}
-	return 0;
+
+	return ($validity and time() < $validity - 5);
 }
 
 sub setAccessToken
@@ -83,7 +79,8 @@ sub authentication
 	return polling($response->{"device_code"}, $interval);
 }
 
-# Polling token URI to request an access token in device code flow.
+# Polling token URI to request an access token in device code flow. Polling will
+# run for 5 minutes at most.
 #
 # arguments:
 # deviceCode - unique code for the device returned by initial authentication request
@@ -93,9 +90,13 @@ sub authentication
 sub polling
 {
 	my ($deviceCode, $interval) = @_;
-	while (1) {
+	my $pollingLimit = int(300 / $interval); # polling for 300 seconds at most
+	my @i = (1..$pollingLimit);
+	for (@i) {
 		my $response = tokenRequest($deviceCode);
-		if (exists($response->{"error"})) {
+		unless (exists($response->{"error"})) {
+			return $response;
+		} else {
 			my $error = $response->{"error"};
 
 			if ($error eq "authorization_pending") {
@@ -107,16 +108,14 @@ sub polling
 				sleep($interval);
 				next;
 			} elsif ($error eq "expired_token") {
-				print("Expired token, try again....\n");  # TODO start auth again
+				print("Expired token, restarting authentication\n");
+				return authentication;
 			} else {
 				die Perun::Exception->fromHash({ type => $error, errorInfo => $response->{"error_description"} });
 			}
-
-			return $response;
-		} else {
-			return $response;
 		}
 	}
+	die Perun::Exception->fromHash({ type => "Timeout", errorInfo => "Authentication timed-out." });
 }
 
 # Sends token device code flow request.
@@ -169,7 +168,8 @@ sub authenticationRequest
 		"content_type" => $contentType,
 		Content => {
 			"client_id" => $config->{"client_id"},
-			"scope" => URL::Encode::url_encode_utf8($config->{"scopes"})
+			"acr_values" => $config->{"acr_values"},
+			"scope" => $config->{"scopes"}
 		}
 	);
 
@@ -235,9 +235,11 @@ sub refreshAccessToken
 	}
 
 	my $auth = authentication();
-	setAccessToken($auth->{"access_token"});
-	setAccessTokenValidity(time() + $auth->{"expires_in"});
-	setRefreshToken($auth->{"refresh_token"});
+	unless ($auth->{"error"}) {
+		setAccessToken($auth->{"access_token"});
+		setAccessTokenValidity(time() + $auth->{"expires_in"});
+		setRefreshToken($auth->{"refresh_token"});
+	}
 }
 
 sub loadConfiguration
