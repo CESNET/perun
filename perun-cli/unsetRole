@@ -77,6 +77,18 @@ if ($role eq "PERUNADMIN") {
 		printMessage("PERUNOBSERVER role was removed from authorizedGroup $authorizedGroupId", $batch);
 	}
 	#if there is other role, only one complementary object is needed
+} elsif ($role eq "AUDITCONSUMERADMIN") {
+	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
+		die "ERROR: no other object needed when setting role $role\n";
+	}
+	if (defined($userId)) {
+		$authzResolverAgent->unsetRole( user => $userId, role => $role );
+		printMessage("AUDITCONSUMERADMIN role was removed from user $userId", $batch);
+	} else {
+		$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, role => $role );
+		printMessage("AUDITCONSUMERADMIN role was removed from authorizedGroup $authorizedGroupId", $batch);
+	}
+	#if there is other role, only one complementary object is needed
 } elsif ($role eq "CABINETADMIN") {
 	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
 		die "ERROR: no other object needed when setting role $role\n";

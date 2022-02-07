@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static cz.metacentrum.perun.core.api.Role.AUDITCONSUMERADMIN;
 import static cz.metacentrum.perun.core.api.Role.CABINETADMIN;
 import static cz.metacentrum.perun.core.api.Role.FACILITYADMIN;
 import static cz.metacentrum.perun.core.api.Role.GROUPADMIN;
@@ -84,6 +85,10 @@ public class Privileges {
 
 		role(CABINETADMIN).canBeManagedBy(
 			CABINETADMIN
+		);
+
+		role(AUDITCONSUMERADMIN).canBeManagedBy(
+			PERUNADMIN
 		);
 	}
 
