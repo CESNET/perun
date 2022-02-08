@@ -1,7 +1,19 @@
 import perun_openapi
-import perun_openapi.api.users_manager_api
-import perun_openapi.api.members_manager_api
+import perun_openapi.api
 import perun_openapi.api.attributes_manager_api
+import perun_openapi.api.authz_resolver_api
+import perun_openapi.api.database_manager_api
+import perun_openapi.api.ext_sources_manager_api
+import perun_openapi.api.facilities_manager_api
+import perun_openapi.api.groups_manager_api
+import perun_openapi.api.members_manager_api
+import perun_openapi.api.owners_manager_api
+import perun_openapi.api.registrar_manager_api
+import perun_openapi.api.resources_manager_api
+import perun_openapi.api.users_manager_api
+import perun_openapi.api.utils_api
+import perun_openapi.api.vos_manager_api
+import perun_openapi.api.services_manager_api
 import os
 import sys
 import argparse
@@ -42,14 +54,47 @@ class PerunRpc:
 		self.api_client = perun_openapi.api_client.ApiClient(self.config)
 		self.api_client.user_agent = "Perun OpenAPI Python CLI"
 
-	def users_manager(self):
-		return perun_openapi.api.users_manager_api.UsersManagerApi(self.api_client)
+	def attributes_manager(self):
+		return perun_openapi.api.attributes_manager_api.AttributesManagerApi(self.api_client)
+
+	def authz_resolver(self):
+		return perun_openapi.api.authz_resolver_api.AuthzResolverApi(self.api_client)
+
+	def database_manager(self):
+		return perun_openapi.api.database_manager_api.DatabaseManagerApi(self.api_client)
+
+	def ext_sources_manager(self):
+		return perun_openapi.api.ext_sources_manager_api.ExtSourcesManagerApi(self.api_client)
+
+	def facilities_manager(self):
+		return perun_openapi.api.facilities_manager_api.FacilitiesManagerApi(self.api_client)
+
+	def groups_manager(self):
+		return perun_openapi.api.groups_manager_api.GroupsManagerApi(self.api_client)
 
 	def members_manager(self):
 		return perun_openapi.api.members_manager_api.MembersManagerApi(self.api_client)
 
-	def attributes_manager(self):
-		return perun_openapi.api.attributes_manager_api.AttributesManagerApi(self.api_client)
+	def owners_manager(self):
+		return perun_openapi.api.owners_manager_api.OwnersManagerApi(self.api_client)
+
+	def registrar_manager(self):
+		return perun_openapi.api.registrar_manager_api.RegistrarManagerApi(self.api_client)
+
+	def resources_manager(self):
+		return perun_openapi.api.resources_manager_api.ResourcesManagerApi(self.api_client)
+
+	def users_manager(self):
+		return perun_openapi.api.users_manager_api.UsersManagerApi(self.api_client)
+
+	def utils(self):
+		return perun_openapi.api.utils_api.UtilsApi(self.api_client)
+
+	def vos_manager(self):
+		return perun_openapi.api.vos_manager_api.VosManagerApi(self.api_client)
+
+	def services_manager(self):
+		return perun_openapi.api.services_manager_api.ServicesManagerApi(self.api_client)
 
 class PerunCliConfiguration(perun_openapi.configuration.Configuration):
 	def auth_settings(self):
