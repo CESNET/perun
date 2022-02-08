@@ -29,6 +29,7 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailText;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 
+import cz.metacentrum.perun.registrar.model.RichApplication;
 import cz.metacentrum.perun.registrar.model.ApplicationsOrderColumn;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import org.junit.After;
@@ -36,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
@@ -815,7 +817,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		ApplicationsPageQuery query = new ApplicationsPageQuery(1, 0, SortingOrder.ASCENDING, ApplicationsOrderColumn.ID, List.of(Application.AppState.APPROVED), true);
 
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		assertThat(result.getData())
 			.hasSize(1);
@@ -840,7 +842,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		ApplicationsPageQuery query = new ApplicationsPageQuery(1, 1, SortingOrder.ASCENDING, ApplicationsOrderColumn.ID, List.of(Application.AppState.APPROVED), true);
 
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		assertThat(result.getData())
 			.hasSize(1);
@@ -864,7 +866,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
 
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<Application.AppState> returnedAppStates = result.getData().stream()
 			.map(Application::getState).toList();
@@ -888,7 +890,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, "barn", List.of(Application.AppState.APPROVED), true);
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<User> returnedUsers = result.getData().stream()
 			.map(Application::getUser).toList();
@@ -912,7 +914,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, "Group2", List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<Group> returnedGroups = result.getData().stream()
 			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
@@ -936,7 +938,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, "cooler", List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<Group> returnedGroups = result.getData().stream()
 			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
@@ -960,7 +962,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, Integer.toString(group2.getId()), List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<Group> returnedGroups = result.getData().stream()
 			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
@@ -987,7 +989,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, group2.getUuid().toString(), List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<Group> returnedGroups = result.getData().stream()
 			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
@@ -1014,7 +1016,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, Integer.toString(application1.getId()), List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<Integer> returnedIds = result.getData().stream()
 			.map(Application::getId).toList();
@@ -1039,7 +1041,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId());
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<Group> returnedGroups = result.getData().stream()
 			.map(Application::getGroup).toList();
@@ -1066,7 +1068,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.VERIFIED), user1.getId(), group1.getId());
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		assertEquals(1, result.getData().size());
 	}
@@ -1087,7 +1089,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.VERIFIED), user1.getId(), group2.getId());
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		assertEquals(0, result.getData().size());
 	}
@@ -1114,20 +1116,32 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		testItem = registrarManager.addFormItem(session, form, testItem);
 		registrarManager.updateFormItems(session, form, Collections.singletonList(testItem));
 		ApplicationFormItemData testData = new ApplicationFormItemData(testItem, "test", "testval", "0");
+
+		ApplicationFormItem testItem2 = new ApplicationFormItem();
+		testItem2.setType(ApplicationFormItem.Type.TEXTFIELD);
+		testItem2.setShortname("testItem2");
+
+		testItem2 = registrarManager.addFormItem(session, form, testItem2);
+		registrarManager.updateFormItems(session, form, Collections.singletonList(testItem2));
+		ApplicationFormItemData testData2 = new ApplicationFormItemData(testItem2, "test2", "banana", "0");
+
 		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
 		appItemsData.add(testData);
+		appItemsData.add(testData2);
 
 		Application application1 = setUpApplicationGroupWithData(user1, group1, appItemsData);
 		Application application2 = setUpApplicationGroup(user2, group2);
 
 		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, "testval", List.of(Application.AppState.VERIFIED, Application.AppState.APPROVED), true);
+		query.setGetDetails(true);
 
-		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
 		List<User> returnedIds = result.getData().stream()
 			.map(Application::getUser).toList();
 
 		assertThat(returnedIds).containsOnly(user1);
+		assertThat(result.getData().get(0).getFormData().size()).isEqualTo(2);
 	}
 
 	private Group setUpGroup(String name, String desc) throws Exception {

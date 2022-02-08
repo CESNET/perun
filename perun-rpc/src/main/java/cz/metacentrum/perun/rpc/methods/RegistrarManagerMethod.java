@@ -450,7 +450,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @param vo int Vo <code>id</code>
 	 * @param query ApplicationsPageQuery Query with page information
 	 *
-	 * @return Paginated<Application> page of requested rich applications
+	 * @return Paginated<RichApplication> page of requested rich applications
 	 * @throw VoNotExistsException if there is no such vo
 	 * @throw PrivilegeException if user doesnt have sufficient privileges
 	 * @throw PerunException
