@@ -284,7 +284,7 @@ components:
         - properties:
             friendlyName: { type: string }
             namespace: { type: string }
-            description: { type: string }
+            description: { type: string, nullable: true }
             type: { type: string }
             displayName: { type: string }
             writable: { type: boolean }
@@ -697,9 +697,9 @@ components:
         - properties:
             name: { type: string }
             shortName: { type: string }
-            description: { type: string }
+            description: { type: string, nullable: true }
             voId: { type: integer }
-            parentGroupId: { type: integer }
+            parentGroupId: { type: integer, nullable: true }
             uuid: { type: string, format: uuid }
       discriminator:
         propertyName: beanName
@@ -13724,7 +13724,7 @@ paths:
       operationId: getVoByShortName
       summary: Returns a VO by its short name.
       parameters:
-        - { name: shortName, description: "short name of Vo", schema: { type: string },  in: query }
+        - { name: shortName, required: true, description: "short name of Vo", schema: { type: string },  in: query }
       responses:
         '200':
           $ref: '#/components/responses/VoResponse'
