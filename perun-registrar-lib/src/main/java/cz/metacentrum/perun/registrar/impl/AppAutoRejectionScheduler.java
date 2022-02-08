@@ -119,6 +119,12 @@ public class AppAutoRejectionScheduler {
 	 * @throws GroupNotExistsException if group not exist (it shouldn't happen)
 	 */
 	public void checkApplicationsExpiration() throws VoNotExistsException, GroupNotExistsException {
+		//Do not run, when perun is in readOnly mode
+		if (perun.isPerunReadOnly()) {
+			log.debug("Perun is in readOnly mode, skipping auto-rejection of expired applications.");
+			return;
+		}
+
 		List<Vo> vos = getAllEligibleVos();
 		// check applications expiration in eligible vos
 		try {
