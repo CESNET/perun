@@ -440,6 +440,32 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get page of applications from the given vo, with the given attributes.
+	 * Query parameter specifies offset, page size, sorting order, sorting column, statuses of the applications,
+	 * whether to include group applications if searching only in VO and string to search
+	 * applications by (by default it searches in group names/descriptions, group and application ids, group uuids,  logins of submitters and
+	 * application_data values), dateFrom and dateTo are optional and specify dates when the applications were submitted,
+	 * the last 2 parameters are optional and serve to search group/member specific applications.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param query ApplicationsPageQuery Query with page information
+	 *
+	 * @return Paginated<Application> page of requested rich applications
+	 * @throw VoNotExistsException if there is no such vo
+	 * @throw PrivilegeException if user doesnt have sufficient privileges
+	 * @throw PerunException
+	 */
+	getApplicationsPage {
+
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getRegistrarManager().getApplicationsPage(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				parms.read("query", ApplicationsPageQuery.class));
+		}
+
+	},
+	/*#
 	 * Gets all applications for a given VO.
 	 *
 	 * @param vo int VO <code>id</code>
