@@ -21,6 +21,7 @@ import java.util.List;
  *
  */
 @SkipValueCheckDuringDependencyCheck
+@Deprecated
 public class urn_perun_user_attribute_def_virt_login_namespace_researcher_access_persistent
 	extends UserVirtualAttributesModuleAbstract {
 

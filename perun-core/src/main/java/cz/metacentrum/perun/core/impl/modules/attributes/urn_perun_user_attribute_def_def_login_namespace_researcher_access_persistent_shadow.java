@@ -22,6 +22,7 @@ import java.util.UUID;
  * It is only storage! Use module login researcher-access_persistent for access the value.
  *
  */
+@Deprecated
 public class urn_perun_user_attribute_def_def_login_namespace_researcher_access_persistent_shadow
 	extends urn_perun_user_attribute_def_def_login_namespace {
 
