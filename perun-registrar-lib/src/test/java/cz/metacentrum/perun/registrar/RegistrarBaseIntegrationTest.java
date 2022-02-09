@@ -1092,6 +1092,44 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertEquals(0, result.getData().size());
 	}
 
+	@Test
+	public void getApplicationsPageApplicationFormSearch() throws Exception {
+		System.out.println("getApplicationsPageApplicationFormSearch");
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		// set up application
+
+
+		ApplicationFormItem testItem = new ApplicationFormItem();
+		testItem.setType(ApplicationFormItem.Type.TEXTFIELD);
+		testItem.setShortname("testItem");
+
+		testItem = registrarManager.addFormItem(session, form, testItem);
+		registrarManager.updateFormItems(session, form, Collections.singletonList(testItem));
+		ApplicationFormItemData testData = new ApplicationFormItemData(testItem, "test", "testval", "0");
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		appItemsData.add(testData);
+
+		Application application1 = setUpApplicationGroupWithData(user1, group1, appItemsData);
+		Application application2 = setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, "testval", List.of(Application.AppState.VERIFIED, Application.AppState.APPROVED), true);
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<User> returnedIds = result.getData().stream()
+			.map(Application::getUser).toList();
+
+		assertThat(returnedIds).containsOnly(user1);
+	}
+
 	private Group setUpGroup(String name, String desc) throws Exception {
 		GroupsManager groupsManager = perun.getGroupsManager();
 
@@ -1122,6 +1160,15 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
 		voApplication = registrarManager.submitApplication(session, voApplication, appItemsData);
 		registrarManager.submitApplication(session, groupApplication, appItemsData);
+		registrarManager.approveApplication(session, voApplication.getId());
+
+		return voApplication;
+	}
+	private Application setUpApplicationGroupWithData(User user, Group group, List<ApplicationFormItemData> data) throws PerunException {
+		Application voApplication = prepareApplicationToVo(user);
+		Application groupApplication = prepareApplicationToGroup(user, group);
+		voApplication = registrarManager.submitApplication(session, voApplication, data);
+		registrarManager.submitApplication(session, groupApplication, data);
 		registrarManager.approveApplication(session, voApplication.getId());
 
 		return voApplication;

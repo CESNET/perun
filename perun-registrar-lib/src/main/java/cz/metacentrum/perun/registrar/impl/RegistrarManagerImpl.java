@@ -4572,7 +4572,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
 		"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
 		"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
-		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
+		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a" +
+		" left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id left outer join application_data d on a.id = d.app_id";
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 
