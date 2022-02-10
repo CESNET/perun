@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.cabinet.model.*;
 
 import cz.metacentrum.perun.core.api.*;
@@ -145,6 +147,9 @@ public class JsonDeserializer extends Deserializer {
 	public JsonDeserializer(HttpServletRequest request) throws IOException {
 
 		this.req = request;
+
+		mapper.registerModule(new JavaTimeModule());
+		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
 		try {
 			root = mapper.readTree(req.getInputStream());

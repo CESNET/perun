@@ -93,6 +93,17 @@ $objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"sh
 $objectExamples{"List&lt;RichGroup&gt;"} = $listPrepend . $objectExamples{"RichGroup"} . $listAppend;
 $objectExamples{"List<RichGroup>"} = $objectExamples{"List&lt;RichGroup&gt;"};
 
+$objectExamples{"Application} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"Application\" }";
+$objectExamples{"List&lt;Application&gt;"} = $listPrepend . $objectExamples{"Application"} . $listAppend;
+$objectExamples{"List<Application>"} = $objectExamples{"List&lt;Application&gt;"};
+
+$objectExamples{"ApplicationsPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"includeGroupApplications\" : true , \"searchString\" : \"Doe\" , \"states\" : [\"VERIFIED\" , \"NEW\"] , \"dateFrom\" : \"2011-05-17\", \"dateTo\" : \"2011-05-17\", \"memberId\" : 10 , \"groupId\" : 10 }";
+$objectExamples{"List&lt;ApplicationsPageQuery&gt;"} = $listPrepend . $objectExamples{"ApplicationsPageQuery"} . $listAppend;
+$objectExamples{"List<ApplicationsPageQuery>"} = $objectExamples{"List&lt;ApplicationsPageQuery&gt;"};
+
+$objectExamples{"Paginated&lt;Application&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;Application&gt;"} . "  }";
+$objectExamples{"Paginated<Application>"} = $objectExamples{"Paginated&lt;Application&gt;"};
+
 $objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"sponsored\" : false , \"beanName\" : \"Member\" }";
 $objectExamples{"List&lt;Member&gt;"} = $listPrepend . $objectExamples{"Member"} . $listAppend;
 $objectExamples{"List<Member>"} = $objectExamples{"List&lt;Member&gt;"};
@@ -148,7 +159,7 @@ $objectExamples{"List&lt;MessagesPageQuery&gt;"} = $listPrepend . $objectExample
 $objectExamples{"List<MessagesPageQuery>"} = $objectExamples{"List&lt;MessagesPageQuery&gt;"};
 
 $objectExamples{"Paginated&lt;AuditMessage&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;AuditMessage&gt;"} . "  }";
-$objectExamples{"Paginated<AuditMessage>"} = @objectExamples{"Paginated&lt;AuditMessage&gt;"};
+$objectExamples{"Paginated<AuditMessage>"} = $objectExamples{"Paginated&lt;AuditMessage&gt;"};
 
 $objectExamples{"String"} = "\"text\"";
 $objectExamples{"boolean"} = "true";
@@ -214,7 +225,7 @@ $objectExamples{"List&lt;MembersPageQuery&gt;"} = $listPrepend . $objectExamples
 $objectExamples{"List<MembersPageQuery>"} = $objectExamples{"List&lt;MembersPageQuery&gt;"};
 
 $objectExamples{"Paginated&lt;RichMember&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichMember&gt;"} . "  }";
-$objectExamples{"Paginated<RichMember>"} = @objectExamples{"Paginated&lt;RichMember&gt;"};
+$objectExamples{"Paginated<RichMember>"} = $objectExamples{"Paginated&lt;RichMember&gt;"};
 
 $objectExamples{"AssignedMember"} = "{ \"richMember\" : " . $objectExamples{"RichMember"} . " , \"status\" : \"ACTIVE\" }";
 $objectExamples{"List&lt;AssignedMember&gt;"} = $listPrepend . $objectExamples{"AssignedMember"} . $listAppend;
@@ -225,14 +236,14 @@ $objectExamples{"List&lt;UsersPageQuery&gt;"} = $listPrepend . $objectExamples{"
 $objectExamples{"List<UsersPageQuery>"} = $objectExamples{"List&lt;UsersPageQuery&gt;"};
 
 $objectExamples{"Paginated&lt;RichUser&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichUser&gt;"} . "  }";
-$objectExamples{"Paginated<RichUser>"} = @objectExamples{"Paginated&lt;RichUser&gt;"};
+$objectExamples{"Paginated<RichUser>"} = $objectExamples{"Paginated&lt;RichUser&gt;"};
 
 $objectExamples{"GroupsPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"searchString\" : \"My group\" }";
 $objectExamples{"List&lt;GroupsPageQuery&gt;"} = $listPrepend . $objectExamples{"GroupsPageQuery"} . $listAppend;
 $objectExamples{"List<GroupsPageQuery>"} = $objectExamples{"List&lt;GroupsPageQuery&gt;"};
 
 $objectExamples{"Paginated&lt;RichGroup&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichGroup&gt;"} . "  }";
-$objectExamples{"Paginated<RichGroup>"} = @objectExamples{"Paginated&lt;RichGroup&gt;"};
+$objectExamples{"Paginated<RichGroup>"} = $objectExamples{"Paginated&lt;RichGroup&gt;"};
 
 $objectExamples{"GroupMemberRelation"} = "{\"groupId\" : 69, \"memberId\" : 55, \"sourceGroupId\", \"sourceGroupStatus\" : \"EXPIRED\", \"membershipType\" : \"DIRECT\" }";
 $objectExamples{"GroupMemberData"} = "{\"relations\" : " . $listPrepend . $objectExamples{"GroupMemberRelation"} . $listAppend . ", \"groupMemberAttributes\": { \"69\": { \"55\": ".$listPrepend . $objectExamples{"Attribute"} . $listAppend. " } } }";

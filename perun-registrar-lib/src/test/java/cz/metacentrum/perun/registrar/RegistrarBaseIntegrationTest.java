@@ -5,18 +5,19 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.bl.VosManagerBl;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -28,6 +29,8 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailText;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 
+import cz.metacentrum.perun.registrar.model.ApplicationsOrderColumn;
+import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +42,7 @@ import org.springframework.test.util.AopTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static cz.metacentrum.perun.registrar.model.Application.AppType.INITIAL;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.CS;
@@ -58,6 +62,7 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-registrar-lib.xml" } )
 @Transactional(transactionManager = "perunTransactionManager")
 public class RegistrarBaseIntegrationTest {
+
 
 
 	@Autowired PerunBl perun;
@@ -792,6 +797,334 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		application.setExtSourceName("ExtSource");
 		application.setExtSourceType(ExtSourcesManager.EXTSOURCE_IDP);
 		return application;
+	}
+
+	@Test
+	public void getApplicationsPagePageSizeWorks() throws Exception {
+		System.out.println("getApplicationsPagePageSizeWorks");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		Application voApplication1 =  setUpApplicationGroup(user1, group1);
+		Application voApplication2 = setUpApplicationGroup(user2, group1);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(1, 0, SortingOrder.ASCENDING, ApplicationsOrderColumn.ID, List.of(Application.AppState.APPROVED), true);
+
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		assertThat(result.getData())
+			.hasSize(1);
+		assertThat(result.getData().get(0).getId())
+			.isEqualTo(voApplication1.getId());
+
+	}
+
+	@Test
+	public void getApplicationsPageOffsetWorks() throws Exception {
+		System.out.println("getApplicationsPageOffsetWorks");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		Application voApplication1 =  setUpApplicationGroup(user1, group1);
+		Application voApplication2 = setUpApplicationGroup(user2, group1);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(1, 1, SortingOrder.ASCENDING, ApplicationsOrderColumn.ID, List.of(Application.AppState.APPROVED), true);
+
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		assertThat(result.getData())
+			.hasSize(1);
+		assertThat(result.getData().get(0).getUser().getId())
+			.isEqualTo(voApplication2.getUser().getId());
+	}
+
+	@Test
+	public void getApplicationsPageIdSortWorks() throws Exception {
+		System.out.println("getApplicationsPageIdSortWorks");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		setUpApplicationGroup(user1, group1);
+		setUpApplicationGroup(user2, group1);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
+
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<Application.AppState> returnedAppStates = result.getData().stream()
+			.map(Application::getState).toList();
+
+		assertThat(returnedAppStates).containsExactly(Application.AppState.VERIFIED, Application.AppState.VERIFIED,
+			Application.AppState.APPROVED, Application.AppState.APPROVED);
+	}
+
+	@Test
+	public void getApplicationsPageBasedOnSearchString() throws Exception {
+		System.out.println("getApplicationsPageBasedOnSearchString");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		setUpApplicationGroup(user1, group1);
+		setUpApplicationGroup(user2, group1);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, "barn", List.of(Application.AppState.APPROVED), true);
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<User> returnedUsers = result.getData().stream()
+			.map(Application::getUser).toList();
+
+		assertThat(returnedUsers).containsOnly(user2);
+	}
+
+	@Test
+	public void getApplicationsPageFindByGroupName() throws Exception {
+		System.out.println("getApplicationsPageFindByGroupName");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		setUpApplicationGroup(user1, group1);
+		setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, "Group2", List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<Group> returnedGroups = result.getData().stream()
+			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
+
+		assertThat(returnedGroups).containsOnly(group2);
+	}
+
+	@Test
+	public void getApplicationsPageFindByGroupDescription() throws Exception {
+		System.out.println("getApplicationsPageFindByGroupDescription");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		setUpApplicationGroup(user1, group1);
+		setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, "cooler", List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<Group> returnedGroups = result.getData().stream()
+			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
+
+		assertThat(returnedGroups).containsOnly(group2);
+	}
+
+	@Test
+	public void getApplicationsPageFindByGroupId() throws Exception {
+		System.out.println("getApplicationsPageFindByGroupId");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		setUpApplicationGroup(user1, group1);
+		setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, Integer.toString(group2.getId()), List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<Group> returnedGroups = result.getData().stream()
+			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
+
+		List<Integer> returnedIds = returnedGroups.stream().map(Group::getId).toList();
+
+		assertThat(returnedIds).containsOnly(group2.getId());
+
+	}
+
+	@Test
+	public void getApplicationsPageFindByGroupUuid() throws Exception {
+		System.out.println("getApplicationsPageFindByGroupUuid");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		setUpApplicationGroup(user1, group1);
+		setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.ID, group2.getUuid().toString(), List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<Group> returnedGroups = result.getData().stream()
+			.map(Application::getGroup).filter(Predicate.not(Objects::isNull)).toList();
+
+		List<UUID> returnedIds = returnedGroups.stream().map(Group::getUuid).toList();
+
+		assertThat(returnedIds).containsOnly(group2.getUuid());
+
+	}
+
+	@Test
+	public void getApplicationsPageFindByApplicationId() throws Exception {
+		System.out.println("getApplicationsPageFindByApplicationId");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		Application application1 = setUpApplicationGroup(user1, group1);
+		Application application2 = setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, Integer.toString(application1.getId()), List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), true);
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<Integer> returnedIds = result.getData().stream()
+			.map(Application::getId).toList();
+
+		assertThat(returnedIds).containsExactly(application1.getId());
+
+	}
+
+	@Test
+	public void getApplicationsPageForGroup() throws Exception {
+		System.out.println("getApplicationsPageForGroup");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		Application application1 = setUpApplicationGroup(user1, group1);
+		Application application2 = setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId());
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		List<Group> returnedGroups = result.getData().stream()
+			.map(Application::getGroup).toList();
+
+		List<Integer> returnedIds = returnedGroups.stream()
+				.map(Group::getId).toList();
+
+		assertThat(returnedIds).containsExactly(group1.getId());
+	}
+
+	@Test
+	public void getApplicationsPageForUserIsMember() throws Exception {
+		System.out.println("getApplicationsPageForUserIsMember");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		Application application1 = setUpApplicationGroup(user1, group1);
+		Application application2 = setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.VERIFIED), user1.getId(), group1.getId());
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		assertEquals(1, result.getData().size());
+	}
+
+	@Test
+	public void getApplicationsPageForUserIsNotMember() throws Exception {
+		System.out.println("getApplicationsPageForUserIsNotMember");
+
+		// create groups
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		Group group2 = setUpGroup("Group2", "Cooler folks");
+		// create users
+		User user1 = setUpUser("Joe", "Doe");
+		User user2 = setUpUser("Barney", "Stinson");
+
+		Application application1 = setUpApplicationGroup(user1, group1);
+		Application application2 = setUpApplicationGroup(user2, group2);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, List.of(Application.AppState.VERIFIED), user1.getId(), group2.getId());
+
+		Paginated<Application> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		assertEquals(0, result.getData().size());
+	}
+
+	private Group setUpGroup(String name, String desc) throws Exception {
+		GroupsManager groupsManager = perun.getGroupsManager();
+
+		// create group in VO, generate group application form
+		Group group = new Group(name, desc);
+		group = groupsManager.createGroup(session, vo, group);
+
+		registrarManager.createApplicationFormInGroup(session, group);
+		ApplicationForm groupForm = registrarManager.getFormForGroup(group);
+		groupForm.setAutomaticApproval(true);
+		registrarManager.updateForm(session, groupForm);
+
+		return group;
+	}
+
+	private User setUpUser(String firstName, String lastName) {
+		User user = new User();
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		perun.getUsersManagerBl().createUser(session, user);
+		return user;
+	}
+
+	// seems to remove group from application object upon approving, couldn't figure out why
+	private Application setUpApplicationGroup(User user, Group group) throws PerunException {
+		Application voApplication = prepareApplicationToVo(user);
+		Application groupApplication = prepareApplicationToGroup(user, group);
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		voApplication = registrarManager.submitApplication(session, voApplication, appItemsData);
+		registrarManager.submitApplication(session, groupApplication, appItemsData);
+		registrarManager.approveApplication(session, voApplication.getId());
+
+		return voApplication;
 	}
 
 	@Test

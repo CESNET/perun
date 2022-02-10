@@ -2106,6 +2106,24 @@ public class Utils {
 	}
 
 	/**
+	 * Returns search query to search by user name based on databased in use.
+	 *
+	 * @return search query
+	 */
+	public static String prepareUsernameSearchQuerySimilarMatch() {
+		return "(strpos(lower("+Compatibility.convertToAscii("COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'') || COALESCE(a.modified_by,'')")+"), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+	}
+
+	/**
+	 * Returns search query to search by group name or description (similar match) based on databased in use.
+	 *
+	 * @return search query
+	 */
+	public static String prepareGroupNameDscAppsSearchQuerySimilarMatch() {
+		return "(strpos(lower("+Compatibility.convertToAscii("COALESCE(g.name,'') || COALESCE(g.dsc,'')")+"), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+	}
+
+	/**
 	 * Returns a part of WHERE condition to search groups in their ids, uuids, names and descriptions
 	 * by given search string.
 	 *
@@ -2146,6 +2164,63 @@ public class Utils {
 			idQueryString +
 			uuidQueryString +
 			")";
+	}
+
+	/**
+	 * Returns a part of WHERE condition to search applications in their ids, username, group ids/uuids, names and description
+	 * by given search string.
+	 *
+	 * @param searchString string to search by
+	 * @param namedParams parameters used in the query
+	 * @return search query
+	 */
+	public static String prepareSqlWhereForApplicationsSearch(String searchString, MapSqlParameterSource namedParams) {
+		if (isEmpty(searchString)) {
+			return "";
+		}
+
+		String appIdQueryString = "";
+		try {
+			int appId = Integer.parseInt(searchString);
+			appIdQueryString = " OR a.id=";
+			appIdQueryString += appId;
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of id
+		}
+
+		String groupIdQueryString = "";
+		try {
+			int groupId = Integer.parseInt(searchString);
+			groupIdQueryString = " OR a.group_id=";
+			groupIdQueryString += groupId;
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of id
+		}
+
+		String uuidQueryString = "";
+		try {
+			UUID uuid = UUID.fromString(searchString);
+			uuidQueryString = " OR g.uu_id=:uuid";
+			namedParams.addValue("uuid", uuid);
+		} catch (java.lang.IllegalArgumentException ex) {
+			// IGNORE wrong format of UUID
+		}
+
+		String groupNameDscQueryString = prepareGroupNameDscAppsSearchQuerySimilarMatch();
+		String usernameQueryString = prepareUsernameSearchQuerySimilarMatch();
+		namedParams.addValue("searchString", searchString);
+
+		return
+			"(" +
+			groupNameDscQueryString +
+				" OR " +
+				usernameQueryString +
+				appIdQueryString +
+				groupIdQueryString +
+				uuidQueryString +
+				")";
+
+
 	}
 
 	/**

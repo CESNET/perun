@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
+import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -2052,6 +2054,60 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		return app;
 
+	}
+
+	@Override
+	public Paginated<Application> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query) throws PerunException {
+		vosManager.checkVoExists(userSession, vo);
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+
+		//Authorization
+		if (query.getGroupId() != null && !AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy", Collections.singletonList(groupsManager.getGroupById(userSession, query.getGroupId())))) {
+			throw new PrivilegeException(userSession, "getApplicationsPage");
+		} else if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy", Collections.singletonList(vo))) {
+			throw new PrivilegeException(userSession, "getApplicationsPage");
+		}
+
+
+		namedParams.addValue("voId", vo.getId());
+		if (query.getStates() != null) {
+			namedParams.addValue("states", query.getStates().stream()
+				.map(Enum::toString).toList());
+		}
+		namedParams.addValue("dateFrom", query.getDateFrom());
+		namedParams.addValue("dateTo", query.getDateTo());
+		namedParams.addValue("offset", query.getOffset());
+		namedParams.addValue("limit", query.getPageSize());
+		namedParams.addValue("userId", query.getUserId());
+		namedParams.addValue("groupId", query.getGroupId());
+
+		String searchQuery = getSQLWhereForApplicationsPage(query, namedParams);
+
+		Paginated<Application> applications = namedJdbc.query(
+			APP_SELECT_PAGE +
+				" WHERE a.vo_id=(:voId)" +
+				(query.getStates() == null || query.getStates().isEmpty() ? "" : " AND a.state IN (:states) ") +
+				(query.getIncludeGroupApplications() != null && query.getIncludeGroupApplications() ? "" : " AND a.group_id is null") +
+				(query.getUserId() == null ? "" : "  AND a.user_id=(:userId)") +
+				(query.getGroupId() == null ? "" : "  AND a.group_id=(:groupId)") +
+				" AND (:dateFrom) <= a.created_at::date AND a.created_at::date <= (:dateTo)" +
+				searchQuery +
+				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
+				" OFFSET (:offset)" +
+				" LIMIT (:limit)"
+			, namedParams,
+			getPaginatedApplicationsExtractor(query));
+
+
+
+		return applications;
+	}
+
+	private String getSQLWhereForApplicationsPage(ApplicationsPageQuery query, MapSqlParameterSource namedParams) {
+		if (isEmpty(query.getSearchString())) {
+			return "";
+		}
+		return " AND " + Utils.prepareSqlWhereForApplicationsSearch(query.getSearchString(), namedParams);
 	}
 
 	@Override
@@ -4480,7 +4536,28 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 	}
+
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
+	/**
+	 * Returns ResultSetExtractor that can be used to extract returned paginated applications
+	 * from db.
+	 *
+	 * @param query query data
+	 * @return extractor, that can be used to extract returned paginated applications from db
+	 */
+	private static ResultSetExtractor<Paginated<Application>> getPaginatedApplicationsExtractor(ApplicationsPageQuery query) {
+		return resultSet -> {
+			List<Application> applications = new ArrayList<>();
+			int total_count = 0;
+			int row = 0;
+			while (resultSet.next()) {
+				total_count = resultSet.getInt("total_count");
+				applications.add(APP_MAPPER.mapRow(resultSet, row));
+				row++;
+			}
+			return new Paginated<>(applications, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
 
 	// FIXME - we are retrieving GROUP name using only "short_name" so it's not same as getGroupById()
 	static final String APP_SELECT = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
@@ -4489,6 +4566,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
 			"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
 			"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
+
+	static final String APP_SELECT_PAGE = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
+		"a.user_id as user_id,a.extsourcename as extsourcename, a.extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as app_modified_by, " +
+		"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
+		"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
+		"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
+		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 
