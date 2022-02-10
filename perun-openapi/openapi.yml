@@ -3318,8 +3318,8 @@ paths:
       tags:
         - AuthzResolver
       operationId: getAuthzRichAdmins
-      summary: Gets all rich admins
-      description: Returns all managers for complementaryObject and role with specified attributes.
+      summary: Gets all valid rich admins
+      description: Get all valid richUser administrators (for group-based rights, status must be VALID for both Vo and group) for complementary object and role with specified attributes.
       parameters:
         - $ref: '#/components/parameters/role'
         - $ref: '#/components/parameters/complementaryObjectId'

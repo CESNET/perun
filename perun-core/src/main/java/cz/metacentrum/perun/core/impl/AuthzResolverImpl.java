@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -16,6 +17,7 @@ import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -893,10 +895,10 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 			if (!onlyDirectAdmins) {
 				// Admins through a group
-				List<Group> listOfGroupAdmins = getAdminGroups(mappingOfValues);
-				for(Group authorizedGroup : listOfGroupAdmins) {
+				List<Group> listOfAdminGroups = getAdminGroups(mappingOfValues);
+				for(Group authorizedGroup : listOfAdminGroups) {
 					admins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
-						"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
+						"join groups_members on groups_members.member_id=members.id where groups_members.group_id=? and members.status=? and groups_members.source_group_status=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode()));
 				}
 			}
 
