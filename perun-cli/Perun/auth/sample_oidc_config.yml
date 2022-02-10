@@ -1,0 +1,9 @@
+# This is only a sample config file! You need to create file oidc_config.yml in this directory
+# and specify following options in it!
+
+client_id: "" # Identifier of the CLI app on the OIDC server
+oidc_device_code_uri: "" # Here the CLI requests from the OIDC server to start the authentication
+oidc_token_endpoint_uri: "" # Token endpoint URI
+acr_values: "" # List of ACR values for authentication
+scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
+perun_api_endpoint: ""

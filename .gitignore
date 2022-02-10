@@ -16,6 +16,9 @@ perun-rpc/data/
 **/target
 dependency-reduced-pom.xml
 
+# Ignore config for OIDC authentication in CLI
+perun-cli/Perun/auth/oidc_config.yml
+
 # Ignore IntelliJ project files #
 
 *.iml

@@ -39,6 +39,7 @@ use Perun::RegistrarAgent;
 use Perun::SecurityTeamsAgent;
 use Perun::BanOnResourceAgent;
 use Perun::BanOnFacilityAgent;
+use Perun::auth::OidcAuth;
 use Sys::Hostname;
 
 my $format = 'json';
@@ -63,40 +64,57 @@ sub new {
 		$format = $wanted_format;
 	}
 
-	# Check if the PERUN_URL is defined
-	if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash( { type => MISSING_URL } ); };
-	$self->{_url} = $ENV{PERUN_URL};
-
-	# Extract login/password from ENV if available
-	my ($login, $pass) = split '/', $ENV{PERUN_USER}, 2 if $ENV{PERUN_USER};
-
-	# Extrat RPC type from ENV (if not defined, use "Perun RPC")
+	# Extract RPC type from ENV (if not defined, use "Perun RPC")
 	my $rpcType = "Perun RPC";
 	if (defined($ENV{PERUN_RPC_TYPE})) {
 		$rpcType = $ENV{PERUN_RPC_TYPE};
 	}
 
-	$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 4000 );
+	# OIDC authorization
+	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
+		my $accessToken;
+
+		my $config = Perun::auth::OidcAuth::loadConfiguration();
+		$self->{_url} = $config->{"perun_api_endpoint"} . "/";
+
+		$accessToken = Perun::auth::OidcAuth::loadAccessToken();
+
+		$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 4000 );
+		$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+
+	} else {
+
+		# Check if the PERUN_URL is defined
+		if (!defined($ENV{PERUN_URL})) {die Perun::Exception->fromHash({ type => MISSING_URL });};
+		$self->{_url} = $ENV{PERUN_URL};
+
+		# Extract login/password from ENV if available
+		my ($login, $pass) = split '/', $ENV{PERUN_USER}, 2 if $ENV{PERUN_USER};
+
+		$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion", timeout => 4000);
+
+		# if $login is defined then use login/password authentication
+		if (defined($login)) {
+			my $uri = URI->new($self->{_url});
+			my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
+			$self->{_lwpUserAgent}->credentials($uri->host . ":" . $port, $rpcType, $login => $pass);
+		}
+	}
+
 	# Enable cookies if enviromental variable with path exists or home env is available
 	if (defined($ENV{PERUN_COOKIE})) {
-		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-		$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 } );
-	} elsif (defined($ENV{HOME})) {
+		local $SIG{'__WARN__'} = sub {warn @_ unless $_[0] =~ /does not seem to contain cookies$/;}; #supress one concrete warning message from package HTTP::Cookies
+		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 });
+	}
+	elsif (defined($ENV{HOME})) {
 		my $hostname = hostname();
 		my $grp = getpgrp;
-		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-		$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{HOME}."/perun-cookie-$hostname-$grp.txt", autosave => 1,
-				ignore_discard                     => 1 } );
+		local $SIG{'__WARN__'} = sub {warn @_ unless $_[0] =~ /does not seem to contain cookies$/;}; #supress one concrete warning message from package HTTP::Cookies
+		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/perun-cookie-$hostname-$grp.txt", autosave => 1,
+			ignore_discard                        => 1 });
 	}
 
 	$self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
-
-	# if $login is defined then use login/password authentication
-	if (defined($login)) {
-		my $uri = URI->new( $self->{_url} );
-		my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
-		$self->{_lwpUserAgent}->credentials( $uri->host.":".$port, $rpcType, $login => $pass );
-	}
 
 	# Connect to the Perun server
 	my $response = $self->{_lwpUserAgent}->request( GET($self->{_url}) );
@@ -105,16 +123,32 @@ sub new {
 	unless ($response->is_success) {
 		my $code = $response->code;
 
-		# Connection was OK, so check the return code
-		switch($code) {
-			case 401 { die Perun::Exception->fromHash( { type => AUTHENTICATION_FAILED } ); }
-			case 500 { die Perun::Exception->fromHash( { type => SERVER_ERROR, errorInfo =>
-						("HTTP STATUS CODE: $code") } ); }
-			case 302 { next; }
-			case 405 { next; }
-			case 404 { die Perun::Exception->fromHash( { type => WRONG_URL, errorInfo => $self->{_url} } ); }
-			else { die Perun::Exception->fromHash( { type => SERVER_ERROR, errorInfo =>
-						("HTTP STATUS CODE: $code") } ); }
+		# if using OIDC and ended with 401, token might be expired
+		if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1" && $code eq 401) {
+			my $accessToken;
+
+			# try to refresh tokens
+			Perun::auth::OidcAuth::refreshAccessToken();
+			$accessToken = Perun::auth::OidcAuth::getAccessToken();
+
+			$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+
+			# Reconnect to the Perun server
+			$response = $self->{_lwpUserAgent}->request( GET($self->{_url}) );
+		}
+
+		unless ($response->is_success) {
+			# Connection was OK, so check the return code
+			switch($code) {
+				case 401 {die Perun::Exception->fromHash({ type => AUTHENTICATION_FAILED });}
+				case 500 {die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo =>
+					("HTTP STATUS CODE: $code") });}
+				case 302 {next;}
+				case 405 {next;}
+				case 404 {die Perun::Exception->fromHash({ type => WRONG_URL, errorInfo => $self->{_url} });}
+				else {die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo =>
+					("HTTP STATUS CODE: $code") });}
+			}
 		}
 	}
 
@@ -146,11 +180,27 @@ sub call
 	my $fullUrl = "$self->{_url}/$format/$class/$method";
 
 	my $content = $self->{_jsonXs}->encode( $hash );
+
+	my $accessToken = Perun::auth::OidcAuth::loadAccessToken();
+	$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+
 	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
 	my $code = $response->code;
 
 	#print $response->decoded_content;
 	#print "\n\n\n";
+
+	# if using OIDC and ended with 401, token might be expired
+	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1" && $code eq 401) {
+		# try to refresh tokens
+		Perun::auth::OidcAuth::refreshAccessToken();
+		$accessToken = Perun::auth::OidcAuth::getAccessToken();
+
+		# retry
+		$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+		$response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
+		$code = $response->code;
+	}
 
 	unless ($code == 200 || $code == 400 || $code == 500) {
 		die Perun::Exception->fromHash( { type => 'http', errorInfo =>

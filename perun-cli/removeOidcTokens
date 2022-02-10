@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::auth::OidcAuth;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Removes access and refresh token saved for OIDC authentication.
+	------------------------------------
+	Available options:
+	--batch                         | -b batch
+	--help                          | -h prints this help
+
+};
+}
+
+our $batch;
+GetOptions ("help|h"    => sub {
+	print help();
+	exit 0;
+}, "batch|b"        => \$batch) || die help();
+
+my $message;
+
+if (Perun::auth::OidcAuth::getAccessToken()) {
+	Perun::auth::OidcAuth::removeAccessToken();
+	$message = "Removed access token. ";
+} else {
+	$message = "Access token is not stored. ";
+}
+
+if (Perun::auth::OidcAuth::getRefreshToken()) {
+	Perun::auth::OidcAuth::removeRefreshToken();
+	$message = $message . "Removed refresh token.";
+} else {
+	$message = $message . "Refresh token is not stored.";
+}
+
+if (Perun::auth::OidcAuth::getAccessToken() || Perun::auth::OidcAuth::getRefreshToken()) {
+	print STDERR "Could not remove tokens.";
+	exit 0;
+}
+
+printMessage($message, $batch);
