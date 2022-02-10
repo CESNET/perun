@@ -884,13 +884,7 @@ public class MailManagerImpl implements MailManager {
 
 				// try to use all group admins with specified preferred emails
 				List<RichUser> admins = AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getGroup(), Role.GROUPADMIN);
-				for (User admin : admins) {
-					attrSenderEmail = attrManager.getAttribute(registrarSession, admin, URN_USER_PREFERRED_MAIL);
-
-					if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
-						result.add(attrSenderEmail.valueAsString());
-					}
-				}
+				result.addAll(getUserPreferredMails(registrarSession, admins));
 
 				if (!result.isEmpty()) {
 					return result;
@@ -2171,20 +2165,36 @@ public class MailManagerImpl implements MailManager {
 			return emails;
 		}
 
-		// in case no pre-defined attribute was found, use all VO admins with specified preferred email
+		// in case no pre-defined attribute was found, use all valid VO admins with specified preferred email
 		try {
 			List<RichUser> admins = AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getVo(), Role.VOADMIN);
-			Attribute attrPreferredMail;
-
-			for (User admin : admins) {
-				attrPreferredMail = attrManager.getAttribute(registrarSession, admin, URN_USER_PREFERRED_MAIL);
-
-				if (attrPreferredMail != null && attrPreferredMail.getValue() != null) {
-					emails.add(attrPreferredMail.valueAsString());
-				}
-			}
+			emails.addAll(getUserPreferredMails(registrarSession, admins));
 		} catch (RoleCannotBeManagedException e) {
 			throw new InternalErrorException(e);
+		}
+
+		return emails;
+	}
+
+	/**
+	 * Get preferred email for each user.
+	 *
+	 * @param sess
+	 * @param users
+	 * @return list of preferred emails for given users.
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<String> getUserPreferredMails(PerunSession sess, List<RichUser> users)
+		throws AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<String> emails = new ArrayList<>();
+
+		for (User user : users) {
+			Attribute attrPreferredMail = attrManager.getAttribute(sess, user, URN_USER_PREFERRED_MAIL);
+
+			if (attrPreferredMail != null && attrPreferredMail.getValue() != null) {
+				emails.add(attrPreferredMail.valueAsString());
+			}
 		}
 
 		return emails;
