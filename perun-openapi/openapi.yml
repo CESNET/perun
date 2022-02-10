@@ -965,6 +965,48 @@ components:
         modifiedBy: { type: string }
         modifiedAt: { type: string }
 
+    PaginatedApplications:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/Application' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    ApplicationsPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+        sortColumn: { $ref: '#/components/schemas/ApplicationsOrderColumn' }
+        searchString: { type: string }
+        includeGroupApplications: { type: boolean }
+        states: { type: array, items: { $ref: '#/components/schemas/AppState'  } }
+        dateFrom: { type: string, format: date }
+        dateTo: { type: string, format: date }
+        userId: { type: integer }
+        groupId: { type: integer }
+      required:
+        - pageSize
+        - offset
+        - order
+        - sortColumn
+
+    ApplicationsOrderColumn:
+      type: string
+      enum:
+        - ID
+        - DATE_CREATED
+        - TYPE
+        - STATE
+        - SUBMITTER
+        - GROUP_NAME
+        - MODIFIED_BY
+
     MailType:
       type: string
       enum:
@@ -1843,6 +1885,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/PaginatedRichMembers"
+
+    PaginatedApplicationsResponse:
+      description: "returns Paginated<Application>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedApplications"
 
     ResourceResponse:
       description: "returns Resource"
@@ -14241,6 +14290,32 @@ paths:
           $ref: '#/components/responses/ListOfApplicationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getApplicationsPage:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationsPage
+      summary: Get page of applications from the given vo, based on the query attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedApplicationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedApplications
+              description: "input to getPaginatedApplications"
+              type: object
+              required:
+                - vo
+                - query
+              properties:
+                vo: { type: integer }
+                query: { $ref: '#/components/schemas/ApplicationsPageQuery' }
 
   /json/registrarManager/getApplicationsForGroup:
     get:
