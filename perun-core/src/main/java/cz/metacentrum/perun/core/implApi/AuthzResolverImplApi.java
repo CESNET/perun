@@ -552,7 +552,7 @@ public interface AuthzResolverImplApi {
 	void unsetRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleNotSetException;
 
 	/**
-	 * Get all richUser administrators for complementary object and role with specified attributes.
+	 * Get all valid richUser administrators (for group-based rights, status must be VALID for both Vo and group) for complementary object and role with specified attributes.
 	 *
 	 * @param mappingOfValues from which will be the query created (keys are column names and values are their ids)
 	 * @param onlyDirectAdmins if we do not want to include also members of authorized groups.

@@ -110,7 +110,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Get all managers for complementaryObject and role with specified attributes.
+	 * Get all valid richUser administrators (for group-based rights, status must be VALID for both Vo and group) for complementary object and role with specified attributes.
 	 *
 	 * @param role String Expected Role to filter managers by
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for

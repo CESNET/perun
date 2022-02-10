@@ -1176,7 +1176,7 @@ public class AuthzResolver {
 	}
 
 	/**
-	 * Get all richUser administrators for complementary object and role with specified attributes.
+	 * Get all valid richUser administrators (for group-based rights, status must be VALID for both Vo and group) for complementary object and role with specified attributes.
 	 *
 	 * If <b>onlyDirectAdmins</b> is <b>true</b>, return only direct users of the complementary object for role with specific attributes.
 	 * If <b>allUserAttributes</b> is <b>true</b>, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
