@@ -181,8 +181,11 @@ sub call
 
 	my $content = $self->{_jsonXs}->encode( $hash );
 
-	my $accessToken = Perun::auth::OidcAuth::loadAccessToken();
-	$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
+	my $accessToken = undef;
+	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
+		$accessToken = Perun::auth::OidcAuth::loadAccessToken();
+		$self->{_lwpUserAgent}->default_header('authorization' => "bearer $accessToken");
+	}
 
 	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
 	my $code = $response->code;
