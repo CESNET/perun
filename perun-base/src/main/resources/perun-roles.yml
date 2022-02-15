@@ -6596,6 +6596,8 @@ perun_roles_management:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
+    associated_read_roles:
+      - PERUNOBSERVER
 
   PERUNOBSERVER:
     primary_object:
@@ -6607,6 +6609,7 @@ perun_roles_management:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
+    associated_read_roles: []
 
   AUDITCONSUMERADMIN:
     primary_object:
@@ -6618,6 +6621,7 @@ perun_roles_management:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
+    associated_read_roles: []
 
   VOADMIN:
     primary_object: Vo
@@ -6634,6 +6638,8 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+    associated_read_roles:
+      - VOOBSERVER
 
   GROUPADMIN:
     primary_object: Group
@@ -6654,6 +6660,8 @@ perun_roles_management:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+    associated_read_roles:
+      - GROUPOBSERVER
 
   GROUPOBSERVER:
     primary_object: Group
@@ -6674,6 +6682,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+    associated_read_roles: []
 
   SELF:
     primary_object:
@@ -6681,6 +6690,7 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
   FACILITYADMIN:
     primary_object: Facility
@@ -6697,6 +6707,8 @@ perun_roles_management:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+    associated_read_roles:
+      - FACILITYOBSERVER
 
   FACILITYOBSERVER:
     primary_object: Facility
@@ -6713,6 +6725,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+    associated_read_roles: []
 
   TRUSTEDFACILITYADMIN:
     primary_object: Vo
@@ -6729,6 +6742,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+    associated_read_roles: []
 
   RESOURCEADMIN:
     primary_object: Resource
@@ -6756,6 +6770,8 @@ perun_roles_management:
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYOBSERVER: Facility
       - VOOBSERVER: Vo
+    associated_read_roles:
+      - RESOURCEOBSERVER
 
   RESOURCEOBSERVER:
     primary_object: Resource
@@ -6783,6 +6799,7 @@ perun_roles_management:
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYOBSERVER: Facility
       - VOOBSERVER: Vo
+    associated_read_roles: []
 
   RESOURCESELFSERVICE:
     primary_object: Resource
@@ -6810,6 +6827,7 @@ perun_roles_management:
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYOBSERVER: Facility
       - VOOBSERVER: Vo
+    associated_read_roles: []
 
   REGISTRAR:
     primary_object:
@@ -6817,6 +6835,7 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
   ENGINE:
     primary_object:
@@ -6824,6 +6843,7 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
   RPC:
     primary_object:
@@ -6831,6 +6851,7 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
   NOTIFICATIONS:
     primary_object:
@@ -6838,6 +6859,7 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
   SERVICEUSER:
     primary_object:
@@ -6845,6 +6867,7 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
   SPONSOR:
     primary_object: Vo
@@ -6861,6 +6884,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+    associated_read_roles: []
 
   VOOBSERVER:
     primary_object: Vo
@@ -6877,6 +6901,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+    associated_read_roles: []
 
   TOPGROUPCREATOR:
     primary_object: Vo
@@ -6893,6 +6918,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+    associated_read_roles: []
 
   SECURITYADMIN:
     primary_object: SecurityTeam
@@ -6908,6 +6934,7 @@ perun_roles_management:
       - PERUNADMIN:
       - PERUNOBSERVER:
       - SECURITYADMIN: SecurityTeam
+    associated_read_roles: []
 
   CABINETADMIN:
     primary_object:
@@ -6921,6 +6948,7 @@ perun_roles_management:
       - PERUNADMIN:
       - PERUNOBSERVER:
       - CABINETADMIN:
+    associated_read_roles: []
 
   MEMBERSHIP:
     primary_object:
@@ -6931,6 +6959,7 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
   UNKNOWN:
     primary_object:
@@ -6938,5 +6967,6 @@ perun_roles_management:
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
+    associated_read_roles: []
 
 ...

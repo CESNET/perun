@@ -147,8 +147,9 @@ public class PerunRolesLoader {
 			List<Map<String, String>> privilegedRolesToRead = createMapFromPrivilegedRoles(roleNode.get("privileged_roles_to_read"));
 			Map<String, String> entitiesToManage = createMapFromJsonNode(roleNode.get("entities_to_manage"));
 			Map<String, String> objectsToAssign = createMapFromJsonNode(roleNode.get("assign_to_objects"));
+			List<String> associatedReadRoles = createListFromJsonNode(roleNode.get("associated_read_roles"));
 
-			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, associatedReadRoles));
 		}
 
 		return rules;
@@ -185,6 +186,18 @@ public class PerunRolesLoader {
 		}
 
 		return resultMap;
+	}
+
+	private List<String> createListFromJsonNode(JsonNode node) {
+		List<String> resultList = new ArrayList<>();
+
+		Iterator<JsonNode> nodeArray = node.elements();
+		while (nodeArray.hasNext()) {
+			String value = nodeArray.next().asText();
+			resultList.add(value);
+		}
+
+		return resultList;
 	}
 
 	private JsonNode loadConfigurationFile(Resource resource) {

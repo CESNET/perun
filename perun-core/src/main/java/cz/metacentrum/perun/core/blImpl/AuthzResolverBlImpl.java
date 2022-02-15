@@ -1021,6 +1021,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, member);
 
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
+
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
@@ -1058,6 +1063,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, resource);
+
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
@@ -1097,6 +1107,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, facility);
 
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
+
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
@@ -1135,6 +1150,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, group);
 
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
+
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
@@ -1165,6 +1185,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, null);
+
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
@@ -1197,6 +1222,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, null);
 
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
+
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
@@ -1227,6 +1257,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Vo vo) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, vo, null);
+
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
@@ -1259,6 +1294,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, null);
 
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
+
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
@@ -1289,6 +1329,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, null);
+
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
@@ -1321,6 +1366,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, facility, null);
 
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
+
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
@@ -1351,6 +1401,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Host host) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, host, null);
+
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
@@ -1383,6 +1438,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, ues, null);
 
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
+
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
 		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
@@ -1413,6 +1473,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
+
+		// Check roles which are authorized by default
+		if (hasAccessByDefault(sess, actionType)) {
+			return true;
+		}
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
@@ -1479,7 +1544,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 
 			for (AttributePolicy policy : policyCollection.getPolicies()) {
-				if (!resolvePolicyPrivileges(sess, associatedObjects, policy) && !resolveMembershipPrivileges(sess, policy, associatedObjects)) {
+				if (!resolvePolicyPrivileges(sess, associatedObjects, policy, policyCollection.getAction()) && !resolveMembershipPrivileges(sess, policy, associatedObjects)) {
 					collectionSatisfied = false;
 					break;
 				}
@@ -1494,17 +1559,31 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Resolves single attribute policy - checks, if principal has required role in at least one of retrieved associated objects
+	 * Resolves single attribute policy - checks, if principal has required role in at least one of retrieved associated objects.
+	 * If policy is required for READ action, also associated roles are taken into account.
 	 * @param sess session
 	 * @param associatedObjects map of object types with actual associated objects
 	 * @param policy attribute policy to be checked
+	 * @param actionType type of action (READ/WRITE)
 	 * @return true if principal is privileged for attribute, false otherwise
 	 */
-	private static boolean resolvePolicyPrivileges(PerunSession sess, Map<RoleObject, Set<Integer>> associatedObjects, AttributePolicy policy) {
+	private static boolean resolvePolicyPrivileges(PerunSession sess, Map<RoleObject, Set<Integer>> associatedObjects, AttributePolicy policy, AttributeAction actionType) {
 		AuthzRoles principalRoles = sess.getPerunPrincipal().getRoles();
 
-		if (policy.getObject().equals(RoleObject.None) && principalRoles.hasRole(policy.getRole())) {
-			return true;
+		if (policy.getObject().equals(RoleObject.None)) {
+			if (principalRoles.hasRole(policy.getRole())) {
+				return true;
+			}
+			if (actionType.equals(AttributeAction.READ)) {
+				try {
+					RoleManagementRules roleRules = AuthzResolverImpl.getRoleManagementRules(policy.getRole());
+					if (roleRules.getAssociatedReadRoles().stream().anyMatch(principalRoles::hasRole)) {
+						return true;
+					}
+				} catch (RoleManagementRulesNotExistsException e) {
+					throw new InternalErrorException("Management rules not exist for the role " + policy.getRole(), e);
+				}
+			}
 		}
 
 		if (associatedObjects.containsKey(policy.getObject())) {
@@ -1512,6 +1591,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			for (Integer objectId : objectsToCheck) {
 				if (principalRoles.hasRole(policy.getRole(), policy.getObject().name(), objectId)) {
 					return true;
+				}
+				if (actionType.equals(AttributeAction.READ)) {
+					try {
+						RoleManagementRules roleRules = AuthzResolverImpl.getRoleManagementRules(policy.getRole());
+						if (roleRules.getAssociatedReadRoles().stream().anyMatch(role -> principalRoles.hasRole(role, policy.getObject().name(), objectId))) {
+							return true;
+						}
+					} catch (RoleManagementRulesNotExistsException e) {
+						throw new InternalErrorException("Management rules not exist for the role " + policy.getRole(), e);
+					}
 				}
 			}
 		} else {
@@ -1534,6 +1623,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return MembershipPrivilegesResolver.getValue(policy.getObject().name()).apply(sess, associatedObjects.get(policy.getObject()));
 		}
 		return false;
+	}
+
+	/**
+	 * Resolves privileges on attribute for default roles by type.
+	 * @param sess from which will be principal fetched
+	 * @param actionType type of action (READ / WRITE)
+	 * @return true if principal is authorized by default for given action type
+	 */
+	private static boolean hasAccessByDefault(PerunSession sess, AttributeAction actionType) {
+		List<String> authorizedDefaultReadRoles = List.of(Role.PERUNADMIN, Role.PERUNOBSERVER, Role.RPC, Role.ENGINE);
+		List<String> authorizedDefaultWriteRoles = List.of(Role.PERUNADMIN);
+
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
+			return false;
+		}
+
+		List<String> principalRoles = sess.getPerunPrincipal().getRoles().getRolesNames();
+
+		return switch (actionType) {
+			case READ -> principalRoles.stream().anyMatch(authorizedDefaultReadRoles::contains);
+			case WRITE -> principalRoles.stream().anyMatch(authorizedDefaultWriteRoles::contains);
+		};
 	}
 
 	public static boolean isAuthorizedForGroup(PerunSession sess, String policy, Integer groupId, Integer voId) {
