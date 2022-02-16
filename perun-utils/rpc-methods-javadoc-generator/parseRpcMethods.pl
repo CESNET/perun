@@ -93,7 +93,7 @@ $objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"sh
 $objectExamples{"List&lt;RichGroup&gt;"} = $listPrepend . $objectExamples{"RichGroup"} . $listAppend;
 $objectExamples{"List<RichGroup>"} = $objectExamples{"List&lt;RichGroup&gt;"};
 
-$objectExamples{"Application} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"Application\" }";
+$objectExamples{"Application"} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"Application\" }";
 $objectExamples{"List&lt;Application&gt;"} = $listPrepend . $objectExamples{"Application"} . $listAppend;
 $objectExamples{"List<Application>"} = $objectExamples{"List&lt;Application&gt;"};
 
