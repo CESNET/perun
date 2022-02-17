@@ -625,6 +625,19 @@ public interface GroupsManagerBl {
 	List<Group> getUserGroups(PerunSession sess, User user);
 
 	/**
+	 * Return groups where user is member with allowed statuses in vo and group.
+	 * If statuses are empty or null, all statuses are used.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param memberStatuses allowed statuses of member in VO
+	 * @param memberGroupStatuses allowed statuses of member in group
+	 * @return list of groups
+	 * @throws InternalErrorException
+	 */
+	List<Group> getUserGroups(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses);
+
+	/**
 	 * Returns group members in the RichMember object, which contains Member+User data.
 	 *
 	 * @param sess

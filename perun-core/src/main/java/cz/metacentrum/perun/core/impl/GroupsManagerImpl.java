@@ -395,6 +395,33 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getUserGroups(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses) {
+		if (memberStatuses == null || memberStatuses.isEmpty()) {
+			memberStatuses = List.of(Status.values());
+		}
+		if (memberGroupStatuses == null || memberGroupStatuses.isEmpty()) {
+			memberGroupStatuses = List.of(MemberGroupStatus.values());
+		}
+
+		try {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			List<Integer> memberStatusesCodes = memberStatuses.stream().map(Status::getCode).toList();
+			List<Integer> memberGroupStatusesCodes = memberGroupStatuses.stream().map(MemberGroupStatus::getCode).toList();
+			parameters.addValue("voStatuses", memberStatusesCodes);
+			parameters.addValue("groupStatuses", memberGroupStatusesCodes);
+			parameters.addValue("uid", user.getId());
+
+			return namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + "from groups" +
+				" join groups_members on groups.id=groups_members.group_id and groups_members.source_group_status in (:groupStatuses)" +
+				" join members on members.id=groups_members.member_id where members.user_id=:uid and members.status in (:voStatuses)", parameters, GROUP_MAPPER);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public boolean isUserMemberOfGroup(PerunSession sess, User user, Group group) {
 		try {
 			return 1 <= jdbc.queryForInt("select count(1) from groups_members join members on members.id = member_id where members.user_id=? and groups_members.group_id=?", user.getId(), group.getId());

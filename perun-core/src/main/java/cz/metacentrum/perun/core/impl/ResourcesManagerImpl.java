@@ -43,6 +43,8 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.sql.Array;
@@ -93,6 +95,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources_bans.modified_by as res_bans_modified_by, resources_bans.created_by_uid as res_bans_created_by_uid, resources_bans.modified_by_uid as res_bans_modified_by_uid";
 
 	private final JdbcPerunTemplate jdbc;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	protected static final RowMapper<Resource> RESOURCE_MAPPER = (resultSet, i) -> {
 		Resource resource = new Resource();
@@ -209,6 +212,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public ResourcesManagerImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
+		this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 
 		// Initialize resources manager
 		this.initialize();
@@ -462,6 +467,42 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join members on members.id=groups_members.member_id" +
 					" where resources.facility_id=? and members.user_id=? and members.status!=? and members.status!=?",
 				RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(), user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		}	catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getResources(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses, List<GroupResourceStatus> groupResourceStatuses) {
+		if (memberStatuses == null || memberStatuses.isEmpty()) {
+			memberStatuses = List.of(Status.values());
+		}
+		if (memberGroupStatuses == null || memberGroupStatuses.isEmpty()) {
+			memberGroupStatuses = List.of(MemberGroupStatus.values());
+		}
+		if (groupResourceStatuses == null || groupResourceStatuses.isEmpty()) {
+			groupResourceStatuses = List.of(GroupResourceStatus.values());
+		}
+
+		String groupResourceStatusesSql = groupResourceStatuses.stream()
+			.map(status -> "'" + status.toString() + "'")
+			.collect(Collectors.joining(", "));
+
+		try {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			List<Integer> memberStatusesCodes = memberStatuses.stream().map(Status::getCode).toList();
+			List<Integer> memberGroupStatusesCodes = memberGroupStatuses.stream().map(MemberGroupStatus::getCode).toList();
+			parameters.addValue("voStatuses", memberStatusesCodes);
+			parameters.addValue("groupStatuses", memberGroupStatusesCodes);
+			parameters.addValue("uid", user.getId());
+
+			return namedParameterJdbcTemplate.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
+					" join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status in (" + groupResourceStatusesSql + ")" +
+					" join groups_members on groups_members.group_id=groups_resources_state.group_id and groups_members.source_group_status in (:groupStatuses)" +
+					" join members on members.id=groups_members.member_id" +
+					" where members.user_id=:uid and members.status in (:voStatuses)", parameters, RESOURCE_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		}	catch (RuntimeException e) {

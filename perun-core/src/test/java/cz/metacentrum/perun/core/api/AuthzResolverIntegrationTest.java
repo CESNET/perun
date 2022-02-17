@@ -546,6 +546,80 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	public void groupMembershipIsAuthorized() throws Exception {
+		System.out.println(CLASS_NAME + "groupMembershipIsAuthorized");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final Group createdGroup = setUpGroup(createdVo, createdMember);
+
+		AttributeDefinition attrDef = setUpGroupAttributeDefinition();
+		perun.getAttributesManagerBl().setAttribute(sess, createdGroup, new Attribute(attrDef));
+
+		List<AttributePolicy> policies = List.of(new AttributePolicy(1, Role.MEMBERSHIP, RoleObject.Group, 1));
+		List<AttributePolicyCollection> policyCollections = List.of(new AttributePolicyCollection(1, attrDef.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+
+		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdGroup));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdGroup));
+	}
+
+	@Test
+	public void facilityMembershipIsAuthorized() throws Exception {
+		System.out.println(CLASS_NAME + "facilityMembershipIsAuthorized");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final Group createdGroup = setUpGroup(createdVo, createdMember);
+		final Facility createdFacility = setUpFacility();
+		final Resource createdResource = setUpResource(createdVo, createdFacility);
+
+		AttributeDefinition attrDef = setUpFacilityAttributeDefinition();
+		perun.getAttributesManagerBl().setAttribute(sess, createdFacility, new Attribute(attrDef));
+
+		List<AttributePolicy> policies = List.of(new AttributePolicy(1, Role.MEMBERSHIP, RoleObject.Facility, 1));
+		List<AttributePolicyCollection> policyCollections = List.of(new AttributePolicyCollection(1, attrDef.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+
+		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		// group is not assigned to resource yet
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdFacility));
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, createdResource, false, false, false);
+		AuthzResolver.refreshAuthz(session);
+
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdFacility));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdFacility));
+	}
+
+	@Test
+	public void voMembershipIsAuthorized() throws Exception {
+		System.out.println(CLASS_NAME + "voMembershipIsAuthorized");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final Group createdGroup = perun.getGroupsManagerBl().createGroup(sess, createdVo, new Group("Test group", "test group"));
+
+		AttributeDefinition attrDef = setUpGroupAttributeDefinition();
+		perun.getAttributesManagerBl().setAttribute(sess, createdGroup, new Attribute(attrDef));
+
+		List<AttributePolicy> policies = List.of(new AttributePolicy(1, Role.MEMBERSHIP, RoleObject.Vo, 1));
+		List<AttributePolicyCollection> policyCollections = List.of(new AttributePolicyCollection(1, attrDef.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+
+		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdGroup));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdGroup));
+	}
+
+	@Test
 	public void setRoleResourceSelfServiceForUser() throws Exception {
 		System.out.println(CLASS_NAME + "setRoleResourceSelfServiceForUser");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
@@ -1550,6 +1624,17 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		attrDef.setType(Integer.class.getName());
 		attrDef.setFriendlyName("testGroupAttr");
 		attrDef.setDisplayName("test group attr");
+
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		return attrDef;
+	}
+
+	private AttributeDefinition setUpFacilityAttributeDefinition() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attrDef.setType(Integer.class.getName());
+		attrDef.setFriendlyName("testFacilityAttribute");
+		attrDef.setDisplayName("test facility attr");
 
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 		return attrDef;

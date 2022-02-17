@@ -16,8 +16,10 @@ import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPolicy;
@@ -1028,11 +1030,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1071,11 +1070,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1114,11 +1110,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1157,11 +1150,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1193,11 +1183,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1229,11 +1216,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1265,11 +1249,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1301,11 +1282,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1337,11 +1315,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1373,11 +1348,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1409,11 +1381,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1445,11 +1414,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1481,11 +1447,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<AttributePolicyCollection> policyCollections = getAttributePolicyCollections(sess, actionType, attrDef);
 
-		// If the user has no roles and this attribute does not have any rule for MEMBERSHIP, deny access
-		if ((sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty())
-			&& policyCollections.stream()
-			.flatMap(c -> c.getPolicies().stream())
-			.noneMatch(p -> p.getRole().equals(Role.MEMBERSHIP))) {
+		// If the user has no roles deny access
+		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
 		}
 
@@ -1544,7 +1507,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 
 			for (AttributePolicy policy : policyCollection.getPolicies()) {
-				if (!resolvePolicyPrivileges(sess, associatedObjects, policy, policyCollection.getAction()) && !resolveMembershipPrivileges(sess, policy, associatedObjects)) {
+				if (!resolvePolicyPrivileges(sess, associatedObjects, policy, policyCollection.getAction())) {
 					collectionSatisfied = false;
 					break;
 				}
@@ -1607,21 +1570,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new InternalErrorException("Objects of type " + policy.getObject().name() + " were not retrieved for attribute policy check.");
 		}
 
-		return false;
-	}
-
-	/**
-	 * Resolve membership privileges of single policy for the principal
-	 *
-	 * @param sess from which will be principal fetched
-	 * @param policy policy which may contain MEMBERSHIP role
-	 * @param associatedObjects map of object types with actual associated objects to which will be membership checked
-	 * @return true if roles contains MEMBERSHIP role and the principal satisfies that, false otherwise.
-	 */
-	private static boolean resolveMembershipPrivileges(PerunSession sess, AttributePolicy policy, Map<RoleObject, Set<Integer>> associatedObjects) {
-		if (policy.getRole().equals(Role.MEMBERSHIP)) {
-			return MembershipPrivilegesResolver.getValue(policy.getObject().name()).apply(sess, associatedObjects.get(policy.getObject()));
-		}
 		return false;
 	}
 
@@ -2285,6 +2233,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (user.isServiceUser()) {
 					roles.putAuthzRole(Role.SERVICEUSER);
 				}
+				addMembershipRole(sess, roles, user);
 			}
 
 			setAdditionalRoles(sess, roles);
@@ -2387,6 +2336,29 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 		groupRoles.put("Group", newGroupsIds);
 		authzRoles.put(role, groupRoles);
+
+		return authzRoles;
+	}
+
+	/**
+	 * Adds valid membership roles in VOs, groups, facilities and resources to roles.
+	 *
+	 * @param authzRoles authzRoles for the user to append membership role to
+	 * @param user       user
+	 * @return the same object authzRoles, which is given in the parameter, with loaded membership roles
+	 */
+	private static AuthzRoles addMembershipRole(PerunSession sess, AuthzRoles authzRoles, User user) {
+		perunBl.getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID)
+				.forEach(member -> authzRoles.putAuthzRole(Role.MEMBERSHIP, Vo.class, member.getVoId()));
+
+		perunBl.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), List.of(GroupResourceStatus.ACTIVE))
+				.forEach(resource -> {
+					authzRoles.putAuthzRole(Role.MEMBERSHIP, Resource.class, resource.getId());
+					authzRoles.putAuthzRole(Role.MEMBERSHIP, Facility.class, resource.getFacilityId());
+				});
+
+		perunBl.getGroupsManagerBl().getUserGroups(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID))
+				.forEach(group -> authzRoles.putAuthzRole(Role.MEMBERSHIP, Group.class, group.getId()));
 
 		return authzRoles;
 	}
@@ -3746,76 +3718,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		public Set<Integer> apply(PerunSession sess, String key) {
 			return function.apply(sess, key);
 		}
-	}
-
-	/**
-	 * Enum defines PerunBean's name and action. The action checks if the principal is a valid member of at least one related object of that name from the given ids.
-	 */
-	private enum MembershipPrivilegesResolver implements BiFunction<PerunSession, Set<Integer>, Boolean> {
-		Vo((sess, objectIds) -> {
-			if (sess.getPerunPrincipal().getUser() == null) return false;
-			List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
-			for (Integer objectId: objectIds) {
-				for (Member userMember : principalUserMembers) {
-					if (userMember.getVoId() == objectId && userMember.getStatus() == Status.VALID) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}),
-		Facility((sess, objectIds) -> {
-			if (sess.getPerunPrincipal().getUser() == null) return false;
-			HashSet<Resource> resourcesFromUser = new HashSet<>();
-			List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
-			for (Member member : principalUserMembers) {
-				if (member.getStatus() != Status.VALID) continue;
-				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member));
-			}
-			for (Resource resource: resourcesFromUser) {
-				if (objectIds.contains(resource.getFacilityId())) return true;
-			}
-			return false;
-		}),
-		Group((sess, objectIds) -> {
-			if (sess.getPerunPrincipal().getUser() == null) return false;
-			List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
-			for (Member member : principalUserMembers) {
-				if (member.getStatus() != Status.VALID) continue;
-				List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, member);
-				for (Group group : memberGroups) {
-					if (objectIds.contains(group.getId())) return true;
-				}
-			}
-			return false;
-		}),
-		Default((sess, objectIds) -> false);
-
-		private BiFunction<PerunSession, Set<Integer>, Boolean> function;
-
-		MembershipPrivilegesResolver(final BiFunction<PerunSession, Set<Integer>, Boolean> function) {
-			this.function = function;
-		}
-
-		/**
-		 * Get MembershipPrivilegesResolver value by the given name or default value if the name does not exist.
-		 *
-		 * @param name of the value which will be retrieved if exists.
-		 * @return MembershipPrivilegesResolver value.
-		 */
-		public static MembershipPrivilegesResolver getValue(String name) {
-			try {
-				return MembershipPrivilegesResolver.valueOf(name);
-			} catch (IllegalArgumentException ex) {
-				return MembershipPrivilegesResolver.Default;
-			}
-		}
-
-		@Override
-		public Boolean apply(PerunSession sess, Set<Integer> objectIds) {
-			return function.apply(sess, objectIds);
-		}
-
 	}
 
 	/**
