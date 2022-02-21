@@ -967,7 +967,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all group administrators for supported role and specific group.
-	 *
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
 	 *
 	 * Supported roles: GroupAdmin
@@ -1040,6 +1040,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 *

@@ -442,8 +442,9 @@ public interface GroupsManagerImplApi {
 	 */
 	List<Group> getSubGroups(PerunSession perunSession, Group parentGroup);
 
-	/** Gets list of all administrators of this group.
-	 * If some group is administrator of the given group, all members are included in the list.
+	/**
+	 * Gets list of all administrators of this group.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * @param perunSession
 	 * @param group

@@ -649,7 +649,8 @@ public interface FacilitiesManagerBl {
 	 */
 
 	/**
-	 * Get list of all user administrators for supported role and given facility.
+	 * Gets list of all user administrators of the Facility.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
@@ -666,7 +667,8 @@ public interface FacilitiesManagerBl {
 	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins);
 
 	/**
-	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
+	 * Gets list of all richUser administrators of the Facility.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
@@ -674,7 +676,7 @@ public interface FacilitiesManagerBl {
 	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
 	 * @param perunSession
-	 * @param group
+	 * @param facility
 	 *
 	 * @param specificAttributes list of specified attributes which are needed in object richUser
 	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
@@ -782,7 +784,8 @@ public interface FacilitiesManagerBl {
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes);
 
 	/**
-	 * Returns list of Facilities, where the user is an admin.
+	 * Get all facilities where the user is admin.
+	 * Including facilities, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param user

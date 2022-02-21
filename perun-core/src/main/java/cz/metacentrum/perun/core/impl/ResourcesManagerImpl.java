@@ -1138,7 +1138,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, resource);
 			for(Group authorizedGroup : listOfGroupAdmins) {
 				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
-					"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
+					"join groups_members on groups_members.member_id=members.id and groups_members.source_group_status=? where groups_members.group_id=? and members.status=?", UsersManagerImpl.USER_MAPPER, MemberGroupStatus.VALID.getCode(), authorizedGroup.getId(), Status.VALID.getCode()));
 			}
 
 			return new ArrayList(setOfAdmins);
@@ -1182,10 +1182,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources " +
 					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-					" left outer join members on members.id=groups_members.member_id " +
-					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) ",
-				RESOURCE_MAPPER, user.getId(), user.getId(), Role.RESOURCEADMIN.toLowerCase());
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
+					" left outer join members on members.id=groups_members.member_id" +
+					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null)",
+				RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), user.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1196,11 +1196,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
 					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-					" left outer join members on members.id=groups_members.member_id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
+					" left outer join members on members.id=groups_members.member_id" +
 					" where resources.facility_id=? and resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
-					" and authz.role_id=(select id from roles where name=?) "
-				,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase());
+					" and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
+				,RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -1213,11 +1213,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
 					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-					" left outer join members on members.id=groups_members.member_id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=? " +
+					" left outer join members on members.id=groups_members.member_id" +
 					" where resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
-					" and authz.role_id=(select id from roles where name=?) "
-				,RESOURCE_MAPPER, vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase());
+					" and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
+				,RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

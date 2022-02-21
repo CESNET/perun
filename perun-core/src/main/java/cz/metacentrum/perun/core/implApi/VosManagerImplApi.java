@@ -105,7 +105,7 @@ public interface VosManagerImplApi {
 
 	/**
 	 * Get list of user administrators of specific vo for specific role.
-	 * If some group is administrator of the VO, all members are included in the list.
+	 * If some group is administrator of the VO, all VALID members are included in the list.
 	 *
 	 * @param sess
 	 * @param vo

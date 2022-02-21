@@ -955,7 +955,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all facility administrators for supported role and given facility.
-	 *
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
 	 *
 	 * Supported roles: FacilityAdmin
@@ -974,7 +974,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Get list of all facility administrators for supported role and given facility.
-	 *
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
 	 *
 	 * Supported roles: FacilityAdmin
@@ -1048,6 +1048,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
@@ -1070,6 +1071,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
@@ -1190,6 +1192,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns list of Facilities, where the user is an Administrator.
+	 * Including facilities, where the user is a VALID member of authorized group.
 	 *
 	 * @param user int User <code>id</code>
 	 * @return List<Facility> Found Facilities

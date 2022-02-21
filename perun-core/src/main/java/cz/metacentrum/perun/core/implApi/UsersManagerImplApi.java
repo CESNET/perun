@@ -487,7 +487,7 @@ public interface UsersManagerImplApi {
 
 	/**
 	 * Returns list of VOs, where the user is an Administrator.
-	 * Including VOs, where the user is a member of authorized group.
+	 * Including VOs, where the user is a VALID member of authorized group.
 	 *
 	 * @param perunSession
 	 * @param user
@@ -498,7 +498,7 @@ public interface UsersManagerImplApi {
 
 	/**
 	 * Returns list of Groups in Perun, where the User is a direct Administrator
-	 * or he is a member of any group which is Administrator of some of these Groups.
+	 * or he is a VALID member of any group which is Administrator of some of these Groups.
 	 *
 	 * @param perunSession
 	 * @param user
@@ -511,7 +511,7 @@ public interface UsersManagerImplApi {
 
 	/**
 	 * Returns list of Groups in selected Vo, where the User is a direct Administrator
-	 * or he is a member of any group which is Administrator of some of these Groups.
+	 * or he is a VALID member of any group which is Administrator of some of these Groups.
 	 *
 	 * @param sess
 	 * @param vo selected Vo under which we are looking for groups
