@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
+import cz.metacentrum.perun.registrar.model.RichApplication;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
 import org.apache.commons.lang3.StringUtils;
@@ -2057,7 +2058,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public Paginated<Application> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query) throws PerunException {
+	public Paginated<RichApplication> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query) throws PerunException {
 		vosManager.checkVoExists(userSession, vo);
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
@@ -2083,7 +2084,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		String searchQuery = getSQLWhereForApplicationsPage(query, namedParams);
 
-		Paginated<Application> applications = namedJdbc.query(
+		Paginated<RichApplication> applications = namedJdbc.query(
 			APP_SELECT_PAGE +
 				" WHERE a.vo_id=(:voId)" +
 				(query.getStates() == null || query.getStates().isEmpty() ? "" : " AND a.state IN (:states) ") +
@@ -2098,7 +2099,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			, namedParams,
 			getPaginatedApplicationsExtractor(query));
 
+		if (applications == null) {
+			return new Paginated<>(new ArrayList<>(), query.getOffset(), query.getPageSize(), 0);
+		}
 
+		for (RichApplication app : applications.getData()) {
+			List<ApplicationFormItemData> appData = new ArrayList<>();
+			if (query.getGetDetails()) {
+				appData = getApplicationDataById(userSession, app.getId());
+			}
+			app.setFormData(appData);
+		}
 
 		return applications;
 	}
@@ -4545,14 +4556,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param query query data
 	 * @return extractor, that can be used to extract returned paginated applications from db
 	 */
-	private static ResultSetExtractor<Paginated<Application>> getPaginatedApplicationsExtractor(ApplicationsPageQuery query) {
+	private static ResultSetExtractor<Paginated<RichApplication>> getPaginatedApplicationsExtractor(ApplicationsPageQuery query) {
 		return resultSet -> {
-			List<Application> applications = new ArrayList<>();
+			List<RichApplication> applications = new ArrayList<>();
 			int total_count = 0;
 			int row = 0;
 			while (resultSet.next()) {
 				total_count = resultSet.getInt("total_count");
-				applications.add(APP_MAPPER.mapRow(resultSet, row));
+				Application app = APP_MAPPER.mapRow(resultSet, row);
+				if (app != null) {
+					applications.add(new RichApplication(app));
+				}
 				row++;
 			}
 			return new Paginated<>(applications, query.getOffset(), query.getPageSize(), total_count);

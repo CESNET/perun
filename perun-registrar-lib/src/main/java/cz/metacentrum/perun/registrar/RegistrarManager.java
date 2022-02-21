@@ -11,6 +11,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
+import cz.metacentrum.perun.registrar.model.RichApplication;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 
 import java.time.LocalDate;
@@ -276,7 +277,7 @@ public interface RegistrarManager {
 	 * @return page of requested applications
 	 * @throws PerunException
 	 */
-	Paginated<Application> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query) throws PerunException;
+	Paginated<RichApplication> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query) throws PerunException;
 
 	/**
 	 * Gets all applications in a given state for a given VO.
