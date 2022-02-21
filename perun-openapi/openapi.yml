@@ -965,12 +965,22 @@ components:
         modifiedBy: { type: string }
         modifiedAt: { type: string }
 
-    PaginatedApplications:
+    RichApplication:
+      allOf:
+        - $ref: '#/components/schemas/Application'
+        - properties:
+            formData: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+          required:
+            - formData
+
+
+
+    PaginatedRichApplications:
       properties:
         offset: { type: integer }
         pageSize: { type: integer }
         totalCount: { type: integer }
-        data: { type: array, items: { $ref: '#/components/schemas/Application' } }
+        data: { type: array, items: { $ref: '#/components/schemas/RichApplication' } }
       required:
         - offset
         - pageSize
@@ -985,6 +995,7 @@ components:
         sortColumn: { $ref: '#/components/schemas/ApplicationsOrderColumn' }
         searchString: { type: string }
         includeGroupApplications: { type: boolean }
+        getDetails: { type: boolean }
         states: { type: array, items: { $ref: '#/components/schemas/AppState'  } }
         dateFrom: { type: string, format: date }
         dateTo: { type: string, format: date }
@@ -1886,12 +1897,12 @@ components:
           schema:
             $ref: "#/components/schemas/PaginatedRichMembers"
 
-    PaginatedApplicationsResponse:
-      description: "returns Paginated<Application>"
+    PaginatedRichApplicationsResponse:
+      description: "returns Paginated<RichApplication>"
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/PaginatedApplications"
+            $ref: "#/components/schemas/PaginatedRichApplications"
 
     ResourceResponse:
       description: "returns Resource"
@@ -14299,7 +14310,7 @@ paths:
       summary: Get page of applications from the given vo, based on the query attributes.
       responses:
         '200':
-          $ref: '#/components/responses/PaginatedApplicationsResponse'
+          $ref: '#/components/responses/PaginatedRichApplicationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:
