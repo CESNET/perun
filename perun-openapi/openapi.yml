@@ -872,8 +872,6 @@ components:
         - HTML_COMMENT
         - SUBMIT_BUTTON
         - AUTO_SUBMIT_BUTTON
-        - FROM_FEDERATION_SHOW
-        - FROM_FEDERATION_HIDDEN
         - PASSWORD
         - VALIDATED_EMAIL
         - TEXTFIELD

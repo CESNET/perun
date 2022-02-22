@@ -1341,7 +1341,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	/*#
 	 * Update data of specific application form item, which was originally submitted by the user.
 	 * Only PerunAdmin can use this. Only applications in NEW or VERIFIED state can have form items updated.
-	 * Form items of types: FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT,
+	 * Form items of types: USERNAME, PASSWORD, HEADING, HTML_COMMENT,
 	 * SUBMIT_BUTTON and AUTO_SUBMIT_BUTTON are not updatable by this method.
 	 *
 	 * @param appId int ID of Application this data belongs to.
@@ -1362,7 +1362,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	/*#
 	 * Update data of application form items, which were originally submitted by the user.
 	 * Only user who submitted the application can use this. Only applications in NEW or VERIFIED state can have form items updated.
-	 * Form items of types: FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT,
+	 * Form items of types: USERNAME, PASSWORD, HEADING, HTML_COMMENT,
 	 * SUBMIT_BUTTON and AUTO_SUBMIT_BUTTON are not updatable by this method.
 	 *
 	 * If VALIDATED_EMAIL is changed to non-verified value, it will change application state from VERIFIED to NEW
