@@ -528,6 +528,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			} catch (ExtendMembershipException ex) {
 				// can't become member of VO
 				result.put("voFormInitialException", ex);
+			} catch (NoPrefilledUneditableRequiredDataException ex) {
+				// can't display form
+				result.put("voFormInitialException", ex);
 			} catch (MissingRequiredDataException ex) {
 				// can't display form
 				result.put("voFormInitialException", ex);
@@ -552,6 +555,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("voFormExtensionException", ex);
 				} catch (MemberNotExistsException ex) {
 					// is not member -> can't extend
+					result.put("voFormExtensionException", ex);
+				} catch (NoPrefilledUneditableRequiredDataException ex) {
+					// can't display form
 					result.put("voFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
@@ -584,6 +590,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} catch (ExtendMembershipException ex) {
 					// can't become member of VO -> then can't be member of group either
 					result.put("groupFormInitialException", ex);
+				} catch (NoPrefilledUneditableRequiredDataException ex) {
+					// can't display form
+					result.put("groupFormInitialException", ex);
 				}  catch (MissingRequiredDataException ex) {
 					// can't display form
 					result.put("groupFormInitialException", ex);
@@ -613,6 +622,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("groupFormExtensionException", ex);
 				} catch (NotGroupMemberException ex) {
 					// is not member of Group -> can't extend
+					result.put("groupFormExtensionException", ex);
+				} catch (NoPrefilledUneditableRequiredDataException ex) {
+					// can't display form
 					result.put("groupFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
@@ -2667,6 +2679,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Map<Integer, ApplicationFormItemWithPrefilledValue> allItemsByIds = itemsWithValues.stream()
 				.collect(toMap(item -> item.getFormItem().getId(), Function.identity()));
 
+		List<ApplicationFormItemWithPrefilledValue> noPrefilledUneditableRequiredItems = new ArrayList<>();
+
 		for (ApplicationFormItemWithPrefilledValue itemW : itemsWithValues) {
 			// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
 			if (isEmpty(itemW.getPrefilledValue()) &&
@@ -2675,7 +2689,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (URN_USER_DISPLAY_NAME.equals(itemW.getFormItem().getPerunDestinationAttribute())) {
 					log.error("Couldn't resolve displayName from: {}, parsedNames were: {}", federValues, parsedName);
 				}
-				itemsWithMissingData.add(itemW);
+				// Required uneditable items with no source or federation attribute
+				if (isEmpty(itemW.getFormItem().getFederationAttribute()) && isEmpty(itemW.getFormItem().getPerunSourceAttribute())) {
+					noPrefilledUneditableRequiredItems.add(itemW);
+				} else {
+					itemsWithMissingData.add(itemW);
+				}
 			}
 		}
 
@@ -2683,11 +2702,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			module.processFormItemsWithData(sess, appType, form, itemsWithValues);
 		}
 
+		if (!noPrefilledUneditableRequiredItems.isEmpty()) {
+			log.error("[REGISTRAR] Uneditable (hidden or disabled) required items with no prefilled data: {}", noPrefilledUneditableRequiredItems);
+			throw new NoPrefilledUneditableRequiredDataException("The administrator sets these required items as hidden or disabled without any prefilled data.", noPrefilledUneditableRequiredItems);
+		}
+
 		if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 			// throw exception only if user is logged-in by Federation IDP
 			String IDP = federValues.get("originIdentityProvider");
-			log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
-			throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
+			log.error("[REGISTRAR] Wrongly configured form OR user doesn't match any conditions for the following form items OR IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
+			throw new MissingRequiredDataException("The administrator set up this form wrongly OR you don't match any conditions OR your IDP doesn't provide data required by this application form.", itemsWithMissingData);
 		}
 
 		itemsWithValues.stream()
