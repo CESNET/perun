@@ -18,6 +18,10 @@ public class RichApplication extends Application {
 		super(application.getId(), application.getVo(), application.getGroup(), application.getType(),
 			application.getFedInfo(), application.getState(), application.getExtSourceName(),
 			application.getExtSourceType(), application.getExtSourceLoa(), application.getUser());
+		this.setCreatedBy(application.getCreatedBy());
+		this.setCreatedAt(application.getCreatedAt());
+		this.setModifiedAt(application.getModifiedAt());
+		this.setModifiedBy(application.getModifiedBy());
 	}
 
 	public RichApplication(Application application, List<ApplicationFormItemData> formData) {
