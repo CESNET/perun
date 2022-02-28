@@ -2105,6 +2105,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				(query.getGroupId() == null ? "" : "  AND a.group_id=(:groupId)") +
 				" AND (:dateFrom) <= a.created_at::date AND a.created_at::date <= (:dateTo)" +
 				searchQuery +
+				// group by to remove duplicates from application_data join
+				APP_PAGE_GROUP_BY +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
 				" LIMIT (:limit)"
@@ -4612,6 +4614,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
 		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a" +
 		" left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id left outer join application_data d on a.id = d.app_id";
+
+	static final String APP_PAGE_GROUP_BY = " GROUP BY a.id, a.vo_id, a.group_id, a.apptype, a.fed_info, a.state, a.user_id, a.extsourcename, a.extsourcetype, a.extsourceloa, a.user_id, a.created_at, a.created_by, a.modified_at, a.modified_by," +
+		" v.name, v.short_name, v.created_by, v.created_at, v.created_by_uid, v.modified_by, v.modified_at, v.modified_by_uid, g.name, g.dsc, g.created_by, g.created_at, g.modified_by, g.created_by_uid, g.modified_by_uid, g.modified_at, g.vo_id, " +
+		"g.parent_group_id, g.uu_id, u.first_name, u.last_name, u.middle_name, u.title_before, u.title_after, u.service_acc, u.sponsored_acc, u.uu_id";
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 
