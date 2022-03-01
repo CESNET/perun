@@ -1144,6 +1144,44 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertThat(result.getData().get(0).getFormData().size()).isEqualTo(2);
 	}
 
+	@Test
+	public void getApplicationsPageMultipleFormItems() throws Exception {
+		System.out.println("getApplicationsPageMultipleFormItems");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+		Group group1 = setUpGroup("Group1", "Cool folks");
+		User user1 = setUpUser("Joe", "Doe");
+
+		ApplicationFormItem testItem = new ApplicationFormItem();
+		testItem.setType(ApplicationFormItem.Type.TEXTFIELD);
+		testItem.setShortname("testItem");
+
+		testItem = registrarManager.addFormItem(session, form, testItem);
+		registrarManager.updateFormItems(session, form, Collections.singletonList(testItem));
+		ApplicationFormItemData testData = new ApplicationFormItemData(testItem, "test", "testval", "0");
+
+		ApplicationFormItem testItem2 = new ApplicationFormItem();
+		testItem2.setType(ApplicationFormItem.Type.TEXTFIELD);
+		testItem2.setShortname("testItem2");
+
+		testItem2 = registrarManager.addFormItem(session, form, testItem2);
+		registrarManager.updateFormItems(session, form, Collections.singletonList(testItem2));
+		ApplicationFormItemData testData2 = new ApplicationFormItemData(testItem2, "test2", "banana", "0");
+
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		appItemsData.add(testData);
+		appItemsData.add(testData2);
+
+		Application application1 = setUpApplicationGroupWithData(user1, group1, appItemsData);
+
+		ApplicationsPageQuery query = new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE, "", List.of(Application.AppState.APPROVED), true);
+		query.setGetDetails(true);
+
+		Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
+
+		assertEquals(1, result.getData().size());
+	}
+
 	private Group setUpGroup(String name, String desc) throws Exception {
 		GroupsManager groupsManager = perun.getGroupsManager();
 
