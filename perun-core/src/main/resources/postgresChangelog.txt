@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.90
+ALTER TABLE vos ADD COLUMN member_vos_enabled boolean default false not null;
+UPDATE configurations SET value='3.1.90' WHERE property='DATABASE VERSION';
+
 3.1.89
 create type attribute_action as enum ('READ', 'WRITE');
 create table attribute_policy_collections (id integer not null, attr_id integer not null, action attribute_action not null, constraint attrpolcol_pk primary key (id), constraint attrpolcol_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade);

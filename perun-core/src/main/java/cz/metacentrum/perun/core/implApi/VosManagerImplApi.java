@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -102,6 +101,24 @@ public interface VosManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Vo> getVosByIds(PerunSession perunSession, List<Integer> ids);
+
+	/**
+	 * Enables the given VO to contain member organizations.
+	 *
+	 * @param perunSession
+	 * @param vo the VO
+	 * @return updated VO
+	 */
+	Vo enableMemberVos(PerunSession perunSession, Vo vo);
+
+	/**
+	 * Disables the given VO to contain member organizations.
+	 *
+	 * @param perunSession
+	 * @param vo the VO
+	 * @return updated VO
+	 */
+	Vo disableMemberVos(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get list of user administrators of specific vo for specific role.

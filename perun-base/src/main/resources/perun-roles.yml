@@ -5667,6 +5667,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  enableMemberVos_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  disableMemberVos_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   getVoByShortName_String_policy:
     policy_roles:
       - RESOURCESELFSERVICE: Vo

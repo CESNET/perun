@@ -129,6 +129,38 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Enables the given VO to contain member organizations.
+	 *
+	 * @param vo int <code>id</code> of the VO
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @return Vo Updated VO
+	 */
+	enableMemberVos {
+		@Override
+		public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getVosManager().enableMemberVos(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
+	 * Disables the given VO to contain member organizations.
+	 *
+	 * @param vo int <code>id</code> of the VO
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exist.
+	 * @return Vo Updated VO
+	 */
+	disableMemberVos {
+		@Override
+		public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getVosManager().disableMemberVos(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
 	 * Returns a VO by its short name.
 	 *
 	 * @param shortName String VO shortName

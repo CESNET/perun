@@ -1,4 +1,4 @@
--- database version 3.1.89 (don't forget to update insert statement at the end of file)
+-- database version 3.1.90 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -7,6 +7,7 @@ create table vos (
 					  id integer not null,
 					  name varchar not null,   -- full name of VO
 					  short_name varchar not null, -- commonly used name
+					  member_vos_enabled boolean default false not null, -- can other VOs be member organizations of this VO?
 					  created_at timestamp default statement_timestamp() not null,
 					  created_by varchar default user not null,
 					  modified_at timestamp default statement_timestamp() not null,
@@ -1748,7 +1749,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.89');
+insert into configurations values ('DATABASE VERSION','3.1.90');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

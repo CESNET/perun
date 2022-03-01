@@ -1,10 +1,11 @@
--- database version 3.1.89 (don't forget to update insert statement at the end of file)
+-- database version 3.1.90 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
 	id integer not null,
 	name varchar not null,   -- full name of VO
 	short_name varchar not null, -- commonly used name
+	member_vos_enabled boolean default false not null, -- can other VOs be member organizations of this VO?
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
@@ -1849,7 +1850,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.89');
+insert into configurations values ('DATABASE VERSION','3.1.90');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

@@ -36,21 +36,18 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
-import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
@@ -259,6 +256,17 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public Vo updateVo(PerunSession sess, Vo vo) {
 		getPerunBl().getAuditer().log(sess, new VoUpdated(vo));
 		return getVosManagerImpl().updateVo(sess, vo);
+	}
+
+	@Override
+	public Vo enableMemberVos(PerunSession sess, Vo vo) {
+		return getVosManagerImpl().enableMemberVos(sess, vo);
+	}
+
+	@Override
+	public Vo disableMemberVos(PerunSession sess, Vo vo) {
+		//TODO remove all member VOs from this VO
+		return getVosManagerImpl().disableMemberVos(sess, vo);
 	}
 
 	@Override

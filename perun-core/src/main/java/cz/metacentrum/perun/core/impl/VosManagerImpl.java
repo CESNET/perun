@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
@@ -51,7 +50,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
 
-	protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, " +
+	protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, vos.member_vos_enabled as vos_member_vos_enabled, " +
 		"vos.created_at as vos_created_at, vos.created_by as vos_created_by, vos.modified_by as vos_modified_by, vos.modified_at as vos_modified_at, " +
 		"vos.created_by_uid as vos_created_by_uid, vos.modified_by_uid as vos_modified_by_uid";
 
@@ -65,8 +64,9 @@ public class VosManagerImpl implements VosManagerImplApi {
 	 * Converts s ResultSet's row to a Vo instance.
 	 */
 	protected static final RowMapper<Vo> VO_MAPPER = (resultSet, i) ->
-		new Vo(resultSet.getInt("vos_id"), resultSet.getString("vos_name"), resultSet.getString("vos_short_name"), resultSet.getString("vos_created_at"),
-			resultSet.getString("vos_created_by"), resultSet.getString("vos_modified_at"), resultSet.getString("vos_modified_by"),
+		new Vo(resultSet.getInt("vos_id"), resultSet.getString("vos_name"), resultSet.getString("vos_short_name"),
+			resultSet.getBoolean("vos_member_vos_enabled"), resultSet.getString("vos_created_at"), resultSet.getString("vos_created_by"),
+			resultSet.getString("vos_modified_at"), resultSet.getString("vos_modified_by"),
 			resultSet.getInt("vos_created_by_uid") == 0 ? null : resultSet.getInt("vos_created_by_uid"),
 			resultSet.getInt("vos_modified_by_uid") == 0 ? null : resultSet.getInt("vos_modified_by_uid"));
 
@@ -160,8 +160,10 @@ public class VosManagerImpl implements VosManagerImplApi {
 
 		try {
 			// Get VO ID
-			return jdbc.queryForObject("insert into vos(id, name, short_name, created_by,modified_by, created_by_uid, modified_by_uid) values (nextval('vos_id_seq'),?,?,?,?,?,?) returning " + voMappingSelectQuery,
-					VO_MAPPER, vo.getName(), vo.getShortName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			return jdbc.queryForObject("insert into vos(id, name, short_name, member_vos_enabled, created_by,modified_by, " +
+					"created_by_uid, modified_by_uid) values (nextval('vos_id_seq'),?,?,?,?,?,?,?) returning " + voMappingSelectQuery,
+				VO_MAPPER, vo.getName(), vo.getShortName(), vo.isMemberVosEnabled(), sess.getPerunPrincipal().getActor(),
+				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -197,6 +199,32 @@ public class VosManagerImpl implements VosManagerImplApi {
 			return vo;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new ConsistencyErrorException("Updating non existing VO", ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Vo enableMemberVos(PerunSession sess, Vo vo) {
+		try {
+			jdbc.update("update vos set member_vos_enabled=true, modified_by=?, modified_by_uid=?," +
+					"modified_at=" + Compatibility.getSysdate() + " where id=?",
+				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), vo.getId());
+			vo.setMemberVosEnabled(true);
+			return vo;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Vo disableMemberVos(PerunSession sess, Vo vo) {
+		try {
+			jdbc.update("update vos set member_vos_enabled=false, modified_by=?, modified_by_uid=?," +
+					"modified_at=" + Compatibility.getSysdate() + " where id=?",
+				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), vo.getId());
+			vo.setMemberVosEnabled(false);
+			return vo;
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

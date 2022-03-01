@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -189,6 +190,43 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		System.out.println(CLASS_NAME + "updateVoWhichNotExists");
 
 		vosManagerEntry.updateVo(sess, new Vo());
+	}
+
+	@Test
+	public void enableMemberVos() throws Exception {
+		System.out.println(CLASS_NAME + "enableMemberVos");
+
+		Vo vo = vosManagerEntry.createVo(sess, myVo);
+		vosManagerEntry.enableMemberVos(sess, vo);
+
+		assertTrue(vosManagerEntry.getVoById(sess, vo.getId()).isMemberVosEnabled());
+	}
+
+	@Test
+	public void enableMemberVosWhichNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "enableMemberVosWhichNotExists");
+
+		assertThatThrownBy(() -> vosManagerEntry.enableMemberVos(sess, new Vo()))
+			.isInstanceOf(VoNotExistsException.class);
+	}
+
+	@Test
+	public void disableMemberVos() throws Exception {
+		System.out.println(CLASS_NAME + "disableMemberVos");
+
+		Vo vo = vosManagerEntry.createVo(sess, myVo);
+		vosManagerEntry.enableMemberVos(sess, vo);
+		vosManagerEntry.disableMemberVos(sess, vo);
+
+		assertFalse(vosManagerEntry.getVoById(sess, vo.getId()).isMemberVosEnabled());
+	}
+
+	@Test
+	public void disableMemberVosWhichNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "disableMemberVosWhichNotExists");
+
+		assertThatThrownBy(() -> vosManagerEntry.disableMemberVos(sess, new Vo()))
+			.isInstanceOf(VoNotExistsException.class);
 	}
 
 	@Test

@@ -31,13 +31,11 @@ import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
-import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -167,6 +165,32 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		return vosManagerBl.updateVo(sess, vo);
+	}
+
+	@Override
+	public Vo enableMemberVos(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
+		Utils.notNull(sess, "sess");
+		vosManagerBl.checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "enableMemberVos_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "enableMemberVos");
+		}
+
+		return vosManagerBl.enableMemberVos(sess, vo);
+	}
+
+	@Override
+	public Vo disableMemberVos(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
+		Utils.notNull(sess, "sess");
+		vosManagerBl.checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "disableMemberVos_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "disableMemberVos");
+		}
+
+		return vosManagerBl.disableMemberVos(sess, vo);
 	}
 
 	@Override

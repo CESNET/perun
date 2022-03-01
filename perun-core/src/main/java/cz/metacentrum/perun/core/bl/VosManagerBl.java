@@ -14,17 +14,13 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -94,6 +90,24 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Vo updateVo(PerunSession perunSession, Vo vo);
+
+	/**
+	 * Enables the given VO to contain member organizations.
+	 *
+	 * @param perunSession
+	 * @param vo the VO
+	 * @return updated VO
+	 */
+	Vo enableMemberVos(PerunSession perunSession, Vo vo);
+
+	/**
+	 * Disables the given VO to contain member organizations.
+	 *
+	 * @param perunSession
+	 * @param vo the VO
+	 * @return updated VO
+	 */
+	Vo disableMemberVos(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Find existing VO by short name (short name is unique).

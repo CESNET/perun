@@ -112,6 +112,28 @@ public interface VosManager {
 	Vo updateVo(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException;
 
 	/**
+	 * Enables the given VO to contain member organizations.
+	 *
+	 * @param perunSession
+	 * @param vo the VO
+	 * @return updated VO
+	 * @throws VoNotExistsException
+	 * @throws PrivilegeException
+	 */
+	Vo enableMemberVos(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Disables the given VO to contain member organizations.
+	 *
+	 * @param perunSession
+	 * @param vo the VO
+	 * @return updated VO
+	 * @throws VoNotExistsException
+	 * @throws PrivilegeException
+	 */
+	Vo disableMemberVos(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException;
+
+	/**
 	 * Find existing VO by short name (short name is unique).
 	 *
 	 * @param perunSession

@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 public class Vo extends Auditable implements Comparable<PerunBean> {
 	private String name;
 	private String shortName;
+	private boolean memberVosEnabled = false; // can other VOs be member organizations of this VO?
 
 	public Vo() {
 	}
@@ -19,6 +20,11 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 		this.name = name;
 		this.shortName = shortName;
 
+	}
+
+	public Vo(int id, String name, String shortName, boolean memberVosEnabled) {
+		this(id, name, shortName);
+		this.memberVosEnabled = memberVosEnabled;
 	}
 
 	@Deprecated
@@ -36,6 +42,11 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 		if (shortName == null)  throw new InternalErrorException(new NullPointerException("shortName is null"));
 		this.name = name;
 		this.shortName = shortName;
+	}
+
+	public Vo(int id, String name, String shortName, boolean memberVosEnabled, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
+		this(id, name, shortName, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
+		this.memberVosEnabled = memberVosEnabled;
 	}
 
 	public String getName() {
@@ -56,6 +67,14 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 		this.shortName = shortName;
 	}
 
+	public boolean isMemberVosEnabled() {
+		return memberVosEnabled;
+	}
+
+	public void setMemberVosEnabled(boolean memberVosEnabled) {
+		this.memberVosEnabled = memberVosEnabled;
+	}
+
 	@Override
 	public String serializeToString() {
 		StringBuilder str = new StringBuilder();
@@ -64,6 +83,7 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 			"id=<").append(getId()).append(">").append(
 			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
 			", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">").append(
+			", memberVosEnabled=<").append(isMemberVosEnabled()).append(">").append(
 			']').toString();
 	}
 
@@ -75,6 +95,7 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 			"id='").append(this.getId()).append('\'').append(
 			", name='").append(name).append('\'').append(
 			", shortName='").append(shortName).append('\'').append(
+			", memberVosEnabled='").append(memberVosEnabled).append('\'').append(
 			']').toString();
 	}
 
