@@ -782,6 +782,7 @@ components:
         - properties:
             name: { type: string }
             shortName: { type: string }
+            memberVosEnabled: { type: boolean }
       discriminator:
         propertyName: beanName
 
@@ -13776,6 +13777,34 @@ paths:
                 - vo
               properties:
                 vo: { $ref: '#/components/schemas/Vo' }
+
+  /urlinjsonout/vosManager/enableMemberVos:
+    post:
+      tags:
+        - VosManager
+      operationId: enableMemberVos
+      summary: Enables the given VO to contain member organizations.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/disableMemberVos:
+    post:
+      tags:
+        - VosManager
+      operationId: disableMemberVos
+      summary: Disables the given VO to contain member organizations.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/vosManager/getVoByShortName:
     get:
