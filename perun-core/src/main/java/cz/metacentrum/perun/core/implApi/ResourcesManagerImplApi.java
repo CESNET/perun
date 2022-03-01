@@ -696,7 +696,7 @@ public interface ResourcesManagerImplApi {
 
 	/**
 	 * Gets list of all user administrators of the Resource.
-	 * If some group is administrator of the given group, all members are included in the list.
+	 * If some group is administrator of the given resource, all VALID members are included in the list.
 	 *
 	 * @param sess
 	 * @param resource
@@ -718,7 +718,7 @@ public interface ResourcesManagerImplApi {
 
 	/**
 	 * Returns list of resources, where the user is an admin.
-	 * Including resources, where the user is a member of authorized group.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param user
@@ -729,7 +729,7 @@ public interface ResourcesManagerImplApi {
 
 	/**
 	 * Return all resources for the facility and the vo where user is authorized as resource manager.
-	 * Including resources, where the user is a member of authorized group.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param facility the facility to which resources should be assigned to
@@ -743,7 +743,7 @@ public interface ResourcesManagerImplApi {
 
 	/**
 	 * Return all resources for the vo where user is authorized as resource manager.
-	 * Including resources, where the user is a member of authorized group.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param vo the vo to which resources should be assigned to

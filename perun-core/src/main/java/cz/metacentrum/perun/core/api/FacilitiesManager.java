@@ -443,7 +443,8 @@ public interface FacilitiesManager {
 	void removeAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException, RoleCannotBeManagedException;
 
 	/**
-	 * Get list of all user administrators for supported role and given facility.
+	 * Gets list of all user administrators of the Facility.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 * <p>
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 * <p>
@@ -455,7 +456,8 @@ public interface FacilitiesManager {
 	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
-	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
+	 * Gets list of all richUser administrators of the Facility.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 * <p>
 	 * Supported roles: FacilityAdmin
 	 * <p>
@@ -527,7 +529,8 @@ public interface FacilitiesManager {
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
-	 * Returns list of Facilities, where the user is an admin.
+	 * Get all facilities where the user is admin.
+	 * Including facilities, where the user is a VALID member of authorized group.
 	 *
 	 * @return list of Facilities, where the user is an admin.
 	 */

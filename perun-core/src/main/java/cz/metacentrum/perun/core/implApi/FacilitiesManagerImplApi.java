@@ -457,7 +457,7 @@ public interface FacilitiesManagerImplApi {
 
 	/**
 	 * Gets list of all user administrators of the Facility.
-	 * If some group is administrator of the given group, all members are included in the list.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * @param sess
 	 * @param facility
@@ -489,7 +489,7 @@ public interface FacilitiesManagerImplApi {
 
 	/**
 	 * Get all facilities where the user is admin.
-	 * Including facilities, where the user is a member of authorized group.
+	 * Including facilities, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param user

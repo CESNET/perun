@@ -681,6 +681,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all resource administrators for supported role and given resource.
+	 * If some group is administrator of the given resource, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
 	 *
@@ -717,6 +718,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all richUser administrators for the resource and supported role with specific attributes.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * Supported roles: ResourceAdmin, VOAdmin
 	 *
@@ -743,6 +745,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns list of Resources for specified VO and Facility, where the user is an Administrator
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param vo int Vo <code>id</code>
@@ -759,6 +762,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns list of Resources for specified VO, where the user is an Administrator.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param vo int Vo <code>id</code>
 	 * @param user int User <code>id</code>
@@ -766,6 +770,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns list of all Resources, where the user is an Administrator.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param user int User <code>id</code>
 	 * @return List<Resource> Found Resources

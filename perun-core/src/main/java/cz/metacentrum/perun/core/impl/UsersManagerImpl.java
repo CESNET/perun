@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -754,12 +755,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, User user) {
 		try {
-			return jdbc.query("select distinct " + GroupsManagerImpl.groupMappingSelectQuery + " from groups where groups.id in " +
-							" (select group_id from authz where ( authz.user_id=? or  authz.authorized_group_id in " +
-							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id " +
-							" join members on groups_members.member_id=members.id where members.user_id=?) " +
+			return jdbc.query("select distinct " + GroupsManagerImpl.groupMappingSelectQuery + " from groups" +
+							" where groups.id in (select group_id from authz where ( authz.user_id=? or  authz.authorized_group_id in " +
+							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id and groups_members.source_group_status=? " +
+							" join members on groups_members.member_id=members.id where members.user_id=? and members.status=?) " +
 							" and authz.role_id=(select id from roles where roles.name=?))) ",
-					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.toLowerCase());
+					GroupsManagerImpl.GROUP_MAPPER, user.getId(), MemberGroupStatus.VALID.getCode(), user.getId(),  Status.VALID.getCode(), Role.GROUPADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -770,12 +771,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) {
 		try {
-			return jdbc.query("select distinct " + GroupsManagerImpl.groupMappingSelectQuery + " from groups where groups.id in " +
-							" (select group_id from authz where ( authz.user_id=? or  authz.authorized_group_id in " +
-							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id " +
-							" join members on groups_members.member_id=members.id where members.user_id=?) " +
-							" and authz.role_id=(select id from roles where roles.name=?))) and groups.vo_id=? ",
-					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.toLowerCase(), vo.getId());
+			return jdbc.query("select distinct " + GroupsManagerImpl.groupMappingSelectQuery + " from groups" +
+							" where groups.id in (select group_id from authz where ( authz.user_id=? or  authz.authorized_group_id in " +
+							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id and groups_members.source_group_status=?" +
+							" join members on groups_members.member_id=members.id where members.user_id=? and members.status=?) " +
+							" and authz.role_id=(select id from roles where roles.name=?))) and groups.vo_id=?",
+					GroupsManagerImpl.GROUP_MAPPER, user.getId(), MemberGroupStatus.VALID.getCode(), user.getId(), Status.VALID.getCode(),Role.GROUPADMIN.toLowerCase(), vo.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch(RuntimeException ex) {
@@ -787,10 +788,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<Vo> getVosWhereUserIsAdmin(PerunSession sess, User user) {
 		try {
 			return jdbc.query("select " + VosManagerImpl.voMappingSelectQuery + " from authz join vos on authz.vo_id=vos.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
 					" left outer join members on members.id=groups_members.member_id " +
-					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?)",
-					VosManagerImpl.VO_MAPPER, user.getId(), user.getId(), Role.VOADMIN.toLowerCase());
+					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null)",
+					VosManagerImpl.VO_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), user.getId(), Role.VOADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

@@ -879,7 +879,8 @@ public interface ResourcesManager {
 	void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws ResourceNotExistsException, PrivilegeException;
 
 	/**
-	 * Get list of all user administrators for supported role and given resource.
+	 * Gets list of all user administrators of the Resource.
+	 * If some group is administrator of the given resource, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
@@ -898,7 +899,8 @@ public interface ResourcesManager {
 	List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins) throws PrivilegeException, ResourceNotExistsException;
 
 	/**
-	 * Get list of all richUser administrators for the resource and supported role with specific attributes.
+	 * Gets list of all richUser administrators of the Resource.
+	 * If some group is administrator of the given resource, all VALID members are included in the list.
 	 *
 	 * Supported roles: ResourceAdmin, VOAdmin
 	 *
@@ -923,6 +925,7 @@ public interface ResourcesManager {
 
 	/**
 	 * Returns list of resources, where the user is an admin.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param user
@@ -935,6 +938,7 @@ public interface ResourcesManager {
 
 	/**
 	 * Return all resources for the facility and the vo where user is authorized as resource manager.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param facility the facility to which resources should be assigned to
@@ -952,7 +956,7 @@ public interface ResourcesManager {
 
 	/**
 	 * Return all resources for the vo where user is authorized as resource manager.
-	 * Including resources, where the user is a member of authorized group.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param vo the vo to which resources should be assigned to

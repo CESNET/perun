@@ -2082,7 +2082,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Get all roles for a given user.
+	 * Returns all user's roles - including roles resulting from being a VALID member of authorized groups
 	 *
 	 * @param sess perun session
 	 * @param user user

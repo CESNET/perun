@@ -871,7 +871,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			List<Group> listOfGroupAdmins = getGroupAdmins(sess, group);
 			for(Group authorizedGroup : listOfGroupAdmins) {
 				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
-							"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
+							"join groups_members on groups_members.member_id=members.id where groups_members.group_id=? and groups_members.source_group_status=? and members.status=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId(), MemberGroupStatus.VALID.getCode(), Status.VALID.getCode()));
 			}
 
 			return new ArrayList(setOfAdmins);

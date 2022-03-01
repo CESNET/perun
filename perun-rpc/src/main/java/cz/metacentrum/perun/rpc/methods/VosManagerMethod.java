@@ -440,6 +440,7 @@ public enum VosManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all vo administrators for supported role and specific vo.
+	 * If some group is administrator of the VO, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct admins of the vo for supported role.
 	 *
@@ -534,6 +535,7 @@ public enum VosManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN, SPONSOR
 	 *
