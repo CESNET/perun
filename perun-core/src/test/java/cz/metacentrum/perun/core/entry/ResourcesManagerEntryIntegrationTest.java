@@ -17,12 +17,14 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceAssignment;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -1553,6 +1555,82 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.getResources(sess, new Vo());
 		// shouldn't find VO
 
+	}
+
+	@Test
+	public void getResourcesForUserWithAllStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesForUserWithAllStatuses");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		resourcesManager.assignGroupToResource(sess, group, resource, false, false, false);
+
+		List<Resource> resources = perun.getResourcesManagerBl().getResources(sess, user, null, List.of(), null);
+		assertThat(resources).containsOnly(resource);
+	}
+
+	@Test
+	public void getResourcesForUserWithAllowedStatusesForResource() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesForUserWithAllowedStatuses");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		resourcesManager.assignGroupToResource(sess, group, resource, false, false, false);
+
+		List<Resource> resources = perun.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), List.of(GroupResourceStatus.ACTIVE));
+		assertThat(resources).containsOnly(resource);
+
+		resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
+
+		resources = perun.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), List.of(GroupResourceStatus.INACTIVE));
+		assertThat(resources).containsOnly(resource);
+
+		resources = perun.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), null);
+		assertThat(resources).containsOnly(resource);
+
+		resources = perun.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), List.of(GroupResourceStatus.ACTIVE));
+		assertThat(resources).doesNotContain(resource);
+	}
+
+	@Test
+	public void getResourcesForUserWithAllowedStatusesForMember() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesForUserWithAllowedStatusesForMember");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		resourcesManager.assignGroupToResource(sess, group, resource, false, false, false);
+
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
+
+		List<Resource> resources = perun.getResourcesManagerBl().getResources(sess, user, null, List.of(MemberGroupStatus.EXPIRED), null);
+		assertThat(resources).containsOnly(resource);
+
+		resources = perun.getResourcesManagerBl().getResources(sess, user, null, List.of(MemberGroupStatus.VALID), null);
+		assertThat(resources).doesNotContain(resource);
+
+		perun.getGroupsManagerBl().reactivateMember(sess, member, group);
+		perun.getMembersManagerBl().expireMember(sess, member);
+
+		resources = perun.getResourcesManagerBl().getResources(sess, user, List.of(Status.EXPIRED), null, null);
+		assertThat(resources).contains(resource);
+
+		resources = perun.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID), null, null);
+		assertThat(resources).doesNotContain(resource);
 	}
 
 	@Test

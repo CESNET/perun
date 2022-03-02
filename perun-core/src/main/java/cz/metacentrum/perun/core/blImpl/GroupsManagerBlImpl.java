@@ -1355,6 +1355,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Group> getUserGroups(PerunSession perunSession, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses) {
+		return new ArrayList<>(new HashSet<>(getGroupsManagerImpl().getUserGroups(perunSession, user, memberStatuses, memberGroupStatuses)));
+	}
+
+	@Override
 	public List<Member> getGroupMembersExceptInvalid(PerunSession sess, Group group) {
 		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupMembers(sess, group, Collections.singletonList(Status.INVALID), true));
 	}
