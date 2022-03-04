@@ -98,7 +98,7 @@ public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttribute
 					sshKey = removeSSHKeyCommandPrefix(sshKey);
 					validateSSH(sshKey);
 				} catch (Exception e) {
-					throw new WrongAttributeValueException("Invalid SSH key format: " + e.getMessage());
+					throw new WrongAttributeValueException(attribute, user, "Invalid SSH key format: " + e.getMessage());
 				}
 			}
 		}
