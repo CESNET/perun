@@ -9101,6 +9101,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getRichMembersNoUserAttributes:
+    get:
+      tags:
+        - MembersManager
+      operationId: getRichMembersNoUserAttributes
+      summary: Returns list of all RichMembers for specified VO. User attributes aren't included in the returned
+          objects
+      description: Get richMembers for VO with member attributes (without user attributes).
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getMemberByUser:
     get:
       tags:
