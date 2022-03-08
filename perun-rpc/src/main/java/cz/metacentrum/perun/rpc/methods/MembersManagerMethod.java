@@ -1286,6 +1286,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 			return ac.getMembersManager().getRichMemberWithAttributes(ac.getSession(), mem);
 		}
 	},
+	/*#
+	 * Get all RichMembers of VO. RichMember object contains user, member, userExtSources and member attributes. User attributes aren't included
+	 *
+	 * @param vo int Vo <code>id</code>
+ 	 * @return List<RichMember> List of rich members with all member attributes, empty list if there are no members in VO
+	 */
+	getRichMembersNoUserAttributes {
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getRichMembersNoUserAttributes(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")));
+		}
+	},
 
 	/*#
 	 * Returns a RichMember without attributes by it's member <code>id</code>.

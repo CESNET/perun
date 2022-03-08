@@ -989,6 +989,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.convertMembersToRichMembersWithAttributes(sess, richMembers), allowedStatuses);
 	}
 
+	@Override
+	public List<RichMember> getRichMembersNoUserAttributes(PerunSession sess, Vo vo) {
+		List<RichMember> richMembers = this.getRichMembers(sess, vo);
+		return this.convertMembersToRichMembersNoUserAttributes(sess, richMembers);
+	}
+
 	/**
 	 * Converts members to rich members.
 	 * Rich member object contains user, member, userExtSources, userAttributes, memberAttributes.
@@ -1030,6 +1036,26 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			List<Attribute> memberAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember);
 
 			richMember.setUserAttributes(userAttributes);
+			richMember.setMemberAttributes(memberAttributes);
+		}
+
+		return richMembers;
+	}
+
+	/**
+	 * Adds memberAttributes to rich members.
+	 * The method returns list of rich members with memberAttributes filled.
+	 *
+	 * @param sess
+	 * @param richMembers
+	 * @return list of rich members with memberAttributes filled
+	 * @throws InternalErrorException
+	 */
+	@Override
+	public List<RichMember> convertMembersToRichMembersNoUserAttributes(PerunSession sess, List<RichMember> richMembers) {
+		for (RichMember richMember: richMembers) {
+			List<Attribute> memberAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember);
+
 			richMember.setMemberAttributes(memberAttributes);
 		}
 

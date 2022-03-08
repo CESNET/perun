@@ -813,6 +813,18 @@ public interface MembersManager {
 	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException;
 
 	/**
+	 * Get all rich members of VO. Rich member object contains user, member, userExtSources and member attributes. User attributes aren't included
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return list of rich members with all member attributes
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 */
+	List<RichMember> getRichMembersNoUserAttributes(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException;
+
+	/**
 	 * Get the VO members count.
 	 *
 	 * @param sess

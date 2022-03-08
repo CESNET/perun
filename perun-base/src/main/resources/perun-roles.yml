@@ -2487,6 +2487,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getRichMembersNoUserAttributes_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   getRichMembers_Vo_Status_policy:
     policy_roles:
       - GROUPADMIN: Vo
