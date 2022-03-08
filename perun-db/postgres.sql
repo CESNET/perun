@@ -1,4 +1,4 @@
--- database version 3.1.89 (don't forget to update insert statement at the end of file)
+-- database version 3.1.90 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1306,6 +1306,19 @@ create table groups_groups (
   constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id)
 );
 
+-- VOS_VOS - Hierarchical structure of virtual organizations and their member organizations
+create table vos_vos (
+	vo_id integer not null, -- identifier of VO
+	member_vo_id integer not null, -- identifier of its member vo
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	constraint vos_vos_pk primary key (vo_id,member_vo_id),
+	constraint vos_vos_void_fk foreign key (vo_id) references vos(id),
+	constraint vos_vos_memid_fk foreign key (member_vo_id) references vos(id)
+);
+
 -- RES_TAGS - possible resource tags in VO
 create table res_tags (
 	id integer not null,
@@ -1827,6 +1840,7 @@ grant all on pn_template_regex to perun;
 grant all on pn_regex_object to perun;
 grant all on specific_user_users to perun;
 grant all on groups_groups to perun;
+grant all on vos_vos to perun;
 grant all on action_types to perun;
 grant all on attributes_authz to perun;
 grant all on attribute_policies to perun;
@@ -1849,7 +1863,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.89');
+insert into configurations values ('DATABASE VERSION','3.1.90');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

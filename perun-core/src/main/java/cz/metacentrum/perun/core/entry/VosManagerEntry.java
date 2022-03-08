@@ -23,6 +23,8 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -743,6 +745,60 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		vosManagerBl.convertSponsoredUsersWithNewSponsor(sess, vo, newSponsor);
+	}
+
+	@Override
+	public void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException, PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		vosManagerBl.checkVoExists(sess, vo);
+		vosManagerBl.checkVoExists(sess, memberVo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "addMemberVo_Vo_Vo_policy", vo)) {
+			throw new PrivilegeException("addMemberVo");
+		}
+
+		vosManagerBl.addMemberVo(sess, vo, memberVo);
+	}
+
+	@Override
+	public void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException, PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		vosManagerBl.checkVoExists(sess, vo);
+		vosManagerBl.checkVoExists(sess, memberVo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "removeMemberVo_Vo_Vo_policy", vo)) {
+			throw new PrivilegeException("removeMemberVo");
+		}
+
+		vosManagerBl.removeMemberVo(sess, vo, memberVo);
+	}
+
+	@Override
+	public List<Vo> getParentVos(PerunSession sess, int memberVoId) throws PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		Vo memberVo = vosManagerBl.getVoById(sess, memberVoId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getParentVos_int_policy", memberVo)) {
+			throw new PrivilegeException("getParentVos");
+		}
+
+		return vosManagerBl.getParentVos(sess, memberVoId);
+	}
+
+	@Override
+	public List<Vo> getMemberVos(PerunSession sess, int voId) throws PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		Vo vo = vosManagerBl.getVoById(sess, voId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getMemberVos_int_policy", vo)) {
+			throw new PrivilegeException("getMemberVos");
+		}
+
+		return vosManagerBl.getMemberVos(sess, voId);
 	}
 
 	/**
