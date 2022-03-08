@@ -9,6 +9,8 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
@@ -327,4 +329,43 @@ public interface VosManagerImplApi {
 	 * EMBEDDED_GROUP_APPLICATION item in it, false otherwise
 	 */
 	boolean hasEmbeddedGroupsItemInForm(PerunSession sess, int voId);
+
+	/**
+	 * Adds new relationship between vo and a member vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo new member of the vo
+	 * @throws RelationExistsException if member vo is already member of the vo
+	 */
+	void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException;
+
+	/**
+	 * Removes member vo from given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo new member of the vo
+	 * @throws RelationNotExistsException if member vo is not a member of the vo
+	 */
+	void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException;
+
+	/**
+	 * Gets all member organizations of the given vo.
+	 *
+	 * @param sess session
+	 * @param voId vo id
+	 * @return list of member vos
+	 */
+	List<Vo> getMemberVos(PerunSession sess, int voId);
+
+	/**
+	 * Gets all organizations where given vo is direct member.
+	 *
+	 * @param sess session
+	 * @param memberVoId member vo id
+	 * @return list of direct parent vos
+	 */
+	List<Vo> getParentVos(PerunSession sess, int memberVoId);
+
 }

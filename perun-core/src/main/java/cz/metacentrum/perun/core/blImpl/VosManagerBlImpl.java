@@ -36,21 +36,19 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
-import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
@@ -900,6 +898,28 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public boolean usesEmbeddedGroupRegistrations(PerunSession sess, Vo vo) {
 		return vosManagerImpl.hasEmbeddedGroupsItemInForm(sess, vo.getId());
+	}
+
+	@Override
+	public void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException {
+		// todo - add necessary logic for adding new member vo
+		vosManagerImpl.addMemberVo(sess, vo, memberVo);
+	}
+
+	@Override
+	public void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException {
+		// todo - add necessary logic for removing member vo
+		vosManagerImpl.removeMemberVo(sess, vo, memberVo);
+	}
+
+	@Override
+	public List<Vo> getMemberVos(PerunSession sess, int voId) {
+		return vosManagerImpl.getMemberVos(sess, voId);
+	}
+
+	@Override
+	public List<Vo> getParentVos(PerunSession sess, int memberVoId) {
+		return vosManagerImpl.getParentVos(sess, memberVoId);
 	}
 
 	/**

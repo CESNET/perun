@@ -18,6 +18,8 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -717,6 +719,62 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		vosManagerEntry.getVoMembersCountsByStatus(sess, new Vo());
 	}
+
+	@Test
+	public void getMemberVos() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberVos");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = new Vo(-1, "Vo2", "vo2");
+		memberVo = perun.getVosManagerBl().createVo(sess, memberVo);
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+
+		assertThat(vosManagerEntry.getMemberVos(sess, vo.getId())).containsExactly(memberVo);
+		assertThat(vosManagerEntry.getMemberVos(sess, memberVo.getId())).containsExactly();
+	}
+
+	@Test
+	public void getParentVos() throws Exception {
+		System.out.println(CLASS_NAME + "getParentVos");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = new Vo(-1, "Vo2", "vo2");
+		memberVo = perun.getVosManagerBl().createVo(sess, memberVo);
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+
+		assertThat(vosManagerEntry.getParentVos(sess, vo.getId())).containsExactly();
+		assertThat(vosManagerEntry.getParentVos(sess, memberVo.getId())).containsExactly(vo);
+	}
+
+	@Test
+	public void getParentVosNoRelations() throws Exception {
+		System.out.println(CLASS_NAME + "getParentVosNoRelations");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		assertThat(vosManagerEntry.getParentVos(sess, vo.getId())).isEmpty();
+	}
+
+	@Test
+	public void removeNonexistingMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "removeNonexistingMemberVo");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo vo2 = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+		assertThatExceptionOfType(RelationNotExistsException.class)
+			.isThrownBy(() -> vosManagerEntry.removeMemberVo(sess, vo, vo2));
+	}
+
+	@Test
+	public void addExistingMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "addExistingMemberVo");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo vo2 = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+		vosManagerEntry.addMemberVo(sess, vo, vo2);
+		assertThatExceptionOfType(RelationExistsException.class)
+			.isThrownBy(() -> vosManagerEntry.addMemberVo(sess, vo, vo2));
+	}
+
 
 	// private methods ------------------------------------------------------------------
 
