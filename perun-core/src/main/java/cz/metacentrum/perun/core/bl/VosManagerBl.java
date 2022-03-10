@@ -560,6 +560,8 @@ public interface VosManagerBl {
 
 	/**
 	 * Adds new relationship between vo and a member vo.
+	 * If user is member in both vos, updates memberOrganizations list attribute.
+	 * If user is member only in member vo, creates member in parent vo and sets memberOrganizations list attribute.
 	 *
 	 * @param sess session
 	 * @param vo vo
@@ -569,6 +571,7 @@ public interface VosManagerBl {
 
 	/**
 	 * Removes member vo from given vo.
+	 * Updates memberOrganizations list attribute for those members of parent vo who came from the member vo.
 	 *
 	 * @param sess session
 	 * @param vo vo
