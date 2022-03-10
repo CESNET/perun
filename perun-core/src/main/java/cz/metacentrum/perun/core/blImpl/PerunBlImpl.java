@@ -57,7 +57,6 @@ import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.ResourceAssignmentChecker;
-import cz.metacentrum.perun.core.impl.ResourceAssignmentActivator;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
 import org.slf4j.Logger;
@@ -121,6 +120,7 @@ public class PerunBlImpl implements PerunBl {
 
 	private final static Set<String> dontLookupUsersForLogins = BeansUtils.getCoreConfig().getDontLookupUsers();
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private final static boolean lookupUserByIdentifiersAndExtSourceLogin = BeansUtils.getCoreConfig().getLookupUserByIdentifiersAndExtSourceLogin();
 
 	public PerunBlImpl() {
 
@@ -143,11 +143,18 @@ public class PerunBlImpl implements PerunBl {
 
 				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
-					UserExtSource ues;
+					UserExtSource ues = null;
 					String shibIdentityProvider = principal.getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+					boolean findByExtSourceNameAndLogin = true;
 					if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-						ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
-					} else {
+						try {
+							findByExtSourceNameAndLogin = false;
+							ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
+						} catch (UserExtSourceNotExistsException ex) {
+							findByExtSourceNameAndLogin = lookupUserByIdentifiersAndExtSourceLogin;
+						}
+					}
+					if (findByExtSourceNameAndLogin) {
 						ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
 						ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
 					}

@@ -50,6 +50,7 @@ public class CoreConfig {
 	private List<String> rpcPowerusers;
 	private Set<String> dontLookupUsers;
 	private Set<String> extSourcesMultipleIdentifiers;
+	private boolean lookupUserByIdentifiersAndExtSourceLogin;
 	private String alternativePasswordManagerProgram;
 	private String instanceId;
 	private String instanceName;
@@ -248,6 +249,14 @@ public class CoreConfig {
 
 	public void setExtSourcesMultipleIdentifiers(Set<String> extSourcesMultipleIdentifiers) {
 		this.extSourcesMultipleIdentifiers = extSourcesMultipleIdentifiers;
+	}
+
+	public boolean getLookupUserByIdentifiersAndExtSourceLogin() {
+		return lookupUserByIdentifiersAndExtSourceLogin;
+	}
+
+	public void setLookupUserByIdentifiersAndExtSourceLogin(boolean lookupUserByIdentifiersAndExtSourceLogin) {
+		this.lookupUserByIdentifiersAndExtSourceLogin = lookupUserByIdentifiersAndExtSourceLogin;
 	}
 
 	public String getAlternativePasswordManagerProgram() {
