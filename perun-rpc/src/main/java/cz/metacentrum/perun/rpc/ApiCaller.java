@@ -11,6 +11,7 @@ import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
+import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.integration.api.IntegrationManagerApi;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
@@ -90,6 +91,7 @@ public class ApiCaller {
 	private SecurityTeamsManager securityTeamsManager = null;
 	private TasksManager tasksManager = null;
 	private Searcher searcher = null;
+	private ConfigManager configManager = null;
 	private CabinetManager cabinetManager;
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
@@ -211,6 +213,13 @@ public class ApiCaller {
 			ownersManager = rpcSession.getPerun().getOwnersManager();
 		}
 		return ownersManager;
+	}
+
+	public ConfigManager getConfigManager() {
+		if (configManager == null) {
+			configManager = rpcSession.getPerun().getConfigManager();
+		}
+		return configManager;
 	}
 
 	public CabinetManager getCabinetManager() {

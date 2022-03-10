@@ -194,6 +194,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<property name="usersManagerBl" ref="usersManagerBl"/>
 		<property name="groupsManagerBl" ref="groupsManagerBl"/>
 		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
+		<property name="configManagerBl" ref="configManagerBl"/>
 		<property name="membersManagerBl" ref="membersManagerBl"/>
 		<property name="resourcesManagerBl" ref="resourcesManagerBl"/>
 		<property name="extSourcesManagerBl" ref="extSourcesManagerBl"/>
@@ -212,6 +213,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<property name="usersManager" ref="usersManager"/>
 		<property name="groupsManager" ref="groupsManager"/>
 		<property name="facilitiesManager" ref="facilitiesManager"/>
+		<property name="configManager" ref="configManager"/>
 		<property name="membersManager" ref="membersManager"/>
 		<property name="resourcesManager" ref="resourcesManager"/>
 		<property name="extSourcesManager" ref="extSourcesManager"/>
@@ -248,6 +250,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	<bean id="facilitiesManager" class="cz.metacentrum.perun.core.entry.FacilitiesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
 		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
+	</bean>
+	<bean id="configManager" class="cz.metacentrum.perun.core.entry.ConfigManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+		<property name="perunBl" ref="perun"/>
+		<property name="configManagerBl" ref="configManagerBl"/>
 	</bean>
 	<bean id="databaseManager" class="cz.metacentrum.perun.core.entry.DatabaseManagerEntry" scope="singleton">
 		<property name="databaseManagerBl" ref="databaseManagerBl"/>
@@ -312,6 +318,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	<bean id="facilitiesManagerBl" class="cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="facilitiesManagerImpl" />
+	</bean>
+	<bean id="configManagerBl" class="cz.metacentrum.perun.core.blImpl.ConfigManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+		<constructor-arg ref="configManagerImpl" />
 	</bean>
 	<bean id="databaseManagerBl" class="cz.metacentrum.perun.core.blImpl.DatabaseManagerBlImpl" scope="singleton" init-method="initialize">
 		<constructor-arg ref="databaseManagerImpl" />
@@ -379,6 +388,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	</bean>
 	<bean id="facilitiesManagerImpl" class="cz.metacentrum.perun.core.impl.FacilitiesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="configManagerImpl" class="cz.metacentrum.perun.core.impl.ConfigManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+		<property name="perunAppsConfigLoader" ref="perunAppsConfigLoader"/>
 	</bean>
 	<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
 		<constructor-arg ref="dataSource" />
