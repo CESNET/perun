@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Perun::Agent;
+
+sub help {
+	return qq{
+	Reloads existing configurations of branding and their respective apps as configured in perun-apps-config.yml
+	------------------------------
+	};
+}
+
+my $agent = Perun::Agent->new();
+
+my $configAgent = $agent->getConfigAgent;
+
+$configAgent->reloadAppsConfig;
