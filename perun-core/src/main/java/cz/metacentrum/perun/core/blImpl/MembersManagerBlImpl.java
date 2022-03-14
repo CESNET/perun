@@ -81,6 +81,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
@@ -159,6 +160,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String NAME = "name";
 	private static final String GROUP_ADDING_ERRORS = "group_adding_errors";
 	private static final String MEMBER = "member";
+	private final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
 
 	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
 			"firstname",
@@ -236,6 +238,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		membersManagerImpl.rejectAllMemberOpenApplications(sess, member);
 
 		// Remove member from the DB
+		removeMemberFromParentVos(sess, member);
 		getMembersManagerImpl().deleteMember(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberDeleted(member));
 	}
@@ -1484,6 +1487,71 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
+	private void removeMemberFromParentVos(PerunSession sess, Member member ) {
+		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+		try {
+			Vo memberVo = getPerunBl().getVosManager().getVoById(sess, member.getVoId());
+			List<Vo> parentVos = getPerunBl().getVosManager().getParentVos(sess, member.getVoId());
+			for (Vo vo : parentVos) {
+				try {
+					Member existingMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+					Attribute attribute = perunBl.getAttributesManager().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+					ArrayList<String> currentValue = (ArrayList<String>) attribute.getValue();
+					if (currentValue == null || currentValue.isEmpty()) {
+						throw new ConsistencyErrorException("Member " + existingMember + " of hierarchical vo " + vo + " has no origin vo set in attribute.");
+					}
+					currentValue.remove(memberVo.getShortName());
+					if (currentValue.isEmpty()) {
+						this.getPerunBl().getMembersManagerBl().deleteMember(sess, existingMember);
+						continue;
+					}
+					attribute.setValue(currentValue);
+					perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
+				} catch (WrongAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException | MemberNotExistsException | MemberAlreadyRemovedException | WrongReferenceAttributeValueException e) {
+					throw new InternalErrorException(e);
+				}
+			}
+		} catch (VoNotExistsException | PrivilegeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	private void addMemberToParentVos(PerunSession sess, Member member) {
+		if (member.getStatus() != Status.VALID) {
+			return;
+		}
+		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+		try {
+			Vo memberVo = getPerunBl().getVosManager().getVoById(sess, member.getVoId());
+			List<Vo> parentVos = getPerunBl().getVosManager().getParentVos(sess, member.getVoId());
+			for (Vo vo : parentVos) {
+				try {
+					try {
+						Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, user);
+						Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
+						ArrayList<String> newValue = new ArrayList<>(List.of(memberVo.getShortName()));
+						attribute.setValue(newValue);
+						perunBl.getAttributesManagerBl().setAttribute(sess, newMember, attribute);
+					} catch (AlreadyMemberException ex) {
+						Member existingMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+						Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+						ArrayList<String> currentValue = (ArrayList<String>) attribute.getValue();
+						if (currentValue == null || currentValue.isEmpty()) {
+							throw new ConsistencyErrorException("Member " + existingMember + " of hierarchical vo " + vo + " has no origin vo set in attribute.");
+						}
+						currentValue.add(memberVo.getShortName());
+						attribute.setValue(currentValue);
+						perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
+					}
+				} catch (WrongReferenceAttributeValueException | WrongAttributeValueException | ExtendMembershipException | WrongAttributeAssignmentException | AttributeNotExistsException | MemberNotExistsException e) {
+						throw new InternalErrorException(e);
+					}
+			}
+		} catch (VoNotExistsException | PrivilegeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	@Override
 	public Member validateMember(PerunSession sess, Member member) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//this method run in nested transaction
@@ -1495,6 +1563,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Status oldStatus = member.getStatus();
 		getMembersManagerImpl().setStatus(sess, member, Status.VALID);
 		member.setStatus(Status.VALID);
+		addMemberToParentVos(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberValidated(member));
 		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
 			try {
@@ -1538,6 +1607,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		getMembersManagerImpl().setStatus(sess, member, Status.INVALID);
 		member.setStatus(Status.INVALID);
+		removeMemberFromParentVos(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberInvalidated(member));
 		return member;
 	}
@@ -1553,6 +1623,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Status oldStatus = member.getStatus();
 		getMembersManagerImpl().setStatus(sess, member, Status.EXPIRED);
 		member.setStatus(Status.EXPIRED);
+		removeMemberFromParentVos(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberExpired(member));
 
 		//We need to check validity of attributes first (expired member has to have valid attributes)
@@ -1579,6 +1650,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.DISABLED);
 		member.setStatus(Status.DISABLED);
+		removeMemberFromParentVos(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberDisabled(member));
 		return member;
 	}
