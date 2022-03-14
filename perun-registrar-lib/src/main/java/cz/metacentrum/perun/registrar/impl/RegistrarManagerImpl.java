@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
+import cz.metacentrum.perun.registrar.model.RichApplication;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
 import org.apache.commons.lang3.StringUtils;
@@ -527,6 +528,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			} catch (ExtendMembershipException ex) {
 				// can't become member of VO
 				result.put("voFormInitialException", ex);
+			} catch (NoPrefilledUneditableRequiredDataException ex) {
+				// can't display form
+				result.put("voFormInitialException", ex);
 			} catch (MissingRequiredDataException ex) {
 				// can't display form
 				result.put("voFormInitialException", ex);
@@ -551,6 +555,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("voFormExtensionException", ex);
 				} catch (MemberNotExistsException ex) {
 					// is not member -> can't extend
+					result.put("voFormExtensionException", ex);
+				} catch (NoPrefilledUneditableRequiredDataException ex) {
+					// can't display form
 					result.put("voFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
@@ -583,6 +590,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} catch (ExtendMembershipException ex) {
 					// can't become member of VO -> then can't be member of group either
 					result.put("groupFormInitialException", ex);
+				} catch (NoPrefilledUneditableRequiredDataException ex) {
+					// can't display form
+					result.put("groupFormInitialException", ex);
 				}  catch (MissingRequiredDataException ex) {
 					// can't display form
 					result.put("groupFormInitialException", ex);
@@ -612,6 +622,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("groupFormExtensionException", ex);
 				} catch (NotGroupMemberException ex) {
 					// is not member of Group -> can't extend
+					result.put("groupFormExtensionException", ex);
+				} catch (NoPrefilledUneditableRequiredDataException ex) {
+					// can't display form
 					result.put("groupFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
@@ -2057,7 +2070,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public Paginated<Application> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query) throws PerunException {
+	public Paginated<RichApplication> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query) throws PerunException {
 		vosManager.checkVoExists(userSession, vo);
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
@@ -2083,7 +2096,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		String searchQuery = getSQLWhereForApplicationsPage(query, namedParams);
 
-		Paginated<Application> applications = namedJdbc.query(
+		Paginated<RichApplication> applications = namedJdbc.query(
 			APP_SELECT_PAGE +
 				" WHERE a.vo_id=(:voId)" +
 				(query.getStates() == null || query.getStates().isEmpty() ? "" : " AND a.state IN (:states) ") +
@@ -2092,13 +2105,25 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				(query.getGroupId() == null ? "" : "  AND a.group_id=(:groupId)") +
 				" AND (:dateFrom) <= a.created_at::date AND a.created_at::date <= (:dateTo)" +
 				searchQuery +
+				// group by to remove duplicates from application_data join
+				APP_PAGE_GROUP_BY +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
 				" LIMIT (:limit)"
 			, namedParams,
 			getPaginatedApplicationsExtractor(query));
 
+		if (applications == null) {
+			return new Paginated<>(new ArrayList<>(), query.getOffset(), query.getPageSize(), 0);
+		}
 
+		for (RichApplication app : applications.getData()) {
+			List<ApplicationFormItemData> appData = new ArrayList<>();
+			if (query.getGetDetails()) {
+				appData = getApplicationDataById(userSession, app.getId());
+			}
+			app.setFormData(appData);
+		}
 
 		return applications;
 	}
@@ -2656,6 +2681,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Map<Integer, ApplicationFormItemWithPrefilledValue> allItemsByIds = itemsWithValues.stream()
 				.collect(toMap(item -> item.getFormItem().getId(), Function.identity()));
 
+		List<ApplicationFormItemWithPrefilledValue> noPrefilledUneditableRequiredItems = new ArrayList<>();
+
 		for (ApplicationFormItemWithPrefilledValue itemW : itemsWithValues) {
 			// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
 			if (isEmpty(itemW.getPrefilledValue()) &&
@@ -2664,7 +2691,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (URN_USER_DISPLAY_NAME.equals(itemW.getFormItem().getPerunDestinationAttribute())) {
 					log.error("Couldn't resolve displayName from: {}, parsedNames were: {}", federValues, parsedName);
 				}
-				itemsWithMissingData.add(itemW);
+				// Required uneditable items with no source or federation attribute
+				if (isEmpty(itemW.getFormItem().getFederationAttribute()) && isEmpty(itemW.getFormItem().getPerunSourceAttribute())) {
+					noPrefilledUneditableRequiredItems.add(itemW);
+				} else {
+					itemsWithMissingData.add(itemW);
+				}
 			}
 		}
 
@@ -2672,11 +2704,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			module.processFormItemsWithData(sess, appType, form, itemsWithValues);
 		}
 
+		if (!noPrefilledUneditableRequiredItems.isEmpty()) {
+			log.error("[REGISTRAR] Uneditable (hidden or disabled) required items with no prefilled data: {}", noPrefilledUneditableRequiredItems);
+			throw new NoPrefilledUneditableRequiredDataException("The administrator sets these required items as hidden or disabled without any prefilled data.", noPrefilledUneditableRequiredItems);
+		}
+
 		if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 			// throw exception only if user is logged-in by Federation IDP
 			String IDP = federValues.get("originIdentityProvider");
-			log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
-			throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
+			log.error("[REGISTRAR] Wrongly configured form OR user doesn't match any conditions for the following form items OR IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
+			throw new MissingRequiredDataException("The administrator set up this form wrongly OR you don't match any conditions OR your IDP doesn't provide data required by this application form.", itemsWithMissingData);
 		}
 
 		itemsWithValues.stream()
@@ -4545,14 +4582,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param query query data
 	 * @return extractor, that can be used to extract returned paginated applications from db
 	 */
-	private static ResultSetExtractor<Paginated<Application>> getPaginatedApplicationsExtractor(ApplicationsPageQuery query) {
+	private static ResultSetExtractor<Paginated<RichApplication>> getPaginatedApplicationsExtractor(ApplicationsPageQuery query) {
 		return resultSet -> {
-			List<Application> applications = new ArrayList<>();
+			List<RichApplication> applications = new ArrayList<>();
 			int total_count = 0;
 			int row = 0;
 			while (resultSet.next()) {
 				total_count = resultSet.getInt("total_count");
-				applications.add(APP_MAPPER.mapRow(resultSet, row));
+				Application app = APP_MAPPER.mapRow(resultSet, row);
+				if (app != null) {
+					applications.add(new RichApplication(app));
+				}
 				row++;
 			}
 			return new Paginated<>(applications, query.getOffset(), query.getPageSize(), total_count);
@@ -4572,7 +4612,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
 		"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
 		"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
-		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
+		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a" +
+		" left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id left outer join application_data d on a.id = d.app_id";
+
+	static final String APP_PAGE_GROUP_BY = " GROUP BY a.id, a.vo_id, a.group_id, a.apptype, a.fed_info, a.state, a.user_id, a.extsourcename, a.extsourcetype, a.extsourceloa, a.user_id, a.created_at, a.created_by, a.modified_at, a.modified_by," +
+		" v.name, v.short_name, v.created_by, v.created_at, v.created_by_uid, v.modified_by, v.modified_at, v.modified_by_uid, g.name, g.dsc, g.created_by, g.created_at, g.modified_by, g.created_by_uid, g.modified_by_uid, g.modified_at, g.vo_id, " +
+		"g.parent_group_id, g.uu_id, u.first_name, u.last_name, u.middle_name, u.title_before, u.title_after, u.service_acc, u.sponsored_acc, u.uu_id";
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 

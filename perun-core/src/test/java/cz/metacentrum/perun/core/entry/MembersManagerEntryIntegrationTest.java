@@ -438,6 +438,24 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getRichMembersNoUserAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getRichMembersNoUserAttributes");
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		Attribute memberAttribute1 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Collections.singletonList(memberAttribute1)));
+		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+		perun.getAttributesManagerBl().setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute1)));
+
+		List<RichMember> members = perun.getMembersManager().getRichMembersNoUserAttributes(sess, createdVo);
+
+		assertThat(members.equals(Collections.singletonList(createdMember))).isTrue();
+		assertTrue(members.get(0).getMemberAttributes().contains(memberAttribute1));
+		assertNull(members.get(0).getUserAttributes());
+	}
+
+	@Test
 	public void findCompleteRichMembers() throws Exception {
 		System.out.println(CLASS_NAME + "findCompleteRichMembers");
 

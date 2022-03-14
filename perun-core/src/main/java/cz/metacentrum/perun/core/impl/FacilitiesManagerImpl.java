@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -580,7 +581,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, facility);
 			for(Group authorizedGroup : listOfGroupAdmins) {
 				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
-							"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
+							"join groups_members on groups_members.member_id=members.id and groups_members.source_group_status=? where groups_members.group_id=? and members.status=?", UsersManagerImpl.USER_MAPPER, MemberGroupStatus.VALID.getCode(), authorizedGroup.getId(), Status.VALID.getCode()));
 			}
 
 			return new ArrayList<>(setOfAdmins);
@@ -720,10 +721,10 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities " +
 							" left outer join authz on authz.facility_id=facilities.id " +
-							" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-							" left outer join members on members.id=groups_members.member_id " +
-							" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) ",
-					FACILITY_MAPPER, user.getId(), user.getId(), Role.FACILITYADMIN.toLowerCase());
+							" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=? " +
+							" left outer join members on members.id=groups_members.member_id" +
+							" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null)",
+					FACILITY_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), user.getId(), Role.FACILITYADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

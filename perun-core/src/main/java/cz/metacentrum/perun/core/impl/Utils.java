@@ -2124,6 +2124,15 @@ public class Utils {
 	}
 
 	/**
+	 * Returns search query to search by application's form data values based on databased in use.
+	 *
+	 * @return search query
+	 */
+	public static String prepareApplicationDataSearchQuerySimilarMatch() {
+		return "(strpos(lower("+Compatibility.convertToAscii("COALESCE(d.value,'')")+"), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+	}
+
+	/**
 	 * Returns a part of WHERE condition to search groups in their ids, uuids, names and descriptions
 	 * by given search string.
 	 *
@@ -2208,6 +2217,7 @@ public class Utils {
 
 		String groupNameDscQueryString = prepareGroupNameDscAppsSearchQuerySimilarMatch();
 		String usernameQueryString = prepareUsernameSearchQuerySimilarMatch();
+		String appdataQueryString = prepareApplicationDataSearchQuerySimilarMatch();
 		namedParams.addValue("searchString", searchString);
 
 		return
@@ -2215,6 +2225,8 @@ public class Utils {
 			groupNameDscQueryString +
 				" OR " +
 				usernameQueryString +
+				" OR " +
+				appdataQueryString +
 				appIdQueryString +
 				groupIdQueryString +
 				uuidQueryString +

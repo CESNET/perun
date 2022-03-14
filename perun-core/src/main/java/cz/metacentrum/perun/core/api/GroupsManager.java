@@ -767,7 +767,8 @@ public interface GroupsManager {
 	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws PrivilegeException, GroupNotExistsException, GroupNotAdminException, RoleCannotBeManagedException;
 
 	/**
-	 * Get list of all user administrators for supported role and specific group.
+	 * Gets list of all administrators of this group.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
@@ -786,7 +787,8 @@ public interface GroupsManager {
 	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 * Gets list of all richUser administrators of this group.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * Supported roles: GroupAdmin
 	 *

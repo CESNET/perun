@@ -17,6 +17,7 @@ public class ApplicationsPageQuery {
 	private SortingOrder order;
 	private ApplicationsOrderColumn sortColumn;
 	private Boolean includeGroupApplications = true;
+	private Boolean getDetails = false;
 	private String searchString = "";
 	private List<Application.AppState> states;
 	private LocalDate dateFrom = LocalDate.now().minusYears(1);
@@ -220,6 +221,14 @@ public class ApplicationsPageQuery {
 		this.order = order;
 	}
 
+	public Boolean getGetDetails() {
+		return getDetails;
+	}
+
+	public void setGetDetails(Boolean getDetails) {
+		this.getDetails = getDetails;
+	}
+
 	public ApplicationsOrderColumn getSortColumn() {
 		return sortColumn;
 	}
@@ -291,6 +300,7 @@ public class ApplicationsPageQuery {
 		if (getOrder() != that.getOrder()) return false;
 		if (getSortColumn() != that.getSortColumn()) return false;
 		if (getIncludeGroupApplications() != that.getIncludeGroupApplications()) return false;
+		if (getGetDetails() != that.getGetDetails()) return false;
 		if (!getSearchString().equals(that.getSearchString())) return false;
 		if (getStates() != that.getStates()) return false;
 		if (getDateFrom() != that.getDateFrom()) return false;
@@ -304,6 +314,7 @@ public class ApplicationsPageQuery {
 		result = 31 * result + (getOrder() != null ? getOrder().hashCode() : 0);
 		result = 31 * result + (getSortColumn() != null ? getSortColumn().hashCode() : 0);
 		result = 31 * result + (getIncludeGroupApplications() != null ? getIncludeGroupApplications().hashCode() : 0);
+		result = 31 * result + (getGetDetails() != null ? getGetDetails().hashCode() : 0);
 		result = 31 * result + (getSearchString() != null ? getSearchString().hashCode() : 0);
 		result = 31 * result + (getStates() != null ? getStates().hashCode() : 0);
 		result = 31 * result + (getUserId() != null ? getUserId().hashCode() : 0);

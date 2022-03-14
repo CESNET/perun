@@ -186,7 +186,8 @@ public interface VosManagerBl {
 	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources);
 
 	/**
-	 * Get list of all user administrators for supported role and specific vo.
+	 * Get list of user administrators of specific vo for specific role.
+	 * If some group is administrator of the VO, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
@@ -204,7 +205,8 @@ public interface VosManagerBl {
 	List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins);
 
 	/**
-	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
+	 * Get list of richUser administrators of specific vo for specific role.
+	 * If some group is administrator of the VO, all VALID members are included in the list.
 	 *
 	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *

@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceAssignment;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
@@ -818,6 +819,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) {
 		return getResourcesManagerImpl().getAllowedResources(sess, facility, user);
+	}
+
+	@Override
+	public List<Resource> getResources(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses, List<GroupResourceStatus> groupResourceStatuses) {
+		return getResourcesManagerImpl().getResources(sess, user, memberStatuses, memberGroupStatuses, groupResourceStatuses);
 	}
 
 	@Override

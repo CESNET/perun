@@ -271,7 +271,8 @@ public interface VosManager {
 	void removeAdmin(PerunSession perunSession, Vo vo, Group group) throws PrivilegeException, VoNotExistsException, GroupNotAdminException, GroupNotExistsException, RoleCannotBeManagedException;
 
 	/**
-	 * Get list of all user administrators for supported role and specific vo.
+	 * Get list of user administrators of specific vo for specific role.
+	 * If some group is administrator of the VO, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
@@ -292,7 +293,8 @@ public interface VosManager {
 	List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws PrivilegeException, VoNotExistsException, RoleNotSupportedException;
 
 	/**
-	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
+	 * Get list of richUser administrators of specific vo for specific role.
+	 * If some group is administrator of the VO, all VALID members are included in the list.
 	 *
 	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN, SPONSOR
 	 *

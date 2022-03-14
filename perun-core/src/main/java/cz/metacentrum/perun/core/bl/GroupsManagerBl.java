@@ -625,6 +625,19 @@ public interface GroupsManagerBl {
 	List<Group> getUserGroups(PerunSession sess, User user);
 
 	/**
+	 * Return groups where user is member with allowed statuses in vo and group.
+	 * If statuses are empty or null, all statuses are used.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param memberStatuses allowed statuses of member in VO
+	 * @param memberGroupStatuses allowed statuses of member in group
+	 * @return list of groups
+	 * @throws InternalErrorException
+	 */
+	List<Group> getUserGroups(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses);
+
+	/**
 	 * Returns group members in the RichMember object, which contains Member+User data.
 	 *
 	 * @param sess
@@ -809,7 +822,8 @@ public interface GroupsManagerBl {
 	List<Group> getAllSubGroups(PerunSession sess, Group parentGroup);
 
 	/**
-	 * Get list of all user administrators for supported role and specific group.
+	 * Gets list of all administrators of this group.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
@@ -826,7 +840,8 @@ public interface GroupsManagerBl {
 	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins);
 
 	/**
-	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 * Gets list of all richUser administrators of this group.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * Supported roles: GroupAdmin
 	 *

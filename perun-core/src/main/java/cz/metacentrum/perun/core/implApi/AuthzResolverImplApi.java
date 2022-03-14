@@ -31,7 +31,7 @@ import java.util.Set;
 public interface AuthzResolverImplApi {
 
 	/**
-	 * Returns all user's roles.
+	 * Returns all user's roles - including roles resulting from being a VALID member of authorized groups
 	 *
 	 * @param user
 	 * @return AuthzRoles object which contains all roles with perunbeans

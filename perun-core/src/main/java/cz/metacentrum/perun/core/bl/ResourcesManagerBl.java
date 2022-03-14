@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceAssignment;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
@@ -19,6 +20,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -727,6 +729,23 @@ public interface ResourcesManagerBl {
 	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user);
 
 	/**
+	 * Return all resources where user is assigned.
+	 * Checks member's status in VO and group and status of group-resource assignment.
+	 * If statuses are null or empty all statuses are used.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param memberStatuses allowed member's statuses in VO
+	 * @param memberGroupStatuses allowed member's statuses in group
+	 * @param groupResourceStatuses allowed statuses of group-resource assignment
+	 *
+	 * @return List of allowed resources for the user
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getResources(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses, List<GroupResourceStatus> groupResourceStatuses);
+
+
+	/**
 	 * Get all resources where the member is assigned.
 	 *
 	 * @param sess
@@ -962,7 +981,8 @@ public interface ResourcesManagerBl {
 	void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws ResourceTagNotExistsException;
 
 	/**
-	 * Get list of all user administrators for supported role and given resource.
+	 * Gets list of all user administrators of the Resource.
+	 * If some group is administrator of the given resource, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
@@ -979,7 +999,8 @@ public interface ResourcesManagerBl {
 	List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins);
 
 	/**
-	 * Get list of all richUser administrators for the resource and supported role with specific attributes.
+	 * Gets list of all richUser administrators of the Resource.
+	 * If some group is administrator of the given resource, all VALID members are included in the list.
 	 *
 	 * Supported roles: ResourceAdmin, VOAdmin
 	 *
@@ -1002,6 +1023,7 @@ public interface ResourcesManagerBl {
 
 	/**
 	 * Returns list of resources, where the user is an admin.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param user
@@ -1012,6 +1034,7 @@ public interface ResourcesManagerBl {
 
 	/**
 	 * Return all resources for the facility and the vo where user is authorized as resource manager.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param facility the facility to which resources should be assigned to
@@ -1025,7 +1048,7 @@ public interface ResourcesManagerBl {
 
 	/**
 	 * Return all resources for the vo where user is authorized as resource manager.
-	 * Including resources, where the user is a member of authorized group.
+	 * Including resources, where the user is a VALID member of authorized group.
 	 *
 	 * @param sess
 	 * @param vo the vo to which resources should be assigned to

@@ -872,8 +872,6 @@ components:
         - HTML_COMMENT
         - SUBMIT_BUTTON
         - AUTO_SUBMIT_BUTTON
-        - FROM_FEDERATION_SHOW
-        - FROM_FEDERATION_HIDDEN
         - PASSWORD
         - VALIDATED_EMAIL
         - TEXTFIELD
@@ -965,12 +963,22 @@ components:
         modifiedBy: { type: string }
         modifiedAt: { type: string }
 
-    PaginatedApplications:
+    RichApplication:
+      allOf:
+        - $ref: '#/components/schemas/Application'
+        - properties:
+            formData: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+          required:
+            - formData
+
+
+
+    PaginatedRichApplications:
       properties:
         offset: { type: integer }
         pageSize: { type: integer }
         totalCount: { type: integer }
-        data: { type: array, items: { $ref: '#/components/schemas/Application' } }
+        data: { type: array, items: { $ref: '#/components/schemas/RichApplication' } }
       required:
         - offset
         - pageSize
@@ -985,6 +993,7 @@ components:
         sortColumn: { $ref: '#/components/schemas/ApplicationsOrderColumn' }
         searchString: { type: string }
         includeGroupApplications: { type: boolean }
+        getDetails: { type: boolean }
         states: { type: array, items: { $ref: '#/components/schemas/AppState'  } }
         dateFrom: { type: string, format: date }
         dateTo: { type: string, format: date }
@@ -1886,12 +1895,12 @@ components:
           schema:
             $ref: "#/components/schemas/PaginatedRichMembers"
 
-    PaginatedApplicationsResponse:
-      description: "returns Paginated<Application>"
+    PaginatedRichApplicationsResponse:
+      description: "returns Paginated<RichApplication>"
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/PaginatedApplications"
+            $ref: "#/components/schemas/PaginatedRichApplications"
 
     ResourceResponse:
       description: "returns Resource"
@@ -8356,7 +8365,7 @@ paths:
       tags:
         - UsersManager
       operationId: getVosWhereUserIsAdmin
-      summary: Returns list of VOs, where the user is an Administrator.
+      summary: Returns list of VOs, where the user is an Administrator. If a group, of which the user is a valid member, is an administrator of a VO, include that VO as well.
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
@@ -8370,7 +8379,7 @@ paths:
       tags:
         - UsersManager
       operationId: getGroupsWhereUserIsAdmin
-      summary: Returns list of Groups in Perun, where the User is a direct Administrator or he is a member of any group which is Administrator of some of these Groups.
+      summary: Returns list of Groups in Perun, where the User is a direct Administrator or he is a VALID member of any group which is Administrator of some of these Groups.
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
@@ -8384,7 +8393,7 @@ paths:
       tags:
         - UsersManager
       operationId: getGroupsInVoWhereUserIsAdmin
-      summary: Returns list of Groups in selected Vo, where the User is a direct Administrator or he is a member of any group which is Administrator of some of these Groups.
+      summary: Returns list of Groups in selected Vo, where the User is a direct Administrator or he is a VALID member of any group which is Administrator of some of these Groups.
       parameters:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/voId'
@@ -9089,6 +9098,22 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RichMemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getRichMembersNoUserAttributes:
+    get:
+      tags:
+        - MembersManager
+      operationId: getRichMembersNoUserAttributes
+      summary: Returns list of all RichMembers for specified VO. User attributes aren't included in the returned
+          objects
+      description: Get richMembers for VO with member attributes (without user attributes).
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -10953,6 +10978,7 @@ paths:
       description: |
         Get list of all facility administrators for supported role and given facility.
         If onlyDirectAdmins is true, return only direct admins of the group for supported role.
+        Includes users who are VALID members of administrator groups.
         Supported roles: FacilityAdmin
       parameters:
         - $ref: '#/components/parameters/facilityId'
@@ -10971,6 +10997,7 @@ paths:
       description: |
         Get list of all facility administrators for supported role and given facility.
         If onlyDirectAdmins is true, return only direct admins of the group for supported role.
+        Includes users who are VALID members of administrator groups.
         Supported roles: FacilityAdmin
       parameters:
         - $ref: '#/components/parameters/facilityName'
@@ -11014,7 +11041,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getFacilitiesWhereUserIsAdmin
-      summary: Returns list of Facilities, where the user is an Administrator.
+      summary: Returns list of Facilities, where the user is a direct Administrator or a VALID member of an administrator group.
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
@@ -12904,7 +12931,8 @@ paths:
         - ResourcesManager
       operationId: getAdmins
       summary: Get list of all resource administrators for supported role and given resource.
-      description: If onlyDirectAdmins is == true, return only direct admins of the group for supported role. Supported roles are ResourceAdmin, VOAdmin.
+      description: If onlyDirectAdmins is == true, return only direct admins of the group for supported role. Otherwise include users who are VALID members of administrator groups.
+        Supported roles are ResourceAdmin, VOAdmin.
       parameters:
         - $ref: '#/components/parameters/resourceId'
         - { name: onlyDirectAdmins, required: true, schema: { type: boolean }, in: query, description: 'boolean if true, get only direct resource administrators (if false, get both direct and indirect)' }
@@ -12936,6 +12964,7 @@ paths:
       operationId: getRichAdmins
       summary: |
         Get list of all richUser administrators for the resource and supported role with specific attributes.
+        If some group is administrator of the given group, all VALID members are included in the list.
         Supported roles: ResourceAdmin, VOAdmin
         If "onlyDirectAdmins" is true, return only direct admins of the resource for supported role with specific attributes.
         If "allUserAttributes" is true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -12962,7 +12991,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getResourcesWhereUserIsAdmin
-      summary: Returns list of Resources for specified VO and Facility, where the user is an Administrator.
+      summary: Returns list of Resources for specified VO and Facility, where the user is a direct Administrator or a VALID member of an administrator group.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/voId'
@@ -14039,6 +14068,7 @@ paths:
       description: |
         Get list of all vo administrators for supported role and specific vo.
         If onlyDirectAdmins is true, return only direct admins of the vo for supported role.
+        Otherwise return direct admins and users who are VALID members of administrator groups
         Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
       parameters:
         - $ref: '#/components/parameters/voId'
@@ -14074,6 +14104,7 @@ paths:
       operationId: getRichAdminsForVo
       description: |
         Get list of all richUser administrators for the vo and supported role with specific attributes.
+        If some group is administrator of the given group, all VALID members are included in the list.
         Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
         If "onlyDirectAdmins" is == true, return only direct admins of the vo for supported role with specific attributes.
         If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -14299,7 +14330,7 @@ paths:
       summary: Get page of applications from the given vo, based on the query attributes.
       responses:
         '200':
-          $ref: '#/components/responses/PaginatedApplicationsResponse'
+          $ref: '#/components/responses/PaginatedRichApplicationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:

@@ -1918,6 +1918,61 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getUserGroupsWithAllStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "getUserGroupsWithAllStatuses");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+		List<Group> groups = setUpGroups(vo);
+
+		Member member = setUpMember(vo);
+		groupsManagerBl.addMember(sess, group, member);
+		User u = perun.getUsersManager().getUserByMember(sess, member);
+
+		List<Group> resultGroups = groupsManagerBl.getUserGroups(sess, u, List.of(Status.VALID), null);
+		assertThat(resultGroups).contains(group);
+
+		resultGroups = groupsManagerBl.getUserGroups(sess, u, List.of(Status.VALID), List.of());
+		assertThat(resultGroups).contains(group);
+
+		resultGroups = groupsManagerBl.getUserGroups(sess, u, List.of(), null);
+		assertThat(resultGroups).contains(group);
+	}
+
+	@Test
+	public void getUserGroupsWithAllowedStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "getUserGroupsWithAllowedStatuses");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+		List<Group> groups = setUpGroups(vo);
+
+		Member member = setUpMember(vo);
+		groupsManagerBl.addMember(sess, group, member);
+		User u = perun.getUsersManager().getUserByMember(sess, member);
+
+		List<Group> resultGroups = groupsManagerBl.getUserGroups(sess, u, List.of(Status.VALID), List.of(MemberGroupStatus.VALID));
+		assertThat(resultGroups).contains(group);
+
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		resultGroups = groupsManagerBl.getUserGroups(sess, u, List.of(Status.VALID), null);
+		assertThat(resultGroups).contains(group);
+		resultGroups = groupsManagerBl.getUserGroups(sess, u, null, List.of(MemberGroupStatus.EXPIRED));
+		assertThat(resultGroups).contains(group);
+		resultGroups = groupsManagerBl.getUserGroups(sess, u, null, List.of(MemberGroupStatus.VALID));
+		assertThat(resultGroups).doesNotContain(group);
+
+		groupsManagerBl.validateMemberInGroup(sess, member, group);
+		perun.getMembersManagerBl().expireMember(sess, member);
+
+		resultGroups = groupsManagerBl.getUserGroups(sess, u, List.of(Status.VALID), null);
+		assertThat(resultGroups).doesNotContain(group);
+		resultGroups = groupsManagerBl.getUserGroups(sess, u, List.of(Status.EXPIRED), null);
+		assertThat(resultGroups).contains(group);
+	}
+
+	@Test
 	public void testGroupNameLength() throws Exception {
 		System.out.println(CLASS_NAME + "testGroupNameLength");
 

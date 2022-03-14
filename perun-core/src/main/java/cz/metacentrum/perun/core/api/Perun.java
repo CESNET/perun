@@ -132,4 +132,10 @@ public interface Perun {
 	 */
 	TasksManager getTasksManager();
 
+	/**
+	 * Gets a ConfigManager
+	 * @return ConfigManager
+	 */
+	ConfigManager getConfigManager();
+
 }

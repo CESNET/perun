@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -38,6 +39,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
+import cz.metacentrum.perun.core.bl.ConfigManagerBl;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
@@ -57,7 +59,6 @@ import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.ResourceAssignmentChecker;
-import cz.metacentrum.perun.core.impl.ResourceAssignmentActivator;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
 import org.slf4j.Logger;
@@ -94,6 +95,7 @@ public class PerunBlImpl implements PerunBl {
 	private Searcher searcher = null;
 	private TasksManager tasksManager = null;
 	private ResourceAssignmentChecker resourceAssignmentChecker = null;
+	private ConfigManager configManager = null;
 
 	private ModulesUtilsBl modulesUtilsBl = null;
 	private VosManagerBl vosManagerBl = null;
@@ -112,6 +114,8 @@ public class PerunBlImpl implements PerunBl {
 	private SecurityTeamsManagerBl securityTeamsManagerBl = null;
 	private SearcherBl searcherBl = null;
 	private TasksManagerBl tasksManagerBl = null;
+	private ConfigManagerBl configManagerBl = null;
+
 
 	private Auditer auditer = null;
 	private AttributesManagerImplApi attributesManagerImpl = null;
@@ -121,6 +125,7 @@ public class PerunBlImpl implements PerunBl {
 
 	private final static Set<String> dontLookupUsersForLogins = BeansUtils.getCoreConfig().getDontLookupUsers();
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private final static boolean lookupUserByIdentifiersAndExtSourceLogin = BeansUtils.getCoreConfig().getLookupUserByIdentifiersAndExtSourceLogin();
 
 	public PerunBlImpl() {
 
@@ -143,11 +148,18 @@ public class PerunBlImpl implements PerunBl {
 
 				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
-					UserExtSource ues;
+					UserExtSource ues = null;
 					String shibIdentityProvider = principal.getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+					boolean findByExtSourceNameAndLogin = true;
 					if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-						ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
-					} else {
+						try {
+							findByExtSourceNameAndLogin = false;
+							ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
+						} catch (UserExtSourceNotExistsException ex) {
+							findByExtSourceNameAndLogin = lookupUserByIdentifiersAndExtSourceLogin;
+						}
+					}
+					if (findByExtSourceNameAndLogin) {
 						ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
 						ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
 					}
@@ -405,6 +417,16 @@ public class PerunBlImpl implements PerunBl {
 	public TasksManagerBl getTasksManagerBl() { return tasksManagerBl; }
 
 	public void setTasksManagerBl(TasksManagerBl tasksManagerBl) { this.tasksManagerBl = tasksManagerBl; }
+
+	@Override
+	public ConfigManager getConfigManager() { return configManager; }
+
+	public void setConfigManager(ConfigManager configManager) { this.configManager = configManager; }
+
+	@Override
+	public ConfigManagerBl getConfigManagerBl() { return configManagerBl; }
+
+	public void setConfigManagerBl(ConfigManagerBl configManagerBl) { this.configManagerBl = configManagerBl; }
 
 	@Override
 	public VosManagerBl getVosManagerBl() {

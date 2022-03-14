@@ -250,4 +250,10 @@ public interface PerunBl extends Perun {
 	 * @return TasksManagerBl
 	 */
 	TasksManagerBl getTasksManagerBl();
+
+	/**
+	 * Gets a ConfigManagerBl
+	 * @return ConfigManagerBl
+	 */
+	ConfigManagerBl getConfigManagerBl();
 }

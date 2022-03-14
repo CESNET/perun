@@ -100,6 +100,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 				if (matcher.find()) {
 					String perunBeanName = matcher.group(1);
 					int id = rs.getInt(j);
+
 					if (!rs.wasNull()) {
 						// We have to make first letters o words uppercase
 						String className = convertUnderScoreCaseToCamelCase(perunBeanName);
@@ -153,8 +154,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 				// Get roles from Authz table
 				List<Pair<String, Map<String, Set<Integer>>>> authzRolesPairs = jdbc.query("select " + authzRoleMappingSelectQuery
 						+ ", roles.name as role_name from authz left join roles on authz.role_id=roles.id where authz.user_id=? or authorized_group_id in "
-						+ "(select groups.id from groups join groups_members on groups.id=groups_members.group_id join members on "
-						+ "members.id=groups_members.member_id join users on users.id=members.user_id where users.id=?)", AUTHZROLE_MAPPER, user.getId(), user.getId());
+						+ "(select groups.id from groups join groups_members on groups.id=groups_members.group_id and groups_members.source_group_status=? join members on "
+						+ "members.id=groups_members.member_id join users on users.id=members.user_id where users.id=? and members.status=?)", AUTHZROLE_MAPPER, user.getId(), MemberGroupStatus.VALID.getCode(), user.getId(), Status.VALID.getCode());
 
 				for (Pair<String, Map<String, Set<Integer>>> pair : authzRolesPairs) {
 					authzRoles.putAuthzRoles(pair.getLeft(), pair.getRight());
@@ -169,8 +170,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 				}
 
 				// Get members for user
-				List<Integer> authzMember = jdbc.query("select members.id as id from members where members.user_id=?",
-						Utils.ID_MAPPER ,user.getId());
+				List<Integer> authzMember = jdbc.query("select members.id as id from members where members.user_id=? and members.status=?",
+						Utils.ID_MAPPER ,user.getId(), Status.VALID.getCode());
 				for (Integer memberId : authzMember) {
 					authzRoles.putAuthzRole(Role.SELF, Member.class, memberId);
 				}

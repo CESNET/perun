@@ -43,6 +43,8 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.sql.Array;
@@ -93,6 +95,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources_bans.modified_by as res_bans_modified_by, resources_bans.created_by_uid as res_bans_created_by_uid, resources_bans.modified_by_uid as res_bans_modified_by_uid";
 
 	private final JdbcPerunTemplate jdbc;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	protected static final RowMapper<Resource> RESOURCE_MAPPER = (resultSet, i) -> {
 		Resource resource = new Resource();
@@ -209,6 +212,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public ResourcesManagerImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
+		this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 
 		// Initialize resources manager
 		this.initialize();
@@ -462,6 +467,42 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join members on members.id=groups_members.member_id" +
 					" where resources.facility_id=? and members.user_id=? and members.status!=? and members.status!=?",
 				RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(), user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		}	catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getResources(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses, List<GroupResourceStatus> groupResourceStatuses) {
+		if (memberStatuses == null || memberStatuses.isEmpty()) {
+			memberStatuses = List.of(Status.values());
+		}
+		if (memberGroupStatuses == null || memberGroupStatuses.isEmpty()) {
+			memberGroupStatuses = List.of(MemberGroupStatus.values());
+		}
+		if (groupResourceStatuses == null || groupResourceStatuses.isEmpty()) {
+			groupResourceStatuses = List.of(GroupResourceStatus.values());
+		}
+
+		String groupResourceStatusesSql = groupResourceStatuses.stream()
+			.map(status -> "'" + status.toString() + "'")
+			.collect(Collectors.joining(", "));
+
+		try {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			List<Integer> memberStatusesCodes = memberStatuses.stream().map(Status::getCode).toList();
+			List<Integer> memberGroupStatusesCodes = memberGroupStatuses.stream().map(MemberGroupStatus::getCode).toList();
+			parameters.addValue("voStatuses", memberStatusesCodes);
+			parameters.addValue("groupStatuses", memberGroupStatusesCodes);
+			parameters.addValue("uid", user.getId());
+
+			return namedParameterJdbcTemplate.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
+					" join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status in (" + groupResourceStatusesSql + ")" +
+					" join groups_members on groups_members.group_id=groups_resources_state.group_id and groups_members.source_group_status in (:groupStatuses)" +
+					" join members on members.id=groups_members.member_id" +
+					" where members.user_id=:uid and members.status in (:voStatuses)", parameters, RESOURCE_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		}	catch (RuntimeException e) {
@@ -1138,7 +1179,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, resource);
 			for(Group authorizedGroup : listOfGroupAdmins) {
 				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
-					"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
+					"join groups_members on groups_members.member_id=members.id and groups_members.source_group_status=? where groups_members.group_id=? and members.status=?", UsersManagerImpl.USER_MAPPER, MemberGroupStatus.VALID.getCode(), authorizedGroup.getId(), Status.VALID.getCode()));
 			}
 
 			return new ArrayList(setOfAdmins);
@@ -1182,10 +1223,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources " +
 					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-					" left outer join members on members.id=groups_members.member_id " +
-					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) ",
-				RESOURCE_MAPPER, user.getId(), user.getId(), Role.RESOURCEADMIN.toLowerCase());
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
+					" left outer join members on members.id=groups_members.member_id" +
+					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null)",
+				RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), user.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1196,11 +1237,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
 					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-					" left outer join members on members.id=groups_members.member_id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
+					" left outer join members on members.id=groups_members.member_id" +
 					" where resources.facility_id=? and resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
-					" and authz.role_id=(select id from roles where name=?) "
-				,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase());
+					" and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
+				,RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -1213,11 +1254,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
 					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-					" left outer join members on members.id=groups_members.member_id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=? " +
+					" left outer join members on members.id=groups_members.member_id" +
 					" where resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
-					" and authz.role_id=(select id from roles where name=?) "
-				,RESOURCE_MAPPER, vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase());
+					" and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
+				,RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

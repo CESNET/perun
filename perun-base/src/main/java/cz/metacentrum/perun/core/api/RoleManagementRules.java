@@ -6,7 +6,8 @@ import java.util.Objects;
 
 /**
  * RoleManagementRules represents a set of rules which is used to determine principal's access rights for managing and reading a role.
- * Moreover, it contains a allowed combinations of object and entity to/from which will be the role un/assigned.
+ * Moreover, it contains allowed combinations of object and entity to/from which will be the role un/assigned
+ * and related roles which can also read attribute value if the role can.
  * Each object and entity also contains a mapping to the specific column in the authz table,
  * so the database query can be created and executed more generally.
  *
@@ -22,6 +23,8 @@ import java.util.Objects;
  *            Example entry: key: User; value: user_id
  * assignedObjects is a map of objects which can be assigned with the role. Key is a object name and value is mapping to the database.
  *            Example entry: key: Resource; value: resource_id
+ * associatedReadRoles is a list of related roles which are authorized to read attribute value if the main role is authorized.
+ *            Example list for groupadmin role - value: [GROUPOBSERVER]
  *
  */
 public class RoleManagementRules {
@@ -32,14 +35,16 @@ public class RoleManagementRules {
 	private List<Map<String, String>> privilegedRolesToRead;
 	private Map<String, String> entitiesToManage;
 	private Map<String, String> assignedObjects;
+	private List<String> associatedReadRoles;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects) {
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<String> associatedReadRoles) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
 		this.privilegedRolesToRead = privilegedRolesToRead;
 		this.entitiesToManage = entitiesToManage;
 		this.assignedObjects = assignedObjects;
+		this.associatedReadRoles = associatedReadRoles;
 	}
 
 	public String getRoleName() {
@@ -90,6 +95,14 @@ public class RoleManagementRules {
 		this.assignedObjects = assignedObjects;
 	}
 
+	public List<String> getAssociatedReadRoles() {
+		return associatedReadRoles;
+	}
+
+	public void setAssociatedReadRoles(List<String> associatedReadRoles) {
+		this.associatedReadRoles = associatedReadRoles;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -100,12 +113,13 @@ public class RoleManagementRules {
 			Objects.equals(privilegedRolesToManage, that.privilegedRolesToManage) &&
 			Objects.equals(privilegedRolesToRead, that.privilegedRolesToRead) &&
 			Objects.equals(entitiesToManage, that.entitiesToManage) &&
-			Objects.equals(assignedObjects, that.assignedObjects);
+			Objects.equals(assignedObjects, that.assignedObjects) &&
+			Objects.equals(associatedReadRoles, that.associatedReadRoles);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects);
+		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, associatedReadRoles);
 	}
 
 	@Override
@@ -117,6 +131,7 @@ public class RoleManagementRules {
 			", privilegedRolesToRead=" + privilegedRolesToRead +
 			", entitiesToManage=" + entitiesToManage +
 			", assignedObjects=" + assignedObjects +
+			", associatedReadRoles=" + associatedReadRoles +
 			'}';
 	}
 }

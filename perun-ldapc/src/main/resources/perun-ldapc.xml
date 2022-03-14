@@ -1140,6 +1140,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="mfaTokens;x-ns-"/>
 					<property name="required" value="false"/>
+					<property name="deleted" value="true"/>
 					<property name="multipleValuesExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
 							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:mfaTokens:"/>
@@ -1154,6 +1155,36 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="singleValueExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
 							<property name="name" value="oouEinfraSignedV1"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="cscaleCompany"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="cscaleCompany"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="cscaleUserCategory"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="cscaleUserCategory"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="cscaleAcceptEmail"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="cscaleAcceptEmail"/>
 							<property name="namespace" value="urn:perun:user:attribute-def:def"/>
 						</bean>
 					</property>

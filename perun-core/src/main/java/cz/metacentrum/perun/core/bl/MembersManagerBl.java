@@ -41,10 +41,12 @@ import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
@@ -903,6 +905,18 @@ public interface MembersManagerBl {
 	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status);
 
 	/**
+	 * Get all rich members of VO. Rich member object contains user, member, userExtSources and member attributes. User attributes aren't included
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return list of rich members with all member attributes
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 */
+	List<RichMember> getRichMembersNoUserAttributes(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException;
+
+	/**
 	 * Convert list of users' ids into the list of members.
 	 *
 	 * @param sess
@@ -944,6 +958,16 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers);
+
+	/**
+	 * Fill the RichMember object with data from Member, corresponding User object and member attributes.
+	 *
+	 * @param sess
+	 * @param richMembers
+	 * @return list of rich members with all member attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> convertMembersToRichMembersNoUserAttributes(PerunSession sess, List<RichMember> richMembers);
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User and user/member attributes defined by list of attribute definition.

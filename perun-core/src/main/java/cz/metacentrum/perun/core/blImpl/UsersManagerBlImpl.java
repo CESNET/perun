@@ -124,6 +124,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 
+	private final static boolean lookupUserByIdentifiersAndExtSourceLogin = BeansUtils.getCoreConfig().getLookupUserByIdentifiersAndExtSourceLogin();
+
 
 	/**
 	 * Constructor.
@@ -783,11 +785,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public User getUserByExtSourceInformation(PerunSession sess, PerunPrincipal principal) throws UserExtSourceNotExistsException, UserNotExistsException, ExtSourceNotExistsException {
 		String shibIdentityProvider = principal.getAdditionalInformations().get(ORIGIN_IDENTITY_PROVIDER_KEY);
 		if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-			UserExtSource ues = getUserExtSourceFromMultipleIdentifiers(sess, principal);
-			return getUserByUserExtSource(sess, ues);
-		} else {
-			return getUserByExtSourceNameAndExtLogin(sess, principal.getExtSourceName(), principal.getActor());
+			try {
+				UserExtSource ues = getUserExtSourceFromMultipleIdentifiers(sess, principal);
+				return getUserByUserExtSource(sess, ues);
+			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
+				if (!lookupUserByIdentifiersAndExtSourceLogin) {
+					throw ex;
+				}
+			}
 		}
+		return getUserByExtSourceNameAndExtLogin(sess, principal.getExtSourceName(), principal.getActor());
 	}
 
 	@Override

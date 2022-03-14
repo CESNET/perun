@@ -961,6 +961,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns list of VOs, where the user is an Administrator.
+	 * Including VOs, where the user is a VALID member of authorized group.
 	 *
 	 * @param user int User <code>id</code>
 	 * @return List<Vo> Found VOs
@@ -991,14 +992,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns list of Groups in Perun, where the User is a direct Administrator
-	 * or he is a member of any group which is Administrator of some of these Groups.
+	 * or he is a VALID member of any group which is Administrator of some of these Groups.
 	 *
 	 * @param user int User <code>id</code>
 	 * @return List<Group> Found Groups
 	 */
 	/*#
 	 * Returns list of Groups in selected Vo, where the User is a direct Administrator
-	 * or he is a member of any group which is Administrator of some of these Groups.
+	 * or he is a VALID member of any group which is Administrator of some of these Groups.
 	 *
 	 * @param user int User <code>id</code>
 	 * @param vo int Vo <code>id</code>

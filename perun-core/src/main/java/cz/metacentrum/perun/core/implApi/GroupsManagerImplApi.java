@@ -301,6 +301,19 @@ public interface GroupsManagerImplApi {
 	List<Group> getUserGroups(PerunSession sess, User user);
 
 	/**
+	 * Return groups where user is member with allowed statuses in vo and group.
+	 * If statuses are empty or null, all statuses are used.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param memberStatuses allowed statuses of member in VO
+	 * @mparam emberGroupStatuses allowed statuses of member in group
+	 * @return list of groups
+	 * @throws InternalErrorException
+	 */
+	List<Group> getUserGroups(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses);
+
+	/**
 	 * Checks whether the user is member of the group.
 	 *
 	 * @param sess
@@ -442,8 +455,9 @@ public interface GroupsManagerImplApi {
 	 */
 	List<Group> getSubGroups(PerunSession perunSession, Group parentGroup);
 
-	/** Gets list of all administrators of this group.
-	 * If some group is administrator of the given group, all members are included in the list.
+	/**
+	 * Gets list of all administrators of this group.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * @param perunSession
 	 * @param group

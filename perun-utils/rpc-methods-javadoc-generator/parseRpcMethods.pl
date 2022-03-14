@@ -93,16 +93,28 @@ $objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"sh
 $objectExamples{"List&lt;RichGroup&gt;"} = $listPrepend . $objectExamples{"RichGroup"} . $listAppend;
 $objectExamples{"List<RichGroup>"} = $objectExamples{"List&lt;RichGroup&gt;"};
 
-$objectExamples{"Application} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"Application\" }";
+$objectExamples{"Application"} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"Application\" }";
 $objectExamples{"List&lt;Application&gt;"} = $listPrepend . $objectExamples{"Application"} . $listAppend;
 $objectExamples{"List<Application>"} = $objectExamples{"List&lt;Application&gt;"};
+
+$objectExamples{"RichApplication"} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"RichApplication\", \"formData\" : " . $objectExamples{"List<ApplicationFormItemData>"} . " }";
+$objectExamples{"List&lt;RichApplication&gt;"} = $listPrepend . $objectExamples{"RichApplication"} . $listAppend;
+$objectExamples{"List<RichApplication>"} = $objectExamples{"List&lt;RichApplication&gt;"};
+
+$objectExamples{"ApplicationFormItem"} = "{ \"id\" : 12 , \"shortname\" : \"Form item name\' , \"required\" : false , \"updatable\" : true , \"type\" : \"CHECKBOX\" , \"federationAttribute\" : \"\" , \"perunSourceAttribute\" : \"PERUNPEOPLE\" , \"perunDestinationAttribute\" : \"\", \"regex\" : \"\", \"applicationTypes\" : [\"INITIAL\" , \"EXTENSION\"], \"ordnum\" : 5, \"hiddenDependencyItemId\" : 5, \"disabledDependencyItemId\" : 5, \"disabled\" : \"NEVER\", \"hidden\" : \"NEVER\",  \"beanName\" : \"ApplicationFormItem\" }";
+$objectExamples{"List&lt;ApplicationFormItem&gt;"} = $listPrepend . $objectExamples{"ApplicationFormItem"} . $listAppend;
+$objectExamples{"List<ApplicationFormItem>"} = $objectExamples{"List&lt;ApplicationFormItem&gt;"};
+
+$objectExamples{"ApplicationFormItemData"} = "{ \"id\" : 12 , \"forItem\" : " . $objectExamples{"ApplicationFormItem"} . " , \"shortName\" : \"form data name\" , \"value\" : \"test value\" , \"assuranceLevel\" : \"0\" , \"beanName\" : \"ApplicationFormItemData\" }";
+$objectExamples{"List&lt;ApplicationFormItemData&gt;"} = $listPrepend . $objectExamples{"ApplicationFormItemData"} . $listAppend;
+$objectExamples{"List<ApplicationFormItemData>"} = $objectExamples{"List&lt;ApplicationFormItemData&gt;"};
 
 $objectExamples{"ApplicationsPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"includeGroupApplications\" : true , \"searchString\" : \"Doe\" , \"states\" : [\"VERIFIED\" , \"NEW\"] , \"dateFrom\" : \"2011-05-17\", \"dateTo\" : \"2011-05-17\", \"memberId\" : 10 , \"groupId\" : 10 }";
 $objectExamples{"List&lt;ApplicationsPageQuery&gt;"} = $listPrepend . $objectExamples{"ApplicationsPageQuery"} . $listAppend;
 $objectExamples{"List<ApplicationsPageQuery>"} = $objectExamples{"List&lt;ApplicationsPageQuery&gt;"};
 
-$objectExamples{"Paginated&lt;Application&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;Application&gt;"} . "  }";
-$objectExamples{"Paginated<Application>"} = $objectExamples{"Paginated&lt;Application&gt;"};
+$objectExamples{"Paginated&lt;RichApplication&gt;"} = "{ \"offset\" : 0 , \"pageSize\" : 3 , \"totalCount\" : 1 , \"data\" : " . $objectExamples{"List&lt;RichApplication&gt;"} . "  }";
+$objectExamples{"Paginated<RichApplication>"} = $objectExamples{"Paginated&lt;RichApplication&gt;"};
 
 $objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"sponsored\" : false , \"beanName\" : \"Member\" }";
 $objectExamples{"List&lt;Member&gt;"} = $listPrepend . $objectExamples{"Member"} . $listAppend;
