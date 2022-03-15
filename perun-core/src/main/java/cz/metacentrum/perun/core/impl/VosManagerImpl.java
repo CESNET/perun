@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
@@ -13,6 +12,8 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -527,5 +529,50 @@ public class VosManagerImpl implements VosManagerImplApi {
 		int count = jdbc.queryForInt("SELECT count(*) FROM application_form_items WHERE form_id = " +
 					"(SELECT id FROM application_form WHERE vo_id = ? AND group_id IS NULL) AND type = 'EMBEDDED_GROUP_APPLICATION';", voId);
 		return count > 0;
+	}
+
+	@Override
+	public void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException {
+		try {
+			if (0 == jdbc.update("DELETE FROM vos_vos WHERE vo_id = ? AND member_vo_id = ?",
+				vo.getId(), memberVo.getId())) {
+				throw new RelationNotExistsException("Relation between " + vo + " and member vo " + memberVo + " does not exist.");
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException {
+		try {
+			jdbc.update("INSERT INTO vos_vos(vo_id, member_vo_id, created_at, created_by, " +
+					"modified_at, modified_by) VALUES(?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?)",
+				vo.getId(), memberVo.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor());
+		} catch (DataIntegrityViolationException ex) {
+			throw new RelationExistsException("Relation between " + vo + " and its member " + memberVo + " already exists." , ex);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Vo> getMemberVos(PerunSession sess, int voId) {
+		try {
+			return jdbc.query("SELECT " + voMappingSelectQuery + " FROM vos_vos JOIN vos " +
+				"ON vos.id = vos_vos.member_vo_id WHERE vo_id=?", VO_MAPPER, voId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Vo> getParentVos(PerunSession sess, int memberVoId) {
+		try {
+			return jdbc.query("SELECT " + voMappingSelectQuery + " FROM vos_vos JOIN vos " +
+				"ON vos.id = vos_vos.vo_id WHERE member_vo_id=?", VO_MAPPER, memberVoId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 }
