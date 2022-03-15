@@ -7,12 +7,13 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunFacility;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
 import cz.metacentrum.perun.ldapc.model.PerunVO;
+import cz.metacentrum.perun.ldapc.service.LdapcManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
@@ -41,6 +45,8 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	private PerunVO perunVO;
 	@Autowired
 	private PerunFacility perunFacility;
+	@Autowired
+	protected LdapcManager ldapcManager;
 
 	@Override
 	protected List<String> getDefaultUpdatableAttributes() {
@@ -141,23 +147,50 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 		DirContextOperations entry = findByDN(buildDN(user));
 
 		if (isEppnEpuidLogin(login)) {
-			entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
+
+			String[] oldEppns = entry.getStringAttributes(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames);
+			TreeSet<String> uniqueEppns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			uniqueEppns.addAll(Stream.of(oldEppns).collect(Collectors.toSet()));
+
+			if (uniqueEppns.contains(login)) {
+				log.debug("Same eduPersonPrincipalNames '{}' is already present in entry {}, skipping.", login, buildDN(user));
+			} else {
+				entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
+			}
+
 		}
 
-		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities, login);
+		String[] oldIdentities = entry.getStringAttributes(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities);
+		TreeSet<String> uniqueIdentities = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		uniqueIdentities.addAll(Stream.of(oldIdentities).collect(Collectors.toSet()));
+
+		if (uniqueIdentities.contains(login)) {
+			log.debug("Same userIdentities '{}' is already present in entry {}, skipping.", login, buildDN(user));
+		} else {
+			entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities, login);
+		}
+
 		ldapTemplate.modifyAttributes(entry);
+
 	}
 
 	@Override
 	public void removePrincipal(User user, String login) {
-		DirContextOperations entry = findByDN(buildDN(user));
 
+		// Because of the different case equality in LDAP and Perun we can't simply remove passed "login" value from the entry.
+		// We perform full sync instead, since we would still have to query perun for all the values to check on.
+		List<UserExtSource> currentUeses = ((PerunBl)ldapcManager.getPerunBl()).getUsersManagerBl().getUserExtSources(ldapcManager.getPerunSession(), user);
+		log.debug("Synchronize all principals on removal of ExtSource login '{}' from {}.", login, user);
+		synchronizePrincipals(user, currentUeses);
+		/*
+		DirContextOperations entry = findByDN(buildDN(user));
 		if (isEppnEpuidLogin(login)) {
 			entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
 		}
-
 		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities, login);
 		ldapTemplate.modifyAttributes(entry);
+		*/
+
 	}
 
 	@Override
@@ -218,18 +251,25 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	}
 
 	protected void doSynchronizePrincipals(DirContextOperations entry, List<UserExtSource> extSources) {
+
+		// make sure EPPNs and identities are case-ignore unique for LDAP (we do not have them case-ignore unique in perun).
+		TreeSet<String> uniqueEppns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		uniqueEppns.addAll(
+				extSources.stream()
+				.filter(this::isIdpUes)
+				.map(UserExtSource::getLogin)
+				.filter(this::isEppnEpuidLogin).collect(Collectors.toSet()));
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames,
-				extSources.stream()
-						.filter(this::isIdpUes)
-						.map(UserExtSource::getLogin)
-						.filter(this::isEppnEpuidLogin)
-						.toArray(String[]::new)
+				uniqueEppns.toArray(String[]::new)
 		);
+
+		TreeSet<String> uniqueIdentities = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		uniqueIdentities.addAll(extSources.stream()
+				.filter(this::isIdpUes)
+				.map(UserExtSource::getLogin).collect(Collectors.toSet()));
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities,
-				extSources.stream()
-						.filter(this::isIdpUes)
-						.map(UserExtSource::getLogin)
-						.toArray(String[]::new));
+				uniqueIdentities.toArray(String[]::new));
+
 	}
 
 	private void doSynchronizeAdminRoles(DirContextOperations entry, List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) {
