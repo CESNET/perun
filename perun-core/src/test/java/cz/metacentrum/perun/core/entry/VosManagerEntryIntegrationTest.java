@@ -765,6 +765,31 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test
+	public void addMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberVo");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+		assertThat(vosManagerEntry.getMemberVos(sess, vo.getId())).containsExactly(memberVo);
+	}
+
+	@Test
+	public void addMemberVoParent() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberVo");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+		assertThat(vosManagerEntry.getMemberVos(sess, vo.getId())).containsExactly(memberVo);
+
+		assertThatExceptionOfType(RelationExistsException.class)
+			.isThrownBy(() -> vosManagerEntry.addMemberVo(sess, memberVo, vo));
+	}
+
+	@Test
 	public void removeMemberVo() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberVo");
 
