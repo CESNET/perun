@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.EnrichedVo;
@@ -19,28 +21,33 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.as;
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -854,6 +861,153 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertThat(enrichedVo.getParentVos()).containsOnly(parent);
 	}
 
+	@Test
+	public void addMemberVoNoExistingMember() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberVoNoExistingMember");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+
+		Member member = createMemberFromExtSource(memberVo);
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+
+		assertThat(perun.getMembersManagerBl().getMembers(sess, vo).size()).isEqualTo(1);
+		assertThat(perun.getMembersManagerBl().getMembers(sess, vo).get(0).getUserId()).isEqualTo(member.getUserId());
+
+		List<Member> membersInParentVo = perun.getMembersManagerBl().getMembers(sess, vo);
+		assertThat(membersInParentVo.size()).isEqualTo(1);
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
+			.contains(memberVo.getShortName());
+	}
+
+	@Test
+	public void addMemberVoExistingMember() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberVoExistingMember");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo1 = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+		Vo memberVo2 = perun.getVosManagerBl().createVo(sess, new Vo(-2, "Vo3", "vo3"));
+
+		Member member1 = createMemberFromExtSource(memberVo1);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, memberVo2, perun.getUsersManagerBl().getUserByMember(sess, member1));
+		perun.getMembersManagerBl().validateMember(sess, member2);
+		vosManagerEntry.addMemberVo(sess, vo, memberVo1);
+		vosManagerEntry.addMemberVo(sess, vo, memberVo2);
+
+		List<Member> membersInParentVo = perun.getMembersManagerBl().getMembers(sess, vo);
+		assertThat(membersInParentVo.size()).isEqualTo(1);
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
+			.contains(memberVo1.getShortName(), memberVo2.getShortName());
+	}
+
+	@Test
+	public void removeMemberVoClearsMemberOrganizationsAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberVoClearsMemberOrganizationsAttribute");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+
+		Member member = createMemberFromExtSource(memberVo);
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+		Member memberInParent = perun.getMembersManagerBl().getMemberByUserId(sess, vo, member.getUserId());
+
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
+			.isEqualTo(new ArrayList<>(List.of(memberVo.getShortName())));
+
+		vosManagerEntry.removeMemberVo(sess, vo, memberVo);
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
+			.isNullOrEmpty();
+	}
+
+	@Test
+	public void deleteParentVoInHierarchy() throws Exception {
+		System.out.println(CLASS_NAME + "deleteParentVoInHierarchy");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+
+		assertThatExceptionOfType(InternalErrorException.class).isThrownBy(() -> vosManagerEntry.deleteVo(sess, vo, false));
+
+		vosManagerEntry.deleteVo(sess, vo, true);
+		assertThatExceptionOfType(VoNotExistsException.class).isThrownBy(() ->
+			vosManagerEntry.getVoById(sess, vo.getId()));
+	}
+
+	@Test
+	public void deleteMemberVoInHierarchy() throws Exception {
+		System.out.println(CLASS_NAME + "deleteMemberVoInHierarchy");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+
+		assertThatExceptionOfType(InternalErrorException.class).isThrownBy(() -> vosManagerEntry.deleteVo(sess, memberVo, false));
+
+		vosManagerEntry.deleteVo(sess, memberVo, true);
+		assertThatExceptionOfType(VoNotExistsException.class).isThrownBy(() ->
+			vosManagerEntry.getVoById(sess, memberVo.getId()));
+	}
+
+	@Test
+	public void addMemberWithMemberVoResetsExpiration() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberWithMemberVoResetsExpiration");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+		Member memberWithExpiration = createMemberFromExtSource(vo);
+		Member memberWithoutExpiration = perun.getMembersManagerBl().createMember(sess, memberVo, perun.getUsersManagerBl().getUserByMember(sess, memberWithExpiration));
+		perun.getMembersManagerBl().validateMember(sess, memberWithoutExpiration);
+
+		String membershipExpirationAttrName = perun.getAttributesManager().NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+		String expirationValue = "2020-02-02";
+
+		AttributeDefinition attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, membershipExpirationAttrName);
+		perun.getAttributesManagerBl().setAttribute(sess,  memberWithExpiration, new Attribute(attrDef, expirationValue));
+
+		AttributeDefinition memberOrgsAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+		perun.getAttributesManagerBl().setAttribute(sess, memberWithExpiration, new Attribute(memberOrgsAttrDef, new ArrayList<>(List.of(vo.getShortName()))));
+		perun.getAttributesManagerBl().setAttribute(sess, memberWithoutExpiration, new Attribute(memberOrgsAttrDef, new ArrayList<>(List.of(vo.getShortName()))));
+
+		assertEquals(perun.getAttributesManagerBl().getAttribute(sess, memberWithExpiration, membershipExpirationAttrName).getValue(), expirationValue);
+		assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithoutExpiration, membershipExpirationAttrName).getValue());
+
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+		assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithExpiration, membershipExpirationAttrName).getValue());
+		assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithoutExpiration, membershipExpirationAttrName).getValue());
+	}
+
+	@Test
+	public void removeMemberVoStartsParentVoLifecycle() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberVoStartsParentVoLifecycle");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+		Member member = createMemberFromExtSource(memberVo);
+		perun.getMembersManagerBl().validateMember(sess, member);
+
+		// set expiration rules for parent vo
+		Attribute membershipExpirationRulesAttribute = perun.getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
+		LinkedHashMap<String, String> expirationRules = new LinkedHashMap<>();
+		expirationRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "01.01.");
+		membershipExpirationRulesAttribute.setValue(expirationRules);
+		perun.getAttributesManagerBl().setAttribute(sess, vo, membershipExpirationRulesAttribute);
+
+		vosManagerEntry.addMemberVo(sess, vo, memberVo);
+
+		String membershipExpirationAttrName = perun.getAttributesManager().NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+		Member memberInParentVo = perun.getMembersManagerBl().getMemberByUserId(sess, vo, member.getUserId());
+
+		Attribute membersExpirationAttribute = perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName);
+		assertThat(membersExpirationAttribute.getValue() == null);
+
+		vosManagerEntry.removeMemberVo(sess, vo, memberVo);
+
+		membersExpirationAttribute = perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName);
+		assertThat(membersExpirationAttribute.toString().endsWith("-01-01"));
+	}
 
 	// private methods ------------------------------------------------------------------
 

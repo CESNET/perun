@@ -5,6 +5,9 @@ import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberUnsuspended;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoCreated;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.EnrichedVo;
@@ -27,12 +30,14 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -47,6 +52,9 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
@@ -82,6 +90,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	private final static Logger log = LoggerFactory.getLogger(VosManagerBlImpl.class);
 	private final static Date FAR_FUTURE = new GregorianCalendar(2999, Calendar.JANUARY, 1).getTime();
+	public final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
 
 	private final VosManagerImplApi vosManagerImpl;
 	private PerunBl perunBl;
@@ -171,6 +180,24 @@ public class VosManagerBlImpl implements VosManagerBl {
 				} else {
 					throw new RelationExistsException("Vo vo=" + vo + " contains groups");
 				}
+			}
+
+			// Remove hierarchical relations
+			log.debug("Removing {} hierarchical relations with parent organizations", vo);
+			List<Vo> parentVos = getParentVos(sess, vo.getId());
+			if (parentVos.size() != 0 && !forceDelete) {
+				throw new RelationExistsException("Vo vo=" + vo + " is member of hierarchical organization");
+			}
+			for (Vo parentVo : parentVos) {
+				removeMemberVo(sess, parentVo, vo);
+			}
+			log.debug("Removing {} hierarchical relations with member organizations", vo);
+			List<Vo> memberVos = getMemberVos(sess, vo.getId());
+			if (memberVos.size() != 0 && !forceDelete) {
+				throw new RelationExistsException("Vo vo=" + vo + " has member organizations");
+			}
+			for (Vo memberVo : memberVos) {
+				removeMemberVo(sess, vo, memberVo);
 			}
 
 			// Finally delete binding between Vo and external source
@@ -918,6 +945,61 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException {
 		checkParentVos(sess, vo, memberVo);
 		vosManagerImpl.addMemberVo(sess, vo, memberVo);
+
+		List<Member> memberVoMembers = perunBl.getMembersManagerBl().getMembers(sess, memberVo);
+		AttributeDefinition memberExpirationAttrDef;
+
+		try {
+			memberExpirationAttrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+
+		for (Member member : memberVoMembers) {
+			if (member.getStatus() == Status.DISABLED || member.getStatus() == Status.INVALID) {
+				continue;
+			}
+			try {
+
+				try {
+					Member existingMember = perunBl.getMembersManagerBl().getMemberByUserId(sess, vo, member.getUserId());
+					if (member.getStatus() == Status.EXPIRED) {
+						// member is expired in memberVo but exists in parentVo, don't update
+						continue;
+					}
+
+					// member is valid in memberVo, so reset expiration in parentVo
+					perunBl.getAttributesManagerBl().removeAttribute(sess, existingMember, memberExpirationAttrDef);
+					if (existingMember.getStatus() != Status.VALID) {
+						perunBl.getMembersManagerBl().validateMemberAsync(sess, existingMember);
+					}
+					//update memberOrganizations
+					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+					ArrayList<String> currentValue = attribute.valueAsList();
+					currentValue.add(memberVo.getShortName());
+					attribute.setValue(currentValue);
+					perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
+
+				} catch (MemberNotExistsException e) {
+					// if user is member only in member vo, create member in parent vo
+					Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, perunBl.getUsersManagerBl().getUserByMember(sess, member));
+					if (member.getStatus() == Status.VALID) {
+						// remove expiration set according to parentVo and update memberOrganizations
+						perunBl.getAttributesManagerBl().removeAttribute(sess, newMember, memberExpirationAttrDef);
+						Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
+						ArrayList<String> newValue = new ArrayList<>(List.of(memberVo.getShortName()));
+						attribute.setValue(newValue);
+						perunBl.getAttributesManagerBl().setAttribute(sess, newMember, attribute);
+					}
+					perunBl.getMembersManagerBl().validateMemberAsync(sess, newMember);
+				}
+
+			} catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException | AttributeNotExistsException | WrongAttributeValueException | AlreadyMemberException e) {
+				throw new InternalErrorException(e);
+			} catch (ExtendMembershipException e) {
+				log.warn("Could not set expiration for member " + member + " after adding vo " + memberVo + " as member of vo " + vo + " for reason: " + e.getReason());
+			}
+		}
 	}
 
 	/**
@@ -940,8 +1022,30 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	public void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException {
-		// todo - add necessary logic for removing member vo
 		vosManagerImpl.removeMemberVo(sess, vo, memberVo);
+
+		List<Member> parentVoMembers = perunBl.getMembersManagerBl().getMembers(sess, vo);
+
+		for (Member member : parentVoMembers) {
+			try {
+				Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+				ArrayList<String> currentValue = attribute.valueAsList();
+				if (currentValue == null || !currentValue.contains(memberVo.getShortName())) {
+					continue;
+				}
+				currentValue.remove(memberVo.getShortName());
+				attribute.setValue(currentValue);
+				perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
+				if (currentValue.isEmpty() || currentValue.equals(new ArrayList<>(List.of(vo.getShortName())))) {
+					// removed last memberVo and lifecycle is now managed by parentVo
+					perunBl.getMembersManagerBl().extendMembership(sess, member);
+				}
+			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
+				throw new InternalErrorException(e);
+			} catch (ExtendMembershipException e) {
+				log.warn("Could not set expiration for member " + member + " after removing its member organization " + memberVo + " for reason: " + e.getReason());
+			}
+		}
 	}
 
 	@Override

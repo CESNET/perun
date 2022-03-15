@@ -15,19 +15,15 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -578,6 +574,8 @@ public interface VosManagerBl {
 
 	/**
 	 * Adds new relationship between vo and a member vo.
+	 * If user is member in both vos, updates memberOrganizations list attribute.
+	 * If user is member only in member vo, creates member in parent vo and sets memberOrganizations list attribute.
 	 *
 	 * @param sess session
 	 * @param vo vo
@@ -588,6 +586,7 @@ public interface VosManagerBl {
 
 	/**
 	 * Removes member vo from given vo.
+	 * Updates memberOrganizations list attribute for those members of parent vo who came from the member vo.
 	 *
 	 * @param sess session
 	 * @param vo vo
