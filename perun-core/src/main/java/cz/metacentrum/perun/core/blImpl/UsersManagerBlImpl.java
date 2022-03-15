@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.UserManagerEvents.AllUserExtSourcesDeletedForUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipDisabledForSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipEnabledForSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipRemovedForSpecificUser;
@@ -503,7 +502,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// First delete all associated external sources to the user
 		removeAllUserExtSources(sess, user);
-		getPerunBl().getAuditer().log(sess, new AllUserExtSourcesDeletedForUser(user));
 
 		// delete all authorships of users publications
 		getUsersManagerImpl().removeAllAuthorships(sess, user);
