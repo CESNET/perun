@@ -3195,6 +3195,50 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertThat(currentValue).isNullOrEmpty();
 	}
 
+
+	@Test
+	public void createMemberMemberOrganizationsAttributeSet() throws Exception {
+		System.out.println(CLASS_NAME + "createMemberMemberOrganizationsAttributeSet");
+
+		// make vo hierarchical
+		Vo parentVo = setUpVo("parent");
+		Vo memberVo = setUpVo("member");
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		Member member = setUpMember(parentVo);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(parentVo.getShortName());
+	}
+
+	@Test
+	public void sponsorMembersMemberOrganizationsAttributeSet() throws Exception {
+		System.out.println(CLASS_NAME + "sponsorMembersMemberOrganizationsAttributeSet");
+
+		// make vo hierarchical
+		Vo parentVo = setUpVo("parent");
+		Vo memberVo = setUpVo("member");
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		Member sponsorMember = setUpSponsor(parentVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,parentVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, parentVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Petr Draxler");
+		Member sponsoredMember1 = createSponsoredMember(sess, parentVo, "dummy", nameOfUser1, "secret", null, sponsorUser);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, sponsoredMember1, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(parentVo.getShortName());
+	}
+
 	@Test
 	public void validateOrExpireMemberAddsHimToIncludedParentVoGroups() throws Exception {
 		System.out.println(CLASS_NAME + "validateOrExpireMemberAddsHimToIncludedParentVoGroups");

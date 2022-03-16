@@ -1009,6 +1009,19 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertThat(membersExpirationAttribute.toString().endsWith("-01-01"));
 	}
 
+	@Test
+	public void addFirstMemberVoSetsMemberOrganizations() throws Exception {
+		System.out.println(CLASS_NAME + "addFirstMemberVoSetsMemberOrganizations");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+		Member member = createMemberFromExtSource(vo);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList()).containsOnly(vo.getShortName());
+	}
+
 	// private methods ------------------------------------------------------------------
 
 	private Member createMemberFromExtSource(final Vo createdVo) throws Exception {
