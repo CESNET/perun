@@ -902,8 +902,26 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	public void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException {
-		// todo - add necessary logic for adding new member vo
+		checkParentVos(sess, vo, memberVo);
 		vosManagerImpl.addMemberVo(sess, vo, memberVo);
+	}
+
+	/**
+	 * Check if new member vo is not already parent of vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo new member of the vo
+	 * @throws RelationExistsException if member vo is already parent of vo
+	 */
+	private void checkParentVos(PerunSession sess, Vo vo, Vo memberVo)  throws RelationExistsException {
+		if (vo.getId() == memberVo.getId()) {
+			throw new RelationExistsException(String.format("Member VO %s is an ancestor.", memberVo.getShortName()));
+		}
+		List<Vo> parents = vosManagerImpl.getParentVos(sess, vo.getId());
+		for (Vo parent : parents) {
+			checkParentVos(sess, parent, memberVo);
+		}
 	}
 
 	@Override
