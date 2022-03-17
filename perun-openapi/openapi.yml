@@ -8480,6 +8480,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getUserExtSourceByExtLoginAndExtSourceName:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserExtSourceByExtLoginAndExtSourceName
+      summary: Returns user's external source by the user's external login and external source name.
+      parameters:
+        - $ref: '#/components/parameters/extSourceName'
+        - { name: extSourceLogin, description: "external source login", schema: { type: string }, in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/UserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getUserExtSourcesByIds:
     get:
       tags:
