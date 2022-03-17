@@ -118,7 +118,8 @@ public final class CsrfFilter implements Filter {
 				// token is either invalid or missing
 				response.sendError(HttpStatus.SC_FORBIDDEN, "This domain is under CSRF protection; however, " +
 				    "a valid CSRF token was not provided. Configure the client to provide the token in header " +
-					"or use the domain reserved only for API calls - without CSRF protection");
+					"or use the domain reserved only for API calls - without CSRF protection. Information about " +
+					"CSRF protection can also be found at https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html");
 				return;
 			}
 
@@ -132,7 +133,8 @@ public final class CsrfFilter implements Filter {
 				// token is either invalid or missing
 				response.sendError(HttpStatus.SC_FORBIDDEN, "This domain is under CSRF protection; however, " +
 					"a valid CSRF token was not provided. Configure the client to provide the token in header " +
-					"or use the domain reserved only for API calls - without CSRF protection");
+					"or use the domain reserved only for API calls - without CSRF protection. Information about " +
+					"CSRF protection can also be found at https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html");
 				return;
 			}
 
