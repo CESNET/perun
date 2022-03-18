@@ -1385,6 +1385,24 @@ components:
         email: { type: string }
         identities: { type: array, items: { $ref: '#/components/schemas/ExtSource' } }
 
+    ConsentDefinition:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            text: { type: string }
+            facilities: { type: array, items: { $ref: '#/components/schemas/Facility' } }
+            services: { type: array, items: { $ref: '#/components/schemas/Service' } }
+            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+          required:
+            - name
+            - text
+            - facilities
+            - services
+            - attributes
+      discriminator:
+        propertyName: beanName
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
