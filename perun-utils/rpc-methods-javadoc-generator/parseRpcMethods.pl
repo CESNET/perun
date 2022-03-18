@@ -268,6 +268,10 @@ $objectExamples{"AttributePolicyCollection"} = "{ \"id\" : 10 , \"attributeId\" 
 $objectExamples{"List&lt;AttributePolicyCollection&gt;"} = $listPrepend . $objectExamples{"AttributePolicyCollection"} . $listAppend;
 $objectExamples{"List<AttributePolicyCollection>"} = $objectExamples{"List&lt;AttributePolicyCollection&gt;"};
 
+$objectExamples{"ConsentDefinition"} = "{ \"id\" : 13 , \"name\" : \"Consent\" , \"text\" : \"My consent\" , \"facilities\" : " . $objectExamples{"List&lt;Facility&gt;"} . " , \"services\" : " . $objectExamples{"List&lt;Service&gt;"} . " , \"attributes\" : " . $objectExamples{"List&lt;Attribute&gt;"} . " }";
+$objectExamples{"List&lt;ConsentDefinition&gt;"} = $listPrepend . $objectExamples{"ConsentDefinition"} . $listAppend;
+$objectExamples{"List<ConsentDefinition>"} = $objectExamples{"List&lt;ConsentDefinition&gt;"};
+
 # SUB HELP
 # help info
 sub help {

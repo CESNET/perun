@@ -1,4 +1,4 @@
--- database version 3.1.90 (don't forget to update insert statement at the end of file)
+-- database version 3.1.91 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -1552,6 +1552,84 @@ create table groups_to_register (
 						constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
 );
 
+-- CONSENTS_DEFINITIONS - consents definitions for facilities, services and attributes
+create table consents_definitions (
+	id integer not null,
+	name varchar not null,
+	text varchar,
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint con_def_pk primary key(id),
+	constraint con_def_u unique(name)
+);
+
+-- CONSENTS - relation between users and consent definitions
+create table consents (
+	user_id integer not null,		   --identifier of user
+	consent_def_id integer not null,   --identifier of consent definition
+	status varchar not null,
+	createdDate timestamp not null,
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint consents_pk primary key (user_id,consent_def_id),
+	constraint consents_user_fk foreign key (user_id) references users(id),
+	constraint consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id),
+	constraint consents_stat_chk check (status in ('GRANTED','REVOKED','EXPIRED'))
+);
+
+-- FACILITIES_CONSENT_DEFINITIONS - relation between facilities and consent definitions
+create table facilities_consent_definitions (
+	facility_id integer not null,      --identifier of facility
+	consent_def_id integer not null,   --identifier of consent definition
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint facility_consent_pk primary key (facility_id,consent_def_id),
+	constraint facility_consent_fac_fk foreign key (facility_id) references facilities(id),
+	constraint facility_consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id)
+);
+
+-- SERVICES_CONSENT_DEFINITIONS - relation between services and consent definitions
+create table services_consent_definitions (
+	service_id integer not null,       --identifier of service
+	consent_def_id integer not null,   --identifier of consent definition
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint service_consent_pk primary key (service_id,consent_def_id),
+	constraint service_consent_service_fk foreign key(service_id) references services(id),
+	constraint service_consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id)
+);
+
+-- ATTRS_CONSENT_DEFINITIONS - relation between attributes and consent definitions
+create table attrs_consent_definitions (
+	attr_id integer not null,          --identifier of attribute
+	consent_def_id integer not null,   --identifier of consent definition
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint attr_consent_pk primary key (attr_id,consent_def_id),
+	constraint attr_consent_attr_fk foreign key (attr_id) references attr_names (id),
+	constraint attr_consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id)
+);
+
 
 create sequence "attr_names_id_seq";
 create sequence "attribute_policies_id_seq";
@@ -1602,6 +1680,7 @@ create sequence "security_teams_id_seq";
 create sequence "resources_bans_id_seq";
 create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
+create sequence "consents_definitions_id_seq";
 
 create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(parent_group_id,'0'));
 create index idx_namespace on attr_names(namespace);
@@ -1759,9 +1838,17 @@ CREATE INDEX uauv_idx ON user_attr_u_values (user_id, attr_id);
 CREATE INDEX uesauv_idx ON user_ext_source_attr_u_values (user_ext_source_id, attr_id);
 CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, attr_id);
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
+create index idx_fk_cons_usr ON consents (user_id);
+create index idx_fk_cons_cons_def ON consents (consent_def_id);
+create index idx_fk_fac_cons_def_fac ON facilities_consent_definitions (facility_id);
+create index idx_fk_fac_cons_def_cons_def ON facilities_consent_definitions (consent_def_id);
+create index idx_fk_srv_cons_def_srv ON services_consent_definitions (service_id);
+create index idx_fk_srv_cons_def_cons_def ON services_consent_definitions (consent_def_id);
+create index idx_fk_attr_cons_def_attr ON attrs_consent_definitions (attr_id);
+create index idx_fk_attr_cons_def_cons_def ON attrs_consent_definitions (consent_def_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.90');
+insert into configurations values ('DATABASE VERSION','3.1.91');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

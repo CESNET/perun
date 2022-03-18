@@ -6,6 +6,28 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.91
+create table consents_definitions (id integer not null, name varchar not null, text varchar, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint con_def_pk primary key(id), constraint con_def_u unique(name));
+create table consents (user_id integer not null, consent_def_id integer not null, status varchar not null, createdDate timestamp not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint consents_pk primary key (user_id,consent_def_id), constraint consents_user_fk foreign key (user_id) references users(id), constraint consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id), constraint consents_stat_chk check (status in ('GRANTED','REVOKED','EXPIRED')));
+create table facilities_consent_definitions (facility_id integer not null, consent_def_id integer not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint facility_consent_pk primary key (facility_id,consent_def_id), constraint facility_consent_fac_fk foreign key (facility_id) references facilities(id), constraint facility_consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id));
+create table services_consent_definitions (service_id integer not null, consent_def_id integer not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint service_consent_pk primary key (service_id,consent_def_id), constraint service_consent_service_fk foreign key(service_id) references services(id), constraint service_consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id));
+create table attrs_consent_definitions (attr_id integer not null, consent_def_id integer not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint attr_consent_pk primary key (attr_id,consent_def_id), constraint attr_consent_attr_fk foreign key (attr_id) references attr_names (id), constraint attr_consent_cons_def_fk foreign key (consent_def_id) references consents_definitions(id));
+grant all on consents_definitions to perun;
+grant all on consents to perun;
+grant all on facilities_consent_definitions to perun;
+grant all on services_consent_definitions to perun;
+grant all on attrs_consent_definitions to perun;
+create index idx_fk_cons_usr ON consents (user_id);
+create index idx_fk_cons_cons_def ON consents (consent_def_id);
+create index idx_fk_fac_cons_def_fac ON facilities_consent_definitions (facility_id);
+create index idx_fk_fac_cons_def_cons_def ON facilities_consent_definitions (consent_def_id);
+create index idx_fk_srv_cons_def_srv ON services_consent_definitions (service_id);
+create index idx_fk_srv_cons_def_cons_def ON services_consent_definitions (consent_def_id);
+create index idx_fk_attr_cons_def_attr ON attrs_consent_definitions (attr_id);
+create index idx_fk_attr_cons_def_cons_def ON attrs_consent_definitions (consent_def_id);
+create sequence "consents_definitions_id_seq";
+UPDATE configurations SET value='3.1.91' WHERE property='DATABASE VERSION';
+
 3.1.90
 create table vos_vos (vo_id integer not null, member_vo_id integer not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, constraint vos_vos_pk primary key (vo_id,member_vo_id), constraint vos_vos_void_fk foreign key (vo_id) references vos(id), constraint vos_vos_memid_fk foreign key (member_vo_id) references vos(id));
 grant all on vos_vos to perun;
