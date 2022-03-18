@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
@@ -1803,9 +1804,19 @@ public interface MembersManagerBl {
 	List<Sponsorship> getSponsorshipsExpiringInRange(PerunSession sess, LocalDate from, LocalDate to);
 
 	/**
+	 * Throws exception if member is member of hierarchical vo but comes from its member vos.
+	 * @param sess session
+	 * @param member member
+	 * @throws MemberLifecycleAlteringForbiddenException member comes from hierarchical vo
+	 */
+	void checkMemberLifecycleIsAlterable(PerunSession sess, Member member) throws MemberLifecycleAlteringForbiddenException;
+
+	/**
 	 * Moves membership in VO from source user to target user - moves the source user's
 	 * memberships in non-synchronized groups, member related attributes, bans and
 	 * sponsorships in the VO. Removes the source user's member object.
+	 * If VO is member of any hierarchical parent VO, user's membership is moved in parent VOs also.
+	 * If VO is parent of any hierarchical member VO, user's membership is not moved in member VOs.
 	 *
 	 * @param sess session
 	 * @param vo the VO in which the membership should be moved

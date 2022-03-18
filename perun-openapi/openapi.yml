@@ -10095,6 +10095,8 @@ paths:
       operationId: moveMembership
       summary: Moves membership in VO from source user to target user - moves the source user's memberships in non-synchronized groups,
         member related attributes, bans and sponsorships in the VO. Removes the source user's member object.
+        If VO is member of any hierarchical parent VO, user's membership is moved in parent VOs also.
+        If VO is parent of any hierarchical member VOs, user's membership is not moved in member VOs.
       parameters:
         - $ref: '#/components/parameters/voId'
         - { name: sourceUser, schema: { type: integer }, in: query, description: "id of source user", required: true }
