@@ -54,6 +54,15 @@ public interface VosManager {
 	List<Vo> getVos(PerunSession perunSession) throws PrivilegeException;
 
 	/**
+	 * Get list of EnrichedVos of all the VOs the user has access to
+	 *
+	 * @param perunSession
+	 * @return List of EnrichedVos or empty list
+	 * @throws PrivilegeException
+	 */
+	List<EnrichedVo> getEnrichedVos(PerunSession perunSession) throws PrivilegeException;
+
+	/**
 	 * Get list of Vos without any privilege.
 	 *
 	 * @param perunSession
@@ -135,6 +144,15 @@ public interface VosManager {
 	 * @throws PrivilegeException
 	 */
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Finds existing vo by and id and returns corresponding EnrichedVo
+	 * @param perunSession
+	 * @param id
+	 * @return EnrichedVO object of requested VO, which contains its member and parent VOs
+	 * @throws VoNotExistsException
+	 */
+	EnrichedVo getEnrichedVoById(PerunSession perunSession, int id) throws VoNotExistsException, PrivilegeException;
 
 	/**
 	 * Finds existing VOs by ids.

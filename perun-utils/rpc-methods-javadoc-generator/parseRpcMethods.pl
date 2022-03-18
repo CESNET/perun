@@ -216,6 +216,10 @@ $objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Res
 $objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
 $objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
 
+$objectExamples{"EnrichedVo"} = "{ \"vo\" : " . $objectExamples{"Vo"} . " , \"memberVos\" : " . $objectExamples{"List&lt;Vo&gt;"} . " , \"parentVos\" : " . $objectExamples{"List&lt;Vo&gt;"} . " }";
+$objectExamples{"List&lt;EnrichedVo&gt;"} = $listPrepend . $objectExamples{"EnrichedVo"} . $listAppend;
+$objectExamples{"List<EnrichedVo>"} = $objectExamples{"List&lt;EnrichedVo&gt;"};
+
 $objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"FAILED\" , \"sourceGroupId\" : 10 , \"failureCause\" : \"Wrong attribute value in group 1\"" . " , \"facility\" : " . $objectExamples{"Facility"} . " , \"resourceTags\" : " . $objectExamples{"List<ResourceTag>"} . " , \"autoAssignSubgroups\" : false }";
 $objectExamples{"List&lt;AssignedResource&gt;"} = $listPrepend . $objectExamples{"AssignedResource"} . $listAppend;
 $objectExamples{"List<AssignedResource>"} = $objectExamples{"List&lt;AssignedResource&gt;"};
