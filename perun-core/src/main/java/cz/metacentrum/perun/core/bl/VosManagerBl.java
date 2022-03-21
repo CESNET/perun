@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -55,6 +56,14 @@ public interface VosManagerBl {
 	 * @return List of VOs or empty ArrayList<Vo>
 	 */
 	List<Vo> getVos(PerunSession perunSession);
+
+	/**
+	 * Get list of all EnrichedVos
+	 *
+	 * @param perunSession
+	 * @return List of EnrichedVos or empty list
+	 */
+	List<EnrichedVo> getEnrichedVos(PerunSession perunSession);
 
 	/**
 	 * Delete VO.
@@ -116,6 +125,15 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException;
+
+	/**
+	 * Finds existing vo by and id and returns corresponding EnrichedVo
+	 * @param perunSession
+	 * @param id
+	 * @return EnrichedVO object of requested VO, which contains its member and parent VOs
+	 * @throws VoNotExistsException
+	 */
+	EnrichedVo getEnrichedVoById(PerunSession perunSession, int id) throws VoNotExistsException;
 
 	/**
 	 * Finds existing VOs by ids.

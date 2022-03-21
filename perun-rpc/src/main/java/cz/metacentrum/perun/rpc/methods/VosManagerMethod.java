@@ -26,6 +26,16 @@ public enum VosManagerMethod implements ManagerMethod {
 			return ac.getVosManager().getVos(ac.getSession());
 		}
 	},
+	/*#
+	 * Return list of EnrichedVO object of VOs caller has relation with (is manager of VO, is manager of group in VO etc.).
+	 * @return List<EnrichedVo> Found VOs
+	 */
+	getEnrichedVos {
+		@Override
+		public List<EnrichedVo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getEnrichedVos(ac.getSession());
+		}
+	},
 
 	/*#
      * Return list of all VOs in Perun.
@@ -155,6 +165,20 @@ public enum VosManagerMethod implements ManagerMethod {
 		public Vo call(ApiCaller ac, Deserializer parms)
 				throws PerunException {
 			return ac.getVosManager().getVoById(ac.getSession(), parms.readInt("id"));
+		}
+	},
+
+	/*#
+	 * Returns an EnrichedVo object of a VO by its <code>id</code>.
+	 *
+	 * @param id int VO <code>id</code>.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @return EnrichedVo EnrichedVo object of found VO
+	 */
+	getEnrichedVoById {
+		@Override
+		public EnrichedVo call (ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getEnrichedVoById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 

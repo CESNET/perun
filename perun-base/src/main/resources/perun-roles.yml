@@ -5637,6 +5637,38 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getEnrichedVos_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR:
+      - TRUSTEDFACILITYADMIN:
+      - SPONSOR:
+    include_policies:
+      - default_policy
+
+  filter-getEnrichedVos_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Vo
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
   getAllVos_policy:
     policy_roles:
       - RESOURCESELFSERVICE:
@@ -5695,6 +5727,25 @@ perun_policies:
       - default_policy
 
   getVoById_int_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Vo
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - SELF:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  getEnrichedVoById_int_policy:
     policy_roles:
       - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo

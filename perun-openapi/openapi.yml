@@ -513,6 +513,13 @@ components:
         destinations: { type: array, items: { $ref: '#/components/schemas/Destination' } }
         hosts: { type: array, items: { $ref: '#/components/schemas/Host' } }
 
+    EnrichedVo:
+      type: object
+      properties:
+        vo: { $ref: '#/components/schemas/Vo' }
+        memberVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
+        parentVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
+
     PublicationSystem:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
@@ -1991,6 +1998,13 @@ components:
           schema:
             $ref: "#/components/schemas/Vo"
 
+    EnrichedVoResponse:
+      description: "returns enriched Vo"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EnrichedVo"
+
     ListOfVosResponse:
       description: "returns List<Vo>"
       content:
@@ -1999,6 +2013,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Vo"
+
+    ListOfEnrichedVosResponse:
+      description: "returns List<EnrichedVo>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedVo"
 
     ExtSourceResponse:
       description: "returns ExtSource"
@@ -13713,6 +13736,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/vosManager/getEnrichedVos:
+    get:
+      tags:
+        - VosManager
+      operationId: getMyEnrichedVos
+      summary: Return list of all EnrichedVos the caller is associated with.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/vosManager/getAllVos:
     get:
       tags:
@@ -13835,6 +13870,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getEnrichedVoById:
+    get:
+      tags:
+        - VosManager
+      operationId: getEnrichedVoById
+      summary: Returns an enriched virtual organization by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/EnrichedVoResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

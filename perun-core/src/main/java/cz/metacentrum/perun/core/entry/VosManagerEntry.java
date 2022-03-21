@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -80,6 +81,28 @@ public class VosManagerEntry implements VosManager {
 			tempVos.removeIf(vo -> {
 				try {
 					return !AuthzResolver.authorizedInternal(sess, "filter-getVos_policy", vo);
+				} catch (InternalErrorException e) {
+					// if we can't determine authorization prevent returning it
+					return true;
+				}
+			});
+
+			return tempVos;
+		}
+	}
+
+	@Override
+	public List<EnrichedVo> getEnrichedVos(PerunSession sess) throws PrivilegeException {
+		Utils.notNull(sess, "sess");
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedVos_policy")) {
+			throw new PrivilegeException(sess, "getEnrichedVos");
+		} else {
+			List<EnrichedVo> tempVos = vosManagerBl.getEnrichedVos(sess);
+			tempVos.removeIf(enrichedVo -> {
+				try {
+					return !AuthzResolver.authorizedInternal(sess, "filter-getEnrichedVos_policy", enrichedVo.getVo());
 				} catch (InternalErrorException e) {
 					// if we can't determine authorization prevent returning it
 					return true;
@@ -196,6 +219,19 @@ public class VosManagerEntry implements VosManager {
 				}
 
 		return vo;
+	}
+
+	@Override
+	public EnrichedVo getEnrichedVoById(PerunSession sess, int id) throws VoNotExistsException, PrivilegeException {
+		Utils.notNull(sess, "sess");
+		EnrichedVo enrichedVo = vosManagerBl.getEnrichedVoById(sess, id);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedVoById_int_policy", enrichedVo.getVo())) {
+			throw new PrivilegeException(sess, "getEnrichedVoById");
+		}
+
+		return enrichedVo;
 	}
 
 	@Override

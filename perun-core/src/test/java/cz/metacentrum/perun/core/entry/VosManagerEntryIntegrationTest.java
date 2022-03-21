@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
@@ -812,6 +814,44 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		vosManagerEntry.addMemberVo(sess, vo, vo2);
 		assertThatExceptionOfType(RelationExistsException.class)
 			.isThrownBy(() -> vosManagerEntry.addMemberVo(sess, vo, vo2));
+	}
+
+	@Test
+	public void getEnrichedVos() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedVos");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo parent = perun.getVosManagerBl().createVo(sess, new Vo(-1, "parent", "parent"));
+		Vo member = perun.getVosManagerBl().createVo(sess, new Vo(-2, "member", "member"));
+
+		vosManagerEntry.addMemberVo(sess, vo, member);
+		vosManagerEntry.addMemberVo(sess, parent, vo);
+
+		assertThat(vosManagerEntry.getEnrichedVos(sess).size()).isEqualTo(3);
+		EnrichedVo enrichedVo = vosManagerEntry.getEnrichedVos(sess).stream()
+			.filter(enrichedVo1 -> enrichedVo1.getVo().equals(vo)).toList().get(0);
+
+		assertThat(enrichedVo.getVo()).isEqualTo(vo);
+		assertThat(enrichedVo.getMemberVos()).containsOnly(member);
+		assertThat(enrichedVo.getParentVos()).containsOnly(parent);
+	}
+
+	@Test
+	public void getEnrichedVoById() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedVoById");
+
+		Vo vo = perun.getVosManagerBl().createVo(sess, myVo);
+		Vo parent = perun.getVosManagerBl().createVo(sess, new Vo(-1, "parent", "parent"));
+		Vo member = perun.getVosManagerBl().createVo(sess, new Vo(-2, "member", "member"));
+
+		vosManagerEntry.addMemberVo(sess, vo, member);
+		vosManagerEntry.addMemberVo(sess, parent, vo);
+
+		EnrichedVo enrichedVo = vosManagerEntry.getEnrichedVoById(sess, vo.getId());
+
+		assertThat(enrichedVo.getVo()).isEqualTo(vo);
+		assertThat(enrichedVo.getMemberVos()).containsOnly(member);
+		assertThat(enrichedVo.getParentVos()).containsOnly(parent);
 	}
 
 
