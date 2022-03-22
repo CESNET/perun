@@ -3220,6 +3220,10 @@ tags:
     description: IntegrationManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-IntegrationManager.html
+  - name: Searcher
+    description: Searcher RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-Searcher.html
 
 
 #################################################
@@ -16652,3 +16656,159 @@ paths:
           $ref: '#/components/responses/GroupMemberDataResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # Searcher                                      #
+  #                                               #
+  #################################################
+
+  /json/Searcher/getUsers:
+    post:
+      tags:
+        - Searcher
+      operationId: getUsersSearcher
+      summary: Get list of users who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetUsers
+              description: "Input to getUsers"
+              type: object
+              required:
+                - attributesWithSearchingValues
+              properties:
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getMembersByUserAttributes:
+    post:
+      tags:
+        - Searcher
+      operationId: getMembersByUserAttributes
+      summary: Get list of members who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetMembersByUserAttributes
+              description: "Input to getMembersByUserAttributes"
+              type: object
+              required:
+                - vo
+                - userAttributesWithSearchingValues
+              properties:
+                vo: { type: integer, description: "vo id", nullable: false }
+                userAttributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getFacilities:
+    post:
+      tags:
+        - Searcher
+      operationId: getFacilities
+      summary: Get list of facilities who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetFacilities
+              description: "Input to getFacilities"
+              type: object
+              required:
+                - attributesWithSearchingValues
+              properties:
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getResources/attributes:
+    post:
+      tags:
+        - Searcher
+      operationId: getAttributesResources
+      summary: Get list of resources who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetResources
+              description: "Input to getResources"
+              type: object
+              required:
+                - attributesWithSearchingValues
+              properties:
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getResources/attributes-match:
+    post:
+      tags:
+        - Searcher
+      operationId: getAttributesMatchResources
+      summary: Get list of resources that have attributes with partially matched values 
+        if allowPartialMatchForString is set to true, else with exactly matched values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetResources
+              description: "Input to getResources"
+              type: object
+              required:
+                - allowPartialMatchForString
+                - attributesWithSearchingValues
+              properties:
+                allowPartialMatchForString: { type: boolean, description: "True if partial match is allowed", nullable: false }
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string

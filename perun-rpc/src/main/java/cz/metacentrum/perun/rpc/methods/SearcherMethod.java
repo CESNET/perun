@@ -53,6 +53,7 @@ public enum SearcherMethod implements ManagerMethod {
 	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element
 	 *        when attribute is type Map<String> so value is String in format "key=value" and we are looking total match of both or if is it "key" so we are looking for total match of key
 	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
+	 * @param vo VO
 	 * @return List<Member> list of members who have attributes with specific values (behaviour above)
 	 *        if no user exist, return empty list of users
 	 *        if attributeWithSearchingValues is empty, return allUsers
