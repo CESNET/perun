@@ -1481,6 +1481,18 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
 	/*#
+	 * Returns sub-list of all RichGroups, each containing all attributes, starting at fromIndex (included)
+	 * and ending at the size of the original list.
+	 *
+	 * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
+	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
+	 * @param vo int <code>id</code> of vo
+	 * @param fromIndex int begin index of returned subList, included
+	 * @return List<RichGroup> RichGroups containing all attributes
+	 */
+	/*#
 	 * Returns sub-list of all RichGroups, each containing selected attributes, starting at first index of the original
 	 * list (included) and ending at the toIndex (included).
 	 *
@@ -1492,6 +1504,18 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param toIndex int end index of returned subList, included
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	/*#
+	 * Returns sub-list of all RichGroups, each containing all attributes, starting at first index of the original
+	 * list (included) and ending at the toIndex (included).
+	 *
+	 * Example: [1,2,3,4], toIndex=2 => [1,2,3]
+	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
+	 * @param vo int <code>id</code> of vo
+	 * @param toIndex int end index of returned subList, included
+	 * @return List<RichGroup> RichGroups containing all attributes
 	 */
 	/*#
 	 * Returns sub-list of all RichGroups, each containing selected attributes, starting at fromIndex (included)
@@ -1508,6 +1532,19 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
 	/*#
+	 * Returns sub-list of all RichGroups, each containing all attributes, starting at fromIndex (included)
+	 * and ending at the toIndex (included).
+	 *
+	 * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
+	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
+	 * @param vo int <code>id</code> of vo
+	 * @param fromIndex int begin index of returned subList, included
+	 * @param toIndex int end index of returned subList, included
+	 * @return List<RichGroup> RichGroups containing all attributes
+	 */
+	/*#
 	 * Returns full list of all RichGroups containing selected attributes.
 	 *
 	 * @throw VoNotExistsException When Vo doesn't exist
@@ -1516,6 +1553,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
+	/*#
+	 * Returns full list of all RichGroups containing all attributes.
+	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
+	 * @param vo int <code>id</code> of vo
+	 * @return List<RichGroup> RichGroups containing all attributes
+	 */
 	getAllRichGroupsWithAttributesByNames {
 
 		@Override
@@ -1523,7 +1568,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 			List<RichGroup> listOfRichGroups = ac.getGroupsManager().getAllRichGroupsWithAttributesByNames(ac.getSession(),
 				ac.getVoById(parms.readInt("vo")),
-				parms.readList("attrNames", String.class));
+				parms.contains("attrNames") ? parms.readList("attrNames", String.class) : null);
 
 			if(listOfRichGroups == null) listOfRichGroups = new ArrayList<>();
 
