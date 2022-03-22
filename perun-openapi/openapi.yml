@@ -2692,6 +2692,14 @@ components:
       in: query
       required: true
 
+    memberVoId:
+      name: memberVo
+      description: "id of member Vo"
+      schema:
+        type: integer
+      in: query
+      required: true
+
     banId:
       name: banId
       description: "id of a ban"
@@ -14280,6 +14288,63 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/vosManager/addMemberVo:
+    post:
+      tags:
+        - VosManager
+      operationId: addMemberVo
+      summary: Add member vo to vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/memberVoId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/removeMemberVo:
+    post:
+      tags:
+        - VosManager
+      operationId: removeMemberVo
+      summary: Remove member vo from vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/memberVoId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getMemberVos:
+    get:
+      tags:
+        - VosManager
+      operationId: getMemberVos
+      summary: Get list of all members organizations of a vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getParentVos:
+    get:
+      tags:
+        - VosManager
+      operationId: getParentVos
+      summary: Get list of all parent organizations of a vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
