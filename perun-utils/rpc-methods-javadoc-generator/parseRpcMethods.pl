@@ -637,6 +637,16 @@ Response: call1(response);
 
 		<p>When using JSONP, returned objects are stripped of non relevant properties like <em>createdAt</em>, <em>createdBy</em>, <em>modifiedAt</em>, <em>modifiedBy</em> etc. You can get them when using standard JSON.</p>
 
+		<h3>CSRF Protection</h3>
+
+		<p>Domains with both GUI and API deployed are protected against CSRF attacks as a whole. Even only-API clients must implement this protection or use different domain reserved for the API calls (example below). Perun will generate a CSRF token during the first API call. The token value is returned to the client in a cookie.The client must read the value from the cookie and return it to the API with each call in the appropriate HTTP header along with the cookie itself. As a result, the token value must be the same in the cookie, HTTP header and server-side session. CSRF protection is enabled only for state-changing requests (POST, PUT). Also, CSRF is not used in OIDC, since it has its own CSRF protection using own access tokens.</p>
+
+<pre>GUI: perun.&ltdomain&gt.cz
+API: perun-api.&ltdomain&gt.cz
+</pre>
+
+		<p>Presence of CSRF token is checked at first by looking at value of Cookie ('XSRF-TOKEN') and HTTP Session. If either of them is missing, new token is generated and stored into both original Session and Cookie that is stored in the response. Token value must be same for all Cookie, Header ('X-XSRF-TOKEN') and server side Session, in case it is not, corresponding error message is sent in response.</p>
+
 	</div>
 </div>
 </div>
