@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ConfigManager;
+import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -40,6 +41,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.ConfigManagerBl;
+import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
@@ -96,6 +98,7 @@ public class PerunBlImpl implements PerunBl {
 	private TasksManager tasksManager = null;
 	private ResourceAssignmentChecker resourceAssignmentChecker = null;
 	private ConfigManager configManager = null;
+	private ConsentsManager consentsManager = null;
 
 	private ModulesUtilsBl modulesUtilsBl = null;
 	private VosManagerBl vosManagerBl = null;
@@ -115,7 +118,7 @@ public class PerunBlImpl implements PerunBl {
 	private SearcherBl searcherBl = null;
 	private TasksManagerBl tasksManagerBl = null;
 	private ConfigManagerBl configManagerBl = null;
-
+	private ConsentsManagerBl consentsManagerBl = null;
 
 	private Auditer auditer = null;
 	private AttributesManagerImplApi attributesManagerImpl = null;
@@ -391,6 +394,15 @@ public class PerunBlImpl implements PerunBl {
 	public void setTasksManager(TasksManager tasksManager) { this.tasksManager = tasksManager; }
 
 	@Override
+	public ConsentsManager getConsentsManager() {
+		return consentsManager;
+	}
+
+	public void setConsentsManager(ConsentsManager consentsManager) {
+		this.consentsManager = consentsManager;
+	}
+
+	@Override
 	public ModulesUtilsBl getModulesUtilsBl() {
 		return modulesUtilsBl;
 	}
@@ -559,6 +571,15 @@ public class PerunBlImpl implements PerunBl {
 		this.searcherBl = searcherBl;
 	}
 
+	@Override
+	public ConsentsManagerBl getConsentsManagerBl() {
+		return consentsManagerBl;
+	}
+
+	public void setConsentsManagerBl(ConsentsManagerBl consentsManagerBl) {
+		this.consentsManagerBl = consentsManagerBl;
+	}
+
 	public void setAttributesManagerImpl(AttributesManagerImplApi attributesManagerImpl) {
 		this.attributesManagerImpl = attributesManagerImpl;
 	}
@@ -606,6 +627,8 @@ public class PerunBlImpl implements PerunBl {
 				"membersManager='" + membersManager + "', " +
 				"groupsManager='" + groupsManager + "', " +
 				"facilitiesManager='" + facilitiesManager + "', " +
+				"configManager='" + configManager + "', " +
+				"consentsManager='" + consentsManager + "', " +
 				"databaseManager='" + databaseManager + "', " +
 				"auditMessagesManager=" + auditMessagesManager + ", " +
 				"resourcesManager='" + resourcesManager + "', " +

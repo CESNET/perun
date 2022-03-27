@@ -138,4 +138,9 @@ public interface Perun {
 	 */
 	ConfigManager getConfigManager();
 
+	/**
+	 * Gets a ConsentsManager
+	 * @return ConsentsManager
+	 */
+	ConsentsManager getConsentsManager();
 }
