@@ -520,6 +520,20 @@ components:
         memberVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
         parentVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
 
+    ConsentHub:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            enforceConsents: { type: boolean }
+            facilities: { type: array, items: { $ref: '#/components/schemas/Facility' } }
+          required:
+            - name
+            - enforceConsents
+            - facilities
+      discriminator:
+        propertyName: beanName
+
     PublicationSystem:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
