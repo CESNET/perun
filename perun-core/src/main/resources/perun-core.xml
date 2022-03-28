@@ -194,6 +194,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<property name="usersManagerBl" ref="usersManagerBl"/>
 		<property name="groupsManagerBl" ref="groupsManagerBl"/>
 		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
+		<property name="consentsManagerBl" ref="consentsManagerBl"/>
 		<property name="configManagerBl" ref="configManagerBl"/>
 		<property name="membersManagerBl" ref="membersManagerBl"/>
 		<property name="resourcesManagerBl" ref="resourcesManagerBl"/>
@@ -213,6 +214,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<property name="usersManager" ref="usersManager"/>
 		<property name="groupsManager" ref="groupsManager"/>
 		<property name="facilitiesManager" ref="facilitiesManager"/>
+		<property name="consentsManager" ref="consentsManager"/>
 		<property name="configManager" ref="configManager"/>
 		<property name="membersManager" ref="membersManager"/>
 		<property name="resourcesManager" ref="resourcesManager"/>
@@ -250,6 +252,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	<bean id="facilitiesManager" class="cz.metacentrum.perun.core.entry.FacilitiesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
 		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
+	</bean>
+	<bean id="consentsManager" class="cz.metacentrum.perun.core.entry.ConsentsManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+		<property name="perunBl" ref="perun"/>
+		<property name="consentsManagerBl" ref="consentsManagerBl"/>
 	</bean>
 	<bean id="configManager" class="cz.metacentrum.perun.core.entry.ConfigManagerEntry" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
@@ -319,6 +325,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="facilitiesManagerImpl" />
 	</bean>
+	<bean id="consentsManagerBl" class="cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+		<property name="perunBl" ref="perun"/>
+		<constructor-arg ref="consentsManagerImpl" />
+	</bean>
 	<bean id="configManagerBl" class="cz.metacentrum.perun.core.blImpl.ConfigManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="configManagerImpl" />
 	</bean>
@@ -387,6 +397,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="facilitiesManagerImpl" class="cz.metacentrum.perun.core.impl.FacilitiesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="consentsManagerImpl" class="cz.metacentrum.perun.core.impl.ConsentsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="configManagerImpl" class="cz.metacentrum.perun.core.impl.ConfigManagerImpl" scope="singleton" depends-on="databaseManagerBl">

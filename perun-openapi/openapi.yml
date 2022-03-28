@@ -3257,6 +3257,10 @@ tags:
     description: Searcher RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-Searcher.html
+  - name: ConsentsManager
+    description: ConsentsManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConsentsManager.html
 
 
 #################################################
@@ -16957,3 +16961,9 @@ paths:
                   nullable: false
                   additionalProperties:
                     type: string
+
+  #################################################
+  #                                               #
+  # ConsentsManager                               #
+  #                                               #
+  #################################################
