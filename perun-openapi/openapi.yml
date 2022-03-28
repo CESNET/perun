@@ -8487,6 +8487,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/updateUserExtSourceLastAccess:
+    post:
+      tags:
+        - UsersManager
+      operationId: updateUserExtSourceLastAccess
+      summary: Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/removeUserExtSource:
     post:
       tags:
