@@ -3798,8 +3798,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		for (ApplicationFormItemData item : items) {
 			String destAttr = item.getFormItem().getPerunDestinationAttribute();
 			String newValue = item.getValue();
-			// do not store null or empty values at all
-			if (newValue == null || newValue.isEmpty()) continue;
+
 			// if correct destination attribute
 			if (destAttr != null && !destAttr.isEmpty()) {
 				// get attribute (for user and member only)
@@ -3812,6 +3811,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					continue;
 				}
 
+				// do not store null or empty values at all with exception to boolean type
+				if ((newValue == null || newValue.isEmpty()) && !a.getType().equalsIgnoreCase(Boolean.class.getName())) continue;
+
 				// NEVER STORE LOGINS THIS WAY TO PREVENT ACCIDENTAL OVERWRITE
 				if (a != null && "login-namespace".equals(a.getBaseFriendlyName())) {
 					continue;
@@ -3821,7 +3823,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (a != null) {
 					if (a.getType().equalsIgnoreCase(LinkedHashMap.class.getName())) {
 						// FIXME do not set hash map attributes - not supported in GUI and registrar
-						continue;
+					} else if (a.getType().equalsIgnoreCase(Boolean.class.getName())) {
+						a.setValue(BeansUtils.stringToAttributeValue(newValue, Boolean.class.getName()));
+						attributes.add(a);
 					} else if (a.getType().equalsIgnoreCase(ArrayList.class.getName())) {
 
 						// we expect that list contains strings
@@ -3844,7 +3848,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						}
 						a.setValue(value);
 						attributes.add(a);
-						continue;
 					} else {
 						// other attributes are handled like strings
 						a.setValue(newValue);

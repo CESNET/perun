@@ -513,6 +513,13 @@ components:
         destinations: { type: array, items: { $ref: '#/components/schemas/Destination' } }
         hosts: { type: array, items: { $ref: '#/components/schemas/Host' } }
 
+    EnrichedVo:
+      type: object
+      properties:
+        vo: { $ref: '#/components/schemas/Vo' }
+        memberVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
+        parentVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
+
     PublicationSystem:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
@@ -1361,6 +1368,8 @@ components:
         m: { type: integer, description: "member id" }
         g: { type: integer, description: "group id" }
         sg: { type: integer, description: "source group id" }
+        gn: { type: string, description: "group_name" }
+        pg: { type: integer, description: "parent_group_id" }
         s: { type: string, description: "source group status" }
         t: { type: string, description: "membership type" }
 
@@ -1991,6 +2000,13 @@ components:
           schema:
             $ref: "#/components/schemas/Vo"
 
+    EnrichedVoResponse:
+      description: "returns enriched Vo"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EnrichedVo"
+
     ListOfVosResponse:
       description: "returns List<Vo>"
       content:
@@ -1999,6 +2015,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Vo"
+
+    ListOfEnrichedVosResponse:
+      description: "returns List<EnrichedVo>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedVo"
 
     ExtSourceResponse:
       description: "returns ExtSource"
@@ -2669,6 +2694,14 @@ components:
       in: query
       required: true
 
+    memberVoId:
+      name: memberVo
+      description: "id of member Vo"
+      schema:
+        type: integer
+      in: query
+      required: true
+
     banId:
       name: banId
       description: "id of a ban"
@@ -3220,6 +3253,10 @@ tags:
     description: IntegrationManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-IntegrationManager.html
+  - name: Searcher
+    description: Searcher RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-Searcher.html
 
 
 #################################################
@@ -8450,6 +8487,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/updateUserExtSourceLastAccess:
+    post:
+      tags:
+        - UsersManager
+      operationId: updateUserExtSourceLastAccess
+      summary: Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/removeUserExtSource:
     post:
       tags:
@@ -8474,6 +8525,21 @@ paths:
       summary: Returns user ext source by its id.
       parameters:
         - $ref: '#/components/parameters/userExtSourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUserExtSourceByExtLoginAndExtSourceName:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserExtSourceByExtLoginAndExtSourceName
+      summary: Returns user's external source by the user's external login and external source name.
+      parameters:
+        - $ref: '#/components/parameters/extSourceName'
+        - { name: extSourceLogin, description: "external source login", schema: { type: string }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/UserExtSourceResponse'
@@ -13698,6 +13764,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/vosManager/getEnrichedVos:
+    get:
+      tags:
+        - VosManager
+      operationId: getMyEnrichedVos
+      summary: Return list of all EnrichedVos the caller is associated with.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/vosManager/getAllVos:
     get:
       tags:
@@ -13820,6 +13898,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getEnrichedVoById:
+    get:
+      tags:
+        - VosManager
+      operationId: getEnrichedVoById
+      summary: Returns an enriched virtual organization by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/EnrichedVoResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -14216,6 +14308,63 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/vosManager/addMemberVo:
+    post:
+      tags:
+        - VosManager
+      operationId: addMemberVo
+      summary: Add member vo to vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/memberVoId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/removeMemberVo:
+    post:
+      tags:
+        - VosManager
+      operationId: removeMemberVo
+      summary: Remove member vo from vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/memberVoId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getMemberVos:
+    get:
+      tags:
+        - VosManager
+      operationId: getMemberVos
+      summary: Get list of all members organizations of a vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getParentVos:
+    get:
+      tags:
+        - VosManager
+      operationId: getParentVos
+      summary: Get list of all parent organizations of a vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
@@ -16652,3 +16801,159 @@ paths:
           $ref: '#/components/responses/GroupMemberDataResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # Searcher                                      #
+  #                                               #
+  #################################################
+
+  /json/Searcher/getUsers:
+    post:
+      tags:
+        - Searcher
+      operationId: getUsersSearcher
+      summary: Get list of users who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetUsers
+              description: "Input to getUsers"
+              type: object
+              required:
+                - attributesWithSearchingValues
+              properties:
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getMembersByUserAttributes:
+    post:
+      tags:
+        - Searcher
+      operationId: getMembersByUserAttributes
+      summary: Get list of members who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetMembersByUserAttributes
+              description: "Input to getMembersByUserAttributes"
+              type: object
+              required:
+                - vo
+                - userAttributesWithSearchingValues
+              properties:
+                vo: { type: integer, description: "vo id", nullable: false }
+                userAttributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getFacilities:
+    post:
+      tags:
+        - Searcher
+      operationId: getFacilities
+      summary: Get list of facilities who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetFacilities
+              description: "Input to getFacilities"
+              type: object
+              required:
+                - attributesWithSearchingValues
+              properties:
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getResources/attributes:
+    post:
+      tags:
+        - Searcher
+      operationId: getAttributesResources
+      summary: Get list of resources who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetResources
+              description: "Input to getResources"
+              type: object
+              required:
+                - attributesWithSearchingValues
+              properties:
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/Searcher/getResources/attributes-match:
+    post:
+      tags:
+        - Searcher
+      operationId: getAttributesMatchResources
+      summary: Get list of resources that have attributes with partially matched values 
+        if allowPartialMatchForString is set to true, else with exactly matched values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetResources
+              description: "Input to getResources"
+              type: object
+              required:
+                - allowPartialMatchForString
+                - attributesWithSearchingValues
+              properties:
+                allowPartialMatchForString: { type: boolean, description: "True if partial match is allowed", nullable: false }
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of attribute names with searching values Map<sting,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string

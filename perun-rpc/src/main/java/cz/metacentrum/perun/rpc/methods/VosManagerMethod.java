@@ -26,6 +26,16 @@ public enum VosManagerMethod implements ManagerMethod {
 			return ac.getVosManager().getVos(ac.getSession());
 		}
 	},
+	/*#
+	 * Return list of EnrichedVO object of VOs caller has relation with (is manager of VO, is manager of group in VO etc.).
+	 * @return List<EnrichedVo> Found VOs
+	 */
+	getEnrichedVos {
+		@Override
+		public List<EnrichedVo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getEnrichedVos(ac.getSession());
+		}
+	},
 
 	/*#
      * Return list of all VOs in Perun.
@@ -155,6 +165,20 @@ public enum VosManagerMethod implements ManagerMethod {
 		public Vo call(ApiCaller ac, Deserializer parms)
 				throws PerunException {
 			return ac.getVosManager().getVoById(ac.getSession(), parms.readInt("id"));
+		}
+	},
+
+	/*#
+	 * Returns an EnrichedVo object of a VO by its <code>id</code>.
+	 *
+	 * @param id int VO <code>id</code>.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @return EnrichedVo EnrichedVo object of found VO
+	 */
+	getEnrichedVoById {
+		@Override
+		public EnrichedVo call (ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getEnrichedVoById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 
@@ -765,6 +789,64 @@ public enum VosManagerMethod implements ManagerMethod {
 			ac.getVosManager().convertSponsoredUsersWithNewSponsor(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
 			return null;
+		}
+	},
+
+	/*#
+	 * Adds new relationship between vo and a member vo.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param memberVo int VO <code>id</code>
+	 */
+	addMemberVo {
+		@Override
+		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getVosManager().addMemberVo(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				ac.getVoById(parms.readInt("memberVo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Removes member vo from given vo.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param memberVo int VO <code>id</code>
+	 */
+	removeMemberVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getVosManager().removeMemberVo(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					ac.getVoById(parms.readInt("memberVo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Gets all member organizations of the given vo.
+	 *
+	 * @param vo int VO <code>id</code>
+	 */
+	getMemberVos {
+		@Override
+		public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getMemberVos(ac.getSession(),
+					parms.readInt("vo"));
+		}
+	},
+
+	/*#
+	 * Gets all organizations where given vo is direct member.
+	 *
+	 * @param vo int VO <code>id</code>
+	 */
+	getParentVos {
+		@Override
+		public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getParentVos(ac.getSession(),
+					parms.readInt("vo"));
 		}
 	}
 }

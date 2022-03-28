@@ -477,7 +477,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			// jdbc template cannot be null
 			return getMyJdbcTemplate().queryForObject(
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks " + 
+					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks " +
 					" left join services on tasks.service_id = services.id" +
 					" left join facilities on facilities.id = tasks.facility_id" +
 					" where tasks.service_id = ? and tasks.facility_id = ?",
@@ -594,12 +594,14 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	public void removeTask(Service service, Facility facility) {
 		// jdbc template cannot be null
 		getMyJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ?", service.getId(), facility.getId());
+		log.debug("Deleted Task with Service ID {} and Facility ID {}", service.getId(), facility.getId());
 	}
 
 	@Override
 	public void removeTask(int id) {
 		// jdbc template cannot be null
 		getMyJdbcTemplate().update("delete from tasks where id = ?", id);
+		log.debug("Deleted Task with ID {}", id);
 	}
 
 	private int queryForInt(String sql, Object... args) {

@@ -1,4 +1,4 @@
--- database version 3.1.89 (don't forget to update insert statement at the end of file)
+-- database version 3.1.90 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -1308,6 +1308,19 @@ create table groups_groups (
 								constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id)
 );
 
+-- VOS_VOS - Hierarchical structure of virtual organizations and their member organizations
+create table vos_vos (
+								vo_id integer not null, -- identifier of VO
+								member_vo_id integer not null, -- identifier of its member vo
+								created_at timestamp default statement_timestamp() not null,
+								created_by varchar default user not null,
+								modified_at timestamp default statement_timestamp() not null,
+								modified_by varchar default user not null,
+								constraint vos_vos_pk primary key (vo_id,member_vo_id),
+								constraint vos_vos_void_fk foreign key (vo_id) references vos(id),
+								constraint vos_vos_memid_fk foreign key (member_vo_id) references vos(id)
+);
+
 -- RES_TAGS - possible resource tags in VO
 create table res_tags (
 						   id integer not null,
@@ -1748,7 +1761,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.89');
+insert into configurations values ('DATABASE VERSION','3.1.90');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

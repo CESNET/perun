@@ -51,6 +51,7 @@ public class CoreConfig {
 	private Set<String> dontLookupUsers;
 	private Set<String> extSourcesMultipleIdentifiers;
 	private boolean lookupUserByIdentifiersAndExtSourceLogin;
+	private boolean forceConsents;
 	private String alternativePasswordManagerProgram;
 	private String instanceId;
 	private String instanceName;
@@ -86,7 +87,6 @@ public class CoreConfig {
 	private List<String> attributesToAnonymize;
 	private List<String> attributesToKeep;
 	private boolean findSimilarUsersDisabled;
-
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
 	}
@@ -96,9 +96,9 @@ public class CoreConfig {
 	}
 
 	private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
+
 	private Map<String, String> oidcIssuersExtsourceNames = new HashMap<>();
 	private Map<String, String> oidcIssuersExtsourceTypes = new HashMap<>();
-
 	public int getGroupMaxConcurrentGroupsStructuresToSynchronize() {
 		return groupMaxConcurrentGroupsStructuresToSynchronize;
 	}
@@ -257,6 +257,14 @@ public class CoreConfig {
 
 	public void setLookupUserByIdentifiersAndExtSourceLogin(boolean lookupUserByIdentifiersAndExtSourceLogin) {
 		this.lookupUserByIdentifiersAndExtSourceLogin = lookupUserByIdentifiersAndExtSourceLogin;
+	}
+
+	public boolean getForceConsents() {
+		return forceConsents;
+	}
+
+	public void setForceConsents(boolean forceConsents) {
+		this.forceConsents = forceConsents;
 	}
 
 	public String getAlternativePasswordManagerProgram() {

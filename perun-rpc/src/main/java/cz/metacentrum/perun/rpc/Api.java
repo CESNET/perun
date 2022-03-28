@@ -681,6 +681,7 @@ public class Api extends HttpServlet {
 				long systemTimeInMillis = System.currentTimeMillis();
 				ser.write(systemTimeInMillis);
 				out.close();
+				return;
 			}
 
 			// Store identification of the request only if supported by app (it passed unique callbackName)

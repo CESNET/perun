@@ -7,12 +7,14 @@ import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
+import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -36,21 +38,19 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
-import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
@@ -96,6 +96,13 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public List<Vo> getVos(PerunSession sess) {
 		return getVosManagerImpl().getVos(sess);
+	}
+
+	@Override
+	public List<EnrichedVo> getEnrichedVos(PerunSession sess) {
+		return getVos(sess).stream()
+			.map(vo -> convertToEnrichedVo(sess, vo))
+			.collect(Collectors.toList());
 	}
 
 	@Override
@@ -269,6 +276,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public Vo getVoById(PerunSession sess, int id) throws VoNotExistsException {
 		return getVosManagerImpl().getVoById(sess, id);
+	}
+
+	@Override
+	public EnrichedVo getEnrichedVoById(PerunSession sess, int id) throws VoNotExistsException {
+		return convertToEnrichedVo(sess, this.getVoById(sess, id));
 	}
 
 	@Override
@@ -902,6 +914,46 @@ public class VosManagerBlImpl implements VosManagerBl {
 		return vosManagerImpl.hasEmbeddedGroupsItemInForm(sess, vo.getId());
 	}
 
+	@Override
+	public void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException {
+		checkParentVos(sess, vo, memberVo);
+		vosManagerImpl.addMemberVo(sess, vo, memberVo);
+	}
+
+	/**
+	 * Check if new member vo is not already parent of vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo new member of the vo
+	 * @throws RelationExistsException if member vo is already parent of vo
+	 */
+	private void checkParentVos(PerunSession sess, Vo vo, Vo memberVo)  throws RelationExistsException {
+		if (vo.getId() == memberVo.getId()) {
+			throw new RelationExistsException(String.format("Member VO %s is an ancestor.", memberVo.getShortName()));
+		}
+		List<Vo> parents = vosManagerImpl.getParentVos(sess, vo.getId());
+		for (Vo parent : parents) {
+			checkParentVos(sess, parent, memberVo);
+		}
+	}
+
+	@Override
+	public void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException {
+		// todo - add necessary logic for removing member vo
+		vosManagerImpl.removeMemberVo(sess, vo, memberVo);
+	}
+
+	@Override
+	public List<Vo> getMemberVos(PerunSession sess, int voId) {
+		return vosManagerImpl.getMemberVos(sess, voId);
+	}
+
+	@Override
+	public List<Vo> getParentVos(PerunSession sess, int memberVoId) {
+		return vosManagerImpl.getParentVos(sess, memberVoId);
+	}
+
 	/**
 	 * Sponsor given user by the given newSponsor in the given vo. If the newSponsor doesn't have
 	 * the SPONSOR role, it will be set to him.
@@ -997,6 +1049,19 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 */
 	private List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, List<Candidate> candidates, List<String> attrNames) {
 		return createMemberCandidates(sess, users, vo, null, candidates, attrNames);
+	}
+
+	/**
+	 * Converts given vo into enriched vo.
+	 *
+	 * @param sess
+	 * @param vo vo to be converted
+	 * @return converted EnrichedVo
+	 */
+	private EnrichedVo convertToEnrichedVo(PerunSession sess, Vo vo) {
+		List<Vo> memberVos = this.getMemberVos(sess, vo.getId());
+		List<Vo> parentVos = this.getParentVos(sess, vo.getId());
+		return new EnrichedVo(vo, memberVos, parentVos);
 	}
 
 	/**

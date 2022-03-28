@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -51,6 +52,15 @@ public interface VosManager {
 	 * @throws InternalErrorException
 	 */
 	List<Vo> getVos(PerunSession perunSession) throws PrivilegeException;
+
+	/**
+	 * Get list of EnrichedVos of all the VOs the user has access to
+	 *
+	 * @param perunSession
+	 * @return List of EnrichedVos or empty list
+	 * @throws PrivilegeException
+	 */
+	List<EnrichedVo> getEnrichedVos(PerunSession perunSession) throws PrivilegeException;
 
 	/**
 	 * Get list of Vos without any privilege.
@@ -134,6 +144,15 @@ public interface VosManager {
 	 * @throws PrivilegeException
 	 */
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Finds existing vo by and id and returns corresponding EnrichedVo
+	 * @param perunSession
+	 * @param id
+	 * @return EnrichedVO object of requested VO, which contains its member and parent VOs
+	 * @throws VoNotExistsException
+	 */
+	EnrichedVo getEnrichedVoById(PerunSession perunSession, int id) throws VoNotExistsException, PrivilegeException;
 
 	/**
 	 * Finds existing VOs by ids.
@@ -595,4 +614,50 @@ public interface VosManager {
 	 * @param newSponsor user, who will be set as a sponsor to the sponsored members
 	 */
 	void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor) throws PrivilegeException;
+
+	/**
+	 * Adds new relationship between vo and a member vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo new member of the vo
+	 * @throws RelationExistsException if member vo is already member of the vo
+	 * @throws PrivilegeException if not authorized
+	 * @throws VoNotExistsException if any of the vos don't exist
+	 */
+	void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException, PrivilegeException, VoNotExistsException;
+
+	/**
+	 * Removes member vo from given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo member vo to be removed
+	 * @throws RelationNotExistsException if member vo is not a member of the vo
+	 * @throws PrivilegeException if not authorized
+	 * @throws VoNotExistsException if any of the vos don't exist
+	 */
+	void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException, PrivilegeException, VoNotExistsException;
+
+	/**
+	 * Gets all member organizations of the given vo.
+	 *
+	 * @param sess session
+	 * @param voId vo id
+	 * @return list of member vos
+	 * @throws VoNotExistsException if given vo does not exist
+	 * @throws PrivilegeException if not authorized
+	 */
+	List<Vo> getMemberVos(PerunSession sess, int voId) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Gets all organizations where given vo is direct member.
+	 *
+	 * @param sess session
+	 * @param memberVoId member vo id
+	 * @return list of direct parent vos
+	 * @throws VoNotExistsException if given member vo does not exist
+	 * @throws PrivilegeException if not authorized
+	 */
+	List<Vo> getParentVos(PerunSession sess, int memberVoId) throws VoNotExistsException, PrivilegeException;
 }

@@ -216,6 +216,10 @@ $objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Res
 $objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
 $objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
 
+$objectExamples{"EnrichedVo"} = "{ \"vo\" : " . $objectExamples{"Vo"} . " , \"memberVos\" : " . $objectExamples{"List&lt;Vo&gt;"} . " , \"parentVos\" : " . $objectExamples{"List&lt;Vo&gt;"} . " }";
+$objectExamples{"List&lt;EnrichedVo&gt;"} = $listPrepend . $objectExamples{"EnrichedVo"} . $listAppend;
+$objectExamples{"List<EnrichedVo>"} = $objectExamples{"List&lt;EnrichedVo&gt;"};
+
 $objectExamples{"AssignedResource"} = "{ \"enrichedResource\" : " . $objectExamples{"EnrichedResource"} . " , \"status\" : \"FAILED\" , \"sourceGroupId\" : 10 , \"failureCause\" : \"Wrong attribute value in group 1\"" . " , \"facility\" : " . $objectExamples{"Facility"} . " , \"resourceTags\" : " . $objectExamples{"List<ResourceTag>"} . " , \"autoAssignSubgroups\" : false }";
 $objectExamples{"List&lt;AssignedResource&gt;"} = $listPrepend . $objectExamples{"AssignedResource"} . $listAppend;
 $objectExamples{"List<AssignedResource>"} = $objectExamples{"List&lt;AssignedResource&gt;"};
@@ -632,6 +636,16 @@ Response: call1(response);
 		<p>If you omit <em>callback</em> query parameter, you will get: </p><pre>Response: null(response);</pre><p></p>
 
 		<p>When using JSONP, returned objects are stripped of non relevant properties like <em>createdAt</em>, <em>createdBy</em>, <em>modifiedAt</em>, <em>modifiedBy</em> etc. You can get them when using standard JSON.</p>
+
+		<h3>CSRF Protection</h3>
+
+		<p>Domains with both GUI and API deployed are protected against CSRF attacks as a whole. Even only-API clients must implement this protection or use different domain reserved for the API calls (example below). Perun will generate a CSRF token during the first API call. The token value is returned to the client in a cookie.The client must read the value from the cookie and return it to the API with each call in the appropriate HTTP header along with the cookie itself. As a result, the token value must be the same in the cookie, HTTP header and server-side session. CSRF protection is enabled only for state-changing requests (POST, PUT). Also, CSRF is not used in OIDC, since it has its own CSRF protection using own access tokens.</p>
+
+<pre>GUI: perun.&ltdomain&gt.cz
+API: perun-api.&ltdomain&gt.cz
+</pre>
+
+		<p>Presence of CSRF token is checked at first by looking at value of Cookie ('XSRF-TOKEN') and HTTP Session. If either of them is missing, new token is generated and stored into both original Session and Cookie that is stored in the response. Token value must be same for all Cookie, Header ('X-XSRF-TOKEN') and server side Session, in case it is not, corresponding error message is sent in response.</p>
 
 	</div>
 </div>

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -19,6 +20,8 @@ import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
@@ -53,6 +56,14 @@ public interface VosManagerBl {
 	 * @return List of VOs or empty ArrayList<Vo>
 	 */
 	List<Vo> getVos(PerunSession perunSession);
+
+	/**
+	 * Get list of all EnrichedVos
+	 *
+	 * @param perunSession
+	 * @return List of EnrichedVos or empty list
+	 */
+	List<EnrichedVo> getEnrichedVos(PerunSession perunSession);
 
 	/**
 	 * Delete VO.
@@ -114,6 +125,15 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException;
+
+	/**
+	 * Finds existing vo by and id and returns corresponding EnrichedVo
+	 * @param perunSession
+	 * @param id
+	 * @return EnrichedVO object of requested VO, which contains its member and parent VOs
+	 * @throws VoNotExistsException
+	 */
+	EnrichedVo getEnrichedVoById(PerunSession perunSession, int id) throws VoNotExistsException;
 
 	/**
 	 * Finds existing VOs by ids.
@@ -555,4 +575,42 @@ public interface VosManagerBl {
 	 * @return true, if the given vo uses EMBEDDED_GROUP_APPLICATION item in its form, false otherwise.
 	 */
 	boolean usesEmbeddedGroupRegistrations(PerunSession sess, Vo vo);
+
+	/**
+	 * Adds new relationship between vo and a member vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo new member of the vo
+	 * @throws RelationExistsException if member vo is already member of the vo
+	 */
+	void addMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationExistsException;
+
+	/**
+	 * Removes member vo from given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param memberVo vo to be removed
+	 * @throws RelationNotExistsException if member vo is not a member of the vo
+	 */
+	void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException;
+
+	/**
+	 * Gets all member organizations of the given vo.
+	 *
+	 * @param sess session
+	 * @param voId vo id
+	 * @return list of member vos
+	 */
+	List<Vo> getMemberVos(PerunSession sess, int voId);
+
+	/**
+	 * Gets all organizations where given vo is direct member.
+	 *
+	 * @param sess session
+	 * @param memberVoId member vo id
+	 * @return list of direct parent vos
+	 */
+	List<Vo> getParentVos(PerunSession sess, int memberVoId);
 }
