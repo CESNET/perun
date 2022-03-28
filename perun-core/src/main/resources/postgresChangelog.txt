@@ -6,6 +6,18 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.91
+create table consent_hubs (id integer not null, name varchar not null, enforce_consents boolean not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint consent_hub_pk primary key (id), constraint consent_hub_name_u unique (name));
+create table consent_hubs_facilities (consent_hub_id integer not null, facility_id integer not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null,	modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint conhubfac_ch_fk foreign key(consent_hub_id) references consent_hubs(id), constraint conhubfac_fac_fk foreign key(facility_id) references facilities(id));
+create sequence "consent_hubs_id_seq";
+create index idx_fk_conhubfac_ch on consent_hubs_facilities(consent_hub_id);
+create index idx_fk_conhubfac_fac on consent_hubs_facilities(facility_id);
+grant all on consent_hubs to perun;
+grant all on consent_hubs_facilities to perun;
+insert into consent_hubs (id, name, enforce_consents) SELECT nextval('"consent_hubs_id_seq"'), name, true FROM facilities;
+insert into consent_hubs_facilities (consent_hub_id, facility_id) SELECT consent_hubs.id, facilities.id FROM consent_hubs JOIN facilities ON consent_hubs.name = facilities.name;
+UPDATE configurations SET value='3.1.91' WHERE property='DATABASE VERSION';
+
 3.1.90
 create table vos_vos (vo_id integer not null, member_vo_id integer not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, constraint vos_vos_pk primary key (vo_id,member_vo_id), constraint vos_vos_void_fk foreign key (vo_id) references vos(id), constraint vos_vos_memid_fk foreign key (member_vo_id) references vos(id));
 grant all on vos_vos to perun;
