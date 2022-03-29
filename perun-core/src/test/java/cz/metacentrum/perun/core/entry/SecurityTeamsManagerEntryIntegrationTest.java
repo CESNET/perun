@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -909,7 +910,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		return result;
 	}
 
-	private List<Facility> setUpFacilities() throws PrivilegeException, FacilityExistsException, SecurityTeamAlreadyAssignedException, FacilityNotExistsException, SecurityTeamNotExistsException {
+	private List<Facility> setUpFacilities() throws PrivilegeException, FacilityExistsException, SecurityTeamAlreadyAssignedException, FacilityNotExistsException, SecurityTeamNotExistsException, ConsentHubExistsException {
 		f0 = new Facility();
 		f1 = new Facility();
 		f2 = new Facility();

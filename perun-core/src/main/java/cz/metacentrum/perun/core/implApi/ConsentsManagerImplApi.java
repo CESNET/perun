@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 import java.util.List;
@@ -44,5 +45,36 @@ public interface ConsentsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	ConsentHub getConsentHubByName(PerunSession sess, String name) throws ConsentHubNotExistsException;
+
+	/**
+	 * Creates new consent hub.
+	 * @param perunSession session
+	 * @param consentHub consent hub
+	 * @return new consent hub
+	 */
+	ConsentHub createConsentHub(PerunSession perunSession, ConsentHub consentHub);
+
+	/**
+	 * Deletes the consent hub.
+	 * @param perunSession session
+	 * @param consentHub consent hub
+	 */
+	void deleteConsentHub(PerunSession perunSession, ConsentHub consentHub) throws ConsentHubAlreadyRemovedException;
+
+	/**
+	 * Returns true, if consent hub exists, false otherwise.
+	 * @param sess session
+	 * @param consentHub consent hub
+	 * @return whether consent hub exists
+	 */
+	boolean consentHubExists(PerunSession sess, ConsentHub consentHub);
+
+	/**
+	 * Throws exception if consent hub does not exist.
+	 * @param sess session
+	 * @param consentHub consent hub
+	 * @throws ConsentHubNotExistsException if consent hub does not exist
+	 */
+	void checkConsentHubExists(PerunSession sess, ConsentHub consentHub) throws ConsentHubNotExistsException;
 
 }
