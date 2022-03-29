@@ -63,7 +63,7 @@ public class IntegrationManagerApiTest {
 
 		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
-		var expectedRelation = directRelation(group.getId(), member.getId(), group.getShortName());
+		var expectedRelation = directRelation(group.getId(), member.getId(), user.getId(), group.getShortName());
 
 		assertThat(groupMemberData.relations())
 			.contains(expectedRelation);
@@ -76,7 +76,7 @@ public class IntegrationManagerApiTest {
 
 		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
-		var expectedRelation = directRelation(group.getId(), member.getId(), group.getShortName(), MemberGroupStatus.EXPIRED);
+		var expectedRelation = directRelation(group.getId(), member.getId(), user.getId(), group.getShortName(), MemberGroupStatus.EXPIRED);
 
 		assertThat(groupMemberData.relations())
 			.contains(expectedRelation);
@@ -90,8 +90,8 @@ public class IntegrationManagerApiTest {
 
 		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
-		var directRelation = directRelation(group.getId(), member.getId(), group.getShortName());
-		var indirectRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId(), group.getShortName());
+		var directRelation = directRelation(group.getId(), member.getId(), user.getId(), group.getShortName());
+		var indirectRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId(), user.getId(), group.getShortName());
 
 		assertThat(groupMemberData.relations())
 			.contains(directRelation)
@@ -105,7 +105,7 @@ public class IntegrationManagerApiTest {
 
 		var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
-		var expectedRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId(), group.getShortName());
+		var expectedRelation = inDirectRelation(group.getId(), subgroup.getId(), member.getId(), user.getId(), group.getShortName());
 
 		assertThat(groupMemberData.relations())
 			.contains(expectedRelation);
@@ -130,18 +130,18 @@ public class IntegrationManagerApiTest {
 			.contains(attr);
 	}
 
-	private GroupMemberRelation directRelation(int groupId, int memberId, String groupName) {
-		return directRelation(groupId, memberId, groupName, MemberGroupStatus.VALID);
+	private GroupMemberRelation directRelation(int groupId, int memberId, int userId, String groupName) {
+		return directRelation(groupId, memberId, userId, groupName, MemberGroupStatus.VALID);
 	}
-	private GroupMemberRelation directRelation(int groupId, int memberId, String groupName, MemberGroupStatus status) {
-		return new GroupMemberRelation(groupId, memberId, groupId, groupName, 0, status, MembershipType.DIRECT);
+	private GroupMemberRelation directRelation(int groupId, int memberId, int userId, String groupName, MemberGroupStatus status) {
+		return new GroupMemberRelation(groupId, memberId, userId, groupId, groupName, 0, status, MembershipType.DIRECT);
 	}
 
-	private GroupMemberRelation inDirectRelation(int groupId, int sourceGroupId, int memberId, String groupName) {
-		return inDirectRelation(groupId, sourceGroupId, memberId, groupName, MemberGroupStatus.VALID);
+	private GroupMemberRelation inDirectRelation(int groupId, int sourceGroupId, int memberId, int userId, String groupName) {
+		return inDirectRelation(groupId, sourceGroupId, memberId, userId, groupName, MemberGroupStatus.VALID);
 	}
-	private GroupMemberRelation inDirectRelation(int groupId, int sourceGroupId, int memberId, String groupName, MemberGroupStatus status) {
-		return new GroupMemberRelation(groupId, memberId, sourceGroupId, groupName, 0, status, MembershipType.INDIRECT);
+	private GroupMemberRelation inDirectRelation(int groupId, int sourceGroupId, int memberId, int userId, String groupName, MemberGroupStatus status) {
+		return new GroupMemberRelation(groupId, memberId, userId, sourceGroupId, groupName, 0, status, MembershipType.INDIRECT);
 	}
 
 	private AttributeDefinition createMemberGroupAttr(String friendlyName) throws Exception {

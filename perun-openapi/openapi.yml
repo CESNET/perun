@@ -1380,6 +1380,7 @@ components:
       type: object
       properties:
         m: { type: integer, description: "member id" }
+        u: { type: integer, description: "user_id" }
         g: { type: integer, description: "group id" }
         sg: { type: integer, description: "source group id" }
         gn: { type: string, description: "group_name" }
