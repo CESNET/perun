@@ -371,6 +371,10 @@ public class TaskScheduler extends AbstractRunner {
 				// when service is blocked globally in Perun or on facility as a whole.
 				return DENIED;
 			}
+		} else {
+			log.debug("[{}] No destination found for task: {}.", task.getId(), task);
+			task.setStatus(TaskStatus.ERROR);
+			return ERROR;
 		}
 
 		task.setDestinations(destinations);
