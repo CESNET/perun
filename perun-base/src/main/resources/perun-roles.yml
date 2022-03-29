@@ -6684,16 +6684,12 @@ perun_policies:
   getConsentHubById_int_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
 
   getConsentHubByName_String_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
 

@@ -12,7 +12,9 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Integration tests of ConsentsManager.
@@ -31,17 +33,43 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getAllConsentHubs() throws Exception {
-		//TODO: test
+		System.out.println(CLASS_NAME + "getAllConsentHubs");
+
+		Facility facility1 = setUpFacility();
+		setUpConsentHub(List.of(facility1));
+		Facility facility2 = new Facility();
+		facility2.setName("ConsentsTestFacility2");
+
+		// createFacility method creates also new Consent Hub
+		perun.getFacilitiesManager().createFacility(sess, facility2);
+
+		assertEquals(3, consentsManagerEntry.getAllConsentHubs(sess).size());
 	}
 
 	@Test
 	public void getConsentHubById() throws Exception {
-		//TODO: test
+		System.out.println(CLASS_NAME + "getConsentHubById");
+
+		Facility facility = setUpFacility();
+		ConsentHub consentHub = setUpConsentHub(List.of(facility));
+		ConsentHub returnedConsentHub = consentsManagerEntry.getConsentHubById(sess, consentHub.getId());
+
+		assertEquals(consentHub, returnedConsentHub);
+		assertThatExceptionOfType(ConsentHubNotExistsException.class).isThrownBy(
+			() -> consentsManagerEntry.getConsentHubById(sess, returnedConsentHub.getId()+1));
 	}
 
 	@Test
 	public void getConsentHubByName() throws Exception {
-		//TODO: test
+		System.out.println(CLASS_NAME + "getConsentHubByName");
+
+		Facility facility = setUpFacility();
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByName(sess, facility.getName());
+
+		assertEquals(1, consentsManagerEntry.getAllConsentHubs(sess).size());
+		assertTrue(consentHub.getFacilities().contains(facility));
+		assertThatExceptionOfType(ConsentHubNotExistsException.class).isThrownBy(
+			() -> consentsManagerEntry.getConsentHubByName(sess, "wrongName"));
 	}
 
 	@Test
