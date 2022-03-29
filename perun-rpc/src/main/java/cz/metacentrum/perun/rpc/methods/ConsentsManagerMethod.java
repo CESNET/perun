@@ -1,15 +1,52 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
-public enum ConsentsManagerMethod implements ManagerMethod {
-	;
+import java.util.List;
 
-	@Override
-	public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-		return null;
-	}
+public enum ConsentsManagerMethod implements ManagerMethod {
+
+	/*#
+	 * Return list of all Consent Hubs.
+	 *
+	 * @return List<ConsentHub> list of Consent Hubs
+	 */
+	getAllConsentHubs {
+		@Override
+		public List<ConsentHub> call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getConsentsManager().getAllConsentHubs(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Returns a Consent Hub by its <code>id</code>.
+	 *
+	 * @param id int Consent Hub <code>id</code>
+	 * @throw ConsentHubNotExistsException When Consent Hub specified by <code>id</code> doesn't exist.
+	 * @return ConsentHub Found Consent Hub
+	 */
+	getConsentHubById {
+		@Override
+		public ConsentHub call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getConsentsManager().getConsentHubById(ac.getSession(), params.readInt("id"));
+		}
+	},
+
+	/*#
+	 * Returns a Consent Hub by its name.
+	 *
+	 * @param name String Consent Hub name
+	 * @throw ConsentHubNotExistsException When Consent Hub specified by name doesn't exist.
+	 * @return ConsentHub Found Consent Hub
+	 */
+	getConsentHubByName {
+		@Override
+		public ConsentHub call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getConsentsManager().getConsentHubByName(ac.getSession(), params.readString("name"));
+		}
+	},
 }

@@ -6674,6 +6674,29 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #ConsentsManagerEntry
+  getAllConsentHubs_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getConsentHubById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
+  getConsentHubByName_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 perun_roles_management:
 
