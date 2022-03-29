@@ -61,16 +61,23 @@ public class ConsentsManagerEntry implements ConsentsManager {
 	public ConsentHub getConsentHubById(PerunSession sess, int id) throws ConsentHubNotExistsException, PrivilegeException {
 		Utils.notNull(sess, "sess");
 
-		ConsentHub consentHub = consentsManagerBl.getConsentHubById(sess, id);
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getConsentHubById_int_policy")) {
+			throw new PrivilegeException(sess, "getConsentHubById");
+		}
+
+		// Block of code prepared for manage FACILITY ADMIN/OBSERVER roles
+		// Don't forget to add roles to perun-roles.yml
+		/*ConsentHub consentHub = consentsManagerBl.getConsentHubById(sess, id);
 		List<Facility> facilities = consentHub.getFacilities();
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "getConsentHubById_int_policy", facility));
 
 		// Authorization
 		if (facilities.isEmpty()) {
 			throw new PrivilegeException(sess, "getConsentHubById");
-		}
+		}*/
 
-		return consentHub;
+		return consentsManagerBl.getConsentHubById(sess, id);
 	}
 
 	@Override
@@ -78,16 +85,23 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(name, "name");
 
-		ConsentHub consentHub = consentsManagerBl.getConsentHubByName(sess, name);
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getConsentHubByName_String_policy")) {
+			throw new PrivilegeException(sess, "getConsentHubByName");
+		}
+
+		// Block of code prepared for manage FACILITY ADMIN/OBSERVER roles
+		// Don't forget to add roles to perun-roles.yml
+		/*ConsentHub consentHub = consentsManagerBl.getConsentHubByName(sess, name);
 		List<Facility> facilities = consentHub.getFacilities();
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "getConsentHubById_int_policy", facility));
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "getConsentHubByName_String_policy", facility));
 
 		// Authorization
 		if (facilities.isEmpty()) {
 			throw new PrivilegeException(sess, "getConsentHubByName");
-		}
+		}*/
 
-		return consentHub;
+		return consentsManagerBl.getConsentHubByName(sess, name);
 	}
 
 }
