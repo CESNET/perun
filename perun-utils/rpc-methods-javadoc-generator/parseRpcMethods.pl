@@ -276,6 +276,10 @@ $objectExamples{"ConsentHub"} = "{ \"id\" : 10 , \"name\" : \"Test Consent Hub\"
 $objectExamples{"List&lt;ConsentHub&gt;"} = $listPrepend . $objectExamples{"ConsentHub"} . $listAppend;
 $objectExamples{"List<ConsentHub>"} = $objectExamples{"List&lt;ConsentHub&gt;"};
 
+$objectExamples{"Consent"} = "{ \"id\" : 1 , \"userId\" : 1 , \"status\" : \"UNSIGNED\" , \"consentHub\" : " . $objectExamples{"ConsentHub"} . " , \"attributes\" :  " . $objectExamples{"List&lt;AttributeDefinition&gt;"} . " , \"beanName\" : \"Consent\" }";
+$objectExamples{"List&lt;Consent&gt;"} = $listPrepend . $objectExamples{"Consent"} . $listAppend;
+$objectExamples{"List<Consent>"} = $objectExamples{"List&lt;Consent&gt;"};
+
 # SUB HELP
 # help info
 sub help {

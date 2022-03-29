@@ -766,6 +766,25 @@ components:
         - order
         - sortColumn
 
+    ConsentStatus:
+      type: string
+      description: 'statuses of consents'
+      enum:
+        - UNSIGNED
+        - GRANTED
+        - REVOKED
+
+    Consent:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            userId: { type: integer }
+            status: { $ref: '#/components/schemas/ConsentStatus' }
+            consentHub: { $ref: '#/components/schemas/ConsentHub' }
+            attributes: { type: array, items: { $ref: '#/components/schemas/AttributeDefinition' } }
+      discriminator:
+        propertyName: beanName
+
     Resource:
       allOf:
         - $ref: '#/components/schemas/Auditable'

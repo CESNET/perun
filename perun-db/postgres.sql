@@ -1578,6 +1578,37 @@ create table groups_to_register (
     constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
 );
 
+create type consent_status as enum (
+	'UNSIGNED',
+	'GRANTED',
+	'REVOKED'
+);
+
+-- CONSENTS - consents of users
+create table consents (
+	id integer not null,
+	user_id integer not null,
+	consent_hub_id integer not null,
+	status consent_status not null default 'UNSIGNED',
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint consents_pk primary key(id),
+	constraint consents_user_fk foreign key(user_id) references users(id),
+	constraint consents_cons_hub_fk foreign key(consent_hub_id) references consent_hubs(id)
+);
+
+-- CONSENT_ATTR_DEFs - attributes associated with consents
+create table consent_attr_defs (
+	consent_id  INT NOT NULL,
+	attr_id  INT NOT NULL,
+	constraint consentatt_pk primary key(consent_id, attr_id),
+	constraint consentatt_nam_fk foreign key (attr_id) references attr_names(id),
+	constraint consentatt_consent_fk foreign key (consent_id) references consents(id)
+);
 
 create sequence "attr_names_id_seq";
 create sequence "attribute_policies_id_seq";
@@ -1629,6 +1660,7 @@ create sequence "security_teams_id_seq";
 create sequence "resources_bans_id_seq";
 create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
+create sequence "consents_id_seq";
 
 create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(parent_group_id,'0'));
 create index idx_namespace on attr_names(namespace);
@@ -1788,6 +1820,10 @@ CREATE INDEX uauv_idx ON user_attr_u_values (user_id, attr_id);
 CREATE INDEX uesauv_idx ON user_ext_source_attr_u_values (user_ext_source_id, attr_id);
 CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, attr_id);
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
+create index idx_fk_cons_usr ON consents(user_id);
+create index idx_fk_cons_cons_hub ON consents(consent_hub_id);
+create index idx_fk_attr_cons_cons ON consent_attr_defs(consent_id);
+create index idx_fk_attr_cons_attr ON consent_attr_defs(attr_id);
 
 grant all on users to perun;
 grant all on vos to perun;
@@ -1894,6 +1930,8 @@ grant all on user_ext_source_attr_values to perun;
 grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
+grant all on consents to perun;
+grant all on consent_attr_defs to perun;
 
 -- set initial Perun DB version
 insert into configurations values ('DATABASE VERSION','3.1.91');
