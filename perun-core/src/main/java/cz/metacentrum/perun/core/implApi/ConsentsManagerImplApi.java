@@ -56,6 +56,17 @@ public interface ConsentsManagerImplApi {
 	List<Facility> getFacilitiesForConsentHub(ConsentHub consentHub);
 
 	/**
+	 * Finds existing Consent Hub by facility.
+	 *
+	 * @param sess perun session
+	 * @param facilityId facility for which consent hub is searched
+	 * @return found Consent Hub
+	 * @throws ConsentHubNotExistsException
+	 * @throws InternalErrorException
+	 */
+	ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException;
+
+	/**
 	 * Creates new consent hub.
 	 * @param perunSession session
 	 * @param consentHub consent hub

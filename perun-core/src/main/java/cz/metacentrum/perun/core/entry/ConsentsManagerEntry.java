@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -102,6 +103,18 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		}*/
 
 		return consentsManagerBl.getConsentHubByName(sess, name);
+	}
+
+	@Override
+	public ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException, PrivilegeException, FacilityNotExistsException {
+		Utils.notNull(sess, "sess");
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getConsentHubByFacility_Facility_policy", perunBl.getFacilitiesManagerBl().getFacilityById(sess, facilityId))) {
+			throw new PrivilegeException(sess, "getConsentHubByFacility");
+		}
+
+		return consentsManagerBl.getConsentHubByFacility(sess, facilityId);
 	}
 
 }

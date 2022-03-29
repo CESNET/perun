@@ -38,7 +38,9 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -363,9 +365,19 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			}
 		}
 
-		//remove consent
-		//TODO: get consent hub for this facility and remove this facility from it, or if no other facilities in there,
-		// remove the whole consent
+		//remove consent hub with consents
+		try {
+			ConsentHub hub = getPerunBl().getConsentsManagerBl().getConsentHubByFacility(sess, facility.getId());
+			if (hub.getFacilities().size() == 1 && hub.getFacilities().get(0).equals(facility)) {
+				getPerunBl().getConsentsManagerBl().deleteConsentHub(sess, hub);
+			} else {
+				//TODO: remove facility from hub, but don't remove the whole hub
+			}
+		} catch (ConsentHubNotExistsException e) {
+			log.warn("When removing facility {} no related consent hub was found", facility);
+		} catch (ConsentHubAlreadyRemovedException e) {
+			log.warn("When removing facility {} consent hub could not be removed", facility);
+		}
 
 		//remove hosts
 		List<Host> hosts = this.getHosts(sess, facility);

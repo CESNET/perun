@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.ConsentHub;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
@@ -50,6 +51,11 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	@Override
 	public ConsentHub getConsentHubByName(PerunSession sess, String name) throws ConsentHubNotExistsException {
 		return getConsentsManagerImpl().getConsentHubByName(sess, name);
+	}
+
+	@Override
+	public ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException {
+		return getConsentsManagerImpl().getConsentHubByFacility(sess, facilityId);
 	}
 
 	@Override
