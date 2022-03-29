@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 
@@ -44,5 +45,18 @@ public interface ConsentsManager {
 	 * @throws InternalErrorException
 	 */
 	ConsentHub getConsentHubByName(PerunSession sess, String name) throws ConsentHubNotExistsException, PrivilegeException;
+
+	/**
+	 * Finds existing Consent Hub by facility.
+	 *
+	 * @param sess perun session
+	 * @param facilityId id of facility for which consent hub is searched
+	 * @return found Consent Hub
+	 * @throws ConsentHubNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws FacilityNotExistsException
+	 */
+	ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException, PrivilegeException, FacilityNotExistsException;
 
 }

@@ -49,4 +49,19 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 			return ac.getConsentsManager().getConsentHubByName(ac.getSession(), params.readString("name"));
 		}
 	},
+
+	/*#
+	 * Returns a Consent Hub by facility id.
+	 *
+	 * @param facilityId facility id
+	 * @throw ConsentHubNotExistsException When Consent Hub for facility with given id doesn't exist.
+	 * @throw FacilityNotExistsException if facility with given id does not exist
+	 * @return ConsentHub Found Consent Hub
+	 */
+	getConsentHubByFacility {
+		@Override
+		public ConsentHub call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getConsentsManager().getConsentHubByFacility(ac.getSession(), params.readInt("facility"));
+		}
+	};
 }

@@ -104,6 +104,19 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 	}
 
 	@Override
+	public ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException {
+		try {
+			ConsentHub consentHub = jdbc.queryForObject("select " + consentHubMappingSelectQuery + " from consent_hubs join consent_hubs_facilities on consent_hubs.id=consent_hubs_facilities.consent_hub_id where consent_hubs_facilities.facility_id=?", CONSENT_HUB_MAPPER, facilityId);
+			consentHub.setFacilities(getFacilitiesForConsentHub(consentHub));
+			return consentHub;
+		} catch (EmptyResultDataAccessException ex) {
+			throw new ConsentHubNotExistsException(ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public boolean consentHubExists(PerunSession sess, ConsentHub consentHub) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from consent_hubs where id=?", consentHub.getId());

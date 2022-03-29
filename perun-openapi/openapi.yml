@@ -17037,3 +17037,17 @@ paths:
           $ref: '#/components/responses/ConsentHubResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubByFacility:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubByFacility
+      summary: Returns a Consent Hub by facility id.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
