@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
@@ -37,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -282,7 +284,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public Facility createFacility(PerunSession sess, Facility facility) throws FacilityExistsException {
+	public Facility createFacility(PerunSession sess, Facility facility) throws FacilityExistsException, ConsentHubExistsException {
 
 		//check facility name, it can contain only a-zA-Z.0-9_-
 		if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
@@ -310,6 +312,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		} else {
 			log.warn("Can't set Facility manager during creating of the Facility. User from perunSession is null. {} {}", facility, sess);
 		}
+
+		perunBl.getConsentsManagerBl().createConsentHub(sess, new ConsentHub(0, facility.getName(), true, List.of(facility)));
 
 		return facility;
 	}
@@ -358,6 +362,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 				throw new InternalErrorException(e);
 			}
 		}
+
+		//remove consent
+		//TODO: get consent hub for this facility and remove this facility from it, or if no other facilities in there,
+		// remove the whole consent
 
 		//remove hosts
 		List<Host> hosts = this.getHosts(sess, facility);

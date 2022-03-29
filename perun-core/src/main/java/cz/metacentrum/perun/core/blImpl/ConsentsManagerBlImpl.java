@@ -2,7 +2,9 @@ package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
@@ -50,4 +52,27 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		return getConsentsManagerImpl().getConsentHubByName(sess, name);
 	}
 
+	@Override
+	public ConsentHub createConsentHub(PerunSession sess, ConsentHub consentHub) throws ConsentHubExistsException{
+		if (consentHubExists(sess, consentHub)) {
+			throw new ConsentHubExistsException(consentHub);
+		}
+
+		return getConsentsManagerImpl().createConsentHub(sess, consentHub);
+	}
+
+	@Override
+	public void deleteConsentHub(PerunSession sess, ConsentHub consentHub) throws ConsentHubAlreadyRemovedException {
+		getConsentsManagerImpl().deleteConsentHub(sess, consentHub);
+	}
+
+	@Override
+	public boolean consentHubExists(PerunSession sess, ConsentHub consentHub) {
+		return getConsentsManagerImpl().consentHubExists(sess, consentHub);
+	}
+
+	@Override
+	public void checkConsentHubExists(PerunSession sess, ConsentHub consentHub) throws ConsentHubNotExistsException {
+		getConsentsManagerImpl().checkConsentHubExists(sess, consentHub);
+	}
 }
