@@ -854,9 +854,9 @@ public class Api extends HttpServlet {
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
 		var userInfoResponse = restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
 		var userInfo = userInfoResponse.getBody();
-		if (userInfo == null) {
-			log.error("Failed to initialize oidc auth, userInfo was null");
-			throw new InternalErrorException("Failed to initialize oidc auth, userInfo was null");
+		if(isNotEmpty(userInfo.path("error").asText())) {
+			log.error("Call to user info endpoint failed, the error is: {}", userInfo);
+			throw new InternalErrorException("Call to user info endpoint failed, the error is" + userInfo);
 		}
 		log.debug("user info retreated: {}", userInfo);
 		var name = userInfo.path("name").asText();
@@ -898,7 +898,8 @@ public class Api extends HttpServlet {
 					var edupersonTargetedId = userInfo.path("eduperson_targeted_id").get(0);
 					login = (edupersonTargetedId == null) ? "" : edupersonTargetedId.asText();
 					if(isEmpty(login)) {
-						login = userInfo.path("sub").asText();
+						var voperson_external_id = userInfo.path("voperson_external_id").get(0);
+						login = (voperson_external_id == null) ? "" : voperson_external_id.asText();
 					}
 				}
 			}

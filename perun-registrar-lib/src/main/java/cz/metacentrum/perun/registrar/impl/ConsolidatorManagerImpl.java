@@ -13,10 +13,7 @@ import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
 import cz.metacentrum.perun.registrar.model.*;
 import net.jodah.expiringmap.ExpirationPolicy;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
@@ -26,6 +23,7 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
@@ -477,7 +475,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			user2 = null;
 		}
 
-		log.debug("User who called consolidation is: {}, Previously logged user is: {}", user1, user2);
+		log.info("User who called consolidation is: {}, Previously logged user is: {}", user1, user2);
 
 		if(userInfo2.issuer.equals(sess.getPerunPrincipal().getExtSourceName()) &&
 			userInfo2.sub.equals(sess.getPerunPrincipal().getActor())) {
@@ -557,15 +555,21 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(accessToken);
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
-		var userInfoResponse = restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
-		if(userInfoResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-			log.info("Token {} for joining identities is no longer valid for issuer: {}", accessToken, issuer);
-			InvalidTokenException ex = new InvalidTokenException("Your token for joining identities is no longer valid. Please retry from the start.");
-			throw ex;
-		} else if(userInfoResponse.getStatusCode().series() != HttpStatus.Series.SUCCESSFUL) {
-			log.info("Failed to get userInfoResponse for access token: {}. The response code was: {}", accessToken, userInfoResponse.getStatusCode());
-			InternalErrorException ex = new InternalErrorException("Failed to get userInfoResponse for access token: " + accessToken + ". The response code was: " + userInfoResponse.getStatusCode());
-			throw ex;
+
+		ResponseEntity<JsonNode> userInfoResponse;
+		try {
+			userInfoResponse = restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
+		} catch (HttpClientErrorException ex) {
+			if(ex.getStatusCode() ==  HttpStatus.FORBIDDEN) {
+				log.info("Token {} for joining identities is no longer valid for issuer: {}", accessToken, issuer);
+				InvalidTokenException iex = new InvalidTokenException("Your token for joining identities is no longer valid. Please retry from the start.");
+				throw iex;
+			} else {
+				log.info("Failed to get userInfoResponse for access token: {}. The response code was: {}", accessToken, ex.getStatusCode());
+				InternalErrorException iex = new InternalErrorException("Failed to get userInfoResponse for access token: " + accessToken + ". The response code was: " + ex.getStatusCode());
+				throw iex;
+			}
+
 		}
 		var userInfo = userInfoResponse.getBody();
 		var originalIssuer = userInfo.path("target_issuer").asText();
@@ -583,7 +587,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 					var edupersonTargetedId = userInfo.path("eduperson_targeted_id").get(0);
 					login = (edupersonTargetedId == null) ? "" : edupersonTargetedId.asText();
 					if(isEmpty(login)) {
-						login = userInfo.path("sub").asText();
+						var voperson_external_id = userInfo.path("voperson_external_id").get(0);
+						login = (voperson_external_id == null) ? "" : voperson_external_id.asText();
 					}
 				}
 			}
