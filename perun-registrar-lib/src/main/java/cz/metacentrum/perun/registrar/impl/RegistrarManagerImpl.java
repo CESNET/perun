@@ -4118,6 +4118,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
 		attributes.entrySet().removeIf(entry -> entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:"));
 
+		// NORMALIZE SSH KEYS VALUE - same as we do for existing users in #storeApplicationAttributes()
+		attributes.entrySet().forEach(entry -> {
+			if (Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":sshPublicKey", entry.getKey())) {
+				entry.setValue(BeansUtils.attributeValueToString(handleSSHKeysValue(null, entry.getValue()), ArrayList.class.getName()));
+			}
+		});
+
 		Candidate candidate = new Candidate();
 		candidate.setAttributes(attributes);
 
