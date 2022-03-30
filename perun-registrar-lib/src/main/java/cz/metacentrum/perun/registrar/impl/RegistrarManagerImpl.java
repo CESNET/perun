@@ -3874,12 +3874,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 */
 	private ArrayList<String> handleSSHKeysValue(ArrayList<String> originalValue, String newValue) {
 
+		// blank input means no change to original attribute
+		if (StringUtils.isBlank(newValue)) {
+			return originalValue;
+		}
+
 		// Normalize value of SSH keys
 		String preparedVal = newValue.replaceAll("(\n)+", ",");
 		preparedVal = preparedVal.replaceAll("(,)+", ",");
 		if (!preparedVal.endsWith(",")) {
 			preparedVal = preparedVal + ",";
 		}
+
 		List<String> newVals = (ArrayList<String>)BeansUtils.stringToAttributeValue(preparedVal, ArrayList.class.getName());
 		if (originalValue == null) {
 			return new ArrayList<>(newVals);
