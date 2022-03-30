@@ -5,9 +5,11 @@ import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
+import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import org.slf4j.Logger;
@@ -162,14 +164,16 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 			jdbc.update("insert into consent_hubs(id,name,enforce_consents,created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
 					"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", id, consentHub.getName(),
 				consentHub.isEnforceConsents(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			for (Facility facility : consentHub.getFacilities()) {
-				jdbc.update("insert into consent_hubs_facilities(consent_hub_id,facility_id,created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-						"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", id, facility.getId(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			}
-			log.info("ConsentHub created: {}", consentHub);
 
 			consentHub.setId(id);
+			for (Facility facility : consentHub.getFacilities()) {
+				try {
+					addFacility(sess, consentHub, facility);
+				} catch (FacilityAlreadyAssigned e) {
+					throw new InternalErrorException(e);
+				}
+			}
+			log.info("ConsentHub created: {}", consentHub);
 			return consentHub;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -195,4 +199,43 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 	public void checkConsentHubExists(PerunSession sess, ConsentHub consentHub) throws ConsentHubNotExistsException {
 		if(!consentHubExists(sess, consentHub)) throw new ConsentHubNotExistsException("ConsentHub not exists: " + consentHub);
 	}
+
+	@Override
+	public void addFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws FacilityAlreadyAssigned {
+		try {
+			jdbc.update("INSERT INTO consent_hubs_facilities(" +
+					"consent_hub_id, " +
+					"facility_id, " +
+					"created_at, " +
+					"created_by, " +
+					"modified_at, " +
+					"modified_by, " +
+					"created_by_uid, " +
+					"modified_by_uid) VALUES(?,?," + Compatibility.getSysdate() +",?," + Compatibility.getSysdate() + ",?,?,?)",
+				consentHub.getId(),
+				facility.getId(),
+				sess.getPerunPrincipal().getActor(),
+				sess.getPerunPrincipal().getActor(),
+				sess.getPerunPrincipal().getUserId(),
+				sess.getPerunPrincipal().getUserId()
+			);
+		} catch (DataIntegrityViolationException e) {
+			throw new FacilityAlreadyAssigned("Facility " + facility + " is already assigned to a consent hub." , e);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException {
+		try {
+			if (0 == jdbc.update("DELETE FROM consent_hubs_facilities WHERE consent_hub_id = ? AND facility_id = ?",
+				consentHub.getId(), facility.getId())) {
+				throw new RelationNotExistsException("Relation between " + consentHub + " and " + facility + " does not exist.");
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 }
