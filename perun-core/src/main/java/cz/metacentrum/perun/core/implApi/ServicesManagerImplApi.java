@@ -346,7 +346,6 @@ public interface ServicesManagerImplApi {
 	 * @param attribute attribute to add
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
 	 * @throws AttributeAlreadyAssignedException if the attribute is already added
 	 */
 	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException;
