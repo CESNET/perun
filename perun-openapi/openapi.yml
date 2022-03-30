@@ -526,7 +526,7 @@ components:
         - properties:
             name: { type: string }
             enforceConsents: { type: boolean }
-            facilities: { type: array, items: { $ref: '#/components/schemas/Facility' } }
+            facilities: { type: array, items: { $ref: '#/components/schemas/Facility' }, nullable: true }
           required:
             - name
             - enforceConsents
@@ -17071,3 +17071,27 @@ paths:
           $ref: '#/components/responses/ConsentHubResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/updateConsentHub:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: updateConsentHub
+      summary: Updates a consent hub. Ignores related facilities.
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateConsentHub
+              description: "input to updateConsentHub"
+              type: object
+              required:
+                - consentHub
+              properties:
+                consentHub: { $ref: '#/components/schemas/ConsentHub' }

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
@@ -11,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedExceptio
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -170,6 +172,21 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 			consentHub.setId(id);
 			return consentHub;
 		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void updateConsentHub(PerunSession sess, ConsentHub consentHub) throws ConsentHubExistsException {
+		try {
+			jdbc.update("update consent_hubs set name=?, enforce_consents=?, modified_by=?, modified_by_uid=?," +
+					" modified_at=" + Compatibility.getSysdate() + " where id=?", consentHub.getName(), consentHub.isEnforceConsents(),
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), consentHub.getId());
+			log.info("ConsentHub with id {} updated: {}", consentHub.getId(), consentHub);
+
+		} catch (DataIntegrityViolationException ex) {
+			throw new ConsentHubExistsException("Consent hub with name " + consentHub.getName() + " already exists.");
+		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
