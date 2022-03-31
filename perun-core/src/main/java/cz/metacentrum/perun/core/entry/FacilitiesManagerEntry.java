@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -424,7 +425,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public Facility createFacility(PerunSession sess, Facility facility) throws PrivilegeException, FacilityExistsException {
+	public Facility createFacility(PerunSession sess, Facility facility) throws PrivilegeException, FacilityExistsException, ConsentHubExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

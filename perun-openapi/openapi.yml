@@ -2461,6 +2461,22 @@ components:
             items:
               $ref: "#/components/schemas/Identity"
 
+    ConsentHubResponse:
+      description: "returns ConsentHub"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConsentHub"
+
+    ListOfConsentHubResponse:
+      description: "returns List<ConsentHub>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ConsentHub"
+
 
   #####################################################
   #                                                   #
@@ -17001,3 +17017,57 @@ paths:
   # ConsentsManager                               #
   #                                               #
   #################################################
+
+  /json/consentsManager/getAllConsentHubs:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getAllConsentHubs
+      summary: Return list of all Consent Hubs
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubById:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubById
+      summary: Returns a Consent Hub by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubByName:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubByName
+      summary: Returns a Consent Hub by name.
+      parameters:
+        - $ref: '#/components/parameters/name'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubByFacility:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubByFacility
+      summary: Returns a Consent Hub by facility id.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'

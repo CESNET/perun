@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -372,8 +373,9 @@ public interface FacilitiesManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 * @throws FacilityExistsException
+	 * @throws ConsentHubExistsException
 	 */
-	Facility createFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException;
+	Facility createFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException, ConsentHubExistsException;
 
 	/**
 	 * Delete the facility by id.

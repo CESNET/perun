@@ -127,6 +127,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<!-- VosManagerImpl -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.VosManagerImpl.createVo(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.VosManagerImpl.updateVo(..))"/>
+		<!-- ConsentsManagerImpl -->
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.createConsentHub(..))"/>
 		<!-- ResourceAssignmentChecker -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.removeSubgroupFromResource(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.assignSubgroupsToResource(..))"/>

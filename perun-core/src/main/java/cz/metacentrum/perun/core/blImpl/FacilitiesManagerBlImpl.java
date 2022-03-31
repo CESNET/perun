@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
@@ -37,6 +38,9 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -282,7 +286,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public Facility createFacility(PerunSession sess, Facility facility) throws FacilityExistsException {
+	public Facility createFacility(PerunSession sess, Facility facility) throws FacilityExistsException, ConsentHubExistsException {
 
 		//check facility name, it can contain only a-zA-Z.0-9_-
 		if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
@@ -310,6 +314,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		} else {
 			log.warn("Can't set Facility manager during creating of the Facility. User from perunSession is null. {} {}", facility, sess);
 		}
+
+		perunBl.getConsentsManagerBl().createConsentHub(sess, new ConsentHub(0, facility.getName(), true, List.of(facility)));
 
 		return facility;
 	}
@@ -357,6 +363,21 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			} catch (RoleCannotBeManagedException e) {
 				throw new InternalErrorException(e);
 			}
+		}
+
+		//remove consent hub with consents
+		try {
+			ConsentHub hub = getPerunBl().getConsentsManagerBl().getConsentHubByFacility(sess, facility.getId());
+			if (hub.getFacilities().size() == 1 && hub.getFacilities().get(0).equals(facility)) {
+				getPerunBl().getConsentsManagerBl().deleteConsentHub(sess, hub);
+			} else {
+				//TODO: simplify this if-else branch to calling only remove facility from hub,
+				// which should solve removing whole hub if it was last facility
+			}
+		} catch (ConsentHubNotExistsException e) {
+			log.warn("When removing facility {} no related consent hub was found", facility);
+		} catch (ConsentHubAlreadyRemovedException e) {
+			log.warn("When removing facility {} consent hub could not be removed", facility);
 		}
 
 		//remove hosts
