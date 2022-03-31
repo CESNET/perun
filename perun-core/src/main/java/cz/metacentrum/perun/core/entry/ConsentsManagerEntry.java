@@ -68,10 +68,10 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		}
 
 		// Block of code prepared for manage FACILITY ADMIN/OBSERVER roles
-		// Don't forget to add roles to perun-roles.yml
+		// Don't forget to check roles in perun-roles.yml
 		/*ConsentHub consentHub = consentsManagerBl.getConsentHubById(sess, id);
 		List<Facility> facilities = consentHub.getFacilities();
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "getConsentHubById_int_policy", facility));
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getConsentHub_policy", facility));
 
 		// Authorization
 		if (facilities.isEmpty()) {
@@ -92,10 +92,10 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		}
 
 		// Block of code prepared for manage FACILITY ADMIN/OBSERVER roles
-		// Don't forget to add roles to perun-roles.yml
+		// Don't forget to check roles in perun-roles.yml
 		/*ConsentHub consentHub = consentsManagerBl.getConsentHubByName(sess, name);
 		List<Facility> facilities = consentHub.getFacilities();
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "getConsentHubByName_String_policy", facility));
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getConsentHub_policy", facility));
 
 		// Authorization
 		if (facilities.isEmpty()) {
