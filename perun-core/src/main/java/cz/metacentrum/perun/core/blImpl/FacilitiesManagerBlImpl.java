@@ -371,7 +371,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			if (hub.getFacilities().size() == 1 && hub.getFacilities().get(0).equals(facility)) {
 				getPerunBl().getConsentsManagerBl().deleteConsentHub(sess, hub);
 			} else {
-				//TODO: remove facility from hub, but don't remove the whole hub
+				//TODO: simplify this if-else branch to calling only remove facility from hub,
+				// which should solve removing whole hub if it was last facility
 			}
 		} catch (ConsentHubNotExistsException e) {
 			log.warn("When removing facility {} no related consent hub was found", facility);

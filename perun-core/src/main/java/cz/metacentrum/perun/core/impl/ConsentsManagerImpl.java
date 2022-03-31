@@ -142,6 +142,7 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 
 			int numAffected = jdbc.update("delete from consent_hubs where id=?", consentHub.getId());
 			if (numAffected == 0) throw new ConsentHubAlreadyRemovedException("ConsentHub: " + consentHub);
+			log.info("ConsentHub deleted: {}", consentHub);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

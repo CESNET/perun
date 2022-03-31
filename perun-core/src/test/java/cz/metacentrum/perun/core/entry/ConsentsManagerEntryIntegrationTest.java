@@ -125,6 +125,18 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertThatExceptionOfType(ConsentHubAlreadyRemovedException.class).isThrownBy(() -> perun.getConsentsManagerBl().deleteConsentHub(sess, hub));
 	}
 
+	@Test
+	public void deleteLastFacilityRemovesConsentHub() throws Exception {
+		System.out.println(CLASS_NAME + "deleteLastFacilityRemovesConsentHub");
+		Facility facility = setUpFacility();
+
+		// createFacility method creates also new Consent Hub
+		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		perun.getFacilitiesManagerBl().deleteFacility(sess, facility, true);
+		assertThatExceptionOfType(ConsentHubAlreadyRemovedException.class).isThrownBy(() -> perun.getConsentsManagerBl().deleteConsentHub(sess, hub));
+	}
+
 	private Facility setUpFacility() throws Exception {
 		Facility facility = new Facility();
 		facility.setName("ConsentsTestFacility");
