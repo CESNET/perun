@@ -63,7 +63,7 @@ public class Vsup extends DefaultRegistrarModule {
 						try {
 							User user = ((PerunBl) session.getPerun()).getUsersManagerBl().getUserByExtSourceNameAndExtLogin(session, "RC", rc);
 							throw new CantBeApprovedException("Application has the same birth number " + rc + " as user " + user.getDisplayName() + " with id " + user.getId() +
-								" that is already in Perun and thus would be merged with him.", null, null, null, true);
+								" that is already in Perun and thus would be merged with him.", null, null, null, true, app.getId());
 						} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException ex) {
 							log.warn("Couldn't find or set user to application {} by RC: {}", app, ex);
 						}

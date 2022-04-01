@@ -64,7 +64,7 @@ public class DuSoft extends DefaultRegistrarModule {
 			}
 		}
 
-		throw new CantBeApprovedException("User is not eligible for CESNET services. User must log-in using verified academic identity (at least once a year) in order to access CESNET services.", "NOT_ELIGIBLE", null, null, true);
+		throw new CantBeApprovedException("User is not eligible for CESNET services. User must log-in using verified academic identity (at least once a year) in order to access CESNET services.", "NOT_ELIGIBLE", null, null, true, app.getId());
 
 	}
 

@@ -24,7 +24,7 @@ public class CeitecNcbr extends DefaultRegistrarModule {
 	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 
 		if (app.getExtSourceLoa() == 2) return;
-		throw new CantBeApprovedException("Application can't be approved automatically. LoA is: "+app.getExtSourceLoa()+". Please double check users identity before manual/force approval.", "", "", "", true);
+		throw new CantBeApprovedException("Application can't be approved automatically. LoA is: "+app.getExtSourceLoa()+". Please double check users identity before manual/force approval.", "", "", "", true, app.getId());
 
 	}
 
