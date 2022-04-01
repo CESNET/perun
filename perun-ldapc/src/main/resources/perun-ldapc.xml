@@ -1209,6 +1209,17 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="userAup;x-ns-"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:userAup:"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def:userAup"/>
+							<property name="name" value=""/>
+						</bean>
+					</property>
+				</bean>
 			</list>
 		</property>
 		<property name="attributeDescriptionsExt" ref="perunUserAttributesExt"/>
