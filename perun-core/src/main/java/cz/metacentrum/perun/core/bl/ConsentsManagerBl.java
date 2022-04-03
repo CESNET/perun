@@ -2,15 +2,16 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.ConsentStatus;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
-import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
+import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 
@@ -244,4 +245,13 @@ public interface ConsentsManagerBl {
 	 */
 	void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException, ConsentHubAlreadyRemovedException;
 
+	/**
+	 * Set consent status
+	 *
+	 * @param sess perun session
+	 * @param consent consent
+	 * @return consent
+	 * @throws InvalidConsentStatusException if passed status value can not be set
+	 */
+	Consent changeConsentStatus(PerunSession sess, Consent consent, ConsentStatus status) throws InvalidConsentStatusException;
 }

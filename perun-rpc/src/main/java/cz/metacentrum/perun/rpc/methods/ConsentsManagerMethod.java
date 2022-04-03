@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Consent;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
@@ -194,5 +194,25 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 			return ac.getConsentsManager().updateConsentHub(ac.getSession(),
 				parms.read("consentHub", ConsentHub.class));
 		}
+	},
+
+	/*#
+	 * Returns consent with changed status.
+	 *
+	 * @param consent int Consent <code>id</code>
+	 * @param status String UNSIGNED | GRANTED | REVOKED
+	 *
+	 * @throw ConsentNotExistsException if consent hub does not exist
+	 * @throw UserNotExistsException if user does not exist
+	 * @throw InvalidConsentStatusException if passed status value can not be set
+	 *
+	 * @return Consent
+	 */
+	changeConsentStatus {
+		@Override
+		public Consent call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getConsentsManager().changeConsentStatus(ac.getSession(), ac.getConsentById(params.readInt("consent")), ConsentStatus.valueOf(params.readString("status")));
+		}
 	};
+
 }

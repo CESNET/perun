@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
 import cz.metacentrum.perun.core.api.ConsentHub;
@@ -10,12 +9,13 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
-import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -515,6 +515,24 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 				consentHub.getId(), facility.getId())) {
 				throw new RelationNotExistsException("Relation between " + consentHub + " and " + facility + " does not exist.");
 			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void changeConsentStatus(PerunSession sess, Consent consent) {
+		try {
+			jdbc.update("UPDATE consents SET " +
+					"status=?::consent_status , " +
+					"modified_by=?, " +
+					"modified_by_uid=?, " +
+					"modified_at= " + Compatibility.getSysdate() +
+					" WHERE id=?",
+				consent.getStatus().toString(),
+				sess.getPerunPrincipal().getActor(),
+				sess.getPerunPrincipal().getUserId(),
+				consent.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

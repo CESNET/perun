@@ -247,4 +247,12 @@ public interface ConsentsManagerImplApi {
 	 */
 	void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException;
 
+	/**
+	 * Set consent status
+	 *
+	 * @param sess perun session
+	 * @param consent consent
+	 */
+	void changeConsentStatus(PerunSession sess, Consent consent);
+
 }

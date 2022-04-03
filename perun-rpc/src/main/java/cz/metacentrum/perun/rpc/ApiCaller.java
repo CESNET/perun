@@ -12,6 +12,7 @@ import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.ConfigManager;
+import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.integration.api.IntegrationManagerApi;
 import cz.metacentrum.perun.core.api.PerunBean;
@@ -249,6 +250,10 @@ public class ApiCaller {
 
 	public SCIM getSCIMManager(){
 		return scimManager;
+	}
+
+	public Consent getConsentById(int id) throws PerunException {
+		return consentsManager.getConsentById(rpcSession, id);
 	}
 
 	public Vo getVoById(int id) throws PerunException {
