@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserPersistentShadowAttribute;
 
 /**
@@ -17,6 +23,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 	private final static String extSourceNameElixir = "https://login.elixir-czech.org/idp/";
 	private final static String domainNameElixir = "elixir-europe.org";
 	private final static String attrNameElixir = "login-namespace:elixir-persistent-shadow";
+	private final static String lifeScienceShadow = "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
 
 	@Override
 	public String getFriendlyName() {
@@ -47,5 +54,30 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 	@Override
 	public String getFriendlyNameParameter() {
 		return "elixir-persistent-shadow";
+	}
+
+	@Override
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
+	}
+
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
+		// Check if user has login in namespace lifescienceid-persistent-shadow
+		Attribute lifesciencePersistentShadow = null;
+		try {
+			lifesciencePersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, lifeScienceShadow);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
+		}
+
+		if (lifesciencePersistentShadow != null && lifesciencePersistentShadow.getValue() != null) {
+			Attribute filledAttribute = new Attribute(attribute);
+			String value = lifesciencePersistentShadow.getValue().toString();
+			String valueWithoutScope = value.split("@", 2) [0];
+			String attrValue = valueWithoutScope + "@" + domainNameElixir;
+			filledAttribute.setValue(attrValue);
+			return filledAttribute;
+		}
+
+		return super.fillAttribute(sess, user, attribute);
 	}
 }
