@@ -1,14 +1,20 @@
 package cz.metacentrum.perun.core.bl;
 
+import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
+import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 
 import java.util.List;
 
@@ -18,6 +24,116 @@ import java.util.List;
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public interface ConsentsManagerBl {
+
+
+	/**
+	 * Gel all consents
+	 *
+	 * @param sess
+	 * @return all existing consents in the database
+	 */
+	List<Consent> getAllConsents(PerunSession sess);
+
+	/**
+	 * Get all consents for chosen ConsentHub with the specified status
+	 *
+	 * @param sess
+	 * @param id     id of the ConsentHub
+	 * @param status status of the consent
+	 * @return consents for chosen ConsentHub with the specified status
+	 */
+	List<Consent> getConsentsForConsentHub(PerunSession sess, int id, ConsentStatus status);
+
+	/**
+	 * Get all consents for chosen ConsentHub
+	 *
+	 * @param sess
+	 * @param id   id of the ConsentHub
+	 * @return consents for chosen ConsentHub
+	 */
+	List<Consent> getConsentsForConsentHub(PerunSession sess, int id);
+
+	/**
+	 * Get all consents for chosen User with the specified status
+	 *
+	 * @param sess
+	 * @param id     id of the User
+	 * @param status status of the consent
+	 * @return consents for chosen User with the specified status
+	 */
+	List<Consent> getConsentsForUser(PerunSession sess, int id, ConsentStatus status);
+
+	/**
+	 * Get all consents for chosen User
+	 *
+	 * @param sess
+	 * @param id   id of the user
+	 * @return consents for chosen User
+	 */
+	List<Consent> getConsentsForUser(PerunSession sess, int id);
+
+	/**
+	 * Get all consents for chosen user in specified consent hub
+	 *
+	 * @param sess
+	 * @param userId       id of the user
+	 * @param consentHubId id of the consent hub
+	 * @return consents
+	 */
+	List<Consent> getConsentsForUserAndConsentHub(PerunSession sess, int userId, int consentHubId);
+
+	/**
+	 * Get consent for chosen user in specified consent hub with specified status
+	 *
+	 * @param sess
+	 * @param userId       if of the user
+	 * @param consentHubId id of the consent hub
+	 * @param status       specified status
+	 * @return consent
+	 * @throws ConsentNotExistsException
+	 */
+	Consent getConsentForUserAndConsentHub(PerunSession sess, int userId, int consentHubId, ConsentStatus status) throws ConsentNotExistsException;
+
+	/**
+	 * Get consent object with specified id
+	 *
+	 * @param sess
+	 * @param id   id of desired consent object
+	 * @return consent object with specified id
+	 * @throws ConsentNotExistsException thrown if consent with the id doesn't exist
+	 */
+	Consent getConsentById(PerunSession sess, int id) throws ConsentNotExistsException;
+
+	/**
+	 * Check if consent exists in underlying data source.
+	 *
+	 * @param sess PerunSession
+	 * @param consent Consent to check
+	 * @throws ConsentNotExistsException if consent doesn't exist
+	 */
+	void checkConsentExists(PerunSession sess, Consent consent) throws ConsentNotExistsException;
+
+	/**
+	 * Creates a new consent with status 'UNSIGNED'
+	 *
+	 * @param perunSession perun session
+	 * @param consent Consent to create
+	 *
+	 * @return created consent
+	 *
+	 * @throws ConsentExistsException if consent already exists
+	 */
+	Consent createConsent(PerunSession perunSession, Consent consent) throws ConsentExistsException, UserNotExistsException, PrivilegeException, ConsentHubNotExistsException, ConsentNotExistsException;
+
+	/**
+	 * Deletes consent
+	 *
+	 * @param sess perun session
+	 * @param consent consent to delete
+	 *
+	 * @throws ConsentNotExistsException if consent doesn't exist
+	 */
+	void deleteConsent(PerunSession sess, Consent consent) throws ConsentNotExistsException;
 
 	/**
 	 * Get list of all Consent Hubs

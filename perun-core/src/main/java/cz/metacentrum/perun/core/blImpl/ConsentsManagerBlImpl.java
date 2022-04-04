@@ -1,16 +1,24 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.ConsentManager.ConsentCreated;
+import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
+import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 
 import java.util.List;
@@ -39,6 +47,70 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 
 	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
+	}
+
+
+	public Consent createConsent(PerunSession sess, Consent consent) throws ConsentExistsException, UserNotExistsException, PrivilegeException, ConsentHubNotExistsException, ConsentNotExistsException {
+		Utils.notNull(consent, "consent");
+
+		consent = getConsentsManagerImpl().createConsent(sess, consent);
+		getPerunBl().getAuditer().log(sess, new ConsentCreated(consent));
+
+		return consent;
+	}
+
+	public void deleteConsent(PerunSession sess, Consent consent) throws ConsentNotExistsException {
+		Utils.notNull(consent, "consent");
+		Utils.notNull(consent.getId(), "consent.id");
+
+		getConsentsManagerImpl().deleteConsent(sess, consent);
+	}
+
+
+	@Override
+	public List<Consent> getAllConsents(PerunSession sess) {
+		return consentsManagerImpl.getAllConsents(sess);
+	}
+
+
+	@Override
+	public List<Consent> getConsentsForConsentHub(PerunSession sess, int id, ConsentStatus status) {
+		return consentsManagerImpl.getConsentsForConsentHub(sess, id, status);
+	}
+
+	@Override
+	public List<Consent> getConsentsForConsentHub(PerunSession sess, int id) {
+		return consentsManagerImpl.getConsentsForConsentHub(sess, id);
+	}
+
+	@Override
+	public List<Consent> getConsentsForUser(PerunSession sess, int id, ConsentStatus status) {
+		return consentsManagerImpl.getConsentsForUser(sess, id, status);
+	}
+
+	@Override
+	public List<Consent> getConsentsForUser(PerunSession sess, int id) {
+		return consentsManagerImpl.getConsentsForUser(sess, id);
+	}
+
+	@Override
+	public List<Consent> getConsentsForUserAndConsentHub(PerunSession sess, int userId, int consentHubId) {
+		return consentsManagerImpl.getConsentsForUserAndConsentHub(sess, userId, consentHubId);
+	}
+
+	@Override
+	public Consent getConsentForUserAndConsentHub(PerunSession sess, int userId, int consentHubId, ConsentStatus status) throws ConsentNotExistsException {
+		return consentsManagerImpl.getConsentForUserAndConsentHub(sess, userId, consentHubId, status);
+	}
+
+	@Override
+	public Consent getConsentById(PerunSession sess, int id) throws ConsentNotExistsException {
+		return consentsManagerImpl.getConsentById(sess, id);
+	}
+
+	@Override
+	public void checkConsentExists(PerunSession sess, Consent consent) throws ConsentNotExistsException {
+		consentsManagerImpl.checkConsentExists(sess, consent);
 	}
 
 	@Override
