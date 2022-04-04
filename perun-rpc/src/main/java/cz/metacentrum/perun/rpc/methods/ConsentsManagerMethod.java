@@ -63,5 +63,23 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 		public ConsentHub call(ApiCaller ac, Deserializer params) throws PerunException {
 			return ac.getConsentsManager().getConsentHubByFacility(ac.getSession(), params.readInt("facility"));
 		}
+	},
+
+	/*#
+	 * Updates a consent hub.
+	 *
+	 * @param consentHub ConsentHub JSON object
+	 * @throw ConsentHubNotExistsException if consent hub with given id does not exist
+	 * @throw ConsentHubExistsException if consent hub with the same name already exists
+	 * @return updated consent hub
+	 */
+	updateConsentHub {
+		@Override
+		public ConsentHub call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getConsentsManager().updateConsentHub(ac.getSession(),
+				parms.read("consentHub", ConsentHub.class));
+		}
 	};
 }

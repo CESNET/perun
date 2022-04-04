@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -96,5 +97,13 @@ public interface ConsentsManagerImplApi {
 	 * @throws ConsentHubNotExistsException if consent hub does not exist
 	 */
 	void checkConsentHubExists(PerunSession sess, ConsentHub consentHub) throws ConsentHubNotExistsException;
+
+	/** Updates the consent hub. Ignores related facilities.
+	 *
+	 * @param perunSession session
+	 * @param consentHub consent hub
+	 * @throws ConsentHubExistsException if consent hub with the same name exists
+	 */
+	void updateConsentHub(PerunSession perunSession, ConsentHub consentHub) throws ConsentHubExistsException;
 
 }

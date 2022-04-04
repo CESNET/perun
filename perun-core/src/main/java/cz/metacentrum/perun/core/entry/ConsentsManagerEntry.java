@@ -5,8 +5,10 @@ import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -117,4 +119,24 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		return consentsManagerBl.getConsentHubByFacility(sess, facilityId);
 	}
 
+	@Override
+	public ConsentHub updateConsentHub(PerunSession sess, ConsentHub consentHub) throws ConsentHubNotExistsException, PrivilegeException, ConsentHubExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(consentHub.getName(), "consentHub.name");
+		if (consentHub.getName().isEmpty()) {
+			throw new InternalErrorException("ConsentHub name to be updated cannot be empty.");
+		}
+
+		getConsentsManagerBl().checkConsentHubExists(sess, consentHub);
+
+		//Authorization
+		List<Facility> facilities = consentHub.getFacilities();
+		for (Facility facility : facilities) {
+			if (!AuthzResolver.authorizedInternal(sess, "updateConsentHub_ConsentHub_policy", facility)) {
+				throw new PrivilegeException(sess, "updateConsentHub");
+			}
+		}
+
+		return getConsentsManagerBl().updateConsentHub(sess, consentHub);
+	}
 }

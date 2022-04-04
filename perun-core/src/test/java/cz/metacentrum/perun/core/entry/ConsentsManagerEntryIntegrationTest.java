@@ -10,6 +10,8 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -135,6 +137,40 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		perun.getFacilitiesManagerBl().deleteFacility(sess, facility, true);
 		assertThatExceptionOfType(ConsentHubAlreadyRemovedException.class).isThrownBy(() -> perun.getConsentsManagerBl().deleteConsentHub(sess, hub));
+	}
+
+	@Test
+	public void updateFacilityHub() throws Exception {
+		System.out.println(CLASS_NAME + "updateFacilityHub");
+		Facility facility = setUpFacility();
+
+		// createFacility method creates also new Consent Hub
+		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+		hub.setName("perunHub");
+		hub.setEnforceConsents(false);
+		// facilities should be ignored for update, otherwise would throw exception
+		hub.setFacilities(List.of(facility, facility));
+
+		ConsentHub updatedHub = consentsManagerEntry.updateConsentHub(sess, hub);
+		assertEquals("Updated hub has different name than sent hub", updatedHub.getName(), hub.getName());
+		assertEquals("Updated hub has different enforce rules set than sent hub", updatedHub.isEnforceConsents(), hub.isEnforceConsents());
+	}
+
+	@Test
+	public void updateFacilityHubDuplicateName() throws Exception {
+		System.out.println(CLASS_NAME + "updateFacilityHubDuplicateName");
+		Facility facility = setUpFacility();
+
+		Facility facility2 = new Facility();
+		facility2.setName("ConsentsTestFacility2");
+		// createFacility method creates also new Consent Hub with facility's name
+		perun.getFacilitiesManager().createFacility(sess, facility2);
+
+
+		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+		hub.setName(facility2.getName());
+
+		assertThatExceptionOfType(ConsentHubExistsException.class).isThrownBy(() -> consentsManagerEntry.updateConsentHub(sess, hub));
 	}
 
 	private Facility setUpFacility() throws Exception {
