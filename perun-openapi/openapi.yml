@@ -2477,6 +2477,23 @@ components:
             items:
               $ref: "#/components/schemas/ConsentHub"
 
+    ConsentResponse:
+      description: "returns Consent"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Consent"
+
+    ListOfConsentResponse:
+      description: "returns List<Consent>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Consent"
+
+
 
   #####################################################
   #                                                   #
@@ -17018,6 +17035,123 @@ paths:
   #                                               #
   #################################################
 
+
+
+  /json/consentsManager/getAllConsents:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getAllConsents
+      summary: Return list of all existing Consents
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentById:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentById
+      summary: Return Consent object with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForUser/id-s:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForUserWithStatus
+      summary: Return Consents of certain status for user with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForUser/id:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForUser
+      summary: Return Consents for user with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForConsentHub/id-s:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForConsentHubWithStatus
+      summary: Return Consents of certain status for ConsentHub with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForConsentHub/id:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForConsentHub
+      summary: Return Consents for ConsentHub with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForUserAndConsentHub:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForUserAndConsentHub
+      summary: Return Consents for specified user in specified consent hub
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentForUserAndConsentHub:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentForUserAndConsentHub
+      summary: Return Consent object for chosen user in specified consent hub with specified status
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/id'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
   /json/consentsManager/getAllConsentHubs:
     get:
       tags:

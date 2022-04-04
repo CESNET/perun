@@ -1,15 +1,20 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.core.api.Consent;
+import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.ConsentsManager;
-import cz.metacentrum.perun.core.api.ConsentHub;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.ConsentHub;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -49,6 +54,153 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		this.perunBl = perunBl;
 	}
 
+
+	@Override
+	public List<Consent> getAllConsents(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// auth
+		if (!AuthzResolver.authorizedInternal(sess, "getAllConsents_policy")) {
+			throw new PrivilegeException("getAllConsents");
+		}
+
+		return consentsManagerBl.getAllConsents(sess);
+	}
+
+	@Override
+	public List<Consent> getConsentsForConsentHub(PerunSession sess, int id, ConsentStatus status) throws PrivilegeException, ConsentHubNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		ConsentHub consentHub = getPerunBl().getConsentsManagerBl().getConsentHubById(sess, id);
+		// auth
+		if (consentHub.getFacilities().stream().noneMatch(facility -> AuthzResolver.authorizedInternal(sess, "getConsentsForConsentHub_int_ConsentStatus_policy", facility))) {
+			throw new PrivilegeException("getConsentsForConsentHub");
+		}
+
+		List<Consent> consents = consentsManagerBl.getConsentsForConsentHub(sess, id, status);
+		for (Consent consent : consents) {
+			filterConsentHubFacilities(sess, consent.getConsentHub());
+		}
+
+		return consents;
+	}
+
+	@Override
+	public List<Consent> getConsentsForConsentHub(PerunSession sess, int id) throws PrivilegeException, ConsentHubNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		ConsentHub consentHub = getPerunBl().getConsentsManagerBl().getConsentHubById(sess, id);
+		// auth
+		if (consentHub.getFacilities().stream().noneMatch(facility -> AuthzResolver.authorizedInternal(sess, "getConsentsForConsentHub_int_policy", facility))) {
+			throw new PrivilegeException("getConsentsForConsentHub");
+		}
+		List<Consent> consents = consentsManagerBl.getConsentsForConsentHub(sess, id);
+		for (Consent consent : consents) {
+			filterConsentHubFacilities(sess, consent.getConsentHub());
+		}
+
+		return consents;
+	}
+
+	@Override
+	public List<Consent> getConsentsForUser(PerunSession sess, int id, ConsentStatus status) throws UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		User user = getPerunBl().getUsersManager().getUserById(sess, id);
+
+		// auth
+		if (!AuthzResolver.authorizedInternal(sess, "getConsentsForUser_int_ConsentStatus_policy", user)) {
+			throw new PrivilegeException("getConsentsForUser");
+		}
+
+		List<Consent> consents = consentsManagerBl.getConsentsForUser(sess, id, status);
+		consents.removeIf(consent -> consent.getConsentHub().getFacilities().stream().noneMatch(facility -> AuthzResolver.authorizedInternal(sess, "filter-getConsentsForUser_policy", facility, user)));
+		for (Consent consent : consents) {
+			filterConsentHubFacilities(sess, consent.getConsentHub());
+		}
+
+		return consents;
+	}
+
+	@Override
+	public List<Consent> getConsentsForUser(PerunSession sess, int id) throws UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		User user = getPerunBl().getUsersManager().getUserById(sess, id);
+
+		// auth
+		if (!AuthzResolver.authorizedInternal(sess, "getConsentsForUser_int_policy", user)) {
+			throw new PrivilegeException("getConsentsForUser");
+		}
+
+		List<Consent> consents = consentsManagerBl.getConsentsForUser(sess, id);
+		consents.removeIf(consent -> consent.getConsentHub().getFacilities().stream().noneMatch(facility -> AuthzResolver.authorizedInternal(sess, "filter-getConsentsForUser_policy", facility, user)));
+		for (Consent consent : consents) {
+			filterConsentHubFacilities(sess, consent.getConsentHub());
+		}
+
+		return consents;
+	}
+
+	@Override
+	public List<Consent> getConsentsForUserAndConsentHub(PerunSession sess, int userId, int consentHubId) throws PrivilegeException, UserNotExistsException, ConsentHubNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		User user = getPerunBl().getUsersManager().getUserById(sess, userId);
+		ConsentHub consentHub = getPerunBl().getConsentsManagerBl().getConsentHubById(sess, consentHubId);
+
+		// auth
+		if (!AuthzResolver.authorizedInternal(sess, "getConsentsForUserAndConsentHub_int_int_policy", user)) {
+			throw new PrivilegeException("getConsentsForUserAndConsentHub");
+		}
+		List<Consent> consents = consentsManagerBl.getConsentsForUserAndConsentHub(sess, userId, consentHubId);
+		consents.removeIf(consent -> consent.getConsentHub().getFacilities().stream().noneMatch(facility -> AuthzResolver.authorizedInternal(sess, "filter-getConsentsForUserAndConsentHub_int_int_policy", facility, user)));
+		for (Consent consent : consents) {
+			filterConsentHubFacilities(sess, consent.getConsentHub());
+		}
+		return consents;
+	}
+
+	@Override
+	public Consent getConsentForUserAndConsentHub(PerunSession sess, int userId, int consentHubId, ConsentStatus status) throws PrivilegeException, UserNotExistsException, ConsentHubNotExistsException, ConsentNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		User user = getPerunBl().getUsersManager().getUserById(sess, userId);
+		ConsentHub consentHub = getPerunBl().getConsentsManagerBl().getConsentHubById(sess, consentHubId);
+
+		// auth
+		if (consentHub.getFacilities().stream().noneMatch(facility -> AuthzResolver.authorizedInternal(sess, "getConsentForUserAndConsentHub_int_int_ConsentStatus_policy", facility, user))) {
+			throw new PrivilegeException("getConsentsForUserAndConsentHub");
+		}
+
+		Consent consent = consentsManagerBl.getConsentForUserAndConsentHub(sess, userId, consentHubId, status);
+		filterConsentHubFacilities(sess, consent.getConsentHub());
+
+		return consent;
+	}
+
+	@Override
+	public Consent getConsentById(PerunSession sess, int id) throws ConsentNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		Consent consent = consentsManagerBl.getConsentById(sess, id);
+		User user;
+		try {
+			user = getPerunBl().getUsersManager().getUserById(sess, consent.getUserId());
+		} catch (UserNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		// auth
+		if (consent.getConsentHub().getFacilities().stream().noneMatch(facility -> AuthzResolver.authorizedInternal(sess, "getConsentById_int_policy", facility, user))) {
+			throw new PrivilegeException("getConsentById");
+		}
+		filterConsentHubFacilities(sess, consent.getConsentHub());
+
+		return consent;
+	}
+
+
 	@Override
 	public List<ConsentHub> getAllConsentHubs(PerunSession sess) throws PrivilegeException {
 		Utils.notNull(sess, "sess");
@@ -69,17 +221,6 @@ public class ConsentsManagerEntry implements ConsentsManager {
 			throw new PrivilegeException(sess, "getConsentHubById");
 		}
 
-		// Block of code prepared for manage FACILITY ADMIN/OBSERVER roles
-		// Don't forget to check roles in perun-roles.yml
-		/*ConsentHub consentHub = consentsManagerBl.getConsentHubById(sess, id);
-		List<Facility> facilities = consentHub.getFacilities();
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getConsentHub_policy", facility));
-
-		// Authorization
-		if (facilities.isEmpty()) {
-			throw new PrivilegeException(sess, "getConsentHubById");
-		}*/
-
 		return consentsManagerBl.getConsentHubById(sess, id);
 	}
 
@@ -93,17 +234,6 @@ public class ConsentsManagerEntry implements ConsentsManager {
 			throw new PrivilegeException(sess, "getConsentHubByName");
 		}
 
-		// Block of code prepared for manage FACILITY ADMIN/OBSERVER roles
-		// Don't forget to check roles in perun-roles.yml
-		/*ConsentHub consentHub = consentsManagerBl.getConsentHubByName(sess, name);
-		List<Facility> facilities = consentHub.getFacilities();
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getConsentHub_policy", facility));
-
-		// Authorization
-		if (facilities.isEmpty()) {
-			throw new PrivilegeException(sess, "getConsentHubByName");
-		}*/
-
 		return consentsManagerBl.getConsentHubByName(sess, name);
 	}
 
@@ -116,7 +246,10 @@ public class ConsentsManagerEntry implements ConsentsManager {
 			throw new PrivilegeException(sess, "getConsentHubByFacility");
 		}
 
-		return consentsManagerBl.getConsentHubByFacility(sess, facilityId);
+		ConsentHub consentHub = consentsManagerBl.getConsentHubByFacility(sess, facilityId);
+		filterConsentHubFacilities(sess, consentHub);
+
+		return consentHub;
 	}
 
 	@Override
@@ -138,5 +271,11 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		}
 
 		return getConsentsManagerBl().updateConsentHub(sess, consentHub);
+	}
+
+	// Make sure that the ConsentHub object includes only facilities that the user has access to
+	private void filterConsentHubFacilities(PerunSession sess, ConsentHub consentHub) {
+		List<Facility> facilities = consentHub.getFacilities();
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getConsentHub_policy", facility));
 	}
 }
