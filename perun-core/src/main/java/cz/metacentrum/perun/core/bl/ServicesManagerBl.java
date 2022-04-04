@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
@@ -581,14 +582,15 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws AttributeAlreadyAssignedException
+	 * @throws ServiceAttributesCannotExtend
 	 */
-	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException;
+	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException, ServiceAttributesCannotExtend;
 
 	/**
 	 *  Batch version of addRequiredAttribute
 	 *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
 	 */
-	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException;
+	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException, ServiceAttributesCannotExtend;
 
 	/**
 	 * Remove required attribute from service.

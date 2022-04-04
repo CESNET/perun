@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
@@ -594,7 +595,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
+	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException, ServiceAttributesCannotExtend {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -609,7 +610,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
+	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException, ServiceAttributesCannotExtend {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

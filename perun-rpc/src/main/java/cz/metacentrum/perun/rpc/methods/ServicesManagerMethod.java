@@ -1306,6 +1306,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 * @throw ServiceAttributesCannotExtend if trying to add user-related attribute that could invalidate consents, requires disabling service
 	 */
 	addRequiredAttribute {
 
@@ -1325,6 +1326,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param attributes int[] Attribute IDs
+	 * @throw ServiceAttributesCannotExtend if trying to add user-related attribute that could invalidate consents, requires disabling service
 	 */
 	addRequiredAttributes {
 
