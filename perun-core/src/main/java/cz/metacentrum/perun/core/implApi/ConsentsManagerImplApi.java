@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
@@ -105,5 +107,25 @@ public interface ConsentsManagerImplApi {
 	 * @throws ConsentHubExistsException if consent hub with the same name exists
 	 */
 	void updateConsentHub(PerunSession perunSession, ConsentHub consentHub) throws ConsentHubExistsException;
+
+	/**
+	 * Adds facility to consent hub.
+	 *
+	 * @param sess session
+	 * @param consentHub consent hub
+	 * @param facility facility to be added
+	 * @throws FacilityAlreadyAssigned if facility is already assigned to consent hub
+	 */
+	void addFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws FacilityAlreadyAssigned;
+
+	/**
+	 * Removes facility from consent hub.
+	 *
+	 * @param sess session
+	 * @param consentHub consent hub
+	 * @param facility facility to be removed
+	 * @throws RelationNotExistsException if facility is not assigned to consent hub
+	 */
+	void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException;
 
 }

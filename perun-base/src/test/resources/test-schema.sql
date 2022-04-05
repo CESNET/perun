@@ -353,7 +353,8 @@ create table consent_hubs_facilities (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint conhubfac_ch_fk foreign key(consent_hub_id) references consent_hubs(id),
-	constraint conhubfac_fac_fk foreign key(facility_id) references facilities(id)
+	constraint conhubfac_fac_fk foreign key(facility_id) references facilities(id),
+	constraint facility_id_u unique (facility_id)
 );
 
 -- HOSTS - detail information about hosts and cluster nodes

@@ -55,18 +55,20 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -368,16 +370,13 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		//remove consent hub with consents
 		try {
 			ConsentHub hub = getPerunBl().getConsentsManagerBl().getConsentHubByFacility(sess, facility.getId());
-			if (hub.getFacilities().size() == 1 && hub.getFacilities().get(0).equals(facility)) {
-				getPerunBl().getConsentsManagerBl().deleteConsentHub(sess, hub);
-			} else {
-				//TODO: simplify this if-else branch to calling only remove facility from hub,
-				// which should solve removing whole hub if it was last facility
-			}
+			getPerunBl().getConsentsManagerBl().removeFacility(sess, hub, facility);
 		} catch (ConsentHubNotExistsException e) {
 			log.warn("When removing facility {} no related consent hub was found", facility);
 		} catch (ConsentHubAlreadyRemovedException e) {
 			log.warn("When removing facility {} consent hub could not be removed", facility);
+		} catch (RelationNotExistsException e) {
+			log.warn("Facility {} is not assigned to the consent hub.", facility);
 		}
 
 		//remove hosts

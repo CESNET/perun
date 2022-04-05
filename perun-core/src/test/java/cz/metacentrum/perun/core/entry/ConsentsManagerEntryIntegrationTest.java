@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -171,6 +172,27 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		hub.setName(facility2.getName());
 
 		assertThatExceptionOfType(ConsentHubExistsException.class).isThrownBy(() -> consentsManagerEntry.updateConsentHub(sess, hub));
+	}
+
+	@Test
+	public void removeLastFacilityRemovesConsentHub() throws Exception {
+		System.out.println(CLASS_NAME + "removeLastFacilityRemovesConsentHub");
+		Facility facility = setUpFacility();
+
+		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		perun.getConsentsManagerBl().removeFacility(sess, hub, facility);
+		assertThatExceptionOfType(ConsentHubNotExistsException.class).isThrownBy(() -> perun.getConsentsManagerBl().checkConsentHubExists(sess, hub));
+	}
+
+	@Test
+	public void addFacilityToConsentHubAgain() throws Exception {
+		System.out.println(CLASS_NAME + "addFacilityToConsentHubAgain");
+		Facility facility = setUpFacility();
+
+		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		assertThatExceptionOfType(FacilityAlreadyAssigned.class).isThrownBy(() -> perun.getConsentsManagerBl().addFacility(sess, hub, facility));
 	}
 
 	private Facility setUpFacility() throws Exception {
