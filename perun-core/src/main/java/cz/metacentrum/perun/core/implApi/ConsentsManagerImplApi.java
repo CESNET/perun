@@ -38,8 +38,9 @@ public interface ConsentsManagerImplApi {
 	 *
 	 * @param perunSession PerunSession
 	 * @param consent Consent
+	 * @throws ConsentNotExistsException if consent doesn't exist
 	 */
-	void deleteConsent(PerunSession perunSession, Consent consent);
+	void deleteConsent(PerunSession perunSession, Consent consent) throws ConsentNotExistsException;
 	/**
 	 * Gel all consents
 	 *

@@ -124,13 +124,13 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 			consent.setId(newId);
 			createAttrDefsForConsent(perunSession, consent);
 			return consent;
-		} catch (Exception e){
+		} catch (RuntimeException e){
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public void deleteConsent(PerunSession perunSession, Consent consent) {
+	public void deleteConsent(PerunSession perunSession, Consent consent) throws ConsentNotExistsException {
 		try {
 			checkConsentExists(perunSession, consent);
 			removeAttrsForConsent(perunSession, consent.getId());
@@ -139,7 +139,7 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 			int numberOfRows = jdbc.update("delete from consents where id=?", consent.getId());
 			if (numberOfRows != 1) throw new ConsentNotExistsException(consent);
 			log.info("Consent {} deleted.", consent);
-		} catch (ConsentNotExistsException e){
+		} catch (RuntimeException e){
 			throw new InternalErrorException(e);
 		}
 	}
@@ -429,7 +429,9 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 			jdbc.update("delete from consent_hubs_facilities where consent_hub_id=?", consentHub.getId());
 
 			int numAffected = jdbc.update("delete from consent_hubs where id=?", consentHub.getId());
-			if (numAffected == 0) throw new ConsentHubAlreadyRemovedException("ConsentHub: " + consentHub);
+			if (numAffected == 0){
+				throw new ConsentHubAlreadyRemovedException("ConsentHub: " + consentHub);
+			}
 			log.info("ConsentHub deleted: {}", consentHub);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

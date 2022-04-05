@@ -81,20 +81,20 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void deleteNonExistingConsent() throws Exception {
-		System.out.println(CLASS_NAME + "deleteConsent");
+		System.out.println(CLASS_NAME + "deleteNonExistingConsent");
 
 		User user = setUpUser("John", "Doe");
 
 		Facility facility = setUpFacility();
 
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
-		assertThatExceptionOfType(InternalErrorException.class).isThrownBy(
+		assertThatExceptionOfType(ConsentNotExistsException.class).isThrownBy(
 			() -> perun.getConsentsManagerBl().deleteConsent(sess, consent));
 	}
 
 	@Test
 	public void deleteExistingConsent() throws Exception {
-		System.out.println(CLASS_NAME + "deleteConsent");
+		System.out.println(CLASS_NAME + "deleteExistingConsent");
 
 		User user = setUpUser("John", "Doe");
 
@@ -334,7 +334,7 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
 		perun.getConsentsManagerBl().deleteConsentHub(sess, hub);
-		assertThatExceptionOfType(ConsentHubAlreadyRemovedException.class).isThrownBy(() -> perun.getConsentsManagerBl().deleteConsentHub(sess, hub));
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> perun.getConsentsManagerBl().deleteConsentHub(sess, hub));
 	}
 
 	@Test
@@ -346,7 +346,7 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
 		perun.getFacilitiesManagerBl().deleteFacility(sess, facility, true);
-		assertThatExceptionOfType(ConsentHubAlreadyRemovedException.class).isThrownBy(() -> perun.getConsentsManagerBl().deleteConsentHub(sess, hub));
+		assertThatExceptionOfType(InternalErrorException.class).isThrownBy(() -> perun.getConsentsManagerBl().deleteConsentHub(sess, hub));
 	}
 
 	@Test

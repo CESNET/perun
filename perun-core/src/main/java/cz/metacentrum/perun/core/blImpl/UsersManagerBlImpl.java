@@ -477,13 +477,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		try {
 			this.deleteUser(sess, user, forceDelete, false);
-		} catch (AnonymizationNotSupportedException | ConsentNotExistsException | UserNotExistsException ex) {
+		} catch (AnonymizationNotSupportedException ex) {
 			//this shouldn't happen with 'anonymizedInstead' set to false
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException, ConsentNotExistsException, UserNotExistsException {
+	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -617,8 +617,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		//Remove all user's consents
+
 		for (Consent consent : getPerunBl().getConsentsManagerBl().getConsentsForUser(sess, user.getId())) {
-			getPerunBl().getConsentsManagerBl().deleteConsent(sess, consent);
+			try {
+				getPerunBl().getConsentsManagerBl().deleteConsent(sess, consent);
+			} catch (ConsentNotExistsException ex) {
+				// OK, we just want to remove it anyway
+			}
 		}
 
 
@@ -641,7 +646,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void anonymizeUser(PerunSession sess, User user) throws RelationExistsException, AnonymizationNotSupportedException {
 		try {
 			this.deleteUser(sess, user, false, true);
-		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException | UserNotExistsException | ConsentNotExistsException ex) {
+		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException ex) {
 			//this shouldn't happen with 'anonymizedInstead' set to true
 			throw new InternalErrorException(ex);
 		}

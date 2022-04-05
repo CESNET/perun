@@ -17,9 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedExceptio
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -58,7 +55,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 
 
 	@Override
-	public Consent createConsent(PerunSession sess, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException, ConsentNotExistsException {
+	public Consent createConsent(PerunSession sess, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException {
 		Utils.notNull(consent, "consent");
 
 		// Check if UNSIGNED consent exists and delete it
@@ -191,20 +188,13 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	@Override
 	public void deleteConsentHub(PerunSession sess, ConsentHub consentHub) throws ConsentHubAlreadyRemovedException {
 
-		// Check if ConsentHub exists
-		try {
-			getConsentHubById(sess, consentHub.getId());
-		}catch (InternalErrorException | ConsentHubNotExistsException ex){
-			throw new ConsentHubAlreadyRemovedException(ex);
-		}
-
 		// Remove all consents for this ConsentHub
-		try {
-			for (Consent consent : getConsentsForConsentHub(sess, consentHub.getId())) {
+		for (Consent consent : getConsentsForConsentHub(sess, consentHub.getId())) {
+			try {
 				deleteConsent(sess, consent);
+			} catch (ConsentNotExistsException e) {
+				// IGNORE
 			}
-		} catch (ConsentNotExistsException e) {
-			// IGNORE
 		}
 
 		getConsentsManagerImpl().deleteConsentHub(sess, consentHub);
