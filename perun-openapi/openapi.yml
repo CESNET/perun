@@ -2647,6 +2647,14 @@ components:
       in: query
       required: true
 
+    consentId:
+      name: consent
+      description: "id of Consent"
+      schema:
+        type: integer
+      in: query
+      required: true
+
     facilityId:
       name: facility
       description: "id of Facility"
@@ -17043,8 +17051,6 @@ paths:
   #                                               #
   #################################################
 
-
-
   /json/consentsManager/getAllConsents:
     get:
       tags:
@@ -17237,3 +17243,18 @@ paths:
                 - consentHub
               properties:
                 consentHub: { $ref: '#/components/schemas/ConsentHub' }
+
+  /urlinjsonout/consentsManager/changeConsentStatus:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: changeConsentStatus
+      summary: Changes value of consent status.
+      parameters:
+        - $ref: '#/components/parameters/consentId'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
