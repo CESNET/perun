@@ -2639,6 +2639,14 @@ components:
       in: query
       required: true
 
+    consentHubId:
+      name: consentHub
+      description: "id of ConsentHub"
+      schema:
+        type: integer
+      in: query
+      required: true
+
     facilityId:
       name: facility
       description: "id of Facility"
@@ -17099,7 +17107,7 @@ paths:
       operationId: getConsentsForConsentHubWithStatus
       summary: Return Consents of certain status for ConsentHub with corresponding id
       parameters:
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/consentHubId'
         - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
 
       responses:
@@ -17115,7 +17123,7 @@ paths:
       operationId: getConsentsForConsentHub
       summary: Return Consents for ConsentHub with corresponding id
       parameters:
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/consentHubId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfConsentResponse'
@@ -17130,7 +17138,7 @@ paths:
       summary: Return Consents for specified user in specified consent hub
       parameters:
         - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/consentHubId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfConsentResponse'
@@ -17145,7 +17153,7 @@ paths:
       summary: Return Consent object for chosen user in specified consent hub with specified status
       parameters:
         - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/consentHubId'
         - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
       responses:
         '200':

@@ -79,14 +79,14 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all consents for a ConsentHub
 	 *
-	 * @param id int ConsentHub <code>id</code>
+	 * @param consentHub int ConsentHub <code>id</code>
 	 * @throw ConsentHubNotExistsException when Consent Hub specified by <code>id</code> doesn't exist
 	 * @return List<Consent> Consents of the ConsentHub
 	 */
 	/*#
 	 * Returns all consents with a specific status for a ConsentHub.
 	 *
-	 * @param id int ConsentHub <code>id</code>
+	 * @param consentHub int ConsentHub <code>id</code>
 	 * @param status String UNSIGNED | GRANTED | REVOKED
 	 * @throw ConsentHubNotExistsException when Consent Hub specified by <code>id</code> doesn't exist
 	 * @return List<Consent> Consents of the ConsentHub
@@ -95,9 +95,9 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 		@Override
 		public List<Consent> call (ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("status")) {
-				return ac.getConsentsManager().getConsentsForConsentHub(ac.getSession(), parms.readInt("id"), ConsentStatus.valueOf(parms.readString("status")));
+				return ac.getConsentsManager().getConsentsForConsentHub(ac.getSession(), parms.readInt("consentHub"), ConsentStatus.valueOf(parms.readString("status")));
 			} else {
-				return ac.getConsentsManager().getConsentsForConsentHub(ac.getSession(), parms.readInt("id"));
+				return ac.getConsentsManager().getConsentsForConsentHub(ac.getSession(), parms.readInt("consentHub"));
 			}
 		}
 	},
@@ -106,7 +106,7 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	 * Returns all consents for a user in specified consent hub
 	 *
 	 * @param user int User <code>id</code>
-	 * @param id int ConsentHub <code>id</code>
+	 * @param consentHub int ConsentHub <code>id</code>
 	 * @throw ConsentHubNotExistsException when Consent Hub specified by <code>id</code> doesn't exist
 	 * @throw UserNotExistsException when User specified by <code>id</code> doesn't exist
 	 * @return List<Consent> Consents of the User in the ConsentHub
@@ -114,7 +114,7 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	getConsentsForUserAndConsentHub {
 		@Override
 		public List<Consent> call (ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getConsentsManager().getConsentsForUserAndConsentHub(ac.getSession(), parms.readInt("user"), parms.readInt("id"));
+			return ac.getConsentsManager().getConsentsForUserAndConsentHub(ac.getSession(), parms.readInt("user"), parms.readInt("consentHub"));
 		}
 	},
 
@@ -122,7 +122,7 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	 * Returns consent for a user in consent hub with specified status
 	 *
 	 * @param user int User <code>id</code>
-	 * @param id int ConsentHub <code>id</code>
+	 * @param consentHub int ConsentHub <code>id</code>
 	 * @param status String UNSIGNED | GRANTED | REVOKED
 	 * @throw ConsentHubNotExistsException when Consent Hub specified by <code>id</code> doesn't exist
 	 * @throw UserNotExistsException when User specified by <code>id</code> doesn't exist
@@ -131,7 +131,7 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	getConsentForUserAndConsentHub {
 		@Override
 		public Consent call (ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getConsentsManager().getConsentForUserAndConsentHub(ac.getSession(), parms.readInt("user"), parms.readInt("id"), ConsentStatus.valueOf(parms.readString("status")));
+			return ac.getConsentsManager().getConsentForUserAndConsentHub(ac.getSession(), parms.readInt("user"), parms.readInt("consentHub"), ConsentStatus.valueOf(parms.readString("status")));
 		}
 	},
 

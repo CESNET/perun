@@ -6703,7 +6703,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
-      - SELF:
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -6712,7 +6712,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
-      - SELF:
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -6734,13 +6734,12 @@ perun_policies:
     include_policies:
       - default_policy
 
-
   getConsentsForUserAndConsentHub_int_int_policy:
     policy_roles:
       - PERUNOBSERVER:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
-      - SELF:
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -6762,7 +6761,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  #ConsentsManagerEntry
   getAllConsentHubs_policy:
     policy_roles:
       - PERUNOBSERVER:
