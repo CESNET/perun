@@ -30,19 +30,16 @@ public interface ConsentsManagerImplApi {
 	 * @param consent Consent
 	 * @return created consent
 	 * @throws ConsentExistsException if consent already exists
-	 * @throws ConsentHubNotExistsException if consent hub doesn't exist
-	 * @throws ConsentNotExistsException if consent is null
 	 */
-	Consent createConsent(PerunSession perunSession, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException, ConsentNotExistsException;
+	Consent createConsent(PerunSession perunSession, Consent consent) throws ConsentExistsException;
 
 	/**
 	 * Delete consent from the database.
 	 *
 	 * @param perunSession PerunSession
 	 * @param consent Consent
-	 * @throws ConsentNotExistsException if consent is null
 	 */
-	void deleteConsent(PerunSession perunSession, Consent consent) throws ConsentNotExistsException;
+	void deleteConsent(PerunSession perunSession, Consent consent);
 	/**
 	 * Gel all consents
 	 *

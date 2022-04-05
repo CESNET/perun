@@ -107,7 +107,7 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 	}
 
 	@Override
-	public Consent createConsent(PerunSession perunSession, Consent consent) throws ConsentNotExistsException, ConsentExistsException, ConsentHubNotExistsException {
+	public Consent createConsent(PerunSession perunSession, Consent consent) throws ConsentExistsException {
 		// Check if consent already exists
 		if(consentExists(perunSession, consent)){
 			throw new ConsentExistsException("Consent already exists.");
@@ -130,19 +130,17 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 	}
 
 	@Override
-	public void deleteConsent(PerunSession perunSession, Consent consent) throws ConsentNotExistsException {
+	public void deleteConsent(PerunSession perunSession, Consent consent) {
 		try {
-			if (!consentExists(perunSession, consent)) {
-				throw new ConsentNotExistsException("Consent: " + consent + " doesn't exists.");
-			}
+			checkConsentExists(perunSession, consent);
 			removeAttrsForConsent(perunSession, consent.getId());
 			consent.setAttributes(null);
 
 			int numberOfRows = jdbc.update("delete from consents where id=?", consent.getId());
 			if (numberOfRows != 1) throw new ConsentNotExistsException(consent);
 			log.info("Consent {} deleted.", consent);
-		} catch (Exception e){
-			throw new ConsentNotExistsException(e);
+		} catch (ConsentNotExistsException e){
+			throw new InternalErrorException(e);
 		}
 	}
 
@@ -287,7 +285,7 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 		}
 	}
 
-	private void createAttrDefsForConsent(PerunSession sess, Consent consent) throws ConsentNotExistsException {
+	private void createAttrDefsForConsent(PerunSession sess, Consent consent) {
 		List<AttributeDefinition> attributes = consent.getAttributes();
 		try {
 			for (AttributeDefinition attrDef : attributes) {

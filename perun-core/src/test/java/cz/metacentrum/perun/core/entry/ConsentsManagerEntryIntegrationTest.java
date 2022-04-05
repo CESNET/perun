@@ -7,11 +7,9 @@ import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.ConsentsManager;
-import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
@@ -19,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,11 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Integration tests of ConsentsManager.
@@ -62,7 +60,7 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertEquals(consent, consentsManagerEntry.getConsentById(sess, consent.getId()));
 	}
 
-	@Test (expected = ConsentNotExistsException.class)
+	@Test
 	public void createConsentDeleteExistingUnsigned() throws Exception {
 		System.out.println(CLASS_NAME + "createConsentDeleteExistingUnsigned");
 
@@ -76,12 +74,13 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Consent consentNew = new Consent(-11, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		consentNew = perun.getConsentsManagerBl().createConsent(sess, consentNew);
 
-		perun.getConsentsManagerBl().checkConsentExists(sess, consentOld);
-
+		Consent finalConsentOld = consentOld;
+		assertThatExceptionOfType(ConsentNotExistsException.class).isThrownBy(
+			() -> perun.getConsentsManagerBl().checkConsentExists(sess, finalConsentOld));
 	}
 
-	@Test (expected = ConsentNotExistsException.class)
-	public void deleteConsent() throws Exception {
+	@Test
+	public void deleteNonExistingConsent() throws Exception {
 		System.out.println(CLASS_NAME + "deleteConsent");
 
 		User user = setUpUser("John", "Doe");
@@ -89,9 +88,25 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Facility facility = setUpFacility();
 
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
-		perun.getConsentsManagerBl().deleteConsent(sess, consent);
-		perun.getConsentsManagerBl().getConsentById(sess, consent.getId());
+		assertThatExceptionOfType(InternalErrorException.class).isThrownBy(
+			() -> perun.getConsentsManagerBl().deleteConsent(sess, consent));
+	}
 
+	@Test
+	public void deleteExistingConsent() throws Exception {
+		System.out.println(CLASS_NAME + "deleteConsent");
+
+		User user = setUpUser("John", "Doe");
+
+		Facility facility = setUpFacility();
+
+		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		consent = perun.getConsentsManagerBl().createConsent(sess, consent);
+
+		perun.getConsentsManagerBl().deleteConsent(sess, consent);
+		Consent finalConsent = consent;
+		assertThatExceptionOfType(ConsentNotExistsException.class).isThrownBy(
+			() -> perun.getConsentsManagerBl().getConsentById(sess, finalConsent.getId()));
 	}
 
 	@Test
@@ -396,7 +411,7 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		return facility;
 	}
 
-	private User setUpUser(String firstName, String lastName) throws Exception {
+	private User setUpUser(String firstName, String lastName) {
 		User user = new User();
 		user.setFirstName(firstName);
 		user.setMiddleName("");
