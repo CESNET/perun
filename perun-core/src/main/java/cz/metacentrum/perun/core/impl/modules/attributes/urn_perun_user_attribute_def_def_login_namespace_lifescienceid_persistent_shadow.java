@@ -67,7 +67,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_pers
 			Attribute filledAttribute = new Attribute(attribute);
 			String value = elixirPersistentShadow.getValue().toString();
 			String valueWithoutScope = value.split("@", 2) [0];
-			String attrValue = valueWithoutScope + "@" + CONFIG_DOMAIN_NAME_LIFESCIENCE;
+			String attrValue = valueWithoutScope + "@" + getDomainName();
 			filledAttribute.setValue(attrValue);
 			return filledAttribute;
 		}
