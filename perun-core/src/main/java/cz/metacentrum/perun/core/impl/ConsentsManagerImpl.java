@@ -161,7 +161,6 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 		try {
 			List<Consent> consents = jdbc.query("select " + consentMappingSelectQuery + " from consents where consents.consent_hub_id=? and consents.status=?::consent_status ", CONSENT_MAPPER_WITHOUT_HUB, id, status.toString());
 			ConsentHub consentHub = getConsentHubById(sess, id);
-			consentHub.setFacilities(getFacilitiesForConsentHub(consentHub));
 			for (Consent consent : consents) {
 				if (consent != null) {
 					consent.setConsentHub(consentHub);
@@ -181,7 +180,6 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 		try {
 			List<Consent> consents = jdbc.query("select " + consentMappingSelectQuery + " from consents where consents.consent_hub_id=? ", CONSENT_MAPPER_WITHOUT_HUB, id);
 			ConsentHub consentHub = getConsentHubById(sess, id);
-			consentHub.setFacilities(getFacilitiesForConsentHub(consentHub));
 			for (Consent consent : consents) {
 				if (consent != null) {
 					consent.setConsentHub(consentHub);
@@ -301,7 +299,6 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 		try {
 			List<Consent> consents = jdbc.query("select " + consentMappingSelectQuery +  " from consents where user_id=? and consent_hub_id=?", CONSENT_MAPPER_WITHOUT_HUB, userId, consentHubId);
 			ConsentHub consentHub = getConsentHubById(sess, consentHubId);
-			consentHub.setFacilities(getFacilitiesForConsentHub(consentHub));
 			for (Consent consent : consents) {
 				if (consent != null) {
 					consent.setConsentHub(consentHub);
@@ -321,7 +318,6 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 		try {
 			Consent consent = jdbc.queryForObject("select " + consentMappingSelectQuery + " from consents where consents.user_id=? and consents.consent_hub_id=? and consents.status=?::consent_status ", CONSENT_MAPPER_WITHOUT_HUB, userId, consentHubId, status.toString());
 			ConsentHub consentHub = getConsentHubById(sess, consentHubId);
-			consentHub.setFacilities(getFacilitiesForConsentHub(consentHub));
 			if (consent != null) {
 				consent.setConsentHub(consentHub);
 				consent.setAttributes(getAttrDefsForConsent(sess, consent.getId()));
