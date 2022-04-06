@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -43,6 +44,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
@@ -614,6 +616,17 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		}
 
+		//Remove all user's consents
+
+		for (Consent consent : getPerunBl().getConsentsManagerBl().getConsentsForUser(sess, user.getId())) {
+			try {
+				getPerunBl().getConsentsManagerBl().deleteConsent(sess, consent);
+			} catch (ConsentNotExistsException ex) {
+				// OK, we just want to remove it anyway
+			}
+		}
+
+
 		// Remove all sponsored user authz of his owners
 		if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
 		if (anonymizeInstead) {
@@ -733,7 +746,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * - Map -> exactly match of "key=value"
 	 * - ArrayList -> exactly match of one of the value
 	 *
-	 * @param sess
+	 * @param sess perun session
 	 * @param attrDef attribute definition we are looking for, has to be unique and in userExtSource namespace
 	 * @param uniqueValue value used for searching
 	 *
