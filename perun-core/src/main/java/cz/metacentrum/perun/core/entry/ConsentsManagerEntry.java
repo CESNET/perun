@@ -279,7 +279,7 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		consentsManagerBl.checkConsentExists(sess, consent);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "changeConsentStatus_Consent_ConsentStatus_policy", getPerunBl().getUsersManager().getUserById(sess, consent.getUserId()))) {
+		if (!AuthzResolver.authorizedInternal(sess, "changeConsentStatus_Consent_ConsentStatus_policy", getPerunBl().getUsersManagerBl().getUserById(sess, consent.getUserId()))) {
 			throw new PrivilegeException(sess, "changeConsentStatus");
 		}
 

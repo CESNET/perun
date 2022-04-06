@@ -6731,6 +6731,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - SELF: User
+      - RPC:
     include_policies:
       - default_policy
 
