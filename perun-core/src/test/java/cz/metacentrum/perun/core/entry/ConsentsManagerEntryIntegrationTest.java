@@ -12,12 +12,12 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+
 
 /**
  * Integration tests of ConsentsManager.
@@ -402,6 +403,69 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
 		assertThatExceptionOfType(FacilityAlreadyAssigned.class).isThrownBy(() -> perun.getConsentsManagerBl().addFacility(sess, hub, facility));
+	}
+
+	@Test
+	public void changeConsentStatus() throws Exception {
+		System.out.println(CLASS_NAME + "changeConsentStatus");
+
+		ConsentStatus status = ConsentStatus.GRANTED;
+		Facility facility = setUpFacility();
+		User user = setUpUser("John", "Doe");
+
+		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		perun.getConsentsManagerBl().createConsent(sess, consent);
+
+		Consent updatedConsent = consentsManagerEntry.changeConsentStatus(sess, consent, status);
+		assertEquals("Updated consent has different status than sent consent.", status, updatedConsent.getStatus());
+	}
+
+	@Test
+	public void changeConsentStatusAndRemoveConsent() throws Exception {
+		System.out.println(CLASS_NAME + "changeConsentStatusAndRemoveConsent");
+
+		ConsentStatus status = ConsentStatus.GRANTED;
+		Facility facility = setUpFacility();
+		User user = setUpUser("John", "Doe");
+
+		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		perun.getConsentsManagerBl().createConsent(sess, consent1);
+		consentsManagerEntry.changeConsentStatus(sess, consent1, status);
+
+		Consent consent2 = new Consent(-2, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		perun.getConsentsManagerBl().createConsent(sess, consent2);
+		consentsManagerEntry.changeConsentStatus(sess, consent2, status);
+
+		assertThatExceptionOfType(ConsentNotExistsException.class).isThrownBy(() -> perun.getConsentsManagerBl().getConsentById(sess, consent1.getId()));
+	}
+
+	@Test
+	public void changeConsentStatusToUnsigned() throws Exception {
+		System.out.println(CLASS_NAME + "changeConsentStatusToUnsigned");
+
+		Facility facility = setUpFacility();
+		User user = setUpUser("John", "Doe");
+
+		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		perun.getConsentsManagerBl().createConsent(sess, consent);
+		consentsManagerEntry.changeConsentStatus(sess, consent, ConsentStatus.GRANTED);
+
+		assertThatExceptionOfType(InvalidConsentStatusException.class).isThrownBy(() -> perun.getConsentsManagerBl().changeConsentStatus(sess, consent, ConsentStatus.UNSIGNED));
+	}
+
+	@Test
+	public void changeConsentStatusToSameValue() throws Exception {
+		System.out.println(CLASS_NAME + "changeConsentStatusToSameValue");
+
+		ConsentStatus status = ConsentStatus.GRANTED;
+		Facility facility = setUpFacility();
+		User user = setUpUser("John", "Doe");
+
+		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		perun.getConsentsManagerBl().createConsent(sess, consent);
+		consentsManagerEntry.changeConsentStatus(sess, consent, status);
+
+		assertThatExceptionOfType(InvalidConsentStatusException.class).isThrownBy(() -> perun.getConsentsManagerBl().changeConsentStatus(sess, consent, status));
 	}
 
 	private Facility setUpFacility() throws Exception {

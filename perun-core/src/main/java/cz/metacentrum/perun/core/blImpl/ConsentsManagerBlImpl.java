@@ -1,22 +1,25 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.ConsentManager.ChangedConsentStatus;
 import cz.metacentrum.perun.audit.events.ConsentManager.ConsentCreated;
 import cz.metacentrum.perun.audit.events.ConsentManager.ConsentDeleted;
+import cz.metacentrum.perun.core.api.ConsentHub;
+import cz.metacentrum.perun.core.api.Consent;
+import cz.metacentrum.perun.core.api.ConsentStatus;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Consent;
-import cz.metacentrum.perun.core.api.ConsentHub;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.ConsentStatus;
-import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -230,6 +233,38 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		getConsentsManagerImpl().removeFacility(sess, consentHub, facility);
 		if (getConsentsManagerImpl().getFacilitiesForConsentHub(consentHub).size() == 0) {
 			getConsentsManagerImpl().deleteConsentHub(sess, consentHub);
+		}
+	}
+
+	@Override
+	public Consent changeConsentStatus(PerunSession sess, Consent consent, ConsentStatus status) throws InvalidConsentStatusException {
+		if (status != ConsentStatus.GRANTED && status != ConsentStatus.REVOKED) {
+			throw new InvalidConsentStatusException("Invalid consent status value.");
+		}
+		if (status == consent.getStatus()) {
+			throw new InvalidConsentStatusException("Tried to set consent status on current value.");
+		}
+		consent.setStatus(status);
+
+		checkExistingConsents(sess, consent);
+		getConsentsManagerImpl().changeConsentStatus(sess, consent);
+		getPerunBl().getAuditer().log(sess, new ChangedConsentStatus(consent));
+		try {
+			return getConsentById(sess, consent.getId());
+		} catch (ConsentNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	private void checkExistingConsents(PerunSession sess, Consent consent) {
+		for (Consent currentConsent : getConsentsForUserAndConsentHub(sess, consent.getUserId(), consent.getConsentHub().getId())) {
+			if (currentConsent.getId() != consent.getId() && currentConsent.getStatus() != ConsentStatus.UNSIGNED) {
+				try {
+					deleteConsent(sess, currentConsent);
+				} catch (ConsentNotExistsException e) {
+					throw new InternalErrorException(e);
+				}
+			}
 		}
 	}
 }

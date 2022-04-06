@@ -1,13 +1,13 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
-
 import java.util.List;
 
 /**
@@ -167,4 +167,18 @@ public interface ConsentsManager {
 	 * @throws PrivilegeException           insufficient rights
 	 */
 	ConsentHub updateConsentHub(PerunSession perunSession, ConsentHub consentHub) throws ConsentHubNotExistsException, PrivilegeException, ConsentHubExistsException;
+
+	/**
+	 * Set consent status
+	 *
+	 * @param sess perun session
+	 * @param consent consent
+	 * @param status status that should be set
+	 * @return consent
+	 * @throws ConsentNotExistsException if consent hub does not exist
+	 * @throws PrivilegeException if insufficient rights
+	 * @throws InvalidConsentStatusException if passed status value can not be set
+	 * @throws UserNotExistsException if user does not exist
+	 */
+	Consent changeConsentStatus(PerunSession sess, Consent consent, ConsentStatus status) throws ConsentNotExistsException, PrivilegeException, InvalidConsentStatusException, UserNotExistsException;
 }

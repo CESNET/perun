@@ -4,17 +4,18 @@ import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.ConsentsManager;
-import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.ConsentHub;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -271,4 +272,18 @@ public class ConsentsManagerEntry implements ConsentsManager {
 
 		return getConsentsManagerBl().updateConsentHub(sess, consentHub);
 	}
+
+	@Override
+	public Consent changeConsentStatus(PerunSession sess, Consent consent, ConsentStatus status) throws ConsentNotExistsException, PrivilegeException, InvalidConsentStatusException, UserNotExistsException {
+		Utils.notNull(sess, "sess");
+		consentsManagerBl.checkConsentExists(sess, consent);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "changeConsentStatus_Consent_ConsentStatus_policy", getPerunBl().getUsersManager().getUserById(sess, consent.getUserId()))) {
+			throw new PrivilegeException(sess, "changeConsentStatus");
+		}
+
+		return consentsManagerBl.changeConsentStatus(sess, consent, status);
+	}
+
 }

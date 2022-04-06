@@ -6803,6 +6803,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  changeConsentStatus_Consent_ConsentStatus_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 perun_roles_management:
 
