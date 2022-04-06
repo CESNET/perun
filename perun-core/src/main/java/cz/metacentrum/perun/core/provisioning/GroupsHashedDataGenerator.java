@@ -103,6 +103,7 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 		} else {
 			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
+		members = sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, members);
 		allMembers.addAll(members);
 
 		dataProvider.loadResourceAttributes(resource, members, true);
@@ -137,6 +138,7 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 		} else {
 			members = sess.getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
 		}
+		members = sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, members);
 
 		dataProvider.loadMemberGroupAttributes(group, members);
 

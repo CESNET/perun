@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.ConsentStatus;
@@ -14,12 +15,16 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
+import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,20 +47,41 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	private final String CLASS_NAME = "ConsentsManager.";
 
 	private ConsentsManager consentsManagerEntry;
+	private User user;
+	private Facility facility;
+	private Resource resource;
+	private Service service;
+	private Vo vo;
+	private Member member;
+	private AttributeDefinition attrDef;
+	private AttributeDefinition facAttrDef;
 
 	@Before
 	public void setUp() throws Exception {
 		consentsManagerEntry = perun.getConsentsManager();
+
+		user = setUpUser("John", "Doe");
+		facility = setUpFacility();
+		service = setUpService();
+		vo = setUpVo();
+		member = perun.getMembersManager().createMember(sess, vo, user);
+		resource = setUpResource(facility, vo);
+		perun.getResourcesManagerBl().assignService(sess, resource, service);
+		attrDef = setUpUserAttributeDefinition("testUserAttribute");
+		facAttrDef = setUpFacilityAttributeDefinition();
+		perun.getServicesManagerBl().addRequiredAttributes(sess, service, List.of(attrDef, facAttrDef));
+
+		// add member to a group assigned to the resource
+		Group group = new Group("test", "test group");
+		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+		perun.getGroupsManagerBl().addMember(sess, group, member);
 	}
 
 
 	@Test
 	public void createConsent() throws Exception {
 		System.out.println(CLASS_NAME + "createConsent");
-
-		User user = setUpUser("John", "Doe");
-
-		Facility facility = setUpFacility();
 
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		consent = perun.getConsentsManagerBl().createConsent(sess, consent);
@@ -66,10 +92,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void createConsentDeleteExistingUnsigned() throws Exception {
 		System.out.println(CLASS_NAME + "createConsentDeleteExistingUnsigned");
-
-		User user = setUpUser("John", "Doe");
-
-		Facility facility = setUpFacility();
 
 		Consent consentOld = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		consentOld = perun.getConsentsManagerBl().createConsent(sess, consentOld);
@@ -86,50 +108,17 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void createConsentOnlyPossibleAttributes() throws Exception {
 		System.out.println(CLASS_NAME + "createConsentOnlyPossibleAttributes");
 
-		Facility facility = setUpFacility();
 		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
-
-		Vo vo = new Vo(0, "TestVo", "TestVo");
-		vo = perun.getVosManager().createVo(sess, vo);
-
-		Service service = new Service(0, "TestService");
-		service = perun.getServicesManager().createService(sess, service);
-
 		Service service2 = new Service(0, "TestService2");
 		service2 = perun.getServicesManager().createService(sess, service2);
-
-		Resource resource = new Resource(0, "TestResource", "TestResource", facility.getId());
-		resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
 
 		Resource resource2 = new Resource(0, "TestResource2", "TestResource2", facility.getId());
 		resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo, facility);
 
-		perun.getResourcesManagerBl().assignService(sess, resource, service);
 		perun.getResourcesManagerBl().assignService(sess, resource2, service2);
 
-		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attrDef.setType(Integer.class.getName());
-		attrDef.setFriendlyName("testUserAttr");
-		attrDef.setDisplayName("test user attr");
-		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-
-		AttributeDefinition anotherDef = new AttributeDefinition();
-		anotherDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		anotherDef.setType(Integer.class.getName());
-		anotherDef.setFriendlyName("secondTestUserAttr");
-		anotherDef.setDisplayName("second test user attr");
-		anotherDef = perun.getAttributesManagerBl().createAttribute(sess, anotherDef);
-
-		perun.getServicesManagerBl().addRequiredAttribute(sess, service, attrDef);
+		AttributeDefinition anotherDef = setUpUserAttributeDefinition("secondTestUserAttr");
 		perun.getServicesManagerBl().addRequiredAttribute(sess, service2, anotherDef);
-
-		User user = setUpUser("John", "Doe");
-		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
-		Group group = new Group("test", "test group");
-		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
-		perun.getGroupsManagerBl().addMember(sess, group, member);
 
 		// Consent should only have one attribute because attribute from service2
 		// is on resource2 which is not assigned to the user through group
@@ -146,10 +135,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void deleteNonExistingConsent() throws Exception {
 		System.out.println(CLASS_NAME + "deleteNonExistingConsent");
 
-		User user = setUpUser("John", "Doe");
-
-		Facility facility = setUpFacility();
-
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		assertThatExceptionOfType(ConsentNotExistsException.class).isThrownBy(
 			() -> perun.getConsentsManagerBl().deleteConsent(sess, consent));
@@ -158,10 +143,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void deleteExistingConsent() throws Exception {
 		System.out.println(CLASS_NAME + "deleteExistingConsent");
-
-		User user = setUpUser("John", "Doe");
-
-		Facility facility = setUpFacility();
 
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		consent = perun.getConsentsManagerBl().createConsent(sess, consent);
@@ -176,16 +157,13 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getAllConsents() throws Exception {
 		System.out.println(CLASS_NAME + "getAllConsents");
 
-		User user = setUpUser("John", "Doe");
-
-		Facility facility1 = setUpFacility();
 		Facility facility2 = new Facility();
 		facility2.setName("TestFacility2");
 
 		// createFacility method creates also new Consent Hub
 		perun.getFacilitiesManager().createFacility(sess, facility2);
 
-		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility1.getName()), new ArrayList<>());
+		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		Consent consent2 = new Consent(-11, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility2.getName()), new ArrayList<>());
 
 		perun.getConsentsManagerBl().createConsent(sess, consent1);
@@ -198,16 +176,13 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getConsentsForUser() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentsForUser");
 
-		User user = setUpUser("John", "Doe");
-
-		Facility facility1 = setUpFacility();
 		Facility facility2 = new Facility();
 		facility2.setName("TestFacility2");
 
 		// createFacility method creates also new Consent Hub
 		perun.getFacilitiesManager().createFacility(sess, facility2);
 
-		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility1.getName()), new ArrayList<>());
+		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		Consent consent2 = new Consent(-11, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility2.getName()), new ArrayList<>());
 
 		perun.getConsentsManagerBl().createConsent(sess, consent1);
@@ -223,12 +198,9 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getConsentsForConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentsForConsentHub");
 
-		Facility facility = setUpFacility();
-
-		User user1 = setUpUser("John", "Doe");
 		User user2 = setUpUser("Donald", "Trump");
 
-		Consent consent1 = new Consent(-1, user1.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		Consent consent2 = new Consent(-11, user2.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 
 		perun.getConsentsManagerBl().createConsent(sess, consent1);
@@ -243,39 +215,11 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getConsentById() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentById");
 
-		Facility facility = setUpFacility();
 		// setupFacility method creates also new Consent Hub
 		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
-		// Set-up facility, that have one required attribute
-		Vo vo = new Vo(0, "TestVo", "TestVo");
-		vo = perun.getVosManager().createVo(sess, vo);
-
-		Service service = new Service(0, "TestService");
-		service = perun.getServicesManager().createService(sess, service);
-
-		Resource resource = new Resource(0, "TestResource", "TestResource", facility.getId());
-		resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
-
-		perun.getResourcesManagerBl().assignService(sess, resource, service);
-
-		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attrDef.setType(Integer.class.getName());
-		attrDef.setFriendlyName("testUserAttr");
-		attrDef.setDisplayName("test user attr");
-		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-
-		perun.getServicesManagerBl().addRequiredAttribute(sess, service, attrDef);
-
-		User user = setUpUser("John", "Doe");
-		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
-		Group group = new Group("test", "test group");
-		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
-		perun.getGroupsManagerBl().addMember(sess, group, member);
 		// Consent should only be able to have one attribute
-		Consent consent = new Consent(-1, user.getId(), consentHub, List.of(attrDef));
+		Consent consent = new Consent(-1, user.getId(), consentHub, List.of(attrDef, facAttrDef));
 		perun.getConsentsManagerBl().createConsent(sess, consent);
 
 		Consent result = consentsManagerEntry.getConsentById(sess, consent.getId());
@@ -289,8 +233,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getConsentsForUserAndConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentsForUserAndConsentHub");
 
-		Facility facility = setUpFacility();
-		User user = setUpUser("John", "Doe");
 		Facility facility2 = new Facility();
 		facility2.setName("TestFacility2");
 		// createFacility method creates also new Consent Hub
@@ -312,7 +254,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void getConsentHubByFacility() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentHubByFacility");
-		Facility facility = setUpFacility();
 
 		assertEquals(consentsManagerEntry.getConsentHubByFacility(sess, facility.getId()).getFacilities().get(0), facility);
 	}
@@ -321,7 +262,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getAllConsentHubs() throws Exception {
 		System.out.println(CLASS_NAME + "getAllConsentHubs");
 
-		Facility facility1 = setUpFacility();
 		Facility facility2 = new Facility();
 		facility2.setName("ConsentsTestFacility2");
 
@@ -335,7 +275,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getConsentHubById() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentHubById");
 
-		Facility facility = setUpFacility();
 		// createFacility method creates also new Consent Hub
 		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
@@ -350,7 +289,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getConsentHubByName() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentHubByName");
 
-		Facility facility = setUpFacility();
 		ConsentHub consentHub = consentsManagerEntry.getConsentHubByName(sess, facility.getName());
 
 		assertEquals(1, consentsManagerEntry.getAllConsentHubs(sess).size());
@@ -362,7 +300,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void createConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "createConsentHub");
-		Facility facility = setUpFacility();
 
 		// createFacility method creates also new Consent Hub
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
@@ -373,7 +310,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void createExistingHub() throws Exception {
 		System.out.println(CLASS_NAME + "createExistingHub");
-		Facility facility = setUpFacility();
 
 		// createFacility method creates also new Consent Hub
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
@@ -384,7 +320,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void deleteConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "deleteConsentHub");
-		Facility facility = setUpFacility();
 
 		// createFacility method creates also new Consent Hub
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
@@ -396,7 +331,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void deleteRemovedConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "deleteRemovedConsentHub");
-		Facility facility = setUpFacility();
 
 		// createFacility method creates also new Consent Hub
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
@@ -408,7 +342,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void deleteLastFacilityRemovesConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "deleteLastFacilityRemovesConsentHub");
-		Facility facility = setUpFacility();
 
 		// createFacility method creates also new Consent Hub
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
@@ -420,7 +353,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void updateFacilityHub() throws Exception {
 		System.out.println(CLASS_NAME + "updateFacilityHub");
-		Facility facility = setUpFacility();
 
 		// createFacility method creates also new Consent Hub
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
@@ -437,13 +369,11 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void updateFacilityHubDuplicateName() throws Exception {
 		System.out.println(CLASS_NAME + "updateFacilityHubDuplicateName");
-		Facility facility = setUpFacility();
 
 		Facility facility2 = new Facility();
 		facility2.setName("ConsentsTestFacility2");
 		// createFacility method creates also new Consent Hub with facility's name
 		perun.getFacilitiesManager().createFacility(sess, facility2);
-
 
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 		hub.setName(facility2.getName());
@@ -454,7 +384,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void removeLastFacilityRemovesConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "removeLastFacilityRemovesConsentHub");
-		Facility facility = setUpFacility();
 
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
@@ -465,7 +394,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	@Test
 	public void addFacilityToConsentHubAgain() throws Exception {
 		System.out.println(CLASS_NAME + "addFacilityToConsentHubAgain");
-		Facility facility = setUpFacility();
 
 		ConsentHub hub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
@@ -477,8 +405,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "changeConsentStatus");
 
 		ConsentStatus status = ConsentStatus.GRANTED;
-		Facility facility = setUpFacility();
-		User user = setUpUser("John", "Doe");
 
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		perun.getConsentsManagerBl().createConsent(sess, consent);
@@ -492,8 +418,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "changeConsentStatusAndRemoveConsent");
 
 		ConsentStatus status = ConsentStatus.GRANTED;
-		Facility facility = setUpFacility();
-		User user = setUpUser("John", "Doe");
 
 		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		perun.getConsentsManagerBl().createConsent(sess, consent1);
@@ -510,9 +434,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void changeConsentStatusToUnsigned() throws Exception {
 		System.out.println(CLASS_NAME + "changeConsentStatusToUnsigned");
 
-		Facility facility = setUpFacility();
-		User user = setUpUser("John", "Doe");
-
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		perun.getConsentsManagerBl().createConsent(sess, consent);
 		consentsManagerEntry.changeConsentStatus(sess, consent, ConsentStatus.GRANTED);
@@ -525,14 +446,212 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "changeConsentStatusToSameValue");
 
 		ConsentStatus status = ConsentStatus.GRANTED;
-		Facility facility = setUpFacility();
-		User user = setUpUser("John", "Doe");
 
 		Consent consent = new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
 		perun.getConsentsManagerBl().createConsent(sess, consent);
 		consentsManagerEntry.changeConsentStatus(sess, consent, status);
 
 		assertThatExceptionOfType(InvalidConsentStatusException.class).isThrownBy(() -> perun.getConsentsManagerBl().changeConsentStatus(sess, consent, status));
+	}
+
+	@Test
+	public void evaluateConsentsIsTurnedOffOnInstance() {
+		System.out.println(CLASS_NAME + "evaluateConsentsIsTurnedOffOnInstance");
+
+		List<Member> allowedMembers = perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		// didn't sign any consent but should be still returned because consents are turned off in the instance config
+		assertThat(allowedMembers).containsExactly(member);
+	}
+
+	@Test
+	public void evaluateConsentsIsTurnedOffOnHub() throws Exception {
+		System.out.println(CLASS_NAME + "evaluateConsentsIsTurnedOffOnHub");
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+		consentHub.setEnforceConsents(false);
+		consentsManagerEntry.updateConsentHub(sess, consentHub);
+
+		List<Member> allowedMembers;
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			allowedMembers = perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+
+		// didn't sign any consent but should be still returned because consents are turned off in the consent hub
+		assertThat(allowedMembers).containsExactly(member);
+	}
+
+	@Test
+	public void evaluateConsentsCreatesConsents() throws Exception {
+		System.out.println(CLASS_NAME + "evaluateConsentsCreatesConsents");
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+		List<Consent> consents = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user.getId(), consentHub.getId());
+		Consent expectedConsent = new Consent(consents.get(0).getId(), user.getId(), consentHub, List.of(attrDef));
+		assertThat(consents).containsExactly(expectedConsent);
+
+		// evaluate again, still should have only the one UNSIGNED consent
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+		assertThat(consents).containsExactly(expectedConsent);
+	}
+
+	@Test
+	public void evaluateConsentsWithSufficientGrantedConsent() throws Exception {
+		System.out.println(CLASS_NAME + "evaluateConsentsWithSufficientGrantedConsent");
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		List<Member> allowedMembers;
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			// evaluate to create UNSIGNED consent
+			perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+			Consent unsignedConsent = consentsManagerEntry.getConsentForUserAndConsentHub(sess, user.getId(), consentHub.getId(), ConsentStatus.UNSIGNED);
+			consentsManagerEntry.changeConsentStatus(sess, unsignedConsent, ConsentStatus.GRANTED);
+
+			allowedMembers = perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+
+		assertThat(allowedMembers).containsExactly(member);
+	}
+
+	@Test
+	public void evaluateConsentsWithSufficientRevokedConsent() throws Exception {
+		System.out.println(CLASS_NAME + "evaluateConsentsWithSufficientRevokedConsent");
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		List<Member> allowedMembers;
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			// evaluate to create UNSIGNED consent
+			perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+			Consent unsignedConsent = consentsManagerEntry.getConsentForUserAndConsentHub(sess, user.getId(), consentHub.getId(), ConsentStatus.UNSIGNED);
+			consentsManagerEntry.changeConsentStatus(sess, unsignedConsent, ConsentStatus.REVOKED);
+
+			allowedMembers = perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+
+		assertThat(allowedMembers).isEmpty();
+	}
+
+	@Test
+	public void evaluateConsentsWithInsufficientGrantedConsent() throws Exception {
+		System.out.println(CLASS_NAME + "evaluateConsentsWithInsufficientGrantedConsent");
+
+		AttributeDefinition secondUserAttrDef = setUpUserAttributeDefinition("testUserAttribute2");
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		List<Member> allowedMembers;
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			// evaluate to create UNSIGNED consent and then grant consent
+			perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+			Consent unsignedConsent = consentsManagerEntry.getConsentForUserAndConsentHub(sess, user.getId(), consentHub.getId(), ConsentStatus.UNSIGNED);
+			consentsManagerEntry.changeConsentStatus(sess, unsignedConsent, ConsentStatus.GRANTED);
+
+			// add a new required attribute and evaluate, it should create a new unsigned consent
+			addAttributeToService(service, secondUserAttrDef);
+			allowedMembers = perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+
+		assertThat(allowedMembers).isEmpty();
+		Consent unsignedConsent = consentsManagerEntry.getConsentForUserAndConsentHub(sess, user.getId(), consentHub.getId(), ConsentStatus.UNSIGNED);
+		assertThat(unsignedConsent.getAttributes()).containsExactlyInAnyOrder(attrDef, secondUserAttrDef);
+		Consent grantedConsent = consentsManagerEntry.getConsentForUserAndConsentHub(sess, user.getId(), consentHub.getId(), ConsentStatus.GRANTED);
+		assertThat(grantedConsent.getAttributes()).containsExactlyInAnyOrder(attrDef);
+		// make sure there is no revoked consent
+		assertThatExceptionOfType(ConsentNotExistsException.class)
+			.isThrownBy(() -> consentsManagerEntry.getConsentForUserAndConsentHub(sess, user.getId(), consentHub.getId(), ConsentStatus.REVOKED));
+	}
+
+	@Test
+	public void evaluateConsentsWithInsufficientUnsignedConsent() throws Exception {
+		System.out.println(CLASS_NAME + "evaluateConsentsWithInsufficientUnsignedConsent");
+
+		AttributeDefinition secondUserAttrDef = setUpUserAttributeDefinition("testUserAttribute2");
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		List<Member> allowedMembers;
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			// evaluate to create UNSIGNED consent
+			perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+
+			// add a new required attribute and evaluate, it should create a new unsigned consent
+			addAttributeToService(service, secondUserAttrDef);
+			allowedMembers = perun.getConsentsManagerBl().evaluateConsents(sess, service, facility, List.of(member));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+
+		assertThat(allowedMembers).isEmpty();
+		List<Consent> userConsents = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user.getId(), consentHub.getId());
+		assertThat(userConsents).hasSize(1);
+		assertThat(userConsents.get(0).getAttributes()).containsExactlyInAnyOrder(attrDef, secondUserAttrDef);
+		assertThat(userConsents.get(0).getStatus()).isEqualTo(ConsentStatus.UNSIGNED);
+	}
+
+	private void addAttributeToService(Service service, AttributeDefinition secondUserAttrDef) throws AttributeAlreadyAssignedException, ServiceAttributesCannotExtend {
+		service.setEnabled(false);
+		perun.getServicesManagerBl().updateService(sess, service);
+		perun.getServicesManagerBl().addRequiredAttribute(sess, service, secondUserAttrDef);
+		service.setEnabled(true);
+		perun.getServicesManagerBl().updateService(sess, service);
+	}
+
+	private AttributeDefinition setUpUserAttributeDefinition(String name) throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setType(Integer.class.getName());
+		attrDef.setFriendlyName(name);
+		attrDef.setDisplayName(name);
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		return attrDef;
+	}
+
+	private AttributeDefinition setUpFacilityAttributeDefinition() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attrDef.setType(Integer.class.getName());
+		attrDef.setFriendlyName("testFacAttr");
+		attrDef.setDisplayName("test facility attr");
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		return attrDef;
+	}
+
+	private Resource setUpResource(Facility facility, Vo vo) throws Exception {
+		Resource resource = new Resource(0, "TestResource", "TestResource", facility.getId());
+		resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+		return resource;
 	}
 
 	private Facility setUpFacility() throws Exception {
@@ -552,5 +671,17 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertNotNull(perun.getUsersManagerBl().createUser(sess, user));
 
 		return user;
+	}
+
+	private Service setUpService() throws Exception {
+		Service service = new Service(0, "TestService");
+		service = perun.getServicesManager().createService(sess, service);
+		return service;
+	}
+
+	private Vo setUpVo() throws VoExistsException, PrivilegeException {
+		Vo vo = new Vo(0, "TestVo", "TestVo");
+		vo = perun.getVosManager().createVo(sess, vo);
+		return vo;
 	}
 }

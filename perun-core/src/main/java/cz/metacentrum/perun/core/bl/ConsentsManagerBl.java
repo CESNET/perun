@@ -4,7 +4,9 @@ import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
@@ -256,4 +258,28 @@ public interface ConsentsManagerBl {
 	 * @throws InvalidConsentStatusException if passed status value can not be set
 	 */
 	Consent changeConsentStatus(PerunSession sess, Consent consent, ConsentStatus status) throws InvalidConsentStatusException;
+
+	/**
+	 * This method runs in a new transaction!! Because it is used by getData methods
+	 * which run in read-only serializable transactions.
+	 *
+	 * Returns members from the given members list that have a valid consent for the propagation
+	 * of the service required attributes to the facility.
+	 *
+	 * Users must have a consent for the facility's consent hub with status GRANTED
+	 * and it contains all the required attributes.
+	 *
+	 * If the user has no consent in any status that contains all the required attributes,
+	 * a new UNSIGNED consent is created for the user.
+	 *
+	 * If the consent logic is turned off on the instance (property forceConsents)
+	 * or the facility's consent hub doesn't enforce consents, all members are returned
+	 * and no unsigned consents for users are created.
+	 *
+	 * @param sess perun session
+	 * @param service the service
+	 * @param facility the facility
+	 * @param members the given members
+	 */
+	List<Member> evaluateConsents(PerunSession sess, Service service, Facility facility, List<Member> members);
 }

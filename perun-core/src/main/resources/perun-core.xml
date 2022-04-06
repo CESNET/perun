@@ -44,6 +44,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessagesToDb(..))"/>
 		<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronizationInNewTransaction(..))"/>
 		<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupStructureSynchronizationInNewTransaction(..))"/>
+		<!-- This transaction was moved to profiles definition - it needs to be Requires new in production, but Nested in tests-->
+		<!--<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>-->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronizationInNestedTransaction(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupStructureSynchronizationInNestedTransaction(..))"/>
 		<!-- START OF NESTED TRANSACTIONS FOR COMPATIBILITY WITH POSTGRESQL -->
@@ -522,6 +524,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 	<!-- Real Perun DB -->
 	<beans profile="production">
+		<aop:config>
+			<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>
+		</aop:config>
+
 		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
 
 		<!-- DataSource implementation -->
@@ -563,6 +569,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 	<!-- Containerized Perun for local testing -->
 	<beans profile="default">
+		<aop:config>
+			<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>
+		</aop:config>
 
 		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="classpath:jdbc.properties"/>
 
