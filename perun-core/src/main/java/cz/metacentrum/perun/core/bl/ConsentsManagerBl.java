@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 
 import java.util.List;
 
@@ -128,8 +129,9 @@ public interface ConsentsManagerBl {
 	 *
 	 * @throws ConsentExistsException if consent already exists
 	 * @throws ConsentHubNotExistsException if consent hub doesn't exist
+	 * @throws UserNotExistsException if a user with consent's userId doesn't exist
 	 */
-	Consent createConsent(PerunSession perunSession, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException;
+	Consent createConsent(PerunSession perunSession, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException, UserNotExistsException;
 
 	/**
 	 * Deletes consent
