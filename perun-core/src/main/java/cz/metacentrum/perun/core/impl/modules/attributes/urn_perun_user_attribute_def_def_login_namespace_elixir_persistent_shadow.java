@@ -57,10 +57,6 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
-	}
-
-	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
 		// Check if user has login in namespace lifescienceid-persistent-shadow
 		Attribute lifesciencePersistentShadow = null;
