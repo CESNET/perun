@@ -121,7 +121,7 @@ public class BBMRINetworks extends DefaultRegistrarModule {
 		// difference must be empty
 		if (!networkIDsInApplication.isEmpty()) {
 			throw new CantBeApprovedException("Networks with IDs: " + networkIDsInApplication + " do not exist." +
-					"If you approve the application, these networks will be skipped.", "", "", "", true);
+					"If you approve the application, these networks will be skipped.", "", "", "", true, app.getId());
 		}
 	}
 
