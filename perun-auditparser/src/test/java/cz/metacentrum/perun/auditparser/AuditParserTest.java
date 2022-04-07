@@ -24,6 +24,7 @@ public class AuditParserTest {
 
 	private static final String NS_FACILITY_ATTR_DEF= "urn:perun:facility:attribute-def:def";
 	private static final String NS_GROUP_RESOURCE_ATTR_DEF = "urn:perun:group_resource:attribute-def:def";
+	private static final String NS_USER_ATTR_DEF = "urn:perun:user:attribute-def:def";
 
 	private final String textMismatch = "!@#$%^<<&*()_+<\\><:{[}][]{>} sd";
 	private final String CLASS_NAME = "AuditMessagesManagerEntry";
@@ -524,6 +525,38 @@ public class AuditParserTest {
 		assertEquals(authorship1.toString(), ((Authorship) authorship1InList.get(0)).toString());
 		assertEquals(authorship2.toString(), ((Authorship) authorship2InList.get(0)).toString());
 
+		//FOR CONSENTHUB
+		ConsentHub consentHub1 = new ConsentHub();
+		ConsentHub consentHub2 = new ConsentHub();
+		consentHub1.setId(1);
+		consentHub2.setId(2);
+		consentHub1.setEnforceConsents(true);
+		consentHub2.setEnforceConsents(false);
+		consentHub1.setFacilities(List.of(facility));
+		consentHub1.setName("neco");
+		consentHub2.setName("daco");
+		List<PerunBean> consentHub1InList = AuditParser.parseLog(consentHub1.serializeToString());
+		List<PerunBean> consentHub2InList = AuditParser.parseLog(consentHub2.serializeToString());
+		assertEquals(consentHub1.toString(), ((ConsentHub) consentHub1InList.get(0)).toString());
+		assertEquals(consentHub2.toString(), ((ConsentHub) consentHub2InList.get(0)).toString());
+
+		//FOR CONSENTS
+		Consent consent1 = new Consent();
+		Consent consent2 = new Consent();
+		consent1.setId(1);
+		consent2.setId(2);
+		consent1.setUserId(1);
+		consent1.setUserId(2);
+		consent1.setConsentHub(consentHub1);
+		consent2.setConsentHub(consentHub2);
+		consent1.setAttributes(List.of(getUserAttributeDefinition("oneWay"), getUserAttributeDefinition("orAnother")));
+		consent2.setAttributes(List.of(getUserAttributeDefinition("woo"), getUserAttributeDefinition("hoo")));
+		consent1.setStatus(ConsentStatus.UNSIGNED);
+		consent1.setStatus(ConsentStatus.REVOKED);
+		List<PerunBean> consent1InList = AuditParser.parseLog(consent1.serializeToString());
+		List<PerunBean> consent2InList = AuditParser.parseLog(consent2.serializeToString());
+		assertEquals(consent1.toString(), ((Consent) consent1InList.get(0)).toString());
+		assertEquals(consent2.toString(), ((Consent) consent2InList.get(0)).toString());
 	}
 
 	@Test
@@ -647,6 +680,15 @@ public class AuditParserTest {
 		attr.setNamespace(NS_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("myTest2");
 		attr.setType(LinkedHashMap.class.getName());
+		attr.setDescription("");
+		return attr;
+	}
+
+	private AttributeDefinition getUserAttributeDefinition(String name) {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(NS_USER_ATTR_DEF);
+		attr.setFriendlyName(name);
+		attr.setType(ArrayList.class.getName());
 		attr.setDescription("");
 		return attr;
 	}

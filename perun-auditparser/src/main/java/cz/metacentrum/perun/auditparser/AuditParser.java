@@ -71,6 +71,8 @@ public class AuditParser {
 				else if(p.getLeft().equals("TaskResult")) perunBean = createTaskResult(p.getRight());
 				else if(p.getLeft().equals("BanOnResource")) perunBean = createBanOnResource(p.getRight());
 				else if(p.getLeft().equals("BanOnFacility")) perunBean = createBanOnFacility(p.getRight());
+				else if(p.getLeft().equals("ConsentHub")) perunBean = createConsentHub(p.getRight());
+				else if(p.getLeft().equals("Consent")) perunBean = createConsent(p.getRight());
 				else loger.debug("Object of this type can't be parsed cause there is no such object in parser's branches. ObjectName:" + p.getLeft());
 				if(perunBean != null) listPerunBeans.add(perunBean);
 			} catch (RuntimeException e) {
@@ -587,6 +589,54 @@ public class AuditParser {
 		else validityTo = new Date(Long.valueOf(beanAttr.get("validityTo")));
 		banOnFacility.setValidityTo(validityTo);
 		return banOnFacility;
+	}
+
+	private static ConsentHub createConsentHub(Map<String, String> beanAttr) {
+		if(beanAttr==null) return null;
+		ConsentHub hub = new ConsentHub();
+		hub.setId(Integer.valueOf(beanAttr.get("id")));
+		hub.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
+		hub.setEnforceConsents(Boolean.valueOf(beanAttr.get("enforceConsents")));
+		//Parse and get List of Facilities
+		List<Facility> facilities = new ArrayList<>();
+		if(beanAttr.get("facilities").equals("\\0")) facilities = null;
+		else {
+			List<Pair<String, Map<String, String>>> facilitiesList = beansToMap(beanAttr.get("facilities"));
+			for(Pair<String, Map<String, String>> p: facilitiesList) {
+				Facility facility = createFacility(p.getRight());
+				facilities.add(facility);
+			}
+		}
+		hub.setFacilities(facilities);
+		return hub;
+	}
+
+	private static Consent createConsent(Map<String, String> beanAttr) {
+		if(beanAttr==null) return null;
+		Consent consent = new Consent();
+		consent.setId(Integer.valueOf(beanAttr.get("id")));
+		consent.setUserId(Integer.valueOf(beanAttr.get("userId")));
+		//Parse and get ConsentHub
+		ConsentHub hub;
+		if(beanAttr.get("consentHub").equals("\\0")) hub = null;
+		else {
+			List<Pair<String, Map<String, String>>> consentHubMap = beansToMap(beanAttr.get("consentHub"));
+			hub = createConsentHub(consentHubMap.get(0).getRight());
+		}
+		consent.setConsentHub(hub);
+		consent.setStatus(ConsentStatus.valueOf(beanAttr.get("status")));
+		//Parse and get List of AttributeDefinitions
+		List<AttributeDefinition> attrDefinitions = new ArrayList<>();
+		if(beanAttr.get("attributes").equals("\\0")) attrDefinitions = null;
+		else {
+			List<Pair<String, Map<String, String>>> attrDefinitionsList = beansToMap(beanAttr.get("attributes"));
+			for(Pair<String, Map<String, String>> p: attrDefinitionsList) {
+				AttributeDefinition attributeDefinition = createAttributeDefinition(p.getRight());
+				attrDefinitions.add(attributeDefinition);
+			}
+		}
+		consent.setAttributes(attrDefinitions);
+		return consent;
 	}
 
 	//--------------------------------------------------------------------------
