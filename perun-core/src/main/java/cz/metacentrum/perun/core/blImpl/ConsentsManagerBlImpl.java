@@ -3,13 +3,14 @@ package cz.metacentrum.perun.core.blImpl;
 import cz.metacentrum.perun.audit.events.ConsentManager.ChangedConsentStatus;
 import cz.metacentrum.perun.audit.events.ConsentManager.ConsentCreated;
 import cz.metacentrum.perun.audit.events.ConsentManager.ConsentDeleted;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
@@ -26,12 +27,18 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.PerunLocksUtils;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Consents BL logic.
@@ -63,6 +70,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	@Override
 	public Consent createConsent(PerunSession sess, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException, UserNotExistsException {
 		Utils.notNull(consent, "consent");
+		PerunLocksUtils.lockUserInConsentHub(consent.getConsentHub(), consent.getUserId());
 
 		// Check if UNSIGNED consent exists and delete it
 		try {
@@ -82,7 +90,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 			for (Resource resource : perunBl.getUsersManagerBl().getAssignedResources(sess, facility, user)) {
 				for (Service service : perunBl.getResourcesManagerBl().getAssignedServices(sess, resource)) {
 					for (AttributeDefinition attr : perunBl.getAttributesManagerBl().getRequiredAttributesDefinition(sess, service)) {
-						if (checkAttributeConsent(attr)) {
+						if (Utils.isUserRelatedAttribute(attr)) {
 							filter.add(attr);
 						}
 					}
@@ -95,19 +103,6 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		getPerunBl().getAuditer().log(sess, new ConsentCreated(consent));
 
 		return consent;
-	}
-
-	/*
-	 * Checks if attribute should be added
-	 */
-	private boolean checkAttributeConsent(AttributeDefinition attribute) {
-		String attributeNamespace = attribute.getNamespace();
-		return attributeNamespace.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR) ||
-			attributeNamespace.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR) ||
-			attributeNamespace.startsWith(AttributesManager.NS_MEMBER_ATTR_CORE) ||
-			attributeNamespace.startsWith(AttributesManager.NS_USER_FACILITY_ATTR) ||
-			attributeNamespace.startsWith(AttributesManager.NS_USER_ATTR) ||
-			attributeNamespace.startsWith(AttributesManager.NS_UES_ATTR);
 	}
 
 	@Override
@@ -272,5 +267,82 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 				}
 			}
 		}
+	}
+
+	@Override
+	public List<Member> evaluateConsents(PerunSession sess, Service service, Facility facility, List<Member> members) {
+		if (!BeansUtils.getCoreConfig().getForceConsents()) {
+			return members;
+		}
+
+		ConsentHub consentHub;
+		try {
+			consentHub = this.getConsentHubByFacility(sess, facility.getId());
+		} catch (ConsentHubNotExistsException e) {
+			throw new ConsistencyErrorException("Facility " + facility + " is not in any consent hub.", e);
+		}
+		if (!consentHub.isEnforceConsents()) {
+			return members;
+		}
+
+		List<AttributeDefinition> requiredAttributes = getPerunBl().getAttributesManagerBl()
+			.getRequiredAttributesDefinition(sess, service);
+		requiredAttributes.removeIf(attrDef -> !Utils.isUserRelatedAttribute(attrDef));
+		if (requiredAttributes.isEmpty()) {
+			return members;
+		}
+
+		List<Consent> consents = this.getConsentsForConsentHub(sess, consentHub.getId());
+		// map of users ids to map of their consents (consent status to the user's consent with such status)
+		Map<Integer, Map<ConsentStatus, Consent>> userIdToConsents = consents.stream()
+			.collect(groupingBy(Consent::getUserId, toMap(Consent::getStatus, Function.identity())));
+
+		return members.stream()
+			.filter(member -> hasValidConsent(sess, member, consentHub, requiredAttributes, userIdToConsents.get(member.getUserId())))
+			.toList();
+	}
+
+	/**
+	 * Returns true if the given member has a consent for the consent hub with
+	 * status GRANTED and it contains all the required attributes.
+	 *
+	 * If the member has no consent in any status that contains all the required attributes,
+	 * a new UNSIGNED consent is created for the user.
+	 *
+	 * @param sess perun session
+	 * @param member the member to check
+	 * @param consentHub the consent hub
+	 * @param requiredAttributes a list of attributes a consent should contain
+	 * @param usersConsents map of user's consents (consent status to the user's consent witch such status)
+	 * @return true if the given member has a valid consent
+	 */
+	private boolean hasValidConsent(PerunSession sess, Member member, ConsentHub consentHub, List<AttributeDefinition> requiredAttributes,
+									Map<ConsentStatus, Consent> usersConsents) {
+		if (usersConsents == null || usersConsents.isEmpty()) {
+			try {
+				this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
+			} catch (ConsentExistsException | ConsentHubNotExistsException | UserNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+			return false;
+		}
+		Consent grantedConsent = usersConsents.get(ConsentStatus.GRANTED);
+		Consent unsignedConsent = usersConsents.get(ConsentStatus.UNSIGNED);
+		Consent revokedConsent = usersConsents.get(ConsentStatus.REVOKED);
+
+		if (grantedConsent != null && grantedConsent.getAttributes().containsAll(requiredAttributes)) {
+			return true;
+		} else if (revokedConsent != null && revokedConsent.getAttributes().containsAll(requiredAttributes)) {
+			return false;
+		} else if (unsignedConsent == null || !unsignedConsent.getAttributes().containsAll(requiredAttributes)) {
+			try {
+				this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
+			} catch (ConsentExistsException | ConsentHubNotExistsException | UserNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+			return false;
+		}
+
+		return false;
 	}
 }

@@ -379,6 +379,10 @@ public interface ServicesManager {
 
 	/**
 	 * Generates hashed hierarchical data structure for given service and facility.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
 	 *
 	 * attributes: {...hashes...}
 	 * hierarchy: {
@@ -416,6 +420,10 @@ public interface ServicesManager {
 
 	/**
 	 * Generates hashed data with group structure for given service and facility.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
 	 *
 	 *  Generates data in format:
 	 *

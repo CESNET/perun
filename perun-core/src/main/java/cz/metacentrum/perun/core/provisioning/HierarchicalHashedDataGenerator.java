@@ -95,6 +95,7 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		} else {
 			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
+		members = sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, members);
 		allMembers.addAll(members);
 
 		dataProvider.loadResourceAttributes(resource, members, true);
@@ -111,7 +112,6 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 				.voId(resource.getVoId())
 				.build();
 	}
-
 
 	private GenMemberDataNode getDataForMember(Resource resource, Member member) {
 		List<String> memberAttrHashes = dataProvider.getMemberAttributesHashes(resource, member);

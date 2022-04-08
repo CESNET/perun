@@ -1101,13 +1101,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	 * @throws ServiceAttributesCannotExtend if trying to add attribute which would invalidate consents
 	 */
 	private void checkCanAddAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws ServiceAttributesCannotExtend {
-		String attributeNamespace = attribute.getNamespace();
-		if (!attributeNamespace.startsWith(AttributesManager.NS_USER_FACILITY_ATTR) &&
-			!attributeNamespace.startsWith(AttributesManager.NS_USER_ATTR) &&
-			!attributeNamespace.startsWith(AttributesManager.NS_MEMBER_ATTR) &&
-			!attributeNamespace.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR) &&
-			!attributeNamespace.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR) &&
-			!attributeNamespace.startsWith(AttributesManager.NS_UES_ATTR)) {
+		if (!Utils.isUserRelatedAttribute(attribute)) {
 			return;
 		}
 

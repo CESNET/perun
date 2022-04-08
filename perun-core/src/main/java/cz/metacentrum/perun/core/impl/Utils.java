@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Destination;
@@ -2374,6 +2375,23 @@ public class Utils {
 				sendIdentityRemovedAlertToUesMail(sess, removedUes, uesAttrs, uesMail);
 			}
 		}
+	}
+
+	/**
+	 * Returns true if given attribute is user-related (it is user, user_facility, member,
+	 * member_group, member_resource or ues attribute).
+	 *
+	 * @param attribute the attribute
+	 * @return true if attribute is user-related
+	 */
+	public static boolean isUserRelatedAttribute(AttributeDefinition attribute) {
+		String attributeNamespace = attribute.getNamespace();
+		return attributeNamespace.startsWith(AttributesManager.NS_USER_FACILITY_ATTR) ||
+			attributeNamespace.startsWith(AttributesManager.NS_USER_ATTR) ||
+			attributeNamespace.startsWith(AttributesManager.NS_MEMBER_ATTR) ||
+			attributeNamespace.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR) ||
+			attributeNamespace.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR) ||
+			attributeNamespace.startsWith(AttributesManager.NS_UES_ATTR);
 	}
 
 	/**

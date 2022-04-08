@@ -1602,7 +1602,8 @@ create table consents (
 	modified_by_uid integer,
 	constraint consents_pk primary key(id),
 	constraint consents_user_fk foreign key(user_id) references users(id),
-	constraint consents_cons_hub_fk foreign key(consent_hub_id) references consent_hubs(id)
+	constraint consents_cons_hub_fk foreign key(consent_hub_id) references consent_hubs(id),
+	constraint consents_user_hub_status_u unique(user_id, consent_hub_id, status)
 );
 
 -- CONSENT_ATTR_DEFs - attributes associated with consents
