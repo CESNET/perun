@@ -10,6 +10,8 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
@@ -21,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedExceptio
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -58,7 +61,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 
 
 	@Override
-	public Consent createConsent(PerunSession sess, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException {
+	public Consent createConsent(PerunSession sess, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException, UserNotExistsException {
 		Utils.notNull(consent, "consent");
 
 		// Check if UNSIGNED consent exists and delete it
@@ -73,12 +76,15 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 
 		// Add attributes from ConsentHub
 		ConsentHub consentHub = getConsentHubById(sess, consent.getConsentHub().getId());
+		User user = perunBl.getUsersManagerBl().getUserById(sess, consent.getUserId());
 		Set<AttributeDefinition> filter = new HashSet<>();
 		for (Facility facility : consentHub.getFacilities()) {
-			for (Service service : perunBl.getServicesManagerBl().getAssignedServices(sess, facility)) {
-				for (AttributeDefinition attr : perunBl.getAttributesManagerBl().getRequiredAttributesDefinition(sess, service)) {
-					if (checkAttributeConsent(attr)) {
-						filter.add(attr);
+			for (Resource resource : perunBl.getUsersManagerBl().getAssignedResources(sess, facility, user)) {
+				for (Service service : perunBl.getResourcesManagerBl().getAssignedServices(sess, resource)) {
+					for (AttributeDefinition attr : perunBl.getAttributesManagerBl().getRequiredAttributesDefinition(sess, service)) {
+						if (checkAttributeConsent(attr)) {
+							filter.add(attr);
+						}
 					}
 				}
 			}

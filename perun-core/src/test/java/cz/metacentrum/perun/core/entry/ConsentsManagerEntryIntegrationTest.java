@@ -8,6 +8,8 @@ import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -78,6 +80,66 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Consent finalConsentOld = consentOld;
 		assertThatExceptionOfType(ConsentNotExistsException.class).isThrownBy(
 			() -> perun.getConsentsManagerBl().checkConsentExists(sess, finalConsentOld));
+	}
+
+	@Test
+	public void createConsentOnlyPossibleAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "createConsentOnlyPossibleAttributes");
+
+		Facility facility = setUpFacility();
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+		Vo vo = new Vo(0, "TestVo", "TestVo");
+		vo = perun.getVosManager().createVo(sess, vo);
+
+		Service service = new Service(0, "TestService");
+		service = perun.getServicesManager().createService(sess, service);
+
+		Service service2 = new Service(0, "TestService2");
+		service2 = perun.getServicesManager().createService(sess, service2);
+
+		Resource resource = new Resource(0, "TestResource", "TestResource", facility.getId());
+		resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+
+		Resource resource2 = new Resource(0, "TestResource2", "TestResource2", facility.getId());
+		resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo, facility);
+
+		perun.getResourcesManagerBl().assignService(sess, resource, service);
+		perun.getResourcesManagerBl().assignService(sess, resource2, service2);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setType(Integer.class.getName());
+		attrDef.setFriendlyName("testUserAttr");
+		attrDef.setDisplayName("test user attr");
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+		AttributeDefinition anotherDef = new AttributeDefinition();
+		anotherDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		anotherDef.setType(Integer.class.getName());
+		anotherDef.setFriendlyName("secondTestUserAttr");
+		anotherDef.setDisplayName("second test user attr");
+		anotherDef = perun.getAttributesManagerBl().createAttribute(sess, anotherDef);
+
+		perun.getServicesManagerBl().addRequiredAttribute(sess, service, attrDef);
+		perun.getServicesManagerBl().addRequiredAttribute(sess, service2, anotherDef);
+
+		User user = setUpUser("John", "Doe");
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Group group = new Group("test", "test group");
+		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		// Consent should only have one attribute because attribute from service2
+		// is on resource2 which is not assigned to the user through group
+		Consent consent = new Consent(-1, user.getId(), consentHub, null);
+		perun.getConsentsManagerBl().createConsent(sess, consent);
+
+		Consent result = consentsManagerEntry.getConsentById(sess, consent.getId());
+
+		assertEquals(1, result.getAttributes().size());
+		assertThat(result.getAttributes()).contains(attrDef);
 	}
 
 	@Test
@@ -207,6 +269,11 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManagerBl().addRequiredAttribute(sess, service, attrDef);
 
 		User user = setUpUser("John", "Doe");
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Group group = new Group("test", "test group");
+		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+		perun.getGroupsManagerBl().addMember(sess, group, member);
 		// Consent should only be able to have one attribute
 		Consent consent = new Consent(-1, user.getId(), consentHub, List.of(attrDef));
 		perun.getConsentsManagerBl().createConsent(sess, consent);
