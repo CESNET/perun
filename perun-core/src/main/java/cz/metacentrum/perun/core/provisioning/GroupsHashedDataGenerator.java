@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.provisioning;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
 import cz.metacentrum.perun.core.api.GenMemberDataNode;
@@ -138,7 +139,10 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 		} else {
 			members = sess.getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
 		}
-		members = sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, members);
+		if (BeansUtils.getCoreConfig().getForceConsents()) {
+			// allMembers contains all members with required consents (evaluated in getDataResource), remove the others
+			members.removeIf(member -> !allMembers.contains(member));
+		}
 
 		dataProvider.loadMemberGroupAttributes(group, members);
 
