@@ -1,5 +1,5 @@
 package Perun::Agent;
-my $agentVersion = '10.1.1';
+my $agentVersion = '11.0.0';
 my $agentVersionMajor;
 if ($agentVersion !~ /^(\d+)(?{ $agentVersionMajor = $^N })\..*/i)
 {
