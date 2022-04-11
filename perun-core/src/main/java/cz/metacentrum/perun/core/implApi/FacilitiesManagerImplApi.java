@@ -189,6 +189,31 @@ public interface FacilitiesManagerImplApi {
 	List<Member> getAllowedMembers(PerunSession sess, Facility facility);
 
 	/**
+	 * Return all members, which are "allowed" on facility through any resource assigned to the given service disregarding
+	 * their possible expired status in a group. All members include all group statuses, through which they can
+	 * be filtered if necessary.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param service
+	 *
+	 * @return list of allowed members
+	 */
+	List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service);
+
+	/**
+	 * Return all members, which are "allowed" on facility through any resource assigned to the given service
+	 * and have ACTIVE status in a group.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param service
+	 *
+	 * @return list of allowed members
+	 */
+	List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Facility facility, Service service);
+
+	/**
 	 * Return all members, which are associated with the facility and belong to given user.
 	 * Does not require ACTIVE group-resource status or any specific member status.
 	 *

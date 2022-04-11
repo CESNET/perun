@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.provisioning;
 
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
 import cz.metacentrum.perun.core.api.GenMemberDataNode;
@@ -52,7 +53,7 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 	private final Service service;
 	private final Facility facility;
 	private final GenDataProvider dataProvider;
-	private final Set<Member> allMembers = new HashSet<>();
+	private final Set<Member> membersWithConsent = new HashSet<>();
 	private final boolean filterExpiredMembers;
 
 	private HierarchicalHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
@@ -71,13 +72,23 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		List<Resource> resources =
 				sess.getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
 
+		if (BeansUtils.getCoreConfig().getForceConsents()) {
+			List<Member> membersToEvaluate;
+			if (filterExpiredMembers) {
+				membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
+			} else {
+				membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+			}
+			membersWithConsent.addAll(sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, membersToEvaluate));
+		}
+
 		Map<Integer, GenDataNode> childNodes = resources.stream()
 				.collect(toMap(Resource::getId, this::getDataForResource));
 
 		dataProvider.getFacilityAttributesHashes();
 		Map<String, Map<String, Object>> attributes = dataProvider.getAllFetchedAttributes();
 
-		Map<Integer, Integer> memberIdsToUserIds = allMembers.stream()
+		Map<Integer, Integer> memberIdsToUserIds = membersWithConsent.stream()
 				.collect(toMap(Member::getId, Member::getUserId));
 
 		GenDataNode root = new GenDataNode.Builder()
@@ -95,8 +106,13 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		} else {
 			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
-		members = sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, members);
-		allMembers.addAll(members);
+		if (BeansUtils.getCoreConfig().getForceConsents()) {
+			// remove the members without granted consents on required attributes
+			members.removeIf(member -> !membersWithConsent.contains(member));
+		} else {
+			// we skipped this part if consents were required, so add them now
+			membersWithConsent.addAll(members);
+		}
 
 		dataProvider.loadResourceAttributes(resource, members, true);
 

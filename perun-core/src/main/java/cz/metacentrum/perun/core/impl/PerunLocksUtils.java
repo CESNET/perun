@@ -33,7 +33,7 @@ public class PerunLocksUtils {
 	//Maps for saving and working with specific locks
 	private static final ConcurrentHashMap<Group, ReadWriteLock> groupsLocks = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<Group, ConcurrentHashMap<Member, Lock>> groupsMembersLocks = new ConcurrentHashMap<>();
-	private static final ConcurrentHashMap<ConsentHub, ConcurrentHashMap<Integer, Lock>> consentHubsUsersLocks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<ConsentHub, Lock> consentHubsLocks = new ConcurrentHashMap<>();
 
 	/**
 	 * Create transaction locks for combination of group and member (from list of members)
@@ -153,35 +153,26 @@ public class PerunLocksUtils {
 	}
 
 	/**
-	 * Create transaction lock for combination of consentHub and user and also
-	 * bind it to the transaction (as resource by Object uniqueKey)
+	 * Create transaction lock for consentHub and also bind it to the
+	 * transaction (as resource by Object uniqueKey)
 	 *
 	 * @param consentHub the consentHub
-	 * @param userId id of the User
 	 */
 	@SuppressWarnings("ConstantConditions")
-	public static void lockUserInConsentHub(ConsentHub consentHub, int userId) {
-		if(consentHub == null) throw new InternalErrorException("ConsentHub can't be null when creating lock for consent hub and user.");
+	public static void lockConsentHub(ConsentHub consentHub) {
+		if(consentHub == null) throw new InternalErrorException("ConsentHub can't be null when creating lock for consent hub.");
 
 		List<Lock> returnedLocks = new ArrayList<>();
 
 		try {
 			try {
-				//Get user's lock map by consentHub if exists or create a new one
-				ConcurrentHashMap<Integer, Lock> userLocks = consentHubsUsersLocks.get(consentHub);
-				if (userLocks == null) {
-					consentHubsUsersLocks.putIfAbsent(consentHub, new ConcurrentHashMap<>());
-					userLocks = consentHubsUsersLocks.get(consentHub);
-				}
-
-				//Get concrete user lock from users lock map or create a new one if not exists
-				Lock userLock = userLocks.computeIfAbsent(userId, f -> new ReentrantLock(true));
+				Lock lock = consentHubsLocks.computeIfAbsent(consentHub, f -> new ReentrantLock(true));
 
 				//Lock the lock and return it
-				if (!userLock.tryLock(4, TimeUnit.HOURS)) {
+				if (!lock.tryLock(4, TimeUnit.HOURS)) {
 					throw new InternalErrorException("Can't acquire a lock in expected time.");
 				}
-				returnedLocks.add(userLock);
+				returnedLocks.add(lock);
 
 				//bind these locks like transaction resource
 				if (TransactionSynchronizationManager.getResource(uniqueKey.get()) == null) {
@@ -191,7 +182,7 @@ public class PerunLocksUtils {
 					((List<Lock>) TransactionSynchronizationManager.getResource(uniqueKey.get())).addAll(returnedLocks);
 				}
 			} catch (InterruptedException ex) {
-				throw new InternalErrorException("Interrupted exception has been thrown while locking consentHub " + consentHub + " and user with id " + userId, ex);
+				throw new InternalErrorException("Interrupted exception has been thrown while locking consentHub " + consentHub, ex);
 			}
 		} catch (Exception ex) {
 			//if some exception has been thrown, unlock all already locked locks

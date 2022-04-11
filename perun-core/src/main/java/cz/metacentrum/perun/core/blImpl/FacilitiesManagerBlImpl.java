@@ -267,6 +267,16 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
+	public List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service) {
+		return getFacilitiesManagerImpl().getAllowedMembers(sess, facility, service);
+	}
+
+	@Override
+	public List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Facility facility, Service service) {
+		return getFacilitiesManagerImpl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
+	}
+
+	@Override
 	public List<Member> getAssociatedMembers(PerunSession sess, Facility facility, User user) {
 		return getFacilitiesManagerImpl().getAssociatedMembers(sess, facility, user);
 	}

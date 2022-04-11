@@ -70,7 +70,6 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	@Override
 	public Consent createConsent(PerunSession sess, Consent consent) throws ConsentExistsException, ConsentHubNotExistsException, UserNotExistsException {
 		Utils.notNull(consent, "consent");
-		PerunLocksUtils.lockUserInConsentHub(consent.getConsentHub(), consent.getUserId());
 
 		// Check if UNSIGNED consent exists and delete it
 		try {
@@ -284,6 +283,8 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		if (!consentHub.isEnforceConsents()) {
 			return members;
 		}
+
+		PerunLocksUtils.lockConsentHub(consentHub);
 
 		List<AttributeDefinition> requiredAttributes = getPerunBl().getAttributesManagerBl()
 			.getRequiredAttributesDefinition(sess, service);
