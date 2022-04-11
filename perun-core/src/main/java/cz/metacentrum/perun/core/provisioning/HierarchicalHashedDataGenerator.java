@@ -53,7 +53,6 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 	private final Service service;
 	private final Facility facility;
 	private final GenDataProvider dataProvider;
-	private final Set<Member> allMembers = new HashSet<>();
 	private final Set<Member> membersWithConsent = new HashSet<>();
 	private final boolean filterExpiredMembers;
 
@@ -89,7 +88,7 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		dataProvider.getFacilityAttributesHashes();
 		Map<String, Map<String, Object>> attributes = dataProvider.getAllFetchedAttributes();
 
-		Map<Integer, Integer> memberIdsToUserIds = allMembers.stream()
+		Map<Integer, Integer> memberIdsToUserIds = membersWithConsent.stream()
 				.collect(toMap(Member::getId, Member::getUserId));
 
 		GenDataNode root = new GenDataNode.Builder()
@@ -110,8 +109,10 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		if (BeansUtils.getCoreConfig().getForceConsents()) {
 			// remove the members without granted consents on required attributes
 			members.removeIf(member -> !membersWithConsent.contains(member));
+		} else {
+			// we skipped this part if consents were required, so add them now
+			membersWithConsent.addAll(members);
 		}
-		allMembers.addAll(members);
 
 		dataProvider.loadResourceAttributes(resource, members, true);
 
