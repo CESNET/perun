@@ -76,6 +76,7 @@ public class LifeScienceHostelRIAcc extends DefaultRegistrarModule {
 				try {
 					Vo vo = perun.getVosManagerBl().getVoByShortName(session, VO_SHORTNAME);
 					Member member = perun.getMembersManagerBl().createMember(session, vo, user);
+					perun.getMembersManagerBl().validateMemberAsync(session, member);
 					log.debug("LS Hostel member added to the main VO Lifescience {}", member);
 				} catch (VoNotExistsException e) {
 					log.warn("VO: " + VO_SHORTNAME + " not exists, can't add member into it.");
