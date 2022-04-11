@@ -2075,12 +2075,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
 		//Authorization
-		if (query.getGroupId() != null && !AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy", Collections.singletonList(groupsManager.getGroupById(userSession, query.getGroupId())))) {
-			throw new PrivilegeException(userSession, "getApplicationsPage");
-		} else if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy", Collections.singletonList(vo))) {
-			throw new PrivilegeException(userSession, "getApplicationsPage");
+		if (query.getGroupId() != null) {
+			if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy", Collections.singletonList(groupsManager.getGroupById(userSession, query.getGroupId())))) {
+				throw new PrivilegeException(userSession, "getApplicationsPage");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy", Collections.singletonList(vo))) {
+				throw new PrivilegeException(userSession, "getApplicationsPage");
+			}
 		}
-
 
 		namedParams.addValue("voId", vo.getId());
 		if (query.getStates() != null) {
