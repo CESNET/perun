@@ -538,6 +538,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Generates hashed hierarchical data structure for given service and facility.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
 	 *
 	 * attributes: {...hashes...}
 	 * hierarchy: {
@@ -572,6 +576,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Generates hashed hierarchical data structure for given service and facility.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
 	 *
 	 * attributes: {...hashes...}
 	 * hierarchy: {
@@ -1306,6 +1314,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 * @throw ServiceAttributesCannotExtend if trying to add user-related attribute that could invalidate consents, requires disabling service
 	 */
 	addRequiredAttribute {
 
@@ -1325,6 +1334,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param attributes int[] Attribute IDs
+	 * @throw ServiceAttributesCannotExtend if trying to add user-related attribute that could invalidate consents, requires disabling service
 	 */
 	addRequiredAttributes {
 

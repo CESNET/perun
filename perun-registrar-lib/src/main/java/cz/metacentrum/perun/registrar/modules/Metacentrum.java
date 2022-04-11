@@ -192,7 +192,7 @@ public class Metacentrum extends DefaultRegistrarModule {
 		boolean eligibleApplication = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromApplication(session, app));
 
 		if (!eligibleUser && !eligibleApplication) {
-			throw new CantBeApprovedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null, true);
+			throw new CantBeApprovedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null, true, app.getId());
 		}
 
 	}

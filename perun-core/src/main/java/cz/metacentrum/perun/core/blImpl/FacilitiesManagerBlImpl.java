@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
@@ -37,6 +38,9 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -51,18 +55,20 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -261,6 +267,16 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
+	public List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service) {
+		return getFacilitiesManagerImpl().getAllowedMembers(sess, facility, service);
+	}
+
+	@Override
+	public List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Facility facility, Service service) {
+		return getFacilitiesManagerImpl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
+	}
+
+	@Override
 	public List<Member> getAssociatedMembers(PerunSession sess, Facility facility, User user) {
 		return getFacilitiesManagerImpl().getAssociatedMembers(sess, facility, user);
 	}
@@ -282,7 +298,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public Facility createFacility(PerunSession sess, Facility facility) throws FacilityExistsException {
+	public Facility createFacility(PerunSession sess, Facility facility) throws FacilityExistsException, ConsentHubExistsException {
 
 		//check facility name, it can contain only a-zA-Z.0-9_-
 		if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
@@ -310,6 +326,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		} else {
 			log.warn("Can't set Facility manager during creating of the Facility. User from perunSession is null. {} {}", facility, sess);
 		}
+
+		perunBl.getConsentsManagerBl().createConsentHub(sess, new ConsentHub(0, facility.getName(), true, List.of(facility)));
 
 		return facility;
 	}
@@ -357,6 +375,18 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			} catch (RoleCannotBeManagedException e) {
 				throw new InternalErrorException(e);
 			}
+		}
+
+		//remove consent hub with consents
+		try {
+			ConsentHub hub = getPerunBl().getConsentsManagerBl().getConsentHubByFacility(sess, facility.getId());
+			getPerunBl().getConsentsManagerBl().removeFacility(sess, hub, facility);
+		} catch (ConsentHubNotExistsException e) {
+			log.warn("When removing facility {} no related consent hub was found", facility);
+		} catch (ConsentHubAlreadyRemovedException e) {
+			log.warn("When removing facility {} consent hub could not be removed", facility);
+		} catch (RelationNotExistsException e) {
+			log.warn("Facility {} is not assigned to the consent hub.", facility);
 		}
 
 		//remove hosts

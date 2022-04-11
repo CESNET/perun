@@ -44,7 +44,7 @@ public class WeNMR extends DefaultRegistrarModule {
 					user = perun.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(session, app.getExtSourceName(), app.getCreatedBy());
 				} catch (Exception ex) {
 					// unable to find user -> untrusted IdP
-					throw new CantBeApprovedException("Application can't be approved automatically. User doesn't have identity from \"www.structuralbiology.eu\". Please check users identity before manual/force approval.", "", "", "", true);
+					throw new CantBeApprovedException("Application can't be approved automatically. User doesn't have identity from \"www.structuralbiology.eu\". Please check users identity before manual/force approval.", "", "", "", true, app.getId());
 				}
 			}
 
@@ -55,7 +55,7 @@ public class WeNMR extends DefaultRegistrarModule {
 					return;
 				}
 			}
-			throw new CantBeApprovedException("Application can't be approved automatically. User doesn't have identity from \"www.structuralbiology.eu\". Please check users identity before manual/force approval.", "", "", "", true);
+			throw new CantBeApprovedException("Application can't be approved automatically. User doesn't have identity from \"www.structuralbiology.eu\". Please check users identity before manual/force approval.", "", "", "", true, app.getId());
 
 		}
 

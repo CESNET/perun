@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.ConfigManager;
+import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
@@ -138,6 +140,18 @@ public interface PerunBl extends Perun {
 	TasksManager getTasksManager();
 
 	/**
+	 * Gets a ConfigManager
+	 * @return ConfigManager
+	 */
+	ConfigManager getConfigManager();
+
+	/**
+	 * Gets a ConsentsManager
+	 * @return ConsentsManager
+	 */
+	ConsentsManager getConsentsManager();
+
+	/**
 	 * Gets a ResourceAssignmentChecker
 	 * @return ResourceAssignmentChecker
 	 */
@@ -256,4 +270,10 @@ public interface PerunBl extends Perun {
 	 * @return ConfigManagerBl
 	 */
 	ConfigManagerBl getConfigManagerBl();
+
+	/**
+	 * Gets a ConsentsManagerBl
+	 * @return ConsentsManagerBl
+	 */
+	ConsentsManagerBl getConsentsManagerBl();
 }

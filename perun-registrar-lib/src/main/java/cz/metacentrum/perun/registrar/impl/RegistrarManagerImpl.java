@@ -2075,12 +2075,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
 		//Authorization
-		if (query.getGroupId() != null && !AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy", Collections.singletonList(groupsManager.getGroupById(userSession, query.getGroupId())))) {
-			throw new PrivilegeException(userSession, "getApplicationsPage");
-		} else if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy", Collections.singletonList(vo))) {
-			throw new PrivilegeException(userSession, "getApplicationsPage");
+		if (query.getGroupId() != null) {
+			if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy", Collections.singletonList(groupsManager.getGroupById(userSession, query.getGroupId())))) {
+				throw new PrivilegeException(userSession, "getApplicationsPage");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy", Collections.singletonList(vo))) {
+				throw new PrivilegeException(userSession, "getApplicationsPage");
+			}
 		}
-
 
 		namedParams.addValue("voId", vo.getId());
 		if (query.getStates() != null) {
@@ -3874,12 +3877,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 */
 	private ArrayList<String> handleSSHKeysValue(ArrayList<String> originalValue, String newValue) {
 
+		// blank input means no change to original attribute
+		if (StringUtils.isBlank(newValue)) {
+			return originalValue;
+		}
+
 		// Normalize value of SSH keys
 		String preparedVal = newValue.replaceAll("(\n)+", ",");
 		preparedVal = preparedVal.replaceAll("(,)+", ",");
 		if (!preparedVal.endsWith(",")) {
 			preparedVal = preparedVal + ",";
 		}
+
 		List<String> newVals = (ArrayList<String>)BeansUtils.stringToAttributeValue(preparedVal, ArrayList.class.getName());
 		if (originalValue == null) {
 			return new ArrayList<>(newVals);
@@ -4117,6 +4126,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// DO NOT STORE LOGINS THROUGH CANDIDATE
 		// we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
 		attributes.entrySet().removeIf(entry -> entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:"));
+
+		// NORMALIZE SSH KEYS VALUE - same as we do for existing users in #storeApplicationAttributes()
+		attributes.entrySet().forEach(entry -> {
+			if (Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":sshPublicKey", entry.getKey())) {
+				entry.setValue(BeansUtils.attributeValueToString(handleSSHKeysValue(null, entry.getValue()), ArrayList.class.getName()));
+			}
+		});
 
 		Candidate candidate = new Candidate();
 		candidate.setAttributes(attributes);

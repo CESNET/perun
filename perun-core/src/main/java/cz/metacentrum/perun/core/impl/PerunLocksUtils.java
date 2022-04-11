@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -32,6 +33,7 @@ public class PerunLocksUtils {
 	//Maps for saving and working with specific locks
 	private static final ConcurrentHashMap<Group, ReadWriteLock> groupsLocks = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<Group, ConcurrentHashMap<Member, Lock>> groupsMembersLocks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<ConsentHub, Lock> consentHubsLocks = new ConcurrentHashMap<>();
 
 	/**
 	 * Create transaction locks for combination of group and member (from list of members)
@@ -147,6 +149,45 @@ public class PerunLocksUtils {
 			for(Group group: groups) {
 				lockGroupMembership(group);
 			}
+		}
+	}
+
+	/**
+	 * Create transaction lock for consentHub and also bind it to the
+	 * transaction (as resource by Object uniqueKey)
+	 *
+	 * @param consentHub the consentHub
+	 */
+	@SuppressWarnings("ConstantConditions")
+	public static void lockConsentHub(ConsentHub consentHub) {
+		if(consentHub == null) throw new InternalErrorException("ConsentHub can't be null when creating lock for consent hub.");
+
+		List<Lock> returnedLocks = new ArrayList<>();
+
+		try {
+			try {
+				Lock lock = consentHubsLocks.computeIfAbsent(consentHub, f -> new ReentrantLock(true));
+
+				//Lock the lock and return it
+				if (!lock.tryLock(4, TimeUnit.HOURS)) {
+					throw new InternalErrorException("Can't acquire a lock in expected time.");
+				}
+				returnedLocks.add(lock);
+
+				//bind these locks like transaction resource
+				if (TransactionSynchronizationManager.getResource(uniqueKey.get()) == null) {
+					TransactionSynchronizationManager.bindResource(uniqueKey.get(), returnedLocks);
+				} else {
+					// the returned resource can never be null because of the previous check
+					((List<Lock>) TransactionSynchronizationManager.getResource(uniqueKey.get())).addAll(returnedLocks);
+				}
+			} catch (InterruptedException ex) {
+				throw new InternalErrorException("Interrupted exception has been thrown while locking consentHub " + consentHub, ex);
+			}
+		} catch (Exception ex) {
+			//if some exception has been thrown, unlock all already locked locks
+			unlockAll(returnedLocks);
+			throw ex;
 		}
 	}
 

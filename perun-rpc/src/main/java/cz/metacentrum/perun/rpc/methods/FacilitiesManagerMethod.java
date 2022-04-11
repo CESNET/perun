@@ -523,6 +523,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Parameter description is optional.
 	 * Other parameters are ignored.
 	 * @param facility Facility JSON object
+	 * @throw ConsentHubExistsException if consent hub with facility name exists
+	 * @throw FacilityExistsException if facility already exists
 	 * @return Facility Created Facility object
 	 * @exampleParam facility { "name" : "the best-facility_7" }
 	 */
@@ -530,6 +532,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Creates a facility. Caller is automatically set as facility manager.
 	 * @param name String name of a facility - can contain only a-Z0-9.-_ and space characters.
 	 * @param description String description of a facility
+	 * @throw ConsentHubExistsException if consent hub with facility name exists
+	 * @throw FacilityExistsException if facility already exists
 	 * @return Facility Created Facility object
 	 * @exampleParam name "the best-facility_7"
 	 * @exampleParam description "A description with information."

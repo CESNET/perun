@@ -67,7 +67,7 @@ public class Du extends DefaultRegistrarModule {
 			}
 		}
 
-		throw new CantBeApprovedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null);
+		throw new CantBeApprovedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null, app.getId());
 
 	}
 

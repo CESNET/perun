@@ -136,7 +136,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 		// difference must be empty
 		if (!collectionIDsInApplication.isEmpty()) {
 			throw new CantBeApprovedException("Collections " + collectionIDsInApplication + " do not exist." +
-					"If you approve the application, these collections will be skipped.", "", "", "", true);
+					"If you approve the application, these collections will be skipped.", "", "", "", true, app.getId());
 		}
 	}
 

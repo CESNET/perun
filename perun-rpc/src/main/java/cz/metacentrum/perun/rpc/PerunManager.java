@@ -8,6 +8,7 @@ import cz.metacentrum.perun.rpc.methods.AuditMessagesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.AuthzResolverMethod;
 import cz.metacentrum.perun.rpc.methods.CabinetManagerMethod;
 import cz.metacentrum.perun.rpc.methods.ConfigManagerMethod;
+import cz.metacentrum.perun.rpc.methods.ConsentsManagerMethod;
 import cz.metacentrum.perun.rpc.methods.DatabaseManagerMethod;
 import cz.metacentrum.perun.rpc.methods.ExtSourcesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.FacilitiesManagerMethod;
@@ -84,6 +85,12 @@ public enum PerunManager {
 		@Override
 		public ManagerMethod getMethod(String methodName) {
 			return FacilitiesManagerMethod.valueOf(methodName);
+		}
+	},
+	consentsManager {
+		@Override
+		public ManagerMethod getMethod(String methodName) {
+			return ConsentsManagerMethod.valueOf(methodName);
 		}
 	},
 	configManager {

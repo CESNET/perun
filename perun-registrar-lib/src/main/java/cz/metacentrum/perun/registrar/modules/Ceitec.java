@@ -41,7 +41,7 @@ public class Ceitec extends DefaultRegistrarModule {
 		}
 
 		if (!Objects.equals(name,fed_name)) {
-			throw new CantBeApprovedException("Users name provided by IdP and User differ. Please check for correct name before approval.","","","",true);
+			throw new CantBeApprovedException("Users name provided by IdP and User differ. Please check for correct name before approval.","","","",true, app.getId());
 		}
 
 	}

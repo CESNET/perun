@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
@@ -337,6 +338,10 @@ public interface ServicesManagerBl {
 
 	/**
 	 * Generates hashed hierarchical data structure for given service and resource.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
 	 *
 	 * attributes: {...hashes...}
 	 * hierarchy: {
@@ -371,6 +376,10 @@ public interface ServicesManagerBl {
 
 	/**
 	 * Generates hashed data with group structure for given service and resource.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
 	 *
 	 * Generates data in format:
 	 *
@@ -581,14 +590,15 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws AttributeAlreadyAssignedException
+	 * @throws ServiceAttributesCannotExtend
 	 */
-	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException;
+	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException, ServiceAttributesCannotExtend;
 
 	/**
 	 *  Batch version of addRequiredAttribute
 	 *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
 	 */
-	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException;
+	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException, ServiceAttributesCannotExtend;
 
 	/**
 	 * Remove required attribute from service.

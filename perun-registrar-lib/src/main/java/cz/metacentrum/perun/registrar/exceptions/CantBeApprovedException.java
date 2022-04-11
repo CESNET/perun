@@ -16,24 +16,27 @@ public class CantBeApprovedException extends PerunException {
 	private String category = null;
 	private String affiliation = null;
 	private boolean isSoft = false;
+	private int applicationId = 0;
 
 	public CantBeApprovedException(String message) {
 		super(message);
 	}
 
-	public CantBeApprovedException(String message, String reason, String category, String affiliation) {
+	public CantBeApprovedException(String message, String reason, String category, String affiliation, int applicationId) {
 		super(message);
 		this.reason = reason;
 		this.category = category;
 		this.affiliation = affiliation;
+		this.applicationId = applicationId;
 	}
 
-	public CantBeApprovedException(String message, String reason, String category, String affiliation, boolean isSoft) {
+	public CantBeApprovedException(String message, String reason, String category, String affiliation, boolean isSoft, int applicationId) {
 		super(message);
 		this.reason = reason;
 		this.category = category;
 		this.affiliation = affiliation;
 		this.isSoft = isSoft;
+		this.applicationId = applicationId;
 	}
 
 	public CantBeApprovedException(String message, Throwable ex) {
@@ -75,6 +78,14 @@ public class CantBeApprovedException extends PerunException {
 
 	public void setSoft(boolean soft) {
 		isSoft = soft;
+	}
+
+	public int getApplicationId() {
+		return applicationId;
+	}
+
+	public void setApplicationId(int applicationId) {
+		this.applicationId = applicationId;
 	}
 
 }

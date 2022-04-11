@@ -29,12 +29,17 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCr
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.provisioning.GroupsHashedDataGenerator;
 import cz.metacentrum.perun.core.provisioning.HierarchicalHashedDataGenerator;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -92,6 +97,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -727,17 +733,22 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException {
+	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException, ServiceAttributesCannotExtend {
 		//check if attribute isn't already added
 		List<AttributeDefinition> requiredAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributesDefinition(sess, service);
 		if(requiredAttributes.contains(attribute)) throw new AttributeAlreadyAssignedException(attribute);
+
+		checkCanAddAttribute(sess, service, attribute);
 
 		getServicesManagerImpl().addRequiredAttribute(sess, service, attribute);
 		getPerunBl().getAuditer().log(sess,new AttributeAddedAsRequiredToService(attribute, service));
 	}
 
 	@Override
-	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException {
+	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException, ServiceAttributesCannotExtend {
+		for (AttributeDefinition attrDef : attributes) {
+			checkCanAddAttribute(sess, service, attrDef);
+		}
 		getServicesManagerImpl().addRequiredAttributes(sess, service, attributes);
 		getPerunBl().getAuditer().log(sess, new AttributesAddedAsRequiredToService(attributes, service));
 	}
@@ -1081,5 +1092,40 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		this.unblockAllServicesOnDestination(sess, destination.getId());
 
 		getServicesManagerImpl().deleteDestination(sess, destination);
+	}
+
+	/**
+	 * Checks, that adding new required attribute to service which would require renewing user consents
+	 * (user-related attributes on consents-requiring instances) is done for globally disabled service.
+	 * Does not throw exception, if all facilities with given service are excluded from consents logic.
+	 * @throws ServiceAttributesCannotExtend if trying to add attribute which would invalidate consents
+	 */
+	private void checkCanAddAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws ServiceAttributesCannotExtend {
+		if (!Utils.isUserRelatedAttribute(attribute)) {
+			return;
+		}
+
+		if (!service.isEnabled()) {
+			return;
+		}
+
+		if (!BeansUtils.getCoreConfig().getForceConsents()) {
+			return;
+		}
+
+		List<Integer> facilitiesIds = perunBl.getServicesManagerBl().getAssignedResources(sess, service).stream()
+			.map(Resource::getFacilityId)
+			.distinct()
+			.toList();
+		for (int facilityId : facilitiesIds) {
+			try {
+				ConsentHub hub = perunBl.getConsentsManagerBl().getConsentHubByFacility(sess, facilityId);
+				if (hub.isEnforceConsents()) {
+					throw new ServiceAttributesCannotExtend(service, facilityId);
+				}
+			} catch (ConsentHubNotExistsException e) {
+				throw new ConsistencyErrorException("Consent hub not found for facility with id " + facilityId, e);
+			}
+		}
 	}
 }

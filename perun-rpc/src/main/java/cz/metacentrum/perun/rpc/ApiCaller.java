@@ -12,6 +12,8 @@ import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.ConfigManager;
+import cz.metacentrum.perun.core.api.Consent;
+import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.integration.api.IntegrationManagerApi;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
@@ -92,6 +94,7 @@ public class ApiCaller {
 	private TasksManager tasksManager = null;
 	private Searcher searcher = null;
 	private ConfigManager configManager = null;
+	private ConsentsManager consentsManager = null;
 	private CabinetManager cabinetManager;
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
@@ -222,6 +225,13 @@ public class ApiCaller {
 		return configManager;
 	}
 
+	public ConsentsManager getConsentsManager() {
+		if (consentsManager == null) {
+			consentsManager = rpcSession.getPerun().getConsentsManager();
+		}
+		return consentsManager;
+	}
+
 	public CabinetManager getCabinetManager() {
 		return cabinetManager;
 	}
@@ -240,6 +250,10 @@ public class ApiCaller {
 
 	public SCIM getSCIMManager(){
 		return scimManager;
+	}
+
+	public Consent getConsentById(int id) throws PerunException {
+		return consentsManager.getConsentById(rpcSession, id);
 	}
 
 	public Vo getVoById(int id) throws PerunException {

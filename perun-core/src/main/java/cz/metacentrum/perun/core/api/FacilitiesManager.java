@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -247,7 +248,7 @@ public interface FacilitiesManager {
 	/**
 	 * Store the facility.
 	 */
-	Facility createFacility(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityExistsException;
+	Facility createFacility(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityExistsException, ConsentHubExistsException;
 
 	/**
 	 * Delete the facility by id.

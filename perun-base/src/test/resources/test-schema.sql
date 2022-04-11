@@ -1,4 +1,4 @@
--- database version 3.1.90 (don't forget to update insert statement at the end of file)
+-- database version 3.1.91 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -326,6 +326,36 @@ create table attribute_policies (
 	constraint attrpol_role_fk foreign key (role_id) references roles (id)
 );
 
+
+-- CONSENT_HUBS -- list of facilities with joint consent management
+create table consent_hubs (
+	id integer not null,
+	name varchar not null,  --unique name of consent hub
+	enforce_consents boolean not null, --does this consent hub enforce consents for propagation?
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint consent_hub_pk primary key (id),
+	constraint consent_hub_name_u unique (name)
+);
+
+-- CONSENT_HUBS_FACILITIES -- consent hubs contain facilities
+create table consent_hubs_facilities (
+	consent_hub_id integer not null, --identifier of consent_hub
+	facility_id integer not null, --identifier of facility
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint conhubfac_ch_fk foreign key(consent_hub_id) references consent_hubs(id),
+	constraint conhubfac_fac_fk foreign key(facility_id) references facilities(id),
+	constraint facility_id_u unique (facility_id)
+);
 
 -- HOSTS - detail information about hosts and cluster nodes
 create table hosts (
@@ -1552,12 +1582,45 @@ create table groups_to_register (
 						constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
 );
 
+create type consent_status as enum (
+	'UNSIGNED',
+	'GRANTED',
+	'REVOKED'
+);
+
+-- CONSENTS - consents of users
+create table consents (
+	id integer not null,
+	user_id integer not null,
+	consent_hub_id integer not null,
+	status consent_status not null default 'UNSIGNED',
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint consents_pk primary key(id),
+	constraint consents_user_fk foreign key(user_id) references users(id),
+	constraint consents_cons_hub_fk foreign key(consent_hub_id) references consent_hubs(id),
+	constraint consents_user_hub_status_u unique(user_id, consent_hub_id, status)
+);
+
+-- CONSENT_ATTR_DEFs - attributes associated with consents
+create table consent_attr_defs (
+	consent_id  INT NOT NULL,
+	attr_id  INT NOT NULL,
+	constraint consentatt_pk primary key(consent_id, attr_id),
+	constraint consentatt_nam_fk foreign key (attr_id) references attr_names(id),
+	constraint consentatt_consent_fk foreign key (consent_id) references consents(id)
+);
 
 create sequence "attr_names_id_seq";
 create sequence "attribute_policies_id_seq";
 create sequence "attribute_policy_collections_id_seq";
 create sequence "auditer_consumers_id_seq";
 create sequence "auditer_log_id_seq";
+create sequence "consent_hubs_id_seq";
 create sequence "destinations_id_seq";
 create sequence "ext_sources_id_seq";
 create sequence "facilities_id_seq";
@@ -1602,12 +1665,16 @@ create sequence "security_teams_id_seq";
 create sequence "resources_bans_id_seq";
 create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
+create sequence "consents_id_seq";
+
 
 create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(parent_group_id,'0'));
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
 create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
 create index idx_fk_cabthank_pub on cabinet_thanks(publicationid);
+create index idx_fk_conhubfac_ch on consent_hubs_facilities(consent_hub_id);
+create index idx_fk_conhubfac_fac on consent_hubs_facilities(facility_id);
 create index idx_fk_usrex_usr on user_ext_sources(user_id);
 create index idx_fk_usrex_usersrc on user_ext_sources(ext_sources_id);
 create index idx_fk_mem_user on members(user_id);
@@ -1759,9 +1826,13 @@ CREATE INDEX uauv_idx ON user_attr_u_values (user_id, attr_id);
 CREATE INDEX uesauv_idx ON user_ext_source_attr_u_values (user_ext_source_id, attr_id);
 CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, attr_id);
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
+create index idx_fk_cons_usr ON consents(user_id);
+create index idx_fk_cons_cons_hub ON consents(consent_hub_id);
+create index idx_fk_attr_cons_cons ON consent_attr_defs(consent_id);
+create index idx_fk_attr_cons_attr ON consent_attr_defs(attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.90');
+insert into configurations values ('DATABASE VERSION','3.1.91');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -34,6 +35,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
@@ -528,6 +530,30 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
 		// shouldn't add same attribute twice
 
+	}
+
+	@Test (expected=ServiceAttributesCannotExtend.class)
+	public void addRequiredUserAttributeOnEnabledService() throws Exception {
+		System.out.println(CLASS_NAME + "addRequiredUserAttributeOnEnabledService");
+
+		vo = setUpVo();
+		service = setUpService();
+		// creates consent hub with enforce flag == true
+		facility = setUpFacility();
+		resource = setUpResource();
+		// add user-related attribute to service
+		attribute = setUpUserAttribute();
+		perun.getResourcesManagerBl().assignService(sess, resource, service);
+
+		boolean forceConsents = BeansUtils.getCoreConfig().getForceConsents();
+
+		try {
+			// force consents for test but set original settings afterwards
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(forceConsents);
+		}
 	}
 
 	@Test
@@ -2246,6 +2272,20 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		attribute.setFriendlyName("ServicesManagerTestAttribute");
 		attribute.setDescription("TestingAttribute");
 		attribute.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		attribute.setType(String.class.getName());
+
+		attribute = perun.getAttributesManager().createAttribute(sess, attribute);
+
+		return attribute;
+
+	}
+
+	private AttributeDefinition setUpUserAttribute() throws Exception {
+
+		attribute = new AttributeDefinition();
+		attribute.setFriendlyName("ServicesManagerTestUserAttribute");
+		attribute.setDescription("TestingUserAttribute");
+		attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attribute.setType(String.class.getName());
 
 		attribute = perun.getAttributesManager().createAttribute(sess, attribute);

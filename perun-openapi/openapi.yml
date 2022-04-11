@@ -520,6 +520,20 @@ components:
         memberVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
         parentVos: { type: array, items: { $ref: '#/components/schemas/Vo' } }
 
+    ConsentHub:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            enforceConsents: { type: boolean }
+            facilities: { type: array, items: { $ref: '#/components/schemas/Facility' }, nullable: true }
+          required:
+            - name
+            - enforceConsents
+            - facilities
+      discriminator:
+        propertyName: beanName
+
     PublicationSystem:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
@@ -751,6 +765,25 @@ components:
         - offset
         - order
         - sortColumn
+
+    ConsentStatus:
+      type: string
+      description: 'statuses of consents'
+      enum:
+        - UNSIGNED
+        - GRANTED
+        - REVOKED
+
+    Consent:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            userId: { type: integer }
+            status: { $ref: '#/components/schemas/ConsentStatus' }
+            consentHub: { $ref: '#/components/schemas/ConsentHub' }
+            attributes: { type: array, items: { $ref: '#/components/schemas/AttributeDefinition' } }
+      discriminator:
+        propertyName: beanName
 
     Resource:
       allOf:
@@ -1366,6 +1399,7 @@ components:
       type: object
       properties:
         m: { type: integer, description: "member id" }
+        u: { type: integer, description: "user_id" }
         g: { type: integer, description: "group id" }
         sg: { type: integer, description: "source group id" }
         gn: { type: string, description: "group_name" }
@@ -2427,6 +2461,39 @@ components:
             items:
               $ref: "#/components/schemas/Identity"
 
+    ConsentHubResponse:
+      description: "returns ConsentHub"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConsentHub"
+
+    ListOfConsentHubResponse:
+      description: "returns List<ConsentHub>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ConsentHub"
+
+    ConsentResponse:
+      description: "returns Consent"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Consent"
+
+    ListOfConsentResponse:
+      description: "returns List<Consent>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Consent"
+
+
 
   #####################################################
   #                                                   #
@@ -2569,6 +2636,22 @@ components:
       description: "string value of Attribute"
       schema:
         type: string
+      in: query
+      required: true
+
+    consentHubId:
+      name: consentHub
+      description: "id of ConsentHub"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    consentId:
+      name: consent
+      description: "id of Consent"
+      schema:
+        type: integer
       in: query
       required: true
 
@@ -3257,6 +3340,10 @@ tags:
     description: Searcher RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-Searcher.html
+  - name: ConsentsManager
+    description: ConsentsManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConsentsManager.html
 
 
 #################################################
@@ -16957,3 +17044,217 @@ paths:
                   nullable: false
                   additionalProperties:
                     type: string
+
+  #################################################
+  #                                               #
+  # ConsentsManager                               #
+  #                                               #
+  #################################################
+
+  /json/consentsManager/getAllConsents:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getAllConsents
+      summary: Return list of all existing Consents
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentById:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentById
+      summary: Return Consent object with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForUser/id-s:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForUserWithStatus
+      summary: Return Consents of certain status for user with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForUser/id:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForUser
+      summary: Return Consents for user with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForConsentHub/id-s:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForConsentHubWithStatus
+      summary: Return Consents of certain status for ConsentHub with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/consentHubId'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForConsentHub/id:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForConsentHub
+      summary: Return Consents for ConsentHub with corresponding id
+      parameters:
+        - $ref: '#/components/parameters/consentHubId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentsForUserAndConsentHub:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForUserAndConsentHub
+      summary: Return Consents for specified user in specified consent hub
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/consentHubId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentForUserAndConsentHub:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentForUserAndConsentHub
+      summary: Return Consent object for chosen user in specified consent hub with specified status
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/consentHubId'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+  /json/consentsManager/getAllConsentHubs:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getAllConsentHubs
+      summary: Return list of all Consent Hubs
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubById:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubById
+      summary: Returns a Consent Hub by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubByName:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubByName
+      summary: Returns a Consent Hub by name.
+      parameters:
+        - $ref: '#/components/parameters/name'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubByFacility:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubByFacility
+      summary: Returns a Consent Hub by facility id.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/updateConsentHub:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: updateConsentHub
+      summary: Updates a consent hub. Ignores related facilities.
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateConsentHub
+              description: "input to updateConsentHub"
+              type: object
+              required:
+                - consentHub
+              properties:
+                consentHub: { $ref: '#/components/schemas/ConsentHub' }
+
+  /urlinjsonout/consentsManager/changeConsentStatus:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: changeConsentStatus
+      summary: Changes value of consent status.
+      parameters:
+        - $ref: '#/components/parameters/consentId'
+        - { name: status, description: "consent status", schema: { $ref: '#/components/schemas/ConsentStatus' },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'

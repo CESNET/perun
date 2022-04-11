@@ -376,6 +376,46 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service) {
+		try  {
+			// we do include all group statuses for such members
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id " +
+					" join resources on groups_resources_state.resource_id=resources.id " +
+					" join resource_services on resource_services.resource_id=resources.id " +
+					" where resources.facility_id=? and members.status!=? and members.status!=? and resource_services.service_id=?",
+				MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(),
+				facility.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode(), service.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Facility facility, Service service) {
+		try  {
+			// we do include all group statuses for such members
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+					" join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id " +
+					" join resources on groups_resources_state.resource_id=resources.id " +
+					" join resource_services on resource_services.resource_id=resources.id " +
+					" where resources.facility_id=? and members.status!=? and members.status!=? and resource_services.service_id=? and groups_members.source_group_status =?",
+				MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(),
+				facility.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode(), service.getId(), MemberGroupStatus.VALID.getCode());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Member> getAssociatedMembers(PerunSession sess, Facility facility, User user) {
 		try  {
 			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +

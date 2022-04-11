@@ -6674,6 +6674,126 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #consentManagerEntry
+
+  getAllConsents_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getConsentsForUser_int_ConsentStatus_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getConsentsForUser_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  filter-getConsentsForUser_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getConsentById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - SELF: User
+      - RPC:
+    include_policies:
+      - default_policy
+
+  getConsentsForUserAndConsentHub_int_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  filter-getConsentsForUserAndConsentHub_int_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getConsentForUserAndConsentHub_int_int_ConsentStatus_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getAllConsentHubs_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getConsentHubById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getConsentHubByName_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getConsentHubByFacility_Facility_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
+  filter-getConsentHub_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
+  updateConsentHub_ConsentHub_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
+  changeConsentStatus_Consent_ConsentStatus_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 perun_roles_management:
 

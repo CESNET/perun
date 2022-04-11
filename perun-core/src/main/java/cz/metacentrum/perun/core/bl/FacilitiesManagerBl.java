@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -313,6 +314,31 @@ public interface FacilitiesManagerBl {
 	List<Member> getAllowedMembers(PerunSession sess, Facility facility);
 
 	/**
+	 * Return all members, which are "allowed" on facility through any resource assigned to the given service disregarding
+	 * their possible expired status in a group. All members include all group statuses, through which they can
+	 * be filtered if necessary.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param service
+	 *
+	 * @return list of allowed members
+	 */
+	List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service);
+
+	/**
+	 * Return all members, which are "allowed" on facility through any resource assigned to the given service
+	 * and have ACTIVE status in a group.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param service
+	 *
+	 * @return list of allowed members
+	 */
+	List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Facility facility, Service service);
+
+	/**
 	 * Return all members, which are associated with the facility and belong to given user.
 	 * Does not require ACTIVE group-resource status or any specific member status.
 	 *
@@ -372,8 +398,9 @@ public interface FacilitiesManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 * @throws FacilityExistsException
+	 * @throws ConsentHubExistsException
 	 */
-	Facility createFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException;
+	Facility createFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException, ConsentHubExistsException;
 
 	/**
 	 * Delete the facility by id.
