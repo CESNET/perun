@@ -187,6 +187,16 @@ public interface ConsentsManagerBl {
 	ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException;
 
 	/**
+	 * Finds all existing Consent Hubs by service id (consent hubs that have given service assigned through facilities).
+	 *
+	 * @param sess perun session
+	 * @param serviceId service for which consent hubs is searched
+	 * @return found Consent Hubs
+	 * @throws ConsentHubNotExistsException if Consent Hub doesn't exist
+	 */
+	List<ConsentHub> getConsentHubsByService(PerunSession sess, int serviceId) throws ConsentHubNotExistsException;
+
+	/**
 	 * Creates new consent hub.
 	 * @param perunSession session
 	 * @param consentHub consent hub
@@ -282,4 +292,30 @@ public interface ConsentsManagerBl {
 	 * @param members the given members
 	 */
 	List<Member> evaluateConsents(PerunSession sess, Service service, Facility facility, List<Member> members);
+
+	/**
+	 * Evaluates consents for given consent hub with enforced consents enabled.
+	 *
+	 * For given ConsentHub, collects all attributes from services assigned to it
+	 * and compares it against attributes from users' Consent objects that are
+	 * assigned to resources of given ConsentHub object.
+	 *
+	 * Service defines whether only active users will be evaluated or expired ones as well.
+	 *
+	 *
+	 * @param sess session
+	 * @param consentHub consent hub
+	 */
+	void evaluateConsents(PerunSession sess, ConsentHub consentHub);
+
+	/**
+	 * Consolidate consents using given service for all consent hubs the service is assigned to.
+	 *
+	 * Method finds all consent hubs that contain given service in any of its facilities and start
+	 * full consent consolidation for each consent hub (all services in consent hubs will be checked).
+	 *
+	 * @param sess session
+	 * @param service service
+	 */
+	void evaluateConsents(PerunSession sess, Service service);
 }

@@ -852,6 +852,7 @@ components:
             recurrence: { type: integer }
             enabled: { type: boolean }
             script: { type: string }
+            useExpiredMembers: { type: boolean }
       discriminator:
         propertyName: beanName
 
@@ -17256,5 +17257,33 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/consentsManager/evaluateConsentsForConsentHub:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: evaluateConsentsForConsentHub
+      summary: Evaluates consents for given consent hub.
+      parameters:
+        - $ref: '#/components/parameters/consentHubId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/consentsManager/evaluateConsentsForService:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: evaluateConsentsForService
+      summary: Evaluates consents for all consent hubs with given service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
