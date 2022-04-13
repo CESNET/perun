@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -33,8 +32,10 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
 
 /**
  * Attribute module for Primary school mail at VŠUP.
- * Expected format is "firstName.lastName[counter]@umprum.cz"
+ * Expected format is "firstName.lastName[counter]@umprum.cz".
  * Artistic names have preference over normal: "u:d:artisticFirstName", "u:d:artisticLastName".
+ * If firstName contains more names, only first is taken.
+ * If lastName contains more names, space is replaced with dash.
  * Value can be empty or manually changed if necessary.
  * In case of users name change, attribute value must be changed manually !!
  * Value is filled/generated only for normal users (service users shouldn't have this attribute set)!!
@@ -47,7 +48,7 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
 public class urn_perun_user_attribute_def_def_vsupExchangeMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	// VŠUP EXCHANGE MAIL PATTERN !!
-	private static final Pattern vsupExchangeMailPattern = Pattern.compile("^[A-Za-z]+\\.[A-Za-z]+([0-9])*@umprum\\.cz$");
+	private static final Pattern vsupExchangeMailPattern = Pattern.compile("^[-A-Za-z]+\\.[-A-Za-z]+([0-9])*@umprum\\.cz$");
 
 
 	@Override
@@ -126,8 +127,13 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMail extends UserAttri
 			return filledAttribute;
 		}
 
+		// if first name contains more names (divided by spaces), then take only first
+		firstName = firstName.split(" ")[0];
+		// if last name contains more names (divided by spaces), then replace space with dash
+		lastName = lastName.replaceAll(" ", "-");
+
 		// remove all diacritics marks from name
-		String mail = ModulesUtilsBlImpl.normalizeStringForLogin(firstName) + "." + ModulesUtilsBlImpl.normalizeStringForLogin(lastName);
+		String mail = normalizeStringForMail(firstName) + "." + normalizeStringForMail(lastName);
 
 		// fill value - start as mail, mail2, mail3, ....
 		int iterator = 1;
@@ -255,6 +261,28 @@ public class urn_perun_user_attribute_def_def_vsupExchangeMail extends UserAttri
 		attr.setType(String.class.getName());
 		attr.setDescription("Generated primary school mail in a \"name.surname[counter]@umprum.cz\" form. It is used by o365 Exchange server. Value can be empty. On users name change, attribute value must be fixed manually.");
 		return attr;
+	}
+
+	/**
+	 * Normalize string for the purpose of generating safe mail value.
+	 *
+	 * @return normalized string
+	 */
+	public static String normalizeStringForMail(String toBeNormalized) {
+
+		if (toBeNormalized == null || toBeNormalized.trim().isEmpty()) return null;
+
+		toBeNormalized = toBeNormalized.toLowerCase();
+		toBeNormalized = java.text.Normalizer.normalize(toBeNormalized, java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+","");
+		toBeNormalized = toBeNormalized.replaceAll("[^-a-zA-Z]+", "");
+
+		// unable to fill login for users without name or with partial name
+		if (toBeNormalized.isEmpty()) {
+			return null;
+		}
+
+		return toBeNormalized;
+
 	}
 
 }
