@@ -3247,7 +3247,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						//This should not happen
 						throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
 					}
-					LinkedHashMap<String, String> additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+					LinkedHashMap<String, String> additionalFedAttributes;
+					try {
+						additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+					} catch (Exception ex) {
+						// Some very old applications don't have FED_INFO in parseable format
+						// fallback to actor/extSourceName match or skip them if it fails
+						if (extSourceName.equals(application.getExtSourceName()) && actor.equals(application.getCreatedBy())) {
+							filteredApplications.add(application);
+						}
+						continue;
+					}
 					String applicationAdditionalIdentifiers = additionalFedAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
 					List<String> identifiersInIntersection = BeansUtils.additionalIdentifiersIntersection(principalAdditionalIdentifiers, applicationAdditionalIdentifiers);
 					if (!identifiersInIntersection.isEmpty()) {
@@ -3289,8 +3299,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 							Attribute attribute = attrManager.getAttribute(sess, ues, UsersManagerBl.ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
 							if (attribute.getValue() != null) {
 								List<String> userIdentifiers = attribute.valueAsList();
-								// Creates Arrays from principal and application identifiers and makes intersection between them.
-								LinkedHashMap<String, String> additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+								// Create Arrays from principal and application identifiers and makes intersection between them.
+								LinkedHashMap<String, String> additionalFedAttributes;
+								try {
+									additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+								} catch (Exception ex) {
+									// Some very old applications don't have FED_INFO in parseable format
+									// skip them if parsing fails
+									continue;
+								}
 								String applicationAdditionalIdentifiers = additionalFedAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
 								String[] applicationIdentifiersArray = {};
 								if (applicationAdditionalIdentifiers != null) {
