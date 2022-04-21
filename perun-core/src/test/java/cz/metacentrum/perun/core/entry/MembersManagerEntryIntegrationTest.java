@@ -3037,6 +3037,99 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 			.contains(member1, member2);
 	}
 
+	@Test
+	public void addMemberToMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberToMemberVo");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		Member member = setUpMember(memberVo);
+		Member newMember = perun.getMembersManagerBl().getMemberByUser(sess, parentVo, perun.getUsersManagerBl().getUserByMember(sess, member));
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).contains(memberVo.getShortName());
+		assertThat(newMember.getUserId()).isEqualTo(member.getUserId());
+	}
+
+	@Test
+	public void removeMemberFromMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberFromMemberVo");
+
+		Vo memberVo1 = setUpVo("member1");
+		Vo memberVo2 = setUpVo("member2");
+		Vo parentVo = setUpVo("parent");
+
+		Member member1 = setUpMember(memberVo1);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, memberVo2, perun.getUsersManagerBl().getUserByMember(sess, member1));
+		perun.getMembersManagerBl().validateMemberAsync(sess, member2);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo1);
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo2);
+
+		Member newMember = perun.getMembersManagerBl().getMemberByUser(sess, parentVo, perun.getUsersManagerBl().getUserByMember(sess, member1));
+
+		perun.getMembersManagerBl().deleteMember(sess, member1);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(memberVo2.getShortName());
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(1);
+
+	}
+
+	@Test
+	public void changeStatusParentVoMembershipChange() throws Exception {
+		System.out.println(CLASS_NAME + "changeStatusParentVoMembershipChange");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+
+		Member member = setUpMember(memberVo);
+
+		perun.getMembersManagerBl().disableMember(sess, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(0);
+
+		perun.getMembersManagerBl().validateMemberAsync(sess, member);
+
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(1);
+
+	}
+
+	@Test
+	public void removeMemberFromMemberVoAndParentVo() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberFromMemberVoAndParentVo");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+
+		Member member = setUpMember(memberVo);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(1);
+		Member newMember = perun.getMembersManagerBl().getMembers(sess, parentVo).get(0);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsExactly(memberVo.getShortName());
+
+		perun.getMembersManagerBl().deleteMember(sess, member);
+
+		attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).isNullOrEmpty();
+	}
+
 	private Vo setUpVo(String name) throws Exception {
 		return perun.getVosManagerBl().createVo(sess, new Vo(0, name, name));
 	}

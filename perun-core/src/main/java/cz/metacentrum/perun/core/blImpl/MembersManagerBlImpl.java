@@ -159,6 +159,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String NAME = "name";
 	private static final String GROUP_ADDING_ERRORS = "group_adding_errors";
 	private static final String MEMBER = "member";
+	private final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
 
 	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
 			"firstname",
@@ -236,6 +237,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		membersManagerImpl.rejectAllMemberOpenApplications(sess, member);
 
 		// Remove member from the DB
+		removeMemberFromParentVos(sess, member);
 		getMembersManagerImpl().deleteMember(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberDeleted(member));
 	}
@@ -1510,6 +1512,95 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
+	/**
+	 * Deletes member from all parent VOs - updates the MemberOrganizations attribute of all member objects in the parent VOs
+	 * and if there are no more member organizations, follow the lifecycle of the parent VO
+	 *
+	 * @param sess
+	 * @param member the member
+	 */
+	private void removeMemberFromParentVos(PerunSession sess, Member member ) {
+		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+		try {
+			Vo memberVo = getPerunBl().getVosManagerBl().getVoById(sess, member.getVoId());
+			List<Vo> parentVos = getPerunBl().getVosManagerBl().getParentVos(sess, member.getVoId());
+			for (Vo vo : parentVos) {
+				try {
+					Member existingMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+					ArrayList<String> currentValue = attribute.valueAsList();
+					if (currentValue == null || currentValue.isEmpty()) {
+						continue;
+					}
+					currentValue.remove(memberVo.getShortName());
+					// if user no longer in any memberVos, follow parentVo lifecycle
+					if (currentValue.isEmpty() || (currentValue.equals(new ArrayList<>(List.of(vo.getShortName()))))) {
+						try {
+							this.getPerunBl().getMembersManagerBl().extendMembership(sess, existingMember);
+						} catch (ExtendMembershipException e) {
+							log.warn("Could not set expiration for member " + existingMember + "in vo " + vo + " after being removed from last member vo " + memberVo + " for reason: " + e.getReason());
+						}
+					}
+					attribute.setValue(currentValue);
+					perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
+				} catch (WrongAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException | WrongReferenceAttributeValueException e) {
+					throw new InternalErrorException(e);
+				} catch (MemberNotExistsException ignored) {
+				}
+			}
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Adds member to all parent VOs - removes expiration so that it doens't follow parent VO rules, set MemberOrganizations
+	 * attribute and if the user was already a member of parent VO, reset expiration and validate them.
+	 *
+	 * @param sess
+	 * @param member the member
+	 */
+	private void addMemberToParentVos(PerunSession sess, Member member) {
+		if (member.getStatus() != Status.VALID) {
+			return;
+		}
+		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+		try {
+			Vo memberVo = getPerunBl().getVosManagerBl().getVoById(sess, member.getVoId());
+			List<Vo> parentVos = getPerunBl().getVosManagerBl().getParentVos(sess, member.getVoId());
+			AttributeDefinition memberExpirationAttrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+			for (Vo vo : parentVos) {
+				try {
+					Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, user);
+					// remove expiration that was set according to parent vo rules
+					perunBl.getAttributesManagerBl().removeAttribute(sess, newMember, memberExpirationAttrDef);
+					perunBl.getMembersManagerBl().validateMemberAsync(sess, newMember);
+					// set memberOrganizations attribute
+					Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
+					ArrayList<String> newValue = new ArrayList<>(List.of(memberVo.getShortName()));
+					attribute.setValue(newValue);
+					perunBl.getAttributesManagerBl().setAttribute(sess, newMember, attribute);
+				} catch (AlreadyMemberException ex) {
+					Member existingMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+					// validate and reset expiration
+					perunBl.getAttributesManagerBl().removeAttribute(sess, existingMember, memberExpirationAttrDef);
+					if (existingMember.getStatus() != Status.VALID) {
+						perunBl.getMembersManagerBl().validateMemberAsync(sess, existingMember);
+					}
+					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+					ArrayList<String> currentValue = attribute.valueAsList();
+					currentValue.add(memberVo.getShortName());
+					attribute.setValue(currentValue);
+					perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
+				}
+			}
+		} catch (VoNotExistsException | WrongReferenceAttributeValueException | WrongAttributeValueException |
+			WrongAttributeAssignmentException | AttributeNotExistsException | MemberNotExistsException |
+			ExtendMembershipException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	@Override
 	public Member validateMember(PerunSession sess, Member member) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//this method run in nested transaction
@@ -1525,6 +1616,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
 			try {
 				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+				addMemberToParentVos(sess, member);
 			} catch (Exception ex) {
 				//return old status to object to prevent incorrect result in higher methods
 				member.setStatus(oldStatus);
@@ -1564,6 +1656,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		getMembersManagerImpl().setStatus(sess, member, Status.INVALID);
 		member.setStatus(Status.INVALID);
+		removeMemberFromParentVos(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberInvalidated(member));
 		return member;
 	}
@@ -1579,6 +1672,24 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Status oldStatus = member.getStatus();
 		getMembersManagerImpl().setStatus(sess, member, Status.EXPIRED);
 		member.setStatus(Status.EXPIRED);
+		// if member went from invalid/disabled to expired, they might not exist in some parentVos - create them, but don't
+		// update MemberOrganizations, etc...
+		if (oldStatus == Status.INVALID || oldStatus == Status.DISABLED) {
+				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				List<Vo> parentVos = getPerunBl().getVosManagerBl().getParentVos(sess, member.getVoId());
+				for (Vo vo : parentVos) {
+					try {
+						Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, user);
+						perunBl.getMembersManagerBl().validateMemberAsync(sess, newMember);
+					} catch (ExtendMembershipException e) {
+						throw new InternalErrorException(e);
+					} catch (AlreadyMemberException ignored) {
+					}
+				}
+			// expired from other states - delete from parent vos
+		} else {
+			removeMemberFromParentVos(sess, member);
+		}
 		getPerunBl().getAuditer().log(sess, new MemberExpired(member));
 
 		//We need to check validity of attributes first (expired member has to have valid attributes)
@@ -1605,6 +1716,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.DISABLED);
 		member.setStatus(Status.DISABLED);
+		removeMemberFromParentVos(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberDisabled(member));
 		return member;
 	}
