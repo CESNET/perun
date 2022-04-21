@@ -17,6 +17,7 @@ package cz.metacentrum.perun.rpc.csrf;
  */
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -31,13 +32,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cz.metacentrum.perun.core.impl.PerunAppsConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * This is an implementation of CSRF protection based on Spring framework solution.
@@ -84,7 +84,7 @@ public final class CsrfFilter implements Filter {
 
 		// Perform CSRF check only if CSRF protection is enabled and its not OIDC endpoint
 		boolean isCsrfProtectionEnabled = Boolean.parseBoolean((String) request.getAttribute(CSRF_ENABLED_REQUEST_ATTR_NAME));
-		if (isCsrfProtectionEnabled && isEmpty(request.getHeader(OIDC_CLAIM_SUB))) {
+		if (isCsrfProtectionEnabled && StringUtils.isEmpty(request.getHeader(OIDC_CLAIM_SUB))) {
 
 			log.trace("Processing CSRF filter.");
 
@@ -115,11 +115,13 @@ public final class CsrfFilter implements Filter {
 
 				log.trace("Invalid CSRF token found for {} COOKIE: {} | HEADER: {}.", request.getRequestURI(), cookieCsrfToken.getValue(), actualToken);
 
+				String resolvedApiDomain = resolveApiDomainFromRequest((HttpServletRequest) servletRequest);
+
 				// token is either invalid or missing
 				response.sendError(HttpStatus.SC_FORBIDDEN, "This domain is under CSRF protection; however, " +
-				    "a valid CSRF token was not provided. Configure the client to provide the token in header " +
-					"or use the domain reserved only for API calls - without CSRF protection. Information about " +
-					"CSRF protection can also be found at https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html");
+						"a valid CSRF token was not provided. Configure the client to provide the token in header " +
+						"or use the domain reserved only for API calls" + ((resolvedApiDomain != null) ? ": "+resolvedApiDomain : "") + " - without CSRF protection. Information about " +
+						"CSRF protection can also be found at https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html");
 				return;
 			}
 
@@ -130,10 +132,12 @@ public final class CsrfFilter implements Filter {
 
 				log.trace("Invalid CSRF token found for {} SESSION: {} | HEADER: {}.", request.getRequestURI(), httpSessionToken.getValue(), actualToken);
 
+				String resolvedApiDomain = resolveApiDomainFromRequest((HttpServletRequest) servletRequest);
+
 				// token is either invalid or missing
 				response.sendError(HttpStatus.SC_FORBIDDEN, "This domain is under CSRF protection; however, " +
 					"a valid CSRF token was not provided. Configure the client to provide the token in header " +
-					"or use the domain reserved only for API calls - without CSRF protection. Information about " +
+					"or use the domain reserved only for API calls" + ((resolvedApiDomain != null) ? ": "+resolvedApiDomain : "") + " - without CSRF protection. Information about " +
 					"CSRF protection can also be found at https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html");
 				return;
 			}
@@ -169,7 +173,7 @@ public final class CsrfFilter implements Filter {
 
 		// if cookie is empty
 		String tokenValue = cookie.getValue();
-		if (!StringUtils.hasLength(tokenValue)) {
+		if (StringUtils.isEmpty(tokenValue)) {
 			return null;
 		}
 
@@ -209,6 +213,22 @@ public final class CsrfFilter implements Filter {
 		// save cookie and token
 		response.addCookie(cookie);
 		request.getSession(true).setAttribute(CSRF_REQUEST_ATTR_NAME, token);
+	}
+
+	private String resolveApiDomainFromRequest(HttpServletRequest servletRequest) {
+
+		String resolvedApiDomain = null;
+		try {
+			URL url = new URL(servletRequest.getRequestURL().toString());
+			PerunAppsConfig.Brand brand = PerunAppsConfig.getBrandContainingDomain(url.getProtocol()+"://"+ url.getHost());
+			if (brand != null && brand.getNewApps() != null && StringUtils.isNotBlank(brand.getNewApps().getApi())) {
+				resolvedApiDomain = brand.getNewApps().getApi();
+			}
+		} catch (Exception ex) {
+			log.warn("Unable to resolve API domain from config.", ex);
+		}
+		return resolvedApiDomain;
+
 	}
 
 }
