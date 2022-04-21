@@ -1371,6 +1371,7 @@ components:
     NewApps:
       type: object
       properties:
+        api: { type: string }
         admin: { type: string }
         profile: { type: string }
         pwdReset: { type: string }
