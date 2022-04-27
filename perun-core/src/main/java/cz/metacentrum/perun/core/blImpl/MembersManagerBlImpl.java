@@ -72,6 +72,7 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataExceptio
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
@@ -149,6 +150,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
 	private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 	private static final String A_U_LOGIN_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:";
+	private static final String A_M_IS_LIFECYCLE_ALTERABLE = AttributesManager.NS_MEMBER_ATTR_VIRT + ":isLifecycleAlterable";
 
 	private static final String DEFAULT_NO_REPLY_EMAIL = "no-reply@perun-aai.org";
 
@@ -1757,21 +1759,32 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public void extendMembership(PerunSession sess, Member member) throws ExtendMembershipException {
+		try {
+			checkMemberLifecycleIsAlterable(sess, member);
+		} catch (MemberLifecycleAlteringForbiddenException e) {
+			throw new ExtendMembershipException(e);
+		}
 		this.manageMembershipExpiration(sess, member, true, true);
 	}
 
 	@Override
 	public boolean canExtendMembership(PerunSession sess, Member member) {
 		try {
+			checkMemberLifecycleIsAlterable(sess, member);
 			Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, false);
 			return ret.getLeft();
-		} catch (ExtendMembershipException e) {
+		} catch (ExtendMembershipException | MemberLifecycleAlteringForbiddenException e) {
 			return false;
 		}
 	}
 
 	@Override
 	public boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws ExtendMembershipException {
+		try {
+			checkMemberLifecycleIsAlterable(sess, member);
+		} catch (MemberLifecycleAlteringForbiddenException e) {
+			throw new ExtendMembershipException(e);
+		}
 		Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, true);
 		return ret.getLeft();
 	}
@@ -2945,9 +2958,29 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public void checkMemberLifecycleIsAlterable(PerunSession sess, Member member) throws MemberLifecycleAlteringForbiddenException {
+		try {
+			if (!perunBl.getAttributesManagerBl().getAttribute(sess, member, A_M_IS_LIFECYCLE_ALTERABLE).valueAsBoolean()) {
+				throw new MemberLifecycleAlteringForbiddenException(member);
+			}
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			log.error("Failed to resolve lifecycle alteration for member: {}", member, e);
+			throw new InternalErrorException("Failed to resolve lifecycle alteration for member: " + member, e);
+		}
+	}
+
+	@Override
 	public void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser) throws MemberNotExistsException, AlreadyMemberException, ExtendMembershipException {
 		Member sourceMember = this.getMemberByUserId(sess, vo, sourceUser.getId());
 		List<Group> directGroups = getPerunBl().getGroupsManagerBl().getMemberDirectGroups(sess, sourceMember);
+
+		List<Vo> parentVos = perunBl.getVosManagerBl().getParentVos(sess, vo.getId());
+		for (Vo parentVo : parentVos) {
+			try {
+				perunBl.getMembersManagerBl().moveMembership(sess, parentVo, sourceUser, targetUser);
+			} catch (MemberNotExistsException | AlreadyMemberException | ExtendMembershipException ignore) {
+			}
+		}
 
 		List<Group> synchronizedGroups = new ArrayList<>();
 		try {
