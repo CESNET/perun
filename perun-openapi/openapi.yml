@@ -16895,7 +16895,7 @@ paths:
   #                                               #
   #################################################
 
-  /json/Searcher/getUsers:
+  /json/searcher/getUsers:
     post:
       tags:
         - Searcher
@@ -16924,7 +16924,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getMembersByUserAttributes:
+  /json/searcher/getMembersByUserAttributes:
     post:
       tags:
         - Searcher
@@ -16955,7 +16955,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getFacilities:
+  /json/searcher/getFacilities:
     post:
       tags:
         - Searcher
@@ -16984,7 +16984,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getResources/attributes:
+  /json/searcher/getResources/attributes:
     post:
       tags:
         - Searcher
@@ -17013,7 +17013,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getResources/attributes-match:
+  /json/searcher/getResources/attributes-match:
     post:
       tags:
         - Searcher
