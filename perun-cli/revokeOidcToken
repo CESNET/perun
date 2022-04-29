@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Perun::auth::OidcAuth;
+use Perun::Exception;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Revoke access and refresh token saved for OIDC authentication.
+	------------------------------------
+	Available options:
+	--batch                         | -b batch
+	--help                          | -h prints this help
+
+};
+}
+
+our $batch;
+GetOptions ("help|h"    => sub {
+	print help();
+	exit 0;
+}, "batch|b"        => \$batch) || die help();
+
+my $message;
+
+if (Perun::auth::OidcAuth::getRefreshToken()) {
+
+	Perun::auth::OidcAuth::revokeToken(Perun::auth::OidcAuth::getRefreshToken(), "refresh_token");
+	Perun::auth::OidcAuth::removeRefreshToken();
+
+	if (Perun::auth::OidcAuth::getAccessToken()) {
+		Perun::auth::OidcAuth::revokeToken(Perun::auth::OidcAuth::getAccessToken(), "access_token");
+		Perun::auth::OidcAuth::removeAccessToken();
+	}
+
+	$message = "Token revocation was successful.";
+
+} else {
+	die Perun::Exception->fromHash({ type =>  "No tokens are saved." });
+}
+
+printMessage($message, $batch);
+

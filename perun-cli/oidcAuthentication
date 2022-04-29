@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Perun::auth::OidcAuth;
+use Perun::Exception;
+use Getopt::Long qw(:config no_ignore_case);
+
+sub help {
+	return qq{
+	Performs OIDC authentication which stores new access and refresh tokens. Can be used to renew tokens before performing batch operations.
+	------------------------------------
+	Available options:
+	--help                          | -h prints this help
+
+};
+}
+
+GetOptions ("help|h"    => sub {
+	print help();
+	exit 0;
+}) || die help();
+
+my $auth = Perun::auth::OidcAuth::authentication();
+
+unless ($auth->{"error"}) {
+	Perun::auth::OidcAuth::setAccessToken($auth->{"access_token"});
+	Perun::auth::OidcAuth::setAccessTokenValidity(time() + $auth->{"expires_in"});
+	Perun::auth::OidcAuth::setRefreshToken($auth->{"refresh_token"});
+	print "Authentication was successful.";
+} else {
+	die Perun::Exception->fromHash({ type =>  "Authentication failed." });
+}
