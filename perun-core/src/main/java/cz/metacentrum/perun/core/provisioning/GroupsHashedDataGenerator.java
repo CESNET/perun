@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 import java.util.HashSet;
@@ -151,6 +152,8 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 		List<Member> members;
 		if (filterExpiredMembers) {
 			members = sess.getPerunBl().getGroupsManagerBl().getActiveGroupMembers(sess, group);
+			// previous method for active group members doesn't care about VO status, so we must remove INVALID and DISABLED VO members
+			members.removeIf(member -> member.getStatus().equals(Status.INVALID) || member.getStatus().equals(Status.DISABLED));
 		} else {
 			members = sess.getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
 		}
