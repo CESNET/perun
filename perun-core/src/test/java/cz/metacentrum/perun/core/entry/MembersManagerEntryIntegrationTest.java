@@ -2178,13 +2178,15 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertThat(memberWithSponsors).hasSize(1);
 		assertThat(memberWithSponsors.get(0).getSponsors()).hasSize(2);
 
-		Sponsor sponsor1FromDb = memberWithSponsors.get(0).getSponsors().get(0);
-		assertThat(sponsor1FromDb.getUser()).isEqualTo(sponsor1);
-		assertThat(sponsor1FromDb.getValidityTo()).isNull();
+		HashMap<User, LocalDate> sponsors = new LinkedHashMap<>();
+		for (Sponsor sponsor : memberWithSponsors.get(0).getSponsors()) {
+			sponsors.put(sponsor.getUser(), sponsor.getValidityTo());
+		}
+		assertThat(sponsors.containsKey(sponsor1));
+		assertThat(sponsors.get(sponsor1)).isNull();
+		assertThat(sponsors.containsKey(sponsor2));
+		assertThat(sponsors.get(sponsor2)).isEqualTo(validity);
 
-		Sponsor sponsor2FromDb = memberWithSponsors.get(0).getSponsors().get(1);
-		assertThat(sponsor2FromDb.getUser()).isEqualTo(sponsor2);
-		assertThat(sponsor2FromDb.getValidityTo()).isEqualTo(validity);
 	}
 
 	@Test
