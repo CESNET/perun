@@ -1,12 +1,16 @@
 package cz.metacentrum.perun.webgui.tabs.registrartabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -51,6 +55,8 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
+
+	final ScrollPanel sp = new ScrollPanel();
 
 	/**
 	 * Title widget
@@ -409,16 +415,41 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 		data.setEditable(app.getState().equals("VERIFIED") || app.getState().equals("NEW"));
 		data.setEmbedded(app.getType().equals("EMBEDDED"), app.getUser());
 		data.retrieveData();
-		ScrollPanel sp = new ScrollPanel(data.getContents());
-		sp.setSize("100%", "100%");
+
+		sp.setWidget(data.getContents());
+		sp.addStyleName("perun-tableScrollPanel");
 		vp.add(sp);
 		vp.setCellHeight(sp, "100%");
 		vp.setCellHorizontalAlignment(sp, HasHorizontalAlignment.ALIGN_CENTER);
 
 		session.getUiElements().resizePerunTable(sp, 400, this);
 
+		Window.addResizeHandler(new ResizeHandler() {
+			public void onResize(ResizeEvent event) {
+				// run resize only for opened tab/overlay + shared commands
+				resizeTable();
+			}
+		});
+
 		this.contentWidget.setWidget(vp);
+		resizeTable();
 		return getWidget();
+
+	}
+
+	/**
+	 * Resize table to the max width possible based on tab content width
+	 */
+	private void resizeTable() {
+
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			@Override
+			public void execute() {
+				if (sp.getWidget() != null && contentWidget != null) {
+					((SimplePanel)sp.getWidget()).setWidth((Math.max(contentWidget.getOffsetWidth()-15, 0)+"px"));
+				}
+			}
+		});
 
 	}
 
@@ -460,7 +491,9 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 		return false;
 	}
 
-	public void open(){ }
+	public void open(){
+		resizeTable();
+	}
 
 	public boolean isAuthorized() {
 
