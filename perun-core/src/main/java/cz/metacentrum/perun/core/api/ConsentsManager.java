@@ -181,4 +181,24 @@ public interface ConsentsManager {
 	 * @throws UserNotExistsException if user does not exist
 	 */
 	Consent changeConsentStatus(PerunSession sess, Consent consent, ConsentStatus status) throws ConsentNotExistsException, PrivilegeException, InvalidConsentStatusException, UserNotExistsException;
+
+	/**
+	 * Evaluates consents for given consent hub with enforced consents enabled.
+	 *
+	 * Service defines whether only active users will be evaluated or expired ones as well.
+	 *  @param sess session
+	 * @param consentHub consent hub
+	 */
+	void evaluateConsents(PerunSession sess, ConsentHub consentHub) throws PrivilegeException;
+
+	/**
+	 * Evaluates consents for all consent hubs with given service with enforced consents enabled.
+	 *
+	 * All services under obtained consent hubs will have consents fully evaluated
+	 * (not only for given service, but for all of them).
+	 * Service defines whether only active users will be evaluated or expired ones as well.
+	 *  @param sess session
+	 * @param service service
+	 */
+	void evaluateConsents(PerunSession sess, Service service) throws PrivilegeException;
 }

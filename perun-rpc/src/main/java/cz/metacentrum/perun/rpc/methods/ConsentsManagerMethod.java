@@ -213,6 +213,41 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 		public Consent call(ApiCaller ac, Deserializer params) throws PerunException {
 			return ac.getConsentsManager().changeConsentStatus(ac.getSession(), ac.getConsentById(params.readInt("consent")), ConsentStatus.valueOf(params.readString("status")));
 		}
+	},
+
+	/*#
+	 * Returns ConsentHub.
+	 *
+	 * @param consentHub Consent Hub
+	 * @throw ConsentNotExistsException if consent hub does not exist
+	 *
+	 * @return ConsentHub
+	 */
+	evaluateConsentsForConsentHub {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.getConsentsManager().evaluateConsents(ac.getSession(), ac.getConsentHubById(params.readInt("consentHub")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Returns Service.
+	 *
+	 * All consent hubs that contain given service will have consents fully consolidated
+	 * (not only for given service, but for all of them).
+	 *
+	 * @param service used for consents evaluation
+	 * @throw ConsentNotExistsException if consent hub does not exist
+	 *
+	 * @return ConsentHub
+	 */
+	evaluateConsentsForService {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.getConsentsManager().evaluateConsents(ac.getSession(), ac.getServiceById(params.readInt("service")));
+			return null;
+		}
 	};
 
 }

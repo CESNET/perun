@@ -1,4 +1,4 @@
--- database version 3.1.91 (don't forget to update insert statement at the end of file)
+-- database version 3.1.92 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -420,6 +420,7 @@ create table services (
 	recurrence integer not null default 2,
 	enabled boolean default true not null,
 	script varchar not null,
+	use_expired_members boolean default false not null,
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
@@ -1936,7 +1937,7 @@ grant all on consents to perun;
 grant all on consent_attr_defs to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.91');
+insert into configurations values ('DATABASE VERSION','3.1.92');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

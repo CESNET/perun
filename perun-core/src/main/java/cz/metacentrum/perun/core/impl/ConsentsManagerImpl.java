@@ -403,6 +403,29 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 	}
 
 	@Override
+	public List<ConsentHub> getConsentHubsByService(PerunSession session, int serviceId) {
+		try {
+			List<ConsentHub> consentHubs = jdbc.query("select " + consentHubMappingSelectQuery +
+				" from consent_hubs" +
+					" join consent_hubs_facilities on consent_hubs.id=consent_hubs_facilities.consent_hub_id" +
+					" join resources on resources.facility_id = consent_hubs_facilities.facility_id" +
+					" join resource_services on resource_services.resource_id = resources.id" +
+					" join services on services.id = resource_services.service_id" +
+				" where services.id=?",
+				CONSENT_HUB_MAPPER,
+				serviceId);
+
+			// set corresponding facilities for each consent hub
+			for (ConsentHub consentHub : consentHubs) {
+				consentHub.setFacilities(getFacilitiesForConsentHub(consentHub));
+			}
+			return consentHubs;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public boolean consentHubExists(PerunSession sess, ConsentHub consentHub) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from consent_hubs where id=?", consentHub.getId());

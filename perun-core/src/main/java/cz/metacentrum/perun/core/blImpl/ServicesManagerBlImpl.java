@@ -29,31 +29,17 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCr
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.ConsentHub;
-import cz.metacentrum.perun.core.api.HashedGenData;
-import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
-import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
-import cz.metacentrum.perun.core.provisioning.GroupsHashedDataGenerator;
-import cz.metacentrum.perun.core.provisioning.HierarchicalHashedDataGenerator;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.provisioning.HashedDataGenerator;
-import cz.metacentrum.perun.taskslib.model.TaskResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
@@ -62,9 +48,9 @@ import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
@@ -72,12 +58,17 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -88,8 +79,16 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
+import cz.metacentrum.perun.core.provisioning.GroupsHashedDataGenerator;
+import cz.metacentrum.perun.core.provisioning.HashedDataGenerator;
+import cz.metacentrum.perun.core.provisioning.HierarchicalHashedDataGenerator;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,7 +96,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -379,6 +377,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
 
@@ -408,6 +411,10 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
 
 		// append resource attributes
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
@@ -462,6 +469,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		ServiceAttributes voServiceAttributes = new ServiceAttributes();
 		voServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, vo));
 
@@ -474,6 +486,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		ServiceAttributes groupServiceAttributes = new ServiceAttributes();
 		try {
 			// add group and group_resource attributes
@@ -545,6 +562,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -559,6 +581,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		HashedDataGenerator hashedDataGenerator = new HierarchicalHashedDataGenerator.Builder()
 				.sess((PerunSessionImpl) sess)
 				.service(service)
@@ -571,6 +598,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		HashedDataGenerator hashedDataGenerator = new GroupsHashedDataGenerator.Builder()
 				.sess((PerunSessionImpl) sess)
 				.service(service)
@@ -583,6 +615,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -625,6 +662,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws VoNotExistsException {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -655,6 +697,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
+		if (filterExpiredMembers == service.isUseExpiredMembers()) {
+			service.setUseExpiredMembers(!filterExpiredMembers);
+			updateService(sess, service);
+		}
+
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
