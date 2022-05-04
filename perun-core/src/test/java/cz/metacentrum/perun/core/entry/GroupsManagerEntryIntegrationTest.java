@@ -4025,6 +4025,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attributesManager.setAttributes(sess, group2, attributesList);
 		List<String> attrNames = new ArrayList<>();
 
+		// make sure lists are sorted
+		Collections.sort(attributesList);
 		RichGroup richGroup1 = new RichGroup(group, attributesList);
 		RichGroup richGroup2 = new RichGroup(group2, attributesList);
 
@@ -4033,7 +4035,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			attrNames.add(a.getName());
 		}
 
-		assertEquals("Both lists should be same", Arrays.asList(richGroup1, richGroup2), groupsManagerBl.convertGroupsToRichGroupsWithAttributes(sess, Arrays.asList(group, group2), attrNames));
+		List<RichGroup> result = groupsManagerBl.convertGroupsToRichGroupsWithAttributes(sess, Arrays.asList(group, group2), attrNames);
+		for (RichGroup r : result) {
+			// make sure lists are sorted
+			Collections.sort(r.getAttributes());
+		}
+		assertEquals("Both lists should be same", Arrays.asList(richGroup1, richGroup2), result);
+
 	}
 
 	@Test(expected = ExternallyManagedException.class)
