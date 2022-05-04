@@ -6755,6 +6755,7 @@ perun_policies:
   getConsentHubById_int_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - RPC:
     include_policies:
       - default_policy
 
