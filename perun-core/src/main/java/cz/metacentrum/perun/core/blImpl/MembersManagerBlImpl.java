@@ -1591,6 +1591,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					}
 					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
 					ArrayList<String> currentValue = attribute.valueAsList();
+					currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
 					currentValue.add(memberVo.getShortName());
 					attribute.setValue(currentValue);
 					perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
