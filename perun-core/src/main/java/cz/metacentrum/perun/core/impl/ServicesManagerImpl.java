@@ -374,7 +374,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 					"values (?,?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
 					service.getDescription(), service.getDelay(), service.getRecurrence(), service.isEnabled(), service.getScript(), service.isUseExpiredMembers(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			log.info("Service created: {}", service);
 
 			service.setId(newId);
 
