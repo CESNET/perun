@@ -2,6 +2,7 @@
 brands:
   - name: default
     new_apps:
+      api: "api"
       admin: "gui"
       profile: "profile"
       pwd_reset: "pwd-reset"
@@ -9,6 +10,7 @@ brands:
     old_gui_domain: "perun-dev"
   - name: other
     new_apps:
+      api: ""
       admin: ""
       profile: ""
       pwd_reset: ""

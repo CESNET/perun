@@ -43,7 +43,7 @@ public class PerunAppsConfig {
 		for (Brand brand : instance.getBrands()) {
 			PerunAppsConfig.NewApps newApps = brand.getNewApps();
 			if (brand.getOldGuiDomain().equals(domain) || newApps.getAdmin().equals(domain) || newApps.getProfile().equals(domain)
-				|| newApps.getPublications().equals(domain) || newApps.getPwdReset().equals(domain)) {
+				|| newApps.getPublications().equals(domain) || newApps.getPwdReset().equals(domain) || newApps.getApi().equals(domain)) {
 				return brand;
 			}
 		}
@@ -105,6 +105,9 @@ public class PerunAppsConfig {
 	 * Class holding domains of new gui applications.
 	 */
 	public static class NewApps {
+
+		private String api;
+
 		private String admin;
 
 		private String profile;
@@ -112,6 +115,16 @@ public class PerunAppsConfig {
 		private String pwdReset;
 
 		private String publications;
+
+		@JsonGetter("api")
+		public String getApi() {
+			return api;
+		}
+
+		@JsonSetter("api")
+		public void setApi(String api) {
+			this.api = api;
+		}
 
 		@JsonGetter("admin")
 		public String getAdmin() {
@@ -156,8 +169,11 @@ public class PerunAppsConfig {
 		@Override
 		public String toString() {
 			return "NewApps{" +
-					"admin='" + admin + '\'' +
+					"api='" + api + '\'' +
+					", admin='" + admin + '\'' +
 					", profile='" + profile + '\'' +
+					", pwdReset='" + pwdReset + '\'' +
+					", publications='" + publications + '\'' +
 					'}';
 		}
 	}
