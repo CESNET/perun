@@ -7,12 +7,14 @@ use YAML::XS 'LoadFile';
 use JSON::XS;
 use LWP::UserAgent;
 use File::Basename;
+use Perun::Exception;
 
 my $PERUN_OIDC = "perun_oidc";
 my $PYTHON = "python3";
 my $dirname = dirname(__FILE__);
 my $contentType = "application/x-www-form-urlencoded";
 my $authenticationFailed = "Authentication failed";
+my $tokenRevocationFailed = "Token revocation failed";
 
 sub getAccessToken
 {
@@ -273,6 +275,32 @@ sub removeAccessToken
 sub removeRefreshToken
 {
 	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'refresh_token')"`;
+}
+
+sub revokeToken
+{
+	my ($token, $type) = @_;
+
+	my $config = loadConfiguration();
+	my $ua = LWP::UserAgent->new;
+
+	my $response = $ua->post(
+		$config->{"oidc_token_revoke_endpoint_uri"},
+		"content_type" => $contentType,
+		Content => {
+			"client_id"       => $config->{"client_id"},
+			"token"           => $token,
+			"token_type_hint" => $type
+		}
+	);
+
+	unless ($response->is_success) {
+		my $content = eval { decode_json $response->decoded_content };
+		if ($@ or !exists($content->{"error"})) {
+			die Perun::Exception->fromHash({ type => $tokenRevocationFailed, name => $response->code, errorInfo => $response->message });
+		}
+		die Perun::Exception->fromHash({ type => $tokenRevocationFailed, name => $content->{"error"}, errorInfo => $content->{"error_description"} });
+	}
 }
 
 1;
