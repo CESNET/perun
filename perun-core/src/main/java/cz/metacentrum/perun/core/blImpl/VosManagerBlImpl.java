@@ -970,7 +970,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 					// member is valid in memberVo, so reset expiration in parentVo
 					perunBl.getAttributesManagerBl().removeAttribute(sess, existingMember, memberExpirationAttrDef);
 					if (existingMember.getStatus() != Status.VALID) {
-						perunBl.getMembersManagerBl().validateMemberAsync(sess, existingMember);
+						perunBl.getMembersManagerBl().validateMember(sess, existingMember);
 					}
 					//update memberOrganizations
 					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
@@ -990,7 +990,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 						attribute.setValue(newValue);
 						perunBl.getAttributesManagerBl().setAttribute(sess, newMember, attribute);
 					}
-					perunBl.getMembersManagerBl().validateMemberAsync(sess, newMember);
+					perunBl.getMembersManagerBl().validateMember(sess, newMember);
 				}
 
 			} catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException | AttributeNotExistsException | WrongAttributeValueException | AlreadyMemberException e) {

@@ -1576,7 +1576,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, user);
 					// remove expiration that was set according to parent vo rules
 					perunBl.getAttributesManagerBl().removeAttribute(sess, newMember, memberExpirationAttrDef);
-					perunBl.getMembersManagerBl().validateMemberAsync(sess, newMember);
+					perunBl.getMembersManagerBl().validateMember(sess, newMember);
 					// set memberOrganizations attribute
 					Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
 					ArrayList<String> newValue = new ArrayList<>(List.of(memberVo.getShortName()));
@@ -1587,7 +1587,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					// validate and reset expiration
 					perunBl.getAttributesManagerBl().removeAttribute(sess, existingMember, memberExpirationAttrDef);
 					if (existingMember.getStatus() != Status.VALID) {
-						perunBl.getMembersManagerBl().validateMemberAsync(sess, existingMember);
+						perunBl.getMembersManagerBl().validateMember(sess, existingMember);
 					}
 					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
 					ArrayList<String> currentValue = attribute.valueAsList();
