@@ -569,6 +569,83 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param service Integer service
 	 * @param facility Integer facility
 	 * @param filterExpiredMembers Boolean if the generator should filter expired members
+	 * @param consentEval Boolean if the generator should enforce evaluation of consents
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	/*#
+	 * Generates hashed hierarchical data structure for given service and facility.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *   "1": {    ** facility id **
+	 *     members: {    ** all members on the facility **
+	 *        "4" : 5,    ** member id : user id **
+	 *        "6" : 7,    ** member id : user id **
+	 *       ...
+	 *     }
+	 *     children: [
+	 *       "2": {    ** resource id **
+	 *         children: [],
+	 *         voId: 99,
+	 *         members: {    ** all members on the resource with id 2 **
+	 *           "4" : 5    ** member id : user id **
+	 *         }
+	 *       },
+	 *       "3": {
+	 *         ...
+	 *       }
+	 *     ]
+	 *   }
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @param filterExpiredMembers Boolean if the generator should filter expired members
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	/*#
+	 * Generates hashed hierarchical data structure for given service and facility.
+	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
+	 * generates only the users that granted a consent to all the service required attributes.
+	 * New UNSIGNED consents are created to users that don't have a consent containing all the
+	 * service required attributes.
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *   "1": {    ** facility id **
+	 *     members: {    ** all members on the facility **
+	 *        "4" : 5,    ** member id : user id **
+	 *        "6" : 7,    ** member id : user id **
+	 *       ...
+	 *     }
+	 *     children: [
+	 *       "2": {    ** resource id **
+	 *         children: [],
+	 *         voId: 99,
+	 *         members: {    ** all members on the resource with id 2 **
+	 *           "4" : 5    ** member id : user id **
+	 *         }
+	 *       },
+	 *       "3": {
+	 *         ...
+	 *       }
+	 *     ]
+	 *   }
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @param consentEval Boolean if the generator should enforce evaluation of consents
 	 * @return HashedGenData generated hashed data structure
 	 * @throw FacilityNotExistsException if there is no such facility
 	 * @throw ServiceNotExistsException if there is no such service
@@ -614,17 +691,12 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	getHashedHierarchicalData {
 		@Override
 		public HashedGenData call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("filterExpiredMembers")) {
-				return ac.getServicesManager().getHashedHierarchicalData(ac.getSession(),
-						ac.getServiceById(parms.readInt("service")),
-						ac.getFacilityById(parms.readInt("facility")),
-						parms.readBoolean("filterExpiredMembers"));
-			} else {
-				return ac.getServicesManager().getHashedHierarchicalData(ac.getSession(),
-						ac.getServiceById(parms.readInt("service")),
-						ac.getFacilityById(parms.readInt("facility")),
-						false);
-			}
+			boolean filterExpiredMembers = parms.contains("filterExpiredMembers") ? parms.readBoolean("filterExpiredMembers") : false;
+			boolean consentEval = parms.contains("consentEval") ? parms.readBoolean("consentEval") : false;
+			return ac.getServicesManager().getHashedHierarchicalData(ac.getSession(),
+				ac.getServiceById(parms.readInt("service")),
+				ac.getFacilityById(parms.readInt("facility")),
+				filterExpiredMembers, consentEval);
 		}
 	},
 
@@ -668,6 +740,97 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param service Integer service
 	 * @param facility Integer facility
 	 * @param filterExpiredMembers Boolean if the generator should filter expired members
+	 * @param consentEval Boolean if the generator should enforce evaluation of consents
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	/*#
+	 * Generates hashed data with group structure for given service and resource.
+	 *
+	 * Generates data in format:
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *   "1": {    ** facility id **
+	 *     members: {    ** all members on the facility **
+	 *        "4" : 5,    ** member id : user id **
+	 *        "6" : 7,    ** member id : user id **
+	 *       ...
+	 *     }
+	 *     children: [
+	 *       "2": {    ** resource id **
+	 *         voId: 99,
+	 *         children: [
+	 *           "89": {    ** group id **
+	 *              "children": {},
+	 *              "members": {
+	 *                  "91328": 57986,
+	 *                  "91330": 60838
+	 *              }
+	 *           }
+	 *         ],
+	 *         "members": {    ** all members on the resource with id 2 **
+	 *             "91328": 57986,
+	 *             "91330": 60838
+	 *         }
+	 *       },
+	 *       "3": {
+	 *         ...
+	 *       }
+	 *     ]
+	 *   }
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @param filterExpiredMembers Boolean if the generator should filter expired members
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	/*#
+	 * Generates hashed data with group structure for given service and resource.
+	 *
+	 * Generates data in format:
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *   "1": {    ** facility id **
+	 *     members: {    ** all members on the facility **
+	 *        "4" : 5,    ** member id : user id **
+	 *        "6" : 7,    ** member id : user id **
+	 *       ...
+	 *     }
+	 *     children: [
+	 *       "2": {    ** resource id **
+	 *         voId: 99,
+	 *         children: [
+	 *           "89": {    ** group id **
+	 *              "children": {},
+	 *              "members": {
+	 *                  "91328": 57986,
+	 *                  "91330": 60838
+	 *              }
+	 *           }
+	 *         ],
+	 *         "members": {    ** all members on the resource with id 2 **
+	 *             "91328": 57986,
+	 *             "91330": 60838
+	 *         }
+	 *       },
+	 *       "3": {
+	 *         ...
+	 *       }
+	 *     ]
+	 *   }
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @param consentEval Boolean if the generator should enforce evaluation of consents
 	 * @return HashedGenData generated hashed data structure
 	 * @throw FacilityNotExistsException if there is no such facility
 	 * @throw ServiceNotExistsException if there is no such service
@@ -720,17 +883,12 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	getHashedDataWithGroups {
 		@Override
 		public HashedGenData call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("filterExpiredMembers")) {
-				return ac.getServicesManager().getHashedDataWithGroups(ac.getSession(),
-						ac.getServiceById(parms.readInt("service")),
-						ac.getFacilityById(parms.readInt("facility")),
-						parms.readBoolean("filterExpiredMembers"));
-			} else {
-				return ac.getServicesManager().getHashedDataWithGroups(ac.getSession(),
-						ac.getServiceById(parms.readInt("service")),
-						ac.getFacilityById(parms.readInt("facility")),
-						false);
-			}
+			boolean filterExpiredMembers = parms.contains("filterExpiredMembers") ? parms.readBoolean("filterExpiredMembers") : false;
+			boolean consentEval = parms.contains("consentEval") ? parms.readBoolean("consentEval") : false;
+			return ac.getServicesManager().getHashedDataWithGroups(ac.getSession(),
+				ac.getServiceById(parms.readInt("service")),
+				ac.getFacilityById(parms.readInt("facility")),
+				filterExpiredMembers, consentEval);
 		}
 	},
 

@@ -1980,7 +1980,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource3.setName("HierarchDataResource2");
 		resource3 = perun.getResourcesManager().createResource(sess, resource3, vo, facility);
 
-		HashedGenData data = perun.getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, false);
+		HashedGenData data = perun.getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, false, false);
 		assertThat(data.getAttributes()).isNotEmpty();
 
 		Map<String, Map<String, Object>> attributes = data.getAttributes();
@@ -2093,7 +2093,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource3.setName("HierarchDataResource2");
 		resource3 = perun.getResourcesManager().createResource(sess, resource3, vo, facility);
 
-		HashedGenData data = perun.getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, false);
+		HashedGenData data = perun.getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, false, false);
 		assertThat(data.getAttributes()).isNotEmpty();
 
 		Map<String, Map<String, Object>> attributes = data.getAttributes();

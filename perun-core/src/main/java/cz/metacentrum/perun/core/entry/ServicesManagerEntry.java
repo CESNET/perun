@@ -397,7 +397,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		getServicesManagerBl().checkServiceExists(sess, service);
@@ -408,11 +408,11 @@ public class ServicesManagerEntry implements ServicesManager {
 			throw new PrivilegeException(sess, "getHashedHierarchicalData");
 		}
 
-		return getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, filterExpiredMembers);
+		return getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, filterExpiredMembers, consentEval);
 	}
 
 	@Override
-	public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		getServicesManagerBl().checkServiceExists(sess, service);
@@ -423,7 +423,7 @@ public class ServicesManagerEntry implements ServicesManager {
 			throw new PrivilegeException(sess, "getHashedDataWithGroups");
 		}
 
-		return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, filterExpiredMembers);
+		return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, filterExpiredMembers, consentEval);
 	}
 
 	@Override
