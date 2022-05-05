@@ -13,7 +13,7 @@ public class Service extends Auditable implements Comparable<PerunBean> {
 	private boolean enabled = true;
 	private String script;
 
-	private boolean useExpiredMembers = false;
+	private boolean useExpiredMembers = true;
 
 	public Service(){
 		super();

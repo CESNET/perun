@@ -656,10 +656,6 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getMembersManagerBl().validateMember(sess, member1);
 		perun.getMembersManagerBl().validateMember(sess, member2);
 
-		System.out.println("members:\n" + perun.getGroupsManagerBl().getGroupMembers(sess, group));
-
-
-
 		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
 
 		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
@@ -670,12 +666,13 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			BeansUtils.getCoreConfig().setForceConsents(originalForce);
 		}
 
-		List<Consent> consents = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
-		List<Consent> shouldBeEmptyConsents = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+		List<Consent> consentsUser1 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+		List<Consent> consentsUser2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
 
-		Consent expectedConsent = new Consent(consents.get(0).getId(), user2.getId(), consentHub, List.of(attrDef));
-		assertThat(consents).containsExactly(expectedConsent);
-		assertEquals(0, shouldBeEmptyConsents.size());
+		Consent expectedConsent1 = new Consent(consentsUser1.get(0).getId(), user1.getId(), consentHub, List.of(attrDef));
+		assertThat(consentsUser1).containsExactly(expectedConsent1);
+		Consent expectedConsent2 = new Consent(consentsUser2.get(0).getId(), user2.getId(), consentHub, List.of(attrDef));
+		assertThat(consentsUser2).containsExactly(expectedConsent2);
 
 		// evaluate again, still should have only the one UNSIGNED consent
 		try {
@@ -684,7 +681,10 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		} finally {
 			BeansUtils.getCoreConfig().setForceConsents(originalForce);
 		}
-		assertThat(consents).containsExactly(expectedConsent);
+		consentsUser1 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+		assertThat(consentsUser1).containsExactly(expectedConsent1);
+		consentsUser2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
+		assertThat(consentsUser2).containsExactly(expectedConsent2);
 	}
 
 	@Test
@@ -744,6 +744,8 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		}
 
+		consents1 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+		consents2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
 		assertThat(consents1).containsExactly(expectedConsent1);
 		assertThat(consents2).containsExactly(expectedConsent2);
 	}
@@ -760,7 +762,7 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// ===>>>  service   otherService
 		//            |            |
 		//      user(2)[VALID]  user(1)[VALID]
-		//                      user(3)[EXPIRED]
+		//     user(3)[EXPIRED]
 
 		boolean originalUseExpiredMembers = service.isUseExpiredMembers();
 		ConsentHub otherConsentHub = setUpAnotherConsentHub();
@@ -770,13 +772,13 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		User user3 = setUpUser("George", "Doe");
 		Member member1 = perun.getMembersManager().createMember(sess, otherVo, user1);
 		Member member2 = perun.getMembersManager().createMember(sess, vo, user2);
-		Member member3 = perun.getMembersManager().createMember(sess, otherVo, user3);
+		Member member3 = perun.getMembersManager().createMember(sess, vo, user3);
 		perun.getGroupsManagerBl().addMember(sess, otherGroup, member1);
 		perun.getGroupsManagerBl().addMember(sess, group, member2);
-		perun.getGroupsManagerBl().addMember(sess, otherGroup, member3);
+		perun.getGroupsManagerBl().addMember(sess, group, member3);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member1, otherGroup, MemberGroupStatus.VALID);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.VALID);
-		perun.getGroupsManager().setMemberGroupStatus(sess, member3, otherGroup, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group, MemberGroupStatus.EXPIRED);
 
 		// validate all members in Vo, otherwise they will be skipped
 		perun.getMembersManagerBl().validateMember(sess, member1);

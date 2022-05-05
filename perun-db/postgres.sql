@@ -420,7 +420,7 @@ create table services (
 	recurrence integer not null default 2,
 	enabled boolean default true not null,
 	script varchar not null,
-	use_expired_members boolean default false not null,
+	use_expired_members boolean default true not null,
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,

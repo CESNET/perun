@@ -7,7 +7,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.92
-ALTER TABLE services ADD COLUMN use_expired_members boolean default false not null;
+ALTER TABLE services ADD COLUMN use_expired_members boolean default true not null;
 UPDATE configurations SET value='3.1.92' WHERE property='DATABASE VERSION';
 
 3.1.91
