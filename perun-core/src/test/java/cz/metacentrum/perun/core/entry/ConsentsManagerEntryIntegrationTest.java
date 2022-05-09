@@ -893,6 +893,75 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertThat(consents2).containsExactly(expectedConsent2);
 	}
 
+	@Test
+	public void createConsentNotIncludeAttrFromExpiredServices() throws Exception {
+		System.out.println(CLASS_NAME + "createConsentNotIncludeAttrFromExpiredServices");
+
+		boolean originalUseExpiredMembers1 = service.isUseExpiredMembers();
+
+		User user1 = setUpUser("Harry", "Doe");
+		Member member1 = perun.getMembersManager().createMember(sess, vo, user1);
+		perun.getGroupsManagerBl().addMember(sess, group, member1);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.EXPIRED);
+		perun.getMembersManagerBl().validateMember(sess, member1);
+
+		AttributeDefinition secondUserAttrDef = setUpUserAttributeDefinition("testUserAttribute2");
+		Service service2 = setUpService("service2");
+		boolean originalUseExpiredMembers2 = service2.isUseExpiredMembers();
+		perun.getResourcesManagerBl().assignService(sess, resource, service2);
+		addAttributeToService(service2, secondUserAttrDef);
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+		Consent consent;
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			service.setUseExpiredMembers(true);
+			service2.setUseExpiredMembers(true);
+			perun.getServicesManagerBl().updateService(sess, service);
+			perun.getServicesManagerBl().updateService(sess, service2);
+
+			// create consent, it should include both attributes, since both services use expired members
+			consent = perun.getConsentsManagerBl().createConsent(sess, new Consent(-1, member1.getUserId(), consentHub, null));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+			service.setUseExpiredMembers(originalUseExpiredMembers1);
+			service2.setUseExpiredMembers(originalUseExpiredMembers2);
+			perun.getServicesManagerBl().updateService(sess, service);
+			perun.getServicesManagerBl().updateService(sess, service2);
+		}
+
+		List<Consent> userConsents = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+		assertThat(userConsents).hasSize(1);
+		assertThat(userConsents.get(0).getAttributes()).containsExactlyInAnyOrder(attrDef, secondUserAttrDef);
+		assertThat(userConsents.get(0).getStatus()).isEqualTo(ConsentStatus.UNSIGNED);
+
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			service.setUseExpiredMembers(true);
+			service2.setUseExpiredMembers(false);
+			perun.getServicesManagerBl().updateService(sess, service);
+			perun.getServicesManagerBl().updateService(sess, service2);
+
+
+			// create consent, it should include only first attribute, since service2 doesn't use expired members
+			consent = perun.getConsentsManagerBl().createConsent(sess, new Consent(-1, member1.getUserId(), consentHub, null));
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+			service.setUseExpiredMembers(originalUseExpiredMembers1);
+			service2.setUseExpiredMembers(originalUseExpiredMembers2);
+			perun.getServicesManagerBl().updateService(sess, service);
+		}
+
+		userConsents = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+		assertThat(userConsents).hasSize(1);
+		assertThat(userConsents.get(0).getAttributes()).containsExactlyInAnyOrder(attrDef);
+		assertThat(userConsents.get(0).getStatus()).isEqualTo(ConsentStatus.UNSIGNED);
+	}
+
+		/* ------- PRIVATE METHODS -------- */
+
 	private ConsentHub setUpAnotherConsentHub() throws Exception {
 		otherVo = setUpVo("otherVo", "otherVo");
 		Facility otherFacility = setUpFacility("otherFacility");
