@@ -1977,5 +1977,64 @@ public enum GroupsManagerMethod implements ManagerMethod {
 				parms.readList("members", Integer.class),
 				parms.readList("attrNames", String.class));
 		}
+	},
+
+	/*#
+	 * Sets flag required for including group to parent vo in a vo hierarchy.
+	 *
+	 * @param group id of group
+	 * @param vo id of parent vo
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not from parent vo's member vos
+	 * @throw RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	allowGroupToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getGroupsManager().allowGroupToHierarchicalVo(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getVoById(parms.readInt("vo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Unsets flag required for including group to parent vo in a vo hierarchy.
+	 *
+	 * @param group id of group
+	 * @param vo id of parent vo
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	disallowGroupToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getGroupsManager().disallowGroupToHierarchicalVo(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getVoById(parms.readInt("vo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Returns flag representing if the group can be included in the (parent) vo's groups
+	 *
+	 * @param group id of group
+	 * @param vo id of parent vo
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 */
+	isAllowedGroupToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getGroupsManager().isAllowedGroupToHierarchicalVo(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getVoById(parms.readInt("vo")));
+			return null;
+		}
 	};
 }

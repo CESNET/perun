@@ -1,4 +1,4 @@
--- database version 3.1.92 (don't forget to update insert statement at the end of file)
+-- database version 3.1.93 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -1352,6 +1352,18 @@ create table vos_vos (
 								constraint vos_vos_memid_fk foreign key (member_vo_id) references vos(id)
 );
 
+-- ALLOWED_GROUPS_TO_HIERARCHICAL_VO - Groups allowed to be included to parent vo's groups
+create table allowed_groups_to_hierarchical_vo (
+							group_id integer not null,     --identifier of group
+							vo_id integer not null,        --identifier of parent vo
+							created_at timestamp default statement_timestamp() not null,
+							created_by varchar default user not null,
+							created_by_uid integer,
+							constraint alwd_grps_pk primary key (group_id, vo_id),
+							constraint alwd_grps_gid_fk foreign key (group_id) references groups(id) on delete cascade,
+							constraint alwd_grps_void_fk foreign key (vo_id) references vos(id)
+);
+
 -- RES_TAGS - possible resource tags in VO
 create table res_tags (
 						   id integer not null,
@@ -1831,9 +1843,11 @@ create index idx_fk_cons_usr ON consents(user_id);
 create index idx_fk_cons_cons_hub ON consents(consent_hub_id);
 create index idx_fk_attr_cons_cons ON consent_attr_defs(consent_id);
 create index idx_fk_attr_cons_attr ON consent_attr_defs(attr_id);
+create index idx_fk_alwd_grps_group ON allowed_groups_to_hierarchical_vo(group_id);
+create index idx_fk_alwd_grps_vo ON allowed_groups_to_hierarchical_vo(vo_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.92');
+insert into configurations values ('DATABASE VERSION','3.1.93');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

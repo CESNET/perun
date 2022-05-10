@@ -46,6 +46,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -6131,6 +6132,68 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		for (RichGroup g : groups.getData()) {
 			assertEquals(new HashSet<>(g.getAttributes()), new HashSet<>(attributes.get(g.getUuid())));
 		}
+	}
+
+	@Test
+	public void allowGroupToHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "allowGroupToHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
+
+		groupsManager.allowGroupToHierarchicalVo(sess, group, vo);
+		assertTrue(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
+	}
+
+	@Test
+	public void allowGroupToNonParentHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "allowGroupToNonParentHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+
+		groupsManager.createGroup(sess, memberVo, group);
+
+		assertThatExceptionOfType(RelationNotExistsException.class).isThrownBy(() -> groupsManager.allowGroupToHierarchicalVo(sess, group, vo));
+		assertThatExceptionOfType(RelationNotExistsException.class).isThrownBy(() -> groupsManager.allowGroupToHierarchicalVo(sess, group, memberVo));
+	}
+
+	@Test
+	public void allowGroupToHierarchicalWrongRelations() throws Exception {
+		System.out.println(CLASS_NAME + "allowGroupToHierarchicalWrongRelations");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		assertThatExceptionOfType(RelationNotExistsException.class).isThrownBy(() -> groupsManager.disallowGroupToHierarchicalVo(sess, group, vo));
+
+		groupsManager.allowGroupToHierarchicalVo(sess, group, vo);
+		assertThatExceptionOfType(RelationExistsException.class).isThrownBy(() -> groupsManager.allowGroupToHierarchicalVo(sess, group, vo));
+	}
+
+	@Test
+	public void disallowGroupToHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "disallowGroupToHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
+
+		groupsManager.allowGroupToHierarchicalVo(sess, group, vo);
+		assertTrue(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
+
+		groupsManager.disallowGroupToHierarchicalVo(sess, group, vo);
+		assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

@@ -1340,6 +1340,34 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
+	public void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		try {
+			jdbc.update("insert into allowed_groups_to_hierarchical_vo (group_id,vo_id,created_by,created_at,created_by_uid) " +
+				"values(?,?,?, " + Compatibility.getSysdate() +",?)", group.getId(), vo.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		try {
+			jdbc.update("delete from allowed_groups_to_hierarchical_vo where group_id=? and vo_id=?", group.getId(), vo.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		try {
+			return 0 < jdbc.queryForInt("SELECT count(1) FROM allowed_groups_to_hierarchical_vo WHERE vo_id=? and group_id=?", vo.getId(), group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
 	private String getSQLWhereForGroupsPage(GroupsPageQuery query, MapSqlParameterSource namedParams) {
 		if (isEmpty(query.getSearchString())) {
 			return "";

@@ -100,6 +100,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -5876,5 +5877,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			attributes = perunBl.getAttributesManagerBl().getAttributes(sess, group, attrNames);
 		}
 		return new EnrichedGroup(group, attributes);
+	}
+
+	@Override
+	public void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException, RelationExistsException {
+		if (!perunBl.getVosManagerBl().getParentVos(sess, group.getVoId()).contains(vo)) {
+			throw new RelationNotExistsException("Passed vo is not a parent vo of group's vo");
+		}
+
+		if (isAllowedGroupToHierarchicalVo(sess, group, vo)) {
+			throw new RelationExistsException("Group " + group + " is already allowed to be included in " + vo + " groups!");
+		}
+
+		this.getGroupsManagerImpl().allowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException {
+		if (!isAllowedGroupToHierarchicalVo(sess, group, vo)) {
+			throw new RelationNotExistsException("Group " + group + " is not allowed to be included in " + vo + " groups yet!");
+		}
+
+		this.getGroupsManagerImpl().disallowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		return this.getGroupsManagerImpl().isAllowedGroupToHierarchicalVo(sess, group, vo);
 	}
 }

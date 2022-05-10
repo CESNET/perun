@@ -2134,6 +2134,22 @@ perun_policies:
     include_policies:
       - default_policy
 
+  isAllowedGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  allowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  disallowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   #MembersManagerEntry
   deleteMember_Member_policy:
     policy_roles:

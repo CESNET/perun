@@ -934,4 +934,29 @@ public interface GroupsManagerImplApi {
 	 * @param group group to check
 	*/
 	boolean isGroupForAutoRegistration(PerunSession sess, Group group);
+
+	/**
+	 * Sets flag required for including group to parent vo in a vo hierarchy.
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 */
+	void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo);
+
+	/**
+	 * Unsets flag required for including group to parent vo in a vo hierarchy
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 */
+	void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo);
+
+	/**
+	 * Returns flag representing if the group can be included in the (parent) vo's groups
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 * @return true if group can be included in vo's groups, false otherwise
+	 */
+	boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo);
 }
