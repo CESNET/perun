@@ -1,10 +1,22 @@
 # This is only a sample config file! You need to create file oidc_config.yml in this directory
 # and specify following options in it!
+# Each configuration is a dictionary entry, where the key serves as the identification of the configuration.
+# to switch between configurations, set environmental variable PERUN_OIDC_CONFIG to the id of desired configuration.
+# The key is a string so user can freely choose the name of each configuration
+perun:
+  client_id: "" # Identifier of the CLI app on the OIDC server
+  oidc_device_code_uri: "" # Here the CLI requests from the OIDC server to start the authentication
+  oidc_token_endpoint_uri: "" # Token endpoint URI
+  oidc_token_revoke_endpoint_uri: "" # Token revoke endpoint URI
+  acr_values: "" # List of ACR values for authentication
+  scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
+  perun_api_endpoint: ""
 
-client_id: "" # Identifier of the CLI app on the OIDC server
-oidc_device_code_uri: "" # Here the CLI requests from the OIDC server to start the authentication
-oidc_token_endpoint_uri: "" # Token endpoint URI
-oidc_token_revoke_endpoint_uri: "" # Token revoke endpoint URI
-acr_values: "" # List of ACR values for authentication
-scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
-perun_api_endpoint: ""
+otherPerun:
+  client_id: "" # Identifier of the CLI app on the OIDC server
+  oidc_device_code_uri: "" # Here the CLI requests from the OIDC server to start the authentication
+  oidc_token_endpoint_uri: "" # Token endpoint URI
+  oidc_token_revoke_endpoint_uri: "" # Token revoke endpoint URI
+  acr_values: "" # List of ACR values for authentication
+  scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
+  perun_api_endpoint: ""
