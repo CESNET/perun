@@ -15,13 +15,14 @@ sub help {
 	--description  | -d service description
 	--script       | -s service script path (default './service_name')
 	--enabled      | -e enabled (default 'true')
+	--expired      | -x use expired members (default 'true')
 	--batch        | -b batch
 	--help         | -h prints this help
 
 	};
 }
 
-my ($name, $description, $script, $enabled, $batch);
+my ($name, $description, $script, $enabled, $batch, $expired);
 GetOptions ("help|h"  => sub {
 		print help();
 		exit 0;
@@ -30,7 +31,9 @@ GetOptions ("help|h"  => sub {
 	"name|n=s" => \$name,
 	"description|d=s" => \$description,
 	"script|s=s" => \$script,
-	"enabled|e=s" => \$enabled,) || die help();
+	"enabled|e=s" => \$enabled,
+	"expired|x=s" => \$expired,
+) || die help();
 
 # Check options
 unless (defined($name)) { die "ERROR: name is required \n";}
@@ -45,10 +48,10 @@ unless ($script) {
 	$script = "./" . $name;
 }
 $service->setScript($script);
+$service->setUseExpiredMembers($expired);
 $service->setEnabled($enabled);
 $service->setRecurrence(2);
 $service->setDelay(10);
-
 $service = $servicesAgent->createService( service => $service);
 
 printMessage("Service Id:".$service->getId." successfully created", $batch);
