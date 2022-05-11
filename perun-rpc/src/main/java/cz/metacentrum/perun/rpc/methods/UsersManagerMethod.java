@@ -507,12 +507,29 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @throw RelationExistsException When the User has some members assigned.
 	 * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process.
 	 */
+	/*#
+	 * Anonymizes user (force) - according to configuration, each of user's attributes is either
+	 * anonymized, kept untouched or deleted. Also deletes other user's related data, e.g.
+	 * authorships of users publications, mail change and password reset requests, bans...
+	 * Also removes associated members.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param force boolean If true, use force anonymization
+	 * @throw UserNotExistsException When the User specified by <code>id</code> doesn't exist.
+	 * @throw RelationExistsException When the User has some members assigned.
+	 * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process.
+	 */
 	anonymizeUser {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
-			ac.getUsersManager().anonymizeUser(ac.getSession(), ac.getUserById(parms.readInt("user")));
+
+			if (parms.contains("force")) {
+				ac.getUsersManager().anonymizeUser(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readBoolean("force"));
+			} else {
+				ac.getUsersManager().anonymizeUser(ac.getSession(), ac.getUserById(parms.readInt("user")), false);
+			}
 			return null;
 		}
 	},
