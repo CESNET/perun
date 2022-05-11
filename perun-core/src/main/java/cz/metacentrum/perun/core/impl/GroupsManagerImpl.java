@@ -1368,6 +1368,26 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups WHERE id IN " +
+				"(SELECT group_id FROM allowed_groups_to_hierarchical_vo WHERE vo_id=?)", GROUP_MAPPER, vo.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups WHERE vo_id=? AND id IN " +
+				"(SELECT group_id FROM allowed_groups_to_hierarchical_vo WHERE vo_id=?)", GROUP_MAPPER, memberVo.getId(), vo.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	private String getSQLWhereForGroupsPage(GroupsPageQuery query, MapSqlParameterSource namedParams) {
 		if (isEmpty(query.getSearchString())) {
 			return "";

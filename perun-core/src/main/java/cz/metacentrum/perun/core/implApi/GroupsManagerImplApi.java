@@ -959,4 +959,23 @@ public interface GroupsManagerImplApi {
 	 * @return true if group can be included in vo's groups, false otherwise
 	 */
 	boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo);
+
+	/**
+	 * Returns all groups which can be included to VO.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @return list of allowed groups to hierarchical VO
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo);
+
+	/**
+	 * Returns groups which can be included to VO from specific member VO.
+	 *
+	 * @param sess session
+	 * @param vo parent VO
+	 * @param memberVo member VO
+	 * @return list of allowed groups to hierarchical VO
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo);
 }

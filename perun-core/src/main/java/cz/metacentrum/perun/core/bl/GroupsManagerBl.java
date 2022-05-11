@@ -44,7 +44,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -2088,4 +2087,23 @@ public interface GroupsManagerBl {
 	 * @return true if group can be included in vo's groups, false otherwise
 	 */
 	boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo);
+
+	/**
+	 * Returns all groups which can be included to VO.
+	 *
+	 * @param sess session
+	 * @param vo VO
+	 * @return list of allowed groups to hierarchical VO
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo);
+
+	/**
+	 * Returns groups which can be included to VO from specific member VO.
+	 *
+	 * @param sess session
+	 * @param vo parent VO
+	 * @param memberVo member VO
+	 * @return list of allowed groups to hierarchical VO
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo);
 }

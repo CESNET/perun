@@ -1607,4 +1607,31 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		return getGroupsManagerBl().isAllowedGroupToHierarchicalVo(sess, group, vo);
 	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAllAllowedGroupsToHierarchicalVo_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getAllAllowedGroupsToHierarchicalVo");
+		}
+
+		return getGroupsManagerBl().getAllAllowedGroupsToHierarchicalVo(sess, vo);
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, memberVo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAllAllowedGroupsToHierarchicalVo_Vo_Vo_policy", vo, memberVo)) {
+			throw new PrivilegeException(sess, "getAllAllowedGroupsToHierarchicalVo");
+		}
+
+		return getGroupsManagerBl().getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo);
+	}
 }
