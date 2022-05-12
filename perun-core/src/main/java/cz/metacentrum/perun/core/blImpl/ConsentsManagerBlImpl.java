@@ -296,6 +296,11 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 
 	@Override
 	public List<Member> evaluateConsents(PerunSession sess, Service service, Facility facility, List<Member> members) {
+		return evaluateConsents(sess, service, facility, members, true);
+	}
+
+	@Override
+	public List<Member> evaluateConsents(PerunSession sess, Service service, Facility facility, List<Member> members, boolean consentEval) {
 		if (!BeansUtils.getCoreConfig().getForceConsents()) {
 			return members;
 		}
@@ -325,7 +330,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 			.collect(groupingBy(Consent::getUserId, toMap(Consent::getStatus, Function.identity())));
 
 		return members.stream()
-			.filter(member -> hasValidConsent(sess, member, consentHub, requiredAttributes, userIdToConsents.get(member.getUserId())))
+			.filter(member -> hasValidConsent(sess, member, consentHub, requiredAttributes, userIdToConsents.get(member.getUserId()), consentEval))
 			.toList();
 	}
 
@@ -341,13 +346,16 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	 * @param consentHub the consent hub
 	 * @param requiredAttributes a list of attributes a consent should contain
 	 * @param usersConsents map of user's consents (consent status to the user's consent witch such status)
+	 * @param consentEval true if consent evaluation is enabled
 	 * @return true if the given member has a valid consent
 	 */
 	private boolean hasValidConsent(PerunSession sess, Member member, ConsentHub consentHub, List<AttributeDefinition> requiredAttributes,
-									Map<ConsentStatus, Consent> usersConsents) {
+									Map<ConsentStatus, Consent> usersConsents, boolean consentEval) {
 		if (usersConsents == null || usersConsents.isEmpty()) {
 			try {
-				this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
+				if (consentEval) {
+					this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
+				}
 			} catch (ConsentExistsException | ConsentHubNotExistsException | UserNotExistsException e) {
 				throw new InternalErrorException(e);
 			}
@@ -361,7 +369,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 			return true;
 		} else if (revokedConsent != null && revokedConsent.getAttributes().containsAll(requiredAttributes)) {
 			return false;
-		} else if (unsignedConsent == null || !unsignedConsent.getAttributes().containsAll(requiredAttributes)) {
+		} else if ((unsignedConsent == null || !unsignedConsent.getAttributes().containsAll(requiredAttributes)) && consentEval) {
 			try {
 				this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
 			} catch (ConsentExistsException | ConsentHubNotExistsException | UserNotExistsException e) {

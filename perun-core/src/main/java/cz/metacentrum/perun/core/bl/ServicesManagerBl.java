@@ -370,9 +370,10 @@ public interface ServicesManagerBl {
 	 * @param service service
 	 * @param facility facility
 	 * @param filterExpiredMembers if the generator should filter expired members
+	 * @param consentEval if the generator should force evaluation of consents
 	 * @return generated hashed data structure
 	 */
-	HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers);
+	HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval);
 
 	/**
 	 * Generates hashed data with group structure for given service and resource.
@@ -419,9 +420,10 @@ public interface ServicesManagerBl {
 	 * @param service service
 	 * @param facility facility
 	 * @param filterExpiredMembers if the generator should filter expired members
+	 * @param consentEval if the generator should force evaluation of consents
 	 * @return generated hashed data structure
 	 */
-	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers);
+	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval);
 
 	/**
 	 * Generates the list of attributes per each resource associated with the facility and filtered by service. Next it generates list of attributes
