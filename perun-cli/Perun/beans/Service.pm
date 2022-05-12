@@ -17,6 +17,7 @@ sub toString {
 	my $delay = $self->{_delay};
 	my $recurrence = $self->{_recurrence};
 	my $enabled = $self->{_enabled};
+	my $useExpiredMembers = $self->{_useExpiredMembers};
 	my $script = $self->{_script};
 
 	my $str = 'Service (';
@@ -26,6 +27,7 @@ sub toString {
 	$str .= "delay: $delay, ";
 	$str .= "recurrence: $recurrence, ";
 	$str .= "enabled: $enabled, ";
+	$str .= "useExpiredMembers: $useExpiredMembers, ";
 	$str .= "script: $script, ";
 	$str .= ')';
 
@@ -60,7 +62,35 @@ sub TO_JSON
 		$name = undef;
 	}
 
-	return { id => $id, name => $name, beanName => "Service" };
+	my $description;
+	if (defined($self->{_description})) {
+		$description = "$self->{_description}";
+	} else {
+		$description = undef;
+	}
+
+	my $script;
+	if (defined($self->{_script})) {
+		$script = "$self->{_script}";
+	} else {
+		$script = undef;
+	}
+
+	my $enabled;
+	if (defined($self->{_enabled})) {
+		$enabled = "$self->{_enabled}";
+	} else {
+		$enabled = "true";
+	}
+
+	my $useExpiredMembers;
+	if (defined($self->{_useExpiredMembers})) {
+		$useExpiredMembers = "$self->{_useExpiredMembers}";
+	} else {
+		$useExpiredMembers = "true";
+	}
+
+	return { id => $id, name => $name, beanName => "Service", description => $description, script => $script, enabled => $enabled, useExpiredMembers => $useExpiredMembers };
 }
 
 sub getId
@@ -152,6 +182,19 @@ sub setEnabled
 	return;
 }
 
+sub getUseExpiredMembers
+{
+	my $self = shift;
+
+	return $self->{_useExpiredMembers};
+}
+sub setUseExpiredMembers
+{
+	my $self = shift;
+	$self->{_useExpiredMembers} = shift;
+	return;
+}
+
 sub getScript
 {
 	my $self = shift;
@@ -169,11 +212,11 @@ sub setScript
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_name}, $self->{_delay}, $self->{_recurrence}, $self->{_enabled}, $self->{_script}, $self->{_description});
+	return ($self->{_id}, $self->{_name}, $self->{_delay}, $self->{_recurrence}, $self->{_enabled}, $self->{_script}, $self->{_description}, $self->{_useExpiredMembers});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Delay','Recurrence','Enaled','Script','Description');
+	return ('ID', 'Name', 'Delay','Recurrence','Enaled','Script','Description', 'UseExpiredMembers');
 }
 
 
