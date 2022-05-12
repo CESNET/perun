@@ -123,6 +123,7 @@ public class UpdateService {
 		newService.put("recurrence", new JSONNumber(service.getRecurrence()));
 		newService.put("enabled", JSONBoolean.getInstance(service.isEnabled()));
 		newService.put("script", new JSONString(service.getScriptPath()));
+		newService.put("useExpiredMembers", JSONBoolean.getInstance(service.getUseExpiredMembers()));
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
