@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
@@ -364,8 +363,6 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		List<Facility> facilities = consentHub.getFacilities();
 		List<Service> facilityAssignedServices;
 
-		Set<Integer> processedUsers = new HashSet<>();
-
 		PerunLocksUtils.lockConsentHub(consentHub);
 
 		for (Facility facility : facilities) {
@@ -375,9 +372,6 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 				List<Member> members = service.isUseExpiredMembers()
 					? getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service)
 					: getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
-
-				members.removeIf(member -> processedUsers.contains(member.getUserId()));
-				processedUsers.addAll(members.stream().map(Member::getUserId).collect(Collectors.toList()));
 
 				evaluateConsents(sess, service, facility, members);
 			}
