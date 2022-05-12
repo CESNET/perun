@@ -16,7 +16,7 @@ ReadWritePaths=/var/log/perun/
 Environment="PERUN_CONF_DIR=/etc/perun/"
 Environment="PERUN_LOG_CONF=/etc/perun/logback-ldapc.xml"
 Environment="JAR=/home/perun/perun-ldapc/perun-ldapc.jar"
-Environment="LAST_PROCESSED_ID='--sync'"
+Environment="LAST_PROCESSED_ID=--sync"
 
 # Override default systemd unit environment using our config file
 # "-" at start means "don't fail if not present/readable"

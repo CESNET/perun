@@ -16,9 +16,9 @@ Environment="PERUN_CONF_DIR=/etc/perun/"
 Environment="PERUN_LOG_CONF=/etc/perun/logback-engine.xml"
 Environment="JAR=/home/perun/perun-engine/perun-engine.jar"
 # Default PERL lib paths for gen scripts
-Environment="PERL5LIB='/opt/perun-cli/lib/:.'"
+Environment="PERL5LIB=/opt/perun-cli/lib/:."
 # Disable Kerberos if someone under the same user creates the ticket
-Environment="KRB5CCNAME='/dev/null'"
+Environment="KRB5CCNAME=/dev/null"
 
 # Override default systemd unit environment using our config file
 # "-" at start means "don't fail if not present/readable"
@@ -27,9 +27,9 @@ Environment="KRB5CCNAME='/dev/null'"
 #
 # PERUN_USER=perun-engine/password
 # PERUN_URL=https://perundomain.com/ba/rpc/
-# PERL5LIB='/opt/perun-cli/lib/:.'
+# PERL5LIB="/opt/perun-cli/lib/:."
 # PERL_LWP_SSL_VERIFY_HOSTNAME=0
-# KRB5CCNAME='/path/to/ticket_or_dev_null'
+# KRB5CCNAME="/path/to/ticket_or_dev_null"
 #
 EnvironmentFile=-/etc/perun/perun-engine
 
