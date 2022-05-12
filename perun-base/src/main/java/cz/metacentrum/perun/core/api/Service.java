@@ -13,6 +13,8 @@ public class Service extends Auditable implements Comparable<PerunBean> {
 	private boolean enabled = true;
 	private String script;
 
+	private boolean useExpiredMembers = true;
+
 	public Service(){
 		super();
 	}
@@ -81,6 +83,14 @@ public class Service extends Auditable implements Comparable<PerunBean> {
 		this.script = script;
 	}
 
+	public boolean isUseExpiredMembers() {
+		return useExpiredMembers;
+	}
+
+	public void setUseExpiredMembers(boolean useExpiredUsers) {
+		this.useExpiredMembers = useExpiredUsers;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -115,6 +125,7 @@ public class Service extends Auditable implements Comparable<PerunBean> {
 				", recurrence=<").append(this.getRecurrence()).append(">").append(
 				", enabled=<").append(this.isEnabled()).append(">").append(
 				", script=<").append(getScript() == null ? "\\0" : BeansUtils.createEscaping(getScript())).append(">").append(
+				", useExpiredMembers=<").append(isUseExpiredMembers()).append(">").append(
 			']').toString();
 	}
 
@@ -124,7 +135,8 @@ public class Service extends Auditable implements Comparable<PerunBean> {
 		return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', name='").append(name)
 				.append("', description='").append(getDescription()).append("', delay='").append(getDelay())
 				.append("', recurrence='").append(getRecurrence()).append("', enabled='").append(isEnabled())
-				.append("', script='").append(getScript()).append("']").toString();
+				.append("', script='").append(getScript()).append("', useExpiredMembers='").append(isUseExpiredMembers())
+				.append("']").toString();
 	}
 
 	@Override

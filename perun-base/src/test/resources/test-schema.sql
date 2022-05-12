@@ -1,4 +1,4 @@
--- database version 3.1.91 (don't forget to update insert statement at the end of file)
+-- database version 3.1.92 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -422,6 +422,7 @@ create table services (
 						   recurrence integer not null default 2,
 						   enabled boolean default true not null,
 						   script varchar not null,
+						   use_expired_members boolean default true not null,
 						   created_at timestamp default statement_timestamp() not null,
 						   created_by varchar default user not null,
 						   modified_at timestamp default statement_timestamp() not null,
@@ -1832,7 +1833,7 @@ create index idx_fk_attr_cons_cons ON consent_attr_defs(consent_id);
 create index idx_fk_attr_cons_attr ON consent_attr_defs(attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.91');
+insert into configurations values ('DATABASE VERSION','3.1.92');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

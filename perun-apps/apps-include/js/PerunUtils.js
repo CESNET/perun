@@ -93,6 +93,7 @@ function callPerunPost(manager, method, args, callBack, perunError, perunComplet
         dataType: "jsonp",
         contentType: "application/json; charset=utf-8",
         type: "post",
+        headers: { 'X-XSRF-TOKEN': getXSRFToken() },
         success: function (data, textStatus, jqXHR)
         {
             if (!data) {
@@ -130,10 +131,25 @@ function callPerunPost(manager, method, args, callBack, perunError, perunComplet
         }
     });
 }
-;
 
-
-
+/**
+ * Get XSRF token for POST requests
+ */
+function getXSRFToken() {
+    let name = "XSRF-TOKEN=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
 
 /**
  * Get URL parameter

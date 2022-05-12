@@ -194,4 +194,22 @@ public class Service extends JavaScriptObject {
 		return o.getId() == this.getId();
 	}
 
+	/**
+	 * Get useExpiredMembers of service
+	 *
+	 * @return useExpiredMembers of service
+	 */
+	public final native boolean getUseExpiredMembers() /*-{
+		return this.useExpiredMembers;
+	}-*/;
+
+	/**
+	 * Set useExpiredMembers of service
+	 *
+	 * @param useExpiredMembers of service
+	 */
+	public final native void setUseExpiredMembers(boolean useExpiredMembers) /*-{
+		this.useExpiredMembers = useExpiredMembers;
+	}-*/;
+
 }

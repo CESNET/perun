@@ -3,34 +3,41 @@ package cz.metacentrum.perun.core.blImpl;
 import cz.metacentrum.perun.audit.events.ConsentManager.ChangedConsentStatus;
 import cz.metacentrum.perun.audit.events.ConsentManager.ConsentCreated;
 import cz.metacentrum.perun.audit.events.ConsentManager.ConsentDeleted;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Consent;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
-import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunLocksUtils;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +94,20 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		Set<AttributeDefinition> filter = new HashSet<>();
 		for (Facility facility : consentHub.getFacilities()) {
 			for (Resource resource : perunBl.getUsersManagerBl().getAssignedResources(sess, facility, user)) {
+				Member member;
+				try {
+					Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
+					member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
+				} catch (VoNotExistsException | MemberNotExistsException e) {
+					throw new InternalErrorException(e);
+				}
+				List<Group> groups = getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource, member);
+				boolean isExpiredInResource = groups.stream()
+							.allMatch(group -> getPerunBl().getGroupsManagerBl().getTotalMemberGroupStatus(sess, member, group).equals(MemberGroupStatus.EXPIRED));
 				for (Service service : perunBl.getResourcesManagerBl().getAssignedServices(sess, resource)) {
+					if (!service.isUseExpiredMembers()) {
+						if (isExpiredInResource) continue;
+					}
 					for (AttributeDefinition attr : perunBl.getAttributesManagerBl().getRequiredAttributesDefinition(sess, service)) {
 						if (Utils.isUserRelatedAttribute(attr)) {
 							filter.add(attr);
@@ -177,6 +197,11 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	@Override
 	public ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException {
 		return getConsentsManagerImpl().getConsentHubByFacility(sess, facilityId);
+	}
+
+	@Override
+	public List<ConsentHub> getConsentHubsByService(PerunSession sess, int serviceId) throws ConsentHubNotExistsException {
+		return getConsentsManagerImpl().getConsentHubsByService(sess, serviceId);
 	}
 
 	@Override
@@ -270,6 +295,11 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 
 	@Override
 	public List<Member> evaluateConsents(PerunSession sess, Service service, Facility facility, List<Member> members) {
+		return evaluateConsents(sess, service, facility, members, true);
+	}
+
+	@Override
+	public List<Member> evaluateConsents(PerunSession sess, Service service, Facility facility, List<Member> members, boolean consentEval) {
 		if (!BeansUtils.getCoreConfig().getForceConsents()) {
 			return members;
 		}
@@ -299,7 +329,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 			.collect(groupingBy(Consent::getUserId, toMap(Consent::getStatus, Function.identity())));
 
 		return members.stream()
-			.filter(member -> hasValidConsent(sess, member, consentHub, requiredAttributes, userIdToConsents.get(member.getUserId())))
+			.filter(member -> hasValidConsent(sess, member, consentHub, requiredAttributes, userIdToConsents.get(member.getUserId()), consentEval))
 			.toList();
 	}
 
@@ -315,13 +345,16 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	 * @param consentHub the consent hub
 	 * @param requiredAttributes a list of attributes a consent should contain
 	 * @param usersConsents map of user's consents (consent status to the user's consent witch such status)
+	 * @param consentEval true if consent evaluation is enabled
 	 * @return true if the given member has a valid consent
 	 */
 	private boolean hasValidConsent(PerunSession sess, Member member, ConsentHub consentHub, List<AttributeDefinition> requiredAttributes,
-									Map<ConsentStatus, Consent> usersConsents) {
+									Map<ConsentStatus, Consent> usersConsents, boolean consentEval) {
 		if (usersConsents == null || usersConsents.isEmpty()) {
 			try {
-				this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
+				if (consentEval) {
+					this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
+				}
 			} catch (ConsentExistsException | ConsentHubNotExistsException | UserNotExistsException e) {
 				throw new InternalErrorException(e);
 			}
@@ -335,7 +368,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 			return true;
 		} else if (revokedConsent != null && revokedConsent.getAttributes().containsAll(requiredAttributes)) {
 			return false;
-		} else if (unsignedConsent == null || !unsignedConsent.getAttributes().containsAll(requiredAttributes)) {
+		} else if ((unsignedConsent == null || !unsignedConsent.getAttributes().containsAll(requiredAttributes)) && consentEval) {
 			try {
 				this.createConsent(sess, new Consent(-1, member.getUserId(), consentHub, null));
 			} catch (ConsentExistsException | ConsentHubNotExistsException | UserNotExistsException e) {
@@ -345,5 +378,44 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		}
 
 		return false;
+	}
+
+	@Override
+	public void evaluateConsents(PerunSession sess, ConsentHub consentHub) {
+		if (!BeansUtils.getCoreConfig().getForceConsents() || !consentHub.isEnforceConsents()) {
+			return;
+		}
+
+		List<Facility> facilities = consentHub.getFacilities();
+		List<Service> facilityAssignedServices;
+
+		PerunLocksUtils.lockConsentHub(consentHub);
+
+		for (Facility facility : facilities) {
+			facilityAssignedServices = getPerunBl().getServicesManagerBl().getAssignedServices(sess, facility);
+
+			for (Service service : facilityAssignedServices) {
+				List<Member> members = service.isUseExpiredMembers()
+					? getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service)
+					: getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
+
+				evaluateConsents(sess, service, facility, members);
+			}
+		}
+		return;
+	}
+
+	@Override
+	public void evaluateConsents(PerunSession sess, Service service) {
+		if (!BeansUtils.getCoreConfig().getForceConsents()) {
+			return;
+		}
+
+		List<ConsentHub> consentHubs = getConsentsManagerImpl().getConsentHubsByService(sess, service.getId());
+		consentHubs.sort(Comparator.comparingInt(PerunBean::getId));
+		for (ConsentHub consentHub : consentHubs) {
+			evaluateConsents(sess, consentHub);
+		}
+		return;
 	}
 }

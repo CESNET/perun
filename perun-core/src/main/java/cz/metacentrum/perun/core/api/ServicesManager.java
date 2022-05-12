@@ -411,12 +411,13 @@ public interface ServicesManager {
 	 * @param service service
 	 * @param facility facility
 	 * @param filterExpiredMembers if the generator should filter expired members
+	 * @param consentEval if the generator should force evaluation of consents
 	 * @return generated hashed data structure
 	 * @throws FacilityNotExistsException if there is no such facility
 	 * @throws ServiceNotExistsException if there is no such service
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+	HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * Generates hashed data with group structure for given service and facility.
@@ -462,12 +463,13 @@ public interface ServicesManager {
 	 * @param service service
 	 * @param facility facility
 	 * @param filterExpiredMembers if the generator should filter expired members
+	 * @param consentEval if the generator should force evaluation of consents
 	 * @return generated hashed data structure
 	 * @throws FacilityNotExistsException if there is no such facility
 	 * @throws ServiceNotExistsException if there is no such service
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * Generates the list of attributes per each user and per each resource. Resources are filtered by service.

@@ -6755,6 +6755,7 @@ perun_policies:
   getConsentHubById_int_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - RPC:
     include_policies:
       - default_policy
 
@@ -6793,6 +6794,17 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+
+  evaluateConsents_ConsentHub_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  evaluateConsents_Service_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
 
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 perun_roles_management:

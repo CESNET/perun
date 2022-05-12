@@ -43,6 +43,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
@@ -68,10 +69,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -866,6 +869,30 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		membersManagerEntry.getMemberById(sess, createdMember.getId());
 
+	}
+
+	@Test(expected=MemberLifecycleAlteringForbiddenException.class)
+	public void deleteMemberOfHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "deleteMemberOfHierarchicalVo");
+
+		Member member = membersManagerEntry.getMemberById(sess, createdMember.getId());
+		setUpVo("memberVo");
+		AttributeDefinition attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+		perun.getAttributesManagerBl().setAttribute(sess, member, new Attribute(attrDef, new ArrayList<>(List.of("memberVo"))));
+
+		membersManagerEntry.deleteMember(sess, member);
+	}
+
+	@Test(expected=MemberNotExistsException.class)
+	public void deleteDirectMemberOfHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "deleteDirectMemberOfHierarchicalVo");
+
+		Member member = membersManagerEntry.getMemberById(sess, createdMember.getId());
+		AttributeDefinition attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+		perun.getAttributesManagerBl().setAttribute(sess, member, new Attribute(attrDef, new ArrayList<>()));
+
+		membersManagerEntry.deleteMember(sess, member);
+		membersManagerEntry.getMemberById(sess, createdMember.getId());
 	}
 
 	@Test(expected=MemberNotExistsException.class)
@@ -2151,13 +2178,15 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertThat(memberWithSponsors).hasSize(1);
 		assertThat(memberWithSponsors.get(0).getSponsors()).hasSize(2);
 
-		Sponsor sponsor1FromDb = memberWithSponsors.get(0).getSponsors().get(0);
-		assertThat(sponsor1FromDb.getUser()).isEqualTo(sponsor1);
-		assertThat(sponsor1FromDb.getValidityTo()).isNull();
+		HashMap<User, LocalDate> sponsors = new LinkedHashMap<>();
+		for (Sponsor sponsor : memberWithSponsors.get(0).getSponsors()) {
+			sponsors.put(sponsor.getUser(), sponsor.getValidityTo());
+		}
+		assertThat(sponsors.containsKey(sponsor1));
+		assertThat(sponsors.get(sponsor1)).isNull();
+		assertThat(sponsors.containsKey(sponsor2));
+		assertThat(sponsors.get(sponsor2)).isEqualTo(validity);
 
-		Sponsor sponsor2FromDb = memberWithSponsors.get(0).getSponsors().get(1);
-		assertThat(sponsor2FromDb.getUser()).isEqualTo(sponsor2);
-		assertThat(sponsor2FromDb.getValidityTo()).isEqualTo(validity);
 	}
 
 	@Test
@@ -2386,6 +2415,42 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		// member should be deleted
 		assertThatExceptionOfType(MemberNotExistsException.class)
 			.isThrownBy(() -> membersManagerEntry.getMemberById(sess, createdMember.getId()));
+	}
+
+	@Test
+	public void moveMembershipInParentVo() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembershipInParentVo");
+
+		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		User targetUser = perun.getUsersManagerBl().createUser(sess, new User(-1, "Jo", "Doe", "", "", ""));
+
+		Vo vo2 = new Vo(-1, "parentVo", "parentVo");
+		final Vo parentVo = perun.getVosManagerBl().createVo(sess, vo2);
+
+		// adds member to parentVo
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, createdVo);
+
+		Attribute memberAttribute = setUpAttribute(Integer.class.getName(), "testMemberAttribute", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		Member sourceParentVoMember = perun.getMembersManagerBl().getMemberByUserId(sess, parentVo, sourceUser.getId());
+		perun.getAttributesManagerBl().setAttribute(sess, sourceParentVoMember, memberAttribute);
+
+		// move membership in memberVo
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
+
+		// member was moved in memberVo and exists for target user
+		Member targetMemberVoMember = perun.getMembersManagerBl().getMemberByUser(sess, createdVo, targetUser);
+
+		// member should be deleted and moved to target user in memberVo
+		assertThatExceptionOfType(MemberNotExistsException.class).isThrownBy(() -> membersManagerEntry.getMemberByUser(sess, createdVo, sourceUser));
+		assertThatNoException().isThrownBy(() -> membersManagerEntry.getMemberByUser(sess, createdVo, targetUser));
+
+		// member should be deleted and moved to target user also in parentVo
+		assertThatExceptionOfType(MemberNotExistsException.class).isThrownBy(() -> membersManagerEntry.getMemberByUser(sess, parentVo, sourceUser));
+		Member targetParentVoMember = membersManagerEntry.getMemberByUser(sess, parentVo, targetUser);
+
+		// attribute set in parentVo was also moved in parentVo
+		List<Attribute> targetMemberAttrs = perun.getAttributesManagerBl().getAttributes(sess, targetParentVoMember);
+		assertThat(targetMemberAttrs).contains(memberAttribute);
 	}
 
 	@Test
@@ -3035,6 +3100,99 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		assertThat(allMembers)
 			.contains(member1, member2);
+	}
+
+	@Test
+	public void addMemberToMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberToMemberVo");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		Member member = setUpMember(memberVo);
+		Member newMember = perun.getMembersManagerBl().getMemberByUser(sess, parentVo, perun.getUsersManagerBl().getUserByMember(sess, member));
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).contains(memberVo.getShortName());
+		assertThat(newMember.getUserId()).isEqualTo(member.getUserId());
+	}
+
+	@Test
+	public void removeMemberFromMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberFromMemberVo");
+
+		Vo memberVo1 = setUpVo("member1");
+		Vo memberVo2 = setUpVo("member2");
+		Vo parentVo = setUpVo("parent");
+
+		Member member1 = setUpMember(memberVo1);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, memberVo2, perun.getUsersManagerBl().getUserByMember(sess, member1));
+		perun.getMembersManagerBl().validateMemberAsync(sess, member2);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo1);
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo2);
+
+		Member newMember = perun.getMembersManagerBl().getMemberByUser(sess, parentVo, perun.getUsersManagerBl().getUserByMember(sess, member1));
+
+		perun.getMembersManagerBl().deleteMember(sess, member1);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(memberVo2.getShortName());
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(1);
+
+	}
+
+	@Test
+	public void changeStatusParentVoMembershipChange() throws Exception {
+		System.out.println(CLASS_NAME + "changeStatusParentVoMembershipChange");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+
+		Member member = setUpMember(memberVo);
+
+		perun.getMembersManagerBl().disableMember(sess, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(0);
+
+		perun.getMembersManagerBl().validateMemberAsync(sess, member);
+
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(1);
+
+	}
+
+	@Test
+	public void removeMemberFromMemberVoAndParentVo() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberFromMemberVoAndParentVo");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+
+		Member member = setUpMember(memberVo);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		assertThat(perun.getMembersManagerBl().getMembers(sess, parentVo).size()).isEqualTo(1);
+		Member newMember = perun.getMembersManagerBl().getMembers(sess, parentVo).get(0);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsExactly(memberVo.getShortName());
+
+		perun.getMembersManagerBl().deleteMember(sess, member);
+
+		attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).isNullOrEmpty();
 	}
 
 	private Vo setUpVo(String name) throws Exception {

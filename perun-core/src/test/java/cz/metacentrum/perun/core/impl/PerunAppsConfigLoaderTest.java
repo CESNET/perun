@@ -20,6 +20,7 @@ public class PerunAppsConfigLoaderTest extends AbstractPerunIntegrationTest {
 		expectedDefaultBrand.setName("default");
 
 		var newApps = new PerunAppsConfig.NewApps();
+		newApps.setApi("api");
 		newApps.setAdmin("gui");
 		newApps.setProfile("profile");
 		newApps.setPwdReset("pwd-reset");

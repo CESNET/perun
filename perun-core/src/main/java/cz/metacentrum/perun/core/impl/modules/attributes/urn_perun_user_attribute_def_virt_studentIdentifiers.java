@@ -47,6 +47,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 
 	private static final String organizationNamespaceFriendlyName = "organizationNamespace";
 	private static final String organizationScopeFriendlyName = "organizationScope";
+	private static final String organizationPersonalCodeScopeFriendlyName = "organizationPersonalCodeScope";
 
 	private static final String schacHomeOrganizationFriendlyName = "schacHomeOrganization";
 	private static final String eduPersonScopedAffiliationFriendlyName = "affiliation";
@@ -54,6 +55,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 
 	private static final String A_G_D_organizationNamespaceFriendlyName = AttributesManager.NS_GROUP_ATTR_DEF + ":" + organizationNamespaceFriendlyName;
 	private static final String A_G_D_organizationScopeFriendlyName = AttributesManager.NS_GROUP_ATTR_DEF + ":" + organizationScopeFriendlyName;
+	private static final String A_G_D_organizationPersonalCodeScopeFriendlyName = AttributesManager.NS_GROUP_ATTR_DEF + ":" + organizationPersonalCodeScopeFriendlyName;
 
 	private static final String A_U_D_loginNamespaceFriendlyNamePrefix = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":";
 
@@ -108,6 +110,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 		if (organizationScope == null|| organizationScope.getValue() == null) {
 			return;
 		}
+		String schacPersonalCodeScope = organizationScope.valueAsString();
 		Attribute organizationNamespace = this.tryGetAttribute(sess, group, A_G_D_organizationNamespaceFriendlyName);
 		if (organizationNamespace == null || organizationNamespace.getValue() == null) {
 			return;
@@ -115,6 +118,11 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 		Attribute userLoginID = tryGetAttribute(sess, user, A_U_D_loginNamespaceFriendlyNamePrefix + organizationNamespace.valueAsString());
 		if (userLoginID == null || userLoginID.getValue() == null) {
 			return;
+		}
+		// In case this attribute exists and it is filled, it will be used in SPUC attribute instead of sHO
+		Attribute organizationPersonalCodeScope = tryGetAttribute(sess, group, A_G_D_organizationPersonalCodeScopeFriendlyName);
+		if (organizationPersonalCodeScope != null && organizationPersonalCodeScope.getValue() != null) {
+			schacPersonalCodeScope = organizationPersonalCodeScope.valueAsString();
 		}
 		ExtSource extSource = tryGetExtSource(sess, organizationScope.valueAsString());
 		//Create and set userExtSource if not exists
@@ -135,7 +143,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 			schacHomeOrganization.setValue(organizationScope.valueAsString());
 			eduPersonScopedAffiliation.setValue(affiliationPrefix + organizationScope.valueAsString());
 			List<String> spucValue = new ArrayList<>();
-			spucValue.add(studentIdentifiersValuePrefix + organizationScope.valueAsString() + ":" + userLoginID.valueAsString());
+			spucValue.add(studentIdentifiersValuePrefix + schacPersonalCodeScope + ":" + userLoginID.valueAsString());
 			schacPersonalUniqueCode.setValue(spucValue);
 
 			try {

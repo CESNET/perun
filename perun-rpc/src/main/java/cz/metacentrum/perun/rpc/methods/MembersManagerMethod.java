@@ -29,6 +29,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Deletes only member data appropriated by member id.
 	 *
 	 * @param member int Member <code>id</code>
+	 * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
 	deleteMember {
 		@Override
@@ -44,6 +45,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Delete members with given ids. It is possible to delete members from multiple vos.
 	 *
 	 * @param member int Member <code>id</code>
+	 * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
 	deleteMembers {
 		@Override
@@ -1344,6 +1346,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Deletes all VO members.
 	 *
 	 * @param vo int VO <code>id</code>
+	 * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
 	deleteAllMembers {
 		@Override
@@ -1613,6 +1616,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param status String VALID | INVALID | EXPIRED | DISABLED
 	 * @exampleParam status "VALID"
 	 * @return Member Member with status after change
+	 * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
 	setStatus {
 		@Override
@@ -1903,6 +1907,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Moves membership in VO from source user to target user - moves the source user's
 	 * memberships in non-synchronized groups, member related attributes, bans and
 	 * sponsorships in the VO. Removes the source user's member object.
+	 * If vo is member of any hierarchical VO, user's membership is moved in parent VOs also.
+	 * If vo is parent of any hierarchical member VOs, user's membership is not moved there.
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param sourceUser int User <code>id</code> to move membership from

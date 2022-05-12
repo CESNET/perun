@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
@@ -60,8 +61,9 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException
 	 * @throws PrivilegeException
 	 * @throws MemberAlreadyRemovedException
+	 * @throws MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
-	void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
+	void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException;
 
 	/**
 	 * Delete given members. It is possible to delete members from multiple vos.
@@ -72,8 +74,9 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException if any member doesn't exist
 	 * @throws PrivilegeException insufficient permissions
 	 * @throws MemberAlreadyRemovedException if already removed
+	 * @throws MemberLifecycleAlteringForbiddenException if some member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
-	void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
+	void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException;
 
 	/**
 	 *  Deletes all VO members.
@@ -84,8 +87,9 @@ public interface MembersManager {
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 * @throws MemberAlreadyRemovedException
+	 * @throws MemberLifecycleAlteringForbiddenException if some member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
+	void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating specific User
@@ -985,8 +989,9 @@ public interface MembersManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 * @throws PrivilegeException
+	 * @throws MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
-	Member setStatus(PerunSession sess, Member member, Status status) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
+	Member setStatus(PerunSession sess, Member member, Status status) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException, MemberLifecycleAlteringForbiddenException;
 
 	/**
 	 * Set date to which will be member suspended in his VO.
@@ -1465,6 +1470,8 @@ public interface MembersManager {
 	 * Moves membership in VO from source user to target user - moves the source user's
 	 * memberships in non-synchronized groups, member related attributes, bans and
 	 * sponsorships in the VO. Removes the source user's member object.
+	 * If VO is member of any hierarchical parent VO, user's membership is moved in parent VOs also.
+	 * If VO is parent of any hierarchical member VO, user's membership is not moved in member VOs.
 	 *
 	 * @param sess session
 	 * @param vo the VO in which the membership should be moved

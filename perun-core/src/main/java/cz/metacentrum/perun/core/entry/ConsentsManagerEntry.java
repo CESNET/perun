@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
@@ -322,6 +323,28 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		}
 
 		return consentsManagerBl.changeConsentStatus(sess, consent, status);
+	}
+
+	@Override
+	public void evaluateConsents(PerunSession sess, ConsentHub consentHub) throws PrivilegeException {
+		Utils.notNull(sess, "sess");
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "evaluateConsents_ConsentHub_policy", consentHub)) {
+			throw new PrivilegeException(sess, "evaluateConsents");
+		}
+		consentsManagerBl.evaluateConsents(sess, consentHub);
+	}
+
+	@Override
+	public void evaluateConsents(PerunSession sess, Service service) throws PrivilegeException {
+		Utils.notNull(sess, "sess");
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "evaluateConsents_Service_policy", service)) {
+			throw new PrivilegeException(sess, "evaluateConsents");
+		}
+		consentsManagerBl.evaluateConsents(sess, service);
 	}
 
 }

@@ -1,31 +1,20 @@
 package cz.metacentrum.perun.rpc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-
 import cz.metacentrum.perun.cabinet.api.CabinetManager;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
-import cz.metacentrum.perun.core.api.ConfigManager;
-import cz.metacentrum.perun.core.api.Consent;
-import cz.metacentrum.perun.core.api.ConsentsManager;
-import cz.metacentrum.perun.integration.api.IntegrationManagerApi;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunClient;
-import cz.metacentrum.perun.core.api.TasksManager;
-import cz.metacentrum.perun.registrar.model.Application;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.ConfigManager;
+import cz.metacentrum.perun.core.api.Consent;
+import cz.metacentrum.perun.core.api.ConsentHub;
+import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -40,6 +29,8 @@ import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnersManager;
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessagesManager;
@@ -51,6 +42,7 @@ import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -59,6 +51,7 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.integration.api.IntegrationManagerApi;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
 import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
@@ -66,8 +59,15 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.scim.SCIM;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.ServletContext;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ApiCaller calls Perun manager methods.
@@ -254,6 +254,10 @@ public class ApiCaller {
 
 	public Consent getConsentById(int id) throws PerunException {
 		return consentsManager.getConsentById(rpcSession, id);
+	}
+
+	public ConsentHub getConsentHubById(int id) throws PerunException {
+		return consentsManager.getConsentHubById(rpcSession, id);
 	}
 
 	public Vo getVoById(int id) throws PerunException {

@@ -55,13 +55,14 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 	private final GenDataProvider dataProvider;
 	private final Set<Member> membersWithConsent = new HashSet<>();
 	private final boolean filterExpiredMembers;
-
+	private final boolean consentEval;
 	private HierarchicalHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
-	                                        boolean filterExpiredMembers) {
+	                                        boolean filterExpiredMembers, boolean consentEval) {
 		this.sess = sess;
 		this.service = service;
 		this.facility = facility;
 		this.filterExpiredMembers = filterExpiredMembers;
+		this.consentEval = consentEval;
 		dataProvider = new GenDataProviderImpl(sess, service, facility);
 	}
 
@@ -79,7 +80,7 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 			} else {
 				membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
 			}
-			membersWithConsent.addAll(sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, membersToEvaluate));
+			membersWithConsent.addAll(sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, membersToEvaluate, consentEval));
 		}
 
 		Map<Integer, GenDataNode> childNodes = resources.stream()
@@ -140,6 +141,7 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		private Service service;
 		private Facility facility;
 		private boolean filterExpiredMembers = false;
+		private boolean consentEval = false;
 
 		public Builder sess(PerunSessionImpl sess) {
 			this.sess = sess;
@@ -161,8 +163,13 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 			return this;
 		}
 
+		public Builder consentEval(boolean consentEval) {
+			this.consentEval = consentEval;
+			return this;
+		}
+
 		public HierarchicalHashedDataGenerator build() {
-			return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredMembers);
+			return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval);
 		}
 	}
 }

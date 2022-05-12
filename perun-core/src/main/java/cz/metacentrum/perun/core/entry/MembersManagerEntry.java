@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
@@ -94,10 +95,11 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
+	public void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException {
 		Utils.checkPerunSession(sess);
 
 		getMembersManagerBl().checkMemberExists(sess, member);
+		getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", member)) {
@@ -109,11 +111,12 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
+	public void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException {
 		Utils.checkPerunSession(sess);
 
 		for (Member member : members) {
 			getMembersManagerBl().checkMemberExists(sess, member);
+			getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
 		}
 
 		// Authorization
@@ -127,10 +130,13 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		for (Member member : getPerunBl().getMembersManagerBl().getMembers(sess, vo)) {
+			getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
+		}
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", vo)) {
@@ -1019,10 +1025,11 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member setStatus(PerunSession sess, Member member, Status status) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
+	public Member setStatus(PerunSession sess, Member member, Status status) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException, MemberLifecycleAlteringForbiddenException {
 		Utils.checkPerunSession(sess);
 
 		getMembersManagerBl().checkMemberExists(sess, member);
+		getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_policy", member)) {

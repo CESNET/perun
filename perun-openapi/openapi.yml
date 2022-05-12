@@ -852,6 +852,7 @@ components:
             recurrence: { type: integer }
             enabled: { type: boolean }
             script: { type: string }
+            useExpiredMembers: { type: boolean }
       discriminator:
         propertyName: beanName
 
@@ -1370,6 +1371,7 @@ components:
     NewApps:
       type: object
       properties:
+        api: { type: string }
         admin: { type: string }
         profile: { type: string }
         pwdReset: { type: string }
@@ -10095,6 +10097,8 @@ paths:
       operationId: moveMembership
       summary: Moves membership in VO from source user to target user - moves the source user's memberships in non-synchronized groups,
         member related attributes, bans and sponsorships in the VO. Removes the source user's member object.
+        If VO is member of any hierarchical parent VO, user's membership is moved in parent VOs also.
+        If VO is parent of any hierarchical member VOs, user's membership is not moved in member VOs.
       parameters:
         - $ref: '#/components/parameters/voId'
         - { name: sourceUser, schema: { type: integer }, in: query, description: "id of source user", required: true }
@@ -15821,6 +15825,7 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
         - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+        - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
@@ -15837,6 +15842,7 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
         - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+        - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
@@ -16895,7 +16901,7 @@ paths:
   #                                               #
   #################################################
 
-  /json/Searcher/getUsers:
+  /json/searcher/getUsers:
     post:
       tags:
         - Searcher
@@ -16924,7 +16930,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getMembersByUserAttributes:
+  /json/searcher/getMembersByUserAttributes:
     post:
       tags:
         - Searcher
@@ -16955,7 +16961,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getFacilities:
+  /json/searcher/getFacilities:
     post:
       tags:
         - Searcher
@@ -16984,7 +16990,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getResources/attributes:
+  /json/searcher/getResources/attributes:
     post:
       tags:
         - Searcher
@@ -17013,7 +17019,7 @@ paths:
                   additionalProperties:
                     type: string
 
-  /json/Searcher/getResources/attributes-match:
+  /json/searcher/getResources/attributes-match:
     post:
       tags:
         - Searcher
@@ -17256,5 +17262,33 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/consentsManager/evaluateConsentsForConsentHub:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: evaluateConsentsForConsentHub
+      summary: Evaluates consents for given consent hub.
+      parameters:
+        - $ref: '#/components/parameters/consentHubId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/consentsManager/evaluateConsentsForService:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: evaluateConsentsForService
+      summary: Evaluates consents for all consent hubs with given service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'

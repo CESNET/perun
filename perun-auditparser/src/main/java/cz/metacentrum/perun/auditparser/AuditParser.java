@@ -443,6 +443,7 @@ public class AuditParser {
 		service.setRecurrence(Integer.valueOf(beanAttr.get("recurrence")).intValue());
 		service.setEnabled(Boolean.valueOf(beanAttr.get("enabled")).booleanValue());
 		service.setScript(BeansUtils.eraseEscaping(beanAttr.get("script")));
+		service.setUseExpiredMembers(Boolean.valueOf(beanAttr.get("useExpiredMembers")).booleanValue());
 		return service;
 	}
 

@@ -1,4 +1,0 @@
-#content .required::after {
-    content: " *";
-    color: #C00;
-}
