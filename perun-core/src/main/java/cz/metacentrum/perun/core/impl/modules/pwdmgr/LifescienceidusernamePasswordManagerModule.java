@@ -26,15 +26,15 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 /**
  * Password manager for lifescienceid-username.
  */
-public class LifescienceIdUsernamePasswordManagerModule extends GenericPasswordManagerModule {
+public class LifescienceidusernamePasswordManagerModule extends GenericPasswordManagerModule {
 
-	private final static Logger log = LoggerFactory.getLogger(LifescienceIdUsernamePasswordManagerModule.class);
+	private final static Logger log = LoggerFactory.getLogger(LifescienceidusernamePasswordManagerModule.class);
 
 	private final static int targetVoId = 3346;
 	private final static String LS_DOMAIN = "@hostel.aai.lifescience-ri.eu";
 	private final static String EXT_SOURCE_NAME = "https://hostel.aai.lifescience-ri.eu/lshostel/";
 
-	public LifescienceIdUsernamePasswordManagerModule() {
+	public LifescienceidusernamePasswordManagerModule() {
 		// set proper namespace
 		this.actualLoginNamespace = "lifescienceid-username";
 	}
