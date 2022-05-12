@@ -9,12 +9,15 @@ import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
@@ -24,8 +27,10 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunLocksUtils;
@@ -90,7 +95,20 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		Set<AttributeDefinition> filter = new HashSet<>();
 		for (Facility facility : consentHub.getFacilities()) {
 			for (Resource resource : perunBl.getUsersManagerBl().getAssignedResources(sess, facility, user)) {
+				Member member;
+				try {
+					Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
+					member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
+				} catch (VoNotExistsException | MemberNotExistsException e) {
+					throw new InternalErrorException(e);
+				}
+				List<Group> groups = getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource, member);
+				boolean isExpiredInResource = groups.stream()
+							.allMatch(group -> getPerunBl().getGroupsManagerBl().getTotalMemberGroupStatus(sess, member, group).equals(MemberGroupStatus.EXPIRED));
 				for (Service service : perunBl.getResourcesManagerBl().getAssignedServices(sess, resource)) {
+					if (!service.isUseExpiredMembers()) {
+						if (isExpiredInResource) continue;
+					}
 					for (AttributeDefinition attr : perunBl.getAttributesManagerBl().getRequiredAttributesDefinition(sess, service)) {
 						if (Utils.isUserRelatedAttribute(attr)) {
 							filter.add(attr);
