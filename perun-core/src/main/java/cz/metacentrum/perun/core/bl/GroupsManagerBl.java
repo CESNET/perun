@@ -44,10 +44,10 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -1776,8 +1776,9 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 * @throws GroupNotExistsException
+	 * @throws VoNotExistsException
 	 */
-	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupRelationAlreadyExists, GroupRelationNotAllowed, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
+	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupRelationAlreadyExists, GroupRelationNotAllowed, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, VoNotExistsException;
 
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.
