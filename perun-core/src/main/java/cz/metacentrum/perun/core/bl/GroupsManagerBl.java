@@ -46,6 +46,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -2059,4 +2060,32 @@ public interface GroupsManagerBl {
 	 * @return EnrichedGroup for given group with desired attributes
 	 */
 	EnrichedGroup convertToEnrichedGroup(PerunSession sess, Group group, List<String> attrNames);
+
+	/**
+	 * Sets flag required for including group to parent vo in a vo hierarchy.
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 * @throws RelationNotExistsException if group is not from parent vo's member vos
+	 * @throws RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException, RelationExistsException;
+
+	/**
+	 * Unsets flag required for including group to parent vo in a vo hierarchy
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 * @throws RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException;
+
+	/**
+	 * Returns flag representing if the group can be included in the (parent) vo's groups
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 * @return true if group can be included in vo's groups, false otherwise
+	 */
+	boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo);
 }

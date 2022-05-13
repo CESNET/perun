@@ -12450,6 +12450,51 @@ paths:
                 attrNames: { type: array, items: { type: string } }
                 query: { $ref: '#/components/schemas/GroupsPageQuery' }
 
+  /urlinjsonout/groupsManager/allowGroupToHierarchicalVo:
+    post:
+      tags:
+        - GroupsManager
+      operationId: allowGroupToHierarchicalVo
+      summary: Sets flag required for including group to parent vo in a vo hierarchy.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/disallowGroupToHierarchicalVo:
+    post:
+      tags:
+        - GroupsManager
+      operationId: disallowGroupToHierarchicalVo
+      summary: Unsets flag required for including group to parent vo in a vo hierarchy.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/isAllowedGroupToHierarchicalVo:
+    get:
+      tags:
+        - GroupsManager
+      operationId: isAllowedGroupToHierarchicalVo
+      summary: Returns flag representing if the group can be included in the (parent) vo's groups
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #
