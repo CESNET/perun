@@ -15854,7 +15854,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/ServiceAttributesResponse'
@@ -15870,7 +15869,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
         - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
@@ -15887,7 +15885,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
         - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
@@ -15904,7 +15901,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/ServiceAttributesResponse'
@@ -15920,7 +15916,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/ServiceAttributesResponse'
@@ -15936,7 +15931,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/ServiceAttributesResponse'
