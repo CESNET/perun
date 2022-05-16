@@ -109,6 +109,15 @@ public class ModulesYamlConfigLoader implements ModulesConfigLoader {
 		return values;
 	}
 
+	@Override
+	public boolean moduleFileExists(String moduleName) {
+		notNull(moduleName, "configFile");
+		String path = modulesDirPath + moduleName + ".yaml";
+
+		File f = new File(path);
+		return f.exists() && !f.isDirectory();
+	}
+
 	/**
 	 * Loads a JsonNode corresponding to the given module and property name.
 	 * This method expects a {moduleName}.yaml file at the modulesDirPath.
