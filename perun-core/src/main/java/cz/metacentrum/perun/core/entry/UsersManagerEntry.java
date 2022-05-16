@@ -439,17 +439,17 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void anonymizeUser(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, AnonymizationNotSupportedException {
+	public void anonymizeUser(PerunSession sess, User user, boolean force) throws UserNotExistsException, PrivilegeException, RelationExistsException, AnonymizationNotSupportedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "anonymizeUser_User_policy", user)) {
+		if(!AuthzResolver.authorizedInternal(sess, "anonymizeUser_User_boolean_policy", user)) {
 			throw new PrivilegeException(sess, "anonymizeUser");
 		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
 
-		getUsersManagerBl().anonymizeUser(sess, user);
+		getUsersManagerBl().anonymizeUser(sess, user, force);
 	}
 
 	@Override

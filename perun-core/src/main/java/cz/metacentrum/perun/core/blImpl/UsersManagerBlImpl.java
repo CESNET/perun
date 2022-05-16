@@ -643,9 +643,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void anonymizeUser(PerunSession sess, User user) throws RelationExistsException, AnonymizationNotSupportedException {
+	public void anonymizeUser(PerunSession sess, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException {
 		try {
-			this.deleteUser(sess, user, false, true);
+			this.deleteUser(sess, user, force, true);
 		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException ex) {
 			//this shouldn't happen with 'anonymizedInstead' set to true
 			throw new InternalErrorException(ex);
