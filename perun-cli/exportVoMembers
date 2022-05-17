@@ -12,7 +12,7 @@ sub help {
 	Prints list of VO members, their stauses and values of selected attributes. VO can be specified by Id or shortName.
 	---------------------------------
 	Available options:
-	--voId         | -v  VO idetifier
+	--voId         | -v  VO identifier
 	--voShortName  | -V  VO short name
 	--attrList     | -a  list of attributes to print *)
 	--statuses     | -s  list of allowed statuses   **)
