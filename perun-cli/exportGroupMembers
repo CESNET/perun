@@ -17,7 +17,7 @@ sub help {
 	Available options:
 	--groupId      | -g  Group identifier
 	--groupName    | -G  Group name
-	--voId         | -v  VO idetifier
+	--voId         | -v  VO identifier
 	--voShortName  | -V  VO short name
 	--attrList     | -a  list of attributes to print *)
 	--statuses     | -s  list of allowed statuses   **)
