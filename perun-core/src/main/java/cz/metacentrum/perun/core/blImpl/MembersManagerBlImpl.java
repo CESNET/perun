@@ -151,6 +151,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 	private static final String A_U_LOGIN_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:";
 	private static final String A_M_IS_LIFECYCLE_ALTERABLE = AttributesManager.NS_MEMBER_ATTR_VIRT + ":isLifecycleAlterable";
+	private static final String A_U_NOTE = AttributesManager.NS_USER_ATTR_DEF + ":note";
 
 	private static final String DEFAULT_NO_REPLY_EMAIL = "no-reply@perun-aai.org";
 
@@ -161,6 +162,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String NAME = "name";
 	private static final String GROUP_ADDING_ERRORS = "group_adding_errors";
 	private static final String MEMBER = "member";
+	private static final String NOTE = "note";
 	private final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
 
 	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
@@ -171,7 +173,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	public static final List<String> SPONSORED_MEMBER_ADDITIONAL_FIELDS = Arrays.asList(
 			"login",
-			AttributesManager.NS_USER_ATTR_DEF + ":note"
+		    A_U_NOTE
 	);
 
 	private final MembersManagerImplApi membersManagerImpl;
@@ -2691,6 +2693,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				newResult.put(STATUS, (String)originalResult.get(STATUS));
 				newResult.put(LOGIN, (String)originalResult.get(LOGIN));
 				newResult.put(PASSWORD, (String)originalResult.get(PASSWORD));
+
+				// "note" is optional and namespace dependent
+				if (originalResult.containsKey(NOTE)) {
+					newResult.put(NOTE, (String)originalResult.get(NOTE));
+				}
+
 				createdMembers.add((Member)originalResult.get(MEMBER));
 			} else {
 				// error when creating
@@ -3447,6 +3455,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			// we must pass member back for the purpose of validation
 			status.put(MEMBER, member);
 			status.put(STATUS, OK);
+
+			// pass note back if present
+			if (data.containsKey(A_U_NOTE)) {
+				status.put(NOTE, data.get(A_U_NOTE));
+			}
 		} catch (Exception e) {
 			log.error("Failed to create a sponsored user.", e);
 			status.put(STATUS, e.getMessage());
