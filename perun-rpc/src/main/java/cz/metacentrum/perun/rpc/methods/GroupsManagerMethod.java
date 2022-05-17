@@ -2025,16 +2025,17 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * @param group id of group
 	 * @param vo id of parent vo
+	 * @return boolean true if group can be included in vo's groups, false otherwise
+	 *
 	 * @throw VoNotExistsException if vo does not exist
 	 * @throw GroupNotExistsException if group does not exist
 	 */
 	isAllowedGroupToHierarchicalVo {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGroupsManager().isAllowedGroupToHierarchicalVo(ac.getSession(),
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().isAllowedGroupToHierarchicalVo(ac.getSession(),
 				ac.getGroupById(parms.readInt("group")),
 				ac.getVoById(parms.readInt("vo")));
-			return null;
 		}
 	};
 }
