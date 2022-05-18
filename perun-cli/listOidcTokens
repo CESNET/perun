@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::auth::OidcAuth;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Prints list of stored OIDC tokens for configurations saved in config file.
+	------------------------------------
+	Available options:
+	--batch                         | -b batch
+	--help                          | -h prints this help
+};
+}
+
+our $batch;
+GetOptions ("help|h"    => sub {
+	print help();
+	exit 0;
+}, "batch|b"        => \$batch
+	) || die help();
+
+my %configs = % { Perun::auth::OidcAuth::loadAllConfigurations() };
+foreach my $config (sort keys %configs) {
+	my $endpoint = $configs{$config}->{"perun_api_endpoint"};
+	my $accessToken = Perun::auth::OidcAuth::getAccessToken($config);
+	if (!defined $accessToken) {
+		$accessToken = "none";
+	}
+	my $refreshToken = Perun::auth::OidcAuth::getRefreshToken($config);
+	if (!defined $refreshToken) {
+		$refreshToken = "none";
+	}
+	print("\n$config : $endpoint\naccessToken: $accessToken\nrefreshToken: $refreshToken\n");
+
+}

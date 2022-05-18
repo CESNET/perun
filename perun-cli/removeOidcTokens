@@ -8,40 +8,55 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes access and refresh token saved for OIDC authentication.
+	Removes access and refresh token saved for OIDC authentication. By default removes tokens of currently chosen
+	configuration (as set in environmental variable PERUN_OIDC_CONFIG)
 	------------------------------------
 	Available options:
 	--batch                         | -b batch
 	--help                          | -h prints this help
+	--all							| -a removes tokens for all configurations
+	--config						| -c id of config of which tokens to remove
 
 };
 }
 
 our $batch;
+my ($configId, $removeAllConfigs);
 GetOptions ("help|h"    => sub {
 	print help();
 	exit 0;
-}, "batch|b"        => \$batch) || die help();
-
+}, "batch|b"        => \$batch,
+	"all|a"		=> \$removeAllConfigs,
+	"config|c=s"	=> \$configId
+	) || die help();
+if (!defined $configId) {
+	$configId = $ENV{PERUN_OIDC_CONFIG};
+}
 my $message;
-
-if (Perun::auth::OidcAuth::getAccessToken()) {
-	Perun::auth::OidcAuth::removeAccessToken();
-	$message = "Removed access token. ";
+if (defined $removeAllConfigs) {
+	Perun::auth::OidcAuth::removeAllAccessTokens();
+	Perun::auth::OidcAuth::removeAllRefreshTokens();
 } else {
-	$message = "Access token is not stored. ";
-}
+	Perun::auth::OidcAuth::checkConfigExists($configId);
+	if (Perun::auth::OidcAuth::getAccessToken($configId)) {
+		Perun::auth::OidcAuth::removeAccessToken($configId);
+		$message = "Removed access token. ";
+	}
+	else {
+		$message = "Access token is not stored. ";
+	}
 
-if (Perun::auth::OidcAuth::getRefreshToken()) {
-	Perun::auth::OidcAuth::removeRefreshToken();
-	$message = $message . "Removed refresh token.";
-} else {
-	$message = $message . "Refresh token is not stored.";
-}
+	if (Perun::auth::OidcAuth::getRefreshToken($configId)) {
+		Perun::auth::OidcAuth::removeRefreshToken($configId);
+		$message = $message . "Removed refresh token.";
+	}
+	else {
+		$message = $message . "Refresh token is not stored.";
+	}
 
-if (Perun::auth::OidcAuth::getAccessToken() || Perun::auth::OidcAuth::getRefreshToken()) {
-	print STDERR "Could not remove tokens.";
-	exit 0;
+	if (Perun::auth::OidcAuth::getAccessToken($configId) || Perun::auth::OidcAuth::getRefreshToken($configId)) {
+		print STDERR "Could not remove tokens.";
+		exit 0;
+	}
 }
-
 printMessage($message, $batch);

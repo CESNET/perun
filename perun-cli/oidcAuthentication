@@ -28,7 +28,7 @@ unless ($auth->{"error"}) {
 	Perun::auth::OidcAuth::setAccessToken($auth->{"access_token"});
 	Perun::auth::OidcAuth::setAccessTokenValidity(time() + $auth->{"expires_in"});
 	Perun::auth::OidcAuth::setRefreshToken($auth->{"refresh_token"});
-	print "Authentication was successful.";
+	print "Authentication was successful.\n";
 } else {
 	die Perun::Exception->fromHash({ type =>  "Authentication failed." });
 }

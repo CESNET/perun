@@ -9,21 +9,34 @@ use LWP::UserAgent;
 use File::Basename;
 use Perun::Exception;
 
-my $PERUN_OIDC = "perun_oidc";
+my $chosenConfigName = $ENV{PERUN_OIDC_CONFIG};
+if (!defined $chosenConfigName) {
+	die "ERROR: environmental variable PERUN_OIDC_CONFIG not set!\n"
+}
+my $PERUN_OIDC = "perun_oidc" . "_" . $chosenConfigName;
 my $PYTHON = "python3";
 my $dirname = dirname(__FILE__);
+my $configFilename = $dirname . '/oidc_config.yml';
 my $contentType = "application/x-www-form-urlencoded";
 my $authenticationFailed = "Authentication failed";
 my $tokenRevocationFailed = "Token revocation failed";
 
 sub getAccessToken
 {
+	if (defined $_[0]) {
+		$PERUN_OIDC = "perun_oidc" . "_" . $_[0];
+	}
+
 	my $ret = `$PYTHON -c "import keyring; print('token:' + str(keyring.get_password('$PERUN_OIDC', 'access_token')), end='')"`;
 	return processToken($ret);
 }
 
 sub getRefreshToken
 {
+	if (defined $_[0]) {
+		$PERUN_OIDC = "perun_oidc" . "_" . $_[0];
+	}
+
 	my $ret = `$PYTHON -c "import keyring; print('token:' + str(keyring.get_password('$PERUN_OIDC', 'refresh_token')), end='')"`;
 	return processToken($ret);
 }
@@ -245,15 +258,23 @@ sub refreshAccessToken
 	}
 }
 
-sub loadConfiguration
+sub loadAllConfigurations
 {
-	my $filename = $dirname . '/oidc_config.yml';
-	unless (-e $filename) {
-		print STDERR "OIDC configuration file is missing!\n";
-		exit 0;
+	unless (-e $configFilename) {
+		die "OIDC configuration file is missing!\n";
 	}
 
-	return LoadFile($filename);
+	return LoadFile($configFilename);
+}
+
+sub loadConfiguration
+{
+	unless (-e $configFilename) {
+		die "OIDC configuration file is missing!\n";
+	}
+
+	checkConfigExists($chosenConfigName);
+	return LoadFile($configFilename)->{$chosenConfigName};
 }
 
 sub loadAccessToken
@@ -268,22 +289,76 @@ sub loadAccessToken
 
 sub removeAccessToken
 {
+	if (defined $_[0]) {
+		$PERUN_OIDC = "perun_oidc" . "_" . $_[0];
+	}
+
 	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'access_token')"`;
 	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'access_token_validity')"`;
 }
 
+sub removeAllAccessTokens
+{
+	my %config = % { loadAllConfigurations() };
+	foreach my $key (keys %config) {
+		if (getAccessToken($key)) {
+			removeAccessToken($key);
+		}
+	}
+}
+
+sub revokeAllAccessTokens
+{
+	my %config = % { loadAllConfigurations() };
+	foreach my $key (keys %config) {
+		if (getAccessToken($key)) {
+			revokeToken($key, "access_token");
+		}
+	}
+}
+
 sub removeRefreshToken
 {
+	if (defined $_[0]) {
+		$PERUN_OIDC = "perun_oidc" . "_" . $_[0];
+	}
+
 	`$PYTHON -c "import keyring; keyring.delete_password('$PERUN_OIDC', 'refresh_token')"`;
+}
+
+sub removeAllRefreshTokens
+{
+	my %config = % { loadAllConfigurations() };
+	foreach my $key (keys %config) {
+		if (getRefreshToken($key)) {
+			removeRefreshToken($key);
+		}
+	}
+}
+
+sub revokeAllRefreshTokens
+{
+	my %config = % { loadAllConfigurations() };
+	foreach my $key (keys %config) {
+		if (getRefreshToken($key)) {
+			revokeToken($key, "refresh_token");
+		}
+	}
 }
 
 sub revokeToken
 {
-	my ($token, $type) = @_;
+	my ($configName, $type) = @_;
 
-	my $config = loadConfiguration();
+	my %configs = % { loadAllConfigurations() };
+	my $config = $configs{$configName};
 	my $ua = LWP::UserAgent->new;
-
+	my $token;
+	if ($type eq "access_token") {
+		$token = getAccessToken($configName);
+	} elsif ($type eq "refresh_token") {
+		$token = getRefreshToken($configName);
+	}
 	my $response = $ua->post(
 		$config->{"oidc_token_revoke_endpoint_uri"},
 		"content_type" => $contentType,
@@ -300,6 +375,21 @@ sub revokeToken
 			die Perun::Exception->fromHash({ type => $tokenRevocationFailed, name => $response->code, errorInfo => $response->message });
 		}
 		die Perun::Exception->fromHash({ type => $tokenRevocationFailed, name => $content->{"error"}, errorInfo => $content->{"error_description"} });
+	}
+	if ($type eq "access_token") {
+		removeAccessToken($configName);
+	} elsif ($type eq "refresh_token") {
+		removeRefreshToken($configName);
+
+	}
+}
+
+sub checkConfigExists
+{
+	my $configName = $_[0];
+	my %configs = % { loadAllConfigurations() };
+	if (!exists $configs{$configName}) {
+		die "ERROR: configuration \"$configName\" does not exist!\n";
 	}
 }
 
