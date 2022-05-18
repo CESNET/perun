@@ -30,8 +30,8 @@ GetOptions ("help|h"    => sub {
 	"all|a"		=> \$removeAllConfigs,
 	"config|c=s"	=> \$configId
 ) || die help();
-if (!defined $configId) {
-	$configId = $ENV{PERUN_OIDC_CONFIG};
+if (!defined $configId && !defined $removeAllConfigs) {
+	$configId = $ENV{PERUN_OIDC_CONFIG} || die "ERROR: environment variable PERUN_OIDC_CONFIG not set and configuration not specified.\n";
 }
 
 my $message;

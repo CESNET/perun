@@ -1,7 +1,7 @@
 # This is only a sample config file! You need to create file oidc_config.yml in this directory
 # and specify following options in it!
 # Each configuration is a dictionary entry, where the key serves as the identification of the configuration.
-# to switch between configurations, set environmental variable PERUN_OIDC_CONFIG to the id of desired configuration.
+# to switch between configurations, set environment variable PERUN_OIDC_CONFIG to the id of desired configuration.
 # The key is a string so user can freely choose the name of each configuration
 perun:
   client_id: "" # Identifier of the CLI app on the OIDC server
