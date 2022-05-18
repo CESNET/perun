@@ -1022,7 +1022,10 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	public void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException {
-		//todo: remove allowed groups' tag for memberVo's groups
+		for (Group group : perunBl.getGroupsManagerBl().getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo)) {
+			perunBl.getGroupsManagerBl().disallowGroupToHierarchicalVo(sess, group, vo);
+		}
+
 		vosManagerImpl.removeMemberVo(sess, vo, memberVo);
 
 		List<Member> parentVoMembers = perunBl.getMembersManagerBl().getMembers(sess, vo);

@@ -12496,6 +12496,35 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getAllAllowedGroupsToHierarchicalVo/v:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllAllowedGroupsToHierarchicalVo
+      summary: Returns all groups which can be included to VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getAllAllowedGroupsToHierarchicalVo/v-v:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getVoAllAllowedGroupsToHierarchicalVo
+      summary: Returns all groups which can be included to VO from specific member VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/memberVoId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #

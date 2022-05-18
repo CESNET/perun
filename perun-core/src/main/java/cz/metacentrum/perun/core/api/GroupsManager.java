@@ -1432,4 +1432,28 @@ public interface GroupsManager {
 	 * @throws PrivilegeException insufficient rights
 	 */
 	boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException;
+
+
+	/**
+	 * Returns all groups which can be included to VO.
+	 *
+	 * @param sess session
+	 * @param vo parent VO
+	 * @return list of allowed groups to hierarchical VO
+	 * @throws VoNotExistsException if given VO does not exist
+	 * @throws PrivilegeException if unauthorized
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns groups which can be included to VO from specific member VO.
+	 *
+	 * @param sess session
+	 * @param vo parent VO
+	 * @param memberVo member VO
+	 * @return list of allowed groups to hierarchical VO
+	 * @throws VoNotExistsException if given parent VO or member VO does not exist
+	 * @throws PrivilegeException if unauthorized
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) throws VoNotExistsException, PrivilegeException;
 }

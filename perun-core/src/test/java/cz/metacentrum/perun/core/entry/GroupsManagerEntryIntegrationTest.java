@@ -6196,6 +6196,45 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
 	}
 
+	@Test
+	public void getAllAllowedGroupsToHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "getAllAllowedGroupsToHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		groupsManager.allowGroupToHierarchicalVo(sess, group, vo);
+
+		List<Group> result = groupsManager.getAllAllowedGroupsToHierarchicalVo(sess, vo);
+
+		assertEquals(1, result.size());
+		assertEquals(group, result.get(0));
+	}
+
+	@Test
+	public void getAllAllowedGroupsToHierarchicalVoWithMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "getAllAllowedGroupsToHierarchicalVoWithMemberVo");
+
+		vo = setUpVo();
+		Vo memberVo1 = perun.getVosManager().createVo(sess, new Vo(0, "memberVo1", "memberVo1"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo1);
+		Vo memberVo2 = perun.getVosManager().createVo(sess, new Vo(0, "memberVo2", "memberVo2"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo2);
+
+		groupsManager.createGroup(sess, memberVo1, group);
+		groupsManager.allowGroupToHierarchicalVo(sess, group, vo);
+
+		groupsManager.createGroup(sess, memberVo2, group2);
+		groupsManager.allowGroupToHierarchicalVo(sess, group2, vo);
+
+		List<Group> result = groupsManager.getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo2);
+
+		assertEquals(1, result.size());
+		assertEquals(group2, result.get(0));
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {

@@ -5905,4 +5905,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
 		return this.getGroupsManagerImpl().isAllowedGroupToHierarchicalVo(sess, group, vo);
 	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) {
+		return this.groupsManagerImpl.getAllAllowedGroupsToHierarchicalVo(sess, vo);
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) {
+		return this.groupsManagerImpl.getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo);
+	}
 }

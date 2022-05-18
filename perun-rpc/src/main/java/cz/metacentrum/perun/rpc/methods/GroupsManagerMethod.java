@@ -2037,5 +2037,34 @@ public enum GroupsManagerMethod implements ManagerMethod {
 				ac.getGroupById(parms.readInt("group")),
 				ac.getVoById(parms.readInt("vo")));
 		}
+	},
+
+	/*#
+	 * Returns all groups which can be included to VO.
+	 *
+	 * @param sess perun session
+	 * @param vo int parent VO <code>id</code>
+	 * @return list of groups allowed to hierarchical VO.
+	 * @throw VoNotExistsException if given VO does not exist
+	 */
+	/*#
+	 * Returns groups which can be included to VO from specific member VO.
+	 *
+	 * @param sess perun session
+	 * @param vo int parent VO <code>id</code>
+	 * @param memberVo int member VO <code>id</code>
+	 * @return list of groups allowed to hierarchical VO.
+	 * @throw VoNotExistsException if given VO does not exist
+	 */
+	getAllAllowedGroupsToHierarchicalVo {
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("memberVo")) {
+				return ac.getGroupsManager().getAllAllowedGroupsToHierarchicalVo(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")), ac.getVoById(parms.readInt("memberVo")));
+			}
+			return ac.getGroupsManager().getAllAllowedGroupsToHierarchicalVo(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")));
+		}
+
 	};
 }
