@@ -9,7 +9,7 @@ use Perun::Common qw(printMessage);
 sub help {
 	return qq{
 	Removes access and refresh token saved for OIDC authentication. By default removes tokens of currently chosen
-	configuration (as set in environmental variable PERUN_OIDC_CONFIG)
+	configuration (as set in environment variable PERUN_OIDC_CONFIG)
 	------------------------------------
 	Available options:
 	--batch                         | -b batch
@@ -29,8 +29,8 @@ GetOptions ("help|h"    => sub {
 	"all|a"		=> \$removeAllConfigs,
 	"config|c=s"	=> \$configId
 	) || die help();
-if (!defined $configId) {
-	$configId = $ENV{PERUN_OIDC_CONFIG};
+if (!defined $configId && !defined $removeAllConfigs) {
+	$configId = $ENV{PERUN_OIDC_CONFIG} || die "ERROR: environment variable PERUN_OIDC_CONFIG not set and configuration not specified.\n";
 }
 my $message;
 if (defined $removeAllConfigs) {

@@ -9,10 +9,9 @@ use LWP::UserAgent;
 use File::Basename;
 use Perun::Exception;
 
-my $chosenConfigName = $ENV{PERUN_OIDC_CONFIG};
-if (!defined $chosenConfigName) {
-	die "ERROR: environmental variable PERUN_OIDC_CONFIG not set!\n"
-}
+my $UNDEFINED_CONFIGURATION = "UNDEFINED_OIDC_CONFIGURATION";
+
+my $chosenConfigName = $ENV{PERUN_OIDC_CONFIG} || $UNDEFINED_CONFIGURATION;
 my $PERUN_OIDC = "perun_oidc" . "_" . $chosenConfigName;
 my $PYTHON = "python3";
 my $dirname = dirname(__FILE__);
@@ -387,6 +386,9 @@ sub revokeToken
 sub checkConfigExists
 {
 	my $configName = $_[0];
+	if ($configName eq $UNDEFINED_CONFIGURATION) {
+		die "ERROR: environment variable PERUN_OIDC_CONFIG is not set!\n";
+	}
 	my %configs = % { loadAllConfigurations() };
 	if (!exists $configs{$configName}) {
 		die "ERROR: configuration \"$configName\" does not exist!\n";
