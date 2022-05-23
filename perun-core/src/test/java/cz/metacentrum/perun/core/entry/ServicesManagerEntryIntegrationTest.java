@@ -1246,7 +1246,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// get data for facility and service
 		// = should be one node (facility)
 		List<ServiceAttributes> facilities = new ArrayList<>();
-		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, false));
+		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility));
 		assertNotNull("Unable to get hierarchical data",facilities);
 		assertTrue("Only 1 facility shoud be returned",facilities.size()==1);
 		assertNotNull("returned facility shouldn't be null",facilities.get(0));
@@ -1337,12 +1337,15 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
-		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, false));
+		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility));
 		assertEquals(2, facilities.get(0).getChildElements().get(0).getChildElements().size());
+
+		service.setUseExpiredMembers(false);
+		perun.getServicesManagerBl().updateService(sess, service);
 
 		// return only one member because the other one is expired
 		facilities = new ArrayList<>();
-		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, true));
+		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility));
 		assertEquals(1,facilities.get(0).getChildElements().get(0).getChildElements().size());
 	}
 
@@ -1351,7 +1354,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "getHierarchicalDataWhenFacilityNotExists");
 
 		service = setUpService();
-		perun.getServicesManager().getHierarchicalData(sess, service, new Facility(), false);
+		perun.getServicesManager().getHierarchicalData(sess, service, new Facility());
 		// shouldn't find facility
 
 	}
@@ -1361,7 +1364,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "getHierarchicalDataWhenServiceNotExists");
 
 		facility = setUpFacility();
-		perun.getServicesManager().getHierarchicalData(sess, new Service(), facility, false);
+		perun.getServicesManager().getHierarchicalData(sess, new Service(), facility);
 		// shouldn't find service
 
 	}
@@ -1398,7 +1401,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
-		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, false));
+		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility));
 		assertNotNull("Unable to get flat data",facilities);
 		assertEquals("Only 1 facility should be returned", 1, facilities.size());
 		assertNotNull("returned facility shouldn't be null",facilities.get(0));
@@ -1476,13 +1479,16 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getResourcesManager().assignService(sess, resource2, service);
 
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
-		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, false));
+		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility));
 		List<ServiceAttributes> facilityElements = facilities.get(0).getChildElements();
 		List<ServiceAttributes> users = facilityElements.get(1).getChildElements();
 		assertEquals("There should be all 3 users", 3, users.size());
 
+		service.setUseExpiredMembers(false);
+		perun.getServicesManagerBl().updateService(sess, service);
+
 		facilities = new ArrayList<ServiceAttributes>();
-		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, true));
+		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility));
 		facilityElements = facilities.get(0).getChildElements();
 		users = facilityElements.get(1).getChildElements();
 		// 1 user is expired in all groups so users should not contain it, the remaining 2 are not expired in one group associated to different resources
@@ -1540,7 +1546,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		 */
 
 		List<ServiceAttributes> facilities = new ArrayList<>();
-		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility, false));
+		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility));
 		assertNotNull("Unable to get hierarchical data with groups",facilities);
 		assertTrue("Only 1 facility shoud be returned",facilities.size()==1);
 		assertNotNull("returned facility shouldn't be null",facilities.get(0));
@@ -1687,6 +1693,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
 
 		// finally assign service
+		service.setUseExpiredMembers(false);
+		perun.getServicesManagerBl().updateService(sess, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
@@ -1694,7 +1702,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group2, MemberGroupStatus.EXPIRED);
 
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
-		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility, true));
+		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility));
 		List<ServiceAttributes> resources = facilities.get(0).getChildElements();
 		List<ServiceAttributes> resourceElements = resources.get(0).getChildElements();
 		List<ServiceAttributes> groups = resourceElements.get(0).getChildElements();
@@ -1717,7 +1725,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "getDataWithGroupsWhenFacilityNotExists");
 
 		service = setUpService();
-		perun.getServicesManager().getDataWithGroups(sess, service, new Facility(), false);
+		perun.getServicesManager().getDataWithGroups(sess, service, new Facility());
 		// shouldn't find facility
 
 	}
@@ -1727,7 +1735,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "getDataWithGroupsWhenServiceNotExists");
 
 		facility = setUpFacility();
-		perun.getServicesManager().getDataWithGroups(sess, new Service(), facility, false);
+		perun.getServicesManager().getDataWithGroups(sess, new Service(), facility);
 		// shouldn't find service
 
 	}
@@ -1766,7 +1774,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
-		facilities.add(perun.getServicesManager().getDataWithVos(sess, service, facility, false));
+		facilities.add(perun.getServicesManager().getDataWithVos(sess, service, facility));
 		assertNotNull("Unable to get data with vos",facilities);
 		assertEquals("Only 1 facility should be returned", 1, facilities.size());
 		assertNotNull("returned facility shouldn't be null",facilities.get(0));
@@ -1863,10 +1871,12 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().addRequiredAttribute(sess, service, reqVoAttr);
 
 		// finally assign service
+		service.setUseExpiredMembers(false);
+		perun.getServicesManagerBl().updateService(sess, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
-		facilities.add(perun.getServicesManager().getDataWithVos(sess, service, facility, true));
+		facilities.add(perun.getServicesManager().getDataWithVos(sess, service, facility));
 		List<ServiceAttributes> vos = facilities.get(0).getChildElements();
 		List<ServiceAttributes> resources = vos.get(0).getChildElements();
 		List<ServiceAttributes> resourceElements = resources.get(0).getChildElements();
@@ -1980,7 +1990,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource3.setName("HierarchDataResource2");
 		resource3 = perun.getResourcesManager().createResource(sess, resource3, vo, facility);
 
-		HashedGenData data = perun.getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, false, false);
+		HashedGenData data = perun.getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, false);
 		assertThat(data.getAttributes()).isNotEmpty();
 
 		Map<String, Map<String, Object>> attributes = data.getAttributes();
@@ -2093,7 +2103,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource3.setName("HierarchDataResource2");
 		resource3 = perun.getResourcesManager().createResource(sess, resource3, vo, facility);
 
-		HashedGenData data = perun.getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, false, false);
+		HashedGenData data = perun.getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, false);
 		assertThat(data.getAttributes()).isNotEmpty();
 
 		Map<String, Map<String, Object>> attributes = data.getAttributes();

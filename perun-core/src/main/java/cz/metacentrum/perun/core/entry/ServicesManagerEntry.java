@@ -382,22 +382,22 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getHierarchicalData_Service_Facility_boolean_policy", Arrays.asList(service, facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getHierarchicalData_Service_Facility_policy", Arrays.asList(service, facility))) {
 			throw new PrivilegeException(sess, "getHierarchicalData");
 		}
 
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getHierarchicalData(sess, service, facility, filterExpiredMembers);
+		return getServicesManagerBl().getHierarchicalData(sess, service, facility);
 	}
 
 	@Override
-	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		getServicesManagerBl().checkServiceExists(sess, service);
@@ -408,11 +408,11 @@ public class ServicesManagerEntry implements ServicesManager {
 			throw new PrivilegeException(sess, "getHashedHierarchicalData");
 		}
 
-		return getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, filterExpiredMembers, consentEval);
+		return getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, consentEval);
 	}
 
 	@Override
-	public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		getServicesManagerBl().checkServiceExists(sess, service);
@@ -423,52 +423,52 @@ public class ServicesManagerEntry implements ServicesManager {
 			throw new PrivilegeException(sess, "getHashedDataWithGroups");
 		}
 
-		return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, filterExpiredMembers, consentEval);
+		return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, consentEval);
 	}
 
 	@Override
-	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getFlatData_Service_Facility_boolean_policy", Arrays.asList(service, facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getFlatData_Service_Facility_policy", Arrays.asList(service, facility))) {
 			throw new PrivilegeException(sess, "getFlatData");
 		}
 
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getFlatData(sess, service, facility, filterExpiredMembers);
+		return getServicesManagerBl().getFlatData(sess, service, facility);
 	}
 
 	@Override
-	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getDataWithGroups_Service_Facility_boolean_policy", Arrays.asList(service, facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getDataWithGroups_Service_Facility_policy", Arrays.asList(service, facility))) {
 			throw new PrivilegeException(sess, "getDataWithGroups");
 		}
 
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getDataWithGroups(sess, service, facility, filterExpiredMembers);
+		return getServicesManagerBl().getDataWithGroups(sess, service, facility);
 	}
 
 	@Override
-	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getDataWithVos_Service_Facility_boolean_policy", Arrays.asList(service, facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getDataWithVos_Service_Facility_policy", Arrays.asList(service, facility))) {
 			throw new PrivilegeException(sess, "getDataWithVos");
 		}
 
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getDataWithVos(sess, service, facility, filterExpiredMembers);
+		return getServicesManagerBl().getDataWithVos(sess, service, facility);
 	}
 
 	@Override

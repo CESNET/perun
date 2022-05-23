@@ -345,7 +345,6 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
 	 <pre>
 	 Facility
@@ -375,7 +374,7 @@ public interface ServicesManager {
 	 * @throws FacilityNotExistsException
 	 * @throws PrivilegeException
 	 */
-	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * Generates hashed hierarchical data structure for given service and facility.
@@ -410,14 +409,13 @@ public interface ServicesManager {
 	 * @param perunSession perun session
 	 * @param service service
 	 * @param facility facility
-	 * @param filterExpiredMembers if the generator should filter expired members
 	 * @param consentEval if the generator should force evaluation of consents
 	 * @return generated hashed data structure
 	 * @throws FacilityNotExistsException if there is no such facility
 	 * @throws ServiceNotExistsException if there is no such service
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+	HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * Generates hashed data with group structure for given service and facility.
@@ -462,14 +460,13 @@ public interface ServicesManager {
 	 * @param perunSession perun session
 	 * @param service service
 	 * @param facility facility
-	 * @param filterExpiredMembers if the generator should filter expired members
 	 * @param consentEval if the generator should force evaluation of consents
 	 * @return generated hashed data structure
 	 * @throws FacilityNotExistsException if there is no such facility
 	 * @throws ServiceNotExistsException if there is no such service
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * Generates the list of attributes per each user and per each resource. Resources are filtered by service.
@@ -478,7 +475,6 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service you will get attributes required by this service
 	 * @param facility you will get attributes for this facility, resources associated with it and users assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
 	 <pre>
 	 Facility
@@ -507,7 +503,7 @@ public interface ServicesManager {
 	 * @throws FacilityNotExistsException
 	 * @throws PrivilegeException
 	 */
-	ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+	ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups.
@@ -515,7 +511,6 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first child is abstract structure which children are groups.
 	 *         Resource  second child is abstract structure which children are members.
@@ -582,7 +577,7 @@ public interface ServicesManager {
 		* @throws FacilityNotExistsException
 		* @throws PrivilegeException
 		*/
-		ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+		ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups in vos.
@@ -590,7 +585,6 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure.
 	 *        Facility is in the root, facility children are vos.
 	 *        Vo first child is abstract structure which children are resources.
@@ -668,7 +662,7 @@ public interface ServicesManager {
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
 	 */
-	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws VoNotExistsException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility) throws VoNotExistsException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * List packages
