@@ -945,7 +945,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 		checkParentVos(sess, vo, memberVo);
 		vosManagerImpl.addMemberVo(sess, vo, memberVo);
 
-		List<Member> memberVoMembers = perunBl.getMembersManagerBl().getMembers(sess, memberVo);
 		AttributeDefinition memberExpirationAttrDef;
 
 		try {
@@ -953,6 +952,21 @@ public class VosManagerBlImpl implements VosManagerBl {
 		} catch (AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
+		// if VO just became a parent, assign memberOrganizations attribute to all its members
+		if (perunBl.getVosManagerBl().getMemberVos(sess, vo.getId()).size() == 1) {
+			List<Member> voMembers = perunBl.getMembersManagerBl().getMembers(sess, vo);
+			try {
+				Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
+				ArrayList<String> newValue = new ArrayList<>(List.of(vo.getShortName()));
+				attribute.setValue(newValue);
+				for (Member member : voMembers) {
+					perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
+				}
+			} catch (AttributeNotExistsException | WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+		List<Member> memberVoMembers = perunBl.getMembersManagerBl().getMembers(sess, memberVo);
 
 		for (Member member : memberVoMembers) {
 			if (member.getStatus() == Status.DISABLED || member.getStatus() == Status.INVALID) {
