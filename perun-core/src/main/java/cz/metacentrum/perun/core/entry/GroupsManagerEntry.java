@@ -1390,8 +1390,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "createGroupUnion_Group_Group_policy", resultGroup) ||
-			!AuthzResolver.authorizedInternal(sess, "createGroupUnion_Group_Group_policy", operandGroup)) {
+		if (!AuthzResolver.authorizedInternal(sess, "result-createGroupUnion_Group_Group_policy", resultGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "operand-createGroupUnion_Group_Group_policy", operandGroup)) {
 			throw new PrivilegeException(sess, "createGroupUnion");
 		}
 
@@ -1409,8 +1409,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeGroupUnion_Group_Group_policy", resultGroup) ||
-			!AuthzResolver.authorizedInternal(sess, "removeGroupUnion_Group_Group_policy", operandGroup)) {
+		if (!AuthzResolver.authorizedInternal(sess, "result-removeGroupUnion_Group_Group_policy", resultGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "operand-removeGroupUnion_Group_Group_policy", operandGroup)) {
 			throw new PrivilegeException(sess, "removeGroupUnion");
 		}
 

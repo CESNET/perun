@@ -2008,17 +2008,37 @@ perun_policies:
     include_policies:
       - default_policy
 
-  createGroupUnion_Group_Group_policy:
+  result-createGroupUnion_Group_Group_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
 
-  removeGroupUnion_Group_Group_policy:
+  operand-createGroupUnion_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  result-removeGroupUnion_Group_Group_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  operand-removeGroupUnion_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
