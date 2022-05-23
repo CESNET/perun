@@ -2370,6 +2370,172 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void createUnionBetweenGroupsInHierarchicalVos() throws Exception {
+		System.out.println("GroupsManager.createUnionBetweenGroupsInHierarchicalVos");
+
+		vo = setUpVo();
+		Group resultGroup = setUpGroup(vo);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group operandGroup = setUpGroup(memberVo);
+		Member member = setUpMember(memberVo);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, operandGroup, vo);
+		groupsManager.createGroupUnion(sess, resultGroup, operandGroup);
+		List<Group> operandGroups = groupsManagerBl.getGroupUnions(sess, resultGroup, false);
+		assertThat(operandGroups).containsExactly(operandGroup);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertThat(members).hasSize(1);
+		assertEquals(members.get(0).getUserId(), member.getUserId());
+		assertEquals(members.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+	}
+
+	@Test
+	public void addMemberIncludesHimToGroupInOtherVo() throws Exception {
+		System.out.println("GroupsManager.addMemberIncludesHimToGroupInOtherVo");
+
+		vo = setUpVo();
+		Group resultGroup = setUpGroup(vo);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group operandGroup = setUpGroup(memberVo);
+		Member member = setUpMember(memberVo);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, operandGroup, vo);
+		groupsManager.createGroupUnion(sess, resultGroup, operandGroup);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertThat(members).hasSize(0);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, member);
+
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertThat(members).hasSize(1);
+		assertEquals(members.get(0).getUserId(), member.getUserId());
+		assertEquals(members.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+	}
+
+	@Test
+	public void createUnionBetweenGroupsInHierarchicalVosNotAllowed() throws Exception {
+		System.out.println("GroupsManager.createUnionBetweenGroupsInHierarchicalVosNotAllowed");
+
+		vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		groupsManager.createGroup(sess, memberVo, group2);
+
+		assertThatExceptionOfType(GroupRelationNotAllowed.class).isThrownBy(
+			() -> groupsManager.createGroupUnion(sess, group, group2));
+	}
+
+	@Test
+	public void removeUnionBetweenGroupsInHierarchicalVos() throws Exception {
+		System.out.println("GroupsManager.removeUnionBetweenGroupsInHierarchicalVos");
+
+		vo = setUpVo();
+		Group resultGroup = setUpGroup(vo);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group operandGroup = setUpGroup(memberVo);
+		Member member = setUpMember(memberVo);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, operandGroup, vo);
+		groupsManager.createGroupUnion(sess, resultGroup, operandGroup);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertThat(members).hasSize(1);
+
+		groupsManager.removeGroupUnion(sess, resultGroup, operandGroup);
+
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertThat(members).hasSize(0);
+		List<Group> operandGroups = groupsManagerBl.getGroupUnions(sess, resultGroup, false);
+		assertThat(operandGroups).isEmpty();
+	}
+
+	@Test
+	public void removeMemberRemovesHimFromResultGroupInOtherVo() throws Exception {
+		System.out.println("GroupsManager.removeMemberRemovesHimFromResultGroupInOtherVo");
+
+		vo = setUpVo();
+		Group resultGroup = setUpGroup(vo);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group operandGroup = setUpGroup(memberVo);
+		Member member = setUpMember(memberVo);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, operandGroup, vo);
+		groupsManager.createGroupUnion(sess, resultGroup, operandGroup);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertThat(members).hasSize(1);
+
+		groupsManagerBl.removeMember(sess, operandGroup, member);
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertThat(members).hasSize(0);
+	}
+
+	@Test
+	public void groupStatusPropagatesToResultGroupInOtherVo() throws Exception {
+		System.out.println("GroupsManager.groupStatusPropagatesToResultGroupInOtherVo");
+
+		vo = setUpVo();
+		Group resultGroup = setUpGroup(vo);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group operandGroup = setUpGroup(memberVo);
+		Member member = setUpMember(memberVo);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, operandGroup, vo);
+		groupsManager.createGroupUnion(sess, resultGroup, operandGroup);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+
+		// add the member to result group directly as EXPIRED
+		Member resultMember = members.get(0);
+		perun.getGroupsManagerBl().addMember(sess, resultGroup, resultMember);
+		groupsManagerBl.expireMemberInGroup(sess, resultMember, resultGroup);
+		// directly is EXPIRED, indirectly VALID
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+
+		groupsManagerBl.expireMemberInGroup(sess, member, operandGroup);
+		// directly is EXPIRED, indirectly EXPIRED
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.EXPIRED);
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+
+		groupsManagerBl.validateMemberInGroup(sess, resultMember, resultGroup);
+		// directly is VALID, indirectly EXPIRED
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+	}
+
+	@Test
 	public void transitiveGroupMembershipCheck() throws Exception {
 		System.out.println(CLASS_NAME + "transitiveGroupMembershipCheck");
 
@@ -5398,6 +5564,47 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void indirectMembershipDifferentVos() throws Exception {
+		System.out.println(CLASS_NAME + "indirectMembershipDifferentVos");
+
+		vo = setUpVo();
+		Group parentGroup = groupsManagerBl.createGroup(sess, vo, new Group("parent", "parent group"));
+		Group childGroup = groupsManagerBl.createGroup(sess, parentGroup, new Group("child", "child group"));
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group includedGroup = groupsManagerBl.createGroup(sess, memberVo, new Group("included", "included group"));
+		Member member = setUpMember(memberVo);
+		perun.getGroupsManagerBl().addMember(sess, includedGroup, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, includedGroup, vo);
+		groupsManager.createGroupUnion(sess, childGroup, includedGroup);
+		Member memberInParentVo = perun.getMembersManager().getMemberByUser(sess, vo,
+			perun.getUsersManagerBl().getUserById(sess, member.getUserId()));
+
+		// for direct member the method should return only main group as single path of length 1
+		List<List<Group>> directPath = groupsManager.getIndirectMembershipPaths(sess, member, includedGroup);
+		assertEquals("One path expected", 1, directPath.size());
+		assertEquals("Path of length 1 expected for main group", 1, directPath.get(0).size());
+		assertEquals("Main group expected in path", includedGroup, directPath.get(0).get(0));
+
+		// parent(PRESENT) : child <-- included(SOURCE)
+		// symbols for (:) subgroup, (<--) included group
+		List<Group> expectedPath = Arrays.asList(parentGroup, childGroup, includedGroup);
+		List<List<Group>> paths = groupsManager.getIndirectMembershipPaths(sess, memberInParentVo, parentGroup);
+
+		assertEquals("One path expected", 1, paths.size());
+		assertEquals("Path does not match", expectedPath, paths.get(0));
+
+		// child(PRESENT) <-- included(SOURCE)
+		List<Group> expectedPath2 = Arrays.asList(childGroup, includedGroup);
+		List<List<Group>> paths2 = groupsManager.getIndirectMembershipPaths(sess, memberInParentVo, childGroup);
+
+		assertEquals("Only one path expected", 1, paths2.size());
+		assertEquals("Path does not match", expectedPath2, paths2.get(0));
+	}
+
+	@Test
 	public void isGroupForAutoRegistration() throws Exception {
 		System.out.println(CLASS_NAME + "isGroupsForAutoRegistration");
 
@@ -5541,6 +5748,56 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Map<Integer, MemberGroupStatus> map = groupsManagerBl.getTotalGroupStatusForMembers(sess, group2, List.of(member));
 
 		assertTrue("There should be no relation between the group and the member", map.isEmpty());
+	}
+
+	@Test
+	public void getTotalGroupStatusForMembersWhenIncludedFromOtherVo() throws Exception {
+		System.out.println(CLASS_NAME + "getTotalGroupStatusForMembersWhenIncludedFromOtherVo");
+
+		vo = setUpVo();
+		Group resultGroup = setUpGroup(vo);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group operandGroup = setUpGroup(memberVo);
+		Member memberFromMemberVo = setUpMember(memberVo);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, memberFromMemberVo);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, operandGroup, vo);
+		groupsManager.createGroupUnion(sess, resultGroup, operandGroup);
+
+		Member member1 = groupsManagerBl.getGroupMembers(sess, resultGroup).get(0); // member1 in vo == memberFromMemberVo in memberVo
+		Member member2 = setUpMemberWithDifferentParam(vo, 111);
+		groupsManagerBl.addMember(sess, resultGroup, member2);
+
+		Map<Integer, MemberGroupStatus> map = groupsManagerBl.getTotalGroupStatusForMembers(sess, resultGroup, List.of(member1, member2));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, map.get(member1.getId()));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, map.get(member2.getId()));
+
+		groupsManagerBl.expireMemberInGroup(sess, memberFromMemberVo, operandGroup);
+		groupsManagerBl.expireMemberInGroup(sess, member2, resultGroup);
+		map = groupsManagerBl.getTotalGroupStatusForMembers(sess, resultGroup, List.of(member1, member2));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member1.getId()));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member2.getId()));
+
+		// add member1 to resultGroup directly
+		groupsManagerBl.addMember(sess, resultGroup, member1);
+		map = groupsManagerBl.getTotalGroupStatusForMembers(sess, resultGroup, List.of(member1, member2));
+		// directly is VALID, indirectly EXPIRED
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, map.get(member1.getId()));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member2.getId()));
+
+		groupsManagerBl.expireMemberInGroup(sess, member1, resultGroup);
+		map = groupsManagerBl.getTotalGroupStatusForMembers(sess, resultGroup, List.of(member1, member2));
+		// directly is EXPIRED, indirectly EXPIRED
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member1.getId()));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member2.getId()));
+
+		groupsManagerBl.validateMemberInGroup(sess, memberFromMemberVo, operandGroup);
+		map = groupsManagerBl.getTotalGroupStatusForMembers(sess, resultGroup, List.of(member1, member2));
+		// directly is EXPIRED, indirectly VALID
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, map.get(member1.getId()));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, map.get(member2.getId()));
 	}
 
 	@Test

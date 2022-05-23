@@ -149,6 +149,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @throw GroupRelationAlreadyExists When the group relation already exists
 	 * @throw WrongAttributeValueException When the value of the attribute is illegal or wrong
 	 * @throw WrongReferenceAttributeValueException When the attribute of the reference has illegal value
+	 * @throw VoNotExistsException When the groups' VO doesn't exist
 	 *
 	 * @param resultGroup int <code>id</code> of Group to have included "operandGroup"
 	 * @param operandGroup int <code>id</code> of Group to be included into "resultGroup"

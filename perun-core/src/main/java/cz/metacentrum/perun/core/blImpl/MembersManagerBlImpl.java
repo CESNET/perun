@@ -1606,6 +1606,38 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
+	/**
+	 * Adds member to groups in parentVos, where he should be through include relation.
+	 * Include didn't happen automatically, if the member was DISABLED / INVALID in member VO.
+	 *
+	 * @param sess
+	 * @param member
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 */
+	private void addMemberToParentVosGroups(PerunSession sess, Member member) throws WrongReferenceAttributeValueException, WrongAttributeValueException {
+		List<Vo> parentVos = getPerunBl().getVosManagerBl().getParentVos(sess, member.getVoId());
+		if (parentVos.isEmpty()) {
+			return;
+		}
+
+		List<Group> groups = perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member);
+		for (Group group : groups) {
+			List<Group> resultGroups = perunBl.getGroupsManagerBl().getGroupUnions(sess, group, true);
+			for (Group resultGroup : resultGroups) {
+				if (resultGroup.getVoId() != member.getVoId()) {
+					try {
+						perunBl.getGroupsManagerBl().addRelationMembers(sess, resultGroup, List.of(member), group.getId());
+					} catch (AlreadyMemberException e) {
+						// this is OK
+					} catch (GroupNotExistsException e) {
+						throw new InternalErrorException(e);
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	public Member validateMember(PerunSession sess, Member member) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//this method run in nested transaction
@@ -1622,6 +1654,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			try {
 				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
 				addMemberToParentVos(sess, member);
+				addMemberToParentVosGroups(sess, member);
 			} catch (Exception ex) {
 				//return old status to object to prevent incorrect result in higher methods
 				member.setStatus(oldStatus);
@@ -1685,7 +1718,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				for (Vo vo : parentVos) {
 					try {
 						Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, user);
-						perunBl.getMembersManagerBl().validateMemberAsync(sess, newMember);
+						perunBl.getMembersManagerBl().validateMember(sess, newMember);
+						addMemberToParentVosGroups(sess, member);
 					} catch (ExtendMembershipException e) {
 						throw new InternalErrorException(e);
 					} catch (AlreadyMemberException ignored) {

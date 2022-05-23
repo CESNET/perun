@@ -1264,8 +1264,9 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
+	 * @throws VoNotExistsException
 	 */
-	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException;
+	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException, VoNotExistsException;
 
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.

@@ -1380,7 +1380,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException {
+	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, resultGroup);
 		getGroupsManagerBl().checkGroupExists(sess, operandGroup);

@@ -3195,6 +3195,40 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertThat(currentValue).isNullOrEmpty();
 	}
 
+	@Test
+	public void validateOrExpireMemberAddsHimToIncludedParentVoGroups() throws Exception {
+		System.out.println(CLASS_NAME + "validateOrExpireMemberAddsHimToIncludedParentVoGroups");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+		Group resultGroup = perun.getGroupsManager().createGroup(sess, parentVo, new Group("result", "Result group"));
+		Group operandGroup = perun.getGroupsManager().createGroup(sess, memberVo, new Group("operand", "Operand group"));
+
+		Member validMember = setUpMember(memberVo, "Valid", "Member");
+		Member invalidMember = setUpMember(memberVo, "Invalid", "Member");
+		Member disabledMember = setUpMember(memberVo, "Disabled", "Member");
+		Member expiredMember = setUpMember(memberVo, "Expired", "Member");
+		membersManagerEntry.setStatus(sess, validMember, Status.VALID);
+		membersManagerEntry.setStatus(sess, invalidMember, Status.INVALID);
+		membersManagerEntry.setStatus(sess, disabledMember, Status.VALID); // needs to be validated first before disabling
+		membersManagerEntry.setStatus(sess, disabledMember, Status.DISABLED);
+		membersManagerEntry.setStatus(sess, expiredMember, Status.EXPIRED);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, validMember);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, invalidMember);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, disabledMember);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, expiredMember);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+		perun.getGroupsManagerBl().allowGroupToHierarchicalVo(sess, operandGroup, parentVo);
+		perun.getGroupsManagerBl().createGroupUnion(sess, resultGroup, operandGroup, false);
+
+		assertThat(perun.getGroupsManagerBl().getGroupMembers(sess, resultGroup).size()).isEqualTo(2);
+
+		membersManagerEntry.setStatus(sess, invalidMember, Status.EXPIRED);
+		membersManagerEntry.setStatus(sess, disabledMember, Status.VALID);
+		assertThat(perun.getGroupsManagerBl().getGroupMembers(sess, resultGroup).size()).isEqualTo(4);
+	}
+
 	private Vo setUpVo(String name) throws Exception {
 		return perun.getVosManagerBl().createVo(sess, new Vo(0, name, name));
 	}
