@@ -531,6 +531,18 @@ public class EditFormItemTabItem implements TabItem {
 					// sort
 					list = new TableSorter<AttributeDefinition>().sortByFriendlyName(list);
 					for (AttributeDefinition def : list) {
+
+						// allow ArrayList and LinkedHashMap attributes only to designated widgets, unless it was already selected
+						boolean isMapOrListWidget = item.getType().equalsIgnoreCase("MAP_INPUT_BOX") ||
+							item.getType().equalsIgnoreCase("LIST_INPUT_BOX");
+						boolean isMapOrListAttribute = def.getType().contains("ArrayList") || def.getType().contains("LinkedHashMap");
+						boolean alreadySelected = def.getName().equalsIgnoreCase(item.getPerunSourceAttribute())
+							|| def.getName().equalsIgnoreCase(item.getPerunDestinationAttribute());
+						
+						if (!isMapOrListWidget && isMapOrListAttribute && !alreadySelected) {
+							continue;
+						}
+
 						// add only member and user attributes
 						if (def.getEntity().equalsIgnoreCase("user") || def.getEntity().equalsIgnoreCase("member")) {
 							perunSourceAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());

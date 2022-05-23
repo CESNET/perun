@@ -3835,7 +3835,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// if attribute exists
 				if (a != null) {
 					if (a.getType().equalsIgnoreCase(LinkedHashMap.class.getName())) {
-						// FIXME do not set hash map attributes - not supported in GUI and registrar
+
+						// we expect that map contains string keys and values
+						LinkedHashMap<String, String> value = a.valueAsMap();
+						value = handleMapValue(value, newValue);
+
+						a.setValue(value);
+						attributes.add(a);
 					} else if (a.getType().equalsIgnoreCase(Boolean.class.getName())) {
 						a.setValue(BeansUtils.stringToAttributeValue(newValue, Boolean.class.getName()));
 						attributes.add(a);
@@ -3843,22 +3849,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 						// we expect that list contains strings
 						ArrayList<String> value = a.valueAsList();
+						value = handleArrayValue(value, newValue);
 
-						if (Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":sshPublicKey", a.getName())) {
-							// normalize value for SSH keys
-							value = handleSSHKeysValue(value, newValue);
-						} else {
-
-							if (value == null) {
-								// set as new value
-								value = new ArrayList<>();
-								value.add(newValue);
-							} else if (!value.contains(newValue)) {
-								// add value between old values
-								value.add(newValue);
-							}
-
-						}
 						a.setValue(value);
 						attributes.add(a);
 					} else {
@@ -3879,33 +3871,56 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
-	 * Normalize input value from registration form for SSH keys and correctly merge them with the originalValue from User.
+	 * Normalize input value from registration form for array values and correctly merge them with the originalValue from User.
 	 *
 	 * @param originalValue Value from Users attribute currently stored in Perun
 	 * @param newValue Value provided by registration form
-	 * @return List of SSH keys after merge
+	 * @return List of array attribute values after merge
 	 */
-	private ArrayList<String> handleSSHKeysValue(ArrayList<String> originalValue, String newValue) {
-
+	private ArrayList<String> handleArrayValue(ArrayList<String> originalValue, String newValue) {
 		// blank input means no change to original attribute
 		if (StringUtils.isBlank(newValue)) {
 			return originalValue;
 		}
 
-		// Normalize value of SSH keys
-		String preparedVal = newValue.replaceAll("(\n)+", ",");
-		preparedVal = preparedVal.replaceAll("(,)+", ",");
-		if (!preparedVal.endsWith(",")) {
-			preparedVal = preparedVal + ",";
+		if (!newValue.endsWith(",")) {
+			newValue += ",";
 		}
 
-		List<String> newVals = (ArrayList<String>)BeansUtils.stringToAttributeValue(preparedVal, ArrayList.class.getName());
+		List<String> newVals = BeansUtils.parseEscapedListValue(newValue);
 		if (originalValue == null) {
 			return new ArrayList<>(newVals);
 		} else {
 			for (String s : newVals) {
 				if (!originalValue.contains(s)) {
 					originalValue.add(s);
+				}
+			}
+			return originalValue;
+		}
+
+	}
+
+	/**
+	 * Merge input value from registration form for map values with the originalValue from User.
+	 *
+	 * @param originalValue Value from Users attribute currently stored in Perun
+	 * @param newValue Value provided by registration form
+	 * @return Map of attribute keys, values after merge
+	 */
+	private LinkedHashMap<String, String> handleMapValue(LinkedHashMap<String, String> originalValue, String newValue) {
+		// blank input means no change to original attribute
+		if (StringUtils.isBlank(newValue)) {
+			return originalValue;
+		}
+
+		LinkedHashMap<String, String> newVals = BeansUtils.stringToMapOfAttributes(newValue);
+		if (originalValue == null) {
+			return new LinkedHashMap<>(newVals);
+		} else {
+			for (Map.Entry<String, String> entry : newVals.entrySet()) {
+				if (!originalValue.containsKey(entry.getKey())) {
+					originalValue.put(entry.getKey(), entry.getValue());
 				}
 			}
 			return originalValue;
@@ -4140,7 +4155,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// NORMALIZE SSH KEYS VALUE - same as we do for existing users in #storeApplicationAttributes()
 		attributes.entrySet().forEach(entry -> {
 			if (Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":sshPublicKey", entry.getKey())) {
-				entry.setValue(BeansUtils.attributeValueToString(handleSSHKeysValue(null, entry.getValue()), ArrayList.class.getName()));
+				entry.setValue(BeansUtils.attributeValueToString(handleArrayValue(null, entry.getValue()), ArrayList.class.getName()));
 			}
 		});
 
