@@ -4,7 +4,7 @@ This module wraps others into a single web application and represents single Per
 
 Application is expected to run inside Tomcat 7 container and receive all requests on AJP port (8009). Perun rely on Apache web server for passing requests, authentication of users and setting up environment variables. User credentials are passed to Perun to perform authorization. If approved, required action is performed and response returned to user through Apache web server.
 
-You can find full documentation of Perun RPC API [on our web](https://perun.cesnet.cz/web/rpc-javadoc-howto.shtml).
+You can find full documentation of Perun RPC API [on our web](https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html).
 
 ### Build and local run ###
 
@@ -29,7 +29,7 @@ You can then deploy ``perun-rpc/target/perun-rpc.war`` into running Tomcat and i
 
 You must setup Apache to provide authentication or modify it to provide necessary data in HTTP headers. Otherwise all requests to the app will end with wrong authentication.
 
-Also you must redirect all requests to the right URL (provided by tomcat), since GUI and CLI tools expect to find Perun on *http(s)://[hostname]/[krb/cert/fed]/rpc/[rest_of_request_path+params]* URL.
+Also you must redirect all requests to the right URL (provided by tomcat), since GUI and CLI tools expect to find Perun on *http(s)://[hostname]/[krb/cert/fed/oauth]/rpc/[rest_of_request_path+params]* URL.
 
 You can also run Perun locally (e.g. for some tests). Just run Maven with tomcat plugin in ``perun-rpc/`` folder:
 
@@ -51,30 +51,52 @@ In order to use them, you must install following Perl packages (example for Debi
 apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl libnet-ldap-perl libjson-perl libyaml-perl
 ```
 
-Then you must setup environmental variables to locate your Perun instance:
-
+Setup path for Perl to locate Perun modules:
 ```
-# URL to your Perun instance, pick krb for Kerberos authz, cert for certificate and fed for IDP federation
-# It all depends on your Apache setup
-export PERUN_URL="https://[instance_url]/[krb/cert/fed]/rpc/" 
-
-# Your login and password
-export PERUN_USER="[login]/[password]" 
-
-# Setup path for Perl to locat Perun modules
 export PERL5LIB="[folder_with_cli_tools]" 
-
-# Keep empty or setup to match REALM returned by Apache (e.g. for Kerberos)
-export PERUN_RPC_TYPE="Perun RPC"
-
 ```
 
-For using OIDC authentication instead:
+And choose authentication method to follow the next steps:
 
-* Install Python 3.
-* Install its keyring library: ``` pip install keyring ```.
-* Set variable ```export PERUN_OIDC="1"```.
-* Specify endpoints in configuration file `perun-cli/Perun/auth/oidc_config.yml`. Endpoints are described in sample file `perun-cli/Perun/auth/sample_oidc_config.yml`. 
+#### Kerberos, certificate or IdP federation ####
+Setup environment variables to locate your Perun instance:
+
+* URL to your Perun instance, pick krb for Kerberos authz, cert for certificate and fed for IDP federation (it depends on your Apache setup):
+    ```
+    export PERUN_URL="https://[instance_url]/[krb/cert/fed]/rpc/"
+    ```
+* Your login and password:
+    ```
+    export PERUN_USER="[login]/[password]"
+    ```
+
+* Keep the type empty or setup to match REALM returned by Apache (e.g. for Kerberos):
+    ```
+    export PERUN_RPC_TYPE="Perun RPC"
+    ```
+
+#### OIDC ####
+* Install Python 3
+* Install its keyring library:
+    ```
+    pip install keyring
+    ```
+* Enable OIDC:
+    ```
+    export PERUN_OIDC=1
+    ```
+* Specify which configuration from the configuration file should be used:
+    ```
+    export PERUN_OIDC_CONFIG="[configuration_name]"
+    ```
+* Specify endpoints in the configuration file `perun-cli/Perun/auth/oidc_config.yml`
+
+
+* > Note that:
+  > 
+  > * Endpoints are described in a sample file `perun-cli/Perun/auth/sample_oidc_config.yml`
+  > * Tokens can be revoked by calling `./revokeOidcToken` script
+  > * For bash mode it is recommended to perform the authentication beforehand by calling `./oidcAuthentication` script
 
 
 You can then test connection by listing VOs like: ``./listOfVos``
