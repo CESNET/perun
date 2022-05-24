@@ -2982,6 +2982,9 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
     include_policies:
       - default_policy
 
