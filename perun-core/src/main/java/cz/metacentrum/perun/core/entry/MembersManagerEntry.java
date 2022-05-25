@@ -1603,11 +1603,15 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
-		if (!AuthzResolver.authorizedInternal(sess, "getMembersPage_Vo_MembersPageQuery_List<String>_policy", vo)
-			&& (query.getGroupId() == null ||
-				!AuthzResolver.authorizedInternal(sess, "group-getMembersPage_Vo_MembersPageQuery_List<String>_policy",
-				perunBl.getGroupsManagerBl().getGroupById(sess, query.getGroupId())))) {
-			throw new PrivilegeException(sess, "getMembersPage");
+		if (query.getGroupId() != null) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-getMembersPage_Vo_MembersPageQuery_List<String>_policy",
+				perunBl.getGroupsManagerBl().getGroupById(sess, query.getGroupId()))) {
+				throw new PrivilegeException(sess, "getMembersPage");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "getMembersPage_Vo_MembersPageQuery_List<String>_policy", vo)) {
+				throw new PrivilegeException(sess, "getMembersPage");
+			}
 		}
 
 		Paginated<RichMember> result = membersManagerBl.getMembersPage(sess, vo, query, attrNames);
