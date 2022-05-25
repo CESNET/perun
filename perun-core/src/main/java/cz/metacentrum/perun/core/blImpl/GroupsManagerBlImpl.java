@@ -33,7 +33,6 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Host;
@@ -116,6 +115,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.SynchronizationPool;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_memberOrganizationsHistory;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
@@ -151,6 +151,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.comparingInt;
@@ -3697,23 +3699,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		// if vo still not in memberOrganizations attribute and is hierarchical (user was only member in VO via hierarchy), add it
+		// if vo still not in memberOrganizations and memberOrganizationsHistory attributes and is hierarchical (user was only member in VO via hierarchy), add it
 		if (perunBl.getVosManagerBl().getMemberVos(sess, group.getVoId()).size() > 0) {
 			try {
 				Vo vo = perunBl.getVosManagerBl().getVoById(sess, group.getVoId());
-				Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, memberToUpdate, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-				ArrayList<String> currentValue = attribute.valueAsList();
-				if (currentValue == null) {
-					attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations"));
-					ArrayList<String> newValue = new ArrayList<>(List.of(vo.getShortName()));
-					attribute.setValue(newValue);
-					perunBl.getAttributesManagerBl().setAttribute(sess, memberToUpdate, attribute);
-				} else if (!currentValue.contains(vo.getShortName())) {
-					currentValue.add(vo.getShortName());
-					attribute.setValue(currentValue);
-					perunBl.getAttributesManagerBl().setAttribute(sess, memberToUpdate, attribute);
-				}
-
+				perunBl.getMembersManagerBl().updateOrganizationsAttributes(sess, vo, memberToUpdate);
 			} catch (VoNotExistsException | WrongReferenceAttributeValueException | WrongAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
