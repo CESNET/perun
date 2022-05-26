@@ -28,7 +28,7 @@
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>5.2.0</version>
+				<version>6.0.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -64,18 +64,6 @@
 								<scmUrl>https://github.com/CESNET/perun</scmUrl>
 							</configOptions>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

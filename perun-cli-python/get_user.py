@@ -13,8 +13,9 @@ def main(args):
 
 	user_id = args['user']
 	try:
-		api_response = users_manager.get_user_by_id(user_id)
-		pprint(api_response)
+		user = users_manager.get_user_by_id(user_id)
+		pprint(user)
+
 	except ApiException as e:
 		print("Exception when calling : %s\n" % e)
 

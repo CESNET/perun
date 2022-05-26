@@ -1,4 +1,4 @@
-openapi: 3.0.2
+openapi: 3.0.3
 info:
   version: 0.0.0
   title: Perun RPC API
@@ -20,13 +20,12 @@ servers:
         enum:
           - krb
           - cert
-          - oidc
+          - oauth
           - fed
 
 security:
   - BasicAuth: [ ]
   - BearerAuth: [ ]
-  - ApiKeyAuth: [ ]
 
 components:
   #############################################
@@ -36,18 +35,13 @@ components:
   #############################################
   securitySchemes:
     BasicAuth:
+      description: "HTTP Basic authentication with username and password"
       type: http
       scheme: basic
     BearerAuth:
+      description: "OAuth2 Resource Server authentication using access token in 'Authorization: Bearer' HTTP header"
       type: http
       scheme: bearer
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-    OpenID:
-      type: openIdConnect
-      openIdConnectUrl: https://login.cesnet.cz/oidc/.well-known/openid-configuration
 
   #############################################
   #                                           #
@@ -76,42 +70,42 @@ components:
     Auditable:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            createdAt: { type: string, nullable: true }
-            createdBy: { type: string, nullable: true }
-            modifiedAt: { type: string, nullable: true }
-            modifiedBy: { type: string, nullable: true }
-            createdByUid: { type: integer, nullable: true }
-            modifiedByUid: { type: integer, nullable: true }
+      properties:
+        createdAt: { type: string, nullable: true }
+        createdBy: { type: string, nullable: true }
+        modifiedAt: { type: string, nullable: true }
+        modifiedBy: { type: string, nullable: true }
+        createdByUid: { type: integer, nullable: true }
+        modifiedByUid: { type: integer, nullable: true }
       discriminator:
         propertyName: beanName
 
     User:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            firstName: { type: string, nullable: true }
-            lastName: { type: string, nullable: true }
-            middleName: { type: string, nullable: true }
-            titleBefore: { type: string, nullable: true }
-            titleAfter: { type: string, nullable: true }
-            serviceUser: { type: boolean }
-            sponsoredUser: { type: boolean }
-            uuid: { type: string, format: uuid }
-            specificUser: { type: boolean }
-            majorSpecificType: { type: string }
+      properties:
+        firstName: { type: string, nullable: true }
+        lastName: { type: string, nullable: true }
+        middleName: { type: string, nullable: true }
+        titleBefore: { type: string, nullable: true }
+        titleAfter: { type: string, nullable: true }
+        serviceUser: { type: boolean }
+        sponsoredUser: { type: boolean }
+        uuid: { type: string, format: uuid }
+        specificUser: { type: boolean }
+        majorSpecificType: { type: string }
       discriminator:
         propertyName: beanName
 
     RichUser:
       allOf:
         - $ref: '#/components/schemas/User'
-        - properties:
-            userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
-            userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-          required:
-            - userExtSources
-            - userAttributes
+      properties:
+        userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' }, nullable: true }
+        userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' }, nullable: true }
+      required:
+        - userExtSources
+        - userAttributes
       discriminator:
         propertyName: beanName
 
@@ -145,18 +139,15 @@ components:
     Member:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            userId: { type: integer }
-            voId: { type: integer }
-            status: { type: string }
-            membershipType: { type: string }
-            sourceGroupId: { type: integer, nullable: true }
-            sponsored: { type: boolean }
-            groupStatus: { type: string }
-            groupStatuses:
-              type: object
-              additionalProperties:
-                type: string
+      properties:
+        userId: { type: integer }
+        voId: { type: integer }
+        status: { type: string }
+        membershipType: { type: string }
+        sourceGroupId: { type: integer, nullable: true }
+        sponsored: { type: boolean }
+        groupStatus: { type: string }
+        groupStatuses: { type: object, additionalProperties: { type: string } }
       discriminator:
         propertyName: beanName
 
@@ -169,14 +160,14 @@ components:
     RichMember:
       allOf:
         - $ref: '#/components/schemas/Member'
-        - properties:
-            user: { $ref: '#/components/schemas/User' }
-            userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
-            userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-            memberAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-          required:
-            - user
-            - userExtSources
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' }, nullable: true }
+        userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' }, nullable: true }
+        memberAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' }, nullable: true }
+      required:
+        - user
+        - userExtSources
       discriminator:
         propertyName: beanName
 
@@ -191,6 +182,20 @@ components:
         - pageSize
         - totalCount
         - data
+
+    GraphFileFormat:
+      type: string
+      enum:
+        - DOT
+        - TGF
+      description: "currently supported formats are DOT and TGF"
+
+    GraphDTO:
+      properties:
+        graph:
+          type: string
+        format:
+          $ref: '#/components/schemas/GraphFileFormat'
 
     SortingOrder:
       type: string
@@ -256,56 +261,54 @@ components:
     UserExtSource:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            login: { type: string }
-            userId: { type: integer }
-            loa: { type: integer }
-            persistent: { type: boolean }
-            lastAccess: { type: string, format: timestamp, description: 'SQL timestamp', example: '2012-01-01 00:00:00.100000' }
-            extSource: { $ref: '#/components/schemas/ExtSource' }
-          required:
-            - login
-            - extSource
+      properties:
+        login: { type: string }
+        userId: { type: integer }
+        loa: { type: integer }
+        persistent: { type: boolean }
+        lastAccess: { type: string, format: timestamp, description: 'SQL timestamp', example: '2012-01-01 00:00:00.100000' }
+        extSource: { $ref: '#/components/schemas/ExtSource' }
+      required:
+        - login
+        - extSource
       discriminator:
         propertyName: beanName
 
     ExtSource:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            type: { type: string }
+      properties:
+        name: { type: string }
+        type: { type: string }
       discriminator:
         propertyName: beanName
 
     AttributeDefinition:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            friendlyName: { type: string }
-            namespace: { type: string }
-            description: { type: string, nullable: true }
-            type: { type: string }
-            displayName: { type: string }
-            writable: { type: boolean }
-            unique: { type: boolean }
-            friendlyNameParameter: { type: string, readOnly: true }
-            baseFriendlyName: { type: string, readOnly: true }
-            entity:
-              type: string
-              readOnly: true
+      properties:
+        friendlyName: { type: string }
+        namespace: { type: string }
+        description: { type: string, nullable: true }
+        type: { type: string }
+        displayName: { type: string }
+        writable: { type: boolean }
+        unique: { type: boolean }
+        friendlyNameParameter: { type: string, readOnly: true }
+        baseFriendlyName: { type: string, readOnly: true }
+        entity: { type: string, readOnly: true }
       discriminator:
         propertyName: beanName
 
     Attribute:
       allOf:
         - $ref: '#/components/schemas/AttributeDefinition'
-        - properties:
-            valueCreatedAt: { type: string, nullable: true }
-            valueCreatedBy: { type: string, nullable: true }
-            valueModifiedAt: { type: string, nullable: true }
-            valueModifiedBy: { type: string, nullable: true }
-            value: {}
+      properties:
+        valueCreatedAt: { type: string, nullable: true }
+        valueCreatedBy: { type: string, nullable: true }
+        valueModifiedAt: { type: string, nullable: true }
+        valueModifiedBy: { type: string, nullable: true }
+        value: { nullable: true }
       discriminator:
         propertyName: beanName
 
@@ -434,27 +437,27 @@ components:
     Facility:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            description: { type: string }
+      properties:
+        name: { type: string }
+        description: { type: string }
       discriminator:
         propertyName: beanName
 
     RichFacility:
       allOf:
         - $ref: '#/components/schemas/Facility'
-        - properties:
-            facilityOwners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
-          required:
-            - facilityOwners
+      properties:
+        facilityOwners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
+      required:
+        - facilityOwners
       discriminator:
         propertyName: beanName
 
     Host:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            hostname: { type: string }
+      properties:
+        hostname: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -523,123 +526,130 @@ components:
     ConsentHub:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            enforceConsents: { type: boolean }
-            facilities: { type: array, items: { $ref: '#/components/schemas/Facility' }, nullable: true }
-          required:
-            - name
-            - enforceConsents
-            - facilities
+      properties:
+        name: { type: string }
+        enforceConsents: { type: boolean }
+        facilities: { type: array, items: { $ref: '#/components/schemas/Facility' }, nullable: true }
+      required:
+        - name
+        - enforceConsents
+        - facilities
       discriminator:
         propertyName: beanName
 
     PublicationSystem:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            friendlyName: { type: string }
-            url: { type: string }
-            username: { type: string }
-            password: { type: string }
-            loginNamespace: { type: string }
-            type: { type: string }
+      properties:
+        friendlyName: { type: string }
+        url: { type: string }
+        username: { type: string }
+        password: { type: string }
+        loginNamespace: { type: string }
+        type: { type: string }
       discriminator:
         propertyName: beanName
 
     Publication:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            authors: { type: array, items: { $ref: '#/components/schemas/Author' } }
-            externalId: { type: integer }
-            publicationSystemId: { type: integer }
-            title: { type: string }
-            year: { type: integer }
-            main: { type: string }
-            isbn: { type: string }
-            doi: { type: string }
-            categoryId: { type: integer }
-            rank: { type: number, format: double }
-            locked: { type: boolean }
-            createdBy: { type: string }
-            createdByUid: { type: integer }
-            createdDate: { type: string, format: date }
+      properties:
+        authors: { type: array, items: { $ref: '#/components/schemas/Author' } }
+        externalId: { type: integer }
+        publicationSystemId: { type: integer }
+        title: { type: string }
+        year: { type: integer }
+        main: { type: string }
+        isbn: { type: string }
+        doi: { type: string }
+        categoryId: { type: integer }
+        rank: { type: number, format: double }
+        locked: { type: boolean }
+        createdBy: { type: string }
+        createdByUid: { type: integer }
+        createdDate: { type: string, format: date }
       discriminator:
         propertyName: beanName
 
     PublicationForGUI:
       allOf:
         - $ref: '#/components/schemas/Publication'
-        - properties:
-            pubSystemName: { type: string }
-            categoryName: { type: string }
-            thanks: { type: array, items: { $ref: '#/components/schemas/ThanksForGUI' } }
+      properties:
+        pubSystemName: { type: string }
+        categoryName: { type: string }
+        thanks: { type: array, items: { $ref: '#/components/schemas/ThanksForGUI' } }
       discriminator:
         propertyName: beanName
 
     Category:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            name: { type: string }
-            rank: { type: number, format: double }
+      properties:
+        name: { type: string }
+        rank: { type: number, format: double }
       discriminator:
         propertyName: beanName
 
     Thanks:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            publicationId: { type: integer }
-            ownerId: { type: integer }
-            createdBy: { type: string }
-            createdByUid: { type: integer }
-            createdDate: { type: string, format: date }
+      properties:
+        publicationId: { type: integer }
+        ownerId: { type: integer }
+        createdBy: { type: string }
+        createdByUid: { type: integer }
+        createdDate: { type: string, format: date }
       discriminator:
         propertyName: beanName
 
     ThanksForGUI:
       allOf:
         - $ref: '#/components/schemas/Thanks'
-        - properties:
-            ownerName: { type: string }
+      properties:
+        ownerName: { type: string }
       discriminator:
         propertyName: beanName
 
     Authorship:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            publicationId: { type: integer }
-            userId: { type: integer }
-            createdBy: { type: string }
-            createdDate: { type: string, format: date }
-            createdByUid: { type: integer }
+      properties:
+        publicationId: { type: integer }
+        userId: { type: integer }
+        createdBy: { type: string }
+        createdDate: { type: string, format: date }
+        createdByUid: { type: integer }
       discriminator:
         propertyName: beanName
 
     Author:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            firstName: { type: string }
-            lastName: { type: string }
-            middleName: { type: string }
-            titleBefore: { type: string }
-            titleAfter: { type: string }
-            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-            authorships: { type: array, items: { $ref: '#/components/schemas/Authorship' } }
+      properties:
+        firstName: { type: string }
+        lastName: { type: string }
+        middleName: { type: string }
+        titleBefore: { type: string }
+        titleAfter: { type: string }
+        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+        authorships: { type: array, items: { $ref: '#/components/schemas/Authorship' } }
+      discriminator:
+        propertyName: beanName
+
+    OwnerType:
+      description: "enumeration of types of Owners"
+      type: string
+      enum:
+        - technical
+        - administrative
 
     Owner:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            contact: { type: string }
-            type:
-              type: string
-              enum: [ technical, administrative ]
+      properties:
+        name: { type: string }
+        contact: { type: string }
+        type: { $ref: '#/components/schemas/OwnerType'}
       discriminator:
         propertyName: beanName
 
@@ -715,21 +725,21 @@ components:
     Group:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            shortName: { type: string }
-            description: { type: string, nullable: true }
-            voId: { type: integer }
-            parentGroupId: { type: integer, nullable: true }
-            uuid: { type: string, format: uuid }
+      properties:
+        name: { type: string }
+        shortName: { type: string }
+        description: { type: string, nullable: true }
+        voId: { type: integer }
+        parentGroupId: { type: integer, nullable: true }
+        uuid: { type: string, format: uuid }
       discriminator:
         propertyName: beanName
 
     RichGroup:
       allOf:
         - $ref: '#/components/schemas/Group'
-        - properties:
-            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+      properties:
+        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
       discriminator:
         propertyName: beanName
 
@@ -777,51 +787,51 @@ components:
     Consent:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            userId: { type: integer }
-            status: { $ref: '#/components/schemas/ConsentStatus' }
-            consentHub: { $ref: '#/components/schemas/ConsentHub' }
-            attributes: { type: array, items: { $ref: '#/components/schemas/AttributeDefinition' } }
+      properties:
+        userId: { type: integer }
+        status: { $ref: '#/components/schemas/ConsentStatus' }
+        consentHub: { $ref: '#/components/schemas/ConsentHub' }
+        attributes: { type: array, items: { $ref: '#/components/schemas/AttributeDefinition' } }
       discriminator:
         propertyName: beanName
 
     Resource:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            description: { type: string }
-            voId: { type: integer }
-            facilityId: { type: integer }
-            uuid: { type: string, format: uuid }
+      properties:
+        name: { type: string }
+        description: { type: string }
+        voId: { type: integer }
+        facilityId: { type: integer }
+        uuid: { type: string, format: uuid }
       discriminator:
         propertyName: beanName
 
     RichResource:
       allOf:
         - $ref: '#/components/schemas/Resource'
-        - properties:
-            vo: { $ref: '#/components/schemas/Vo' }
-            facility: { $ref: '#/components/schemas/Facility' }
-            resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
+      properties:
+        vo: { $ref: '#/components/schemas/Vo' }
+        facility: { $ref: '#/components/schemas/Facility' }
+        resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
       discriminator:
         propertyName: beanName
 
     ResourceTag:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            tagName: { type: string }
-            voId: { type: integer }
+      properties:
+        tagName: { type: string }
+        voId: { type: integer }
       discriminator:
         propertyName: beanName
 
     Vo:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            shortName: { type: string }
+      properties:
+        name: { type: string }
+        shortName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -845,14 +855,14 @@ components:
     Service:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            description: { type: string }
-            delay: { type: integer }
-            recurrence: { type: integer }
-            enabled: { type: boolean }
-            script: { type: string }
-            useExpiredMembers: { type: boolean }
+      properties:
+        name: { type: string }
+        description: { type: string }
+        delay: { type: integer }
+        recurrence: { type: integer }
+        enabled: { type: boolean }
+        script: { type: string }
+        useExpiredMembers: { type: boolean }
       discriminator:
         propertyName: beanName
 
@@ -878,20 +888,20 @@ components:
     Destination:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            destination: { type: string }
-            type: { $ref: '#/components/schemas/DestinationType' }
-            propagationType: { $ref: '#/components/schemas/DestinationPropagationType' }
+      properties:
+        destination: { type: string }
+        type: { $ref: '#/components/schemas/DestinationType' }
+        propagationType: { $ref: '#/components/schemas/DestinationPropagationType' }
       discriminator:
         propertyName: beanName
 
     RichDestination:
       allOf:
         - $ref: '#/components/schemas/Destination'
-        - properties:
-            blocked: { type: boolean }
-            service: { $ref: '#/components/schemas/Service' }
-            facility: { $ref: '#/components/schemas/Facility' }
+      properties:
+        blocked: { type: boolean }
+        service: { $ref: '#/components/schemas/Service' }
+        facility: { $ref: '#/components/schemas/Facility' }
       discriminator:
         propertyName: beanName
 
@@ -1009,12 +1019,12 @@ components:
     RichApplication:
       allOf:
         - $ref: '#/components/schemas/Application'
-        - properties:
-            formData: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
-          required:
-            - formData
-
-
+      properties:
+        formData: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+      required:
+        - formData
+      discriminator:
+        propertyName: beanName
 
     PaginatedRichApplications:
       properties:
@@ -1100,53 +1110,52 @@ components:
     SecurityTeam:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            name: { type: string }
-            description: { type: string }
+      properties:
+        name: { type: string }
+        description: { type: string }
       discriminator:
         propertyName: beanName
 
     Ban:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            validityTo: { type: string }
-            description: { type: string }
+      properties:
+        validityTo: { type: string }
+        description: { type: string }
       discriminator:
         propertyName: beanName
 
     BanOnResource:
       allOf:
         - $ref: '#/components/schemas/Ban'
-        - properties:
-            memberId: { type: integer }
-            resourceId: { type: integer }
+      properties:
+        memberId: { type: integer }
+        resourceId: { type: integer }
       discriminator:
         propertyName: beanName
 
     BanOnVo:
       allOf:
         - $ref: '#/components/schemas/Ban'
-        - properties:
-            memberId: { type: integer }
-            voId: { type: integer }
+      properties:
+        memberId: { type: integer }
+        voId: { type: integer }
       discriminator:
         propertyName: beanName
 
     BanOnFacility:
       allOf:
         - $ref: '#/components/schemas/Ban'
-        - properties:
-            userId: { type: integer }
-            facilityId: { type: integer }
+      properties:
+        userId: { type: integer }
+        facilityId: { type: integer }
       discriminator:
         propertyName: beanName
 
     RichUserExtSource:
-      allOf:
-        - properties:
-            userExtSource: { $ref: '#/components/schemas/UserExtSource', nullable: false }
-            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' }, nullable: false }
+      properties:
+        userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' }, nullable: false }
       required:
         - userExtSource
         - attributes
@@ -1156,12 +1165,10 @@ components:
     Candidate:
       allOf:
         - $ref: '#/components/schemas/User'
-        - properties:
-            userExtSource: { $ref: '#/components/schemas/UserExtSource' }
-            additionalUserExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
-            attributes:
-              type: object
-              additionalProperties: { type: string }
+      properties:
+        userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+        additionalUserExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
+        attributes: { type: object, additionalProperties: { type: string } }
       discriminator:
         propertyName: beanName
 
@@ -1175,8 +1182,8 @@ components:
     ServiceForGUI:
       allOf:
         - $ref: '#/components/schemas/Service'
-        - properties:
-            allowedOnFacility: { type: boolean }
+      properties:
+        allowedOnFacility: { type: boolean }
       discriminator:
         propertyName: beanName
 
@@ -1212,9 +1219,9 @@ components:
     ServicesPackage:
       allOf:
         - $ref: '#/components/schemas/Auditable'
-        - properties:
-            description: { type: string }
-            name: { type: string }
+      properties:
+        description: { type: string }
+        name: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -1264,16 +1271,16 @@ components:
     TaskResult:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
-        - properties:
-            taskId: { type: integer }
-            destinationId: { type: integer }
-            errorMessage: { type: string }
-            standardMessage: { type: string }
-            returnCode: { type: integer }
-            timestamp: { type: string }
-            status: { $ref: '#/components/schemas/TaskResultStatus' }
-            destination: { $ref: '#/components/schemas/Destination' }
-            service: { $ref: '#/components/schemas/Service' }
+      properties:
+        taskId: { type: integer }
+        destinationId: { type: integer }
+        errorMessage: { type: string }
+        standardMessage: { type: string }
+        returnCode: { type: integer }
+        timestamp: { type: string }
+        status: { $ref: '#/components/schemas/TaskResultStatus' }
+        destination: { $ref: '#/components/schemas/Destination' }
+        service: { $ref: '#/components/schemas/Service' }
       discriminator:
         propertyName: beanName
 
@@ -2209,13 +2216,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              graph:
-                type: string
-              format:
-                type: string
-                enum: [ DOT, TGF ]
+            $ref: "#/components/schemas/GraphDTO"
 
     BanOnVoResponse:
       description: "returns banOnVo"
@@ -7142,10 +7143,7 @@ paths:
       parameters:
         - name: format
           in: query
-          schema:
-            type: string
-            enum: [ DOT, TGF ]
-          description: Currently supported formats are DOT and TGF.
+          schema: { $ref: '#/components/schemas/GraphFileFormat' }
           required: true
       responses:
         '200':
@@ -7165,10 +7163,7 @@ paths:
       parameters:
         - name: format
           in: query
-          schema:
-            type: string
-            enum: [ DOT, TGF ]
-          description: Currently supported formats are DOT and TGF.
+          schema: { $ref: '#/components/schemas/GraphFileFormat' }
           required: true
         - name: attrName
           in: query
@@ -7488,7 +7483,7 @@ paths:
         content:
           application/json:
             schema:
-              title: InputCreateCategory
+              title: InputCreateCategoryNR
               description: 'input to createCategory'
               type: object
               required:
@@ -9643,8 +9638,8 @@ paths:
         content:
           application/json:
             schema:
-              title: InputCreateSponsoredMember
-              description: "input for createSponsoredMember"
+              title: InputCreateSponsoredMembers
+              description: "input for createSponsoredMembers"
               type: object
               required:
                 - guestNames
@@ -15358,7 +15353,7 @@ paths:
         content:
           application/json:
             schema:
-              title: InputFormItemData
+              title: InputFormItemsData
               description: "input to updateFormItemsData"
               type: object
               required:
@@ -17107,7 +17102,7 @@ paths:
         content:
           application/json:
             schema:
-              title: InputGetResources
+              title: InputGetMatchResources
               description: "Input to getResources"
               type: object
               required:
