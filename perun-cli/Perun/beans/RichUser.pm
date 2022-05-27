@@ -2,7 +2,6 @@ package Perun::beans::RichUser;
 
 use strict;
 use warnings;
-use 5.010;
 
 use Perun::Common;
 
@@ -36,7 +35,7 @@ sub setId
 	return;
 }
 
-sub getUuid 
+sub getUuid
 {
 	return shift->{_uuid};
 }
