@@ -570,7 +570,7 @@ sub buildVersion {
 
 		<h3>Authentication</h3>
 
-		<p>Authentication of person / component making a request is done by Apache web server and depends on it’s current configuration. Perun can internally handle identity provided by Kerberos, Shibboleth IdP, Certificate or REMOTE_USER like Apache config. Identity info provided by Apache to Perun is used only to match identity to user object from Perun (if exists).</p>
+		<p>Authentication of person / component making a request is done by Apache web server and depends on it’s current configuration. Perun can internally handle identity provided by Kerberos, Shibboleth IdP, Certificate or REMOTE_USER like Apache config. It also supports OIDC authentication using device codeflow. Identity info provided by Apache to Perun is used only to match identity to user object from Perun (if exists).</p>
 
 		<h3>Authorization</h3>
 
@@ -591,7 +591,7 @@ sub buildVersion {
 			<dd>Is hostname of your Perun instance.</dd>
 
 			<dt>[authentication]</dt>
-			<dd>Is type of expected authentication which must be supported by Perun instance. Standard values are: <i>fed</i> (Shibboleth IDP), <i>krb</i> (Kerberos), <i>cert</i> (Certificate), <i>non</i> (without authorization).</dd>
+			<dd>Is type of expected authentication which must be supported by Perun instance. Standard values are: <i>fed</i> (Shibboleth IDP), <i>krb</i> (Kerberos), <i>cert</i> (Certificate), <i>oauth</i> (OIDC), <i>non</i> (without authorization).</dd>
 
 			<dt>[format]</dt>
 			<dd>Format of data for transfer. Possible values are: <i>json</i> and <i>jsonp</i>.</dd>
