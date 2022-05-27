@@ -17,9 +17,9 @@ import java.util.Collections;
 import java.util.List;
 
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_persistent_shadow extends urn_perun_user_attribute_def_virt_unscopedLogin_namespace {
+public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_persistent_shadow extends urn_perun_user_attribute_def_virt_unscopedLogin_namespace {
 
-	private static final String loginNamespaceEINFRAFriendlyName = "login-namespace:einfra-persistent-shadow";
+	private static final String loginNamespaceEINFRAFriendlyName = "login-namespace:einfraid-persistent-shadow";
 	private static final String A_U_D_loginNamespaceEINFRA = AttributesManager.NS_USER_ATTR_DEF + ":" + loginNamespaceEINFRAFriendlyName;
 
 	@Override
@@ -63,7 +63,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_pe
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("unscopedLogin-namespace:einfra-persistent-shadow");
+		attr.setFriendlyName("unscopedLogin-namespace:einfraid-persistent-shadow");
 		attr.setDisplayName("EINFRA unscoped login");
 		attr.setType(String.class.getName());
 		attr.setDescription("EINFRA user login without the scope");
