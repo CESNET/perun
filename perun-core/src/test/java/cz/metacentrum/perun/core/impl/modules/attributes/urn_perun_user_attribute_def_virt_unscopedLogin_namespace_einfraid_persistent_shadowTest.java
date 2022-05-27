@@ -16,19 +16,19 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_persistent_shadowTest {
-	private static urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_persistent_shadow classInstance;
+public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_persistent_shadowTest {
+	private static urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_persistent_shadow classInstance;
 	private static PerunSessionImpl session;
 	private static final User user = new User(1, "User", "1", "", "", "");
 	private static AttributeDefinition attributeDefinitionToCheck;
 
 	@Before
 	public void setUp() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_persistent_shadow();
+		classInstance = new urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_persistent_shadow();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 		attributeDefinitionToCheck = new AttributeDefinition();
 		attributeDefinitionToCheck.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attributeDefinitionToCheck.setFriendlyName("unscopedLogin-namespace:einfra-persistent-shadow");
+		attributeDefinitionToCheck.setFriendlyName("unscopedLogin-namespace:einfraid-persistent-shadow");
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_pe
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
 			{
 				setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-				setFriendlyName("login-namespace:einfra-persistent-shadow");
+				setFriendlyName("login-namespace:einfraid-persistent-shadow");
 				setType("def");
 				setValue(null);
 			}
@@ -55,7 +55,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_pe
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
 			{
 				setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-				setFriendlyName("login-namespace:einfra-persistent-shadow");
+				setFriendlyName("login-namespace:einfraid-persistent-shadow");
 				setType("def");
 				setValue("test");
 			}
@@ -72,7 +72,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_pe
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
 			{
 				setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-				setFriendlyName("login-namespace:einfra-persistent-shadow");
+				setFriendlyName("login-namespace:einfraid-persistent-shadow");
 				setType("def");
 				setValue("test@scope");
 			}
@@ -89,7 +89,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfra_pe
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
 			{
 				setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-				setFriendlyName("login-namespace:einfra-persistent-shadow");
+				setFriendlyName("login-namespace:einfraid-persistent-shadow");
 				setType("def");
 				setValue("test@test@test@scope");
 			}
