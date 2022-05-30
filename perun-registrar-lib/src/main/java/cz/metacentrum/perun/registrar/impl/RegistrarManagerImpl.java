@@ -40,6 +40,7 @@ import cz.metacentrum.perun.registrar.model.RichApplication;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,8 @@ import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 
+import static cz.metacentrum.perun.core.api.AttributeAction.READ;
+import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
 import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
@@ -245,9 +248,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_TO_EMAIL);
@@ -261,9 +265,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType("java.util.ArrayList");
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_TO_EMAIL);
@@ -277,10 +282,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType("java.util.ArrayList");
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_FROM_EMAIL);
@@ -294,10 +301,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_FROM_NAME_EMAIL);
@@ -311,10 +320,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_FROM_NAME_EMAIL);
@@ -328,9 +339,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_LANGUAGE_EMAIL);
@@ -344,9 +356,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>>policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_LANGUAGE_EMAIL);
@@ -360,10 +373,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_APPLICATION_URL);
@@ -377,9 +392,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_APPLICATION_URL);
@@ -393,10 +409,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_REGISTRAR_URL);
@@ -410,9 +428,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_REGISTRAR_URL);
@@ -426,10 +445,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_MAIL_FOOTER);
@@ -443,9 +464,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_MAIL_FOOTER);
@@ -459,10 +481,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, "urn:perun:vo:attribute-def:def:voLogoURL");
@@ -476,9 +500,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
-			List<AttributeRights> rights = new ArrayList<>();
-			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 	}
 
@@ -4768,5 +4793,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final RowMapper<ApplicationFormItem.ItemTexts> ITEM_TEXTS_MAPPER = (resultSet, i) -> new ItemTexts(new Locale(resultSet.getString("locale")),
 			resultSet.getString("label"), resultSet.getString("options"), resultSet.getString("help"),
 			resultSet.getString("error_message"));
+
+	private List<AttributePolicyCollection> createInitialPolicyCollections(List<Triple<String, AttributeAction, RoleObject>> policies, int attrId) {
+		List<AttributePolicyCollection> policyCollections = new ArrayList<>();
+		int collectionId = 0;
+		for (Triple<String, AttributeAction, RoleObject> policy : policies) {
+			collectionId++;
+
+			AttributePolicy newPolicy = new AttributePolicy(-1, policy.getLeft(), policy.getRight(), collectionId);
+			// attributeId is set after definitions are created
+			policyCollections.add(new AttributePolicyCollection(collectionId, attrId, policy.getMiddle(), List.of(newPolicy)));
+		}
+		return policyCollections;
+	}
 
 }

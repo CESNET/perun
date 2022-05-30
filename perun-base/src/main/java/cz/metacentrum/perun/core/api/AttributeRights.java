@@ -10,6 +10,7 @@ import java.util.Objects;
  *
  * @author Jiří Mauritz
  */
+@Deprecated
 public class AttributeRights {
 
 	/**

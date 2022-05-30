@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
@@ -1206,7 +1206,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		//If actor has no right to read attribute for group, throw exception
 		for(Group group: groups) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, group)) {
 					throw new PrivilegeException(sess, "Actor hasn't right to read attribute for a group.");
 				}
 		}

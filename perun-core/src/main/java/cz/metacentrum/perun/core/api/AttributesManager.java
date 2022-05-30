@@ -4028,6 +4028,7 @@ public interface AttributesManager {
 	 * @param attributeId id of the attribute
 	 * @return all rights of the attribute
 	 */
+	@Deprecated
 	List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException;
 
 	/**
@@ -4041,6 +4042,7 @@ public interface AttributesManager {
 	 * @throws AttributeNotExistsException when attribute IDs in rights don't refer to existing attributes
 	 * @throws RoleNotSupportedException when some of the AttributeRights does have a role which does not exist
 	 */
+	@Deprecated
 	void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
 
 	/**

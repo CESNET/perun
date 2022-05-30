@@ -137,6 +137,7 @@ public class AuthzResolver {
 	 * @param resource secondary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group, resource);
@@ -155,6 +156,7 @@ public class AuthzResolver {
 	 * @param member secondary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, resource);
@@ -173,6 +175,7 @@ public class AuthzResolver {
 	 * @param facility secondary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user, Facility facility) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user, facility);
@@ -191,6 +194,7 @@ public class AuthzResolver {
 	 * @param group secondary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Group group) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, group);
@@ -208,6 +212,7 @@ public class AuthzResolver {
 	 * @param user primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user);
@@ -225,6 +230,7 @@ public class AuthzResolver {
 	 * @param member primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member);
@@ -242,6 +248,7 @@ public class AuthzResolver {
 	 * @param vo primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Vo vo) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, vo);
@@ -259,6 +266,7 @@ public class AuthzResolver {
 	 * @param bean bean
 	 * @return true, if principal is authorized for attribute and action
 	 */
+	@Deprecated
 	@SuppressWarnings("unused")
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, PerunBean bean) {
 		if (bean instanceof Vo) return isAuthorizedForAttribute(sess, actionType, attrDef, (Vo)bean);
@@ -282,6 +290,7 @@ public class AuthzResolver {
 	 * @param group primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group);
@@ -299,6 +308,7 @@ public class AuthzResolver {
 	 * @param resource primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, resource);
@@ -316,6 +326,7 @@ public class AuthzResolver {
 	 * @param facility primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Facility facility) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, facility);
@@ -333,6 +344,7 @@ public class AuthzResolver {
 	 * @param host primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Host host) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, host);
@@ -350,6 +362,7 @@ public class AuthzResolver {
 	 * @param ues primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, UserExtSource ues) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, ues);
@@ -367,6 +380,7 @@ public class AuthzResolver {
 	 * @param key primary Bean of Attribute (can't be null)
 	 * @return true if principal is authorized, false if not
 	 */
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) {
 		return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
 	}
