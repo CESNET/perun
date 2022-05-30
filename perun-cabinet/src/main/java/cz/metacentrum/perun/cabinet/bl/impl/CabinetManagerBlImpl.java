@@ -2,7 +2,6 @@ package cz.metacentrum.perun.cabinet.bl.impl;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -293,9 +292,8 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 				// create attribute
 				attrDef = perun.getAttributesManager().createAttribute(cabinetSession, attributeDefinition);
 				// set attribute rights
-				List<AttributeRights> rights = new ArrayList<AttributeRights>();
-				rights.add(new AttributeRights(attrDef.getId(), Role.SELF, Arrays.asList(ActionType.READ)));
-				perun.getAttributesManager().setAttributeRights(cabinetSession, rights);
+				AttributePolicyCollection policyCollection = createSinglePolicyCollection(Role.SELF, AttributeAction.READ, RoleObject.User, attrDef);
+				perun.getAttributesManager().setAttributePolicyCollections(cabinetSession, List.of(policyCollection));
 			} catch (PerunException pe) {
 				log.error("Failed to create attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" in Perun.");
 				throw new CabinetException("Failed to create attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" in Perun.", ErrorCodes.PERUN_EXCEPTION, pe);
@@ -318,15 +316,21 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			try {
 				attrDef2 = perun.getAttributesManager().createAttribute(cabinetSession, attributeDefinition);
 				// set attribute rights
-				List<AttributeRights> rights = new ArrayList<AttributeRights>();
-				rights.add(new AttributeRights(attrDef2.getId(), Role.SELF, Arrays.asList(ActionType.READ)));
-				perun.getAttributesManager().setAttributeRights(cabinetSession, rights);
+				AttributePolicyCollection policyCollection = createSinglePolicyCollection(Role.SELF, AttributeAction.READ, RoleObject.User, attrDef2);
+				perun.getAttributesManager().setAttributePolicyCollections(cabinetSession, List.of(policyCollection));
 			} catch (PerunException pe) {
 				log.error("Failed to create attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" in Perun.");
 				throw new CabinetException("Failed to create attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" in Perun.", ErrorCodes.PERUN_EXCEPTION, pe);
 			}
 			log.debug("Attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" successfully created.");
 		}
+	}
+
+	private AttributePolicyCollection createSinglePolicyCollection(String role, AttributeAction action, RoleObject object, AttributeDefinition attrDef) {
+		int collectionId = 1;
+
+		AttributePolicy newPolicy = new AttributePolicy(-1, role, object, collectionId);
+		return new AttributePolicyCollection(collectionId, attrDef.getId(), action, List.of(newPolicy));
 	}
 
 }

@@ -6960,7 +6960,8 @@ perun_roles_management:
 
   SELF:
     primary_object:
-    assign_to_objects: {}
+    assign_to_objects:
+      User: user_id
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -7231,6 +7232,7 @@ perun_roles_management:
       Group: group_id
       Vo: vo_id
       Facility: facility_id
+      Resource: resource_id
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []

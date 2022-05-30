@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -881,7 +881,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attribute);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
 
 		return users;
 	}
@@ -898,7 +898,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attributeName, attributeValue);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
 
 		return users;
 	}
@@ -915,7 +915,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		List<User> users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, attributeValue);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
 
 		return users;
 	}
