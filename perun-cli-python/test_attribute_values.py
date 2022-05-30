@@ -13,7 +13,7 @@ def main(args):
 
 
 	attr = rpc.attributes_manager().get_member_attribute_by_name(member.id,"urn:perun:member:attribute-def:def:membershipExpiration")
-	print(attr['namespace']+':'+attr['friendly_name'],attr['type'],':',attr['value'])
+	print(attr['namespace']+':'+attr['friendlyName'],attr['type'],':',attr['value'])
 
 	for attrName in ["urn:perun:user:attribute-def:def:preferredMail",
 					 "urn:perun:user:attribute-def:def:sshPublicKey",
@@ -21,7 +21,7 @@ def main(args):
 					 "urn:perun:user:attribute-def:virt:loa",
 					 "urn:perun:user:attribute-def:def:it4iBlockCollision"]:
 		attr = rpc.attributes_manager().get_user_attribute_by_name(user.id, attrName)
-		print(attr['namespace']+':'+attr['friendly_name'],attr['type'],':',attr['value'])
+		print(attr['namespace']+':'+attr['friendlyName'],attr['type'],':',attr['value'])
 
 # calling main when invoked from CLI
 if __name__ == "__main__":
