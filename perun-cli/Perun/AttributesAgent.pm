@@ -234,14 +234,19 @@ sub convertAttributeToUnique
 	return Perun::Common::callManagerMethod('convertAttributeToUnique','',@_);
 }
 
-sub getAttributeRights
-{
-	return Perun::Common::callManagerMethod('getAttributeRights','[]AttributeRights',@_);
-}
-
 sub setAttributeRights
 {
 	return Perun::Common::callManagerMethod('setAttributeRights','',@_);
+}
+
+sub getAttributePolicyCollections
+{
+	return Perun::Common::callManagerMethod('getAttributePolicyCollections', '[]AttributePolicyCollection', @_)
+}
+
+sub setAttributePolicyCollections
+{
+	return Perun::Common::callManagerMethod('setAttributePolicyCollections', '', @_)
 }
 
 1;

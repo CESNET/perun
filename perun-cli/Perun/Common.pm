@@ -54,6 +54,8 @@ use Perun::beans::EnrichedGroup;
 use Perun::beans::AssignedGroup;
 use Perun::beans::EnrichedResource;
 use Perun::beans::AssignedResource;
+use Perun::beans::AttributePolicy;
+use Perun::beans::AttributePolicyCollection;
 
 sub newEmptyBean
 {

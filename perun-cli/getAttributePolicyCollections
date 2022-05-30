@@ -6,11 +6,10 @@ use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
-#use Data::Dumper;
 
 sub help {
 	return qq{
-	Prints attribute rights of roles
+	Prints attribute policy collections for selected attribute.
 	--------------------------------
 	Available options:
 	--attributeId     | -a  attribute identifier
@@ -39,29 +38,17 @@ if (defined $attributeName and not defined $attributeId) {
 	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
 	$attributeId=$attributeDefinition->getId;
 }
-
-my @rights;
-@rights = $attributesAgent->getAttributeRights(attributeId => $attributeId);
-#output
+my @policyCollections;
+@policyCollections = $attributesAgent->getAttributePolicyCollections( attributeId => $attributeId );
+#OUTPUT
 printMessage "\n.-----------------------------.\n| Attribute : ".$attributeId."\t      |", $batch;
-my @rows = ();
-foreach my $right (@rights) {
-	#print Dumper($right);
-	my @actions=$right->getRights;
-	my $out="";
-        if (defined $actions[0]) {
-		$out=$out.$actions[0];
-	} else {
-		$out=$out."     ";
+foreach my $collection (@policyCollections) {
+	my @rows = ();
+	printMessage "\n.-----------------------------.\n| Action : ".$collection->getAction."\t      |", $batch;
+	foreach my $policy ($collection->getPolicies) {
+		my @row = ($policy->getRole, $policy->getObject);
+		push(@rows, \@row)
 	}
-	if (defined $actions[1]) {
-		$out=$out." ".$actions[1];
-	} else {
-		$out=$out."      ";
-	}
-	my @row = ($right->getRole, $out);
-	push(@rows, \@row);
-} 
-my @columnsNames = ('Role', 'Rights');
-print tableContentToPrint(\@columnsNames, \@rows, $batch);
-
+	my @columnsNames = ('Role', 'Object');
+	print tableContentToPrint(\@columnsNames, \@rows, $batch);
+}
