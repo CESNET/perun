@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +44,12 @@ public final class JsonSerializer implements Serializer {
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 
 	static {
+
+		JavaTimeModule module = new JavaTimeModule();
+		mapper.registerModule(module);
+		// make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
 		mixinMap.put(Attribute.class, AttributeMixIn.class);
 		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mixinMap.put(User.class, UserMixIn.class);

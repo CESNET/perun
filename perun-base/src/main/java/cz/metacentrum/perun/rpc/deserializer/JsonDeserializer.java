@@ -103,6 +103,11 @@ public class JsonDeserializer extends Deserializer {
 
 	static {
 
+		JavaTimeModule module = new JavaTimeModule();
+		mapper.registerModule(module);
+		// make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
 		mixinMap.put(Attribute.class, AttributeMixIn.class);
 		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mixinMap.put(User.class, UserMixIn.class);
