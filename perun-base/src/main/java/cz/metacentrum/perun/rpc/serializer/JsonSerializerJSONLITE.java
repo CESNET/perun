@@ -19,10 +19,12 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,9 +38,9 @@ public final class JsonSerializerJSONLITE implements Serializer {
 
 	@JsonIgnoreProperties({
 		"name",
-		"createdAt", "createdBy", "modifiedAt", "modifiedBy", 
-		"createdByUid",	"modifiedByUid", 
-		"valueCreatedAt", "valueCreatedBy", "valueModifiedAt", "valueModifiedBy", 
+		"createdAt", "createdBy", "modifiedAt", "modifiedBy",
+		"createdByUid",	"modifiedByUid",
+		"valueCreatedAt", "valueCreatedBy", "valueModifiedAt", "valueModifiedBy",
 		"beanName"
 		})
 	private interface AttributeMixIn {
@@ -46,9 +48,9 @@ public final class JsonSerializerJSONLITE implements Serializer {
 
 	@JsonIgnoreProperties({
 		"name",
-		"createdAt", "createdBy", "modifiedAt", "modifiedBy", 
-		"createdByUid",	"modifiedByUid", 
-		"beanName" 
+		"createdAt", "createdBy", "modifiedAt", "modifiedBy",
+		"createdByUid",	"modifiedByUid",
+		"beanName"
 		})
 	private interface AttributeDefinitionMixIn {
 	}
@@ -56,7 +58,7 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	@JsonIgnoreProperties({
 		"commonName", "displayName",
 		"createdAt", "createdBy", "modifiedAt", "modifiedBy",
-		"createdByUid", "modifiedByUid", 
+		"createdByUid", "modifiedByUid",
 		"beanName"
 		})
 	private interface UserMixIn {
@@ -71,8 +73,8 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	}
 
 	@JsonIgnoreProperties({
-		"createdAt", "createdBy", "modifiedAt", "modifiedBy", 
-		"createdByUid", "modifiedByUid", 
+		"createdAt", "createdBy", "modifiedAt", "modifiedBy",
+		"createdByUid", "modifiedByUid",
 		"beanName"
 		})
 	private interface PerunBeanMixIn {
@@ -146,6 +148,30 @@ public final class JsonSerializerJSONLITE implements Serializer {
 		LocalDateTime getEndTime();
 	}
 
+	@SuppressWarnings("unused")
+	private interface TaskResultMixIn {
+
+		@JsonSerialize
+		@JsonProperty(value = "timestamp")
+		Long getTimestampAsLong();
+
+		@JsonIgnore
+		Date getTimestamp();
+
+	}
+
+	@SuppressWarnings("unused")
+	private interface BanMixIn {
+
+		@JsonSerialize
+		@JsonProperty(value = "validityTo")
+		Long getValidityToAsLong();
+
+		@JsonIgnore
+		Date getValidityTo();
+
+	}
+
 	public static final String CONTENT_TYPE = "application/json; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
@@ -165,6 +191,8 @@ public final class JsonSerializerJSONLITE implements Serializer {
 		mixinMap.put(Publication.class, CabinetMixIn.class);
 		mixinMap.put(Thanks.class, CabinetMixIn.class);
 		mixinMap.put(Task.class, TaskMixIn.class);
+		mixinMap.put(TaskResult.class, TaskResultMixIn.class);
+		mixinMap.put(Ban.class, BanMixIn.class);
 
 		mapper.setMixIns(mixinMap);
 	}

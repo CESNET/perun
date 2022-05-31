@@ -21,12 +21,14 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -142,6 +144,30 @@ public final class JsonSerializerJSONP implements Serializer {
 		LocalDateTime getEndTime();
 	}
 
+	@SuppressWarnings("unused")
+	private interface TaskResultMixIn {
+
+		@JsonSerialize
+		@JsonProperty(value = "timestamp")
+		Long getTimestampAsLong();
+
+		@JsonIgnore
+		Date getTimestamp();
+
+	}
+
+	@SuppressWarnings("unused")
+	private interface BanMixIn {
+
+		@JsonSerialize
+		@JsonProperty(value = "validityTo")
+		Long getValidityToAsLong();
+
+		@JsonIgnore
+		Date getValidityTo();
+
+	}
+
 	public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
@@ -167,6 +193,8 @@ public final class JsonSerializerJSONP implements Serializer {
 		mixinMap.put(Publication.class, CabinetMixIn.class);
 		mixinMap.put(Thanks.class, CabinetMixIn.class);
 		mixinMap.put(Task.class, TaskMixIn.class);
+		mixinMap.put(TaskResult.class, TaskResultMixIn.class);
+		mixinMap.put(Ban.class, BanMixIn.class);
 
 		mapper.setMixIns(mixinMap);
 	}

@@ -11,7 +11,7 @@ import java.util.Date;
 public abstract class Ban extends Auditable implements Comparable<PerunBean> {
 	private Date validityTo;
 	private String description;
-	
+
 	/**
 	 * Constructs a new instance.
 	 */
@@ -36,6 +36,10 @@ public abstract class Ban extends Auditable implements Comparable<PerunBean> {
 		return validityTo;
 	}
 
+	public Long getValidityToAsLong() {
+		return (validityTo == null) ? null : validityTo.getTime();
+	}
+
 	public void setValidityTo(Date validityTo) {
 		//set precision for validity on seconds
 		if(validityTo == null) this.validityTo = validityTo;
@@ -57,10 +61,10 @@ public abstract class Ban extends Auditable implements Comparable<PerunBean> {
 	 * @return class name of specific ban
 	 */
 	public abstract String getType();
-	
+
 	/**
 	 * Id of subject who is banned on target.
-	 * 
+	 *
 	 * @return id of affected subject
 	 */
 	public abstract int getSubjectId();

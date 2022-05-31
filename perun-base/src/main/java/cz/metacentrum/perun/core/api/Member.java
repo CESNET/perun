@@ -1,9 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
