@@ -89,18 +89,13 @@ sub isSponsored
 
 sub getCommonName
 {
-	my $user = shift->getUser();
-
-	return ($user->{_firstName}.' '.(defined $user->{_middleName} ? $user->{_middleName}.' ' : '').$user->{_lastName});
+	return shift->getUser()->getCommonName();
 }
 
 sub getDisplayName
 {
-	my $user = shift->getUser();
-
-	return (($user->{_titleBefore} ? $user->{_titleBefore}.' ' : "").($user->{_firstName} ? $user->{_firstName}.' ' : "").($user->{_middleName} ? $user->{_middleName}.' ' : "").($user->{_lastName} ? $user->{_lastName}.' ' : "").($user->{_titleAfter} ? $user->{_titleAfter} : ""));
+	return shift->getUser()->getDisplayName();
 }
-
 
 sub getSourceGroupId
 {
