@@ -43,13 +43,6 @@ public class urn_perun_member_attribute_def_def_memberOrganizationsTest {
 		when(perunBl.getVosManagerBl()).thenReturn(vosManagerBl);
 	}
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testSemanticsWithNullValue() throws Exception {
-		System.out.println("testSemanticsWithNullValue()");
-		attributeToCheck.setValue(null);
-		classInstance.checkAttributeSemantics(session, member, attributeToCheck);
-	}
-
 	@Test
 	public void testSemanticsWithCorrectValue() throws Exception {
 		System.out.println("testSemanticsWithCorrectValue()");
