@@ -3970,6 +3970,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param attributeId int attribute for which policies are set
 	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 * @throw RoleNotSupportedException When some of the AttributePolicyCollection does have a role which does not exist
+	 * @throw RoleObjectCombinationInvalidException when the combination role + RoleObject of any included policy isn't valid
 	 */
 	setAttributePolicyCollections {
 		@Override

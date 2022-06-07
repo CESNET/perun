@@ -15,6 +15,9 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleManagementRules;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -35,7 +38,9 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleObjectCombinationInvalidException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -45,6 +50,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 import cz.metacentrum.perun.utils.graphs.GraphDTO;
@@ -4514,7 +4520,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException {
+	public void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException, RoleObjectCombinationInvalidException {
 		Utils.checkPerunSession(sess);
 
 		// check validity of roles, existence of attributes
@@ -4523,6 +4529,7 @@ public class AttributesManagerEntry implements AttributesManager {
 				if (!AuthzResolver.roleExists(ap.getRole())) {
 					throw new RoleNotSupportedException("Role: " + ap.getRole() + " does not exists.", ap.getRole());
 				}
+				checkRoleObjectCombinations(apc);
 				getAttributeDefinitionById(sess, apc.getAttributeId());
 			}
 		}
@@ -4534,6 +4541,34 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		getAttributesManagerBl().setAttributePolicyCollections(sess, policyCollections);
 	}
+
+	/**
+	 * Check whether role + object combinations in the policies make sense. For example: FACILITYADMIN role cannot be assigned to a group object.
+	 *
+	 *
+	 * @param policyCollection collection to check
+	 * @throws RoleObjectCombinationInvalidException when the combination isn't valid
+	 */
+	private void checkRoleObjectCombinations(AttributePolicyCollection policyCollection) throws RoleObjectCombinationInvalidException {
+		for (AttributePolicy policy : policyCollection.getPolicies()) {
+			RoleManagementRules roleManagementRules;
+			try {
+				roleManagementRules = AuthzResolverImpl.getRoleManagementRules(policy.getRole());
+			} catch (RoleManagementRulesNotExistsException e) {
+				throw new InternalErrorException("Management rules for role " + policy.getRole() + " not found.");
+			}
+			if (!roleManagementRules.isAssignableToAttributes()) {
+				throw new RoleObjectCombinationInvalidException("Role: " + policy.getRole() + "cannot be set to attributes, in policy:", policy);
+			}
+
+			if (policy.getObject().equals(RoleObject.None)) continue;
+
+			if (!roleManagementRules.getAssignedObjects().containsKey(policy.getObject().toString())) {
+				throw new RoleObjectCombinationInvalidException("Cannot set role: " + policy.getRole() + " to object: " + policy.getObject() + " in policy:", policy);
+			}
+		}
+	}
+
 
 	@Override
 	public List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException {
