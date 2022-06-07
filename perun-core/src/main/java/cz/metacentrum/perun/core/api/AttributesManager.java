@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleObjectCombinationInvalidException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -4053,8 +4054,9 @@ public interface AttributesManager {
 	 * @throws AttributeNotExistsException when there is no attribute definition with such id
 	 * @throws PrivilegeException insufficient permissions
 	 * @throws RoleNotSupportedException when some of the AttributePolicyCollection does have a role which does not exist
+	 * @throws RoleObjectCombinationInvalidException when the combination role + RoleObject of any included policy isn't valid
 	 */
-	void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
+	void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException, RoleObjectCombinationInvalidException;
 
 	/**
 	 * Gets attribute policy collections for an attribute definition with given id.

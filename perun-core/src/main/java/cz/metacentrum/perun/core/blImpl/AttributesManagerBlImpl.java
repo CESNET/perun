@@ -7330,10 +7330,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Member organizations history");
 		attr.setDescription("The history of member organizations from where member comes.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:membershipExpirationRules
 		attr = new AttributeDefinition();
