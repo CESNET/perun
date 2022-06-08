@@ -7822,6 +7822,28 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn_perun_ues_attribute_def_def_sourceIdPName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("sourceIdPName");
+		attr.setDisplayName("sourceIdPName");
+		attr.setDescription("sourceIdPName");
+
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
+		//urn_perun_ues_attribute_def_def_IdPOrganizationName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("IdPOrganizationName");
+		attr.setDisplayName("IdPOrganizationName");
+		attr.setDescription("IdPOrganizationName");
+
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
 		//urn_perun_entityless_attribute_def_def_randomPwdResetTemplate
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);

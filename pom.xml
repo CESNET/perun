@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.7</version>
+		<version>2.7.0</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -62,21 +62,21 @@
 		<spring.profiles.default>default</spring.profiles.default>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
-		<commons-cli.version>1.4</commons-cli.version>
+		<commons-cli.version>1.5.0</commons-cli.version>
 		<commons-text.version>1.9</commons-text.version>
-		<docker-java.version>3.2.8</docker-java.version>
+		<docker-java.version>3.2.13</docker-java.version>
 		<dumbster.version>1.6</dumbster.version>
-		<expiringmap.version>0.5.9</expiringmap.version>
-		<flying-saucer-pdf.version>9.1.18</flying-saucer-pdf.version>
+		<expiringmap.version>0.5.10</expiringmap.version>
+		<flying-saucer-pdf.version>9.1.22</flying-saucer-pdf.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20210427-1.31.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
-		<netty3.version>3.2.1.Final</netty3.version><!-- needed for HornetQ -->
+		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20190722</json.version>
 		<reflections.version>0.9.11</reflections.version>
-		<testcontainers.version>1.15.3</testcontainers.version>
+		<testcontainers.version>1.17.2</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS

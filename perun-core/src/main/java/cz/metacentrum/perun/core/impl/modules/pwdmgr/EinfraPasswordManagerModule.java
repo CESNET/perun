@@ -52,6 +52,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 	protected final Pattern einfraPasswordContainsLower = Pattern.compile(".*[a-z].*");
 	protected final Pattern einfraPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
 	protected final Pattern einfraPasswordContainsSpec = Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
+	protected final int einfraPasswordMinLength = 10;
 
 	private static final List<Pattern> FORBIDDEN_LOGIN_PATTERNS = List.of(
 			Pattern.compile("^open-.*$"),
@@ -306,9 +307,9 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
 		}
 
-		if (password.length() < 10) {
-			log.warn("Password for {}:{} is too short. At least 10 characters are required.", actualLoginNamespace, login);
-			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too short. At least 10 characters is required.");
+		if (password.length() < einfraPasswordMinLength) {
+			log.warn("Password for {}:{} is too short. At least {} characters are required.", actualLoginNamespace, login, einfraPasswordMinLength);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too short. At least "+einfraPasswordMinLength+" characters are required.");
 		}
 
 		// if login is at least 3 chars, test if its not contained in password

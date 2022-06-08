@@ -3195,6 +3195,84 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertThat(currentValue).isNullOrEmpty();
 	}
 
+
+	@Test
+	public void createMemberMemberOrganizationsAttributeSet() throws Exception {
+		System.out.println(CLASS_NAME + "createMemberMemberOrganizationsAttributeSet");
+
+		// make vo hierarchical
+		Vo parentVo = setUpVo("parent");
+		Vo memberVo = setUpVo("member");
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		Member member = setUpMember(parentVo);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(parentVo.getShortName());
+	}
+
+	@Test
+	public void sponsorMembersMemberOrganizationsAttributeSet() throws Exception {
+		System.out.println(CLASS_NAME + "sponsorMembersMemberOrganizationsAttributeSet");
+
+		// make vo hierarchical
+		Vo parentVo = setUpVo("parent");
+		Vo memberVo = setUpVo("member");
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+
+		Member sponsorMember = setUpSponsor(parentVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,parentVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, parentVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Petr Draxler");
+		Member sponsoredMember1 = createSponsoredMember(sess, parentVo, "dummy", nameOfUser1, "secret", null, sponsorUser);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, sponsoredMember1, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(parentVo.getShortName());
+	}
+
+	@Test
+	public void validateOrExpireMemberAddsHimToIncludedParentVoGroups() throws Exception {
+		System.out.println(CLASS_NAME + "validateOrExpireMemberAddsHimToIncludedParentVoGroups");
+
+		Vo memberVo = setUpVo("member");
+		Vo parentVo = setUpVo("parent");
+		Group resultGroup = perun.getGroupsManager().createGroup(sess, parentVo, new Group("result", "Result group"));
+		Group operandGroup = perun.getGroupsManager().createGroup(sess, memberVo, new Group("operand", "Operand group"));
+
+		Member validMember = setUpMember(memberVo, "Valid", "Member");
+		Member invalidMember = setUpMember(memberVo, "Invalid", "Member");
+		Member disabledMember = setUpMember(memberVo, "Disabled", "Member");
+		Member expiredMember = setUpMember(memberVo, "Expired", "Member");
+		membersManagerEntry.setStatus(sess, validMember, Status.VALID);
+		membersManagerEntry.setStatus(sess, invalidMember, Status.INVALID);
+		membersManagerEntry.setStatus(sess, disabledMember, Status.VALID); // needs to be validated first before disabling
+		membersManagerEntry.setStatus(sess, disabledMember, Status.DISABLED);
+		membersManagerEntry.setStatus(sess, expiredMember, Status.EXPIRED);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, validMember);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, invalidMember);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, disabledMember);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, expiredMember);
+
+		perun.getVosManagerBl().addMemberVo(sess, parentVo, memberVo);
+		perun.getGroupsManagerBl().allowGroupToHierarchicalVo(sess, operandGroup, parentVo);
+		perun.getGroupsManagerBl().createGroupUnion(sess, resultGroup, operandGroup, false);
+
+		assertThat(perun.getGroupsManagerBl().getGroupMembers(sess, resultGroup).size()).isEqualTo(2);
+
+		membersManagerEntry.setStatus(sess, invalidMember, Status.EXPIRED);
+		membersManagerEntry.setStatus(sess, disabledMember, Status.VALID);
+		assertThat(perun.getGroupsManagerBl().getGroupMembers(sess, resultGroup).size()).isEqualTo(4);
+	}
+
 	private Vo setUpVo(String name) throws Exception {
 		return perun.getVosManagerBl().createVo(sess, new Vo(0, name, name));
 	}

@@ -251,7 +251,24 @@ public class ApplicationFormItem {
 		 * Special type for specifying if will be allowed to register to group(s) through VO application form. This type
 		 * is represented by standard HTML checkbox.
 		 */
-		EMBEDDED_GROUP_APPLICATION
+		EMBEDDED_GROUP_APPLICATION,
+		/**
+		 * Widgets for list like input.
+		 * Represented by string of comma (',') separated values.
+		 * Should also have a comma after last value.
+		 * Special characters as part of value should be escaped.
+		 * Example list: item,item\,withComma,lastItem,
+		 */
+		LIST_INPUT_BOX,
+		/**
+		 * Widgets for map like input (key - value pairs).
+		 * Represented by string of comma (',') separated values.
+		 * Should also have a comma after last value.
+		 * Keys and values are separated by a colon (':').
+		 * Special characters as part of key or value should be escaped.
+		 * Example map: key:value,key\,withComma:value\:withColon,last:item,
+		 */
+		MAP_INPUT_BOX
 	}
 
 	public static class ItemTexts {

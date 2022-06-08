@@ -105,4 +105,12 @@ public interface ModulesConfigLoader {
 	 */
 	List<Integer> loadIntegerListOrDefault(String moduleName, String property, List<Integer> defaultValue)
 	;
+
+	/**
+	 * Checks if configuration file for given module exists.
+	 *
+	 * @param moduleName name of a module
+	 * @return true if configuration file exists, false otherwise
+	 */
+	boolean moduleFileExists(String moduleName);
 }

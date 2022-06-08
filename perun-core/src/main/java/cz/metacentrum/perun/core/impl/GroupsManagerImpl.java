@@ -1158,7 +1158,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) {
 		try {
 			jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
-					" WHERE source_group_id=? AND group_id <> source_group_id AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
+					" WHERE source_group_id=? AND group_id <> source_group_id AND member_id IN (SELECT id FROM members where user_id=?)",
+				status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1337,6 +1338,54 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return 0 < jdbc.queryForInt("SELECT count(1) FROM groups_to_register WHERE group_id = ?", group.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		try {
+			jdbc.update("insert into allowed_groups_to_hierarchical_vo (group_id,vo_id,created_by,created_at,created_by_uid) " +
+				"values(?,?,?, " + Compatibility.getSysdate() +",?)", group.getId(), vo.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		try {
+			jdbc.update("delete from allowed_groups_to_hierarchical_vo where group_id=? and vo_id=?", group.getId(), vo.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		try {
+			return 0 < jdbc.queryForInt("SELECT count(1) FROM allowed_groups_to_hierarchical_vo WHERE vo_id=? and group_id=?", vo.getId(), group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups WHERE id IN " +
+				"(SELECT group_id FROM allowed_groups_to_hierarchical_vo WHERE vo_id=?)", GROUP_MAPPER, vo.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups WHERE vo_id=? AND id IN " +
+				"(SELECT group_id FROM allowed_groups_to_hierarchical_vo WHERE vo_id=?)", GROUP_MAPPER, memberVo.getId(), vo.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 

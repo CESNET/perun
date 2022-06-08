@@ -402,14 +402,16 @@ public interface UsersManagerBl {
 	 * Anonymizes user - according to configuration, each of user's attributes is either
 	 * anonymized, kept untouched or deleted. Also deletes other user's related data, e.g.
 	 * authorships of users publications, mail change and password reset requests, bans...
+	 * If force is true then also removes associated members.
 	 *
 	 * @param perunSession
 	 * @param user
+	 * @param force
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException if the user has some members assigned
 	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process
 	 */
-	void anonymizeUser(PerunSession perunSession, User user) throws RelationExistsException, AnonymizationNotSupportedException;
+	void anonymizeUser(PerunSession perunSession, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException;
 
 	/**
 	 * Updates users data in DB.

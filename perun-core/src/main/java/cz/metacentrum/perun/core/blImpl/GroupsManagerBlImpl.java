@@ -100,6 +100,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -250,6 +251,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.error("Exception thrown in createGroup method, while it shouldn't be thrown. Cause:{}",e);
 		} catch (GroupNotExistsException e) {
 			throw new ConsistencyErrorException("Database consistency error while creating group: {}",e);
+		} catch (VoNotExistsException e) {
+			// shouldn't happen with parentFlag == true
+			throw new InternalErrorException(e);
 		}
 
 		getPerunBl().getAuditer().log(sess, new GroupCreatedAsSubgroup(group, vo, parentGroup));
@@ -1042,6 +1046,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
+	 * Returns members from the given VO corresponding to the given members in another VO.
+	 *
+	 * @param sess perun session
+	 * @param voId ID of the VO to return members from
+	 * @param members members in another VO
+	 * @return list of members in the given VO corresponding to the given members
+	 */
+	private List<Member> getCorrespondingMembersFromOtherVo(PerunSession sess, int voId, List<Member> members) {
+		Vo vo;
+		try {
+			vo = perunBl.getVosManagerBl().getVoById(sess, voId);
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+		List<Integer> usersIds = members.stream()
+			.map(Member::getUserId)
+			.toList();
+
+		return perunBl.getMembersManagerBl().getMembersByUsersIds(sess, usersIds, vo);
+	}
+
+	/**
 	 * Add records of the members with an INDIRECT membership type to the group.
 	 *
 	 * @param sess perun session
@@ -1055,6 +1081,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	protected List<Member> addIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		// if there is union between different VOs, find correct members (from the group's VO)
+		if (members.size() > 0 && members.get(0).getVoId() != group.getVoId()) {
+			members = getCorrespondingMembersFromOtherVo(sess, group.getVoId(), members);
+		}
+
 		lockGroupMembership(group, members);
 
 		List<Member> newMembers = new ArrayList<>();
@@ -1106,6 +1137,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @return list of members that were removed (their only record in the group was deleted)
 	 */
 	private List<Member> removeIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
+		// if there is union between different VOs, find correct members (from the group's VO)
+		if (members.size() > 0 && members.get(0).getVoId() != group.getVoId()) {
+			members = getCorrespondingMembersFromOtherVo(sess, group.getVoId(), members);
+		}
 		List<Member> membersToRemove = new ArrayList<>(members);
 
 		lockGroupMembership(group, membersToRemove);
@@ -3662,6 +3697,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		// if vo still not in memberOrganizations attribute and is hierarchical (user was only member in VO via hierarchy), add it
+		if (perunBl.getVosManagerBl().getMemberVos(sess, group.getVoId()).size() > 0) {
+			try {
+				Vo vo = perunBl.getVosManagerBl().getVoById(sess, group.getVoId());
+				Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, memberToUpdate, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+				ArrayList<String> currentValue = attribute.valueAsList();
+				if (currentValue == null) {
+					attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations"));
+					ArrayList<String> newValue = new ArrayList<>(List.of(vo.getShortName()));
+					attribute.setValue(newValue);
+					perunBl.getAttributesManagerBl().setAttribute(sess, memberToUpdate, attribute);
+				} else if (!currentValue.contains(vo.getShortName())) {
+					currentValue.add(vo.getShortName());
+					attribute.setValue(currentValue);
+					perunBl.getAttributesManagerBl().setAttribute(sess, memberToUpdate, attribute);
+				}
+
+			} catch (VoNotExistsException | WrongReferenceAttributeValueException | WrongAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+
 		//Synchronize userExtSources (add not existing)
 		addUserExtSources(sess, candidate, memberToUpdate);
 
@@ -4873,7 +4930,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, GroupRelationAlreadyExists, GroupRelationNotAllowed {
+	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, GroupRelationAlreadyExists, GroupRelationNotAllowed, VoNotExistsException {
 
 		// block inclusion to members group, since it doesn't make sense
 		// allow inclusion of members group, since we want to delegate privileges on assigning all vo members to some service for group manager.
@@ -4883,7 +4940,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// check if both groups are from same VO
 		if (resultGroup.getVoId() != operandGroup.getVoId()) {
-			throw new GroupRelationNotAllowed("Union cannot be created on groups: " + resultGroup + ", " + operandGroup + ". They are not from the same VO.");
+			if (parentFlag) {
+				throw new GroupRelationNotAllowed("Union cannot be created on groups: " + resultGroup + ", " + operandGroup +
+					". They are not from the same VO.");
+			}
+
+			Vo resultGroupsVo = perunBl.getVosManagerBl().getVoById(sess, resultGroup.getVoId());
+			if (!isAllowedGroupToHierarchicalVo(sess, operandGroup, resultGroupsVo)) {
+				throw new GroupRelationNotAllowed("Union cannot be created on groups: " + resultGroup + ", " + operandGroup +
+					". They are not from the same VO and operand group is not enabled to be included to groups in result group's VO.");
+			}
 		}
 
 		// check if result group is the same as operand group
@@ -4987,6 +5053,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @return previous statuses of members in all result groups of the given group
 	 */
 	private Map<Integer, Map<Integer, MemberGroupStatus>> getPreviousStatuses(PerunSession sess, Group group, List<Member> members, Map<Integer, Map<Integer, MemberGroupStatus>> previousStatuses) {
+
+		// if there is union between different VOs, find correct members (from the group's VO)
+		if (members.size() > 0 && members.get(0).getVoId() != group.getVoId()) {
+			members = getCorrespondingMembersFromOtherVo(sess, group.getVoId(), members);
+		}
 
 		if (members.isEmpty()) {
 			return previousStatuses;
@@ -5175,6 +5246,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new InternalErrorException("Group relation cannot be created between destination group "  + destinationGroup + " and moving group " + movingGroup + ".");
 			} catch (GroupNotExistsException e) {
 				throw new ConsistencyErrorException("Some group does not exists while creating group union.", e);
+			} catch (VoNotExistsException e) {
+				throw new ConsistencyErrorException("Some group's VO does not exists while creating group union.", e);
 			}
 		}
 	}
@@ -5279,6 +5352,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			return;
 		}
 
+		// if there is union between different VOs, find correct member (from the group's VO)
+		if (member.getVoId() != group.getVoId()) {
+			List<Member> members = getCorrespondingMembersFromOtherVo(sess, group.getVoId(), List.of(member));
+			if (members.isEmpty()) {
+				// this could happen if the member is INVALID/DISABLED in member VO
+				// ==> he wasn't added to parent VO
+				return;
+			}
+			member = members.get(0);
+		}
 		MemberGroupStatus newStatus = getTotalMemberGroupStatus(sess, member, group);
 
 		boolean saveStatuses = true;
@@ -5825,6 +5908,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * are cut off after first included group. Duplicates avoided.
 	 */
 	private List<List<Group>> stepIntoGroup(PerunSession sess, Member member, Group currentGroup) {
+
 		List<List<Group>> pathsFromCurrentGroup = new ArrayList<>();
 
 		// reached source group, create empty list to which current group will be added at the end of this method call
@@ -5837,7 +5921,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// step into every group in which the member is recognised
 		for (Group group : relatedGroups) {
-			if (isGroupMember(sess, group, member)) {
+			// if there is union between different VOs, find correct member (from this group's VO)
+			Member correctMember = member;
+			if (correctMember.getVoId() != group.getVoId()) {
+				List<Member> members = getCorrespondingMembersFromOtherVo(sess, group.getVoId(), List.of(correctMember));
+				if (members.isEmpty()) {
+					// this should happen always when the member is not in the included group's VO
+					continue;
+				}
+				correctMember = members.get(0);
+			}
+			if (isGroupMember(sess, group, correctMember)) {
 
 				// cut paths via included groups
 				if (group.getParentGroupId() == null ||group.getParentGroupId() != currentGroup.getId()) {
@@ -5847,7 +5941,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					continue;
 				}
 
-				List<List<Group>> subPaths = stepIntoGroup(sess, member, group);
+				List<List<Group>> subPaths = stepIntoGroup(sess, correctMember, group);
 				pathsFromCurrentGroup.addAll(subPaths);
 			}
 		}
@@ -5876,5 +5970,42 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			attributes = perunBl.getAttributesManagerBl().getAttributes(sess, group, attrNames);
 		}
 		return new EnrichedGroup(group, attributes);
+	}
+
+	@Override
+	public void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException, RelationExistsException {
+		if (!perunBl.getVosManagerBl().getParentVos(sess, group.getVoId()).contains(vo)) {
+			throw new RelationNotExistsException("Passed vo is not a parent vo of group's vo");
+		}
+
+		if (isAllowedGroupToHierarchicalVo(sess, group, vo)) {
+			throw new RelationExistsException("Group " + group + " is already allowed to be included in " + vo + " groups!");
+		}
+
+		this.getGroupsManagerImpl().allowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException {
+		if (!isAllowedGroupToHierarchicalVo(sess, group, vo)) {
+			throw new RelationNotExistsException("Group " + group + " is not allowed to be included in " + vo + " groups yet!");
+		}
+
+		this.getGroupsManagerImpl().disallowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) {
+		return this.getGroupsManagerImpl().isAllowedGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) {
+		return this.groupsManagerImpl.getAllAllowedGroupsToHierarchicalVo(sess, vo);
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) {
+		return this.groupsManagerImpl.getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo);
 	}
 }

@@ -21,7 +21,7 @@ public class urn_perun_member_attribute_def_def_memberOrganizations extends Memb
 
 	@Override
 	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, "List of VOs can't be null.");
+		if (attribute.getValue() == null) return;
 		for (String voName : attribute.valueAsList()) {
 			try {
 				perunSession.getPerunBl().getVosManagerBl().getVoByShortName(perunSession, voName);

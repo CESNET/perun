@@ -70,6 +70,7 @@ import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 
 import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -1947,6 +1948,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				groupsManager.extendMembershipInGroup(sess, member, app.getGroup());
 			} else {
 				// extend users VO membership
+				// if VO is hierarchical, add it to MemberOrganizations
+				if (perun.getVosManagerBl().getMemberVos(sess, app.getVo().getId()).size() > 0) {
+					Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+					ArrayList<String> currentValue = attribute.valueAsList();
+					currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
+					currentValue.add(app.getVo().getShortName());
+					attribute.setValue(currentValue);
+					perun.getAttributesManagerBl().setAttribute(sess, member, attribute);
+				}
 				membersManager.extendMembership(registrarSession, member);
 			}
 
@@ -3247,7 +3257,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						//This should not happen
 						throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
 					}
-					LinkedHashMap<String, String> additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+					LinkedHashMap<String, String> additionalFedAttributes;
+					try {
+						additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+					} catch (Exception ex) {
+						// Some very old applications don't have FED_INFO in parseable format
+						// fallback to actor/extSourceName match or skip them if it fails
+						if (extSourceName.equals(application.getExtSourceName()) && actor.equals(application.getCreatedBy())) {
+							filteredApplications.add(application);
+						}
+						continue;
+					}
 					String applicationAdditionalIdentifiers = additionalFedAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
 					List<String> identifiersInIntersection = BeansUtils.additionalIdentifiersIntersection(principalAdditionalIdentifiers, applicationAdditionalIdentifiers);
 					if (!identifiersInIntersection.isEmpty()) {
@@ -3289,8 +3309,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 							Attribute attribute = attrManager.getAttribute(sess, ues, UsersManagerBl.ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
 							if (attribute.getValue() != null) {
 								List<String> userIdentifiers = attribute.valueAsList();
-								// Creates Arrays from principal and application identifiers and makes intersection between them.
-								LinkedHashMap<String, String> additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+								// Create Arrays from principal and application identifiers and makes intersection between them.
+								LinkedHashMap<String, String> additionalFedAttributes;
+								try {
+									additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+								} catch (Exception ex) {
+									// Some very old applications don't have FED_INFO in parseable format
+									// skip them if parsing fails
+									continue;
+								}
 								String applicationAdditionalIdentifiers = additionalFedAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
 								String[] applicationIdentifiersArray = {};
 								if (applicationAdditionalIdentifiers != null) {
@@ -3825,7 +3852,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// if attribute exists
 				if (a != null) {
 					if (a.getType().equalsIgnoreCase(LinkedHashMap.class.getName())) {
-						// FIXME do not set hash map attributes - not supported in GUI and registrar
+
+						// we expect that map contains string keys and values
+						LinkedHashMap<String, String> value = a.valueAsMap();
+						value = handleMapValue(value, newValue);
+
+						a.setValue(value);
+						attributes.add(a);
 					} else if (a.getType().equalsIgnoreCase(Boolean.class.getName())) {
 						a.setValue(BeansUtils.stringToAttributeValue(newValue, Boolean.class.getName()));
 						attributes.add(a);
@@ -3833,22 +3866,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 						// we expect that list contains strings
 						ArrayList<String> value = a.valueAsList();
+						value = handleArrayValue(value, newValue);
 
-						if (Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":sshPublicKey", a.getName())) {
-							// normalize value for SSH keys
-							value = handleSSHKeysValue(value, newValue);
-						} else {
-
-							if (value == null) {
-								// set as new value
-								value = new ArrayList<>();
-								value.add(newValue);
-							} else if (!value.contains(newValue)) {
-								// add value between old values
-								value.add(newValue);
-							}
-
-						}
 						a.setValue(value);
 						attributes.add(a);
 					} else {
@@ -3869,33 +3888,56 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
-	 * Normalize input value from registration form for SSH keys and correctly merge them with the originalValue from User.
+	 * Normalize input value from registration form for array values and correctly merge them with the originalValue from User.
 	 *
 	 * @param originalValue Value from Users attribute currently stored in Perun
 	 * @param newValue Value provided by registration form
-	 * @return List of SSH keys after merge
+	 * @return List of array attribute values after merge
 	 */
-	private ArrayList<String> handleSSHKeysValue(ArrayList<String> originalValue, String newValue) {
-
+	private ArrayList<String> handleArrayValue(ArrayList<String> originalValue, String newValue) {
 		// blank input means no change to original attribute
 		if (StringUtils.isBlank(newValue)) {
 			return originalValue;
 		}
 
-		// Normalize value of SSH keys
-		String preparedVal = newValue.replaceAll("(\n)+", ",");
-		preparedVal = preparedVal.replaceAll("(,)+", ",");
-		if (!preparedVal.endsWith(",")) {
-			preparedVal = preparedVal + ",";
+		if (!newValue.endsWith(",")) {
+			newValue += ",";
 		}
 
-		List<String> newVals = (ArrayList<String>)BeansUtils.stringToAttributeValue(preparedVal, ArrayList.class.getName());
+		List<String> newVals = BeansUtils.parseEscapedListValue(newValue);
 		if (originalValue == null) {
 			return new ArrayList<>(newVals);
 		} else {
 			for (String s : newVals) {
 				if (!originalValue.contains(s)) {
 					originalValue.add(s);
+				}
+			}
+			return originalValue;
+		}
+
+	}
+
+	/**
+	 * Merge input value from registration form for map values with the originalValue from User.
+	 *
+	 * @param originalValue Value from Users attribute currently stored in Perun
+	 * @param newValue Value provided by registration form
+	 * @return Map of attribute keys, values after merge
+	 */
+	private LinkedHashMap<String, String> handleMapValue(LinkedHashMap<String, String> originalValue, String newValue) {
+		// blank input means no change to original attribute
+		if (StringUtils.isBlank(newValue)) {
+			return originalValue;
+		}
+
+		LinkedHashMap<String, String> newVals = BeansUtils.stringToMapOfAttributes(newValue);
+		if (originalValue == null) {
+			return new LinkedHashMap<>(newVals);
+		} else {
+			for (Map.Entry<String, String> entry : newVals.entrySet()) {
+				if (!originalValue.containsKey(entry.getKey())) {
+					originalValue.put(entry.getKey(), entry.getValue());
 				}
 			}
 			return originalValue;
@@ -4130,7 +4172,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// NORMALIZE SSH KEYS VALUE - same as we do for existing users in #storeApplicationAttributes()
 		attributes.entrySet().forEach(entry -> {
 			if (Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":sshPublicKey", entry.getKey())) {
-				entry.setValue(BeansUtils.attributeValueToString(handleSSHKeysValue(null, entry.getValue()), ArrayList.class.getName()));
+				entry.setValue(BeansUtils.attributeValueToString(handleArrayValue(null, entry.getValue()), ArrayList.class.getName()));
 			}
 		});
 

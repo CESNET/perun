@@ -1086,6 +1086,45 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
 	}
 
+	@Test
+	public void synchronizeGroupUpdateMemberOrganizationsAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMemberOrganizationsAttribute");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+
+		Vo memberVo = new Vo(0, "UserManagerTestVo2", "memberVo");
+		memberVo = perun.getVosManagerBl().createVo(sess, memberVo);
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, memberVo, candidate);
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		Member newMember = perun.getMembersManagerBl().getMemberByUser(sess, vo, perun.getUsersManagerBl().getUserByMember(sess, member));
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(memberVo.getShortName());
+		groupsManagerBl.synchronizeGroup(sess, group);
+
+		attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		currentValue = attribute.valueAsList();
+
+		assertThat(currentValue).containsOnly(vo.getShortName(), memberVo.getShortName());
+	}
+
 	// PRIVATE METHODS
 
 	private void setSynchronizationResourcesAttribute(int resourceId, String... logins) throws Exception {

@@ -2008,17 +2008,37 @@ perun_policies:
     include_policies:
       - default_policy
 
-  createGroupUnion_Group_Group_policy:
+  result-createGroupUnion_Group_Group_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
 
-  removeGroupUnion_Group_Group_policy:
+  operand-createGroupUnion_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  result-removeGroupUnion_Group_Group_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  operand-removeGroupUnion_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -2131,6 +2151,34 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SPONSORSHIP: Member
+    include_policies:
+      - default_policy
+
+  isAllowedGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  allowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  disallowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAllAllowedGroupsToHierarchicalVo_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllAllowedGroupsToHierarchicalVo_Vo_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -2934,6 +2982,9 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
     include_policies:
       - default_policy
 
@@ -4453,7 +4504,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getHierarchicalData_Service_Facility_boolean_policy:
+  getHierarchicalData_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -4480,7 +4531,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getFlatData_Service_Facility_boolean_policy:
+  getFlatData_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -4489,7 +4540,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getDataWithGroups_Service_Facility_boolean_policy:
+  getDataWithGroups_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -4498,7 +4549,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getDataWithVos_Service_Facility_boolean_policy:
+  getDataWithVos_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -5033,7 +5084,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  anonymizeUser_User_policy:
+  anonymizeUser_User_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy

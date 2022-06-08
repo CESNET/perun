@@ -44,9 +44,10 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -1775,8 +1776,9 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 * @throws GroupNotExistsException
+	 * @throws VoNotExistsException
 	 */
-	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupRelationAlreadyExists, GroupRelationNotAllowed, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
+	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupRelationAlreadyExists, GroupRelationNotAllowed, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, VoNotExistsException;
 
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.
@@ -2059,4 +2061,51 @@ public interface GroupsManagerBl {
 	 * @return EnrichedGroup for given group with desired attributes
 	 */
 	EnrichedGroup convertToEnrichedGroup(PerunSession sess, Group group, List<String> attrNames);
+
+	/**
+	 * Sets flag required for including group to parent vo in a vo hierarchy.
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 * @throws RelationNotExistsException if group is not from parent vo's member vos
+	 * @throws RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException, RelationExistsException;
+
+	/**
+	 * Unsets flag required for including group to parent vo in a vo hierarchy
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 * @throws RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws RelationNotExistsException;
+
+	/**
+	 * Returns flag representing if the group can be included in the (parent) vo's groups
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo parent vo
+	 * @return true if group can be included in vo's groups, false otherwise
+	 */
+	boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo);
+
+	/**
+	 * Returns all groups which can be included to VO.
+	 *
+	 * @param sess session
+	 * @param vo VO
+	 * @return list of allowed groups to hierarchical VO
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo);
+
+	/**
+	 * Returns groups which can be included to VO from specific member VO.
+	 *
+	 * @param sess session
+	 * @param vo parent VO
+	 * @param memberVo member VO
+	 * @return list of allowed groups to hierarchical VO
+	 */
+	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo);
 }

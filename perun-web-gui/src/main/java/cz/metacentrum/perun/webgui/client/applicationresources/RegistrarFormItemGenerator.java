@@ -457,6 +457,17 @@ public class RegistrarFormItemGenerator {
 			return generateCheckBox();
 		}
 
+		if(item.getType().equals("LIST_INPUT_BOX")){
+			// FIXME temporary solution, define better widget
+			return generateReadonlyTextBox();
+		}
+
+		if(item.getType().equals("MAP_INPUT_BOX")){
+			// FIXME temporary solution, define better widget
+			return generateReadonlyTextBox();
+		}
+
+
 		// FIXME we can only detect always hidden items
 		if(item.getHidden().equals("ALWAYS")) {
 			this.visibleOnlyToAdmin = true;

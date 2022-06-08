@@ -46,6 +46,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -1379,7 +1380,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException {
+	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, resultGroup);
 		getGroupsManagerBl().checkGroupExists(sess, operandGroup);
@@ -1389,8 +1390,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "createGroupUnion_Group_Group_policy", resultGroup) ||
-			!AuthzResolver.authorizedInternal(sess, "createGroupUnion_Group_Group_policy", operandGroup)) {
+		if (!AuthzResolver.authorizedInternal(sess, "result-createGroupUnion_Group_Group_policy", resultGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "operand-createGroupUnion_Group_Group_policy", operandGroup)) {
 			throw new PrivilegeException(sess, "createGroupUnion");
 		}
 
@@ -1408,8 +1409,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeGroupUnion_Group_Group_policy", resultGroup) ||
-			!AuthzResolver.authorizedInternal(sess, "removeGroupUnion_Group_Group_policy", operandGroup)) {
+		if (!AuthzResolver.authorizedInternal(sess, "result-removeGroupUnion_Group_Group_policy", resultGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "operand-removeGroupUnion_Group_Group_policy", operandGroup)) {
 			throw new PrivilegeException(sess, "removeGroupUnion");
 		}
 
@@ -1563,5 +1564,74 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		List<RichMember> richMembers = perunBl.getMembersManagerBl().getRichMembersWithAttributes(sess, group, members, attributeDefinitions);
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, richMembers, group, true);
+	}
+
+	@Override
+	public void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException, RelationExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "allowGroupToHierarchicalVo_Group_Vo_policy", group, vo)) {
+			throw new PrivilegeException(sess, "allowGroupToHierarchicalVo");
+		}
+
+		getGroupsManagerBl().allowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "disallowGroupToHierarchicalVo_Group_Vo_policy", group, vo)) {
+			throw new PrivilegeException(sess, "disallowGroupToHierarchicalVo");
+		}
+
+		getGroupsManagerBl().disallowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public boolean isAllowedGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "isAllowedGroupToHierarchicalVo_Group_Vo_policy", group, vo)) {
+			throw new PrivilegeException(sess, "isAllowedGroupToHierarchicalVo");
+		}
+
+		return getGroupsManagerBl().isAllowedGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAllAllowedGroupsToHierarchicalVo_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getAllAllowedGroupsToHierarchicalVo");
+		}
+
+		return getGroupsManagerBl().getAllAllowedGroupsToHierarchicalVo(sess, vo);
+	}
+
+	@Override
+	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, memberVo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAllAllowedGroupsToHierarchicalVo_Vo_Vo_policy", vo, memberVo)) {
+			throw new PrivilegeException(sess, "getAllAllowedGroupsToHierarchicalVo");
+		}
+
+		return getGroupsManagerBl().getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo);
 	}
 }

@@ -14,33 +14,45 @@ sub help {
 	------------------------------------
 	Available options:
 	--batch                         | -b batch
+	--all							| -a revokes tokens for all configurations
+	--config						| -c id of config of which tokens to revoke
 	--help                          | -h prints this help
 
 };
 }
 
 our $batch;
+my ($configId, $removeAllConfigs);
 GetOptions ("help|h"    => sub {
 	print help();
 	exit 0;
-}, "batch|b"        => \$batch) || die help();
+}, "batch|b"        => \$batch,
+	"all|a"		=> \$removeAllConfigs,
+	"config|c=s"	=> \$configId
+) || die help();
+if (!defined $configId && !defined $removeAllConfigs) {
+	$configId = $ENV{PERUN_OIDC_CONFIG} || die "ERROR: environment variable PERUN_OIDC_CONFIG not set and configuration not specified.\n";
+}
 
 my $message;
-
-if (Perun::auth::OidcAuth::getRefreshToken()) {
-
-	Perun::auth::OidcAuth::revokeToken(Perun::auth::OidcAuth::getRefreshToken(), "refresh_token");
-	Perun::auth::OidcAuth::removeRefreshToken();
-
-	if (Perun::auth::OidcAuth::getAccessToken()) {
-		Perun::auth::OidcAuth::revokeToken(Perun::auth::OidcAuth::getAccessToken(), "access_token");
-		Perun::auth::OidcAuth::removeAccessToken();
-	}
-
-	$message = "Token revocation was successful.";
-
+if (defined $removeAllConfigs) {
+	Perun::auth::OidcAuth::revokeAllAccessTokens();
+	Perun::auth::OidcAuth::revokeAllRefreshTokens();
 } else {
-	die Perun::Exception->fromHash({ type =>  "No tokens are saved." });
+	Perun::auth::OidcAuth::checkConfigExists($configId);
+	if (Perun::auth::OidcAuth::getRefreshToken($configId)) {
+
+		Perun::auth::OidcAuth::revokeToken($configId, "refresh_token");
+
+		if (Perun::auth::OidcAuth::getAccessToken($configId)) {
+			Perun::auth::OidcAuth::revokeToken($configId, "access_token");
+		}
+
+		$message = "Token revocation was successful.";
+
+	} else {
+		die Perun::Exception->fromHash({ type =>  "No tokens are saved." });
+	}
 }
 
 printMessage($message, $batch);

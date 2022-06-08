@@ -149,6 +149,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @throw GroupRelationAlreadyExists When the group relation already exists
 	 * @throw WrongAttributeValueException When the value of the attribute is illegal or wrong
 	 * @throw WrongReferenceAttributeValueException When the attribute of the reference has illegal value
+	 * @throw VoNotExistsException When the groups' VO doesn't exist
 	 *
 	 * @param resultGroup int <code>id</code> of Group to have included "operandGroup"
 	 * @param operandGroup int <code>id</code> of Group to be included into "resultGroup"
@@ -1977,5 +1978,94 @@ public enum GroupsManagerMethod implements ManagerMethod {
 				parms.readList("members", Integer.class),
 				parms.readList("attrNames", String.class));
 		}
+	},
+
+	/*#
+	 * Sets flag required for including group to parent vo in a vo hierarchy.
+	 *
+	 * @param group id of group
+	 * @param vo id of parent vo
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not from parent vo's member vos
+	 * @throw RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	allowGroupToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getGroupsManager().allowGroupToHierarchicalVo(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getVoById(parms.readInt("vo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Unsets flag required for including group to parent vo in a vo hierarchy.
+	 *
+	 * @param group id of group
+	 * @param vo id of parent vo
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	disallowGroupToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getGroupsManager().disallowGroupToHierarchicalVo(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getVoById(parms.readInt("vo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Returns flag representing if the group can be included in the (parent) vo's groups
+	 *
+	 * @param group id of group
+	 * @param vo id of parent vo
+	 * @return boolean true if group can be included in vo's groups, false otherwise
+	 *
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 */
+	isAllowedGroupToHierarchicalVo {
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().isAllowedGroupToHierarchicalVo(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
+	 * Returns all groups which can be included to VO.
+	 *
+	 * @param sess perun session
+	 * @param vo int parent VO <code>id</code>
+	 * @return list of groups allowed to hierarchical VO.
+	 * @throw VoNotExistsException if given VO does not exist
+	 */
+	/*#
+	 * Returns groups which can be included to VO from specific member VO.
+	 *
+	 * @param sess perun session
+	 * @param vo int parent VO <code>id</code>
+	 * @param memberVo int member VO <code>id</code>
+	 * @return list of groups allowed to hierarchical VO.
+	 * @throw VoNotExistsException if given VO does not exist
+	 */
+	getAllAllowedGroupsToHierarchicalVo {
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("memberVo")) {
+				return ac.getGroupsManager().getAllAllowedGroupsToHierarchicalVo(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")), ac.getVoById(parms.readInt("memberVo")));
+			}
+			return ac.getGroupsManager().getAllAllowedGroupsToHierarchicalVo(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")));
+		}
+
 	};
 }

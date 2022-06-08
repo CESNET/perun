@@ -415,7 +415,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		phone.setValue("+420555555");
 		perun.getAttributesManagerBl().setAttribute(sess, user, phone);
 
-		usersManager.anonymizeUser(sess, user);
+		usersManager.anonymizeUser(sess, user, false);
 
 		// set attributesToKeep back to the original attributes
 		BeansUtils.getCoreConfig().setAttributesToKeep(originalAttributesToKeep);
@@ -430,11 +430,33 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNull("Phone attribute should be deleted.", updatedPhone.getValue());
 	}
 
+	@Test
+	public void anonymizeUserWithForce() throws Exception {
+		System.out.println(CLASS_NAME + "anonymizeUserWithForce");
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+
+		usersManager.anonymizeUser(sess, user, true);
+
+		assertThatExceptionOfType(MemberNotExistsException.class)
+			.isThrownBy(() -> usersManager.getUserByMember(sess, member));
+	}
+
+	@Test
+	public void anonymizeUserWithExistingRelation() throws Exception {
+		System.out.println(CLASS_NAME + "anonymizeUserWithExistingRelation");
+
+		perun.getMembersManagerBl().createMember(sess, vo, user);
+
+		assertThatExceptionOfType(RelationExistsException.class)
+			.isThrownBy(() -> usersManager.anonymizeUser(sess, user, false));
+	}
+
 	@Test(expected=UserNotExistsException.class)
 	public void anonymizeUserWhenUserNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "anonymizeUserWhenUserNotExists");
 
-		usersManager.anonymizeUser(sess, new User());
+		usersManager.anonymizeUser(sess, new User(), false);
 		// shouldn't find user
 	}
 
@@ -459,7 +481,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		perun.getAttributesManagerBl().setAttribute(sess, user, dummy);
 
 		try {
-			usersManager.anonymizeUser(sess, user);
+			usersManager.anonymizeUser(sess, user, false);
 			// anonymizeUser() should have thrown AnonymizationNotSupportedException
 			fail();
 		} catch (AnonymizationNotSupportedException ex) {
