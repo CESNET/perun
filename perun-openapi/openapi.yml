@@ -1322,6 +1322,7 @@ components:
       type: object
       properties:
         locale: { type: string }
+        htmlFormat: { type: boolean }
         subject: { type: string }
         text: { type: string }
 
@@ -1334,6 +1335,9 @@ components:
         mailType: { $ref: '#/components/schemas/MailType' }
         send: { type: boolean }
         message:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/MailText' }
+        htmlMessage:
           type: object
           additionalProperties: { $ref: '#/components/schemas/MailText' }
 

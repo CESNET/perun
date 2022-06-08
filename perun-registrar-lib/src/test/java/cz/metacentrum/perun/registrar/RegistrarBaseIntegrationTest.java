@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -37,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
@@ -50,10 +48,7 @@ import static cz.metacentrum.perun.registrar.model.Application.AppType.INITIAL;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.CS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.EN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Base registrar-lib test class
@@ -166,6 +161,104 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertTrue("Our mail was not returned", mails.contains(mail));
 		//System.out.println(mails);
 
+	}
+
+	@Test
+	public void createAppMailWithHtmlMessageTemplate() throws PerunException {
+		System.out.println("createAppMailWithBothMessageTemplate()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText html = mail.getHtmlMessage(new Locale("cs"));
+		html.setSubject("Český předmět mailu pro html");
+		html.setText("<p>Český text mailu <b>v html</b>.</p>");
+		MailText html2 = mail.getHtmlMessage(new Locale("en"));
+		html2.setSubject("Anglický předmět mailu pro html");
+		html2.setText("<p>Anglický text mailu <b>v html</b>.</p>");
+
+		int id = mailManager.addMail(session, form, mail);
+		mail = mailManager.getMailById(session, id);
+
+		List<ApplicationMail> mails = mailManager.getApplicationMails(session, form);
+		assertTrue("Mails are empty", (mails != null && !mails.isEmpty()));
+		assertTrue("Our mail was not returned", mails.contains(mail));
+		assertNull("Plain text message doesn't contain correct text", mails.get(0).getMessage(new Locale("cs")).getText());
+		assertEquals("Html message doesn't contain correct text", mails.get(0).getHtmlMessage(new Locale("cs")).getText(), "<p>Český text mailu <b>v html</b>.</p>");
+	}
+
+	@Test
+	public void createAppMailWithBothMessageTemplates() throws PerunException {
+		System.out.println("createAppMailWithBothMessageTemplate()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText t = mail.getMessage(new Locale("cs"));
+		t.setSubject("Český předmět mailu");
+		t.setText("Český text mailu.");
+		MailText html = mail.getHtmlMessage(new Locale("cs"));
+		html.setSubject("Český předmět mailu pro html");
+		html.setText("<p>Český text mailu <b>v html</b>.</p>");
+		MailText t2 = mail.getMessage(new Locale("en"));
+		t2.setSubject("Anglický předmět mailu");
+		t2.setText("Anglický text mailu.");
+		MailText html2 = mail.getHtmlMessage(new Locale("en"));
+		html2.setSubject("Anglický předmět mailu pro html");
+		html2.setText("<p>Anglický text mailu <b>v html</b>.</p>");
+
+		int id = mailManager.addMail(session, form, mail);
+		mail = mailManager.getMailById(session, id);
+
+		List<ApplicationMail> mails = mailManager.getApplicationMails(session, form);
+		assertTrue("Mails are empty", (mails != null && !mails.isEmpty()));
+		assertTrue("Our mail was not returned", mails.contains(mail));
+		assertEquals("Plain text message (cs) doesn't contain correct text", mails.get(0).getMessage(new Locale("cs")).getText(), "Český text mailu.");
+		assertEquals("Html message (cs) doesn't contain correct text", mails.get(0).getHtmlMessage(new Locale("cs")).getText(), "<p>Český text mailu <b>v html</b>.</p>");
+		assertEquals("Plain text message (en) doesn't contain correct text", mails.get(0).getMessage(new Locale("en")).getText(), "Anglický text mailu.");
+		assertEquals("Html message (en) doesn't contain correct text", mails.get(0).getHtmlMessage(new Locale("en")).getText(), "<p>Anglický text mailu <b>v html</b>.</p>");
+	}
+
+	@Test
+	public void updateAppMailMessageTemplates() throws PerunException {
+		System.out.println("updateAppMailMessageTemplates()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText t = mail.getMessage(new Locale("cs"));
+		t.setSubject("Český předmět mailu");
+		t.setText("Český text mailu.");
+		MailText html = mail.getHtmlMessage(new Locale("cs"));
+		html.setSubject("Český předmět mailu pro html");
+		html.setText("<p>Český text mailu <b>v html</b>.</p>");
+		MailText t2 = mail.getMessage(new Locale("en"));
+		t2.setSubject("Anglický předmět mailu");
+		t2.setText("Anglický text mailu.");
+		MailText html2 = mail.getHtmlMessage(new Locale("en"));
+		html2.setSubject("Anglický předmět mailu pro html");
+		html2.setText("<p>Anglický text mailu <b>v html</b>.</p>");
+
+		int id = mailManager.addMail(session, form, mail);
+		mail = mailManager.getMailById(session, id);
+
+		List<ApplicationMail> mails = mailManager.getApplicationMails(session, form);
+		assertTrue("Mails are empty", (mails != null && !mails.isEmpty()));
+		assertTrue("Our mail was not returned", mails.contains(mail));
+		assertEquals("Plain text message (cs) doesn't contain correct text", mails.get(0).getMessage(new Locale("cs")).getText(), "Český text mailu.");
+		assertEquals("Html message (cs) doesn't contain correct text", mails.get(0).getHtmlMessage(new Locale("cs")).getText(), "<p>Český text mailu <b>v html</b>.</p>");
+		assertEquals("Plain text message (en) doesn't contain correct text", mails.get(0).getMessage(new Locale("en")).getText(), "Anglický text mailu.");
+		assertEquals("Html message (en) doesn't contain correct text", mails.get(0).getHtmlMessage(new Locale("en")).getText(), "<p>Anglický text mailu <b>v html</b>.</p>");
+
+		t = mail.getMessage(new Locale("cs"));
+		t.setText("Upravený český text mailu.");
+		html = mail.getHtmlMessage(new Locale("cs"));
+		html.setText("<p>Upravený český text mailu <b>v html</b>.</p>");
+		mailManager.updateMailById(session, mail);
+
+		mail = mailManager.getMailById(session, id);
+		assertEquals("Plain text message (cs) doesn't contain correct text", mail.getMessage(new Locale("cs")).getText(), "Upravený český text mailu.");
+		assertEquals("Html message (cs) doesn't contain correct text", mail.getHtmlMessage(new Locale("cs")).getText(), "<p>Upravený český text mailu <b>v html</b>.</p>");
 	}
 
 	@Test

@@ -100,6 +100,12 @@ public class ApplicationMail {
 		}
 		message.put(EN,new MailText(EN));
 	}
+	private Map<Locale, MailText> htmlMessage = new HashMap<Locale, MailText>(); {
+		if (CS != null) {
+			htmlMessage.put(CS, new MailText(CS));
+		}
+		htmlMessage.put(EN, new MailText(EN));
+	}
 
 	public ApplicationMail(){};
 
@@ -114,6 +120,12 @@ public class ApplicationMail {
 	public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send, Map<Locale, MailText> message) {
 		this(id, appType, formId, mailType, send);
 		this.message = message;
+	}
+
+	public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send, Map<Locale, MailText> message, Map<Locale, MailText> htmlMessage) {
+		this(id, appType, formId, mailType, send);
+		this.message = message;
+		this.htmlMessage = htmlMessage;
 	}
 
 	/**
@@ -194,6 +206,13 @@ public class ApplicationMail {
 	}
 
 	/**
+	 * @return the html message
+	 */
+	public Map<Locale, MailText> getHtmlMessage() {
+		return htmlMessage;
+	}
+
+	/**
 	 * Return message in specific language
 	 * (empty message if not present)
 	 *
@@ -210,10 +229,33 @@ public class ApplicationMail {
 	}
 
 	/**
+	 * Return html message in specific language
+	 * (empty message if not present)
+	 *
+	 * @param locale language
+	 * @return the message
+	 */
+	public MailText getHtmlMessage(Locale locale) {
+		MailText texts = htmlMessage.get(locale);
+		if(texts==null) {
+			texts = new MailText();
+			message.put(locale,texts);
+		}
+		return texts;
+	}
+
+	/**
 	 * @param message the message to set
 	 */
 	public void setMessage(Map<Locale, MailText> message) {
 		this.message = message;
+	}
+
+	/**
+	 * @param htmlMessage the html message to set
+	 */
+	public void setHtmlMessage(Map<Locale, MailText> htmlMessage) {
+		this.htmlMessage = htmlMessage;
 	}
 
 	/**
@@ -256,6 +298,7 @@ public class ApplicationMail {
 				", mailType='" + getMailType().toString() + '\'' +
 				", send='" + getSend() + '\'' +
 				", message='" + getMessage().toString() + '\'' +
+				", htmlMessage='" + getHtmlMessage().toString() + '\'' +
 				']';
 	}
 
@@ -264,6 +307,7 @@ public class ApplicationMail {
 	 */
 	public static class MailText {
 		private Locale locale;
+		private boolean htmlFormat;
 		private String subject;
 		private String text;
 
@@ -280,6 +324,13 @@ public class ApplicationMail {
 			this.text = text;
 		}
 
+		public MailText(Locale locale, boolean htmlFormat, String subject, String text) {
+			this.locale = locale;
+			this.htmlFormat = htmlFormat;
+			this.subject = subject;
+			this.text = text;
+		}
+
 		public Locale getLocale() {
 			return locale;
 		}
@@ -287,6 +338,10 @@ public class ApplicationMail {
 		public void setLocale(Locale locale) {
 			this.locale= locale ;
 		}
+
+		public boolean getHtmlFormat() { return htmlFormat; }
+
+		public void setHtmlFormat(boolean htmlFormat) { this.htmlFormat = htmlFormat; }
 
 		public String getText() {
 			return text;

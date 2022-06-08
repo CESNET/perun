@@ -1,4 +1,4 @@
--- database version 3.1.93 (don't forget to update insert statement at the end of file)
+-- database version 3.1.94 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -631,11 +631,12 @@ create table application_mails (
 create table application_mail_texts (
 	mail_id integer not null,     --identifier of mail (application_mails.id)
 	locale varchar not null,  --language for texts
+	htmlFormat boolean default false not null,	--define if text is in html format or as a plain text
 	subject varchar,        --subject of mail
 	text varchar,           --text of mail
 	created_by_uid integer,
 	modified_by_uid integer,
-	constraint appmailtxt_pk primary key (mail_id, locale),
+	constraint appmailtxt_pk primary key (mail_id, locale, htmlFormat),
   constraint appmailtxt_appmails_fk foreign key (mail_id) references application_mails(id) on delete cascade
 );
 
@@ -1952,7 +1953,7 @@ grant all on consent_attr_defs to perun;
 grant all on allowed_groups_to_hierarchical_vo to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.93');
+insert into configurations values ('DATABASE VERSION','3.1.94');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
