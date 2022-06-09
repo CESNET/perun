@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -204,7 +204,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(attrDef, "attributeDefinition");
 		if(resources == null || resources.isEmpty()) return false;
 		for(Resource r: resources) {
-			if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef , r)) return true;
+			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef , r)) return true;
 		}
 		return false;
 	}
@@ -214,7 +214,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(attrDef, "attributeDefinition");
 		if(groups == null || groups.isEmpty()) return false;
 		for(Group g: groups) {
-			if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, g)) return true;
+			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, g)) return true;
 		}
 		return false;
 	}
@@ -422,13 +422,13 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public boolean haveRightToWriteAttributeInAnyGroupOrResource(PerunSessionImpl sess, List<Group> groups, List<Resource> resources, AttributeDefinition groupAttribute, AttributeDefinition resourceAttribute) {
 		if(groups != null && !groups.isEmpty() && groupAttribute != null) {
 			for(Group g: groups) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttribute, g)) return true;
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttribute, g)) return true;
 			}
 		}
 
 		if(resources != null && !resources.isEmpty() && resourceAttribute != null) {
 			for(Resource r: resources) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, resourceAttribute, r)) return true;
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, resourceAttribute, r)) return true;
 			}
 		}
 

@@ -2199,6 +2199,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	@Deprecated
 	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM attributes_authz WHERE attr_id=?", attribute.getId())) {
@@ -3939,6 +3940,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	@Deprecated
 	public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException {
 		if (!actionTypeExists(actionType)) throw new ActionTypeNotExistsException("ActionType: " + actionType);
 	}
@@ -4895,6 +4897,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	@Deprecated
 	public List<AttributeRights> getAttributeRights(PerunSession sess, final int attributeId) {
 
 		List<AttributeRights> rights;
@@ -4939,6 +4942,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	@Deprecated
 	public void setAttributeRight(PerunSession sess, AttributeRights rights) {
 		try {
 			// get action types of the attribute and role from the database

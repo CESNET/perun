@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.ActionType;
  *
  * This exception is thrown when ActionType doesn't exist.
  */
+@Deprecated
 public class ActionTypeNotExistsException extends EntityNotExistsException {
 	static final long serialVersionUID = 0;
 

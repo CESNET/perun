@@ -9778,6 +9778,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	@Deprecated
+	@Ignore
 	public void getAttributeRights() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributeRights");
 
@@ -9806,6 +9808,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	@Deprecated
+	@Ignore
 	public void setAttributeRights() throws Exception {
 		System.out.println(CLASS_NAME + "setAttributeRights");
 		List<ActionType> listOfActions = new ArrayList<>();
