@@ -4986,6 +4986,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			// inserting new policies
 			for (AttributePolicyCollection apc : policyCollections) {
+				if (apc.getPolicies().isEmpty()) continue;
 
 				int next_id = jdbc.queryForInt("SELECT nextval('attribute_policy_collections_id_seq')");
 
