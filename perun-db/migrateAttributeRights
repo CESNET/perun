@@ -71,7 +71,7 @@ while (my @row = $sthRoleNames->fetchrow_array()) {
 $sthUesAttributes->execute();
 my $selfRoleId = $roles{'self'};
 while (my @row = $sthUesAttributes->fetchrow_array()) {
-	my $uesAttributeId = @row;
+	my $uesAttributeId = $row[0];
 	$sthNewCollection->execute($nextCollectionId, $uesAttributeId, 'READ'); #(id, attr_id, action)
 	$sthNewPolicy->execute($nextPolicyId, $selfRoleId, 'User', $nextCollectionId); #(id, role_id, object, policy_collection_id)
 	$nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
