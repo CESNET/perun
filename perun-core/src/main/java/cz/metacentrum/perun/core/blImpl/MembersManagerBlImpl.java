@@ -164,6 +164,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String MEMBER = "member";
 	private static final String NOTE = "note";
 	private final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
+	private final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizationsHistory";
 
 	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
 			"firstname",
@@ -276,8 +277,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 		Member member = getMembersManagerImpl().createMember(sess, vo, user);
 		getPerunBl().getAuditer().log(sess, new MemberCreated(member));
-		// add vo to memberOrganizations attribute
-		addVoToMemberOrganizations(sess, vo, member);
+		// add vo to memberOrganizations and memberOrganizationsHistory attributes
+		addVoToMemberOrganizationsAttributes(sess, vo, member);
 
 		// Set the initial membershipExpiration
 
@@ -317,21 +318,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	/**
-	 * Check whether VO of member has any memberVOs, if so then update MemberOrganizations attribute to include only that VO.
+	 * Check whether VO of member has any memberVOs, if so then update MemberOrganizations and MemberOrganizationsHistory attributes to include only that VO.
 	 *
 	 * @param sess
 	 * @param vo VO
 	 * @param member member
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	private void addVoToMemberOrganizations(PerunSession sess, Vo vo, Member member) throws WrongReferenceAttributeValueException {
+	private void addVoToMemberOrganizationsAttributes(PerunSession sess, Vo vo, Member member) throws WrongReferenceAttributeValueException {
 		if (perunBl.getVosManagerBl().getMemberVos(sess, vo.getId()).size()  > 0) {
 			try {
-				Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
-				ArrayList<String> newValue = new ArrayList<>(List.of(vo.getShortName()));
-				attribute.setValue(newValue);
-				perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
-
+				setOrganizationsAttributes(sess, vo, member);
 			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
@@ -497,8 +494,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Member member = getMembersManagerImpl().createMember(sess, vo, user);
 		getPerunBl().getAuditer().log(sess,  new MemberCreated(member));
 
-		// add vo to memberOrganizations attribute
-		addVoToMemberOrganizations(sess, vo, member);
+		// add vo to memberOrganizations and memberOrganizationsHistory attributes
+		addVoToMemberOrganizationsAttributes(sess, vo, member);
 
 		// Create the member's attributes
 		List<Attribute> membersAttributes = new ArrayList<>();
@@ -1607,11 +1604,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					// remove expiration that was set according to parent vo rules
 					perunBl.getAttributesManagerBl().removeAttribute(sess, newMember, memberExpirationAttrDef);
 					perunBl.getMembersManagerBl().validateMember(sess, newMember);
-					// set memberOrganizations attribute
-					Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
-					ArrayList<String> newValue = new ArrayList<>(List.of(memberVo.getShortName()));
-					attribute.setValue(newValue);
-					perunBl.getAttributesManagerBl().setAttribute(sess, newMember, attribute);
+					// set memberOrganizations and memberOrganizationsHistory attributes
+					setOrganizationsAttributes(sess, memberVo, newMember);
 				} catch (AlreadyMemberException ex) {
 					Member existingMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
 					// validate and reset expiration
@@ -1619,12 +1613,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					if (existingMember.getStatus() != Status.VALID) {
 						perunBl.getMembersManagerBl().validateMember(sess, existingMember);
 					}
-					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
-					ArrayList<String> currentValue = attribute.valueAsList();
-					currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
-					currentValue.add(memberVo.getShortName());
-					attribute.setValue(currentValue);
-					perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
+					updateOrganizationsAttributes(sess, memberVo, existingMember);
 				}
 			}
 		} catch (VoNotExistsException | WrongReferenceAttributeValueException | WrongAttributeValueException |
@@ -1632,6 +1621,33 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			ExtendMembershipException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public void updateOrganizationsAttributes(PerunSession sess, Vo vo, Member member) throws WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (String attr : Arrays.asList(A_MEMBER_DEF_MEMBER_ORGANIZATIONS, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)) {
+			Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, member, attr);
+			ArrayList<String> currentValue = attribute.valueAsList();
+			currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
+			if (!currentValue.contains(vo.getShortName())) {
+				currentValue.add(vo.getShortName());
+				attribute.setValue(currentValue);
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, member, attribute);
+			}
+		}
+	}
+
+	@Override
+	public void setOrganizationsAttributes(PerunSession sess, Vo vo, Member member) throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+		Attribute memberOrganizations = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
+		Attribute memberOrganizationsHistory = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY));
+
+		ArrayList<String> newValue = new ArrayList<>(List.of(vo.getShortName()));
+
+		memberOrganizations.setValue(newValue);
+		memberOrganizationsHistory.setValue(newValue);
+		perunBl.getAttributesManagerBl().setAttribute(sess, member, memberOrganizations);
+		perunBl.getAttributesManagerBl().setAttribute(sess, member, memberOrganizationsHistory);
 	}
 
 	/**
@@ -1744,15 +1760,35 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				List<Vo> parentVos = getPerunBl().getVosManagerBl().getParentVos(sess, member.getVoId());
 				for (Vo vo : parentVos) {
 					try {
-						Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, user);
-						perunBl.getMembersManagerBl().validateMember(sess, newMember);
-						addMemberToParentVosGroups(sess, member);
-						Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, newMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
-						attribute.setValue(new ArrayList<String>());
-						perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
-					} catch (ExtendMembershipException  | WrongReferenceAttributeValueException | AttributeNotExistsException | WrongAttributeAssignmentException e) {
+						Vo memberVo = perunBl.getVosManagerBl().getVoById(sess, member.getVoId());
+						try {
+							Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, user);
+							perunBl.getMembersManagerBl().validateMember(sess, newMember);
+							addMemberToParentVosGroups(sess, member);
+
+							// set memberOrganizations attribute to empty list
+							Attribute memberOrganizations = perunBl.getAttributesManagerBl().getAttribute(sess, newMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+							memberOrganizations.setValue(new ArrayList<String>());
+							perunBl.getAttributesManagerBl().setAttribute(sess, newMember, memberOrganizations);
+
+							// update memberOrganizationsHistory attribute to contain VO
+							Attribute memberOrganizationsHistory = perunBl.getAttributesManagerBl().getAttribute(sess, newMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY);
+							memberOrganizationsHistory.setValue(new ArrayList<>(List.of(memberVo.getShortName())));
+							perunBl.getAttributesManagerBl().setAttribute(sess, newMember, memberOrganizationsHistory);
+						} catch (AlreadyMemberException e) {
+							// update memberOrganizationsHistory attribute to contain VO
+							Member parentVoMember = getMemberByUserId(sess, vo, member.getUserId());
+							Attribute memberOrganizationsHistory = perunBl.getAttributesManagerBl().getAttribute(sess, parentVoMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY);
+							ArrayList<String> currentValue = memberOrganizationsHistory.valueAsList();
+							currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
+							if (!currentValue.contains(memberVo.getShortName())) {
+								currentValue.add(memberVo.getShortName());
+								memberOrganizationsHistory.setValue(currentValue);
+								perunBl.getAttributesManagerBl().setAttribute(sess, parentVoMember, memberOrganizationsHistory);
+							}
+						}
+					} catch (ExtendMembershipException | WrongReferenceAttributeValueException | AttributeNotExistsException | WrongAttributeAssignmentException | VoNotExistsException | MemberNotExistsException e) {
 						throw new InternalErrorException(e);
-					} catch (AlreadyMemberException ignored) {
 					}
 				}
 			// expired from other states - delete from parent vos
@@ -2616,14 +2652,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 		try {
 			if (getPerunBl().getVosManagerBl().getMemberVos(session, membersVo.getId()).size() > 0) {
-				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(session, sponsoredMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
-				ArrayList<String> currentValue = attribute.valueAsList();
-				currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
-				if (!currentValue.contains(membersVo.getShortName())) {
-					currentValue.add(membersVo.getShortName());
-					attribute.setValue(currentValue);
-					getPerunBl().getAttributesManagerBl().setAttribute(session, sponsoredMember, attribute);
-				}
+				updateOrganizationsAttributes(session, membersVo, sponsoredMember);
 			}
 		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | AttributeNotExistsException | WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException("cannot set MemberOrganizations attribute for sponsored member " + sponsoredMember.getId(), ex);
@@ -2718,8 +2747,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		extendMembership(session, sponsoredMember);
 		insertToMemberGroup(session, sponsoredMember, vo);
 
-		// add vo to memberOrganizations attribute
-		addVoToMemberOrganizations(session, vo, sponsoredMember);
+		// add vo to memberOrganizations and memberOrganizationsHistory attribute
+		addVoToMemberOrganizationsAttributes(session, vo, sponsoredMember);
 
 		if (Validation.ASYNC.equals(validation)) {
 			validateMemberAsync(session, sponsoredMember);

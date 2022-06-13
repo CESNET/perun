@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
@@ -1854,4 +1855,30 @@ public interface MembersManagerBl {
 	 * @throws NamespaceRulesNotExistsException if there are no namespace rules for the given namespace
 	 */
 	void checkSponsoredUserData(PerunSession sess, SponsoredUserData data) throws InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
+
+	/**
+	 * Update value of memberOrganizations or memberOrganizationsHistory attribute for specific member.
+	 *
+	 * @param sess session
+	 * @param vo VO
+	 * @param member member
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongReferenceAttributeValueException if attribute which is reference for used attribute has illegal value
+	 * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlying data source
+	 * @throws WrongAttributeAssignmentException if attribute is not vo attribute
+	 */
+	void updateOrganizationsAttributes(PerunSession sess, Vo vo, Member member) throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Set memberOrganizations and memberOrganizationsHistory attributes for specific member.
+	 *
+	 * @param sess session
+	 * @param vo VO
+	 * @param member member
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongReferenceAttributeValueException if attribute which is reference for used attribute has illegal value
+	 * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlying data source
+	 * @throws WrongAttributeAssignmentException if attribute is not vo attribute
+	 */
+	void setOrganizationsAttributes(PerunSession sess, Vo vo, Member member) throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 }
