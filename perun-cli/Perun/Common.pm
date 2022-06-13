@@ -44,7 +44,6 @@ use Perun::beans::NotifTemplate;
 use Perun::beans::SecurityTeam;
 use Perun::beans::BanOnResource;
 use Perun::beans::BanOnFacility;
-use Perun::beans::AttributeRights;
 use Perun::beans::ApplicationForm;
 use Perun::beans::ResourceTag;
 use Perun::beans::ApplicationFormItem;
@@ -54,6 +53,8 @@ use Perun::beans::EnrichedGroup;
 use Perun::beans::AssignedGroup;
 use Perun::beans::EnrichedResource;
 use Perun::beans::AssignedResource;
+use Perun::beans::AttributePolicy;
+use Perun::beans::AttributePolicyCollection;
 
 sub newEmptyBean
 {
