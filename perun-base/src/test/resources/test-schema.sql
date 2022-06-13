@@ -1,4 +1,4 @@
--- database version 3.1.93 (don't forget to update insert statement at the end of file)
+-- database version 3.1.94 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -312,7 +312,8 @@ create type role_object as enum (
 	'Facility',
 	'Resource',
 	'User',
-	'Member'
+	'Member',
+	'SecurityTeam'
 	);
 
 -- ATTRIBUTE_POLICIES - controls permissions for access to attributes
@@ -1847,7 +1848,7 @@ create index idx_fk_alwd_grps_group ON allowed_groups_to_hierarchical_vo(group_i
 create index idx_fk_alwd_grps_vo ON allowed_groups_to_hierarchical_vo(vo_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.93');
+insert into configurations values ('DATABASE VERSION','3.1.94');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
