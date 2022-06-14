@@ -12,8 +12,11 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
@@ -72,7 +75,7 @@ public class MailManagerImpl implements MailManager {
 
 	private static final String MAILS_SELECT_BY_FORM_ID = "select id,app_type,form_id,mail_type,send from application_mails where form_id=?";
 	private static final String MAILS_SELECT_BY_PARAMS = "select id,app_type,form_id,mail_type,send from application_mails where form_id=? and app_type=? and mail_type=?";
-	private static final String MAIL_TEXTS_SELECT_BY_MAIL_ID= "select locale,subject,text from application_mail_texts where mail_id=?";
+	private static final String MAIL_TEXTS_SELECT_BY_MAIL_ID= "select locale,htmlFormat,subject,text from application_mail_texts where mail_id=?";
 
 	static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
 	private static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
@@ -175,8 +178,17 @@ public class MailManagerImpl implements MailManager {
 
 		for (Locale loc : mail.getMessage().keySet()) {
 			try {
-				jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
-						mail.getId(), loc.toString(), mail.getMessage(loc).getSubject(), mail.getMessage(loc).getText());
+				jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
+						mail.getId(), loc.toString(), false, mail.getMessage(loc).getSubject(), mail.getMessage(loc).getText());
+			} catch (DuplicateKeyException e) {
+				throw new ApplicationMailExistsException("Application mail already exists.", mail);
+			}
+		}
+
+		for (Locale loc : mail.getHtmlMessage().keySet()) {
+			try {
+				jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
+					mail.getId(), loc.toString(), true, mail.getHtmlMessage(loc).getSubject(), mail.getHtmlMessage(loc).getText());
 			} catch (DuplicateKeyException e) {
 				throw new ApplicationMailExistsException("Application mail already exists.", mail);
 			}
@@ -249,6 +261,7 @@ public class MailManagerImpl implements MailManager {
 		try {
 			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(
 					new Locale(resultSet.getString("locale")),
+					resultSet.getBoolean("htmlFormat"),
 					resultSet.getString("subject"),
 					resultSet.getString("text")), mail.getId()
 			);
@@ -259,7 +272,11 @@ public class MailManagerImpl implements MailManager {
 		}
 		for (MailText text : texts) {
 			// fill localized messages
-			mail.getMessage().put(text.getLocale(), text);
+			if (text.getHtmlFormat()) {
+				mail.getHtmlMessage().put(text.getLocale(), text);
+			} else {
+				mail.getMessage().put(text.getLocale(), text);
+			}
 		}
 
 		return mail;
@@ -282,8 +299,14 @@ public class MailManagerImpl implements MailManager {
 
 		for (Locale loc : mail.getMessage().keySet()) {
 			MailText text = mail.getMessage(loc);
-			jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
-					mail.getId(), loc.toString(), text.getSubject(), text.getText());
+			jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
+					mail.getId(), loc.toString(), false, text.getSubject(), text.getText());
+		}
+
+		for (Locale loc : mail.getHtmlMessage().keySet()) {
+			MailText htmlText = mail.getHtmlMessage(loc);
+			jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
+				mail.getId(), loc.toString(), true, htmlText.getSubject(), htmlText.getText());
 		}
 
 		if (form.getGroup() != null) {
@@ -320,12 +343,17 @@ public class MailManagerImpl implements MailManager {
 		for (ApplicationMail mail : mails) {
 			List<MailText> texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(
 					new Locale(resultSet.getString("locale")),
+					resultSet.getBoolean("htmlFormat"),
 					resultSet.getString("subject"),
 					resultSet.getString("text")), mail.getId()
 			);
 			for (MailText text : texts) {
 				// fil localized messages
-				mail.getMessage().put(text.getLocale(), text);
+				if (text.getHtmlFormat()) {
+					mail.getHtmlMessage().put(text.getLocale(), text);
+				} else {
+					mail.getMessage().put(text.getLocale(), text);
+				}
 			}
 		}
 
@@ -670,14 +698,21 @@ public class MailManagerImpl implements MailManager {
 
 		List<MailText> texts;
 		try {
-			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
+			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getBoolean("htmlFormat"),resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// if no texts it's error"HmacSHA256"
 			log.error("[MAIL MANAGER] Mail do not contains any text message.", ex);
 			return null;
 		}
 
-		texts.forEach(mt -> mail.getMessage().put(mt.getLocale(), mt));
+		for (MailText text : texts) {
+			// fil localized messages
+			if (text.getHtmlFormat()) {
+				mail.getHtmlMessage().put(text.getLocale(), text);
+			} else {
+				mail.getMessage().put(text.getLocale(), text);
+			}
+		}
 
 		return mail;
 	}
@@ -1727,7 +1762,12 @@ public class MailManagerImpl implements MailManager {
 		Locale lang = new Locale(getLanguageFromAppData(app, data));
 		// get localized subject and text
 		String mailText = getMailText(mail, lang, app, data, reason, exceptions);
-		message.setText(mailText);
+		if (containsHtmlMessage(mail, lang)) {
+			String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+			setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
+		} else {
+			message.setText(mailText);
+		}
 		String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
 		message.setSubject(mailSubject);
 
@@ -1747,81 +1787,16 @@ public class MailManagerImpl implements MailManager {
 					// set TO
 					message.setRecipients(Message.RecipientType.TO, new InternetAddress[] {new InternetAddress(value)});
 
-					// get validation link params
-					String i = Integer.toString(d.getId(), Character.MAX_RADIX);
-					String m = getMessageAuthenticationCode(i);
-
-					// replace new validation link
-					if (mailText.contains("{validationLink-")) {
-						Pattern pattern = Pattern.compile("\\{validationLink-[^}]+}");
-						Matcher matcher = pattern.matcher(mailText);
-						while (matcher.find()) {
-							// whole "{validationLink-something}"
-							String toSubstitute = matcher.group(0);
-
-							// new login value to replace in text
-							String newValue = EMPTY_STRING;
-
-							Pattern namespacePattern = Pattern.compile("-(.*?)}");
-							Matcher m2 = namespacePattern.matcher(toSubstitute);
-							while (m2.find()) {
-								// only namespace "fed", "cert",...
-								String namespace = m2.group(1);
-
-								newValue = getPerunUrl(app.getVo(), app.getGroup());
-
-								if (newValue != null && !newValue.isEmpty()) {
-									if (!newValue.endsWith("/")) newValue += "/";
-									newValue += namespace + "/registrar/";
-									newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
-									newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
-									newValue += "&i=" + getUrlEncodedString(i) + "&m=" + getUrlEncodedString(m);
-								}
-							}
-							// substitute {validationLink-authz} with actual value or empty string
-							mailText = mailText.replace(toSubstitute, newValue != null ? newValue : EMPTY_STRING);
-						}
-					}
-
-					if (mailText.contains(FIELD_VALIDATION_LINK)) {
-						// new backup if validation URL is missing
-						String url = getPerunUrl(app.getVo(), app.getGroup());
-						if (url != null && !url.isEmpty()) {
-							if (!url.endsWith("/")) url += "/";
-							url += "registrar/";
-							url = url + "?vo=" + getUrlEncodedString(app.getVo().getShortName());
-							if (app.getGroup() != null) {
-								// append group name for
-								url += "&group=" + getUrlEncodedString(app.getGroup().getName());
-							}
-
-							// construct whole url
-							StringBuilder url2 = new StringBuilder(url);
-
-							if (url.contains("?")) {
-								if (!url.endsWith("?")) {
-									url2.append("&");
-								}
-							} else {
-								if (!url2.toString().isEmpty()) url2.append("?");
-							}
-
-							if (!url2.toString().isEmpty())
-								url2.append("i=").append(getUrlEncodedString(i)).append("&m=").append(getUrlEncodedString(m));
-
-							// replace validation link
-							mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());
-						}
-					}
-
-					if (mailText.contains(FIELD_REDIRECT_URL)) {
-						String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
-
-						mailText = mailText.replace(FIELD_REDIRECT_URL, redirectURL != null ? "&target=" + getUrlEncodedString(redirectURL) : EMPTY_STRING);
-					}
+					mailText = replaceValidationLinkAndRedirectUrl(app, d, mailText);
 
 					// set replaced text
-					message.setText(mailText);
+					if (containsHtmlMessage(mail, lang)) {
+						String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+						alternativePlainText = replaceValidationLinkAndRedirectUrl(app, d, alternativePlainText);
+						setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
+					} else {
+						message.setText(mailText);
+					}
 
 					try {
 						mailSender.send(message);
@@ -1836,6 +1811,83 @@ public class MailManagerImpl implements MailManager {
 				}
 			}
 		}
+	}
+
+	private String replaceValidationLinkAndRedirectUrl(Application app, ApplicationFormItemData d, String mailText) {
+		// get validation link params
+		String i = Integer.toString(d.getId(), Character.MAX_RADIX);
+		String m = getMessageAuthenticationCode(i);
+
+		// replace new validation link
+		if (mailText.contains("{validationLink-")) {
+			Pattern pattern = Pattern.compile("\\{validationLink-[^}]+}");
+			Matcher matcher = pattern.matcher(mailText);
+			while (matcher.find()) {
+				// whole "{validationLink-something}"
+				String toSubstitute = matcher.group(0);
+
+				// new login value to replace in text
+				String newValue = EMPTY_STRING;
+
+				Pattern namespacePattern = Pattern.compile("-(.*?)}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				while (m2.find()) {
+					// only namespace "fed", "cert",...
+					String namespace = m2.group(1);
+
+					newValue = getPerunUrl(app.getVo(), app.getGroup());
+
+					if (newValue != null && !newValue.isEmpty()) {
+						if (!newValue.endsWith("/")) newValue += "/";
+						newValue += namespace + "/registrar/";
+						newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
+						newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
+						newValue += "&i=" + getUrlEncodedString(i) + "&m=" + getUrlEncodedString(m);
+					}
+				}
+				// substitute {validationLink-authz} with actual value or empty string
+				mailText = mailText.replace(toSubstitute, newValue != null ? newValue : EMPTY_STRING);
+			}
+		}
+
+		if (mailText.contains(FIELD_VALIDATION_LINK)) {
+			// new backup if validation URL is missing
+			String url = getPerunUrl(app.getVo(), app.getGroup());
+			if (url != null && !url.isEmpty()) {
+				if (!url.endsWith("/")) url += "/";
+				url += "registrar/";
+				url = url + "?vo=" + getUrlEncodedString(app.getVo().getShortName());
+				if (app.getGroup() != null) {
+					// append group name for
+					url += "&group=" + getUrlEncodedString(app.getGroup().getName());
+				}
+
+				// construct whole url
+				StringBuilder url2 = new StringBuilder(url);
+
+				if (url.contains("?")) {
+					if (!url.endsWith("?")) {
+						url2.append("&");
+					}
+				} else {
+					if (!url2.toString().isEmpty()) url2.append("?");
+				}
+
+				if (!url2.toString().isEmpty())
+					url2.append("i=").append(getUrlEncodedString(i)).append("&m=").append(getUrlEncodedString(m));
+
+				// replace validation link
+				mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());
+			}
+		}
+
+		if (mailText.contains(FIELD_REDIRECT_URL)) {
+			String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
+
+			mailText = mailText.replace(FIELD_REDIRECT_URL, redirectURL != null ? "&target=" + getUrlEncodedString(redirectURL) : EMPTY_STRING);
+		}
+
+		return mailText;
 	}
 
 	private void appErrorVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) throws MessagingException {
@@ -1866,9 +1918,27 @@ public class MailManagerImpl implements MailManager {
 
 	private String getMailText(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
 							   String reason, List<Exception> exceptions) {
+		String mailText = EMPTY_STRING;
+
+		MailText htmlMt = mail.getHtmlMessage(lang);
 		MailText mt = mail.getMessage(lang);
 
+		if (htmlMt.getText() != null && !htmlMt.getText().isBlank()) {
+			mailText = htmlMt.getText();
+			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
+		} else if (mt.getText() != null && !mt.getText().isEmpty()) {
+			mailText = mt.getText();
+			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
+		}
+
+		return mailText;
+	}
+
+	private String getMailAlternativePlainText(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
+							   String reason, List<Exception> exceptions) {
 		String mailText = EMPTY_STRING;
+		MailText mt = mail.getMessage(lang);
+
 		if (mt.getText() != null && !mt.getText().isEmpty()) {
 			mailText = mt.getText();
 			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
@@ -1879,10 +1949,15 @@ public class MailManagerImpl implements MailManager {
 
 	private String getMailSubject(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
 								  String reason, List<Exception> exceptions) {
+		String mailSubject = EMPTY_STRING;
+
+		MailText htmlMt = mail.getHtmlMessage(lang);
 		MailText mt = mail.getMessage(lang);
 
-		String mailSubject = EMPTY_STRING;
-		if (mt.getText() != null && !mt.getText().isEmpty()) {
+		if (htmlMt.getSubject() != null && !htmlMt.getSubject().isBlank()) {
+			mailSubject = htmlMt.getSubject();
+			mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
+		} else if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
 			mailSubject = mt.getSubject();
 			mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
 		}
@@ -1892,10 +1967,16 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	private String getMailSubjectInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group, User user, String name) {
-		MailText mt = mail.getMessage(lang);
 		String mailSubject = EMPTY_STRING;
 
-		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
+		MailText htmlMt = mail.getHtmlMessage(lang);
+		MailText mt = mail.getMessage(lang);
+
+		if (htmlMt.getSubject() != null && !htmlMt.getSubject().isBlank()) {
+			mailSubject = htmlMt.getSubject();
+			mailSubject = substituteCommonStringsForInvite(vo, group, user, name, mailSubject);
+
+		} else if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
 			mailSubject = mt.getSubject();
 			mailSubject = substituteCommonStringsForInvite(vo, group, user, name, mailSubject);
 		}
@@ -1904,8 +1985,25 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	private String getMailTextInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group, User user, String name) {
-		MailText mt = mail.getMessage(lang);
 		String mailText = EMPTY_STRING;
+
+		MailText htmlMt = mail.getHtmlMessage(lang);
+		MailText mt = mail.getMessage(lang);
+
+		if (htmlMt.getText() != null && !htmlMt.getText().isBlank()) {
+			mailText = htmlMt.getText();
+			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText);
+		} else if (mt.getText() != null && !mt.getText().isEmpty()) {
+			mailText = mt.getText();
+			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText);
+		}
+
+		return mailText;
+	}
+
+	private String getMailAlternativePlainTextInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group, User user, String name) {
+		String mailText = EMPTY_STRING;
+		MailText mt = mail.getMessage(lang);
 
 		if (mt.getText() != null && !mt.getText().isEmpty()) {
 			mailText = mt.getText();
@@ -2069,7 +2167,12 @@ public class MailManagerImpl implements MailManager {
 
 		// get localized subject and text
 		String mailText = getMailText(mail, lang, app, data, reason, exceptions);
-		message.setText(mailText);
+		if (containsHtmlMessage(mail, lang)) {
+			String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+			setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
+		} else {
+			message.setText(mailText);
+		}
 		String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
 		message.setSubject(mailSubject);
 
@@ -2093,7 +2196,12 @@ public class MailManagerImpl implements MailManager {
 
 		// get localized subject and text
 		String mailText = getMailText(mail, lang, app, data, reason, exceptions);
-		message.setText(mailText);
+		if (containsHtmlMessage(mail, lang)) {
+			String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+			setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
+		} else {
+			message.setText(mailText);
+		}
 		String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
 		message.setSubject(mailSubject);
 
@@ -2133,11 +2241,39 @@ public class MailManagerImpl implements MailManager {
 		Locale lang = new Locale(language);
 		// get localized subject and text
 		String mailText = getMailTextInvitation(mail, lang, vo, group, user, name);
-		message.setText(mailText);
+		if (containsHtmlMessage(mail, lang)) {
+			String alternativePlainText = getMailAlternativePlainTextInvitation(mail, lang, vo, group, user, name);
+			setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
+		} else {
+			message.setText(mailText);
+		}
 		String mailSubject = getMailSubjectInvitation(mail, lang, vo, group, user, name);
 		message.setSubject(mailSubject);
 
 		return message;
+	}
+
+	private boolean containsHtmlMessage(ApplicationMail mail, Locale lang) {
+		MailText htmlMt = mail.getHtmlMessage(lang);
+		return htmlMt.getText() != null && !htmlMt.getText().isBlank();
+	}
+
+	/**
+	 * Prepares html message with alternative plain text message (for clients which are not able to display html message)
+	 * @param message email message
+	 * @param alternativePlainText alternative plain text
+	 * @param mailText main html text
+	 * @throws MessagingException
+	 */
+	private void setHtmlMessageWithAltPlainTextMessage (MimeMessage message, String alternativePlainText, String mailText) throws MessagingException {
+		final MimeBodyPart textPart = new MimeBodyPart();
+		textPart.setContent(alternativePlainText, "text/plain; charset=utf-8");
+		final MimeBodyPart htmlPart = new MimeBodyPart();
+		htmlPart.setContent(mailText, "text/html; charset=utf-8");
+		final Multipart mp = new MimeMultipart("alternative");
+		mp.addBodyPart(textPart);
+		mp.addBodyPart(htmlPart);
+		message.setContent(mp);
 	}
 
 	/**
