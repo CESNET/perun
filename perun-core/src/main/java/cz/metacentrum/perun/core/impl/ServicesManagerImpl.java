@@ -28,12 +28,12 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
+
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -919,4 +919,21 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+
+	@Override
+	public boolean isServiceAssignedToFacility(PerunSession sess, Facility facility, Service service) {
+		try {
+			int count = jdbc.queryForInt("select count(1) " +
+				"from resources" +
+					" join (select * " +
+						   "from resource_services " +
+						   "where resource_services.service_id = ?) as resource_services on resource_services.resource_id = resources.id" +
+				" where resources.facility_id=?", service.getId(), facility.getId());
+			return count != 0;
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+
 }

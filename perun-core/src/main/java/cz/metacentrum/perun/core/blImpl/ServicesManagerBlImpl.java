@@ -1131,4 +1131,9 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			}
 		}
 	}
+
+	@Override
+	public boolean isServiceAssignedToFacility(PerunSession sess, Facility facility, Service service) {
+		return getServicesManagerImpl().isServiceAssignedToFacility(sess, facility, service);
+	}
 }

@@ -17387,7 +17387,7 @@ paths:
       tags:
         - ConsentsManager
       operationId: evaluateConsentsForService
-      summary: Evaluates consents for all consent hubs with given service.
+      summary: Evaluates consents ONLY for given service on consent hubs containing it. If new consent is created, attributes from ALL services under given consent hub are gathered for it.
       parameters:
         - $ref: '#/components/parameters/serviceId'
       responses:
