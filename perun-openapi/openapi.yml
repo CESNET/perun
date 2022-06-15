@@ -404,6 +404,7 @@ components:
         - "Resource"
         - "User"
         - "Member"
+        - "SecurityTeam"
 
     AttributePolicy:
       type: object
