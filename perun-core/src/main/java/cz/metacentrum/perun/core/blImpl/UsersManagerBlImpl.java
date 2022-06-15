@@ -643,6 +643,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	public List<Pair<String, String>> getUsersReservedLogins(PerunSession sess, User user) {
+		return usersManagerImpl.getUsersReservedLogins(user);
+	}
+
+	@Override
 	public void anonymizeUser(PerunSession sess, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException {
 		try {
 			this.deleteUser(sess, user, force, true);
@@ -2122,6 +2127,38 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		log.info("Created service user: {}", serviceUser);
 		return serviceUser;
+	}
+
+	@Override
+	public List<Pair<String, String>> getReservedLoginsByApp(PerunSession sess, int appId) {
+		return usersManagerImpl.getReservedLoginsByApp(sess, appId);
+	}
+
+	@Override
+	public List<Pair<String, String>> getReservedLoginsOnlyByGivenApp(PerunSession sess, int appId) {
+		return usersManagerImpl.getReservedLoginsOnlyByGivenApp(sess, appId);
+	}
+
+	@Override
+	public void deleteReservedLoginsOnlyByGivenApp(PerunSession sess, int appId) throws PasswordOperationTimeoutException, InvalidLoginException, PasswordDeletionFailedException {
+		for (Pair<String, String> login : getReservedLoginsOnlyByGivenApp(sess, appId)) {
+			// for all reserved logins - delete them in ext. system (e.g. KDC)
+			try {
+				// left = namespace / right = login
+				deletePassword(sess, login.getRight(), login.getLeft());
+			} catch (LoginNotExistsException ex) {
+				log.error("Login: {} not exists in namespace: {} while deleting passwords.", login.getRight(), login.getLeft());
+			} catch (PasswordDeletionFailedException ex) {
+				ex.setLogin(login.getRight());
+				throw ex;
+			} catch (PasswordOperationTimeoutException ex) {
+				ex.setLogin(login.getRight());
+				throw ex;
+			}
+
+			// delete reserved login from DB
+			getUsersManagerImpl().deleteReservedLogin(sess, login);
+		}
 	}
 
 

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -22,6 +23,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
@@ -34,12 +36,15 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
+import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -66,6 +71,7 @@ import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPE
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceMappingSelectQuery;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceTagMappingSelectQuery;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.USERNAME;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 /**
@@ -1202,37 +1208,18 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public List<Pair<String, String>> getUsersReservedLogins(User user) {
-
-		List<Pair<String, String>> result = new ArrayList<>();
-
 		try {
-			List<Integer> ids = jdbc.query("select id from application where user_id=?", (resultSet, i) -> resultSet.getInt("id"),user.getId());
-
-			for (Integer id : ids) {
-
-				result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
-					(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), id));
-
-			}
+			return jdbc.query("select namespace,login from application_reserved_logins where user_id=? for update",
+				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), user.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-
-		return result;
-
 	}
 
 	@Override
 	public void deleteUsersReservedLogins(User user) {
-
 		try {
-			List<Integer> ids = jdbc.query("select id from application where user_id=?", (resultSet, i) -> resultSet.getInt("id"),user.getId());
-
-			for (Integer id : ids) {
-
-				jdbc.update("delete from application_reserved_logins where app_id=?", id);
-
-			}
+			jdbc.update("delete from application_reserved_logins where user_id=?", user.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1508,6 +1495,69 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
 					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
 					" where members.user_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Pair<String, String>> getReservedLoginsByApp(PerunSession sess, int appId) {
+		List<Pair<String, String>> logins =	jdbc.query("SELECT dst_attr, value FROM application_data" +
+				" JOIN application_form_items ON application_form_items.id = application_data.item_id  " +
+				" AND type=? AND app_id=?" +
+				" ORDER BY dst_attr, value", // order to prevent deadlock when locking later in this method
+			(resultSet, arg1) -> new Pair<>(resultSet.getString("dst_attr"), resultSet.getString("value")),
+			USERNAME.toString(), appId);
+
+		List<Pair<String, String>> reservedLogins = new ArrayList<>();
+		for (Pair<String, String> login : logins) {
+			String dstAttr = login.getLeft();
+			try {
+				AttributeDefinition loginAttribute = ((PerunBl)sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, dstAttr);
+				String namespace = loginAttribute.getFriendlyNameParameter();
+				// check if it is still reserved
+				try {
+					reservedLogins.add(jdbc.queryForObject("select namespace, login " +
+							"from application_reserved_logins where namespace=? and login=? for update",
+						(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")),
+						namespace, login.getRight()));
+				} catch (IncorrectResultSizeDataAccessException ex) {
+					continue; //login isn't reserved anymore
+				}
+			} catch (AttributeNotExistsException e) {
+				continue;
+			}
+		}
+
+		return reservedLogins;
+	}
+
+	@Override
+	public List<Pair<String, String>> getReservedLoginsOnlyByGivenApp(PerunSession sess, int appId) {
+		List<Pair<String, String>> appLogins = getReservedLoginsByApp(sess, appId);
+
+		// filter only reserved logins which can be deleted - they are reserved only for this application
+		List<Pair<String, String>> loginsToDelete = new ArrayList<>();
+		for (Pair<String, String> login : appLogins) {
+			String loginAttr = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + login.getLeft();
+			int numberOfApps = jdbc.queryForInt("SELECT count(*) FROM application_data " +
+					"JOIN application ON application_data.app_id = application.id " +
+					"JOIN application_form_items ON application_form_items.id = application_data.item_id " +
+					"WHERE state!=? and state!=? and type=? and value=? and dst_attr=? and application.id!=?",
+				Application.AppState.APPROVED.toString(), Application.AppState.REJECTED.toString(), USERNAME.toString(),
+				login.getRight(), loginAttr, appId);
+			if (numberOfApps == 0) {
+				loginsToDelete.add(login);
+			}
+		}
+
+		return loginsToDelete;
+	}
+
+	@Override
+	public void deleteReservedLogin(PerunSession sess, Pair<String, String> login) {
+		try {
+			jdbc.update("delete from application_reserved_logins where namespace=? and login=?", login.getLeft(), login.getRight());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

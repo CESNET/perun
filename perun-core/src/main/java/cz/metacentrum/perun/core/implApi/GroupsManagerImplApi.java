@@ -657,29 +657,6 @@ public interface GroupsManagerImplApi {
 	List<Integer> getGroupApplicationIds(PerunSession sess, Group group);
 
 	/**
-	 * Return list of all reserved logins for specific application
-	 * (pair is namespace and login)
-	 *
-	 * @param appId from which application get reserved logins
-	 * @return list of pairs namespace and login
-	 * @throws InternalErrorException
-	 */
-	List<Pair<String, String>> getApplicationReservedLogins(Integer appId);
-
-	/**
-	 * Delete all Group login reservations
-	 *
-	 * Reserved logins must be removed from external systems
-	 * (e.g. KDC) BEFORE calling this method via deletePassword() in
-	 * UsersManager.
-	 *
-	 * @param sess
-	 * @param group Group to delete all login reservations for
-	 * @throws InternalErrorException
-	 */
-	void deleteGroupReservedLogins(PerunSession sess, Group group);
-
-	/**
 	 * Get all groups in specific vo with assigned extSource
 	 *
 	 * @param sess

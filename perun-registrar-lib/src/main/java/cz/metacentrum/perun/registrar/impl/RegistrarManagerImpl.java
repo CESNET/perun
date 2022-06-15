@@ -73,8 +73,6 @@ import cz.metacentrum.perun.registrar.RegistrarModule;
 import static cz.metacentrum.perun.core.api.AttributeAction.READ;
 import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
 import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
-import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
-import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -1284,8 +1282,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					if (loginAvailable) {
 						try {
 							// Reserve login
-							jdbc.update("insert into application_reserved_logins(login,namespace,app_id,created_by,created_at) values(?,?,?,?,?)",
-									login, loginNamespace, appId, application.getCreatedBy(), new Date());
+							jdbc.update("insert into application_reserved_logins(login,namespace,user_id,extsourcename,created_by,created_at) values(?,?,?,?,?,?)",
+									login, loginNamespace, userId, session.getPerunPrincipal().getExtSourceName(), session.getPerunPrincipal().getActor(), new Date());
 							log.debug("[REGISTRAR] Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
 
 							// process password for this login
@@ -1391,22 +1389,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			if (AppState.NEW.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) {
 
-				// Try to get reservedLogin and reservedNamespace before deletion
-				List<Pair<String, String>> logins;
-				try {
-					logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?", (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), app.getId());
-				} catch (EmptyResultDataAccessException e) {
-					// set empty logins
-					logins = new ArrayList<>();
-				}
-				// delete passwords in KDC
-				for (Pair<String, String> login : logins) {
-					// delete LOGIN in NAMESPACE
-					usersManager.deletePassword(sess, login.getRight(), login.getLeft());
-				}
-
-				// free any login from reservation when application is rejected
-				jdbc.update("delete from application_reserved_logins where app_id=?", app.getId());
+				deleteApplicationReservedLogins(sess, app);
 
 				// delete application and data on cascade
 				jdbc.update("delete from application where id=?", app.getId());
@@ -1500,21 +1483,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			app.setState(AppState.REJECTED);
 			log.info("Application {} marked as REJECTED.", appId);
 
-			// get all reserved logins
-			List<Pair<String, String>> logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
-					(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
-
-			// delete passwords for reserved logins
-			for (Pair<String, String> login : logins) {
-				try {
-					// left = namespace / right = login
-					usersManager.deletePassword(registrarSession, login.getRight(), login.getLeft());
-				} catch (LoginNotExistsException ex) {
-					log.error("[REGISTRAR] Login: {} not exists while deleting passwords in rejected application: {}", login.getLeft(), appId);
-				}
-			}
-			// free any login from reservation when application is rejected
-			jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+			deleteApplicationReservedLogins(sess, app);
 
 			// log
 			perun.getAuditer().log(sess, new ApplicationRejected(app));
@@ -1547,6 +1516,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		}
 
+	}
+
+	/**
+	 * Deletes reserved logins which are used only by the given application.
+	 * Deletes them from both KDC and DB.
+	 *
+	 * @param sess
+	 * @param app
+	 * @throws PasswordDeletionFailedException
+	 * @throws PasswordOperationTimeoutException
+	 * @throws InvalidLoginException
+	 */
+	private void deleteApplicationReservedLogins(PerunSession sess, Application app) throws PasswordDeletionFailedException, PasswordOperationTimeoutException, InvalidLoginException {
+		List<Pair<String, String>> logins = usersManager.getReservedLoginsOnlyByGivenApp(sess, app.getId());
+
+		for (Pair<String, String> login : logins) {
+			try {
+				// delete passwords in KDC
+				usersManager.deletePassword(registrarSession, login.getRight(), login.getLeft());
+			} catch (LoginNotExistsException ex) {
+				log.error("[REGISTRAR] Login: {} not exists while deleting passwords in application: {}", login.getLeft(), app.getId());
+			}
+			// delete reserved logins in DB
+			jdbc.update("delete from application_reserved_logins where namespace=? and login=?", login.getLeft(), login.getRight());
+		}
 	}
 
 	@Override
@@ -1785,13 +1779,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		log.info("Application {} marked as APPROVED", appId);
 
 		// Try to get reservedLogin and reservedNamespace before deletion, it will be used for creating userExtSources
-		List<Pair<String, String>> logins;
-		try {
-			logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?", (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
-		} catch (EmptyResultDataAccessException e) {
-			// set empty logins
-			logins = new ArrayList<>();
-		}
+		List<Pair<String, String>> logins = usersManager.getReservedLoginsByApp(sess, app.getId());
 
 		// FOR INITIAL / EMBEDDED APPLICATION
 		if (AppType.INITIAL.equals(app.getType()) || AppType.EMBEDDED.equals(app.getType())) {
@@ -1800,7 +1788,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// group application
 
 				// free reserved logins so they can be set as attributes
-				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+				for (Pair<String, String> login : logins) {
+					jdbc.update("delete from application_reserved_logins where namespace=? and login=?", login.getLeft(), login.getRight());
+				}
 
 				if (app.getUser() == null) {
 
@@ -1868,7 +1858,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 
 				// free reserved logins so they can be set as attributes
-				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+				for (Pair<String, String> login : logins) {
+					jdbc.update("delete from application_reserved_logins where namespace=? and login=?", login.getLeft(), login.getRight());
+				}
 
 				User u;
 				if (app.getUser() != null) {
@@ -1949,7 +1941,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} else if (AppType.EXTENSION.equals(app.getType())) {
 
 			// free reserved logins so they can be set as attributes
-			jdbc.update("delete from application_reserved_logins where app_id=?", app.getId());
+			for (Pair<String, String> login : logins) {
+				jdbc.update("delete from application_reserved_logins where namespace=? and login=?", login.getLeft(), login.getRight());
+			}
 
 			member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
 
@@ -2549,6 +2543,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			itemsWithValues.add(new ApplicationFormItemWithPrefilledValue(item, null));
 		}
 
+		List<Pair<String, String>> reservedLogins = getPrincipalsReservedLogins(sess); // used to prefill USERNAME items
+
 		// data from pending app to group's VO, use values from attributes which destination in VO application matches source attribute in group application
 		List<ApplicationFormItemData> pendingVoApplicationData = new ArrayList<>();
 
@@ -2702,6 +2698,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			}
 
+			// prefill USERNAME items with reserved logins
+			if (itemW.getFormItem().getType() == USERNAME || itemW.getFormItem().getType() == PASSWORD) {
+				String destAttribute = itemW.getFormItem().getPerunDestinationAttribute();
+				if (destAttribute != null && !destAttribute.isEmpty()) {
+					for (Pair<String, String> login : reservedLogins) {
+						String loginAttribute = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + login.getLeft();
+						if (destAttribute.equals(loginAttribute)) {
+							if (itemW.getFormItem().getType() == USERNAME) {
+								itemW.setPrefilledValue(login.getRight());
+							} else {
+								it.remove(); // remove password field if login is prefilled from reserved logins
+							}
+							break;
+						}
+					}
+				}
+			}
+
 			// if pending vo application data can be used for group application, overwrite value with it
 			for (ApplicationFormItemData appFormItemData : pendingVoApplicationData) {
 				String vosAppDestinationAttribute = appFormItemData.getFormItem().getPerunDestinationAttribute();
@@ -2757,6 +2771,20 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// return prefilled form
 		return itemsWithValues;
 
+	}
+
+	private List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess) {
+		User user = sess.getPerunPrincipal().getUser();
+		List<Pair<String, String>> logins = user == null ? new ArrayList<>() : usersManager.getUsersReservedLogins(sess, user);
+
+		// search reserved logins by principals extsourcename and actor
+		logins.addAll(jdbc.query("SELECT namespace,login " +
+					" FROM application_reserved_logins " +
+					" WHERE extsourcename=? and created_by=? ",
+				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")),
+				sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor()));
+
+		return logins;
 	}
 
 	/**

@@ -1,4 +1,4 @@
--- database version 3.1.95 (don't forget to update insert statement at the end of file)
+-- database version 3.1.96 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -647,13 +647,14 @@ create table application_mail_texts (
 create table application_reserved_logins (
 											  login varchar not null,        --logname
 											  namespace varchar not null,     --namespace where logname is reserved
-											  app_id integer not null,            --identifier of application (application.id)
+											  user_id integer,            --identifier of user (user.id)
+											  extsourcename varchar not null,
 											  created_by varchar default user not null,
 											  created_at timestamp default statement_timestamp() not null,
 											  created_by_uid integer,
 											  modified_by_uid integer,
 											  constraint app_logins_pk primary key(login, namespace),
-											  constraint applogin_appid_fk foreign key(app_id) references application(id)
+											  constraint applogin_userid_fk foreign key(user_id) references users(id)
 );
 
 -- FACILITY_SERVICE_DESTINATIONS - destinations of services assigned to the facility
@@ -1786,7 +1787,7 @@ create index idx_fk_app_user on application(user_id);
 create index idx_fk_app_group on application(group_id);
 create index idx_fk_appdata_app on application_data(app_id);
 create index idx_fk_appdata_applfrmit on application_data(item_id);
-create index idx_fk_applogin_appid on application_reserved_logins(app_id);
+create index idx_fk_applogin_userid on application_reserved_logins(user_id);
 create index idx_fk_appmail_appform on application_mails(form_id);
 create index idx_fk_appmailtxt_appmails on application_mail_texts(mail_id);
 create index idx_fk_cabaut_pub on cabinet_authorships(publicationid);
@@ -1849,7 +1850,7 @@ create index idx_fk_alwd_grps_group ON allowed_groups_to_hierarchical_vo(group_i
 create index idx_fk_alwd_grps_vo ON allowed_groups_to_hierarchical_vo(vo_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.95');
+insert into configurations values ('DATABASE VERSION','3.1.96');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
