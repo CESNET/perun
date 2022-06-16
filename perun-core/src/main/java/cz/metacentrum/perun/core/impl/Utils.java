@@ -52,9 +52,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -2392,6 +2394,64 @@ public class Utils {
 			attributeNamespace.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR) ||
 			attributeNamespace.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR) ||
 			attributeNamespace.startsWith(AttributesManager.NS_UES_ATTR);
+	}
+
+	/**
+	 * Performs binary search for EXACT match in SORTED ascii file.
+	 * All entries need to be separated by newline and sorting needs to follow ASCII standard ('a' > 'A')!
+	 *
+	 * @param word word to be checked
+	 * @param filename path to sorted file
+	 * @return true if word was found, false otherwise
+	 */
+	public static boolean checkWordInSortedFile(String filename, String word) throws FileNotFoundException, IOException {
+		Utils.notNull(word, "word");
+
+		RandomAccessFile raf = new RandomAccessFile(filename, "r");
+		String value = raf.readLine();
+
+		if (word.equals(value)) {
+			raf.close();
+			return true;
+		}
+
+		long lowerBound = 0;
+		long upperBound = raf.length();
+
+		while (lowerBound < upperBound) {
+			long mid = (lowerBound + upperBound) / 2;
+			raf.seek(mid);
+
+			//set pointer to the nearest preceding newline to read the whole word
+			while (raf.getFilePointer() > 0) {
+				long positionBeforeReading = raf.getFilePointer();
+				if ((char)raf.readByte() == '\n') {
+					break;
+				}
+				raf.seek(positionBeforeReading - 1);
+			}
+			long firstCharPosition = raf.getFilePointer();
+			value = raf.readLine();
+
+			if (value == null) {
+				raf.close();
+				return false;
+			}
+			if (word.equals(value)) {
+				raf.close();
+				return true;
+			}
+
+			// set bounds to newline positions
+			if (word.compareTo(value) < 1) {
+				upperBound = firstCharPosition - 1;
+			} else {
+				lowerBound = raf.getFilePointer() - 1;
+			}
+		}
+		raf.close();
+
+		return false;
 	}
 
 	/**
