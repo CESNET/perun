@@ -1,0 +1,102 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+use Switch;
+
+sub help {
+	return qq{
+	Sets attribute policy collections
+	--------------------------------
+	Available options:
+	--attributeId       | -a attribute identifier
+	--attributeName     | -A attribute name (including namespace)
+	--policyCollections | -p list of policy collections in the following format:
+
+	 	[ACTION]=[ROLE]:[OBJECT]&&[ROLE]:[OBJECT]||[ACTION]=[ROLE]:[OBJECT]&&[ROLE]:[OBJECT]
+
+	 	ACTION = R (Read), W (Write), R+W (Read + Write)
+	 	ROLE   = one of the available Perun roles.
+	 	OBJECT = None, Group, Vo, Facility, Resource, User, Member, SecurityTeam
+
+	--overwrite         | -o overwrites already existing policy collections
+	--batch             | -b batch
+	--help              | -h prints this help
+	};
+}
+
+my ($attributeId, $attributeName, $collectionsString, $overwrite, $batch);
+my @objects = ("None", "Group", "Vo", "Facility", "Resource", "User", "Member", "SecurityTeam");
+GetOptions("help|h"   => sub {
+	print help;
+	exit 0;
+},
+	"attributeId|a=i"       => \$attributeId,
+	"attributeName|A=s"     => \$attributeName,
+	"policyCollections|p=s" => \$collectionsString,
+	"overwrite|o"			=> \$overwrite,
+	"batch|b"               => \$batch) || die help();
+
+unless (defined $attributeId or defined $attributeName) { die "ERROR: attributeId or attributeName are required\n";}
+unless (defined $collectionsString) { die "ERROR: policy collections are required\n";}
+
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
+my $attributeDefinition;
+if (defined $attributeName and not defined $attributeId) {
+	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
+	$attributeId=$attributeDefinition->getId;
+}
+
+my @collections = ();
+if (!defined $overwrite) {
+	@collections = $attributesAgent->getAttributePolicyCollections( attributeId => $attributeId );
+}
+foreach my $collection (split('\|\|', $collectionsString)) {
+	my @collectionParts = split('=', $collection);
+	my $actionString = $collectionParts[0];
+	my $policiesString = $collectionParts[1];
+	my @policies = ();
+	foreach my $policyString (split('&&', $policiesString)) {
+		my @policyParts = split(':', $policyString);
+		my $role = $policyParts[0];
+		my $object = $policyParts[1];
+		if (! grep(/^$object$/, @objects)) {
+		die "ERROR: invalid role object.\n";
+	}
+		my $policy = Perun::beans::AttributePolicy->new;
+		$policy->setRole($role);
+		$policy->setObject($object);
+		push(@policies, $policy);
+	}
+	my $collection = Perun::beans::AttributePolicyCollection->new;
+	$collection->setPolicies(\@policies);
+	$collection->setAttributeId($attributeId);
+	switch($actionString) {
+		case "R" {
+			$collection->setAction("READ");
+		}
+		case "W" {
+			$collection->setAction("WRITE");
+		}
+		case "R+W" {
+			$collection->setAction("READ");
+			my $collectionWrite = Perun::beans::AttributePolicyCollection->new;
+			$collectionWrite->setPolicies(\@policies);
+			$collectionWrite->setAction("WRITE");
+			$collectionWrite->setAttributeId($attributeId);
+			push(@collections, $collectionWrite);
+		}
+		else {
+			die "ERROR: invalid action.\n";
+		}
+	}
+	push(@collections, $collection);
+}
+
+$attributesAgent->setAttributePolicyCollections(attributeId => $attributeId, policyCollections => \@collections);
+printMessage "Attribute policy collections for attribute $attributeId successfully set", $batch;
