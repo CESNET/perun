@@ -16483,7 +16483,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/servicesManager/getAssignedServices:
+  /json/servicesManager/getAssignedServices/f:
     get:
       tags:
         - ServicesManager
@@ -16491,6 +16491,21 @@ paths:
       summary: List all services associated with the facility (via resource).
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getAssignedServices/f-v:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getAssignedServicesVo
+      summary: List all services associated with the facility and vo (via resource).
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/voId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfServicesResponse'
