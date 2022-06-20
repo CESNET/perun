@@ -1465,11 +1465,21 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param facility int Facility <code>id</code>
 	 * @return List<Service> Found services
 	 */
+	/*#
+	 * List all services associated with the facility and vo (via resource).
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int Vo <code>id</code>
+	 * @return List<Service> Found services
+	 */
 	getAssignedServices {
 
 		@Override
 		public List<Service> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
+			if (parms.contains("vo")) {
+				return ac.getServicesManager().getAssignedServices(ac.getSession(),
+					ac.getFacilityById(parms.readInt("facility")), ac.getVoById(parms.readInt("vo")));
+			}
 			return ac.getServicesManager().getAssignedServices(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
 		}

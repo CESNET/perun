@@ -4735,6 +4735,15 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAssignedServices_Facility_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
   addDestinationsForAllServicesOnFacility_Facility_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility

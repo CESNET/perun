@@ -2158,6 +2158,31 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertThat(res2Node.getMembers()).containsKey(member.getId());
 	}
 
+	@Test
+	public void getAssignedServicesVo() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedServicesVo");
+
+		facility = setUpFacility();
+		List<Service> services = setUpServices();
+
+		vo = setUpVo();
+		resource = setUpResource();
+		Service service1 = services.get(0);
+		perun.getResourcesManagerBl().assignService(sess, resource, service1);
+
+		Vo vo2 = new Vo(0, "ServicesManagerTestVo2", "RMTestVo2");
+		vo2 = perun.getVosManager().createVo(sess, vo2);
+		Resource resource2 = new Resource();
+		resource2.setName("ServicesManagerTestResource2");
+		resource2.setDescription("Testovaci");
+		resource2 = perun.getResourcesManager().createResource(sess, resource2, vo2, facility);
+		Service service2 = services.get(1);
+		perun.getResourcesManagerBl().assignService(sess, resource2, service2);
+
+		assertThat(perun.getServicesManagerBl().getAssignedServices(sess, facility)).contains(service1, service2);
+		assertThat(perun.getServicesManagerBl().getAssignedServices(sess, facility, vo)).containsExactly(service1);
+	}
+
 	// PRIVATE METHODS ----------------------------------------------------
 
 	private Service setUpService() throws Exception {

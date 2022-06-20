@@ -916,6 +916,20 @@ public class ServicesManagerEntry implements ServicesManager {
 
 		return getServicesManagerBl().getAssignedServices(sess, facility);
 	}
+	@Override
+	public List<Service> getAssignedServices(PerunSession sess, Facility facility, Vo vo) throws FacilityNotExistsException, VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedServices_Facility_Vo_policy", facility)) {
+			throw new PrivilegeException(sess, "getAssignedServices");
+		}
+
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		return getServicesManagerBl().getAssignedServices(sess, facility, vo);
+	}
 
 	public PerunBl getPerunBl() {
 		return this.perunBl;

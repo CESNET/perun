@@ -853,6 +853,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
+	public List<Service> getAssignedServices(PerunSession perunSession, Facility facility, Vo vo) {
+		try {
+			return jdbc.query("select distinct " + serviceMappingSelectQuery + " from services join resource_services on services.id = resource_services.service_id join resources on resource_services.resource_id = resources.id where resources.facility_id=? and resources.vo_id=?", SERVICE_MAPPER, facility.getId(), vo.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public Destination getDestination(PerunSession sess, String destination, String type) throws DestinationNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + destinationMappingSelectQuery + " from destinations where destination=? and type=?", DESTINATION_MAPPER, destination, type);
