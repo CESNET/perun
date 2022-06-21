@@ -246,6 +246,13 @@ public interface FacilitiesManager {
 	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
+	 * Returns all rich resources assigned to the facility and service with VO property filled
+	 *
+	 * @return list of rich resources assigned to the facility and service
+	 */
+	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility, Service service) throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
+
+	/**
 	 * Store the facility.
 	 */
 	Facility createFacility(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityExistsException, ConsentHubExistsException;

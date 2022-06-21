@@ -305,6 +305,19 @@ public interface FacilitiesManagerImplApi {
 	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility);
 
 	/**
+	 * Returns all rich resources assigned to the facility and service.
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param service
+	 *
+	 * @return list of rich resources assigned to the facility and service
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility, Service service);
+
+	/**
 	 * Inserts facility into DB.
 	 *
 	 * @param perunSession

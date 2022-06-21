@@ -559,6 +559,23 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
+	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility, Service service) {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+					facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources" +
+					" join resource_services on resource_services.resource_id=resources.id" +
+					" join vos on resources.vo_id=vos.id" +
+					" join facilities on resources.facility_id=facilities.id" +
+					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
+					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+					" where resources.facility_id=? and resource_services.service_id=?",
+				ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR, facility.getId(), service.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Facility> getOwnerFacilities(PerunSession sess, Owner owner) {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities" +
