@@ -14,15 +14,11 @@ import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.ConvertAttributeToNonUnique;
 import cz.metacentrum.perun.webgui.json.attributesManager.ConvertAttributeToUnique;
-import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributeRights;
-import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributeRights;
 import cz.metacentrum.perun.webgui.json.attributesManager.UpdateAttribute;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetServicesByAttrDefinition;
 import cz.metacentrum.perun.webgui.model.AttributeDefinition;
-import cz.metacentrum.perun.webgui.model.AttributeRights;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -31,7 +27,6 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -58,20 +53,6 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 	private Label titleWidget = new Label("Attribute");
 
 	private AttributeDefinition def;
-	private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
-
-	private final CheckBox selfRead = new CheckBox();
-	private final CheckBox selfWrite = new CheckBox();
-	private final CheckBox selfReadVo = new CheckBox();
-	private final CheckBox selfReadPublic = new CheckBox();
-	private final CheckBox selfWriteVo = new CheckBox();
-	private final CheckBox selfWritePublic = new CheckBox();
-	private final CheckBox voRead = new CheckBox();
-	private final CheckBox voWrite = new CheckBox();
-	private final CheckBox groupRead = new CheckBox();
-	private final CheckBox groupWrite = new CheckBox();
-	private final CheckBox facilityRead = new CheckBox();
-	private final CheckBox facilityWrite = new CheckBox();
 
 	/**
 	 * Creates a tab instance
@@ -220,20 +201,6 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		updateButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-
-				final ArrayList<AttributeRights> list = new ArrayList<AttributeRights>();
-				for (AttributeRights r : rights) {
-					if (r.getRole().equalsIgnoreCase("SELF")) {
-						list.add(getRightsFromWidgets(selfRead, selfWrite, selfReadPublic, selfWritePublic, selfReadVo, selfWriteVo, r));
-					} else if (r.getRole().equalsIgnoreCase("VOADMIN")) {
-						list.add(getRightsFromWidgets(voRead, voWrite, r));
-					} else if (r.getRole().equalsIgnoreCase("GROUPADMIN")) {
-						list.add(getRightsFromWidgets(groupRead, groupWrite, r));
-					} else if (r.getRole().equalsIgnoreCase("FACILITYADMIN")) {
-						list.add(getRightsFromWidgets(facilityRead, facilityWrite, r));
-					}
-				}
-
 				if ((!Objects.equals(def.getDescription(), description.getTextBox().getText().trim()) || !Objects.equals(def.getDisplayName(), displayName.getTextBox().getText().trim()))) {
 
 					if (!validator.validateTextBox() || !validatorName.validateTextBox()) return;
@@ -241,49 +208,8 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 					def.setDescription(description.getTextBox().getText().trim());
 					def.setDisplayName(displayName.getTextBox().getText().trim());
 
-					UpdateAttribute request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(updateButton, new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-
-							// after update - update rights
-							SetAttributeRights request = new SetAttributeRights(JsonCallbackEvents.disableButtonEvents(updateButton, new JsonCallbackEvents(){
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									enableDisableWidgets(true);
-								}
-							@Override
-							public void onLoadingStart() {
-								enableDisableWidgets(false);
-							}
-							@Override
-							public void onError(PerunError error) {
-								enableDisableWidgets(true);
-							}
-							}));
-							request.setAttributeRights(list);
-
-						}
-					}));
+					UpdateAttribute request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(updateButton));
 					request.updateAttribute(def);
-				} else {
-
-					// after update - update rights
-					SetAttributeRights request = new SetAttributeRights(JsonCallbackEvents.disableButtonEvents(updateButton, new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							enableDisableWidgets(true);
-						}
-					@Override
-					public void onLoadingStart() {
-						enableDisableWidgets(false);
-					}
-					@Override
-					public void onError(PerunError error) {
-						enableDisableWidgets(true);
-					}
-					}));
-					request.setAttributeRights(list);
-
 				}
 			}
 		});
@@ -297,34 +223,9 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		for (int i=0; i<attributeDetailTable.getRowCount(); i++) {
 			attributeDetailTable.getFlexCellFormatter().setStyleName(i, 0, "itemName");
 		}
-
-		final FlexTable rightsTable = new FlexTable();
-		rightsTable.setStyleName("inputFormFlexTable");
-
-		rightsTable.setHTML(0, 1, "<strong>SELF</strong>");
-		rightsTable.setHTML(0, 2, "<strong>SELF_PUBLIC</strong>");
-		rightsTable.setHTML(0, 3, "<strong>SELF_VO</strong>");
-		rightsTable.setHTML(0, 4, "<strong>VO</strong>");
-		rightsTable.setHTML(0, 5, "<strong>GROUP</strong>");
-		rightsTable.setHTML(0, 6, "<strong>FACILITY</strong>");
-
-		rightsTable.setHTML(1, 0, "<strong>READ</strong>");
-		rightsTable.setHTML(2, 0, "<strong>WRITE</strong>");
-
-		rightsTable.setWidget(1, 1, selfRead);
-		rightsTable.setWidget(2, 1, selfWrite);
-		rightsTable.setWidget(1, 2, selfReadPublic);
-		rightsTable.setWidget(2, 2, selfWritePublic);
-		rightsTable.setWidget(1, 3, selfReadVo);
-		rightsTable.setWidget(2, 3, selfWriteVo);
-		rightsTable.setWidget(1, 4, voRead);
-		rightsTable.setWidget(2, 4, voWrite);
-		rightsTable.setWidget(1, 5, groupRead);
-		rightsTable.setWidget(2, 5, groupWrite);
-		rightsTable.setWidget(1, 6, facilityRead);
-		rightsTable.setWidget(2, 6, facilityWrite);
-
-		rightsTable.addStyleName("centeredTable");
+		String newGuiAlertContent = session.getConfiguration().getCustomProperty("newAdminGuiAlert");
+		final FlexTable alert = new FlexTable();
+		alert.setHTML(0,0,"<p>Setting attribute rights is no longer supported in this GUI. In order to set attribute rights please use the New GUI.</p> " + newGuiAlertContent);
 
 		TabMenu menu = new TabMenu();
 		menu.addWidget(UiElements.getRefreshButton(this));
@@ -336,37 +237,6 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
-
-		GetAttributeRights rightsCall = new GetAttributeRights(def.getId(), new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso){
-				rights = JsonUtils.jsoAsList(jso);
-				for (AttributeRights r : rights) {
-					if (r.getRole().equalsIgnoreCase("SELF")) {
-						setRightsToWidgets(selfRead, selfWrite, selfReadPublic, selfWritePublic, selfReadVo, selfWriteVo, r);
-					} else if (r.getRole().equalsIgnoreCase("VOADMIN")) {
-						setRightsToWidgets(voRead, voWrite, r);
-					} else if (r.getRole().equalsIgnoreCase("GROUPADMIN")) {
-						setRightsToWidgets(groupRead, groupWrite, r);
-					} else if (r.getRole().equalsIgnoreCase("FACILITYADMIN")) {
-						setRightsToWidgets(facilityRead, facilityWrite, r);
-					}
-				}
-				enableDisableWidgets(true);
-				rightsTable.setVisible(true);
-			}
-		@Override
-		public void onError(PerunError error){
-			enableDisableWidgets(true);
-			rightsTable.setVisible(false);
-		}
-		@Override
-		public void onLoadingStart(){
-			enableDisableWidgets(false);
-			rightsTable.setVisible(false);
-		}
-		});
-		rightsCall.retrieveData();
 
 		// create new instance for jsonCall
 		final GetServicesByAttrDefinition services = new GetServicesByAttrDefinition(def.getId());
@@ -389,7 +259,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		mainPage.getFlexCellFormatter().setColSpan(0, 0, 2);
 
 		mainPage.setWidget(1, 0, attributeDetailTable);
-		mainPage.setWidget(1, 1, rightsTable);
+		mainPage.setWidget(1, 1, alert);
 		mainPage.getFlexCellFormatter().setWidth(1, 0, "50%");
 		mainPage.getFlexCellFormatter().setWidth(1, 1, "50%");
 
@@ -406,117 +276,6 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		this.contentWidget.setWidget(mainPage);
 
 		return getWidget();
-	}
-
-	/**
-	 * Set rights values to widgets
-	 *
-	 * @param read
-	 * @param write
-	 * @param right
-	 */
-	private void setRightsToWidgets(CheckBox read, CheckBox write, AttributeRights right) {
-
-		// prepare
-		ArrayList<String> list = new ArrayList<String>();
-		for (int i=0; i<right.getRights().length(); i++) {
-			list.add(right.getRights().get(i));
-		}
-
-		// set read
-		if (list.contains("READ")) {
-			read.setValue(true);
-		} else {
-			read.setValue(false);
-		}
-
-		// set write
-		if (list.contains("WRITE")) {
-			write.setValue(true);
-		} else {
-			write.setValue(false);
-		}
-
-
-	}
-
-	private void setRightsToWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
-									CheckBox readVo, CheckBox writeVo, AttributeRights right) {
-
-		ArrayList<String> list = new ArrayList<>();
-		for (int i=0; i<right.getRights().length(); i++) {
-			list.add(right.getRights().get(i));
-		}
-
-		if (list.contains("READ")) {
-			read.setValue(true);
-		} else {
-			read.setValue(false);
-		}
-
-		if (list.contains("WRITE")) {
-			write.setValue(true);
-		} else {
-			write.setValue(false);
-		}
-
-		if (list.contains("READ_PUBLIC")) {
-			readPublic.setValue(true);
-		} else {
-			readPublic.setValue(false);
-		}
-
-		if (list.contains("WRITE_PUBLIC")) {
-			writePublic.setValue(true);
-		} else {
-			writePublic.setValue(false);
-		}
-		if (list.contains("READ_VO")) {
-			readVo.setValue(true);
-		} else {
-			readVo.setValue(false);
-		}
-
-		if (list.contains("WRITE_VO")) {
-			writeVo.setValue(true);
-		} else {
-			writeVo.setValue(false);
-		}
-	}
-
-	private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, AttributeRights right) {
-
-		right.setRights(read.getValue(), write.getValue());
-
-		return right;
-
-	}
-
-	private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
-												 CheckBox readVo, CheckBox writeVo, AttributeRights right) {
-
-		right.setSelfRights(read.getValue(), write.getValue(), readPublic.getValue(), writePublic.getValue(),
-			readVo.getValue(), writeVo.getValue());
-
-		return right;
-
-	}
-
-	private void enableDisableWidgets(boolean enabled) {
-
-		selfRead.setEnabled(enabled);
-		selfWrite.setEnabled(enabled);
-		selfReadPublic.setEnabled(enabled);
-		selfWritePublic.setEnabled(enabled);
-		selfReadVo.setEnabled(enabled);
-		selfWriteVo.setEnabled(enabled);
-		voRead.setEnabled(enabled);
-		voWrite.setEnabled(enabled);
-		groupRead.setEnabled(enabled);
-		groupWrite.setEnabled(enabled);
-		facilityRead.setEnabled(enabled);
-		facilityWrite.setEnabled(enabled);
-
 	}
 
 	public Widget getWidget() {
