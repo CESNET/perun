@@ -71,6 +71,7 @@ import cz.metacentrum.perun.registrar.RegistrarModule;
 
 import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -1950,12 +1951,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// extend users VO membership
 				// if VO is hierarchical, add it to MemberOrganizations
 				if (perun.getVosManagerBl().getMemberVos(sess, app.getVo().getId()).size() > 0) {
-					Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
-					ArrayList<String> currentValue = attribute.valueAsList();
-					currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
-					currentValue.add(app.getVo().getShortName());
-					attribute.setValue(currentValue);
-					perun.getAttributesManagerBl().setAttribute(sess, member, attribute);
+					perun.getMembersManagerBl().updateOrganizationsAttributes(sess, app.getVo(), member);
 				}
 				membersManager.extendMembership(registrarSession, member);
 			}

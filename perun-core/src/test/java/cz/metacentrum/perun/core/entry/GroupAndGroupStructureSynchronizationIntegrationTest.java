@@ -1113,16 +1113,23 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
 		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 
-		Attribute attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-		ArrayList<String> currentValue = attribute.valueAsList();
+		Attribute memberOrganizations = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentMemberOrganizations = memberOrganizations.valueAsList();
+		assertThat(currentMemberOrganizations).containsOnly(memberVo.getShortName());
 
-		assertThat(currentValue).containsOnly(memberVo.getShortName());
+		Attribute memberOrganizationsHistory = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
+		assertThat(currentMemberOrganizationsHistory).containsOnly(memberVo.getShortName());
+
 		groupsManagerBl.synchronizeGroup(sess, group);
 
-		attribute = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-		currentValue = attribute.valueAsList();
+		memberOrganizations = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		currentMemberOrganizations = memberOrganizations.valueAsList();
+		assertThat(currentMemberOrganizations).containsOnly(vo.getShortName(), memberVo.getShortName());
 
-		assertThat(currentValue).containsOnly(vo.getShortName(), memberVo.getShortName());
+		memberOrganizationsHistory = perun.getAttributesManager().getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
+		assertThat(currentMemberOrganizationsHistory).containsOnly(vo.getShortName(), memberVo.getShortName());
 	}
 
 	// PRIVATE METHODS

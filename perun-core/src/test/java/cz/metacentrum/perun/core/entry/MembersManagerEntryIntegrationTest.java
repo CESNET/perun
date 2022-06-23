@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
 import static java.util.stream.Collectors.toList;
@@ -3207,10 +3208,13 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Member member = setUpMember(parentVo);
 
-		Attribute attribute = perun.getAttributesManager().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-		ArrayList<String> currentValue = attribute.valueAsList();
+		Attribute memberOrganizations = perun.getAttributesManager().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+		ArrayList<String> currentMemberOrganizations = memberOrganizations.valueAsList();
+		assertThat(currentMemberOrganizations).containsOnly(parentVo.getShortName());
 
-		assertThat(currentValue).containsOnly(parentVo.getShortName());
+		Attribute memberOrganizationsHistory = perun.getAttributesManager().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizationsHistory");
+		ArrayList<String> currenMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
+		assertThat(currenMemberOrganizationsHistory).containsOnly(parentVo.getShortName());
 	}
 
 	@Test
@@ -3233,10 +3237,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		nameOfUser1.put("guestName", "Ing. Petr Draxler");
 		Member sponsoredMember1 = createSponsoredMember(sess, parentVo, "dummy", nameOfUser1, "secret", null, sponsorUser);
 
-		Attribute attribute = perun.getAttributesManager().getAttribute(sess, sponsoredMember1, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-		ArrayList<String> currentValue = attribute.valueAsList();
-
-		assertThat(currentValue).containsOnly(parentVo.getShortName());
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, sponsoredMember1, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations").valueAsList()).containsOnly(parentVo.getShortName());
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, sponsoredMember1, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizationsHistory").valueAsList()).containsOnly(parentVo.getShortName());
 	}
 
 	@Test

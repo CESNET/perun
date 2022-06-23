@@ -1,0 +1,158 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings FATAL => 'all';
+
+use DBI;
+use POSIX qw(:errno_h);
+use Getopt::Long qw(:config no_ignore_case);
+
+sub help {
+	return qq{
+        Migrates attribute rights objects to new structure of attribute policies grouped in collections.
+        Each attribute right is migrated as separate collection containing single policy.
+        Can be appended to existing policy collections or overwrite them (-o).
+        --------------------------------------
+        Available options:
+
+        --user      | -u Username for Oracle DB (required)
+        --password  | -w Password for Oracle DB (required)
+        --overwrite | -o Overwrite existing tables
+        };
+}
+
+my ($user, $pwd, $overwrite);
+
+GetOptions ("help|h" => sub { print help(); exit 0;},
+	"user|u=s" => \$user,
+	"password|w=s" => \$pwd,
+	"overwrite|o" => \$overwrite) || die help();
+
+if (!defined $user) { print "[ERROR] Username for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
+if (!defined $pwd) { print "[ERROR] Password for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
+
+my $dbh = DBI->connect('dbi:Pg:dbname=perun',$user,$pwd,{RaiseError=>1,AutoCommit=>0,pg_enable_utf8=>1}) or die EPERM," Connect";
+
+my $sthOldPolicies = $dbh->prepare(q{select r.name, t.action_type, a.attr_id, n.namespace from attributes_authz a, roles r,
+        action_types t, attr_names n where a.action_type_id=t.id and a.role_id=r.id and n.id=a.attr_id order by a.attr_id;});
+
+my $sthNewCollection = $dbh->prepare(q{insert into attribute_policy_collections (id, attr_id, action) values (?,?,?);});
+
+my $sthNewPolicy = $dbh->prepare(q{insert into attribute_policies (id, role_id, object, policy_collection_id) values (?,?,?,?);});
+
+my $sthUesAttributes = $dbh->prepare(q{select id from attr_names where namespace like 'urn:perun:ues:attribute-def:def%';});
+
+my $sthDelPolicies = $dbh->prepare(q{delete from attribute_policy_collections;});
+
+my $sthDelCollections = $dbh->prepare(q{delete from attribute_policies;});
+
+my $sthRoleNames = $dbh->prepare(q{select id, name from roles;});
+
+#-------------------------------------------------------------------------------------------------- execution
+
+my $nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+my $nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+
+ if ($overwrite) {
+ 	$sthDelPolicies->execute();
+ 	$sthDelCollections->execute();
+	$dbh->commit() or die $dbh->errstr;
+	print "INFO: Existing policy collections successfully removed.\n";
+ }
+
+my %roles; # {roleName : roleId}
+$sthRoleNames->execute();
+while (my @row = $sthRoleNames->fetchrow_array()) {
+	my ($roleId, $role) = @row;
+	$roles{$role}=$roleId;
+}
+
+#set (R+W=Self:User) policy to all UES attributes
+
+$sthUesAttributes->execute();
+my $selfRoleId = $roles{'self'};
+while (my @row = $sthUesAttributes->fetchrow_array()) {
+	my $uesAttributeId = $row[0];
+	$sthNewCollection->execute($nextCollectionId, $uesAttributeId, 'READ'); #(id, attr_id, action)
+	$sthNewPolicy->execute($nextPolicyId, $selfRoleId, 'User', $nextCollectionId); #(id, role_id, object, policy_collection_id)
+	$nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+	$nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+	$sthNewCollection->execute($nextCollectionId, $uesAttributeId, 'WRITE'); #(id, attr_id, action)
+	$sthNewPolicy->execute($nextPolicyId, $selfRoleId, 'User', $nextCollectionId); #(id, role_id, object, policy_collection_id)
+	$nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+	$nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+}
+$dbh->commit() or die $dbh->errstr;
+print "INFO: Successfully added R+W=Self:User policy to all UES attributes.\n";
+
+$sthOldPolicies->execute();
+while (my @row = $sthOldPolicies->fetchrow_array()) {
+	my ($role, $action, $attrId, $namespace) = @row;
+	my $attrType = (split ':', $namespace)[2];
+	my $newAction;
+	my $newRoleId;
+	my $newObject;
+
+	if ($attrType eq 'entityless') {
+		next;
+	} elsif ($role eq 'facilityadmin') {
+		$newRoleId = $roles{$role};
+		$newObject = 'Facility';
+		$newAction = $action eq 'write' ? 'WRITE' : 'READ';
+	} elsif ($role eq 'voadmin') {
+		$newRoleId = $roles{$role};
+		$newObject = 'Vo';
+		$newAction = $action eq 'write' ? 'WRITE' : 'READ';
+	} elsif ($role eq 'voobserver') {
+		next;
+	} elsif ($role eq 'groupadmin') {
+		$newRoleId = $roles{$role};
+		$newObject = ($attrType eq "user" || $attrType eq "member" || $attrType eq "vo" || $attrType eq "ues") ? "Vo" : "Group";
+		$newAction = $action eq 'write' ? 'WRITE' : 'READ';
+	} elsif ($role eq 'self' && ($action eq 'read_public' || $action eq 'write_public')) {
+		$newRoleId = $roles{$role};
+		$newObject = 'None';
+		$newAction = $action eq 'write_public' ? 'WRITE' : 'READ';
+	} elsif ($role eq 'self' && ($action eq 'read_vo' || $action eq 'write_vo')) {
+		$newRoleId = $roles{"membership"};
+		$newObject = ($attrType eq "user_facility") ? "Facility" : "Vo";
+		$newAction = $action eq 'write_vo' ? 'WRITE' : 'READ';
+	} elsif ($role eq 'self' && ($action eq 'read' || $action eq 'write')) {
+		$newAction = $action eq 'write' ? 'WRITE' : 'READ';
+
+		if ($attrType eq "member_resource" || $attrType eq "member" || $attrType eq "member_group"
+			|| $attrType eq "user_facility" || $attrType eq "user") {
+			$newRoleId = $roles{"self"};
+			$newObject = "User";
+		} elsif ($attrType eq "vo") {
+			$newRoleId = $roles{"self"};
+			$newObject = "None";
+		} elsif ($attrType eq "group") {
+			$newRoleId = $roles{"membership"};
+			$newObject = "Group";
+		} elsif ($attrType eq "facility") {
+			$newRoleId = $roles{"membership"};
+			$newObject = "Facility";
+		} elsif ($attrType eq "resource") {
+			$newRoleId = $roles{"membership"};
+			$newObject = "Resource";
+		} else {
+			print 'Undecidable attribute type: ' . $attrType . " on self:read privilege, attrId=" . $attrId . ". Skipping.\n";
+			next;
+		}
+	} else {
+		print 'Undecidable combination: ' . $role . ' - ' . $action . ", attrId=" . $attrId . ". Skipping.\n";
+		next;
+	}
+
+	$sthNewCollection->execute($nextCollectionId, $attrId, $newAction); #(id, attr_id, action)
+	$sthNewPolicy->execute($nextPolicyId, $newRoleId, $newObject, $nextCollectionId); #(id, role_id, object, policy_collection_id)
+
+	$nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+	$nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+}
+
+$dbh->commit() or die $dbh->errstr;
+
+print "INFO: Migration of attribute rights finished.\n";
+print "=============================================\n";
+$dbh->disconnect() or die $dbh->errstr;

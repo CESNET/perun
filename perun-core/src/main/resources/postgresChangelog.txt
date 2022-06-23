@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.94
+ALTER TABLE application_mail_texts ADD COLUMN htmlFormat boolean default false not null;
+UPDATE configurations SET value='3.1.94' WHERE property='DATABASE VERSION';
+ALTER TABLE application_mail_texts DROP constraint appmailtxt_pk;
+ALTER TABLE application_mail_texts ADD constraint appmailtxt_pk primary key (mail_id, locale, htmlFormat);
+
 3.1.93
 create table allowed_groups_to_hierarchical_vo (group_id integer not null, vo_id integer not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, created_by_uid integer, constraint alwd_grps_pk primary key (group_id, vo_id), constraint alwd_grps_gid_fk foreign key (group_id) references groups(id) on delete cascade, constraint alwd_grps_void_fk foreign key (vo_id) references vos(id));
 grant all on allowed_groups_to_hierarchical_vo to perun;

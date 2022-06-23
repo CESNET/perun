@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDoesntMatchRuntimeExc
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordOperationTimeoutRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,6 +54,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	protected static final String PASSWORD_CHECK = "check";
 	protected static final String PASSWORD_DELETE = "delete";
 	protected static final String LOGIN_EXIST = "exist";
+	protected static final String WEAKPASS = "weakpass";
 
 	protected static final String binTrue = "/bin/true";
 	protected String actualLoginNamespace = "generic";
@@ -160,6 +163,28 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 		if (StringUtils.isBlank(password)) {
 			log.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
+		}
+
+		String weakpassFilename = "";
+
+		try {
+			weakpassFilename = Utils.configurationsLocations + WEAKPASS + "_" + actualLoginNamespace + ".txt";
+			if (Utils.checkWordInSortedFile(weakpassFilename, password)) {
+				throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is listed as a weak password.");
+			}
+		} catch (FileNotFoundException e) {
+			weakpassFilename = Utils.configurationsLocations + WEAKPASS + ".txt";
+			try {
+				if (Utils.checkWordInSortedFile(weakpassFilename, password)) {
+					throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is listed as a weak password.");
+				}
+			} catch (FileNotFoundException ex) {
+				log.warn("No default weak passwords file found in " + Utils.configurationsLocations);
+			} catch (IOException ex) {
+				log.error("Error reading weak passwords file " + weakpassFilename + ":" + ex);
+			}
+		} catch (IOException e) {
+			log.error("Error reading weak passwords file " + weakpassFilename + ":" + e);
 		}
 
 		// TODO - some more generic checks ???

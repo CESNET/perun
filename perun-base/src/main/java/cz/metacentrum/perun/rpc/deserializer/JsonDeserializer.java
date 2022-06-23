@@ -102,7 +102,6 @@ public class JsonDeserializer extends Deserializer {
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 
 	static {
-
 		mixinMap.put(Attribute.class, AttributeMixIn.class);
 		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mixinMap.put(User.class, UserMixIn.class);

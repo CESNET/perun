@@ -70,5 +70,7 @@ public class MuadmPasswordManagerModule extends GenericPasswordManagerModule {
 			log.warn("Password for {}:{} is too weak. It has to contain character from at least 3 of these categories: lower-case letter, upper-case letter, digit, spec. character.", actualLoginNamespace, login);
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too weak. It has to contain character from at least 3 of these categories: lower-case letter, upper-case letter, digit, spec. character.");
 		}
+
+		super.checkPasswordStrength(sess, login, password);
 	}
 }

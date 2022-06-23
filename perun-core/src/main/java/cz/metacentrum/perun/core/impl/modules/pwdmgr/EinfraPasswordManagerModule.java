@@ -17,8 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -26,12 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -212,51 +208,12 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 
 	@Override
 	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) throws PasswordStrengthException {
-		checkPasswordStrength(sess, passwordId, password);
-
-		ProcessBuilder pb = new ProcessBuilder(altPasswordManagerProgram, PASSWORD_CREATE);
-		// pass variables as ENV
-		Map<String,String> env = pb.environment();
-		env.put("PMGR_PASSWORD_ID", passwordId);
-		env.put("PMGR_PASSWORD", password);
-		if (StringUtils.isNotBlank(user.getDisplayName())) env.put("PMGR_CN", user.getDisplayName());
-		if (StringUtils.isNotBlank(user.getFirstName())) env.put("PMGR_GIVEN_NAME", user.getFirstName());
-		if (StringUtils.isNotBlank(user.getLastName())) env.put("PMGR_SN", user.getLastName());
-		String mail = getMail(sess, user);
-		if (StringUtils.isNotBlank(mail)) env.put("PMGR_MAIL", mail);
-		String login = getEinfraLogin(sess, user);
-		if (StringUtils.isNotBlank(login)) env.put("PMGR_LOGIN", login);
-
-		Process process;
-		try {
-			process = pb.start();
-		} catch (IOException e) {
-			throw new InternalErrorException(e);
-		}
-
-		handleAltPwdManagerExit(process, new PasswordCreationFailedRuntimeException("Alternative password creation failed for " + user + ". Namespace: " + actualLoginNamespace + ", passwordId: " + passwordId + "."));
-
+		throw new InternalErrorException("Creating alternative password in login namespace 'einfra' is not supported.");
 	}
 
 	@Override
 	public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
-
-		ProcessBuilder pb = new ProcessBuilder(altPasswordManagerProgram, PASSWORD_DELETE);
-		// pass variables as ENV
-		Map<String,String> env = pb.environment();
-		env.put("PMGR_PASSWORD_ID", passwordId);
-		String login = getEinfraLogin(sess, user);
-		if (StringUtils.isNotBlank(login)) env.put("PMGR_LOGIN", login);
-
-		Process process;
-		try {
-			process = pb.start();
-		} catch (IOException e) {
-			throw new InternalErrorException(e);
-		}
-
-		handleAltPwdManagerExit(process, new PasswordDeletionFailedRuntimeException("Alternative password deletion failed for " + user + ". Namespace: " + actualLoginNamespace + ", passwordId: " + passwordId + "."));
-
+		throw new InternalErrorException("Deleting alternative password in login namespace 'einfra' is not supported.");
 	}
 
 	@Override
@@ -340,6 +297,8 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			log.warn("Password for {}:{} is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", actualLoginNamespace, login);
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
 		}
+
+		super.checkPasswordStrength(sess, login, password);
 
 	}
 

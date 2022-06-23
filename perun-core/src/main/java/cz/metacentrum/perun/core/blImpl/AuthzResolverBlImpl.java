@@ -2877,6 +2877,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Resource((sess, member, resource) -> {
 			return Collections.singleton(resource.getId());
 		}),
+		SecurityTeam((sess, member, resource) -> {
+			List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
+		}),
 		Default((sess, member, resource) -> {
 			return Collections.emptySet();
 		});
@@ -2942,6 +2949,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}),
 		Resource((sess, group, resource) -> {
 			return Collections.singleton(resource.getId());
+		}),
+		SecurityTeam((sess, group, resource) -> {
+			List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().
+				getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
 		}),
 		Default((sess, group, resource) -> {
 			return Collections.emptySet();
@@ -3017,6 +3031,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			resources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
 		}),
+		SecurityTeam((sess, user, facility) -> {
+			List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
+		}),
 		Default((sess, user, facility) -> {
 			return Collections.emptySet();
 		});
@@ -3082,6 +3102,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			Set<Integer> resourceIds = new HashSet<>();
 			resources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
+		}),
+		SecurityTeam((sess, member, group) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
+			List<SecurityTeam> securityTeams = new ArrayList<>();
+			resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource))));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
 		}),
 		Default((sess, member, group) -> {
 			return Collections.emptySet();
@@ -3150,6 +3179,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			userResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
 		}),
+		SecurityTeam((sess, user) -> {
+			List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
+			List<SecurityTeam> securityTeams = new ArrayList<>();
+			resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource))));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
+		}),
 		Default((sess, user) -> {
 			return Collections.emptySet();
 		});
@@ -3210,6 +3248,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			Set<Integer> resourceIds = new HashSet<>();
 			memberResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
+		}),
+		SecurityTeam((sess, member) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, member);
+			List<SecurityTeam> securityTeams = new ArrayList<>();
+			resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource))));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
 		}),
 		Default((sess, member) -> {
 			return Collections.emptySet();
@@ -3278,6 +3325,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			voResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
 		}),
+		SecurityTeam((sess, vo) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+			List<SecurityTeam> securityTeams = new ArrayList<>();
+			resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource))));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
+		}),
 		Default((sess, vo) -> {
 			return Collections.emptySet();
 		});
@@ -3342,6 +3398,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			groupResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
 		}),
+		SecurityTeam((sess, group) -> {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
+			List<SecurityTeam> securityTeams = new ArrayList<>();
+			resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource))));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
+		}),
 		Default((sess, group) -> {
 			return Collections.emptySet();
 		});
@@ -3402,6 +3467,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}),
 		Resource((sess, resource) -> {
 			return Collections.singleton(resource.getId());
+		}),
+		SecurityTeam((sess, resource) -> {
+			List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
 		}),
 		Default((sess, resource) -> {
 			return Collections.emptySet();
@@ -3471,6 +3543,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			Set<Integer> resourceIds = new HashSet<>();
 			facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
+		}),
+		SecurityTeam((sess, facility) -> {
+			List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
 		}),
 		Default((sess, facility) -> {
 			return Collections.emptySet();
@@ -3546,6 +3624,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			Set<Integer> resourceIds = new HashSet<>();
 			facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
+		}),
+		SecurityTeam((sess, host) -> {
+			List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl()
+				.getAssignedSecurityTeams(sess, getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
 		}),
 		Default((sess, host) -> {
 			return Collections.emptySet();
@@ -3656,7 +3741,23 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			userResources.forEach(resource -> resourceIds.add(resource.getId()));
 			return resourceIds;
 		}),
-		Default((sess, user) -> {
+		SecurityTeam((sess, ues) -> {
+			User user;
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
+			} catch (UserNotExistsException e) {
+				log.warn("User not exists for the userExtSource: " + ues);
+				return Collections.emptySet();
+			}
+			List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
+			List<SecurityTeam> securityTeams = new ArrayList<>();
+			resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl().
+				getAssignedSecurityTeams(sess, getPerunBl().getResourcesManagerBl().getFacility(sess, resource))));
+			Set<Integer> ids = new HashSet<>();
+			securityTeams.forEach(team -> ids.add(team.getId()));
+			return ids;
+		}),
+		Default((sess, ues) -> {
 			return Collections.emptySet();
 		});
 

@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
@@ -878,6 +879,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertThat(membersInParentVo.size()).isEqualTo(1);
 		assertThat(perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
 			.contains(memberVo.getShortName());
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY).valueAsList())
+			.contains(memberVo.getShortName());
 	}
 
 	@Test
@@ -898,6 +901,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertThat(membersInParentVo.size()).isEqualTo(1);
 		assertThat(perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
 			.contains(memberVo1.getShortName(), memberVo2.getShortName());
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY).valueAsList())
+			.contains(memberVo1.getShortName(), memberVo2.getShortName());
 	}
 
 	@Test
@@ -911,12 +916,18 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		vosManagerEntry.addMemberVo(sess, vo, memberVo);
 		Member memberInParent = perun.getMembersManagerBl().getMemberByUserId(sess, vo, member.getUserId());
 
+		List<String> expectedAttributeValue = new ArrayList<>(List.of(memberVo.getShortName()));
+
 		assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
-			.isEqualTo(new ArrayList<>(List.of(memberVo.getShortName())));
+			.isEqualTo(expectedAttributeValue);
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY).valueAsList())
+			.isEqualTo(expectedAttributeValue);
 
 		vosManagerEntry.removeMemberVo(sess, vo, memberVo);
 		assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList())
 			.isNullOrEmpty();
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY).valueAsList())
+			.isEqualTo(expectedAttributeValue);
 	}
 
 	@Test
@@ -971,6 +982,10 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		perun.getAttributesManagerBl().setAttribute(sess, memberWithExpiration, new Attribute(memberOrgsAttrDef, new ArrayList<>(List.of(vo.getShortName()))));
 		perun.getAttributesManagerBl().setAttribute(sess, memberWithoutExpiration, new Attribute(memberOrgsAttrDef, new ArrayList<>(List.of(vo.getShortName()))));
 
+		AttributeDefinition memberOrgsHistoryAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY);
+		perun.getAttributesManagerBl().setAttribute(sess, memberWithExpiration, new Attribute(memberOrgsHistoryAttrDef, new ArrayList<>(List.of(vo.getShortName()))));
+		perun.getAttributesManagerBl().setAttribute(sess, memberWithoutExpiration, new Attribute(memberOrgsHistoryAttrDef, new ArrayList<>(List.of(vo.getShortName()))));
+
 		assertEquals(perun.getAttributesManagerBl().getAttribute(sess, memberWithExpiration, membershipExpirationAttrName).getValue(), expirationValue);
 		assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithoutExpiration, membershipExpirationAttrName).getValue());
 
@@ -1020,6 +1035,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
 
 		assertThat(perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS).valueAsList()).containsOnly(vo.getShortName());
+		assertThat(perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY).valueAsList()).containsOnly(vo.getShortName());
 	}
 
 	// private methods ------------------------------------------------------------------

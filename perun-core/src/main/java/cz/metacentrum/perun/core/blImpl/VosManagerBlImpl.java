@@ -90,6 +90,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	private final static Logger log = LoggerFactory.getLogger(VosManagerBlImpl.class);
 	private final static Date FAR_FUTURE = new GregorianCalendar(2999, Calendar.JANUARY, 1).getTime();
 	public final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
+	public final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizationsHistory";
 
 	private final VosManagerImplApi vosManagerImpl;
 	private PerunBl perunBl;
@@ -953,14 +954,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 			throw new InternalErrorException(e);
 		}
 		// if VO just became a parent, assign memberOrganizations attribute to all its members
-		if (perunBl.getVosManagerBl().getMemberVos(sess, vo.getId()).size() == 1) {
+		if (perunBl.getVosManagerBl().getMemberVos(sess, vo.getId()).size() == 1 && !wasParentVoBefore(sess, vo)) {
 			List<Member> voMembers = perunBl.getMembersManagerBl().getMembers(sess, vo);
 			try {
-				Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
-				ArrayList<String> newValue = new ArrayList<>(List.of(vo.getShortName()));
-				attribute.setValue(newValue);
 				for (Member member : voMembers) {
-					perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
+					perunBl.getMembersManagerBl().setOrganizationsAttributes(sess, vo, member);
 				}
 			} catch (AttributeNotExistsException | WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException e) {
 				throw new InternalErrorException(e);
@@ -986,24 +984,16 @@ public class VosManagerBlImpl implements VosManagerBl {
 					if (existingMember.getStatus() != Status.VALID) {
 						perunBl.getMembersManagerBl().validateMember(sess, existingMember);
 					}
-					//update memberOrganizations
-					Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
-					ArrayList<String> currentValue = attribute.valueAsList();
-					currentValue = (currentValue == null) ? new ArrayList<>() : currentValue;
-					currentValue.add(memberVo.getShortName());
-					attribute.setValue(currentValue);
-					perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
+					//update memberOrganizations and memberOrganizationsHistory
+					perunBl.getMembersManagerBl().updateOrganizationsAttributes(sess, memberVo, existingMember);
 
 				} catch (MemberNotExistsException e) {
 					// if user is member only in member vo, create member in parent vo
 					Member newMember = perunBl.getMembersManagerBl().createMember(sess, vo, perunBl.getUsersManagerBl().getUserByMember(sess, member));
 					if (member.getStatus() == Status.VALID) {
-						// remove expiration set according to parentVo and update memberOrganizations
+						// remove expiration set according to parentVo and update memberOrganizations and memberOrganizationsHistory
 						perunBl.getAttributesManagerBl().removeAttribute(sess, newMember, memberExpirationAttrDef);
-						Attribute attribute = new Attribute(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS));
-						ArrayList<String> newValue = new ArrayList<>(List.of(memberVo.getShortName()));
-						attribute.setValue(newValue);
-						perunBl.getAttributesManagerBl().setAttribute(sess, newMember, attribute);
+						perunBl.getMembersManagerBl().setOrganizationsAttributes(sess, memberVo, newMember);
 					}
 					perunBl.getMembersManagerBl().validateMember(sess, newMember);
 				}
@@ -1013,6 +1003,25 @@ public class VosManagerBlImpl implements VosManagerBl {
 			} catch (ExtendMembershipException e) {
 				log.warn("Could not set expiration for member " + member + " after adding vo " + memberVo + " as member of vo " + vo + " for reason: " + e.getReason());
 			}
+		}
+	}
+
+	/**
+	 * Returns true if VO was ever a parent VO
+	 *
+	 * @param sess session
+	 * @param vo VO
+	 */
+	private boolean wasParentVoBefore(PerunSession sess, Vo vo) {
+		try {
+			List<Member> members = perunBl.getMembersManagerBl().getMembers(sess, vo);
+			if (members.size() != 0) {
+				Attribute history = perunBl.getAttributesManagerBl().getAttribute(sess, members.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY);
+				return history.valueAsList() != null;
+			}
+			return false;
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			throw new  InternalErrorException(e);
 		}
 	}
 
