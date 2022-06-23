@@ -965,6 +965,10 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	public List<Service> getAssignedServices(PerunSession sess, Facility facility) {
 		return servicesManagerImpl.getAssignedServices(sess, facility);
 	}
+	@Override
+	public List<Service> getAssignedServices(PerunSession sess, Facility facility, Vo vo) {
+		return servicesManagerImpl.getAssignedServices(sess, facility, vo);
+	}
 
 	public Destination createDestination(PerunSession sess, Destination destination) throws DestinationExistsException {
 		if(getServicesManagerImpl().destinationExists(sess, destination)) throw new DestinationExistsException(destination);
