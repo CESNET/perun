@@ -767,6 +767,14 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAssignedRichResources_Facility_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   createFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN:

@@ -10635,6 +10635,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAssignedRichResources/f-s:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedRichResourcesForFacilityAndService
+      summary: Returns all rich resources assigned to a facility and service with VO property filled.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/createFacility:
     post:
       tags:
