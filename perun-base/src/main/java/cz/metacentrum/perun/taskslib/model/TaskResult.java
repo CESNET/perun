@@ -165,6 +165,10 @@ public class TaskResult extends PerunBean implements Serializable {
 		return timestamp;
 	}
 
+	public Long getTimestampAsLong() {
+		return (timestamp == null) ? null : timestamp.getTime();
+	}
+
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}

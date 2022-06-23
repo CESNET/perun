@@ -8,7 +8,9 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
@@ -19,12 +21,14 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -140,11 +144,41 @@ public final class JsonSerializerJSONP implements Serializer {
 		LocalDateTime getEndTime();
 	}
 
+	@SuppressWarnings("unused")
+	private interface TaskResultMixIn {
+
+		@JsonSerialize
+		@JsonProperty(value = "timestamp")
+		Long getTimestampAsLong();
+
+		@JsonIgnore
+		Date getTimestamp();
+
+	}
+
+	@SuppressWarnings("unused")
+	private interface BanMixIn {
+
+		@JsonSerialize
+		@JsonProperty(value = "validityTo")
+		Long getValidityToAsLong();
+
+		@JsonIgnore
+		Date getValidityTo();
+
+	}
+
 	public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 
 	static {
+
+		JavaTimeModule module = new JavaTimeModule();
+		mapper.registerModule(module);
+		// make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
 		mixinMap.put(Attribute.class, AttributeMixIn.class);
 		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mixinMap.put(User.class, UserMixIn.class);
@@ -159,6 +193,8 @@ public final class JsonSerializerJSONP implements Serializer {
 		mixinMap.put(Publication.class, CabinetMixIn.class);
 		mixinMap.put(Thanks.class, CabinetMixIn.class);
 		mixinMap.put(Task.class, TaskMixIn.class);
+		mixinMap.put(TaskResult.class, TaskResultMixIn.class);
+		mixinMap.put(Ban.class, BanMixIn.class);
 
 		mapper.setMixIns(mixinMap);
 	}
