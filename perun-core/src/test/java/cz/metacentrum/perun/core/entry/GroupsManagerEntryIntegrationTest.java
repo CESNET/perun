@@ -587,29 +587,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getResourcesManager().assignGroupToResource(sess, g, r, false, false, false);
 		perun.getGroupsManager().addMember(sess, g, m);
 
-		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		attrDef.setFriendlyName("groupStatus");
-		attrDef.setDescription("groupStatus");
-		attrDef.setFriendlyName("groupStatus");
-		attrDef.setType(String.class.getName());
-		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-
-		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
+		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, g, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT + ":groupStatus");
 		assertTrue("Wrong member_group status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeSemantics(sess, m, g, withValue);
 
 		// expire him
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 
-		withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
+		withValue = perun.getAttributesManager().getAttribute(sess, m, g, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT + ":groupStatus");
 		assertTrue("Wrong member_group status for expired member", "EXPIRED".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeSemantics(sess, m, g, withValue);
 
 		// remove him (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g, m);
 
-		withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
+		withValue = perun.getAttributesManager().getAttribute(sess, m, g, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT + ":groupStatus");
 		assertTrue(withValue.getValue() == null);
 		perun.getAttributesManager().checkAttributeSemantics(sess, m, g, withValue);
 
@@ -6324,24 +6316,15 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		List<String> attributeNames = new ArrayList<>();
 		Map<UUID, List<Attribute>> memberGroupAttributes = new HashMap<>();
 
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		attr.setFriendlyName("groupStatus");
-		attr.setDisplayName("Group membership status");
-		attr.setType(String.class.getName());
-		attr.setDescription("Whether member is VALID or EXPIRED in a group.");
-
-		attributesManager.createAttribute(sess, attr);
-
-		attributeNames.add(new Attribute(attr).getName());
+		attributeNames.add(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT + ":groupStatus");
 		attributeNames.add(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +":groupMembershipExpiration");
 
 		memberGroupAttributes.put(group.getUuid(), new ArrayList<>());
-		memberGroupAttributes.get(group.getUuid()).add(attributesManager.getAttribute(sess, member, group, attr.getName()));
+		memberGroupAttributes.get(group.getUuid()).add(attributesManager.getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT + ":groupStatus"));
 		memberGroupAttributes.get(group.getUuid()).add(attributesManager.getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +":groupMembershipExpiration"));
 
 		memberGroupAttributes.put(group2.getUuid(), new ArrayList<>());
-		memberGroupAttributes.get(group2.getUuid()).add(attributesManager.getAttribute(sess, member, group2, attr.getName()));
+		memberGroupAttributes.get(group2.getUuid()).add(attributesManager.getAttribute(sess, member, group2, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT + ":groupStatus"));
 		memberGroupAttributes.get(group2.getUuid()).add(attributesManager.getAttribute(sess, member, group2, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +":groupMembershipExpiration"));
 
 		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "", member.getId());
