@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleObjectCombinationInvalidException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -4028,6 +4029,7 @@ public interface AttributesManager {
 	 * @param attributeId id of the attribute
 	 * @return all rights of the attribute
 	 */
+	@Deprecated
 	List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException;
 
 	/**
@@ -4041,6 +4043,7 @@ public interface AttributesManager {
 	 * @throws AttributeNotExistsException when attribute IDs in rights don't refer to existing attributes
 	 * @throws RoleNotSupportedException when some of the AttributeRights does have a role which does not exist
 	 */
+	@Deprecated
 	void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
 
 	/**
@@ -4051,8 +4054,9 @@ public interface AttributesManager {
 	 * @throws AttributeNotExistsException when there is no attribute definition with such id
 	 * @throws PrivilegeException insufficient permissions
 	 * @throws RoleNotSupportedException when some of the AttributePolicyCollection does have a role which does not exist
+	 * @throws RoleObjectCombinationInvalidException when the combination role + RoleObject of any included policy isn't valid
 	 */
-	void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
+	void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException, RoleObjectCombinationInvalidException;
 
 	/**
 	 * Gets attribute policy collections for an attribute definition with given id.

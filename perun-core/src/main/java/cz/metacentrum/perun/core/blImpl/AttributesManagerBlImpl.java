@@ -50,7 +50,9 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeUpdate
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.FacilityAllAttributesRemoved;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -69,6 +71,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -117,6 +120,7 @@ import cz.metacentrum.perun.utils.graphs.generators.ModuleDependencyNodeGenerato
 import cz.metacentrum.perun.utils.graphs.generators.NoDuplicatedEdgesGraphGenerator;
 import cz.metacentrum.perun.utils.graphs.generators.NodeGenerator;
 import cz.metacentrum.perun.utils.graphs.serializers.GraphSerializer;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +140,8 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cz.metacentrum.perun.core.api.AttributeAction.READ;
+import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_ENTITYLESS_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR;
@@ -1534,76 +1540,76 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			AttributeDefinition attrDef = iterator.next();
 
 			if (this.isFromNamespace(sess, attrDef, NS_USER_FACILITY_ATTR) && user != null && facility != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, user, facility)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user, facility)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, user, facility));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user, facility));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_RESOURCE_ATTR) && member != null && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, member, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, resource)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, member, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, resource));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_GROUP_ATTR) && member != null && group != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, member, group)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, group)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, member, group));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, group));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR) && group != null && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, group, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group, resource)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group, resource));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_USER_ATTR) && user != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, user)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, user));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_ATTR) && member != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, member)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, member));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_VO_ATTR) && vo != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, vo)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, vo)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, vo));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, vo));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_RESOURCE_ATTR) && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, resource)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, resource));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_GROUP_ATTR) && group != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, group)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, group));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_FACILITY_ATTR) && facility != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, facility)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, facility)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, facility));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, facility));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_HOST_ATTR) && host != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, host)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, host)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, host));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, host));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_UES_ATTR) && ues != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, ues)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, ues)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, ues));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, ues));
 				}
 			} else {
 				//if there is another namespace or if there are no entities (which are needed for the namespace) remove this attributeDefinition
@@ -2560,7 +2566,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//TODO
 
 		//Remove attribute and all it's values
-		this.deleteAllAttributeAuthz(sess, attribute);
 		getAttributesManagerImpl().deleteAttribute(sess, attribute);
 		getPerunBl().getAuditer().log(sess, new AttributeDeleted(attribute));
 
@@ -2672,6 +2677,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) {
 		getPerunBl().getAuditer().log(sess,new AttributeAuthzDeleted(attribute));
 		getAttributesManagerImpl().deleteAllAttributeAuthz(sess, attribute);
@@ -5274,6 +5280,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException {
 		getAttributesManagerImpl().checkActionTypeExists(sess, actionType);
 	}
@@ -6759,6 +6766,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	/**
+	 * Returns initial attribute rights as separate policy collections
+	 * @param policies list of pairs {Role, Action (READ/WRITE)}
+	 * @return list of policy collections
+	 */
+	private List<AttributePolicyCollection> createInitialPolicyCollections(List<Triple<String, AttributeAction, RoleObject>> policies) {
+		List<AttributePolicyCollection> policyCollections = new ArrayList<>();
+		int collectionId = 0;
+		for (Triple<String, AttributeAction, RoleObject> policy : policies) {
+			collectionId++;
+
+			AttributePolicy newPolicy = new AttributePolicy(-1, policy.getLeft(), policy.getRight(), collectionId);
+			// attributeId is set after definitions are created
+			policyCollections.add(new AttributePolicyCollection(collectionId, -1, policy.getMiddle(), List.of(newPolicy)));
+		}
+		return policyCollections;
+	}
+
 	protected void initialize() {
 		log.debug("AttributesManagerBlImpl initialize started.");
 
@@ -6768,7 +6793,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		PerunSession sess = perunBl.getPerunSession(pp, new PerunClient());
 
 		//Check if all core attributes exists, create if doesn't
-		Map<AttributeDefinition, List<AttributeRights>> attributes = new HashMap<>();
+		Map<AttributeDefinition, List<AttributePolicyCollection>> attributes = new HashMap<>();
 		//Facility.id
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
@@ -6776,12 +6801,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("id");
 		attr.setDisplayName("Facility id");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		List<AttributeRights> rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Facility.name
 		attr = new AttributeDefinition();
@@ -6790,12 +6816,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("name");
 		attr.setDisplayName("Facility name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Resource.id
 		attr = new AttributeDefinition();
@@ -6804,12 +6830,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("id");
 		attr.setDisplayName("Resource id");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Resource.name
 		attr = new AttributeDefinition();
@@ -6818,12 +6844,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("name");
 		attr.setDisplayName("Resource name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Resource.description
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
@@ -6831,12 +6857,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("description");
 		attr.setDisplayName("Resource description");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Member.id
 		attr = new AttributeDefinition();
@@ -6845,12 +6871,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("id");
 		attr.setDisplayName("Member id");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.id
 		attr = new AttributeDefinition();
@@ -6859,12 +6885,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("id");
 		attr.setDisplayName("User id");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.firstName
 		attr = new AttributeDefinition();
@@ -6873,12 +6899,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("firstName");
 		attr.setDisplayName("User first name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.lastName
 		attr = new AttributeDefinition();
@@ -6887,12 +6913,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("lastName");
 		attr.setDisplayName("User last name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.middleName
 		attr = new AttributeDefinition();
@@ -6901,12 +6927,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("middleName");
 		attr.setDisplayName("User middle name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.titleBefore
 		attr = new AttributeDefinition();
@@ -6915,12 +6941,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("titleBefore");
 		attr.setDisplayName("User title before");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.titleAfter
 		attr = new AttributeDefinition();
@@ -6929,12 +6955,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("titleAfter");
 		attr.setDisplayName("User title after");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.serviceUser
 		attr = new AttributeDefinition();
@@ -6943,8 +6969,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("serviceUser");
 		attr.setDisplayName("If user is service user or not.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//User.displayName
 		attr = new AttributeDefinition();
@@ -6954,12 +6980,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Display name");
 		attr.setDescription("Displayed user's name.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Group.id
 		attr = new AttributeDefinition();
@@ -6968,10 +6994,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("id");
 		attr.setDisplayName("Group id");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Group.name
 		attr = new AttributeDefinition();
@@ -6980,10 +7006,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("name");
 		attr.setDisplayName("Group full name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Group.trigger
 		//this is a group attribute which contains ids of the groups to which deleted members are added from the group with the attribute
@@ -6993,10 +7019,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("groupTrigger");
 		attr.setDisplayName("Group Trigger");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Group.description
 		attr = new AttributeDefinition();
@@ -7005,10 +7032,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("description");
 		attr.setDisplayName("Group description");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Group.parentGroupId
 		attr = new AttributeDefinition();
@@ -7017,8 +7044,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("parentGroupId");
 		attr.setDisplayName("Id of group's parent group.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Vo.id
 		attr = new AttributeDefinition();
@@ -7027,8 +7054,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("id");
 		attr.setDisplayName("Vo id");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Vo.name
 		attr = new AttributeDefinition();
@@ -7037,9 +7064,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("name");
 		attr.setDisplayName("Vo full name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Vo.createdAt
 		attr = new AttributeDefinition();
@@ -7048,8 +7075,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("createdAt");
 		attr.setDisplayName("Vo created date");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Vo.shortName
 		attr = new AttributeDefinition();
@@ -7058,9 +7085,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("shortName");
 		attr.setDisplayName("Vo short name");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Host.id
 		attr = new AttributeDefinition();
@@ -7069,9 +7096,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("id");
 		attr.setDisplayName("Host id");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//Host.hostname
 		attr = new AttributeDefinition();
@@ -7080,9 +7107,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("hostname");
 		attr.setDisplayName("Host hostname");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		// *** Def attributes
 
@@ -7094,11 +7121,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Organization");
 		attr.setDescription("Organization, from which user comes from. Provided by IDP.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:preferredMail
 		attr = new AttributeDefinition();
@@ -7108,12 +7135,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Preferred mail");
 		attr.setDescription("E-mail address preferred for communication.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:phone
 		attr = new AttributeDefinition();
@@ -7123,11 +7150,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Phone");
 		attr.setDescription("Phone number in organization. Provided by IDP.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:workplace
 		attr = new AttributeDefinition();
@@ -7137,12 +7165,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Workplace");
 		attr.setDescription("Workplace in organization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:note
 		attr = new AttributeDefinition();
@@ -7152,10 +7181,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Note");
 		attr.setDescription("Contains special information about the user. It is used to be displayed in GUI");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ_PUBLIC)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.None));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:address
 		attr = new AttributeDefinition();
@@ -7165,11 +7195,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Address");
 		attr.setDescription("Address in organization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:preferredLanguage
 		attr = new AttributeDefinition();
@@ -7179,11 +7210,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Preferred language");
 		attr.setDescription("Language preferred in communication (notifications).");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:opt:researchGroup
 		attr = new AttributeDefinition();
@@ -7193,12 +7225,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Research group");
 		attr.setDescription("Name of the research group where the user works.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:member:attribute-def:def:mail
 		attr = new AttributeDefinition();
@@ -7208,12 +7241,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Mail");
 		attr.setDescription("E-mail address in organization (VO wide).");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:member:attribute-def:def:organization
 		attr = new AttributeDefinition();
@@ -7223,22 +7258,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Organization (for VO)");
 		attr.setDescription("Organization, from which user comes from (VO wide).");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_member_attribute_def_def_suspensionInfo
 		attr = (new urn_perun_member_attribute_def_def_suspensionInfo()).getAttributeDefinition();
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:member:attribute-def:def:membershipExpiration
 		attr = new AttributeDefinition();
@@ -7248,12 +7285,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Membership expiration");
 		attr.setDescription("Date of VO membership expiration.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:member:attribute-def:def:sponzoredMember
 		attr = new AttributeDefinition();
@@ -7263,12 +7301,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Sponzored member");
 		attr.setDescription("A note, which describes why the membership is sponzored.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:memberOrganizations
 		attr = new AttributeDefinition();
@@ -7278,10 +7317,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Member organizations");
 		attr.setDescription("Short names of member organizations from where member comes.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:memberOrganizationsHistory
 		attr = new AttributeDefinition();
@@ -7291,10 +7330,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Member organizations history");
 		attr.setDescription("The history of member organizations from where member comes.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:membershipExpirationRules
 		attr = new AttributeDefinition();
@@ -7304,9 +7343,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Set of rules to determine date of membership expiration. If not set, membership is not limited.");
 		attr.setType(LinkedHashMap.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupMembershipExpirationRules
 		attr = new AttributeDefinition();
@@ -7316,10 +7356,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Set of rules to determine date of group membership expiration. If not set, membership is not limited.");
 		attr.setType(LinkedHashMap.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:applicationExpirationRules
 		attr = new AttributeDefinition();
@@ -7329,9 +7371,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Set of rules to determine date of application (to vo) expiration. If not set, application will not be auto rejected.");
 		attr.setType(LinkedHashMap.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:applicationExpirationRules
 		attr = new AttributeDefinition();
@@ -7341,10 +7384,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Set of rules to determine date of application (to group) expiration. If not set, application will not be auto rejected.");
 		attr.setType(LinkedHashMap.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:member:group:attribute-def:def:groupMembershipExpiration
 		attr = new AttributeDefinition();
@@ -7354,10 +7399,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
 		attr.setType(String.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:blockManualMemberAdding
 		attr = new AttributeDefinition();
@@ -7367,10 +7414,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Block manual addition of Vo members. Users are expected to go through registration.");
 		attr.setType(Boolean.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:blockManualMemberAdding
 		attr = new AttributeDefinition();
@@ -7380,10 +7428,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Block manual addition of group members. Users are expected to go through registration.");
 		attr.setType(Boolean.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupExtSource
 		attr = new AttributeDefinition();
@@ -7393,10 +7443,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group extSource");
 		attr.setDescription("External source from which group comes from. Used for groups synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupMembersExtSource
 		attr = new AttributeDefinition();
@@ -7406,10 +7457,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group members extSource");
 		attr.setDescription("External source from which group members comes from. Used for group synchronization. If not set, members are loaded from the same external source as group itself.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupMembersQuery
 		attr = new AttributeDefinition();
@@ -7419,10 +7471,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group members query");
 		attr.setDescription("Query (SQL) on external source which retrieves list of it's members.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:synchronizationEnabled
 		attr = new AttributeDefinition();
@@ -7432,10 +7484,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group synchronization enabled");
 		attr.setDescription("Enables group synchronization from external source.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:synchronizationInterval
 		attr = new AttributeDefinition();
@@ -7445,10 +7498,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Synchronization interval");
 		attr.setDescription("Time between two successful synchronizations.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:lastSynchronizationState
 		attr = new AttributeDefinition();
@@ -7458,10 +7512,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Last synchronization state");
 		attr.setDescription("If group is synchronized, there will be information about state of last synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:lastSynchronizationTimestamp
 		attr = new AttributeDefinition();
@@ -7471,10 +7525,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Last Synchronization timestamp");
 		attr.setDescription("If group is synchronized, there will be the last timestamp of group synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:lightweightSynchronization
 		attr = new AttributeDefinition();
@@ -7484,10 +7538,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Lightweight Synchronization");
 		attr.setDescription("If true, then do not update actual members.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp
 		attr = new AttributeDefinition();
@@ -7497,10 +7552,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Last successful synchronization timestamp");
 		attr.setDescription("If group is synchronized, there will be timestamp of last successful synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization
 		attr = new AttributeDefinition();
@@ -7510,10 +7565,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Start of last successful synchronization");
 		attr.setDescription("If group is synchronized, start time of last successful synchronization will be set.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:startOfLastSynchronization
 		attr = new AttributeDefinition();
@@ -7523,10 +7578,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Start of last synchronization");
 		attr.setDescription("If group started synchronization, start time of last synchronization will be set.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupStructureSynchronizationEnabled
 		attr = new AttributeDefinition();
@@ -7536,10 +7591,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group structure synchronization enabled");
 		attr.setDescription("Enables group structure synchronization from external source.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupStructuresynchronizationInterval
 		attr = new AttributeDefinition();
@@ -7549,10 +7605,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group structure synchronization interval");
 		attr.setDescription("Time between two successful group structure synchronizations.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:lastGroupStructureSynchronizationState
 		attr = new AttributeDefinition();
@@ -7562,10 +7619,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Last group structure synchronization state");
 		attr.setDescription("If group structure is synchronized, there will be information about state of last synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:lastGroupStructureSynchronizationTimestamp
 		attr = new AttributeDefinition();
@@ -7575,10 +7632,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Last group structure Synchronization timestamp");
 		attr.setDescription("If group structure is synchronized, there will be the last timestamp of group synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:flatGroupStructureEnabled
 		attr = new AttributeDefinition();
@@ -7588,10 +7645,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Flat group structure enabled");
 		attr.setDescription("If true, then every synchronized group will be right under base group.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:lastSuccessGroupStructureSynchronizationTimestamp
 		attr = new AttributeDefinition();
@@ -7601,10 +7659,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Last successful group structure synchronization timestamp");
 		attr.setDescription("If group structure is synchronized, there will be timestamp of last successful synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupSynchronizationTimes
 		attr = new AttributeDefinition();
@@ -7614,10 +7672,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group synchronization times");
 		attr.setDescription("List of time values for group synchronization in format HH:MM rounded to 5 minute. For example 08:50 or 20:55");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupStructureSynchronizationTimes
 		attr = new AttributeDefinition();
@@ -7627,10 +7685,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group structure synchronization times");
 		attr.setDescription("List of time values for group structure synchronization in format HH:MM rounded to 5 minute. For example 08:50 or 20:55");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupStructureLogin
 		attr = new AttributeDefinition();
@@ -7640,10 +7698,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group structure login");
 		attr.setDescription("Name of attribute in perun used for identifying groups in a structure");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupStructureLoginPrefix
 		attr = new AttributeDefinition();
@@ -7653,10 +7711,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group structure login prefix");
 		attr.setDescription("Prefix which will be used to set groups login as 'prefix'+'login'.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupsQuery
 		attr = new AttributeDefinition();
@@ -7666,10 +7724,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Groups query");
 		attr.setDescription("Query (SQL) on external source which retrieves list of it's groups.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:authoritativeGroup
 		attr = new AttributeDefinition();
@@ -7679,26 +7737,30 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Authoritative Group");
 		attr.setDescription("If group is authoritative for member. (for synchronization)");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupStructureResources
 		attr = new urn_perun_group_attribute_def_def_groupStructureResources().getAttributeDefinition();
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:applicationAutoRejectMessages
 		attr = new urn_perun_group_attribute_def_def_applicationAutoRejectMessages().getAttributeDefinition();
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:facility:attribute-def:def:login-namespace
 		attr = new AttributeDefinition();
@@ -7708,12 +7770,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Login namespace");
 		attr.setDescription("Define namespace for all user's logins on Facility.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:resource:attribute-def:def:userSettingsName
 		attr = new AttributeDefinition();
@@ -7723,12 +7786,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("User settings name");
 		attr.setDescription("Name displayed in user profile resource settings. To display certain resource in user profile settings this attribute value needs to be set.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:resource:attribute-def:def:userSettingsDescription
 		attr = new AttributeDefinition();
@@ -7738,12 +7802,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("User settings description");
 		attr.setDescription("Description displayed in user profile resource settings.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:aupLink
 		attr = new AttributeDefinition();
@@ -7753,19 +7818,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Link to AUP");
 		attr.setDescription("Link to AUP of a virtual organization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.None));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:applicationAutoRejectMessages
 		attr = new urn_perun_vo_attribute_def_def_applicationAutoRejectMessages().getAttributeDefinition();
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user_facility:attribute-def:virt:login
 		attr = new AttributeDefinition();
@@ -7775,12 +7842,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Login");
 		attr.setDescription("User's logname at facility. Value is determined automatically from all user's logins by Facility's namespace.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:virt:groupNames
 		attr = new AttributeDefinition();
@@ -7790,9 +7857,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Group names");
 		attr.setDescription("Names of groups where user is member");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:virt:autoRegistrationEnabled
 		attr = new AttributeDefinition();
@@ -7802,38 +7869,34 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Automatic registration enabled");
 		attr.setDescription("If true, group can be selected for automatic registration.");
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_facility_attribute_def_virt_GIDRanges
 		attr = new AttributeDefinition( (new urn_perun_facility_attribute_def_virt_GIDRanges()).getAttributeDefinition() );
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:member:attribute-def:virt:isLifecycleAlterable
 		attr = new AttributeDefinition( (new urn_perun_member_attribute_def_virt_isLifecycleAlterable()).getAttributeDefinition() );
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_entityless_attribute_def_def_namespace_GIDRanges
 		attr = new AttributeDefinition( (new urn_perun_entityless_attribute_def_def_namespace_GIDRanges()).getAttributeDefinition() );
 		//set attribute rights (with dummy id of attribute - not known yet)
-		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_ues_attribute_def_def_sourceIdPName
 		attr = new AttributeDefinition();
@@ -7843,8 +7906,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("sourceIdPName");
 		attr.setDescription("sourceIdPName");
 
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_ues_attribute_def_def_IdPOrganizationName
 		attr = new AttributeDefinition();
@@ -7854,8 +7919,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("IdPOrganizationName");
 		attr.setDescription("IdPOrganizationName");
 
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_entityless_attribute_def_def_randomPwdResetTemplate
 		attr = new AttributeDefinition();
@@ -7866,14 +7933,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Random password reset templates. Each value should be String representing an HTML page." +
 				" Keywords {password} and {login} will be replaced.");
 
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:entityless:attribute-def:def:identityAlerts
 		attr = new urn_perun_entityless_attribute_def_def_identityAlertsTemplates().getAttributeDefinition();
 
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
@@ -7882,8 +7949,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("PreferredMail change mail subject");
 		attr.setDescription("Subject of the preferred mail change notification. Keyword {instanceName} will be replaced.");
 
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
@@ -7892,8 +7959,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("PreferredMail change mail template");
 		attr.setDescription("Template of the preferred mail change notification. Keyword {link} will be replaced with the link to verify new mail address.");
 
-		rights = new ArrayList<>();
-		attributes.put(attr, rights);
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		// create namespaced attributes for each namespace
 		for (String namespace : BeansUtils.getCoreConfig().getAutocreatedNamespaces()) {
@@ -7909,12 +7976,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDisplayName("Login in namespace: "+namespace);
 			attr.setDescription("Logname in namespace '"+namespace+"'.");
 
-			rights = new ArrayList<>();
-			rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
-			rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
-			rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
-			rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
-			attributes.put(attr, rights);
+			policies = new ArrayList<>();
+			policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+			attributes.put(attr, createInitialPolicyCollections(policies));
 
 			// pwd-reset templates
 
@@ -7925,8 +7992,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDisplayName("Non-Authz Pwd Reset Confirmation Mail Subject");
 			attr.setDescription("Template of PWD reset confirmation mails subject.");
 
-			rights = new ArrayList<>();
-			attributes.put(attr, rights);
+			policies = new ArrayList<>();
+			attributes.put(attr, createInitialPolicyCollections(policies));
 
 			attr = new AttributeDefinition();
 			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
@@ -7935,8 +8002,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDisplayName("Non-Authz Pwd Reset Confirmation Mail Template");
 			attr.setDescription("Template of confirmation message in password reset notification.");
 
-			rights = new ArrayList<>();
-			attributes.put(attr, rights);
+			policies = new ArrayList<>();
+			attributes.put(attr, createInitialPolicyCollections(policies));
 
 			attr = new AttributeDefinition();
 			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
@@ -7945,8 +8012,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDisplayName("Non-Authz Pwd Reset Mail Subject");
 			attr.setDescription("Non authz password reset mail subject for "+namespace+".");
 
-			rights = new ArrayList<>();
-			attributes.put(attr, rights);
+			policies = new ArrayList<>();
+			attributes.put(attr, createInitialPolicyCollections(policies));
 
 			attr = new AttributeDefinition();
 			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
@@ -7955,8 +8022,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDisplayName("Non-Authz Pwd Reset Mail Template");
 			attr.setDescription("Non authz password reset mail template for "+namespace+".");
 
-			rights = new ArrayList<>();
-			attributes.put(attr, rights);
+			policies = new ArrayList<>();
+			attributes.put(attr, createInitialPolicyCollections(policies));
 
 			attr = new AttributeDefinition();
 			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
@@ -7965,8 +8032,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDisplayName("Non-Authz Acc Activation Mail Subject");
 			attr.setDescription("Non authz account activation mail subject for "+namespace+".");
 
-			rights = new ArrayList<>();
-			attributes.put(attr, rights);
+			policies = new ArrayList<>();
+			attributes.put(attr, createInitialPolicyCollections(policies));
 
 			attr = new AttributeDefinition();
 			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
@@ -7975,15 +8042,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDisplayName("Non-Authz Acc Activation Mail Template");
 			attr.setDescription("Non authz account activation mail template for "+namespace+".");
 
-			rights = new ArrayList<>();
-			attributes.put(attr, rights);
+			policies = new ArrayList<>();
+			attributes.put(attr, createInitialPolicyCollections(policies));
 		}
 
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
 
-		for (Map.Entry<AttributeDefinition, List<AttributeRights>> entry : attributes.entrySet()) {
+		for (Map.Entry<AttributeDefinition, List<AttributePolicyCollection>> entry : attributes.entrySet()) {
 			AttributeDefinition attribute = entry.getKey();
-			List<AttributeRights> listOfRights = entry.getValue();
+			List<AttributePolicyCollection> policyCollections = entry.getValue();
 			try {
 				// If attribute definition is not found, catch exception and create this attribute definition
 				getAttributeDefinition(sess, attribute.getName());
@@ -7998,10 +8065,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						throw new InternalErrorException("Attribute " + attribute + " already exists in Perun when attributeInitializer tried to create it.");
 					}
 					//set correct id of attribute to rights
-					for (AttributeRights listOfRight : listOfRights) {
-						listOfRight.setAttributeId(attribute.getId());
+					for (AttributePolicyCollection policyCollection : policyCollections) {
+						policyCollection.setAttributeId(attribute.getId());
 					}
-					setAttributeRights(sess, listOfRights);
+					if (!policyCollections.isEmpty()) {
+						setAttributePolicyCollections(sess, policyCollections);
+					}
 				}
 			}
 		}
@@ -8283,6 +8352,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) {
 		List<AttributeRights> listOfAr = getAttributesManagerImpl().getAttributeRights(sess, attributeId);
 
@@ -8295,6 +8365,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public void setAttributeRights(PerunSession sess, List<AttributeRights> rights) {
 		for (AttributeRights right : rights) {
 			getAttributesManagerImpl().setAttributeRight(sess, right);

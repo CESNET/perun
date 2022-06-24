@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
@@ -184,7 +184,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Iterator<Facility> it = facilities.iterator();
 		while (it.hasNext()) {
 			Facility facility = it.next();
-			if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attributeDef, facility)) {
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attributeDef, facility)) {
 				it.remove();
 			}
 		}
@@ -615,7 +615,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		//Filtering attributes
 		for (String attrName : attrNames) {
-			if (AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
+			if (AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
 				allowedAttributes.add(attrName);
 			}
 		}

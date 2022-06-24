@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+@Deprecated
 public enum ActionType {
 
 	WRITE ("write"),

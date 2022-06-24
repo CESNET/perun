@@ -220,6 +220,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement());
 	}
 
+	@Deprecated
 	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) {
 		String actType = actionType.getActionType().toLowerCase() + "%";
 		try {

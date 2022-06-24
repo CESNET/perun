@@ -6889,6 +6889,7 @@ perun_roles_management:
       - PERUNOBSERVER:
     associated_read_roles:
       - PERUNOBSERVER
+    assignable_to_attributes: false
 
   PERUNOBSERVER:
     primary_object:
@@ -6901,6 +6902,7 @@ perun_roles_management:
       - PERUNADMIN:
       - PERUNOBSERVER:
     associated_read_roles: []
+    assignable_to_attributes: false
 
   AUDITCONSUMERADMIN:
     primary_object:
@@ -6913,6 +6915,7 @@ perun_roles_management:
       - PERUNADMIN:
       - PERUNOBSERVER:
     associated_read_roles: []
+    assignable_to_attributes: true
 
   VOADMIN:
     primary_object: Vo
@@ -6931,6 +6934,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles:
       - VOOBSERVER
+    assignable_to_attributes: true
 
   GROUPADMIN:
     primary_object: Group
@@ -6953,6 +6957,7 @@ perun_roles_management:
       - GROUPOBSERVER: Group
     associated_read_roles:
       - GROUPOBSERVER
+    assignable_to_attributes: true
 
   GROUPOBSERVER:
     primary_object: Group
@@ -6974,14 +6979,17 @@ perun_roles_management:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
     associated_read_roles: []
+    assignable_to_attributes: true
 
   SELF:
     primary_object:
-    assign_to_objects: {}
+    assign_to_objects:
+      User: user_id
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: true
 
   FACILITYADMIN:
     primary_object: Facility
@@ -7000,6 +7008,7 @@ perun_roles_management:
       - FACILITYOBSERVER: Facility
     associated_read_roles:
       - FACILITYOBSERVER
+    assignable_to_attributes: true
 
   FACILITYOBSERVER:
     primary_object: Facility
@@ -7017,6 +7026,7 @@ perun_roles_management:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
     associated_read_roles: []
+    assignable_to_attributes: true
 
   TRUSTEDFACILITYADMIN:
     primary_object: Vo
@@ -7034,6 +7044,7 @@ perun_roles_management:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
     associated_read_roles: []
+    assignable_to_attributes: true
 
   RESOURCEADMIN:
     primary_object: Resource
@@ -7063,6 +7074,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles:
       - RESOURCEOBSERVER
+    assignable_to_attributes: true
 
   RESOURCEOBSERVER:
     primary_object: Resource
@@ -7091,6 +7103,7 @@ perun_roles_management:
         FACILITYOBSERVER: Facility
       - VOOBSERVER: Vo
     associated_read_roles: []
+    assignable_to_attributes: true
 
   RESOURCESELFSERVICE:
     primary_object: Resource
@@ -7119,6 +7132,7 @@ perun_roles_management:
         FACILITYOBSERVER: Facility
       - VOOBSERVER: Vo
     associated_read_roles: []
+    assignable_to_attributes: true
 
   REGISTRAR:
     primary_object:
@@ -7127,6 +7141,7 @@ perun_roles_management:
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: false
 
   ENGINE:
     primary_object:
@@ -7135,6 +7150,7 @@ perun_roles_management:
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: false
 
   RPC:
     primary_object:
@@ -7143,6 +7159,7 @@ perun_roles_management:
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: false
 
   NOTIFICATIONS:
     primary_object:
@@ -7151,6 +7168,7 @@ perun_roles_management:
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: false
 
   SERVICEUSER:
     primary_object:
@@ -7159,6 +7177,7 @@ perun_roles_management:
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: false
 
   SPONSOR:
     primary_object: Vo
@@ -7176,6 +7195,7 @@ perun_roles_management:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
     associated_read_roles: []
+    assignable_to_attributes: true
 
   VOOBSERVER:
     primary_object: Vo
@@ -7193,6 +7213,7 @@ perun_roles_management:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
     associated_read_roles: []
+    assignable_to_attributes: true
 
   TOPGROUPCREATOR:
     primary_object: Vo
@@ -7210,6 +7231,7 @@ perun_roles_management:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
     associated_read_roles: []
+    assignable_to_attributes: true
 
   SECURITYADMIN:
     primary_object: SecurityTeam
@@ -7241,6 +7263,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - CABINETADMIN:
     associated_read_roles: []
+    assignable_to_attributes: true
 
   MEMBERSHIP:
     primary_object:
@@ -7248,10 +7271,12 @@ perun_roles_management:
       Group: group_id
       Vo: vo_id
       Facility: facility_id
+      Resource: resource_id
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: true
 
   SPONSORSHIP:
     primary_object:
@@ -7270,5 +7295,6 @@ perun_roles_management:
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
+    assignable_to_attributes: false
 
 ...

@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -931,6 +932,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	@Deprecated
+	@Ignore
 	public void isAuthorizedForAttributePublicReadVoFromUserAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "isAuthorizedForAttributePublicReadVoFromUserAttribute");
 
@@ -970,6 +973,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	@Deprecated
+	@Ignore
 	public void isAuthorizedForAttributeValidSelfReadVoFromUserAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "isAuthorizedForAttributeValidSelfReadVoFromUserAttribute");
 
@@ -1008,6 +1013,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	@Deprecated
+	@Ignore
 	public void isAuthorizedForAttributeInvalidSelfReadVoFromUserAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "isAuthorizedForAttributeInvalidSelfReadVoFromUserAttribute");
 

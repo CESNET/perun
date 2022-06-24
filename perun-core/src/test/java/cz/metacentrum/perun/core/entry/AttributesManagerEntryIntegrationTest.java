@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.RoleObjectCombinationInvalidException;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import org.junit.Before;
@@ -79,6 +80,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -9778,6 +9780,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	@Deprecated
+	@Ignore
 	public void getAttributeRights() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributeRights");
 
@@ -9806,6 +9810,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	@Deprecated
+	@Ignore
 	public void setAttributeRights() throws Exception {
 		System.out.println(CLASS_NAME + "setAttributeRights");
 		List<ActionType> listOfActions = new ArrayList<>();
@@ -9849,7 +9855,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		List<AttributePolicy> policies = new ArrayList<>();
 
 		policies.add(new AttributePolicy(123, Role.GROUPADMIN, RoleObject.Group, 1));
-		policies.add(new AttributePolicy(789, Role.PERUNOBSERVER, RoleObject.None, 1));
+		policies.add(new AttributePolicy(789, Role.CABINETADMIN, RoleObject.None, 1));
 		policyCollections.add(new AttributePolicyCollection(42, groupAttribute1.getId(), AttributeAction.READ, new ArrayList<>(policies)));
 
 		policies.clear();
@@ -9876,7 +9882,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 					if (ap.getRole().equals(Role.GROUPADMIN)) {
 						assertEquals(RoleObject.Group, ap.getObject());
 					} else {
-						assertEquals(Role.PERUNOBSERVER, ap.getRole());
+						assertEquals(Role.CABINETADMIN, ap.getRole());
 						assertEquals(RoleObject.None, ap.getObject());
 					}
 				} else {
@@ -9898,7 +9904,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		List<AttributePolicy> policies = new ArrayList<>();
 
 		policies.add(new AttributePolicy(42, Role.VOADMIN, RoleObject.Vo, 1));
-		policies.add(new AttributePolicy(43, Role.PERUNOBSERVER, RoleObject.None, 1));
+		policies.add(new AttributePolicy(43, Role.CABINETADMIN, RoleObject.None, 1));
 		policyCollections.add(new AttributePolicyCollection(100, userAttribute1.getId(), AttributeAction.READ, new ArrayList<>(policies)));
 
 		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
@@ -9920,6 +9926,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertEquals(insertedPolicies.get(1).getPolicyCollectionId(), insertedCollections.get(0).getId());
 		assertEquals(insertedPolicies.get(1).getObject(), policyCollections.get(0).getPolicies().get(1).getObject());
 		assertEquals(insertedPolicies.get(1).getRole(), policyCollections.get(0).getPolicies().get(1).getRole());
+	}
+
+	@Test
+	public void setAttributePolicyCollectionsInvalidRoleObjectComb() throws Exception {
+		System.out.println(CLASS_NAME + "setAttributePolicyCollectionsInvalidRoleObjectComb");
+
+		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+
+		List<AttributePolicyCollection> policyCollections = new ArrayList<>();
+
+		// VOADMIN shouldn't be able to be assigned to Facility
+		List<AttributePolicy> policies = List.of(new AttributePolicy(42, Role.VOADMIN, RoleObject.Facility, 1));
+		policyCollections.add(new AttributePolicyCollection(100, userAttribute1.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+		assertThrows("Should throw exception when Role assigned to wrong object", RoleObjectCombinationInvalidException.class, () -> perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections));
+
+		// PERUNADMIN shouldn't be able to be assigned at all since it has all rights by default.
+		policies = List.of(new AttributePolicy(42, Role.PERUNADMIN, RoleObject.None, 1));
+		policyCollections.set(0, new AttributePolicyCollection(100, userAttribute1.getId(), AttributeAction.WRITE, new ArrayList<>(policies)));
+		assertThrows("Should throw exception when default write role assigned", RoleObjectCombinationInvalidException.class, () -> perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections));
+
+		// PERUNOBSERVER shouldn't be able to be assigned in READ policies since it has all read rights by default.
+		policies = List.of(new AttributePolicy(42, Role.PERUNOBSERVER, RoleObject.None, 1));
+		policyCollections.set(0, new AttributePolicyCollection(100, userAttribute1.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+		assertThrows("Should throw exception when default read role assigned", RoleObjectCombinationInvalidException.class, () -> perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections));
+
+		// NOTIFICATIONS shouldn't be able to be assigned to attributes at all.
+		policies = List.of(new AttributePolicy(42, Role.NOTIFICATIONS, RoleObject.Facility, 1));
+		policyCollections.set(0, new AttributePolicyCollection(100, userAttribute1.getId(), AttributeAction.READ, new ArrayList<>(policies)));
+		assertThrows("Should throw exception when invalid role assigned", RoleObjectCombinationInvalidException.class, () -> perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections));
+
 	}
 
 

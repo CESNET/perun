@@ -98,6 +98,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 	private final static String groupObjectType = "Group";
 	private final static String userObjectType = "User";
+	private final static List<String> authorizedDefaultReadRoles = List.of(Role.PERUNADMIN, Role.PERUNOBSERVER, Role.RPC, Role.ENGINE);
+	private final static List<String> authorizedDefaultWriteRoles = List.of(Role.PERUNADMIN);
 
 	/**
 	 * Prepare necessary structures and resolve access rights for the session's principal.
@@ -319,6 +321,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 	}
 
+	@Deprecated
 	private static Boolean doBeforeAttributeRightsCheck(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(actionType, "ActionType");
@@ -364,8 +367,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		List<Attribute> allowedAttributes = new ArrayList<>();
 		for(Attribute attribute: attributes) {
 			try {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, bean)) {
-					attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, bean));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, bean)) {
+					attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, bean));
 					allowedAttributes.add(attribute);
 				}
 			} catch (InternalErrorException e) {
@@ -375,6 +378,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return allowedAttributes;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) throws WrongAttributeAssignmentException {
 
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
@@ -429,6 +433,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group, Resource resource) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, resource);
@@ -463,6 +468,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user, Facility facility) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, facility);
@@ -539,6 +545,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Group group) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, group);
@@ -584,6 +591,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, null);
@@ -645,6 +653,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, null);
@@ -692,6 +701,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Vo vo) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, vo, null);
@@ -753,6 +763,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, null);
@@ -808,6 +819,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, null);
@@ -864,6 +876,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Facility facility) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, facility, null);
@@ -924,6 +937,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Host host) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, host, null);
@@ -951,6 +965,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, UserExtSource ues) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, ues, null);
@@ -998,6 +1013,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	@Deprecated
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
@@ -1480,11 +1496,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Utils.notNull(attrDef, "AttributeDefinition");
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 
-		// We need to load additional information about the principal
-		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
-			refreshAuthz(sess);
-		}
-
 		return perunBl.getAttributesManagerBl().getAttributePolicyCollections(sess, attrDef.getId()).stream()
 			.filter(c -> c.getAction().equals(actionType)).toList();
 	}
@@ -1580,8 +1591,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return true if principal is authorized by default for given action type
 	 */
 	private static boolean hasAccessByDefault(PerunSession sess, AttributeAction actionType) {
-		List<String> authorizedDefaultReadRoles = List.of(Role.PERUNADMIN, Role.PERUNOBSERVER, Role.RPC, Role.ENGINE);
-		List<String> authorizedDefaultWriteRoles = List.of(Role.PERUNADMIN);
+		// We need to load additional information about the principal
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
 
 		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
@@ -1615,6 +1628,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param attrDef    attribute what principal want to work with
 	 * @return map of roles with allowed action types
 	 */
+	@Deprecated
 	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws AttributeNotExistsException, ActionTypeNotExistsException {
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 		getPerunBl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
@@ -2348,16 +2362,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return the same object authzRoles, which is given in the parameter, with loaded membership roles
 	 */
 	private static AuthzRoles addMembershipRole(PerunSession sess, AuthzRoles authzRoles, User user) {
-		perunBl.getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID)
-				.forEach(member -> authzRoles.putAuthzRole(Role.MEMBERSHIP, Vo.class, member.getVoId()));
+		perunBl.getMembersManagerBl().getMembersByUser(sess, user)
+			.stream()
+			.filter(member -> !member.getStatus().equals(Status.DISABLED))
+			.forEach(member -> authzRoles.putAuthzRole(Role.MEMBERSHIP, Vo.class, member.getVoId()));
 
-		perunBl.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), List.of(GroupResourceStatus.ACTIVE))
+		perunBl.getResourcesManagerBl().getResources(sess, user, List.of(Status.VALID, Status.INVALID, Status.EXPIRED), List.of(MemberGroupStatus.VALID, MemberGroupStatus.EXPIRED), List.of(GroupResourceStatus.ACTIVE))
 				.forEach(resource -> {
 					authzRoles.putAuthzRole(Role.MEMBERSHIP, Resource.class, resource.getId());
 					authzRoles.putAuthzRole(Role.MEMBERSHIP, Facility.class, resource.getFacilityId());
 				});
 
-		perunBl.getGroupsManagerBl().getUserGroups(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID))
+		perunBl.getGroupsManagerBl().getUserGroups(sess, user, List.of(Status.VALID, Status.INVALID, Status.EXPIRED), List.of(MemberGroupStatus.VALID, MemberGroupStatus.EXPIRED))
 				.forEach(group -> authzRoles.putAuthzRole(Role.MEMBERSHIP, Group.class, group.getId()));
 
 		return authzRoles;

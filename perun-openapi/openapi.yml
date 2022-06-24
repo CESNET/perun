@@ -404,6 +404,7 @@ components:
         - "Resource"
         - "User"
         - "Member"
+        - "SecurityTeam"
 
     AttributePolicy:
       type: object
@@ -694,6 +695,7 @@ components:
           type: object
           additionalProperties:
             type: string
+        assignableToAttributes: { type: boolean }
       required:
         - roleName
         - primaryObject
@@ -701,6 +703,7 @@ components:
         - privilegedRolesToRead
         - entitiesToManage
         - assignedObjects
+        - assignableToAttributes
 
     NamespaceRules:
       type: object

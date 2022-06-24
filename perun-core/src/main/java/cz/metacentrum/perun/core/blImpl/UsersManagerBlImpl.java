@@ -10,8 +10,8 @@ import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToU
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceUpdated;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserUpdated;
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -1199,8 +1199,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			List<Attribute> userAttributes = richUser.getUserAttributes();
 			List<Attribute> allowedUserAttributes = new ArrayList<>();
 			for(Attribute userAttr: userAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richUser)) {
-					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richUser));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, userAttr, richUser)) {
+					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, userAttr, richUser));
 					allowedUserAttributes.add(userAttr);
 				}
 			}
