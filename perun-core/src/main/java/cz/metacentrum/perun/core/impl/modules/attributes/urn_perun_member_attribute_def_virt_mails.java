@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -99,8 +100,8 @@ public class urn_perun_member_attribute_def_virt_mails extends MemberVirtualAttr
 				log.trace("getAttributeValue(member={},attribute={},failedEmailAttribute={})", member, attributeDef, emailAttrDef);
 			}
 		}
-
-		newAttribute.setValue(allMails);
+		// return only unique emails
+		newAttribute.setValue(new ArrayList<>(new HashSet<>(allMails)));
 		return newAttribute;
 
 	}

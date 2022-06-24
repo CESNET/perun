@@ -298,6 +298,8 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
 		}
 
+		super.checkPasswordStrength(sess, login, password);
+
 	}
 
 	private void handleAltPwdManagerExit(Process process, PerunRuntimeException exToThrow) {

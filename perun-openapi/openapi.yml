@@ -1325,6 +1325,7 @@ components:
       type: object
       properties:
         locale: { type: string }
+        htmlFormat: { type: boolean }
         subject: { type: string }
         text: { type: string }
 
@@ -1337,6 +1338,9 @@ components:
         mailType: { $ref: '#/components/schemas/MailType' }
         send: { type: boolean }
         message:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/MailText' }
+        htmlMessage:
           type: object
           additionalProperties: { $ref: '#/components/schemas/MailText' }
 
@@ -10634,6 +10638,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAssignedRichResources/f-s:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedRichResourcesForFacilityAndService
+      summary: Returns all rich resources assigned to a facility and service with VO property filled.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/createFacility:
     post:
       tags:
@@ -16482,7 +16501,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/servicesManager/getAssignedServices:
+  /json/servicesManager/getAssignedServices/f:
     get:
       tags:
         - ServicesManager
@@ -16490,6 +16509,21 @@ paths:
       summary: List all services associated with the facility (via resource).
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getAssignedServices/f-v:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getAssignedServicesVo
+      summary: List all services associated with the facility and vo (via resource).
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/voId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfServicesResponse'
