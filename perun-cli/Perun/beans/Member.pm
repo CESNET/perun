@@ -74,6 +74,19 @@ sub getSourceGroupId
 	return ($self->{_sourceGroupId}) ? $self->{_sourceGroupId} : -1;
 }
 
+sub getVoId
+{
+	my $self = shift;
+
+	return $self->{_voId};
+}
+
+sub setVoId
+{
+	my $self = shift;
+	$self->{_voId} = shift;
+}
+
 sub isSponsoredToPrint
 {
 	my $self = shift;

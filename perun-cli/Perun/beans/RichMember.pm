@@ -2,7 +2,6 @@ package Perun::beans::RichMember;
 
 use strict;
 use warnings;
-use 5.010;
 
 use Perun::Common;
 
@@ -88,34 +87,39 @@ sub isSponsored
 	return ($self->{_sponsored}) ? 1 : 0;
 }
 
-sub getCommonName {
-	my $user = shift->{_user};
-
-	my $str = "";
-	$str .= $user->{firstName}.' ' if defined $user->{firstName};
-	$str .= $user->{middleName}.' ' if defined $user->{middleName};
-	$str .= $user->{lastName} if defined $user->{lastName};
-
-	return $str;
+sub getCommonName
+{
+	return shift->getUser()->getCommonName();
 }
 
-sub getDisplayName {
-	my $user = shift->{_user};
-
-	my $str = "";
-	$str .= $user->{titleBefore}.' ' if defined $user->{titleBefore};
-	$str .= $user->{firstName}.' ' if defined $user->{firstName};
-	$str .= $user->{middleName}.' ' if defined $user->{middleName};
-	$str .= $user->{lastName}.' ' if defined $user->{lastName};
-	$str .= $user->{titleAfter} if defined $user->{titleAfter};
-
-	return $str;
+sub getDisplayName
+{
+	return shift->getUser()->getDisplayName();
 }
 
 sub getSourceGroupId
 {
 	my $self = shift;
 	return ($self->{_sourceGroupId}) ? $self->{_sourceGroupId} : -1;
+}
+
+sub getVoId
+{
+	my $self = shift;
+
+	return $self->{_voId};
+}
+
+sub setVoId
+{
+	my $self = shift;
+	$self->{_voId} = shift;
+}
+
+sub getUser
+{
+	my $self = shift;
+	return Perun::beans::User::fromHash("Perun::beans::User", $self->{_user});
 }
 
 sub getGroupStatus {
