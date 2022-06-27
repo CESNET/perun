@@ -94,8 +94,6 @@ public class UpdateApplicationMail {
 	 */
 	private JSONObject prepareJSONObject() {
 
-
-
 		JSONObject mail = new JSONObject();
 
 		// update send
@@ -114,12 +112,23 @@ public class UpdateApplicationMail {
 
 		mail.put("message", mailTexts);
 
+		// update HTML texts (we don't edit them in GUI)
+		JSONObject mailTextsHTML = new JSONObject();
+
+		MailText mth = appMail.getMessageHTML("en");
+		mailTextsHTML.put("en", new JSONObject(mth));
+
+		if (!Utils.getNativeLanguage().isEmpty()) {
+			MailText mth2 = appMail.getMessageHTML(Utils.getNativeLanguage().get(0));
+			mailTextsHTML.put(Utils.getNativeLanguage().get(0), new JSONObject(mth2));
+		}
+		mail.put("htmlMessage", mailTextsHTML);
+
 		// sending other values just for sure
 		mail.put("id", new JSONNumber(appMail.getId()));
 		mail.put("appType", new JSONString(appMail.getAppType()));
 		mail.put("mailType", new JSONString(appMail.getMailType()));
 		mail.put("formId", new JSONNumber(appMail.getFormId()));
-
 
 		JSONObject request = new JSONObject();
 		request.put("mail", mail);
