@@ -1659,12 +1659,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
+	/*#
+	 * Check password strength for the given namespace. If the password is too weak,
+	 * the PasswordStrengthException is thrown
+	 *
+	 * @param password String password, that will be checked
+	 * @param namespace String namespace, that will be used to check the strength of the password
+	 * @param login String login, which may be required for correct password strength check
+	 *
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 */
 	checkPasswordStrength {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.getUsersManager().checkPasswordStrength(ac.getSession(),
 					parms.readString("password"),
-					parms.readString("namespace"));
+					parms.readString("namespace"),
+					parms.contains("login") ? parms.readString("login") : null);
 
 			return null;
 		}

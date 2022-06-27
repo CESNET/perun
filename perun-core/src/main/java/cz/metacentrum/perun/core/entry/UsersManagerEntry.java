@@ -1514,9 +1514,9 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException {
+	public void checkPasswordStrength(PerunSession sess, String password, String namespace, String login) throws PasswordStrengthException {
 		Utils.checkPerunSession(sess);
-		usersManagerBl.checkPasswordStrength(sess, password, namespace);
+		usersManagerBl.checkPasswordStrength(sess, password, namespace, login);
 	}
 
 	@Override

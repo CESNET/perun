@@ -2007,8 +2007,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException {
-		getPasswordManagerModule(sess, namespace).checkPasswordStrength(sess, null, password);
+	public void checkPasswordStrength(PerunSession sess, String password, String namespace, String login) throws PasswordStrengthException {
+		getPasswordManagerModule(sess, namespace).checkPasswordStrength(sess, login, password);
 	}
 
 	/**
