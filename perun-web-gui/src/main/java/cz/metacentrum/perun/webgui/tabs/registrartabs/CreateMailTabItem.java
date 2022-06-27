@@ -468,7 +468,7 @@ public class CreateMailTabItem implements TabItem {
 					String locale = entry.getKey();
 					String subject = messagesSubjects.get(entry.getKey()).getValue();
 					String text = entry.getValue().getText();
-					MailText mt = MailText.construct(locale, subject, text);
+					MailText mt = MailText.construct(locale, subject, text, false); // we don't support HTML in old GUI
 
 					messages.put(locale, mt);
 				}

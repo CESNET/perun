@@ -108,21 +108,36 @@ public class ApplicationMail extends JavaScriptObject {
 
 	/**
 	 * Get message
-	 * @return type
+	 * @return MailText
 	 */
 	public final native MailText getMessage(String locale) /*-{
 		if(typeof this.message === 'undefined'){
 			this.message = {};
 		}
 		if(!(locale in this.message)){
-			this.message[locale] = {locale: locale, text : "", subject : ""};
+			this.message[locale] = {locale: locale, htmlFormat: false, text : "", subject : ""};
 		}
 		return this.message[locale];
 	}-*/;
 
 	/**
+	 * Get message of HTML template
+	 * @return MailText
+	 */
+	public final native MailText getMessageHTML(String locale) /*-{
+		if(typeof this.htmlMessage === 'undefined'){
+			this.htmlMessage = {};
+		}
+		if(!(locale in this.htmlMessage)){
+			this.htmlMessage[locale] = {locale: locale, htmlFormat: true, text : "", subject : ""};
+		}
+		return this.htmlMessage[locale];
+	}-*/;
+
+	/**
 	 * Set message
 	 * @param locale
+	 * @param message
 	 */
 	public final native void setMessage(String locale, MailText message) /*-{
 		if(typeof this.message === 'undefined'){
@@ -131,6 +146,17 @@ public class ApplicationMail extends JavaScriptObject {
 		this.message[locale] = message;
 	}-*/;
 
+	/**
+	 * Set message
+	 * @param locale
+	 * @param message
+	 */
+	public final native void setMessageHTML(String locale, MailText message) /*-{
+		if(typeof this.htmlMessage === 'undefined'){
+			this.htmlMessage = {};
+		}
+		this.htmlMessage[locale] = message;
+	}-*/;
 
 	/**
 	 * Get locales
@@ -142,6 +168,16 @@ public class ApplicationMail extends JavaScriptObject {
 	}
 
 	/**
+	 * Get locales of HTML message
+	 *
+	 * @return array of present locales
+	 */
+	public final ArrayList<String> getLocalesHTML() {
+		return JsonUtils.listFromJsArrayString(getLocalesNativeHTML());
+	}
+
+
+	/**
 	 * Get locales
 	 *
 	 * @return array of present locales
@@ -149,6 +185,18 @@ public class ApplicationMail extends JavaScriptObject {
 	public final native JsArrayString getLocalesNative() /*-{
 		if(typeof this.message !== 'undefined' && this.message !== null){
 			return Object.getOwnPropertyNames(this.message)
+		}
+		return null;
+	}-*/;
+
+	/**
+	 * Get locales of HTML message
+	 *
+	 * @return array of present locales
+	 */
+	public final native JsArrayString getLocalesNativeHTML() /*-{
+		if(typeof this.htmlMessage !== 'undefined' && this.htmlMessage !== null){
+			return Object.getOwnPropertyNames(this.htmlMessage)
 		}
 		return null;
 	}-*/;
