@@ -21,13 +21,14 @@ public class MailText extends JavaScriptObject {
 	 * @param text
 	 * @return
 	 */
-	static public MailText construct(String locale, String subject, String text)
+	static public MailText construct(String locale, String subject, String text, boolean htmlFormat)
 	{
 		MailText txt = new JSONObject().getJavaScriptObject().cast();
 
 		txt.setLocale(locale);
 		txt.setSubject(subject);
 		txt.setText(text);
+		txt.setHtmlFormat(htmlFormat);
 
 		return txt;
 	}
@@ -41,79 +42,84 @@ public class MailText extends JavaScriptObject {
 		return this.subject;
 	}-*/;
 
-		/**
-		 * Set subject
-		 */
-		public final native void setSubject(String subject) /*-{
-			this.subject = subject;
-		}-*/;
+	/**
+	 * Set subject
+	 */
+	public final native void setSubject(String subject) /*-{
+		this.subject = subject;
+	}-*/;
 
 
-		/**
-		 * Get text
-		 * @return text
-		 */
-		public final native String getText() /*-{
-			if(typeof this.text === 'undefined') return "";
-			return this.text;
-		}-*/;
+	/**
+	 * Get text
+	 * @return text
+	 */
+	public final native String getText() /*-{
+		if(typeof this.text === 'undefined') return "";
+		return this.text;
+	}-*/;
 
-		/**
-		 * Set text
-		 */
-		public final native void setText(String text) /*-{
-			this.text = text;
-		}-*/;
+	/**
+	 * Set text
+	 */
+	public final native void setText(String text) /*-{
+		this.text = text;
+	}-*/;
+
+	/**
+	 * Set HTML format
+	 */
+	public final native void setHtmlFormat(boolean htmlFormat) /*-{
+		this.htmlFormat = htmlFormat;
+	}-*/;
+
+	/**
+	 * Get locale
+	 * @return locale
+	 */
+	public final native String getLocale() /*-{
+		if(typeof this.locale === 'undefined') return "";
+		return this.locale;
+	}-*/;
+
+	/**
+	 * Set locale
+	 */
+	public final native void setLocale(String locale) /*-{
+		this.locale = locale;
+	}-*/;
 
 
 
-		/**
-		 * Get locale
-		 * @return locale
-		 */
-		public final native String getLocale() /*-{
-			if(typeof this.locale === 'undefined') return "";
-			return this.locale;
-		}-*/;
 
-		/**
-		 * Set locale
-		 */
-		public final native void setLocale(String locale) /*-{
-			this.locale = locale;
-		}-*/;
-
-
-
-
-		/**
-		 * Returns Perun specific type of object
-		 *
-		 * @return type of object
-		 */
-		public final native String getObjectType() /*-{
-			if (!this.beanName) {
+	/**
+	 * Returns Perun specific type of object
+	 *
+	 * @return type of object
+	 */
+	public final native String getObjectType() /*-{
+		if (!this.beanName) {
 			return "JavaScriptObject"
-			}
-			return this.beanName;
-		}-*/;
+		}
+		return this.beanName;
+	}-*/;
 
-		/**
-		 * Sets Perun specific type of object
-		 *
-		 * @param type type of object
-		 */
-		public final native void setObjectType(String type) /*-{
-			this.beanName = type;
-		}-*/;
+	/**
+	 * Sets Perun specific type of object
+	 *
+	 * @param type type of object
+	 */
+	public final native void setObjectType(String type) /*-{
+		this.beanName = type;
+	}-*/;
 
-		/**
-		 * Returns the status of this item in Perun system as String
-		 * VALID, INVALID, EXPIRED, DISABLED
-		 *
-		 * @return string which defines item status
-		 */
-		public final native String getStatus() /*-{
-			return this.status;
-		}-*/;
+	/**
+	 * Returns the status of this item in Perun system as String
+	 * VALID, INVALID, EXPIRED, DISABLED
+	 *
+	 * @return string which defines item status
+	 */
+	public final native String getStatus() /*-{
+		return this.status;
+	}-*/;
 }

@@ -391,7 +391,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 					String locale = entry.getKey();
 					String subject = messagesSubjects.get(entry.getKey()).getValue();
 					String text = entry.getValue().getText();
-					MailText mt = MailText.construct(locale, subject, text);
+					MailText mt = MailText.construct(locale, subject, text, false); // we don't support HTML in old GUI
 
 					appMail.setMessage(locale, mt);
 				}
