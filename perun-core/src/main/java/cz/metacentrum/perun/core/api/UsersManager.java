@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -1045,6 +1046,20 @@ public interface UsersManager {
 	 * @throws UserNotExistsException When the user doesn't exist
 	 */
 	boolean loginExist(PerunSession sess, User user, String loginNamespace) throws PrivilegeException, UserNotExistsException;
+
+	/**
+	 * Reserves login in given namespace for given user.
+	 *
+	 *
+	 * @param sess
+	 * @param user User to reserve the login for
+	 * @param userLogin Login to be reserved
+	 * @param loginNamespace Namespace in which the login will be reserved
+	 * @throws PrivilegeException
+	 * @throws InvalidLoginException When login to reserve has invalid syntax or is not allowed.
+	 * @throws AlreadyReservedLoginException When login is already reserved
+	 */
+	void reserveLogin(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException;
 
 	/**
 	 * Creates alternative password in external system.

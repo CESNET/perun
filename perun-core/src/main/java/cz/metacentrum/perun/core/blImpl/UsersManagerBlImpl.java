@@ -2124,6 +2124,23 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return serviceUser;
 	}
 
+	@Override
+	public void reserveLogin(PerunSession sess, User user, String userLogin, String loginNamespace) throws InvalidLoginException, AlreadyReservedLoginException {
+		if (isLoginAvailable(sess, userLogin, loginNamespace)) {
+			try {
+				AttributeDefinition attributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
+				Attribute attribute = new Attribute(attributeDefinition);
+				attribute.setValue(userLogin);
+				perunBl.getAttributesManagerBl().setAttribute(sess, user, attribute);
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
+			WrongAttributeValueException ex) {
+				throw new InternalErrorException("Failed to reserve login: " + userLogin + " in namespace: " + loginNamespace);
+			}
+		} else {
+			throw new AlreadyReservedLoginException("Login: " + userLogin + " in namespace: " + loginNamespace + " is already reserved.");
+		}
+	}
+
 
 	/**
 	 * Creates a User object from given candidate.

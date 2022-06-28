@@ -1774,6 +1774,29 @@ public enum UsersManagerMethod implements ManagerMethod {
 					parms.read("candidate", Candidate.class),
 					parms.readList("specificUserOwners", User.class));
 		}
+	},
+
+	/*#
+	 * Reserves login in given namespace for given user.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param userLogin String login to be reserved
+	 * @param loginNamespace String namespace in which the login will be reserved
+	 * @throw PrivilegeException
+	 * @throw InvalidLoginException When login to reserve has invalid syntax or is not allowed.
+	 * @throw AlreadyReservedLoginException When login is already reserved
+	 */
+	reserveLogin {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getUsersManager().reserveLogin(ac.getSession(),
+				ac.getUserById(parms.readInt("user")),
+				parms.readString("userLogin"),
+				parms.readString("loginNamespace"));
+
+			return null;
+		}
 	}
 
 }

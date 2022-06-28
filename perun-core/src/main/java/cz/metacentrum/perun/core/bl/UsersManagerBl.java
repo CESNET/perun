@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
@@ -1597,4 +1598,17 @@ public interface UsersManagerBl {
 	 * @throws WrongAttributeValueException if some of the given attribute value is invalid
 	 */
 	User createServiceUser(PerunSession sess, Candidate candidate, List<User> owners) throws WrongAttributeAssignmentException, UserExtSourceExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException;
+
+	/**
+	 * Reserves login in given namespace for given user.
+	 *
+	 *
+	 * @param sess
+	 * @param user User to reserve the login for
+	 * @param userLogin Login to be reserved
+	 * @param loginNamespace Namespace in which the login will be reserved
+	 * @throws InvalidLoginException When login to reserve has invalid syntax or is not allowed.
+	 * @throws AlreadyReservedLoginException When login is already reserved
+	 */
+	void reserveLogin(PerunSession sess, User user, String userLogin, String loginNamespace) throws InvalidLoginException, AlreadyReservedLoginException;
 }

@@ -5435,6 +5435,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  reserveLogin_User_String_String_policy:
+    policy_roles:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
   validatePassword_String_String_policy:
     policy_roles:
       - REGISTRAR:

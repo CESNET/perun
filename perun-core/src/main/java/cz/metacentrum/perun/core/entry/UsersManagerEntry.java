@@ -1199,7 +1199,19 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().loginExist(sess, user, loginNamespace);
 	}
 
-	@Override
+    @Override
+    public void reserveLogin(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "reserveLogin_User_String_String_policy")) {
+			throw new PrivilegeException(sess, "reserveLogin");
+		}
+
+		getUsersManagerBl().reserveLogin(sess, user, userLogin, loginNamespace);
+    }
+
+    @Override
 	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(description, "description");
