@@ -9064,6 +9064,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/reserveLogin:
+    post:
+      tags:
+        - UsersManager
+      operationId: reserveLogin
+      summary: Reserves login for user in selected namespace
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/login'
+        - $ref: '#/components/parameters/namespace'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /urlinjsonout/usersManager/loginExist:
     post:
       tags:
