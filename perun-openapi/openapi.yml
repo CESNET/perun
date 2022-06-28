@@ -8360,11 +8360,12 @@ paths:
       tags:
         - UsersManager
       operationId: checkPasswordStrength
-      summary: Check password strength for the given namespace.
+      summary: Check password strength for the given namespace. Some namespaces may require passing also login for complete password strength check.
       description: If the check fails, the PasswordStrengthException error is returned.
       parameters:
         - $ref: '#/components/parameters/password'
         - $ref: '#/components/parameters/namespace'
+        - { name: login, description: "login", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
