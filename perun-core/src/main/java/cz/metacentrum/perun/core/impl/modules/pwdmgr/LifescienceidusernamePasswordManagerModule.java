@@ -62,7 +62,7 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 			}
 
 			// set additional identifiers
-			Attribute additionalIdentifiers = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(sess, ues, UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+			Attribute additionalIdentifiers = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(sess, ues, UsersManagerBl.ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
 			String newIdentifier = userLogin + LS_DOMAIN;
 			if (additionalIdentifiers.valueAsList() == null || additionalIdentifiers.valueAsList().isEmpty()) {
 				additionalIdentifiers.setValue(Lists.newArrayList(newIdentifier));
