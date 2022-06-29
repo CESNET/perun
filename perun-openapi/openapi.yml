@@ -8356,21 +8356,32 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
   /json/usersManager/checkPasswordStrength:
-    get:
+    post:
       tags:
         - UsersManager
       operationId: checkPasswordStrength
       summary: Check password strength for the given namespace. Some namespaces may require passing also login for complete password strength check.
       description: If the check fails, the PasswordStrengthException error is returned.
-      parameters:
-        - $ref: '#/components/parameters/password'
-        - $ref: '#/components/parameters/namespace'
-        - { name: login, description: "login", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckPasswordStrength
+              description: "input for checkPasswordStrength"
+              type: object
+              required:
+                - password
+                - namespace
+              properties:
+                password: { type: string }
+                namespace: { type: string }
+                login: { type: string }
 
   /json/usersManager/getGroupsWhereUserIsActive/facility:
     get:
@@ -8548,22 +8559,35 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/usersManager/createAlternativePassword:
+  /json/usersManager/createAlternativePassword:
     post:
       tags:
         - UsersManager
       operationId: createAlternativePassword
       summary: Creates alternative password in external system.
-      parameters:
-        - $ref: '#/components/parameters/userId'
-        - { name: description, schema: { type: string }, in: query, required: true }
-        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
-        - { name: password, schema: { type: string }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateAlternativePassword
+              description: "input for createAlternativePassword"
+              type: object
+              required:
+                - user
+                - description
+                - loginNamespace
+                - password
+              properties:
+                user: { type: integer }
+                description: { type: string }
+                loginNamespace: { type: string }
+                password: { type: string }
 
   /urlinjsonout/usersManager/deleteAlternativePassword:
     post:
@@ -8916,7 +8940,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/usersManager/changeNonAuthzPassword/token:
+  /json/usersManager/changeNonAuthzPassword/token:
     post:
       tags:
         - UsersManager
@@ -8926,47 +8950,83 @@ paths:
         This method throws PasswordResetLinkExpiredException when the password reset request expired.
         This method throws PasswordResetLinkNotValidException when the password reset request was already
         used or has never existed.
-      parameters:
-        - { name: token, description: "token for the password reset request", schema: { type: string }, in: query, required: true }
-        - $ref: '#/components/parameters/password'
-        - { name: lang, description: "language to get notifications in (optional)", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputChangeNonAuthzPasswordByToken
+              description: "input for changeNonAuthzPasswordByToken"
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token: { type: string, description: "token for the password reset request" }
+                password: { type: string }
+                lang: { type: string, description: "language to get notifications in (optional)" }
 
-  /urlinjsonout/usersManager/reservePassword/login:
+  /json/usersManager/reservePassword/login:
     post:
       tags:
         - UsersManager
       operationId: reservePasswordForLogin
       summary: Reserves password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/login'
-        - $ref: '#/components/parameters/namespace'
-        - $ref: '#/components/parameters/password'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputReservePasswordForLogin
+              description: "input for reservePasswordForLogin"
+              type: object
+              required:
+                - login
+                - namespace
+                - password
+              properties:
+                login: { type: string }
+                namespace: { type: string }
+                password: { type: string }
 
-  /urlinjsonout/usersManager/reservePassword/user:
+
+  /json/usersManager/reservePassword/user:
     post:
       tags:
         - UsersManager
       operationId: reservePasswordForUser
       summary: Reserves password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/namespace'
-        - $ref: '#/components/parameters/password'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputReservePasswordForUser
+              description: "input for reservePasswordForUser"
+              type: object
+              required:
+                - user
+                - namespace
+                - password
+              properties:
+                user: { type: integer }
+                namespace: { type: string }
+                password: { type: string }
 
   /urlinjsonout/usersManager/validatePassword/login:
     post:
@@ -9028,42 +9088,67 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/usersManager/changePassword/login:
+  /json/usersManager/changePassword/login:
     post:
       tags:
         - UsersManager
       operationId: changePasswordForLogin
       summary: Changes password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/login'
-        - $ref: '#/components/parameters/namespace'
-        - { name: newPassword, schema: { type: string }, in: query, required: true }
-        - { name: oldPassword, schema: { type: string }, in: query, required: false }
-        - { name: checkOldPassword, schema: { type: boolean }, in: query, required: false, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputChangePasswordForLogin
+              description: "input for changePasswordForLogin"
+              type: object
+              required:
+                - login
+                - namespace
+                - newPassword
+              properties:
+                login: { type: string }
+                namespace: { type: string }
+                newPassword: { type: string }
+                oldPassword: { type: string }
+                checkOldPassword: { type: boolean, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
 
 
-  /urlinjsonout/usersManager/changePassword/user:
+
+  /json/usersManager/changePassword/user:
     post:
       tags:
         - UsersManager
       operationId: changePasswordForUser
       summary: Changes password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/namespace'
-        - { name: newPassword, schema: { type: string }, in: query, required: true }
-        - { name: oldPassword, schema: { type: string }, in: query, required: false }
-        - { name: checkOldPassword, schema: { type: boolean }, in: query, required: false, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputChangePasswordForUser
+              description: "input for changePasswordForUser"
+              type: object
+              required:
+                - user
+                - namespace
+                - newPassword
+              properties:
+                user: { type: integer }
+                namespace: { type: string }
+                newPassword: { type: string }
+                oldPassword: { type: string }
+                checkOldPassword: { type: boolean, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
 
   /urlinjsonout/usersManager/loginExist:
     post:
