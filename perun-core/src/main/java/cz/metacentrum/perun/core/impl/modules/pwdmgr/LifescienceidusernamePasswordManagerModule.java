@@ -41,6 +41,8 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 
 	@Override
 	public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
+		// FIXME Needs to be commented because it is triggered through the registrations that are not intended for the hostel users
+		/*
 		if (user == null) {
 			user = ((PerunBl) sess.getPerun()).getModulesUtilsBl().getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
 		}
@@ -79,6 +81,7 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 			throw new InternalErrorException(ex);
 		} catch (AlreadyMemberException ignored) {
 		}
+		 */
 
 		// validate password
 		super.validatePassword(sess, userLogin, user);
