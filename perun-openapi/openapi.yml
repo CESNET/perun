@@ -1389,6 +1389,8 @@ components:
       properties:
         api: { type: string }
         admin: { type: string }
+        consolidator: { type: string }
+        linker: { type: string }
         profile: { type: string }
         pwdReset: { type: string }
         publications: { type: string }
