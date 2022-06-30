@@ -1,8 +1,12 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
@@ -36,6 +40,8 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 	 * Content widget - should be simple panel
 	 */
 	private SimplePanel contentWidget = new SimplePanel();
+
+	final ScrollPanel sp = new ScrollPanel();
 
 	/**
 	 * Title widget
@@ -111,7 +117,6 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 		vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\" />"));
 
-		ScrollPanel sp = new ScrollPanel();
 		sp.setSize("100%", "100%");
 		sp.addStyleName("perun-tableScrollPanel");
 		vp.add(sp);
@@ -144,8 +149,32 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
+		Window.addResizeHandler(new ResizeHandler() {
+			public void onResize(ResizeEvent event) {
+				// run resize only for opened tab/overlay + shared commands
+				resizeTable();
+			}
+		});
+
 		this.contentWidget.setWidget(vp);
+		resizeTable();
 		return getWidget();
+
+	}
+
+	/**
+	 * Resize table to the max width possible based on tab content width
+	 */
+	private void resizeTable() {
+
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			@Override
+			public void execute() {
+				if (sp.getWidget() != null && contentWidget != null) {
+					((SimplePanel)sp.getWidget()).setWidth((Math.max(contentWidget.getOffsetWidth()-5, 0)+"px"));
+				}
+			}
+		});
 
 	}
 
@@ -193,6 +222,7 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 			session.setActiveUser(user);
 		}
 		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My applications", UsersTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"appls?id="+application.getUser().getId(), "Application detail", getUrlWithParameters());
+		resizeTable();
 	}
 
 	public boolean isAuthorized() {
