@@ -43,7 +43,8 @@ public class PerunAppsConfig {
 		for (Brand brand : instance.getBrands()) {
 			PerunAppsConfig.NewApps newApps = brand.getNewApps();
 			if (brand.getOldGuiDomain().equals(domain) || newApps.getAdmin().equals(domain) || newApps.getProfile().equals(domain)
-				|| newApps.getPublications().equals(domain) || newApps.getPwdReset().equals(domain) || newApps.getApi().equals(domain)) {
+				|| newApps.getPublications().equals(domain) || newApps.getPwdReset().equals(domain) || newApps.getApi().equals(domain)
+				|| newApps.getConsolidator().equals(domain) || newApps.getLinker().equals(domain)) {
 				return brand;
 			}
 		}
@@ -110,6 +111,10 @@ public class PerunAppsConfig {
 
 		private String admin;
 
+		private String consolidator;
+
+		private String linker;
+
 		private String profile;
 
 		private String pwdReset;
@@ -134,6 +139,26 @@ public class PerunAppsConfig {
 		@JsonSetter("admin")
 		public void setAdmin(String admin) {
 			this.admin = admin;
+		}
+
+		@JsonGetter("consolidator")
+		public String getConsolidator() {
+			return consolidator;
+		}
+
+		@JsonSetter("consolidator")
+		public void setConsolidator(String consolidator) {
+			this.consolidator = consolidator;
+		}
+
+		@JsonGetter("linker")
+		public String getLinker() {
+			return linker;
+		}
+
+		@JsonSetter("linker")
+		public void setLinker(String linker) {
+			this.linker = linker;
 		}
 
 		@JsonGetter("profile")
@@ -171,6 +196,8 @@ public class PerunAppsConfig {
 			return "NewApps{" +
 					"api='" + api + '\'' +
 					", admin='" + admin + '\'' +
+					", consolidator='" + consolidator + '\'' +
+					", linker='" + linker + '\'' +
 					", profile='" + profile + '\'' +
 					", pwdReset='" + pwdReset + '\'' +
 					", publications='" + publications + '\'' +

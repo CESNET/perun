@@ -22,6 +22,8 @@ public class PerunAppsConfigLoaderTest extends AbstractPerunIntegrationTest {
 		var newApps = new PerunAppsConfig.NewApps();
 		newApps.setApi("api");
 		newApps.setAdmin("gui");
+		newApps.setConsolidator("consolidator");
+		newApps.setLinker("linker");
 		newApps.setProfile("profile");
 		newApps.setPwdReset("pwd-reset");
 		newApps.setPublications("publications");
