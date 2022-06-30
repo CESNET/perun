@@ -9079,6 +9079,22 @@ paths:
           $ref: '#/components/responses/BooleanResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+    
+  /urlinjsonout/usersManager/setLogin:
+    post:
+      tags:
+        - UsersManager
+      operationId: setLogin
+      summary: Set new login in namespace if login is available and user doesn't have login in that namespace. Works only for specific (service or guest) users.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/login'
+        - $ref: '#/components/parameters/namespace'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/usersManager/deleteUser:
     post:
