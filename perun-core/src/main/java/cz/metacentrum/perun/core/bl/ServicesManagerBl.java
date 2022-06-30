@@ -892,4 +892,14 @@ public interface ServicesManagerBl {
 	 * @throws RelationExistsException if the destination is used by some services and facilities
 	 */
 	void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException;
+
+	/**
+	 * Checks whether given service is assigned to given facility (through some resource).
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param service service
+	 * @return true if service is assigned to given facility, false otherwise
+	 */
+	boolean isServiceAssignedToFacility(PerunSession sess, Facility facility, Service service);
 }

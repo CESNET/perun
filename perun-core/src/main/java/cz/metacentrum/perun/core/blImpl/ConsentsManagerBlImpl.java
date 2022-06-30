@@ -380,8 +380,17 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		return false;
 	}
 
-	@Override
-	public void evaluateConsents(PerunSession sess, ConsentHub consentHub) {
+	/**
+	 * Evaluates consents for given consent hub and given service.
+	 *
+	 * If service is not present on some of assigned facilities, given facility is skipped.
+	 * If service is null, all services assigned to given facility are used instead.
+	 *
+	 * @param sess session
+	 * @param consentHub hub
+	 * @param selectedService service to be used
+	 */
+	private void evaluateConsents(PerunSession sess, ConsentHub consentHub, Service selectedService) {
 		if (!BeansUtils.getCoreConfig().getForceConsents() || !consentHub.isEnforceConsents()) {
 			return;
 		}
@@ -392,7 +401,18 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		PerunLocksUtils.lockConsentHub(consentHub);
 
 		for (Facility facility : facilities) {
-			facilityAssignedServices = getPerunBl().getServicesManagerBl().getAssignedServices(sess, facility);
+
+			// if there is no selected service, use all services assigned to given facility
+			if (selectedService == null) {
+				facilityAssignedServices = getPerunBl().getServicesManagerBl().getAssignedServices(sess, facility);
+			} else {
+				if (getPerunBl().getServicesManagerBl().isServiceAssignedToFacility(sess, facility, selectedService)) {
+					facilityAssignedServices = List.of(selectedService);
+				} else {
+					// if service is not assigned to given facility, skip this facility
+					continue;
+				}
+			}
 
 			for (Service service : facilityAssignedServices) {
 				List<Member> members = service.isUseExpiredMembers()
@@ -402,7 +422,11 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 				evaluateConsents(sess, service, facility, members);
 			}
 		}
-		return;
+	}
+
+	@Override
+	public void evaluateConsents(PerunSession sess, ConsentHub consentHub) {
+		evaluateConsents(sess, consentHub, null);
 	}
 
 	@Override
@@ -414,8 +438,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 		List<ConsentHub> consentHubs = getConsentsManagerImpl().getConsentHubsByService(sess, service.getId());
 		consentHubs.sort(Comparator.comparingInt(PerunBean::getId));
 		for (ConsentHub consentHub : consentHubs) {
-			evaluateConsents(sess, consentHub);
+			evaluateConsents(sess, consentHub, service);
 		}
-		return;
 	}
 }

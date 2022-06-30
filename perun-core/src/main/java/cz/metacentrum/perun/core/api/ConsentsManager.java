@@ -192,12 +192,13 @@ public interface ConsentsManager {
 	void evaluateConsents(PerunSession sess, ConsentHub consentHub) throws PrivilegeException;
 
 	/**
-	 * Evaluates consents for all consent hubs with given service with enforced consents enabled.
+	 * Evaluates consents for given service for all consent hubs with given service with enforced consents enabled.
 	 *
-	 * All services under obtained consent hubs will have consents fully evaluated
-	 * (not only for given service, but for all of them).
+	 * Corresponding consent hubs (containing the service) will have consents evaluated ONLY for selected service.
 	 * Service defines whether only active users will be evaluated or expired ones as well.
-	 *  @param sess session
+	 * If new consent is created, attributes from ALL services under given consent hub are gathered for it.
+	 *
+	 * @param sess session
 	 * @param service service
 	 */
 	void evaluateConsents(PerunSession sess, Service service) throws PrivilegeException;

@@ -634,4 +634,14 @@ public interface ServicesManagerImplApi {
 	 * @throws RelationExistsException if the destination has some existing relations in DB
 	 */
 	void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException;
+
+	/**
+	 * Checks whether given service is assigned to given facility (through some resource).
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param service service
+	 * @return true if service is assigned to given facility, false otherwise
+	 */
+	boolean isServiceAssignedToFacility(PerunSession sess, Facility facility, Service service);
 }
