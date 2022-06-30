@@ -87,6 +87,7 @@ sub authentication
 {
 	my $response = authenticationRequest();
 
+	print `qrencode -m 2 -t ASCIIi '$response->{"verification_uri_complete"}'`;
 	print "Please, authenticate at ", $response->{"verification_uri_complete"}, "\nHit enter after you authenticate.";
 	<STDIN>;
 
