@@ -13,10 +13,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.attributesManager.CreateAttribute;
-import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributeRights;
-import cz.metacentrum.perun.webgui.model.AttributeDefinition;
 import cz.metacentrum.perun.webgui.model.AttributeRights;
-import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
@@ -51,19 +48,6 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 	private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
 
 	private final CheckBox unique = new CheckBox();
-
-	private final CheckBox selfRead = new CheckBox();
-	private final CheckBox selfWrite = new CheckBox();
-	private final CheckBox selfReadVo = new CheckBox();
-	private final CheckBox selfReadPublic = new CheckBox();
-	private final CheckBox selfWriteVo = new CheckBox();
-	private final CheckBox selfWritePublic = new CheckBox();
-	private final CheckBox voRead = new CheckBox();
-	private final CheckBox voWrite = new CheckBox();
-	private final CheckBox groupRead = new CheckBox();
-	private final CheckBox groupWrite = new CheckBox();
-	private final CheckBox facilityRead = new CheckBox();
-	private final CheckBox facilityWrite = new CheckBox();
 
 	/**
 	 * Creates a tab instance
@@ -197,42 +181,8 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
 					CreateAttribute request = new CreateAttribute(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents(){
 						@Override
-						public void onFinished(JavaScriptObject jso) {
-
-							AttributeDefinition a = jso.cast();
-
-							ArrayList<AttributeRights> list = new ArrayList<AttributeRights>();
-
-							AttributeRights right = AttributeRights.create(a.getId(), "SELF");
-							list.add(getRightsFromWidgets(selfRead, selfWrite, selfReadPublic, selfWritePublic, selfReadVo, selfWriteVo, right));
-
-							AttributeRights right2 = AttributeRights.create(a.getId(), "VOADMIN");
-							list.add(getRightsFromWidgets(voRead, voWrite, right2));
-
-							AttributeRights right3 = AttributeRights.create(a.getId(), "GROUPADMIN");
-							list.add(getRightsFromWidgets(groupRead, groupWrite, right3));
-
-							AttributeRights right4 = AttributeRights.create(a.getId(), "FACILITYADMIN");
-							list.add(getRightsFromWidgets(facilityRead, facilityWrite, right4));
-
-							// after update - update rights
-							SetAttributeRights request = new SetAttributeRights(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents(){
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									enableDisableWidgets(true);
-									closeTabEvents.onFinished(jso);
-								}
-								@Override
-								public void onLoadingStart() {
-									enableDisableWidgets(false);
-								}
-								@Override
-								public void onError(PerunError error) {
-									enableDisableWidgets(true);
-								}
-							}));
-							request.setAttributeRights(list);
-
+						public void onFinished(JavaScriptObject jso){
+							closeTabEvents.onFinished(jso);
 						}
 					}));
 					request.createAttributeDefinition(displayName, friendlyName, description, namespace, type, isUnique);
@@ -271,36 +221,12 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 			}
 		}));
 
-		final FlexTable rightsTable = new FlexTable();
-		rightsTable.setStyleName("inputFormFlexTable");
-
-		rightsTable.setHTML(0, 1, "<strong>SELF</strong>");
-		rightsTable.setHTML(0, 2, "<strong>SELF_PUBLIC</strong>");
-		rightsTable.setHTML(0, 3, "<strong>SELF_VO</strong>");
-		rightsTable.setHTML(0, 4, "<strong>VO</strong>");
-		rightsTable.setHTML(0, 5, "<strong>GROUP</strong>");
-		rightsTable.setHTML(0, 6, "<strong>FACILITY</strong>");
-
-		rightsTable.setHTML(1, 0, "<strong>READ</strong>");
-		rightsTable.setHTML(2, 0, "<strong>WRITE</strong>");
-
-		rightsTable.setWidget(1, 1, selfRead);
-		rightsTable.setWidget(2, 1, selfWrite);
-		rightsTable.setWidget(1, 2, selfReadPublic);
-		rightsTable.setWidget(2, 2, selfWritePublic);
-		rightsTable.setWidget(1, 3, selfReadVo);
-		rightsTable.setWidget(2, 3, selfWriteVo);
-		rightsTable.setWidget(1, 4, voRead);
-		rightsTable.setWidget(2, 4, voWrite);
-		rightsTable.setWidget(1, 5, groupRead);
-		rightsTable.setWidget(2, 5, groupWrite);
-		rightsTable.setWidget(1, 6, facilityRead);
-		rightsTable.setWidget(2, 6, facilityWrite);
-
-		rightsTable.addStyleName("centeredTable");
+		String newGuiAlertContent = session.getConfiguration().getCustomProperty("newAdminGuiAlert");
+		final FlexTable alert = new FlexTable();
+		alert.setHTML(0,0,"<p>Setting attribute rights is no longer supported in this GUI. In order to set attribute rights please use the New GUI.</p> "+ newGuiAlertContent);
 
 		vp.add(layout);
-		vp.add(rightsTable);
+		vp.add(alert);
 		vp.add(menu);
 		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
@@ -336,23 +262,6 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 			readVo.getValue(), writeVo.getValue());
 
 		return right;
-
-	}
-
-	private void enableDisableWidgets(boolean enabled) {
-
-		selfRead.setEnabled(enabled);
-		selfWrite.setEnabled(enabled);
-		selfReadPublic.setEnabled(enabled);
-		selfWritePublic.setEnabled(enabled);
-		selfReadVo.setEnabled(enabled);
-		selfWriteVo.setEnabled(enabled);
-		voRead.setEnabled(enabled);
-		voWrite.setEnabled(enabled);
-		groupRead.setEnabled(enabled);
-		groupWrite.setEnabled(enabled);
-		facilityRead.setEnabled(enabled);
-		facilityWrite.setEnabled(enabled);
 
 	}
 

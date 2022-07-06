@@ -101,12 +101,14 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		TabMenu tabMenu = new TabMenu();
 		tabMenu.addWidget(UiElements.getRefreshButton(this));
 
-		// create buttons
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, buttonTranslation.createAttributeDefinition(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new CreateAttributeDefinitionTabItem());
-			}
-		}));
+		// create button
+		if(session.isPerunAdmin()){
+			tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, buttonTranslation.createAttributeDefinition(), new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new CreateAttributeDefinitionTabItem());
+				}
+			}));
+		}
 
 		// remove button
 		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteAttributeDefinition());
