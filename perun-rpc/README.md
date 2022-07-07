@@ -48,7 +48,7 @@ Perun can be managed using CLI tools (Perl scripts). You can find them in *perun
 In order to use them, you must install following Perl packages (example for Debian):
 
 ```bash
-apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl libnet-ldap-perl libjson-perl libyaml-perl
+apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl libnet-ldap-perl libjson-perl libyaml-perl qrencode
 ```
 
 Setup path for Perl to locate Perun modules:
@@ -90,6 +90,10 @@ Setup environment variables to locate your Perun instance:
     export PERUN_OIDC_CONFIG="[configuration_name]"
     ```
 * Specify endpoints in the configuration file `perun-cli/Perun/auth/oidc_config.yml`
+* In order for QR code authentication to work, make sure qrencode is installed:
+    ```
+    sudo apt install qrencode
+    ```
 
 
 * > Note that:
