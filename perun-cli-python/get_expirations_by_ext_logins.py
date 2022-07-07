@@ -17,15 +17,9 @@ def main(args):
 	for x in f:
 		x = x.strip(' \n') + '@idp.e-infra.cz'
 		user = users_manager.get_user_by_ext_source_name_and_ext_login(ext_login=x,ext_source_name=args['extSourceName'])
-		pprint(user)
-
 		member = members_manager.get_member_by_user(vo=args['voId'], user=user.id)
-		pprint(member)
-
-		# Attribute.value can be a JSON object, a string, an integer, a list, but OpenAPI 3.0 does not allow this
-		# see https://stackoverflow.com/questions/48111459/how-to-define-a-property-that-can-be-string-or-null-in-openapi-swagger
 		attr = attributes_manager.get_member_attribute_by_name(member.id,"urn:perun:member:attribute-def:def:membershipExpiration")
-		pprint(attr)
+		print('user', user.first_name, user.last_name, 'status', member.status, 'expires', attr.value)
 	f.close()
 
 # calling main when invoked from CLI
