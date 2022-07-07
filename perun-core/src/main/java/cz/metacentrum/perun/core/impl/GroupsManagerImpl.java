@@ -1021,28 +1021,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) {
-		try {
-			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
-				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void deleteGroupReservedLogins(PerunSession sess, Group group) {
-		// remove all reserved logins first
-		try {
-			for (Integer appId : getGroupApplicationIds(sess, group)) {
-				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
 	public int getGroupsCount(PerunSession sess) {
 		try {
 			return jdbc.queryForInt("select count(*) from groups");

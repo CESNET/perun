@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -397,6 +398,15 @@ public interface UsersManagerBl {
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
 	 */
 	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+
+	/**
+	 * Return list of all reserved logins for specific user
+	 * (pair is namespace and login)
+	 *
+	 * @param user for which get reserved logins
+	 * @return list of pairs namespace and login
+	 */
+	List<Pair<String, String>> getUsersReservedLogins(PerunSession sess, User user);
 
 	/**
 	 * Anonymizes user - according to configuration, each of user's attributes is either
@@ -1599,4 +1609,31 @@ public interface UsersManagerBl {
 	 * @throws WrongAttributeValueException if some of the given attribute value is invalid
 	 */
 	User createServiceUser(PerunSession sess, Candidate candidate, List<User> owners) throws WrongAttributeAssignmentException, UserExtSourceExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException;
+
+	/**
+	 * Gets reserved logins which are used in the given application.
+	 *
+	 * @param sess
+	 * @param appId
+	 * @return list of logins (Pair: left - namespace, right - login)
+	 */
+	List<Pair<String, String>> getReservedLoginsByApp(PerunSession sess, int appId);
+
+	/**
+	 * Gets reserved logins which can be deleted - they are used only in the given application.
+	 *
+	 * @param sess
+	 * @param appId
+	 * @return list of logins (Pair: left - namespace, right - login)
+	 */
+	List<Pair<String, String>> getReservedLoginsOnlyByGivenApp(PerunSession sess, int appId);
+
+	/**
+	 * Deletes reserved logins which can be deleted - they are used only in the given application.
+	 * Deletes them from both KDC and DB.
+	 *
+	 * @param sess
+	 * @param appId
+	 */
+	void deleteReservedLoginsOnlyByGivenApp(PerunSession sess, int appId) throws PasswordOperationTimeoutException, InvalidLoginException, PasswordDeletionFailedException;
 }

@@ -6,6 +6,19 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.96
+ALTER TABLE application_reserved_logins ADD COLUMN user_id integer;
+ALTER TABLE application_reserved_logins ADD COLUMN extsourcename varchar;
+UPDATE application_reserved_logins arl SET user_id = a.user_id FROM application a WHERE arl.app_id = a.id;
+UPDATE application_reserved_logins arl SET extsourcename = a.extsourcename FROM application a WHERE arl.app_id = a.id;
+ALTER TABLE application_reserved_logins ALTER COLUMN extsourcename SET not null;
+ALTER TABLE application_reserved_logins DROP constraint applogin_appid_fk;
+ALTER TABLE application_reserved_logins ADD constraint applogin_userid_fk foreign key(user_id) references users(id);
+DROP INDEX idx_fk_applogin_appid;
+CREATE INDEX idx_fk_applogin_userid on application_reserved_logins(user_id);
+ALTER TABLE application_reserved_logins DROP COLUMN app_id;
+UPDATE configurations SET value='3.1.96' WHERE property='DATABASE VERSION';
+
 3.1.95
 ALTER TYPE role_object ADD VALUE 'SecurityTeam';
 UPDATE configurations SET value='3.1.95' WHERE property='DATABASE VERSION';

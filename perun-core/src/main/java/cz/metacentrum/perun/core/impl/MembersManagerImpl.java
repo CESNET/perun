@@ -827,11 +827,11 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				"where id in (:ids)", parameters);
 
 			// get all reserved logins
-			List<Pair<String, String>> logins = namedParameterJdbcTemplate.query(
+			List<Pair<String, String>> logins = jdbc.query(
 				"select namespace,login from application_reserved_logins " +
-					"where app_id in (:ids)",
-				parameters,
-				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")));
+					"where user_id=? for update",
+				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")),
+				member.getUserId());
 
 			// delete passwords for reserved logins
 			for (Pair<String, String> login : logins) {
@@ -845,9 +845,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				}
 			}
 			// free any login from reservation when application is rejected
-			namedParameterJdbcTemplate.update(
-				"delete from application_reserved_logins " +
-					"where app_id in (:ids)", parameters);
+			jdbc.update("delete from application_reserved_logins where user_id=?", member.getUserId());
 
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

@@ -211,22 +211,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 			log.debug("Removing an administrators' group from the vo {}", vo);
 			getPerunBl().getGroupsManagerBl().deleteMembersGroup(sess, vo);
 
-			// delete all VO reserved logins from KDC
+			// delete all VO reserved logins from KDC and DB
 			List<Integer> list = getVosManagerImpl().getVoApplicationIds(sess, vo);
 			for (Integer appId : list) {
-				// for each application
-				for (Pair<String, String> login : getVosManagerImpl().getApplicationReservedLogins(appId)) {
-					// for all reserved logins - delete them in ext. system (e.g. KDC)
-					try {
-						// !!! left = namespace / right = login !!!
-						getPerunBl().getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
-					} catch (LoginNotExistsException ex) {
-						log.error("Login: {} not exists in namespace {} while deleting passwords", login.getRight(), login.getLeft());
-					}
-				}
+				perunBl.getUsersManagerBl().deleteReservedLoginsOnlyByGivenApp(sess, appId);
 			}
-			// delete all VO reserved logins from DB
-			getVosManagerImpl().deleteVoReservedLogins(sess, vo);
 
 			// VO applications, submitted data and app_form are deleted on cascade with "deleteVo()"
 

@@ -8,6 +8,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 public class PasswordDeletionFailedException extends PerunException {
 	static final long serialVersionUID = 0;
 
+	private String login;
+
 	/**
 	 * Simple constructor with a message
 	 * @param message message with details about the cause
@@ -31,5 +33,13 @@ public class PasswordDeletionFailedException extends PerunException {
 	 */
 	public PasswordDeletionFailedException(Throwable cause) {
 		super(cause);
+	}
+
+	public String getLogin() {
+		return login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
 	}
 }
