@@ -6979,7 +6979,7 @@ perun_roles_management:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
     associated_read_roles: []
-    assignable_to_attributes: true
+    assignable_to_attributes: false
 
   SELF:
     primary_object:
@@ -7026,7 +7026,7 @@ perun_roles_management:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
     associated_read_roles: []
-    assignable_to_attributes: true
+    assignable_to_attributes: false
 
   TRUSTEDFACILITYADMIN:
     primary_object: Vo
@@ -7103,7 +7103,7 @@ perun_roles_management:
         FACILITYOBSERVER: Facility
       - VOOBSERVER: Vo
     associated_read_roles: []
-    assignable_to_attributes: true
+    assignable_to_attributes: false
 
   RESOURCESELFSERVICE:
     primary_object: Resource
@@ -7213,7 +7213,7 @@ perun_roles_management:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
     associated_read_roles: []
-    assignable_to_attributes: true
+    assignable_to_attributes: false
 
   TOPGROUPCREATOR:
     primary_object: Vo
