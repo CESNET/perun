@@ -6,28 +6,25 @@ use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction tableContentToPrint);
-#use Data::Dumper;
 
 sub help {
 	return qq{
-	Prints attribute rights of roles
+	Prints attribute policy collections for selected attribute.
 	--------------------------------
 	Available options:
 	--attributeId     | -a  attribute identifier
 	--attributeName   | -A  attribute name (including namespace)
-	--batch           | -b  batch
 	--help            | -h  prints this help
 	};
 }
 
-my ($attributeId, $attributeName, $batch);
+my ($attributeId, $attributeName);
 GetOptions("help|h"   => sub {
 	 	print help;
 		exit 0;
 	},
 	"attributeId|a=i"       => \$attributeId,
-	"attributeName|A=s"     => \$attributeName,
-	"batch|b"               => \$batch) || die help;
+	"attributeName|A=s"     => \$attributeName) || die help;
 
 #options check
 unless (defined $attributeId or defined $attributeName) { die "ERROR: attributeId or attributeName are required\n";}
@@ -39,29 +36,15 @@ if (defined $attributeName and not defined $attributeId) {
 	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
 	$attributeId=$attributeDefinition->getId;
 }
-
-my @rights;
-@rights = $attributesAgent->getAttributeRights(attributeId => $attributeId);
-#output
-printMessage "\n.-----------------------------.\n| Attribute : ".$attributeId."\t      |", $batch;
-my @rows = ();
-foreach my $right (@rights) {
-	#print Dumper($right);
-	my @actions=$right->getRights;
-	my $out="";
-        if (defined $actions[0]) {
-		$out=$out.$actions[0];
-	} else {
-		$out=$out."     ";
+my @policyCollections;
+@policyCollections = $attributesAgent->getAttributePolicyCollections( attributeId => $attributeId );
+#OUTPUT
+foreach my $collection (@policyCollections) {
+	my $table = Text::ASCIITable->new({ headingText => "".$collection->getAction});
+	$table->setCols('Role','Object');
+	foreach my $policy ($collection->getPolicies) {
+		$table->addRow($policy->getRole, $policy->getObject);
+		$table->addRowLine();
 	}
-	if (defined $actions[1]) {
-		$out=$out." ".$actions[1];
-	} else {
-		$out=$out."      ";
-	}
-	my @row = ($right->getRole, $out);
-	push(@rows, \@row);
-} 
-my @columnsNames = ('Role', 'Rights');
-print tableContentToPrint(\@columnsNames, \@rows, $batch);
-
+	print $table;
+}

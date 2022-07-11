@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
@@ -184,7 +184,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Iterator<Facility> it = facilities.iterator();
 		while (it.hasNext()) {
 			Facility facility = it.next();
-			if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attributeDef, facility)) {
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attributeDef, facility)) {
 				it.remove();
 			}
 		}
@@ -425,6 +425,22 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
+	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility, Service service) throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedRichResources_Facility_Service_policy", facility)) {
+			throw new PrivilegeException(sess, "getAssignedRichResources");
+		}
+
+		return getFacilitiesManagerBl().getAssignedRichResources(sess, facility, service);
+
+	}
+
+	@Override
 	public Facility createFacility(PerunSession sess, Facility facility) throws PrivilegeException, FacilityExistsException, ConsentHubExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -599,7 +615,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		//Filtering attributes
 		for (String attrName : attrNames) {
-			if (AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
+			if (AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
 				allowedAttributes.add(attrName);
 			}
 		}

@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -105,7 +105,7 @@ public class SearcherEntry implements Searcher {
 			boolean isAuthorized = true;
 			for(AttributeDefinition attrDef: attrDefs) {
 				//Test if user has righ to read such attribute for specific user, if not, remove it from returning list
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, user)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrDef, user)) {
 					isAuthorized = false;
 					break;
 				}

@@ -257,21 +257,25 @@ sub setSponsoredUser
 sub getCommonName
 {
 	my $self = shift;
-
-	return ($self->{_firstName}.' '.(defined $self->{_middleName} ? $self->{_middleName}.' ' : '').$self->{_lastName});
+	my $commonName = $self->{_firstName}.' '.(defined $self->{_middleName} ? $self->{_middleName}.' ' : '').$self->{_lastName};
+	$commonName=~ s/^\s+|\s+$//g;
+	return $commonName;
 }
 
 sub getDisplayName
 {
 	my $self = shift;
-
-	return (($self->{_titleBefore} ? $self->{_titleBefore}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : "").($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_titleAfter} ? $self->{_titleAfter} : ""));
+	my $displayName = ($self->{_titleBefore} ? $self->{_titleBefore}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : "").($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_titleAfter} ? $self->{_titleAfter} : "");
+	$displayName =~ s/^\s+|\s+$//g;
+	return $displayName;
 }
 
 # used only for sorting purpose: LastName FirstName MiddleName
 sub getSortingName {
 	my $self = shift;
-	return (($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : ""));
+	my $sortingName = ($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : "");
+	$sortingName =~ s/^\s+|\s+$//g;
+	return $sortingName;
 }
 
 sub getCommonArrayRepresentation {

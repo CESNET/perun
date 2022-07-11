@@ -338,10 +338,12 @@ public interface ConsentsManagerBl {
 	void evaluateConsents(PerunSession sess, ConsentHub consentHub);
 
 	/**
-	 * Consolidate consents using given service for all consent hubs the service is assigned to.
+	 * Consolidate consents using given service on consent hubs the service is assigned to.
 	 *
 	 * Method finds all consent hubs that contain given service in any of its facilities and start
-	 * full consent consolidation for each consent hub (all services in consent hubs will be checked).
+	 * consent consolidation for each consent hub (only selected service in consent hubs will be checked).
+	 * Service defines whether only active users will be evaluated or expired ones as well.
+	 * If new consent is created, attributes from ALL services under given consent hub are gathered for it.
 	 *
 	 * @param sess session
 	 * @param service service

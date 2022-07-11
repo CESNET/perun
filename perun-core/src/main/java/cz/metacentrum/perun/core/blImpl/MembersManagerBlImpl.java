@@ -15,8 +15,8 @@ import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsoredMemberUns
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipEstablished;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipRemoved;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipValidityUpdated;
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -2095,16 +2095,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					} else {
 						boolean canRead = false;
 						if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm, group);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, membAttr, rm, group);
 						} else if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, membAttr, rm);
 						}
 						if(canRead) {
 							boolean isWritable = false;
 							if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm, group);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, membAttr, rm, group);
 							} else if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, membAttr, rm);
 							}
 							membAttr.setWritable(isWritable);
 							allowedMemberAttributes.add(membAttr);
@@ -2130,8 +2130,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						}
 					//if not, get information about authz rights and set record to contextMap
 					} else {
-						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, rm.getUser())) {
-							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, rm.getUser());
+						if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, userAttr, rm.getUser())) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, userAttr, rm.getUser());
 							userAttr.setWritable(isWritable);
 							allowedUserAttributes.add(userAttr);
 							contextMap.put(userAttr.getFriendlyName(), isWritable);

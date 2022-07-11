@@ -25,6 +25,7 @@ import java.util.Objects;
  *            Example entry: key: Resource; value: resource_id
  * associatedReadRoles is a list of related roles which are authorized to read attribute value if the main role is authorized.
  *            Example list for groupadmin role - value: [GROUPOBSERVER]
+ * assignableToAttributes is a flag that determines whether the role can appear in attribute policies.
  *
  */
 public class RoleManagementRules {
@@ -36,8 +37,9 @@ public class RoleManagementRules {
 	private Map<String, String> entitiesToManage;
 	private Map<String, String> assignedObjects;
 	private List<String> associatedReadRoles;
+	private boolean assignableToAttributes;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<String> associatedReadRoles) {
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<String> associatedReadRoles, boolean assignableToAttributes) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
@@ -45,6 +47,7 @@ public class RoleManagementRules {
 		this.entitiesToManage = entitiesToManage;
 		this.assignedObjects = assignedObjects;
 		this.associatedReadRoles = associatedReadRoles;
+		this.assignableToAttributes = assignableToAttributes;
 	}
 
 	public String getRoleName() {
@@ -133,5 +136,13 @@ public class RoleManagementRules {
 			", assignedObjects=" + assignedObjects +
 			", associatedReadRoles=" + associatedReadRoles +
 			'}';
+	}
+
+	public boolean isAssignableToAttributes() {
+		return assignableToAttributes;
+	}
+
+	public void setAssignableToAttributes(boolean assignableToAttributes) {
+		this.assignableToAttributes = assignableToAttributes;
 	}
 }

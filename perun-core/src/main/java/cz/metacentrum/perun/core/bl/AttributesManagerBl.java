@@ -1962,6 +1962,7 @@ public interface AttributesManagerBl {
 	 * @param attribute the attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorExceptions
 	 */
+	@Deprecated
 	void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute);
 
 	/**
@@ -4585,6 +4586,7 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if unexpected error occure
 	 * @throws ActionTypeNotExistsException if attribute doesn't exists
 	 */
+	@Deprecated
 	void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException;
 
 	/**
@@ -4607,6 +4609,7 @@ public interface AttributesManagerBl {
 	 * @return all rights of the attribute
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId);
 
 	/**
@@ -4619,6 +4622,7 @@ public interface AttributesManagerBl {
 	 * @param rights list of attribute rights
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	void setAttributeRights(PerunSession sess, List<AttributeRights> rights);
 
 	/**

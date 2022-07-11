@@ -216,12 +216,10 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns ConsentHub.
+	 * Evaluates consents for given consent hub.
 	 *
 	 * @param consentHub Consent Hub
 	 * @throw ConsentNotExistsException if consent hub does not exist
-	 *
-	 * @return ConsentHub
 	 */
 	evaluateConsentsForConsentHub {
 		@Override
@@ -232,15 +230,11 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns Service.
-	 *
-	 * All consent hubs that contain given service will have consents fully consolidated
-	 * (not only for given service, but for all of them).
+	 * Corresponding consent hubs (containing the service) will have consents evaluated ONLY for selected service.
+	 * Service defines whether only active users will be evaluated or expired ones as well.
 	 *
 	 * @param service used for consents evaluation
 	 * @throw ConsentNotExistsException if consent hub does not exist
-	 *
-	 * @return ConsentHub
 	 */
 	evaluateConsentsForService {
 		@Override

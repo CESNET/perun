@@ -886,4 +886,33 @@ public interface UsersManagerImplApi {
 	 */
 	List<Resource> getAssociatedResources(PerunSession sess, User user);
 
+	/**
+	 * Gets reserved logins which used in the given application.
+	 *
+	 * @param sess
+	 * @param appId
+	 * @return list of logins (Pair: left - namespace, right - login)
+	 */
+	List<Pair<String, String>> getReservedLoginsByApp(PerunSession sess, int appId);
+
+	/**
+	 * Gets reserved logins which can be deleted - they are used only in the given application.
+	 *
+	 * @param sess
+	 * @param appId
+	 * @return list of logins (Pair: left - namespace, right - login)
+	 */
+	List<Pair<String, String>> getReservedLoginsOnlyByGivenApp(PerunSession sess, int appId);
+
+	/**
+	 * Deletes given login reservations.
+	 *
+	 * Reserved logins must be removed from external systems
+	 * (e.g. KDC) BEFORE calling this method via deletePassword() in
+	 * UsersManager.
+	 *
+	 * @param sess
+	 * @param login login (pair namespace and login) to delete
+	 */
+	void deleteReservedLogin(PerunSession sess, Pair<String, String> login);
 }

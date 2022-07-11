@@ -211,29 +211,6 @@ public interface VosManagerImplApi {
 	List<Integer> getVoApplicationIds(PerunSession sess, Vo vo);
 
 	/**
-	 * Return list of all reserved logins for specific application
-	 * (pair is namespace and login)
-	 *
-	 * @param appId from which application get reserved logins
-	 * @return list of pairs namespace and login
-	 * @throws InternalErrorException
-	 */
-	List<Pair<String, String>> getApplicationReservedLogins(Integer appId);
-
-	/**
-	 * Delete all VO login reservations
-	 *
-	 * Reserved logins must be removed from external systems
-	 * (e.g. KDC) BEFORE calling this method via deletePassword() in
-	 * UsersManager.
-	 *
-	 * @param sess
-	 * @param vo VO to delete all login reservations for
-	 * @throws InternalErrorException
-	 */
-	void deleteVoReservedLogins(PerunSession sess, Vo vo);
-
-	/**
 	 * Creates empty application form definition for VO when
 	 * VO is created
 	 *

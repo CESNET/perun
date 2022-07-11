@@ -4,6 +4,8 @@ brands:
     new_apps:
       api: "api"
       admin: "gui"
+      consolidator: "consolidator"
+      linker: "linker"
       profile: "profile"
       pwd_reset: "pwd-reset"
       publications: "publications"
@@ -12,6 +14,8 @@ brands:
     new_apps:
       api: ""
       admin: ""
+      consolidator: ""
+      linker: ""
       profile: ""
       pwd_reset: ""
       publications: ""

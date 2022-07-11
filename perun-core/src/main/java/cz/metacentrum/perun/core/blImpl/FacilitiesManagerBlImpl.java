@@ -298,6 +298,11 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
+	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility, Service service) {
+		return getFacilitiesManagerImpl().getAssignedRichResources(sess, facility, service);
+	}
+
+	@Override
 	public Facility createFacility(PerunSession sess, Facility facility) throws FacilityExistsException, ConsentHubExistsException {
 
 		//check facility name, it can contain only a-zA-Z.0-9_-

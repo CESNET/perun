@@ -19,9 +19,9 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberRemove
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -115,7 +115,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.SynchronizationPool;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_memberOrganizationsHistory;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
@@ -151,8 +150,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
-import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.comparingInt;
@@ -359,26 +356,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new ConsistencyErrorException("All resources was removed from this group, so no attributes should remain assigned.", ex);
 		}
 
-		// delete all Groups reserved logins from KDC
+		// delete all Groups reserved logins from KDC and DB
 		List<Integer> list = getGroupsManagerImpl().getGroupApplicationIds(sess, group);
 		for (Integer appId : list) {
 			// for each application
-			for (Pair<String, String> login : getGroupsManagerImpl().getApplicationReservedLogins(appId)) {
-				// for all reserved logins - delete them in ext. system (e.g. KDC)
-				try {
-					// left = namespace / right = login
-					getPerunBl().getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
-				} catch (LoginNotExistsException ex) {
-					log.error("Login: {} not exists in namespace: {} while deleting passwords.", login.getRight(), login.getLeft());
-				} catch (InvalidLoginException e) {
-					throw new InternalErrorException("We are deleting reserved login from group applications, but its syntax is not allowed by namespace configuration.", e);
-				} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException ex) {
-					throw new InternalErrorException("Failed to delete reserved login "+login.getRight()+" from KDC.", ex);
-				}
+			try {
+				perunBl.getUsersManagerBl().deleteReservedLoginsOnlyByGivenApp(sess, appId);
+			} catch (InvalidLoginException e) {
+				throw new InternalErrorException("We are deleting reserved login from group applications, but its syntax is not allowed by namespace configuration.", e);
+			} catch (PasswordOperationTimeoutException ex) {
+				throw new InternalErrorException("Failed to delete reserved login "+ex.getLogin()+" from KDC.", ex);
+			} catch (PasswordDeletionFailedException ex) {
+				throw new InternalErrorException("Failed to delete reserved login "+ex.getLogin()+" from KDC.", ex);
 			}
 		}
-		// delete all Groups reserved logins from DB
-		getGroupsManagerImpl().deleteGroupReservedLogins(sess, group);
 
 		//remove all assigned ExtSources to this group
 		List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
@@ -2738,8 +2729,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<Attribute> groupAttributes = richGroup.getAttributes();
 			List<Attribute> allowedGroupAttributes = new ArrayList<>();
 			for(Attribute groupAttr : groupAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup)) {
-					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup)) {
+					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup));
 					allowedGroupAttributes.add(groupAttr);
 				}
 			}
@@ -2809,20 +2800,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						//if not, get information about authz rights and set record to contextMap
 						boolean canRead = false;
 						if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup, resource);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup, resource);
 						} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup, null);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup, null);
 						} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, member, richGroup);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, member, richGroup);
 						}
 						if(canRead) {
 							boolean isWritable = false;
 							if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup, resource);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup, resource);
 							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup, null);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup, null);
 							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, member, richGroup);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, member, richGroup);
 							}
 							groupAttr.setWritable(isWritable);
 							allowedGroupAttributes.add(groupAttr);

@@ -4,6 +4,7 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.AttributeRights;
 
+@Deprecated
 public class AttributeRightsSet extends AuditEvent implements EngineIgnoreEvent {
 
 	private AttributeRights rights;

@@ -1,10 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -59,7 +58,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 		if (!groupsWithSameGroupNameInTheSameNamespace.isEmpty()) {
 			boolean haveRights = false;
 			for(Group groupWithSameGroupName: groupsWithSameGroupNameInTheSameNamespace) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, groupWithSameGroupName)) {
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, groupWithSameGroupName)) {
 					haveRights = true;
 					break;
 				}

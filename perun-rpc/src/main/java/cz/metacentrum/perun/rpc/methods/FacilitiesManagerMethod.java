@@ -508,10 +508,20 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * @param facility int Facility <code>id</code>
 	 * @return List<RichResource> Resources
 	 */
+	/*#
+	 * Returns all rich resources assigned to a facility and service with VO property filled.
+	 * @param facility int Facility <code>id</code>
+	 * @param service int Service <code>id</code>
+	 * @return List<RichResource> Resources
+	 */
 	getAssignedRichResources {
 
 		@Override
 		public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("service")) {
+				return ac.getFacilitiesManager().getAssignedRichResources(ac.getSession(),
+					getFacility(ac,parms), ac.getServiceById(parms.readInt("service")));
+			}
 			return ac.getFacilitiesManager().getAssignedRichResources(ac.getSession(),
 					getFacility(ac, parms));
 		}

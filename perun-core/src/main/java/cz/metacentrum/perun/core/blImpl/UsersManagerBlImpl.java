@@ -10,8 +10,8 @@ import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToU
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceUpdated;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserUpdated;
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -643,6 +643,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	public List<Pair<String, String>> getUsersReservedLogins(PerunSession sess, User user) {
+		return usersManagerImpl.getUsersReservedLogins(user);
+	}
+
+	@Override
 	public void anonymizeUser(PerunSession sess, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException {
 		try {
 			this.deleteUser(sess, user, force, true);
@@ -1199,8 +1204,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			List<Attribute> userAttributes = richUser.getUserAttributes();
 			List<Attribute> allowedUserAttributes = new ArrayList<>();
 			for(Attribute userAttr: userAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richUser)) {
-					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richUser));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, userAttr, richUser)) {
+					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, userAttr, richUser));
 					allowedUserAttributes.add(userAttr);
 				}
 			}
@@ -2007,8 +2012,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException {
-		getPasswordManagerModule(sess, namespace).checkPasswordStrength(sess, null, password);
+	public void checkPasswordStrength(PerunSession sess, String password, String namespace, String login) throws PasswordStrengthException {
+		getPasswordManagerModule(sess, namespace).checkPasswordStrength(sess, login, password);
 	}
 
 	/**
@@ -2122,6 +2127,38 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		log.info("Created service user: {}", serviceUser);
 		return serviceUser;
+	}
+
+	@Override
+	public List<Pair<String, String>> getReservedLoginsByApp(PerunSession sess, int appId) {
+		return usersManagerImpl.getReservedLoginsByApp(sess, appId);
+	}
+
+	@Override
+	public List<Pair<String, String>> getReservedLoginsOnlyByGivenApp(PerunSession sess, int appId) {
+		return usersManagerImpl.getReservedLoginsOnlyByGivenApp(sess, appId);
+	}
+
+	@Override
+	public void deleteReservedLoginsOnlyByGivenApp(PerunSession sess, int appId) throws PasswordOperationTimeoutException, InvalidLoginException, PasswordDeletionFailedException {
+		for (Pair<String, String> login : getReservedLoginsOnlyByGivenApp(sess, appId)) {
+			// for all reserved logins - delete them in ext. system (e.g. KDC)
+			try {
+				// left = namespace / right = login
+				deletePassword(sess, login.getRight(), login.getLeft());
+			} catch (LoginNotExistsException ex) {
+				log.error("Login: {} not exists in namespace: {} while deleting passwords.", login.getRight(), login.getLeft());
+			} catch (PasswordDeletionFailedException ex) {
+				ex.setLogin(login.getRight());
+				throw ex;
+			} catch (PasswordOperationTimeoutException ex) {
+				ex.setLogin(login.getRight());
+				throw ex;
+			}
+
+			// delete reserved login from DB
+			getUsersManagerImpl().deleteReservedLogin(sess, login);
+		}
 	}
 
 

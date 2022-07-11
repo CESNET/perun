@@ -2241,6 +2241,31 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void getAssignedRichResourcesByService() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedRichResourcesByService");
+
+		Resource resource = setUpResource(vo);
+		Service service = new Service();
+		service.setName("ServicesManagerTestService");
+		service = perun.getServicesManager().createService(sess, service);
+		perun.getResourcesManagerBl().assignService(sess, resource, service);
+
+		Resource resource2 = setUpResource2(vo);
+		Service service2 = new Service();
+		service2.setName("ServicesManagerTestService2");
+		service2 = perun.getServicesManager().createService(sess, service2);
+		perun.getResourcesManagerBl().assignService(sess, resource2, service2);
+
+
+		List<RichResource> result = perun.getFacilitiesManagerBl().getAssignedRichResources(sess, facility, service);
+
+		assertEquals(2, perun.getFacilitiesManagerBl().getAssignedRichResources(sess, facility).size());
+		assertEquals(1, result.size());
+		assertEquals(resource.getName(), result.get(0).getName());
+		assertEquals(vo, result.get(0).getVo());
+	}
+
 
 	// PRIVATE METHODS -------------------------------------------------------
 

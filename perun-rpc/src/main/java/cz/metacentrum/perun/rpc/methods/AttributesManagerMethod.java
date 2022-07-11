@@ -3927,12 +3927,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * (read / write) with Attribute. Method always return rights for following roles:
 	 * VOADMIN, GROUPADMIN, FACILITYADMIN, SELF.
 	 *
+	 * @deprecated
+	 *
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return List<AttributeRights> all rights of the attribute
 	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 */
 	getAttributeRights {
 		@Override
+		@Deprecated
 		public List<AttributeRights> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getAttributesManager().getAttributeRights(ac.getSession(),
 					parms.readInt("attributeId"));
@@ -3943,11 +3946,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets all AttributeRights in the list given as a parameter. Allowed Roles to set
 	 * rights for are: VOADMIN, GROUPADMIN, FACILITYADMIN, SELF.
 	 *
+	 * @deprecated
+	 *
 	 * @param rights List<AttributeRights> List of AttributeRights to set.
 	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 */
 	setAttributeRights {
 		@Override
+		@Deprecated
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
@@ -3964,6 +3970,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param attributeId int attribute for which policies are set
 	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 * @throw RoleNotSupportedException When some of the AttributePolicyCollection does have a role which does not exist
+	 * @throw RoleObjectCombinationInvalidException when the combination role + RoleObject of any included policy isn't valid
 	 */
 	setAttributePolicyCollections {
 		@Override

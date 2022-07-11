@@ -13,5 +13,6 @@ public enum RoleObject {
 	Facility,
 	Resource,
 	User,
-	Member
+	Member,
+	SecurityTeam
 }

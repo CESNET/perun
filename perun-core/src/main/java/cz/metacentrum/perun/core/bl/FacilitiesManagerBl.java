@@ -391,6 +391,19 @@ public interface FacilitiesManagerBl {
 	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility);
 
 	/**
+	 * Returns all rich resources assigned to the facility and service with VO property filled
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param service
+	 *
+	 * @return list of resources assigned to the facility and service
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility, Service service);
+
+	/**
 	 * Store the facility.
 	 *
 	 * @param perunSession

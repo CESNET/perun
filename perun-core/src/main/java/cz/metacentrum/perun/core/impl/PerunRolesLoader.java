@@ -148,8 +148,9 @@ public class PerunRolesLoader {
 			Map<String, String> entitiesToManage = createMapFromJsonNode(roleNode.get("entities_to_manage"));
 			Map<String, String> objectsToAssign = createMapFromJsonNode(roleNode.get("assign_to_objects"));
 			List<String> associatedReadRoles = createListFromJsonNode(roleNode.get("associated_read_roles"));
+			boolean assignableToAttribute = roleNode.get("assignable_to_attributes").asBoolean();
 
-			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, associatedReadRoles));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, associatedReadRoles, assignableToAttribute));
 		}
 
 		return rules;

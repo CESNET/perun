@@ -404,6 +404,7 @@ components:
         - "Resource"
         - "User"
         - "Member"
+        - "SecurityTeam"
 
     AttributePolicy:
       type: object
@@ -694,6 +695,7 @@ components:
           type: object
           additionalProperties:
             type: string
+        assignableToAttributes: { type: boolean }
       required:
         - roleName
         - primaryObject
@@ -701,6 +703,7 @@ components:
         - privilegedRolesToRead
         - entitiesToManage
         - assignedObjects
+        - assignableToAttributes
 
     NamespaceRules:
       type: object
@@ -1386,6 +1389,8 @@ components:
       properties:
         api: { type: string }
         admin: { type: string }
+        consolidator: { type: string }
+        linker: { type: string }
         profile: { type: string }
         pwdReset: { type: string }
         publications: { type: string }
@@ -8357,11 +8362,12 @@ paths:
       tags:
         - UsersManager
       operationId: checkPasswordStrength
-      summary: Check password strength for the given namespace.
+      summary: Check password strength for the given namespace. Some namespaces may require passing also login for complete password strength check.
       description: If the check fails, the PasswordStrengthException error is returned.
       parameters:
         - $ref: '#/components/parameters/password'
         - $ref: '#/components/parameters/namespace'
+        - { name: login, description: "login", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9073,6 +9079,22 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+    
+  /urlinjsonout/usersManager/setLogin:
+    post:
+      tags:
+        - UsersManager
+      operationId: setLogin
+      summary: Set new login in namespace if login is available and user doesn't have login in that namespace. Works only for specific (service or guest) users.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/login'
+        - $ref: '#/components/parameters/namespace'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -10629,6 +10651,21 @@ paths:
       summary: Returns all rich resources assigned to a facility with VO property filled.
       parameters:
         - $ref: '#/components/parameters/facilityName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedRichResources/f-s:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedRichResourcesForFacilityAndService
+      summary: Returns all rich resources assigned to a facility and service with VO property filled.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/serviceId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichResourcesResponse'
@@ -16483,7 +16520,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/servicesManager/getAssignedServices:
+  /json/servicesManager/getAssignedServices/f:
     get:
       tags:
         - ServicesManager
@@ -16491,6 +16528,21 @@ paths:
       summary: List all services associated with the facility (via resource).
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getAssignedServices/f-v:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getAssignedServicesVo
+      summary: List all services associated with the facility and vo (via resource).
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/voId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfServicesResponse'
@@ -17354,7 +17406,7 @@ paths:
       tags:
         - ConsentsManager
       operationId: evaluateConsentsForService
-      summary: Evaluates consents for all consent hubs with given service.
+      summary: Evaluates consents ONLY for given service on consent hubs containing it. If new consent is created, attributes from ALL services under given consent hub are gathered for it.
       parameters:
         - $ref: '#/components/parameters/serviceId'
       responses:
