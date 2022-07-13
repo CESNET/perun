@@ -283,6 +283,11 @@ components:
       discriminator:
         propertyName: beanName
 
+    EnrichedExtSource:
+      properties:
+        extSource: { $ref: '#/components/schemas/ExtSource' }
+        attributes:  { type: object, additionalProperties: { type: string } }
+
     AttributeDefinition:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1448,6 +1453,15 @@ components:
         email: { type: string }
         identities: { type: array, items: { $ref: '#/components/schemas/ExtSource' } }
 
+    EnrichedIdentity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        organization: { type: string }
+        email: { type: string }
+        identities: { type: array, items: { $ref: '#/components/schemas/EnrichedExtSource' } }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2474,6 +2488,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Identity"
+
+    ListOfEnrichedIdentityResponse:
+      description: "List<EnrichedIdentity> Identities"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedIdentity"
 
     ConsentHubResponse:
       description: "returns ConsentHub"
@@ -15441,6 +15464,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/registrarManager/checkForSimilarRichIdentities:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: checkForSimilarRichIdentities
+      summary: Check for similar users by name and email in session (authz) information
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedIdentityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getConsolidatorToken:
     get:
       tags:
@@ -15453,6 +15488,32 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/consolidate:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: consolidate
+      summary: Join user identities by access tokens.
+      description: |
+        Join user identities by access tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputConsolidate
+              description: "input to consolidate"
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken: { type: string, description: "second access token" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

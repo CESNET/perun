@@ -20,6 +20,9 @@ import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.PerunAppsConfig;
+import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
+import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
+import cz.metacentrum.perun.oidc.UserInfoEndpointResponse;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
@@ -97,6 +100,7 @@ public class Api extends HttpServlet {
 	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
 	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
 	private static final String OIDC_CLAIM_ISS = "OIDC_CLAIM_iss";
+	private static final String OIDC_ACCESS_TOKEN = "OIDC_access_token";
 	private static final String EXTSOURCE = "EXTSOURCE";
 	private static final String EXTSOURCETYPE = "EXTSOURCETYPE";
 	private static final String EXTSOURCELOA = "EXTSOURCELOA";
@@ -105,6 +109,7 @@ public class Api extends HttpServlet {
 	private static final String DELEGATED_EXTSOURCE_NAME = "delegatedExtSourceName";
 	private static final String DELEGATED_EXTSOURCE_TYPE = "delegatedExtSourceType";
 	private static final String LOA = "loa";
+	private static UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
 
 	@Override
 	public void init() {
@@ -204,7 +209,7 @@ public class Api extends HttpServlet {
 
 	}
 
-	private static PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws UserNotExistsException {
+	private static PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws UserNotExistsException, ExpiredTokenException {
 		String extSourceLoaString = null;
 		String extLogin = null;
 		String extSourceName = null;
@@ -243,20 +248,29 @@ public class Api extends HttpServlet {
 
 		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
 		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-			extLogin = req.getHeader(OIDC_CLAIM_SUB);
-			//this is configurable, as the OIDC server has the source of sub claim also configurable
 			String iss = req.getHeader(OIDC_CLAIM_ISS);
-			if (iss != null) {
-				extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
+			if (BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
+				UserInfoEndpointResponse userInfoEndpointResponse = userInfoEndpointCall.getUserInfoEndpointData(req.getHeader(OIDC_ACCESS_TOKEN), iss, additionalInformations);
+				extLogin = userInfoEndpointResponse.getSub();
+				extSourceName = userInfoEndpointResponse.getIssuer();
 				extSourceType = BeansUtils.getCoreConfig().getOidcIssuersExtsourceTypes().get(iss);
-				if (extSourceName == null || extSourceType == null) {
-					throw new InternalErrorException("OIDC issuer " + iss + " not configured");
-				}
+				extSourceLoaString = "1";
+				log.debug("detected OIDC/OAuth2 client for sub={},iss={}", extLogin, extSourceName);
 			} else {
-				throw new InternalErrorException("OIDC issuer not send by Authorization Server");
+				extLogin = req.getHeader(OIDC_CLAIM_SUB);
+				//this is configurable, as the OIDC server has the source of sub claim also configurable
+				if (iss != null) {
+					extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
+					extSourceType = BeansUtils.getCoreConfig().getOidcIssuersExtsourceTypes().get(iss);
+					if (extSourceName == null || extSourceType == null) {
+						throw new InternalErrorException("OIDC issuer " + iss + " not configured");
+					}
+				} else {
+					throw new InternalErrorException("OIDC issuer not send by Authorization Server");
+				}
+				extSourceLoaString = "-1";
+				log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
 			}
-			extSourceLoaString = "-1";
-			log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
 		}
 
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
@@ -401,7 +415,7 @@ public class Api extends HttpServlet {
 			try {
 				perunPrincipal = setupPerunPrincipal(req,null);
 				wrt.write("OK! Version: " + getPerunRpcVersion() + ", User: " + perunPrincipal.getActor() + ", extSource: " + perunPrincipal.getExtSourceName());
-			} catch (InternalErrorException | UserNotExistsException e) {
+			} catch (InternalErrorException | UserNotExistsException | ExpiredTokenException e) {
 				wrt.write("ERROR! Exception " + e.getMessage());
 			}
 
