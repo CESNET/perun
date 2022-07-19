@@ -247,6 +247,9 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 					log.debug("[{}] Task NOT added to waiting queue, all its destinations are blocked.", task.getId());
 					if (!removeTask) return;
 				}
+			} else {
+				log.debug("[{}] Task NOT added to waiting queue, no destination exists.", task.getId());
+				if (!removeTask) return;
 			}
 
 		} catch (ServiceNotExistsException e) {

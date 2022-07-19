@@ -373,8 +373,7 @@ public class TaskScheduler extends AbstractRunner {
 			}
 		} else {
 			log.debug("[{}] No destination found for task: {}.", task.getId(), task);
-			task.setStatus(TaskStatus.ERROR);
-			return ERROR;
+			return DENIED;
 		}
 
 		task.setDestinations(destinations);
