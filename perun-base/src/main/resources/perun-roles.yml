@@ -5512,6 +5512,8 @@ perun_policies:
       - SECURITYADMIN:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
       - GROUPADMIN:
       - GROUPOBSERVER:
       - VOOBSREVER:
