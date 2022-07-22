@@ -53,6 +53,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 * Returns list of user's role names.
 	 *
 	 * Perun system uses role names in the upper case format.
+	 * Does not include membership and sponsorship role.
 	 * However, for now, they are converted to the lower case format because of the compatibility with external systems.
 	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
@@ -68,6 +69,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 	/*#
 	 * Returns all roles as an AuthzRoles object for a given user.
+	 * Returns also sponsorship and membership roles.
 	 *
 	 * @param userId int Id of a user
 	 * @return AuthzRoles Object which contains all roles with perunbeans
