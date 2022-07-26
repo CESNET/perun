@@ -2,6 +2,8 @@
 # and specify following options in it!
 # Each configuration is a dictionary entry, where the key serves as the identification of the configuration.
 # to switch between configurations, set environment variable PERUN_OIDC_CONFIG to the id of desired configuration.
+# If the PERUN_OIDC_CONFIG variable is undefined, config tagged as default is used.
+# If none is default, the alphabetically first configuration is used by default ('otherPerun' in this case).
 # The key is a string so user can freely choose the name of each configuration
 perun:
   client_id: "" # Identifier of the CLI app on the OIDC server
@@ -20,3 +22,4 @@ otherPerun:
   acr_values: "" # List of ACR values for authentication
   scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
   perun_api_endpoint: ""
+  default: true
