@@ -24,6 +24,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 	private final static String domainNameElixir = "elixir-europe.org";
 	private final static String attrNameElixir = "login-namespace:elixir-persistent-shadow";
 	private final static String lifeScienceShadow = "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
+	private final static String bbmriShadow = "urn:perun:user:attribute-def:def:login-namespace:bbmri-persistent-shadow";
 
 	@Override
 	public String getFriendlyName() {
@@ -59,15 +60,23 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
 		// Check if user has login in namespace lifescienceid-persistent-shadow
-		Attribute lifesciencePersistentShadow = null;
+		Attribute persistentShadow = null;
 		try {
-			lifesciencePersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, lifeScienceShadow);
+			persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, lifeScienceShadow);
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
 		}
 
-		if (lifesciencePersistentShadow != null && lifesciencePersistentShadow.getValue() != null) {
+		if (persistentShadow == null || persistentShadow.getValue() == null) {
+			// Check if user has login in namespace bbmri-persistent-shadow
+			try {
+				persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, bbmriShadow);
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
+			}
+		}
+
+		if (persistentShadow != null && persistentShadow.getValue() != null) {
 			Attribute filledAttribute = new Attribute(attribute);
-			String value = lifesciencePersistentShadow.getValue().toString();
+			String value = persistentShadow.getValue().toString();
 			String valueWithoutScope = value.split("@", 2) [0];
 			String attrValue = valueWithoutScope + "@" + domainNameElixir;
 			filledAttribute.setValue(attrValue);
