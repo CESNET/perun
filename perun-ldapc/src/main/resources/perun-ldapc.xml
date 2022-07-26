@@ -1149,6 +1149,17 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="mfaEnforceSettings;x-ns-"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:mfaEnforceSettings:"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def:mfaEnforceSettings"/>
+							<property name="name" value=""/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="mfaTokens;x-ns-"/>
 					<property name="required" value="false"/>
 					<property name="deleted" value="true"/>
@@ -1476,6 +1487,31 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
 							<property name="name" value="rpLoginURL"/>
 							<property name="namespace" value="urn:perun:facility:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="rpCategory"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="rpCategory"/>
+							<property name="namespace" value="urn:perun:facility:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="rpName"/>
+					<property name="required" value="false"/>
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:facility:attribute-def:def"/>
+							<property name="name" value="serviceName"/>
+							<property name="valueTransformer" >
+								<bean class="cz.metacentrum.perun.ldapc.beans.MapEntryValueTransformer">
+									<property name="separator" value="=" />
+								</bean>
+							</property>
 						</bean>
 					</property>
 				</bean>
