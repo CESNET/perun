@@ -1,15 +1,30 @@
 package cz.metacentrum.perun.rpc.methods;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.AssignedGroup;
+import cz.metacentrum.perun.core.api.AssignedMember;
+import cz.metacentrum.perun.core.api.AssignedResource;
+import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.EnrichedResource;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.ResourceTag;
+import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public enum ResourcesManagerMethod implements ManagerMethod {
 
@@ -958,6 +973,20 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getResourcesManager().getRichResources(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
+	 * Return all rich resources with mailing service(s) where given member is assigned.
+	 *
+	 * @param member int VO <code>id</code>
+	 * @return List<RichResource> member resources with mailing service
+	 * @throw MemberNotExistsException if member is not present (does not exist)
+	 */
+	getMailingServiceRichResourcesWithMember {
+		@Override
+		public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getMailingServiceRichResourcesWithMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
 		}
 	},
 

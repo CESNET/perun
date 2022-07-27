@@ -673,6 +673,15 @@ public interface ResourcesManagerBl {
 	List<RichResource> getRichResources(PerunSession perunSession, Vo vo);
 
 	/**
+	 * Return all rich resources with mailing service(s) where given member is assigned.
+	 *
+	 * @param perunSession session
+	 * @param member member
+	 * @return list of corresponding rich resources
+	 */
+	List<RichResource> getMailingServiceRichResourcesWithMember(PerunSession perunSession, Member member);
+
+	/**
 	 * Get all VO resources count.
 	 *
 	 * @param perunSession

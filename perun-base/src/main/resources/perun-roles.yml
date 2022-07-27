@@ -3570,6 +3570,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getMailingServiceRichResources_Member_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   filter-getRichResources_Vo_policy:
     policy_roles:
       - RESOURCESELFSERVICE: Resource

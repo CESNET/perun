@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
@@ -781,6 +782,17 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<RichResource> getRichResources(PerunSession sess, Vo vo) {
 		return getResourcesManagerImpl().getRichResources(sess, vo);
+	}
+
+	@Override
+	public List<RichResource> getMailingServiceRichResourcesWithMember(PerunSession sess, Member member) {
+		AttributeDefinition ad;
+		try {
+			ad = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":optOutMailingList");
+		} catch (AttributeNotExistsException e) {
+			return new ArrayList<>();
+		}
+		return getResourcesManagerImpl().getRichResourcesWithMemberAndAttribute(sess, member, ad);
 	}
 
 	@Override
