@@ -2567,6 +2567,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//TODO
 
 		//Remove attribute and all it's values
+		this.deleteAllAttributeAuthz(sess, attribute);
 		getAttributesManagerImpl().deleteAttribute(sess, attribute);
 		getPerunBl().getAuditer().log(sess, new AttributeDeleted(attribute));
 
