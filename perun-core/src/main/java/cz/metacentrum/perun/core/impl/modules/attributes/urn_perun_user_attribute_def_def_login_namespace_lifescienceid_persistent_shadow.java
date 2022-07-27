@@ -19,6 +19,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_pers
 
 	private final static String attrNameLifeScience = "login-namespace:lifescienceid-persistent-shadow";
 	private final static String elixirShadow = "urn:perun:user:attribute-def:def:login-namespace:elixir-persistent-shadow";
+	private final static String bbmriShadow = "urn:perun:user:attribute-def:def:login-namespace:bbmri-persistent-shadow";
 
 	private final static String CONFIG_EXT_SOURCE_NAME_LIFESCIENCE = "extSourceNameLifeScience";
 	private final static String CONFIG_DOMAIN_NAME_LIFESCIENCE = "domainNameLifeScience";
@@ -57,15 +58,23 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_pers
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
 		// Check if user has login in namespace elixir-persistent-shadow
-		Attribute elixirPersistentShadow = null;
+		Attribute persistentShadow = null;
 		try {
-			elixirPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, elixirShadow);
+			persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, elixirShadow);
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
 		}
 
-		if (elixirPersistentShadow != null && elixirPersistentShadow.getValue() != null) {
+		if (persistentShadow == null || persistentShadow.getValue() == null) {
+			// Check if user has login in namespace bbmri-persistent-shadow
+			try {
+				persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, bbmriShadow);
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
+			}
+		}
+
+		if (persistentShadow != null && persistentShadow.getValue() != null) {
 			Attribute filledAttribute = new Attribute(attribute);
-			String value = elixirPersistentShadow.getValue().toString();
+			String value = persistentShadow.getValue().toString();
 			String valueWithoutScope = value.split("@", 2) [0];
 			String attrValue = valueWithoutScope + "@" + getDomainName();
 			filledAttribute.setValue(attrValue);
