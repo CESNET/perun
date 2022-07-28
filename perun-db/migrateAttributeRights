@@ -14,8 +14,8 @@ sub help {
         --------------------------------------
         Available options:
 
-        --user      | -u Username for Oracle DB (required)
-        --password  | -w Password for Oracle DB (required)
+        --user      | -u Username for Perun DB (required)
+        --password  | -w Password for Perun DB (required)
         --overwrite | -o Overwrite existing tables
         };
 }
@@ -27,8 +27,8 @@ GetOptions ("help|h" => sub { print help(); exit 0;},
 	"password|w=s" => \$pwd,
 	"overwrite|o" => \$overwrite) || die help();
 
-if (!defined $user) { print "[ERROR] Username for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
-if (!defined $pwd) { print "[ERROR] Password for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
+if (!defined $user) { print "[ERROR] Username for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
+if (!defined $pwd) { print "[ERROR] Password for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
 
 my $dbh = DBI->connect('dbi:Pg:dbname=perun',$user,$pwd,{RaiseError=>1,AutoCommit=>0,pg_enable_utf8=>1}) or die EPERM," Connect";
 
