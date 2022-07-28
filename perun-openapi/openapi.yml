@@ -13534,6 +13534,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/resourcesManager/getMailingServiceRichResourcesWithMember:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getMailingServiceRichResourcesWithMember
+      summary: Return all rich resources with mailing service(s) where given member is assigned.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/resourcesManager/getEnrichedResourcesForVo:
     get:
       tags:

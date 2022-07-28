@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.EnrichedResource;
@@ -978,6 +979,32 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
 					" where resources.vo_id=?",
 				RICH_RESOURCE_WITH_TAGS_EXTRACTOR, vo.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<RichResource> getRichResourcesWithMemberAndAttribute(PerunSession perunSession, Member member, AttributeDefinition ad) {
+		try {
+			return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+				FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery +
+				" from resources " +
+					"join vos on resources.vo_id=vos.id " +
+					"join facilities on resources.facility_id=facilities.id " +
+					"join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+					"join groups on groups_resources_state.group_id=groups.id " +
+					"join groups_members on groups.id=groups_members.group_id " +
+					"join resource_services on resource_services.resource_id=resources.id " +
+					"join services on resource_services.service_id=services.id " +
+					"join service_required_attrs on services.id=service_required_attrs.service_id " +
+					"left outer join tags_resources on resources.id=tags_resources.resource_id " +
+					"left outer join res_tags on tags_resources.tag_id=res_tags.id " +
+				"where service_required_attrs.attr_id=? and groups_members.member_id=?",
+				RICH_RESOURCE_WITH_TAGS_EXTRACTOR,
+				GroupResourceStatus.ACTIVE.toString(), ad.getId(), member.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

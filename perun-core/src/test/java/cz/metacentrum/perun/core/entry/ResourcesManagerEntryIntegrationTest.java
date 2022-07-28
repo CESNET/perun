@@ -43,6 +43,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsExceptio
 import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -1652,6 +1653,36 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+	@Test
+	public void getMailingServiceRichResourcesWithMember() throws Exception {
+		System.out.println(CLASS_NAME + "getMailingServiceRichResourcesWithMember");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+
+		service = setUpService("mailman_cesnet", setUpMailingListAttribute());
+		resource = setUpResource();
+		Resource anotherResource = setUpResource2();
+
+		RichResource richResource = new RichResource(resource);
+		richResource.setFacility(facility);
+		richResource.setVo(vo);
+
+		// assign group to both resources
+		resourcesManager.assignGroupToResource(sess, group, resource, false, false, false);
+		resourcesManager.assignGroupToResource(sess, group, anotherResource, false, false, false);
+
+		// assign service to ONE of the resources
+		resourcesManager.assignService(sess, resource, service);
+
+		List<RichResource> resources = resourcesManager.getMailingServiceRichResourcesWithMember(sess, member);
+
+		assertEquals("there should have been only 1 assigned rich resource", 1, resources.size());
+		assertTrue("different rich resource expected", resources.contains(richResource));
+	}
+
 	@Test(expected = VoNotExistsException.class)
 	public void getRichResourcesWhenVoNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getRichResourcesWhenVoNotExists");
@@ -3028,6 +3059,17 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+	private Service setUpService(String name, Attribute attribute) throws Exception {
+
+		Service service = new Service();
+		service.setName(name);
+		service = perun.getServicesManager().createService(sess, service);
+		perun.getServicesManager().addRequiredAttributes(sess, service, List.of(attribute));
+
+		return service;
+
+	}
+
 	private ServicesPackage setUpServicesPackage(Service service) throws Exception {
 
 		ServicesPackage servicesPackage = new ServicesPackage();
@@ -3073,6 +3115,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 		Attribute attribute = new Attribute(attrDef);
 		attribute.setValue("Testing value for third attribute");
+		return attribute;
+	}
+
+	private Attribute setUpMailingListAttribute() throws Exception {
+		Attribute attribute = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":optOutMailingList"));
+		attribute.setValue("Testing value for mailing list attribute");
 		return attribute;
 	}
 
