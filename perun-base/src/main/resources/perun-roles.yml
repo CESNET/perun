@@ -576,6 +576,7 @@ perun_policies:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - PERUNOBSERVER:
+      - MEMBERSHIP:
     include_policies:
       - default_policy
 
@@ -585,6 +586,7 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - MEMBERSHIP: Facility
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -3181,6 +3183,7 @@ perun_policies:
       - VOADMIN:
       - VOOBSERVER:
       - PERUNOBSERVER:
+      - MEMBERSHIP:
       - RPC:
     include_policies:
       - default_policy
@@ -3194,6 +3197,7 @@ perun_policies:
       - FACILITYOBSERVER: Facility
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - MEMBERSHIP: Resource
       - PERUNOBSERVER:
       - RPC:
     include_policies:
