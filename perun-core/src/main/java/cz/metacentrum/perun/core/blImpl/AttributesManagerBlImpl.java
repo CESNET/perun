@@ -7972,6 +7972,94 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn_perun_ues_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the external source requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_user_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the user requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_member_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the member requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_group_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the group requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_vo_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the organization requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_resource_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the resource requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_facility_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the facility requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_host_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_HOST_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the host requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		// create namespaced attributes for each namespace
 		for (String namespace : BeansUtils.getCoreConfig().getAutocreatedNamespaces()) {
 
