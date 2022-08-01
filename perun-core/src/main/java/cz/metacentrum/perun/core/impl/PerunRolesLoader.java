@@ -149,8 +149,9 @@ public class PerunRolesLoader {
 			Map<String, String> objectsToAssign = createMapFromJsonNode(roleNode.get("assign_to_objects"));
 			List<String> associatedReadRoles = createListFromJsonNode(roleNode.get("associated_read_roles"));
 			boolean assignableToAttribute = roleNode.get("assignable_to_attributes").asBoolean();
+			boolean systemRole = roleNode.get("system_role") != null && roleNode.get("system_role").asBoolean();
 
-			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, associatedReadRoles, assignableToAttribute));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, associatedReadRoles, assignableToAttribute, systemRole));
 		}
 
 		return rules;
@@ -247,7 +248,17 @@ public class PerunRolesLoader {
 			List<String> includePolicies = new ArrayList<>(objectMapper.convertValue(policyNode.get("include_policies"), new TypeReference<List<String>>() {
 			}));
 
-			policies.add(new PerunPolicy(policyName, perunRoles, includePolicies));
+			List<Map<String,String>> mfaRules = new ArrayList<>();
+			JsonNode perunMFARulesNode = policyNode.get("mfa_rules");
+			if (perunMFARulesNode != null) {
+				//Field mfa_roles is saved as List of maps in the for loop
+				for (JsonNode perunMfaNode : perunMFARulesNode) {
+					Map<String, String> innerMFAMap = createMapFromJsonNode(perunMfaNode);
+					mfaRules.add(innerMFAMap);
+				}
+			}
+
+			policies.add(new PerunPolicy(policyName, perunRoles, includePolicies, mfaRules));
 		}
 
 		return policies;

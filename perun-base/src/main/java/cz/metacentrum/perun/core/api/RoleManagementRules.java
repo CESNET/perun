@@ -26,6 +26,7 @@ import java.util.Objects;
  * associatedReadRoles is a list of related roles which are authorized to read attribute value if the main role is authorized.
  *            Example list for groupadmin role - value: [GROUPOBSERVER]
  * assignableToAttributes is a flag that determines whether the role can appear in attribute policies.
+ * systemRole is a flag that whether the role is a Perun system role.
  *
  */
 public class RoleManagementRules {
@@ -38,8 +39,9 @@ public class RoleManagementRules {
 	private Map<String, String> assignedObjects;
 	private List<String> associatedReadRoles;
 	private boolean assignableToAttributes;
+	private boolean systemRole;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<String> associatedReadRoles, boolean assignableToAttributes) {
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<String> associatedReadRoles, boolean assignableToAttributes, boolean systemRole) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
@@ -48,6 +50,7 @@ public class RoleManagementRules {
 		this.assignedObjects = assignedObjects;
 		this.associatedReadRoles = associatedReadRoles;
 		this.assignableToAttributes = assignableToAttributes;
+		this.systemRole = systemRole;
 	}
 
 	public String getRoleName() {
@@ -106,6 +109,22 @@ public class RoleManagementRules {
 		this.associatedReadRoles = associatedReadRoles;
 	}
 
+	public boolean isAssignableToAttributes() {
+		return assignableToAttributes;
+	}
+
+	public void setAssignableToAttributes(boolean assignableToAttributes) {
+		this.assignableToAttributes = assignableToAttributes;
+	}
+
+	public boolean isSystemRole() {
+		return systemRole;
+	}
+
+	public void setSystemRole(boolean systemRole) {
+		this.systemRole = systemRole;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -117,12 +136,14 @@ public class RoleManagementRules {
 			Objects.equals(privilegedRolesToRead, that.privilegedRolesToRead) &&
 			Objects.equals(entitiesToManage, that.entitiesToManage) &&
 			Objects.equals(assignedObjects, that.assignedObjects) &&
-			Objects.equals(associatedReadRoles, that.associatedReadRoles);
+			Objects.equals(associatedReadRoles, that.associatedReadRoles) &&
+			Objects.equals(assignableToAttributes, that.assignableToAttributes) &&
+			Objects.equals(systemRole, that.systemRole);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, associatedReadRoles);
+		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, associatedReadRoles, assignableToAttributes, systemRole);
 	}
 
 	@Override
@@ -135,14 +156,8 @@ public class RoleManagementRules {
 			", entitiesToManage=" + entitiesToManage +
 			", assignedObjects=" + assignedObjects +
 			", associatedReadRoles=" + associatedReadRoles +
+			", assignableToAttributes=" + assignableToAttributes +
+			", systemRole=" + systemRole +
 			'}';
-	}
-
-	public boolean isAssignableToAttributes() {
-		return assignableToAttributes;
-	}
-
-	public void setAssignableToAttributes(boolean assignableToAttributes) {
-		this.assignableToAttributes = assignableToAttributes;
 	}
 }
