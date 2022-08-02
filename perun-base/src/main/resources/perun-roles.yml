@@ -3039,16 +3039,22 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteOwner_Owner_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteOwner_Owner_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getOwnerById_int_policy:
     policy_roles:
@@ -3218,18 +3224,30 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Facility
 
   copyResource_Resource_Resource_boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   withGroups-copyResource_Resource_Resource_boolean_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
+      - MFA: Group
 
   deleteResource_Resource_policy:
     policy_roles:
@@ -3237,12 +3255,20 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   deleteAllResources_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Resource
+      - MFA: Facility
 
   getFacility_Resource_policy:
     policy_roles:
@@ -3342,6 +3368,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   assignGroupsToResource_List<Group>_Resource_policy:
     policy_roles:
@@ -3353,6 +3384,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   assignGroupToResources_Group_List<Resource>_policy:
     policy_roles:
@@ -3364,6 +3400,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   removeGroupFromResource_Group_Resource_policy:
     policy_roles:
@@ -3375,6 +3416,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   removeGroupsFromResource_List<Group>_Resource_policy:
     policy_roles:
@@ -3386,6 +3432,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   removeGroupFromResources_Group_List<Resource>_policy:
     policy_roles:
@@ -3397,6 +3448,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   getAssignedGroups_Resource_policy:
     policy_roles:
@@ -3502,34 +3558,58 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   assignServices_Resource_List<Service>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   assignServicesPackage_Resource_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeService_Resource_Service_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeServices_Resource_List<Service>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeServicesPackage_Resource_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   getResources_Vo_policy:
     policy_roles:
@@ -3724,48 +3804,72 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   createResourceTag_ResourceTag_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   updateResourceTag_ResourceTag_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   deleteResourceTag_ResourceTag_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   deleteAllResourcesTagsForVo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   assignResourceTagToResource_ResourceTag_Resource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeResourceTagFromResource_ResourceTag_Resource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeAllResourcesTagFromResource_Resource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   getAllResourcesByResourceTag_ResourceTag_policy:
     policy_roles:
@@ -3796,12 +3900,20 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   copyServices_Resource_Resource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   copyGroups_Resource_Resource_policy:
     policy_roles:
@@ -3811,6 +3923,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   getAdmins_Resource_boolean_policy:
     policy_roles:
@@ -3924,45 +4041,15 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addAdmin_Resource_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addAdmin_Resource_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  group-addAdmin_Resource_Group_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  removeAdmin_Resource_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Resource_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  group-removeAdmin_Resource_Group_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
   setBan_BanOnResource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   resource-getBanById_int_policy:
     policy_roles:
@@ -4001,18 +4088,30 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   resource-removeBan_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   resource-removeBan_int_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   addResourceSelfServiceUser_Resource_User_policy:
     policy_roles:
@@ -4020,6 +4119,11 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   addResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles:
@@ -4027,11 +4131,21 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   group-addResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeResourceSelfServiceUser_Resource_User_policy:
     policy_roles:
@@ -4039,6 +4153,11 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles:
@@ -4046,11 +4165,21 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   group-removeResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   getResourceAssignments_Group_policy:
     policy_roles:
@@ -4122,6 +4251,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   deactivateGroupResourceAssignment_Group_Resource_policy:
     policy_roles:
@@ -4133,6 +4267,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   #SearcherEntry
   getUsers_Map<String_String>_policy:
