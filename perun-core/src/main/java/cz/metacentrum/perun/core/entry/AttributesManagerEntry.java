@@ -1582,11 +1582,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		Utils.notNull(key, "key");
 		if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
-
-		//Authorization - will be later replaced by the new attributes authorization
-		if(!AuthzResolver.authorizedInternal(sess, "setAttribute_String_Attribute_policy")) {
-			throw new PrivilegeException("setAttribute");
-		}
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, key)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().setAttribute(sess, key, attribute);
 
