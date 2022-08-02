@@ -7159,6 +7159,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    system_role: true
 
   ENGINE:
     primary_object:
@@ -7168,6 +7169,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    system_role: true
 
   RPC:
     primary_object:
@@ -7177,6 +7179,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    system_role: true
 
   NOTIFICATIONS:
     primary_object:
@@ -7186,6 +7189,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    system_role: true
 
   SERVICEUSER:
     primary_object:
