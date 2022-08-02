@@ -684,24 +684,32 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addOwner_Facility_Owner_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeOwner_Facility_Owner_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   copyOwners_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getAllowedVos_Facility_policy:
     policy_roles:
@@ -782,18 +790,24 @@ perun_policies:
       - FACILITYADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteFacility_Facility_Boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   updateFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getOwnerFacilities_Owner_policy:
     policy_roles:
@@ -920,42 +934,25 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addHosts_Facility_List<String>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeHosts_List<Host>_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
-
-  addAdmin_Facility_User_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-
-  addAdmin_Facility_Group_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-
-  removeAdmin_Facility_User_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-
-  removeAdmin_Facility_Group_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
+    mfa_rules:
+      - MFA: Facility
+      - MFA: Host
 
   getAdmins_Facility_boolean_policy:
     policy_roles:
@@ -993,24 +990,34 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
+      - MFA: User
 
   copyAttributes_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addHost_Host_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeHost_Host_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
+      - MFA: Host
 
   getHostById_int_policy:
     policy_roles:
@@ -1082,18 +1089,24 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeSecurityTeam_Facility_SecurityTeam_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   setBan_BanOnFacility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getBanById_int_policy:
     policy_roles:
@@ -1132,18 +1145,24 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeBan_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeBan_int_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   #GroupsManagerEntry
   createGroup_Vo_Group_policy:
