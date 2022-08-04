@@ -272,6 +272,8 @@ $objectExamples{"AttributePolicyCollection"} = "{ \"id\" : 10 , \"attributeId\" 
 $objectExamples{"List&lt;AttributePolicyCollection&gt;"} = $listPrepend . $objectExamples{"AttributePolicyCollection"} . $listAppend;
 $objectExamples{"List<AttributePolicyCollection>"} = $objectExamples{"List&lt;AttributePolicyCollection&gt;"};
 
+$objectExamples{"AttributeRules"} = "{\"attributePolicyCollections\": " . $objectExamples{"List&lt;AttributePolicyCollection&gt;"} . ", \"criticalActions\": [\"WRITE\" , \"READ\"]}";
+
 $objectExamples{"ConsentHub"} = "{ \"id\" : 10 , \"name\" : \"Test Consent Hub\" , \"enforceConsents\" : false , \"facilities\" : " . $objectExamples{"List&lt;Facility&gt;"} . " , \"beanName\" : \"ConsentHub\" }";
 $objectExamples{"List&lt;ConsentHub&gt;"} = $listPrepend . $objectExamples{"ConsentHub"} . $listAppend;
 $objectExamples{"List<ConsentHub>"} = $objectExamples{"List&lt;ConsentHub&gt;"};

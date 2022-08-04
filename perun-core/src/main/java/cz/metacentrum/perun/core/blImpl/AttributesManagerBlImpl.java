@@ -55,6 +55,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
+import cz.metacentrum.perun.core.api.AttributeRules;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -89,6 +90,8 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -2485,6 +2488,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		if (calculateDependencies) {
 			handleAttributeModuleDependencies(sess, attribute);
+		}
+
+		// mark WRITE action on this attribute as critical
+		try {
+			setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true);
+		} catch (RelationExistsException | RelationNotExistsException ignored) {
 		}
 
 		getPerunBl().getAuditer().log(sess, new AttributeCreated(attribute));
@@ -8496,6 +8505,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public AttributeRules getAttributeRules(PerunSession sess, int attributeId) {
+		AttributeRules attrRules = new AttributeRules(getAttributesManagerImpl().getAttributePolicyCollections(sess, attributeId));
+		attrRules.setCriticalActions(getAttributesManagerImpl().getCriticalAttributeActions(sess, attributeId));
+		return attrRules;
+	}
+
+	@Override
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		return getAttributesManagerImpl().getUserVirtualAttributeModule(sess, attribute);
 	}
@@ -8611,6 +8627,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {
 		return allDependencies;
+	}
+
+	@Override
+	public boolean isAttributeActionCritical(PerunSession sess, AttributeDefinition attr, AttributeAction action) {
+		return getAttributesManagerImpl().isAttributeActionCritical(sess, attr, action);
+	}
+
+	@Override
+	public List<AttributeAction> getCriticalAttributeActions(PerunSession sess, int attrId) {
+		return getAttributesManagerImpl().getCriticalAttributeActions(sess, attrId);
+	}
+
+	@Override
+	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException {
+		getAttributesManagerImpl().setAttributeActionCriticality(sess, attr, action, critical);
 	}
 
 	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------

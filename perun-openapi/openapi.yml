@@ -317,6 +317,18 @@ components:
       discriminator:
         propertyName: beanName
 
+    AttributeRules:
+      type: object
+      properties:
+        attributePolicyCollections:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributePolicyCollection'
+        criticalActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributeAction'
+
     AuditEvent:
       type: object
       properties:
@@ -1864,6 +1876,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/AttributePolicyCollection"
+
+    AttributeRulesResponse:
+      description: "returns AttributeRules"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AttributeRules"
 
     AttributeResponse:
       description: "returns Attribute"
@@ -7106,6 +7125,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getAttributeRules:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeRules
+      summary: "Gets attribute rules containing policy collections and critical actions for an attribute definition with given id"
+      parameters:
+        - $ref: '#/components/parameters/attributeDefinitionId'
+      responses:
+        '200':
+          $ref: '#/components/responses/AttributeRulesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/attributesManager/setAttributePolicyCollections:
     post:
       tags:
@@ -7127,6 +7160,22 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/AttributePolicyCollection'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/setAttributeActionCriticality:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setAttributeActionCriticality
+      summary: Marks the action on attribute as critical, which may require additional authentication of user performing that action on attribute.
+      parameters:
+        - $ref: '#/components/parameters/attributeDefinitionId'
+        - {name: action, in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true}
+        - {name: critical, description: "if action should be marked as critical", schema: { type: boolean }, in: query, required: true}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
