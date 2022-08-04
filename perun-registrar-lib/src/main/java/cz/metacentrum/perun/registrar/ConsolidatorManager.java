@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
+import cz.metacentrum.perun.registrar.model.EnrichedIdentity;
 import cz.metacentrum.perun.registrar.model.Identity;
 
 import java.util.List;
@@ -81,6 +82,14 @@ public interface ConsolidatorManager {
 	List<Identity> checkForSimilarUsers(PerunSession sess, List<ApplicationFormItemData> formItems) throws PerunException;
 
 	/**
+	 * Check for similar users by name and email in session (authz) information
+	 * @param sess
+	 * @return List of found similar EnrichedIdentities
+	 * @throws PerunException
+	 */
+	List<EnrichedIdentity> checkForSimilarRichIdentities(PerunSession sess) throws PerunException;
+
+	/**
 	 * Return unique token with information about current authz. It can be used to join this identity
 	 * with another, when user calls opposite method with different credentials.
 	 *
@@ -103,4 +112,11 @@ public interface ConsolidatorManager {
 	 */
 	List<UserExtSource> consolidateIdentityUsingToken(PerunSession sess, String token) throws PerunException;
 
+	/**
+	 * Join user identities.
+	 * @param sess PerunSession for authz (identity)
+	 * @param accessToken second access token
+	 * @throws PerunException When error occurs
+	 */
+	void consolidate(PerunSession sess, String accessToken) throws PerunException;
 }

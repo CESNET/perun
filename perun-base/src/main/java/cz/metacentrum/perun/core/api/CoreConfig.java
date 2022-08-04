@@ -52,6 +52,7 @@ public class CoreConfig {
 	private Set<String> extSourcesMultipleIdentifiers;
 	private boolean lookupUserByIdentifiersAndExtSourceLogin;
 	private boolean forceConsents;
+	private boolean requestUserInfoEndpoint;
 	private String alternativePasswordManagerProgram;
 	private String instanceId;
 	private String instanceName;
@@ -87,6 +88,9 @@ public class CoreConfig {
 	private List<String> attributesToAnonymize;
 	private List<String> attributesToKeep;
 	private boolean findSimilarUsersDisabled;
+	private List<String> userInfoEndpointExtSourceLogin;
+	private String userInfoEndpointExtSourceName;
+	private List<String> userInfoEndpointExtSourceFriendlyName;
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
 	}
@@ -727,5 +731,37 @@ public class CoreConfig {
 
 	public void setFindSimilarUsersDisabled(boolean findSimilarUsersDisabled) {
 		this.findSimilarUsersDisabled = findSimilarUsersDisabled;
+	}
+
+	public void setRequestUserInfoEndpoint(boolean requestUserInfoEndpoint) {
+		this.requestUserInfoEndpoint = requestUserInfoEndpoint;
+	}
+
+	public boolean getRequestUserInfoEndpoint() {
+		return this.requestUserInfoEndpoint;
+	}
+
+	public List<String> getUserInfoEndpointExtSourceLogin() {
+		return userInfoEndpointExtSourceLogin;
+	}
+
+	public void setUserInfoEndpointExtSourceLogin(List<String> userInfoEndpointExtSourceLogin) {
+		this.userInfoEndpointExtSourceLogin = userInfoEndpointExtSourceLogin;
+	}
+
+	public String getUserInfoEndpointExtSourceName() {
+		return userInfoEndpointExtSourceName;
+	}
+
+	public void setUserInfoEndpointExtSourceName(String userInfoEndpointExtSourceName) {
+		this.userInfoEndpointExtSourceName = userInfoEndpointExtSourceName;
+	}
+
+	public List<String> getUserInfoEndpointExtSourceFriendlyName() {
+		return userInfoEndpointExtSourceFriendlyName;
+	}
+
+	public void setUserInfoEndpointExtSourceFriendlyName(List<String> userInfoEndpointExtSourceFriendlyName) {
+		this.userInfoEndpointExtSourceFriendlyName = userInfoEndpointExtSourceFriendlyName;
 	}
 }

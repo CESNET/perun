@@ -16,6 +16,7 @@
 		<property name="extSourcesMultipleIdentifiers" value="#{'${perun.extsources.multiple.identifiers}'.split('\s*,\s*')}"/>
 		<property name="lookupUserByIdentifiersAndExtSourceLogin" value="${perun.lookup.user.by.identifiers.and.extSourceLogin}"/>
 		<property name="forceConsents" value="${perun.force.consents}"/>
+		<property name="requestUserInfoEndpoint" value="${perun.requestUserInfoEndpoint}"/>
 		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
@@ -71,6 +72,9 @@
 		<property name="attributesToKeep" value="#{'${perun.attributesToKeep}'.split('\s*,\s*')}"/>
 		<property name="sendIdentityAlerts" value="${perun.sendIdentityAlerts}"/>
 		<property name="findSimilarUsersDisabled" value="${perun.findSimilarUsersDisabled}"/>
+		<property name="userInfoEndpointExtSourceLogin" value="#{'${perun.userInfoEndpoint.extSourceLogin}'.split('\s*,\s*')}"/>
+		<property name="userInfoEndpointExtSourceName" value="${perun.userInfoEndpoint.extSourceName}"/>
+		<property name="userInfoEndpointExtSourceFriendlyName" value="#{'${perun.userInfoEndpoint.extSourceFriendlyName}'.split('\s*,\s*')}"/>
 	</bean>
 
 
@@ -96,6 +100,7 @@
 				</prop>
 				<prop key="perun.lookup.user.by.identifiers.and.extSourceLogin">false</prop>
 				<prop key="perun.force.consents">false</prop>
+				<prop key="perun.requestUserInfoEndpoint">false</prop>
 				<prop key="perun.group.synchronization.interval">1</prop>
 				<prop key="perun.group.synchronization.timeout">10</prop>
 				<prop key="perun.group.structure.synchronization.interval">1</prop>
@@ -161,6 +166,9 @@
 				<prop key="perun.sendIdentityAlerts">false</prop>
 				<prop key="perun.findSimilarUsersDisabled">false</prop>
 
+				<prop key="perun.userInfoEndpoint.extSourceLogin">eduperson_unique_id, eduperson_principal_name, saml2_nameid_persistent, eduperson_targeted_id, voperson_external_id</prop>
+				<prop key="perun.userInfoEndpoint.extSourceName">target_issuer</prop>
+				<prop key="perun.userInfoEndpoint.extSourceFriendlyName">target_backend, display_name, text</prop>
 			</props>
 		</property>
 	</bean>
