@@ -5795,23 +5795,31 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   deleteVo_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   createVo_Vo_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateVo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   getVoByShortName_String_policy:
     policy_roles:
@@ -5967,30 +5975,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addAdmin_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addAdmin_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
   getAdmins_Vo_String_boolean_policy:
     policy_roles:
       - PERUNOBSERVER:
@@ -6026,47 +6010,29 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addSponsorRole_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addSponsorRole_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeSponsorRole_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeSponsorRole_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
   setBan_BanOnVo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   vo-removeBan_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   vo-removeBanForMember_member_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   vo-getBanById_int_policy:
     policy_roles:
@@ -6104,11 +6070,15 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   removeMemberVo_Vo_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   getParentVos_int_policy:
     policy_roles:
