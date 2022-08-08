@@ -441,8 +441,9 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws FacilityExistsException
+	 * @throws ConsentHubExistsException
 	 */
-	Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException;
+	Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException, ConsentHubExistsException;
 
 	/**
 	 * Returns list of all facilities owned by the owner.
