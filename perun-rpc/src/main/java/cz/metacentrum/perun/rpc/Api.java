@@ -249,28 +249,34 @@ public class Api extends HttpServlet {
 		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
 		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
 			String iss = req.getHeader(OIDC_CLAIM_ISS);
-			if (BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
-				UserInfoEndpointResponse userInfoEndpointResponse = userInfoEndpointCall.getUserInfoEndpointData(req.getHeader(OIDC_ACCESS_TOKEN), iss, additionalInformations);
-				extLogin = userInfoEndpointResponse.getSub();
-				extSourceName = userInfoEndpointResponse.getIssuer();
+			extLogin = req.getHeader(OIDC_CLAIM_SUB);
+			//this is configurable, as the OIDC server has the source of sub claim also configurable
+			if (iss != null) {
+				extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
 				extSourceType = BeansUtils.getCoreConfig().getOidcIssuersExtsourceTypes().get(iss);
-				extSourceLoaString = "1";
-				log.debug("detected OIDC/OAuth2 client for sub={},iss={}", extLogin, extSourceName);
-			} else {
-				extLogin = req.getHeader(OIDC_CLAIM_SUB);
-				//this is configurable, as the OIDC server has the source of sub claim also configurable
-				if (iss != null) {
-					extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
-					extSourceType = BeansUtils.getCoreConfig().getOidcIssuersExtsourceTypes().get(iss);
-					if (extSourceName == null || extSourceType == null) {
-						throw new InternalErrorException("OIDC issuer " + iss + " not configured");
-					}
-				} else {
-					throw new InternalErrorException("OIDC issuer not send by Authorization Server");
+				if (extSourceName == null || extSourceType == null) {
+					throw new InternalErrorException("OIDC issuer " + iss + " not configured");
 				}
-				extSourceLoaString = "-1";
-				log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
+			} else {
+				throw new InternalErrorException("OIDC issuer not send by Authorization Server");
 			}
+			extSourceLoaString = "-1";
+
+			if (BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
+				UserInfoEndpointResponse userInfoEndpointResponse;
+				try {
+					userInfoEndpointResponse = userInfoEndpointCall.getUserInfoEndpointData(req.getHeader(OIDC_ACCESS_TOKEN), iss, additionalInformations);
+				} catch (InternalErrorException | ExpiredTokenException ex) {
+					userInfoEndpointResponse = new UserInfoEndpointResponse(null, null);
+				}
+				if (isNotEmpty(userInfoEndpointResponse.getSub()) && isNotEmpty(userInfoEndpointResponse.getIssuer())) {
+					extLogin = userInfoEndpointResponse.getSub();
+					extSourceName = userInfoEndpointResponse.getIssuer();
+					extSourceLoaString = "1";
+					additionalInformations.put("issuer", iss);
+				}
+			}
+			log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
 		}
 
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)

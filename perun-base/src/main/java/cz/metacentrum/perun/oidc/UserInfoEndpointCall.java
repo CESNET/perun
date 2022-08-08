@@ -84,10 +84,9 @@ public class UserInfoEndpointCall {
 			}
 		}
 		if(StringUtils.isEmpty(login)) {
-			log.error("user sub was empty or null: {}", login);
-			throw new InternalErrorException("user sub was empty or null: " + login);
+			log.info("user sub from user info endpoint was empty or null: {}", login);
 		}
-		return null;
+		return login;
 	}
 
 	/**
@@ -99,8 +98,7 @@ public class UserInfoEndpointCall {
 		String pathToExtSourceName = BeansUtils.getCoreConfig().getUserInfoEndpointExtSourceName();
 		String extSourceName = userInfo.path(pathToExtSourceName).asText();
 		if(StringUtils.isEmpty(extSourceName)) {
-			log.error("issuer was empty or null: {}", extSourceName);
-			throw new InternalErrorException("issuer was null: " + extSourceName);
+			log.info("issuer from user info endpoint was empty or null: {}", extSourceName);
 		}
 		return extSourceName;
 	}
