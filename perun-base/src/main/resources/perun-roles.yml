@@ -219,40 +219,49 @@ perun_policies:
     include_policies:
       - default_policy
 
-  setAttribute_String_Attribute_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
   createAttribute_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteAttribute_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteAttribute_AttributeDefinition_boolean:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateAttributeDefinition_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   doTheMagic_Member_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: User
 
   doTheMagic_Member_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: User
 
   getAttributeRights_int_policy:
     policy_roles:
@@ -264,6 +273,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getAttributePolicyCollections_int_policy:
     policy_roles:
@@ -275,16 +286,22 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   convertAttributeToUnique_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   convertAttributeToNonunique_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getModulesDependenciesGraph_GraphTextFormat_policy:
     policy_roles:
@@ -340,17 +357,23 @@ perun_policies:
       - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   log_String_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   setLastProcessedId_String_int_policy:
     policy_roles:
       - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   #AuthzResolver
   getUserRoleNames_User_policy:
@@ -381,6 +404,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getVosWhereUserIsInRoles_User_List<String>_policy:
     policy_roles:
@@ -452,11 +477,15 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteExtSource_ExtSource_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getExtSourceById_int_policy:
     policy_roles:
@@ -501,23 +530,31 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   addExtSource_Group_ExtSource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
 
   removeExtSource_Vo_ExtSource_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   removeExtSource_Group_ExtSource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
 
   getInvalidUsers_ExtSource_policy:
     policy_roles:
@@ -529,6 +566,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getCandidate_ExtSource_String_policy:
     policy_roles:
