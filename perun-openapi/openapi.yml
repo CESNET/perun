@@ -7249,6 +7249,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/auditMessagesManager/getMessagesByIdAndCount:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getMessagesByIdAndCount
+      summary: Returns "count" number of messages that are less or equal than the given ID (descending order).
+      parameters:
+        - { name: id, in: query, schema: { type: integer }, description: "Starting id from which the messages will be taken", required: true }
+        - { name: count, in: query, schema: { type: integer }, description: "Number of messages that will be returned", required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuditMessagesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/auditMessagesManager/getMessagesPage:
     post:
       tags:
