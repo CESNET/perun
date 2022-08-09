@@ -48,6 +48,21 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns "count" number of messages that are less or equal than the given ID (descending order).
+	 *
+	 * @param perunSession perun session
+	 * @param id starting id from which the messages will be taken
+	 * @param count Number of messages that will be returned
+	 * @return List of audit messages
+	 */
+	getMessagesByIdAndCount {
+		@Override
+		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAuditMessagesManager().getMessagesByIdAndCount(ac.getSession(), parms.readInt("id"), parms.readInt("count"));
+		}
+	},
+
+	/*#
 	 * Get page of audit messages. Query parameter specifies offset and page size. Total count is only estimated.
 	 *
 	 * @param query MessagesPageQuery Query with page information
