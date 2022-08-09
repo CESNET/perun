@@ -8,14 +8,13 @@ use JSON::XS;
 use LWP::UserAgent;
 use File::Basename;
 use Perun::Exception;
+use Try::Tiny;
 
-my $UNDEFINED_CONFIGURATION = "UNDEFINED_OIDC_CONFIGURATION";
-
-my $chosenConfigName = $ENV{PERUN_OIDC_CONFIG} || $UNDEFINED_CONFIGURATION;
-my $PERUN_OIDC = "perun_oidc" . "_" . $chosenConfigName;
 my $PYTHON = "python3";
 my $dirname = dirname(__FILE__);
 my $configFilename = $dirname . '/oidc_config.yml';
+my $chosenConfigName = $ENV{PERUN_OIDC_CONFIG} || getDefaultConfig();
+my $PERUN_OIDC = "perun_oidc" . "_" . $chosenConfigName;
 my $contentType = "application/x-www-form-urlencoded";
 my $authenticationFailed = "Authentication failed";
 my $tokenRevocationFailed = "Token revocation failed";
@@ -387,13 +386,34 @@ sub revokeToken
 sub checkConfigExists
 {
 	my $configName = $_[0];
-	if ($configName eq $UNDEFINED_CONFIGURATION) {
-		die "ERROR: environment variable PERUN_OIDC_CONFIG is not set!\n";
-	}
 	my %configs = % { loadAllConfigurations() };
+
 	if (!exists $configs{$configName}) {
 		die "ERROR: configuration \"$configName\" does not exist!\n";
 	}
+}
+
+sub getDefaultConfig
+{
+	unless (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
+		return "";
+	}
+	my %configs;
+	try {
+		%configs = % { loadAllConfigurations() };
+	} catch {
+		warn "ERROR: configuration file empty or format invalid!\n";
+		exit 0
+	};
+	foreach my $config (keys %configs) {
+		if ($configs{$config}->{"default"}) {
+			print "Environment variable PERUN_OIDC_CONFIG not set, using default config $config.\n";
+			return $config;
+		}
+	}
+	my $firstConfig = (sort keys %configs)[0];
+	print "Environment variable PERUN_OIDC_CONFIG not set and default config not found, continuing using config $firstConfig\n";
+	return $firstConfig;
 }
 
 1;

@@ -654,6 +654,20 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public List<RichResource> getMailingServiceRichResourcesWithMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getMailingServiceRichResources_Member_policy", member)) {
+			throw new PrivilegeException(sess, "getMailingServiceRichResources");
+		}
+
+		return getResourcesManagerBl().getMailingServiceRichResourcesWithMember(sess, member);
+	}
+
+	@Override
 	public List<EnrichedResource> getEnrichedResourcesForVo(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

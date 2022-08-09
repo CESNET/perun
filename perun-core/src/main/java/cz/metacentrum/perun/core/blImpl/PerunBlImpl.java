@@ -149,7 +149,7 @@ public class PerunBlImpl implements PerunBl {
 				User user = usersManagerBl.getUserByExtSourceInformation(internalSession, principal);
 				principal.setUser(user);
 
-				if (client.getType() != PerunClient.Type.OAUTH) {
+				if (client.getType() != PerunClient.Type.OAUTH || BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
 					// Try to update LoA for userExtSource
 					UserExtSource ues = null;
 					String shibIdentityProvider = principal.getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);

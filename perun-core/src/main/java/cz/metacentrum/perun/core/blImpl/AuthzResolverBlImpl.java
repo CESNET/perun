@@ -2032,7 +2032,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Get all User's roles.
+	 * Get all User's roles. Does not include membership and sponsorship role.
 	 *
 	 * @param sess perun session
 	 * @param user User
@@ -2045,6 +2045,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	/**
 	 * Returns all user's roles - including roles resulting from being a VALID member of authorized groups
+	 * Returns also sponsorship and membership roles, which are not stored in DB as authzRoles but retrieved separately.
 	 *
 	 * @param sess perun session
 	 * @param user user
@@ -2053,7 +2054,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static AuthzRoles getUserRoles(PerunSession sess, User user) {
 
-		return authzResolverImpl.getRoles(user);
+		AuthzRoles roles = authzResolverImpl.getRoles(user);
+		addMembershipRole(sess, roles, user);
+		setAdditionalRoles(sess, roles, user);
+		return roles;
 	}
 
 	/**
@@ -2250,7 +2254,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				addMembershipRole(sess, roles, user);
 			}
 
-			setAdditionalRoles(sess, roles);
+			setAdditionalRoles(sess, roles, user);
 
 			sess.getPerunPrincipal().setRoles(roles);
 		}
@@ -2280,14 +2284,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess session
 	 * @param roles roles, where the roles are added
+	 * @param user user for whom to add additional roles to
 	 */
-	private static void setAdditionalRoles(PerunSession sess, AuthzRoles roles) {
-		User principalUser = sess.getPerunPrincipal().getUser();
-		if (principalUser == null) {
+	private static void setAdditionalRoles(PerunSession sess, AuthzRoles roles, User user) {
+		if (user == null) {
 			return;
 		}
 
-		List<Member> sponsoredMembers = perunBl.getMembersManagerBl().getSponsoredMembers(sess, principalUser);
+		List<Member> sponsoredMembers = perunBl.getMembersManagerBl().getSponsoredMembers(sess, user);
 		for (Member sponsoredMember : sponsoredMembers) {
 			roles.putAuthzRole(Role.SPONSORSHIP, sponsoredMember);
 		}

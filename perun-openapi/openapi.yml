@@ -283,6 +283,11 @@ components:
       discriminator:
         propertyName: beanName
 
+    EnrichedExtSource:
+      properties:
+        extSource: { $ref: '#/components/schemas/ExtSource' }
+        attributes:  { type: object, additionalProperties: { type: string } }
+
     AttributeDefinition:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1448,6 +1453,15 @@ components:
         email: { type: string }
         identities: { type: array, items: { $ref: '#/components/schemas/ExtSource' } }
 
+    EnrichedIdentity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        organization: { type: string }
+        email: { type: string }
+        identities: { type: array, items: { $ref: '#/components/schemas/EnrichedExtSource' } }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2474,6 +2488,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Identity"
+
+    ListOfEnrichedIdentityResponse:
+      description: "List<EnrichedIdentity> Identities"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedIdentity"
 
     ConsentHubResponse:
       description: "returns ConsentHub"
@@ -7226,6 +7249,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/auditMessagesManager/getMessagesByIdAndCount:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getMessagesByIdAndCount
+      summary: Returns "count" number of messages that are less or equal than the given ID (descending order).
+      parameters:
+        - { name: id, in: query, schema: { type: integer }, description: "Starting id from which the messages will be taken", required: true }
+        - { name: count, in: query, schema: { type: integer }, description: "Number of messages that will be returned", required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuditMessagesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/auditMessagesManager/getMessagesPage:
     post:
       tags:
@@ -8358,21 +8396,32 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
   /json/usersManager/checkPasswordStrength:
-    get:
+    post:
       tags:
         - UsersManager
       operationId: checkPasswordStrength
       summary: Check password strength for the given namespace. Some namespaces may require passing also login for complete password strength check.
       description: If the check fails, the PasswordStrengthException error is returned.
-      parameters:
-        - $ref: '#/components/parameters/password'
-        - $ref: '#/components/parameters/namespace'
-        - { name: login, description: "login", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckPasswordStrength
+              description: "input for checkPasswordStrength"
+              type: object
+              required:
+                - password
+                - namespace
+              properties:
+                password: { type: string }
+                namespace: { type: string }
+                login: { type: string }
 
   /json/usersManager/getGroupsWhereUserIsActive/facility:
     get:
@@ -8550,22 +8599,35 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/usersManager/createAlternativePassword:
+  /json/usersManager/createAlternativePassword:
     post:
       tags:
         - UsersManager
       operationId: createAlternativePassword
       summary: Creates alternative password in external system.
-      parameters:
-        - $ref: '#/components/parameters/userId'
-        - { name: description, schema: { type: string }, in: query, required: true }
-        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
-        - { name: password, schema: { type: string }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateAlternativePassword
+              description: "input for createAlternativePassword"
+              type: object
+              required:
+                - user
+                - description
+                - loginNamespace
+                - password
+              properties:
+                user: { type: integer }
+                description: { type: string }
+                loginNamespace: { type: string }
+                password: { type: string }
 
   /urlinjsonout/usersManager/deleteAlternativePassword:
     post:
@@ -8918,7 +8980,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/usersManager/changeNonAuthzPassword/token:
+  /json/usersManager/changeNonAuthzPassword/token:
     post:
       tags:
         - UsersManager
@@ -8928,47 +8990,83 @@ paths:
         This method throws PasswordResetLinkExpiredException when the password reset request expired.
         This method throws PasswordResetLinkNotValidException when the password reset request was already
         used or has never existed.
-      parameters:
-        - { name: token, description: "token for the password reset request", schema: { type: string }, in: query, required: true }
-        - $ref: '#/components/parameters/password'
-        - { name: lang, description: "language to get notifications in (optional)", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputChangeNonAuthzPasswordByToken
+              description: "input for changeNonAuthzPasswordByToken"
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token: { type: string, description: "token for the password reset request" }
+                password: { type: string }
+                lang: { type: string, description: "language to get notifications in (optional)" }
 
-  /urlinjsonout/usersManager/reservePassword/login:
+  /json/usersManager/reservePassword/login:
     post:
       tags:
         - UsersManager
       operationId: reservePasswordForLogin
       summary: Reserves password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/login'
-        - $ref: '#/components/parameters/namespace'
-        - $ref: '#/components/parameters/password'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputReservePasswordForLogin
+              description: "input for reservePasswordForLogin"
+              type: object
+              required:
+                - login
+                - namespace
+                - password
+              properties:
+                login: { type: string }
+                namespace: { type: string }
+                password: { type: string }
 
-  /urlinjsonout/usersManager/reservePassword/user:
+
+  /json/usersManager/reservePassword/user:
     post:
       tags:
         - UsersManager
       operationId: reservePasswordForUser
       summary: Reserves password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/namespace'
-        - $ref: '#/components/parameters/password'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputReservePasswordForUser
+              description: "input for reservePasswordForUser"
+              type: object
+              required:
+                - user
+                - namespace
+                - password
+              properties:
+                user: { type: integer }
+                namespace: { type: string }
+                password: { type: string }
 
   /urlinjsonout/usersManager/validatePassword/login:
     post:
@@ -9030,42 +9128,67 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/usersManager/changePassword/login:
+  /json/usersManager/changePassword/login:
     post:
       tags:
         - UsersManager
       operationId: changePasswordForLogin
       summary: Changes password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/login'
-        - $ref: '#/components/parameters/namespace'
-        - { name: newPassword, schema: { type: string }, in: query, required: true }
-        - { name: oldPassword, schema: { type: string }, in: query, required: false }
-        - { name: checkOldPassword, schema: { type: boolean }, in: query, required: false, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputChangePasswordForLogin
+              description: "input for changePasswordForLogin"
+              type: object
+              required:
+                - login
+                - namespace
+                - newPassword
+              properties:
+                login: { type: string }
+                namespace: { type: string }
+                newPassword: { type: string }
+                oldPassword: { type: string }
+                checkOldPassword: { type: boolean, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
 
 
-  /urlinjsonout/usersManager/changePassword/user:
+
+  /json/usersManager/changePassword/user:
     post:
       tags:
         - UsersManager
       operationId: changePasswordForUser
       summary: Changes password for a user in specified login-namespace.
-      parameters:
-        - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/namespace'
-        - { name: newPassword, schema: { type: string }, in: query, required: true }
-        - { name: oldPassword, schema: { type: string }, in: query, required: false }
-        - { name: checkOldPassword, schema: { type: boolean }, in: query, required: false, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputChangePasswordForUser
+              description: "input for changePasswordForUser"
+              type: object
+              required:
+                - user
+                - namespace
+                - newPassword
+              properties:
+                user: { type: integer }
+                namespace: { type: string }
+                newPassword: { type: string }
+                oldPassword: { type: string }
+                checkOldPassword: { type: boolean, description: "True if the oldPassword has to be checked. When omitted it defaults to false." }
 
   /urlinjsonout/usersManager/loginExist:
     post:
@@ -12563,6 +12686,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupsWhereMemberIsActive:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupsWhereMemberIsActive
+      summary: Returns list of groups where member is in active state.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #
@@ -13429,6 +13566,20 @@ paths:
       summary: Get all VO rich resources.
       parameters:
         - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getMailingServiceRichResourcesWithMember:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getMailingServiceRichResourcesWithMember
+      summary: Return all rich resources with mailing service(s) where given member is assigned.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichResourcesResponse'
@@ -15342,6 +15493,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/registrarManager/checkForSimilarRichIdentities:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: checkForSimilarRichIdentities
+      summary: Check for similar users by name and email in session (authz) information
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedIdentityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getConsolidatorToken:
     get:
       tags:
@@ -15354,6 +15517,32 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/consolidate:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: consolidate
+      summary: Join user identities by access tokens.
+      description: |
+        Join user identities by access tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputConsolidate
+              description: "input to consolidate"
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken: { type: string, description: "second access token" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

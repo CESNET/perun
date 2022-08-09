@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -374,6 +375,16 @@ public interface ResourcesManagerImplApi {
 	 * @return list of rich resources
 	 */
 	List<RichResource> getRichResources(PerunSession perunSession, Vo vo);
+
+	/**
+	 * Return all rich resources with given attribute where given member is assigned.
+	 *
+	 * @param perunSession session
+	 * @param member member
+	 * @param ad attribute definition
+	 * @return list of corresponding rich resources
+	 */
+	List<RichResource> getRichResourcesWithMemberAndAttribute(PerunSession perunSession, Member member, AttributeDefinition ad);
 
 	/**
 	 * Get all VO resources count.

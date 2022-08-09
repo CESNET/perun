@@ -60,6 +60,11 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	}
 
 	@Override
+	public List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id,int count) {
+		return getAuditMessagesManagerImpl().getMessagesByIdAndCount(perunSession, id, count);
+	}
+
+	@Override
 	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
 		return getAuditMessagesManagerImpl().getMessagesPage(perunSession, query);
 	}

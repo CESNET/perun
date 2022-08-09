@@ -566,6 +566,16 @@ public interface ResourcesManager {
 	List<RichResource> getRichResources(PerunSession perunSession, Vo vo) throws PrivilegeException, VoNotExistsException;
 
 	/**
+	 * Return all rich resources with mailing service(s) where given member is assigned.
+	 *
+	 * @param perunSession session
+	 * @param member member
+	 * @return list of corresponding rich resources
+	 * @throws MemberNotExistsException if member is not present (does not exist)
+	 */
+	List<RichResource> getMailingServiceRichResourcesWithMember(PerunSession perunSession, Member member) throws MemberNotExistsException, PrivilegeException;
+
+	/**
 	 * Find resources for given vo and attributes for given names. If the
 	 * attrNames are empty or null, return all attributes.
 	 *

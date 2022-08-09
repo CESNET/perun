@@ -741,7 +741,7 @@ public class AuthzResolver {
 	}
 
 	/**
-	 * Get all user role names.
+	 * Get all user role names. Does not include membership and sponsorship role.
 	 *
 	 * @param sess perun session
 	 * @param user User
@@ -760,6 +760,7 @@ public class AuthzResolver {
 
 	/**
 	 * Get all roles for a given user.
+	 * Returns also sponsorship and membership roles.
 	 *
 	 * @param sess perun session
 	 * @param userId id of a user

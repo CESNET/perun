@@ -1082,38 +1082,6 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void isNotAuthorizedForAttributeAssociatedReadRole() throws Exception {
-		System.out.println(CLASS_NAME + "isNotAuthorizedForAttributeAssociatedReadRole");
-
-		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
-		final Member sessionMember = createSomeMember(createdVo);
-		final User sessionUser = perun.getUsersManagerBl().getUserByMember(sess, sessionMember);
-		final Group group = setUpGroup(createdVo, sessionMember);
-
-		AttributeDefinition attrDef = setUpGroupAttributeDefinition();
-		perun.getAttributesManagerBl().setAttribute(sess, group, new Attribute(attrDef));
-
-		List<AttributePolicy> policies = List.of(new AttributePolicy(1, Role.GROUPOBSERVER, RoleObject.Group, 1));
-		List<AttributePolicyCollection> policyCollections = List.of(new AttributePolicyCollection(1, attrDef.getId(), AttributeAction.READ, new ArrayList<>(policies)));
-
-		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
-
-		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
-		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
-		when(mockedPerunPrincipal.getUser()).thenReturn(sessionUser);
-		when(mockedPerunPrincipal.getUserId()).thenReturn(sessionUser.getId());
-
-		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
-
-		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.GROUPOBSERVER, group));
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.READ, attrDef, group));
-
-		// groupobserver does not have associated role set and groupadmin by itself is not authorized to read
-		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.GROUPADMIN, group));
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.READ, attrDef, group));
-	}
-
-	@Test
 	public void isNotAuthorizedForAttributeAssociatedReadRoleWriteAction() throws Exception {
 		System.out.println(CLASS_NAME + "isNotAuthorizedForAttributeAssociatedReadRoleWriteAction");
 
@@ -1156,7 +1124,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		AttributeDefinition attrDef = setUpGroupAttributeDefinition();
 		perun.getAttributesManagerBl().setAttribute(sess, group, new Attribute(attrDef));
 
-		List<AttributePolicy> policies = List.of(new AttributePolicy(1, Role.GROUPOBSERVER, RoleObject.Group, 1));
+		List<AttributePolicy> policies = List.of(new AttributePolicy(1, Role.GROUPADMIN, RoleObject.Group, 1));
 		List<AttributePolicyCollection> policyCollections = List.of(new AttributePolicyCollection(1, attrDef.getId(), AttributeAction.READ, new ArrayList<>(policies)));
 
 		perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections);
