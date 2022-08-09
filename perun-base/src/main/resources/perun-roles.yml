@@ -5215,11 +5215,15 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   owner-removeSpecificUserOwner_User_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   addSpecificUserOwner_User_User_policy:
     policy_roles:
@@ -5227,11 +5231,15 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   owner-addSpecificUserOwner_User_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   getSpecificUsers_policy:
     policy_roles:
@@ -5353,37 +5361,56 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   owner-setSpecificUser_User_SpecificUserType_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   unsetSpecificUser_User_SpecificUserType_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   deleteUser_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   deleteUser_User_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: UserExtSource
 
   anonymizeUser_User_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: UserExtSource
 
   updateUser_User_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   updateNameTitles_User_policy:
     policy_roles:
@@ -5391,12 +5418,17 @@ perun_policies:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   updateUserExtSource_UserExtSource_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: UserExtSource
+      - MFA: User
 
   getUserExtSources_User_policy:
     policy_roles:
@@ -5462,22 +5494,34 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   removeUserExtSource_User_UserExtSource_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   removeUserExtSource_User_UserExtSource_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   moveUserExtSource_User_User_UserExtSource_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   getUserExtSourceByExtLogin_ExtSource_String_policy:
     policy_roles:
@@ -5670,6 +5714,8 @@ perun_policies:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   changePassword_String_String_String_String_boolean_policy:
     policy_roles:
@@ -5677,42 +5723,56 @@ perun_policies:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   reserveRandomPassword_User_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-reserveRandomPassword_User_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   reservePassword_String_String_String_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA:
 
   reservePassword_User_String_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-reservePassword_User_String_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   validatePassword_String_String_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA:
 
   validatePassword_User_String_policy:
     policy_roles:
@@ -5720,18 +5780,24 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-validatePassword_User_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   deletePassword_String_String_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA:
 
   deletePassword_User_String_policy:
     policy_roles:
@@ -5739,12 +5805,16 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-deletePassword_User_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   loginExist_User_String_policy:
     policy_roles:
@@ -5767,12 +5837,16 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   deleteAlternativePassword_User_String_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   getAllRichUsersWithAttributes_boolean_List<String>_policy:
     policy_roles:
@@ -5828,18 +5902,24 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   requestPreferredEmailChange_String_User_String_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   validatePreferredEmailChange_User_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   getPendingPreferredEmailChanges_User_policy:
     policy_roles:
@@ -5852,6 +5932,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: UserExtSource
 
   generateAccount_String_Map<String_String>_policy:
     policy_roles:
@@ -5859,6 +5941,8 @@ perun_policies:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getSponsors_Member_List<String>_policy:
     policy_roles:
@@ -5881,6 +5965,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   getGroupsWhereUserIsActive_Resource_User_policy:
     policy_roles:
@@ -5922,6 +6008,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getUsersPage_UsersPageQuery_List<String>_policy:
     policy_roles:
