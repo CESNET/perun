@@ -6505,11 +6505,15 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removePerunNotifReceiverById_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getPerunNotifRegexById_int_policy:
     policy_roles:
@@ -6527,16 +6531,22 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updatePerunNotifRegex_PerunNotifRegex_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removePerunNotifRegexById_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getPerunNotifTemplateById_int_policy:
     policy_roles:
@@ -6554,11 +6564,15 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updatePerunNotifTemplate_PerunNotifTemplate_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getPerunNotifTemplateMessageById_int_policy:
     policy_roles:
@@ -6576,21 +6590,29 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updatePerunNotifTemplateMessage_PerunNotifTemplateMessage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   stopNotifications_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   startNotifications_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   #CabinetManagerImpl
   createPublicationSystem_PublicationSystem_policy:
@@ -6720,12 +6742,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-addMail_ApplicationForm_ApplicationMail_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-deleteMailById_ApplicationForm_Integer_policy:
     policy_roles:
@@ -6733,18 +6760,25 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-deleteMailById_ApplicationForm_Integer_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   copyMailsFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   copyMailsFromVoToGroup_Vo_Group_boolean_policy:
     policy_roles:
@@ -6752,6 +6786,9 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   copyMailsFromGroupToGroup_Group_Group_policy:
     policy_roles:
@@ -6759,6 +6796,9 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   group-sendMessage_Application_MailType_String_policy:
     policy_roles:
@@ -6766,12 +6806,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-sendMessage_Application_MailType_String_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-sendInvitation_Vo_Group_String_String_String_policy:
     policy_roles:
@@ -6779,6 +6824,9 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-sendInvitation_Vo_Group_String_String_String_policy:
     policy_roles:
@@ -6786,6 +6834,8 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-sendInvitation_Vo_Group_User_policy:
     policy_roles:
@@ -6793,12 +6843,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-sendInvitation_Vo_Group_User_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   #RegistrarManagerImpl
   createApplicationFormInVo_Vo_policy:
@@ -6806,6 +6861,8 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   createApplicationFormInGroup_Group_policy:
     policy_roles:
@@ -6813,6 +6870,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-getFormById_int_policy:
     policy_roles:
@@ -6857,6 +6917,8 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-addFormItem_ApplicationForm_ApplicationFormItem_policy:
     policy_roles:
@@ -6864,12 +6926,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy:
     policy_roles:
@@ -6877,12 +6944,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-updateForm_ApplicationForm_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateForm_ApplicationForm_policy:
     policy_roles:
@@ -6890,24 +6962,33 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   deleteFormItem_ApplicationForm_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   moveFormItem_ApplicationForm_int_boolean_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   vo-updateFormItemTexts_ApplicationFormItem_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateFormItemTexts_ApplicationFormItem_policy:
     policy_roles:
@@ -6915,12 +6996,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-deleteApplication_Application_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-deleteApplication_Application_policy:
     policy_roles:
@@ -6928,12 +7014,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-verifyApplication_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-verifyApplication_int_policy:
     policy_roles:
@@ -6941,12 +7032,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-rejectApplication_int_String_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-rejectApplication_int_String_policy:
     policy_roles:
@@ -6954,12 +7050,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-approveApplicationInternal_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-approveApplicationInternal_int_policy:
     policy_roles:
@@ -6967,6 +7068,9 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-canBeApproved_Application_policy:
     policy_roles:
@@ -7083,6 +7187,8 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateFormItem_ApplicationFormItem_policy:
     policy_roles:
@@ -7090,18 +7196,25 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   copyFormFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   source-copyFormFromVoToGroup_Vo_Group_Policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   destination-copyFormFromVoToGroup_Vo_Group_Policy:
     policy_roles:
@@ -7109,6 +7222,9 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   source-copyFormFromGroupToGroup_Group_Group_policy:
     policy_roles:
@@ -7123,11 +7239,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   updateFormItemData_int_ApplicationFormItemData_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   #integrationManagerEntry
   getGroupMemberData_policy:
@@ -7256,22 +7378,30 @@ perun_policies:
       - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   changeConsentStatus_Consent_ConsentStatus_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   evaluateConsents_ConsentHub_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   evaluateConsents_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
 
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
