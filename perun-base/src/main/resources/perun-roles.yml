@@ -317,6 +317,13 @@ perun_policies:
 
   #AuditMessagesManagerEntry
 
+  getMessagesByIdAndCount_int_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - AUDITCONSUMERADMIN:
+    include_policies:
+      - default_policy
+
   getMessagesPage_MessagesPageQuery_policy:
     policy_roles:
       - PERUNOBSERVER:

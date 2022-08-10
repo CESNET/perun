@@ -423,7 +423,12 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
     @Override
     public void consolidate(PerunSession sess, String accessToken) throws PerunException {
 		Map<String, String> additionalInformationNonCaller = new HashMap<>();
-		UserInfoEndpointResponse userInfoNonCaller = userInfoEndpointCall.getUserInfoEndpointData(accessToken, BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().keySet().iterator().next(), additionalInformationNonCaller);
+		UserInfoEndpointResponse userInfoNonCaller = userInfoEndpointCall.getUserInfoEndpointData(accessToken, sess.getPerunPrincipal().getAdditionalInformations().get("issuer"), additionalInformationNonCaller);
+		if (StringUtils.isEmpty(userInfoNonCaller.getSub()) || StringUtils.isEmpty(userInfoNonCaller.getIssuer()) ||
+			StringUtils.isEmpty(sess.getPerunPrincipal().getActor()) || StringUtils.isEmpty(sess.getPerunPrincipal().getExtSourceName())) {
+			log.error("Call to user info endpoint didn't found original issuer or original sub.");
+			throw new InternalErrorException("Call to user info endpoint didn't found original issuer or original sub.");
+		}
 
 		//trying to find in the perun user with identity which we obtained through access token
 		ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(sess, userInfoNonCaller.getIssuer());

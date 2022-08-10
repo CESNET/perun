@@ -46,6 +46,17 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
+	public List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id, int count) throws PrivilegeException {
+		if (count<1) {
+			throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
+		}
+		if (!AuthzResolver.authorizedInternal(perunSession, "getMessagesByIdAndCount_int_int_policy")) {
+			throw new PrivilegeException(perunSession, "getMessagesByIdAndCount");
+		}
+		return getAuditMessagesManagerBl().getMessagesByIdAndCount(perunSession, id, count);
+	}
+
+	@Override
 	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) throws PrivilegeException {
 		if (!AuthzResolver.authorizedInternal(perunSession, "getMessagesPage_MessagesPageQuery_policy")) {
 			throw new PrivilegeException(perunSession, "getMessagesPage");
