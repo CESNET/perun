@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
@@ -64,6 +65,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -2264,6 +2266,22 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertEquals(1, result.size());
 		assertEquals(resource.getName(), result.get(0).getName());
 		assertEquals(vo, result.get(0).getVo());
+	}
+
+	@Test
+	public void renameFacilityAndConsentHub() throws Exception {
+		System.out.println(CLASS_NAME + "renameFacilityAndConsentHub");
+
+		String oldHubName = perun.getConsentsManagerBl().getConsentHubByFacility(sess, facility.getId()).getName();
+
+		facility.setName("renamedFacility");
+		perun.getFacilitiesManagerBl().updateFacility(sess, facility);
+
+		Facility updatedFacility =  perun.getFacilitiesManager().getFacilityById(sess, facility.getId());
+		ConsentHub updatedHub = perun.getConsentsManagerBl().getConsentHubByFacility(sess, facility.getId());
+
+		assertNotEquals("Consent hub's name has not been changed.", oldHubName, updatedHub.getName());
+		assertEquals("The names of the facility and the consent hub do not match.", updatedFacility.getName(), updatedHub.getName());
 	}
 
 

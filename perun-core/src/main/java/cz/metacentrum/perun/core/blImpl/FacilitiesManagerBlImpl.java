@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
@@ -436,10 +437,23 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public Facility updateFacility(PerunSession sess, Facility facility) throws FacilityExistsException {
+	public Facility updateFacility(PerunSession sess, Facility facility) throws FacilityExistsException, ConsentHubExistsException {
 		//check facility name, it can contain only a-zA-Z.0-9_-
 		if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
 			throw new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters");
+		}
+
+		// if renaming the facility and consent hub's name match the old facility's name, then also rename the corresponding consent hub
+		try {
+			Facility dbFacility = getFacilitiesManagerImpl().getFacilityById(sess, facility.getId());
+			ConsentHub dbHub = getPerunBl().getConsentsManagerBl().getConsentHubByFacility(sess, facility.getId());
+
+			if (!facility.getName().equals(dbFacility.getName()) && dbFacility.getName().equals(dbHub.getName())) {
+				dbHub.setName(facility.getName());
+				getPerunBl().getConsentsManagerBl().updateConsentHub(sess, dbHub);
+			}
+		} catch (ConsentHubNotExistsException | FacilityNotExistsException e) {
+			throw new InternalErrorException(e);
 		}
 
 		getPerunBl().getAuditer().log(sess, new FacilityUpdated(facility));

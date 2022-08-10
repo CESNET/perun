@@ -277,8 +277,9 @@ public interface FacilitiesManager {
 	 * @throws FacilityNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
+	 * @throws ConsentHubExistsException
 	 */
-	Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityNotExistsException, FacilityExistsException, PrivilegeException;
+	Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityNotExistsException, FacilityExistsException, PrivilegeException, ConsentHubExistsException;
 
 	/**
 	 * Returns list of all facilities owned by the owner.

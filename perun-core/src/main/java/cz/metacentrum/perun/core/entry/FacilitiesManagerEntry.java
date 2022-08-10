@@ -467,7 +467,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public Facility updateFacility(PerunSession sess, Facility facility) throws FacilityNotExistsException, FacilityExistsException, PrivilegeException {
+	public Facility updateFacility(PerunSession sess, Facility facility) throws FacilityNotExistsException, FacilityExistsException, PrivilegeException, ConsentHubExistsException {
 		Utils.checkPerunSession(sess);
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		Utils.notNull(facility, "facility");
