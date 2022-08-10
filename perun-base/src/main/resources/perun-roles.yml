@@ -4485,18 +4485,24 @@ perun_policies:
       - SECURITYADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateSecurityTeam_SecurityTeam_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteSecurityTeam_SecurityTeam__boolean_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getSecurityTeamById_int_policy:
     policy_roles:
@@ -4532,41 +4538,21 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addAdmin_SecurityTeam_User_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  addAdmin_SecurityTeam_Group_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  removeAdmin_SecurityTeam_User_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  removeAdmin_SecurityTeam_Group_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
   addUserToBlacklist_SecurityTeam_User_String_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeUserFromBlacklist_SecurityTeam_User_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getBlacklist_SecurityTeam_policy:
     policy_roles:
@@ -4604,24 +4590,32 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   blockServiceOnDestination_Service_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   blockAllServicesOnFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   blockAllServicesOnDestination_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getServicesBlockedOnFacility_Facility_policy:
     policy_roles:
@@ -4660,24 +4654,32 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   unblockAllServicesOnDestination_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   unblockServiceOnFacility_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   unblockServiceOnDestination_Service_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   forceServicePropagation_Facility_Service_policy:
     policy_roles:
@@ -4685,6 +4687,8 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   forceServicePropagation_Service_policy:
     policy_roles:
@@ -4692,6 +4696,8 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   planServicePropagation_Facility_Service_policy:
     policy_roles:
@@ -4699,6 +4705,8 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   planServicePropagation_Service_policy:
     policy_roles:
@@ -4706,11 +4714,15 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   suspendTasksPropagation_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getFacilityAssignedServicesForGUI_Facility_policy:
     policy_roles:
@@ -4724,16 +4736,22 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteService_Service_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateService_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getServiceById_int_policy:
     policy_roles:
@@ -4881,26 +4899,36 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateServicesPackage_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteServicesPackage_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   addServiceToServicesPackage_ServicesPackage_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeServiceFromServicesPackage_ServicesPackage_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getServicesFromServicesPackage_ServicesPackage_policy:
     policy_roles:
@@ -4916,44 +4944,60 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   addRequiredAttributes_Service_List<AttributeDefinition>_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeRequiredAttribute_Service_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeRequiredAttributes_Service_List<AttributeDefinition>_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeAllRequiredAttributes_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   addDestination_List<Service>_Facility_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestination_Service_Facility_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeDestination_Service_Facility_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getDestinationById_int_policy:
     policy_roles:
@@ -5013,6 +5057,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getAssignedServices_Facility_policy:
     policy_roles:
@@ -5037,24 +5083,32 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestinationsDefinedByHostsOnFacility_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestinationsDefinedByHostsOnFacility_List<Services>_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestinationsDefinedByHostsOnFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   #TasksManagerEntry
   getTask_Service_Facility_policy:
@@ -5151,19 +5205,25 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   deleteTaskResultById_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
-  
+    mfa_rules:
+      - MFA: Facility
+
   deleteTaskResults_Task_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
-  
+    mfa_rules:
+      - MFA: Facility
+
   #UsersManagerEntry
   getUserByUserExtSource_UserExtSource_policy:
     policy_roles:
