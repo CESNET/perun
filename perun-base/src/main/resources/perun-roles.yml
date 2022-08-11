@@ -2337,48 +2337,76 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Group
+      - MFA: Vo
 
   deleteMembers_List<Member>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Group
+      - MFA: Vo
 
   deleteAllMembers_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Group
+      - MFA: Vo
 
   createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_Candidate_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_String_String_String_Candidate_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_String_String_int_String_Candidate_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_User_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_ExtSource_String_List<Group>_policy:
     policy_roles:
@@ -2386,6 +2414,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   getMemberByUserExtSource_Vo_UserExtSource_policy:
     policy_roles:
@@ -2835,24 +2866,40 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   setStatus_Member_Status_String_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   suspendMemberTo_Member_Date_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   unsuspendMember_Member_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   validateMemberAsync_Member_policy:
     policy_roles:
@@ -2860,6 +2907,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   extendMembership_Member_policy:
     policy_roles:
@@ -2867,6 +2918,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   canExtendMembership_Member_policy:
     policy_roles:
@@ -2934,6 +2989,8 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   setSponsoredMember_Vo_User_String_String_User_LocalDate_policy:
     policy_roles:
@@ -2941,6 +2998,9 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Vo
 
   createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy:
     policy_roles:
@@ -2948,6 +3008,8 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy:
     policy_roles:
@@ -2955,13 +3017,18 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
-
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+    
   createSponsoredMembers_Vo_String_List<String>_User_policy:
     policy_roles:
       - SPONSOR: Vo
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   setSponsorshipForMember_Member_User_LocalDate_policy:
     policy_roles:
@@ -2969,23 +3036,39 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   unsetSponsorshipForMember_Member_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsored-sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
       - SPONSOR: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsor-sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   getSponsoredMembers_Vo_User_List<String>_policy:
     policy_roles:
@@ -3104,18 +3187,30 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsored-removeSponsor_Member_User_policy:
     policy_roles:
       - SPONSORSHIP: Member
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsor-removeSponsor_Member_User_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   getMembersPage_Vo_MembersPageQuery_List<String>_policy:
     policy_roles:
@@ -3143,11 +3238,19 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   moveMembership_Vo_User_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   getRichMembersByIds_List<Integer>_List<String>_policy:
     policy_roles:
