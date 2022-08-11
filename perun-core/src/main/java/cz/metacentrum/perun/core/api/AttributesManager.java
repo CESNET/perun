@@ -13,6 +13,8 @@ import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleObjectCombinationInvalidException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
@@ -4069,6 +4071,16 @@ public interface AttributesManager {
 	List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException;
 
 	/**
+	 * Gets attribute rules containing policy collections and critical actions for an attribute definition with given id
+	 *
+	 * @param sess perun session
+	 * @param attributeId id of the attribute definition
+	 * @return attribute rules of the attribute definition
+	 * @throws AttributeNotExistsException when there is no attribute definition with such id
+	 */
+	AttributeRules getAttributeRules(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException;
+
+	/**
 	 * Converts attribute to unique.
 	 * Marks the attribute definition as unique, and copies all values to a special table with unique constraint
 	 * that ensures that all values remain unique. Values of type ArrayList and LinkedHashMap are splitted into
@@ -4119,4 +4131,19 @@ public interface AttributesManager {
 	 * @throws PrivilegeException insufficient permissions
 	 */
 	GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format, String attributeName) throws PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Marks the action on attribute as critical, which may require additional authentication of user
+	 * performing that action on attribute.
+	 *
+	 * @param sess session
+	 * @param attr attribute definition
+	 * @param action critical action
+	 * @param critical true if action should be set critical, false to non-critical
+	 *
+	 * @throws RelationExistsException if trying to mark already critical action
+	 * @throws RelationNotExistsException if trying to unmark not critical action
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException, PrivilegeException;
 }

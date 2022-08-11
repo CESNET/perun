@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
+import cz.metacentrum.perun.core.api.AttributeRules;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
@@ -37,6 +38,8 @@ import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
@@ -4580,6 +4583,19 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
+	public AttributeRules getAttributeRules(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		getAttributeDefinitionById(sess, attributeId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAttributeRules_int_policy")) {
+			throw new PrivilegeException("getAttributeRules");
+		}
+
+		return getAttributesManagerBl().getAttributeRules(sess, attributeId);
+	}
+
+	@Override
 	public void convertAttributeToUnique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException {
 		Utils.checkPerunSession(session);
 
@@ -4625,6 +4641,17 @@ public class AttributesManagerEntry implements AttributesManager {
 		AttributeDefinition definition = attributesManagerBl.getAttributeDefinition(session, attributeName);
 
 		return new GraphDTO(attributesManagerBl.getAttributeModulesDependenciesGraphAsString(session, format, definition), format.name());
+	}
+
+	@Override
+	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException, PrivilegeException {
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "setAttributeActionCriticality_AttributeDefinition_AttributeAction_boolean_policy")) {
+			throw new PrivilegeException("setAttributeActionCriticality");
+		}
+
+		attributesManagerBl.setAttributeActionCriticality(sess, attr, action, critical);
 	}
 
 	public PerunBl getPerunBl() {

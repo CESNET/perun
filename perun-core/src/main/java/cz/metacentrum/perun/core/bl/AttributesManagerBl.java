@@ -2,9 +2,11 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
+import cz.metacentrum.perun.core.api.AttributeRules;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -29,6 +31,8 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -4645,6 +4649,15 @@ public interface AttributesManagerBl {
 	List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId);
 
 	/**
+	 * Gets attribute rules containing policy collections and critical actions for an attribute definition with given id
+	 *
+	 * @param sess perun session
+	 * @param attributeId id of the attribute definition
+	 * @return attribute rules of the attribute definition
+	 */
+	AttributeRules getAttributeRules(PerunSession sess, int attributeId);
+
+	/**
 	 * Get user virtual attribute module by the attribute.
 	 *
 	 * @param sess
@@ -4776,5 +4789,38 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if both handlers are empty or namespace for handlers can't be found
 	 */
 	void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler1, PerunBean handler2) throws WrongAttributeAssignmentException;
+
+	/**
+	 * Checks if the action is critical on given attribute.
+	 *
+	 * @param sess session
+	 * @param attr attribute definition
+	 * @param action critical action
+	 * @return true if action is critical, false otherwise
+	 */
+	boolean isAttributeActionCritical(PerunSession sess, AttributeDefinition attr, AttributeAction action);
+
+	/**
+	 * Returns critical actions on given attribute.
+	 *
+	 * @param sess session
+	 * @param attrId attribute definition id
+	 * @return list of critical actions
+	 */
+	List<AttributeAction> getCriticalAttributeActions(PerunSession sess, int attrId);
+
+	/**
+	 * Marks the action on attribute as critical, which may require additional authentication of user 
+	 * performing that action on attribute.
+	 *
+	 * @param sess session
+	 * @param attr attribute definition
+	 * @param action critical action
+	 * @param critical true if action should be set critical, false to non-critical
+	 *
+	 * @throws RelationExistsException if trying to mark already critical action
+	 * @throws RelationNotExistsException if trying to unmark not critical action
+	 */
+	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException;
 }
 

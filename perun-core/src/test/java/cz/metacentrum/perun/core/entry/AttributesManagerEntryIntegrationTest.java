@@ -41,6 +41,7 @@ import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -9926,6 +9927,41 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertEquals(insertedPolicies.get(1).getPolicyCollectionId(), insertedCollections.get(0).getId());
 		assertEquals(insertedPolicies.get(1).getObject(), policyCollections.get(0).getPolicies().get(1).getObject());
 		assertEquals(insertedPolicies.get(1).getRole(), policyCollections.get(0).getPolicies().get(1).getRole());
+	}
+
+	@Test
+	public void unmarkWriteActionAsCritical() throws Exception {
+		System.out.println(CLASS_NAME + "unmarkWriteActionAsCritical");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		Attribute attribute = setUpMemberGroupAttribute().get(0);
+
+		assertTrue("Writing to attribute should be critical by default", perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.WRITE));
+		assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()).containsExactly(AttributeAction.valueOf("WRITE"));
+
+		perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, false);
+		assertFalse("Writing to attribute should not be critical", perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.WRITE));
+		assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()).isEmpty();
+	}
+
+	@Test
+	public void setCriticalOperations() throws Exception {
+		System.out.println(CLASS_NAME + "setCriticalOperations");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		Attribute attribute = setUpMemberGroupAttribute().get(0);
+
+		assertThrows(RelationExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true));
+		assertThrows(RelationNotExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, false));
+
+		assertFalse(perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
+		perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, true);
+		assertTrue("Reading attribute should be critical", perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
+		assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()).containsExactlyInAnyOrder(AttributeAction.WRITE, AttributeAction.READ);
 	}
 
 	@Test

@@ -1,4 +1,4 @@
--- database version 3.1.96 (don't forget to update insert statement at the end of file)
+-- database version 3.1.97 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -327,6 +327,13 @@ create table attribute_policies (
 	constraint attrpol_role_fk foreign key (role_id) references roles (id)
 );
 
+-- ATTRIBUTE_CRITICAL_ACTIONS - critical actions on attributes which may require additional authentication
+create table attribute_critical_actions (
+	attr_id integer not null,  --identifier of attribute (attr_names.id)
+	action attribute_action not null,  --action on attribute (READ/WRITE)
+	constraint attrcritops_pk primary key (attr_id, action),
+	constraint attrcritops_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade
+);
 
 -- CONSENT_HUBS -- list of facilities with joint consent management
 create table consent_hubs (
@@ -1848,9 +1855,10 @@ create index idx_fk_attr_cons_cons ON consent_attr_defs(consent_id);
 create index idx_fk_attr_cons_attr ON consent_attr_defs(attr_id);
 create index idx_fk_alwd_grps_group ON allowed_groups_to_hierarchical_vo(group_id);
 create index idx_fk_alwd_grps_vo ON allowed_groups_to_hierarchical_vo(vo_id);
+create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.96');
+insert into configurations values ('DATABASE VERSION','3.1.97');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

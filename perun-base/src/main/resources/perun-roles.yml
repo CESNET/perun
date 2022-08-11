@@ -282,7 +282,20 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAttributeRules_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   setAttributePolicyCollections_List<AttributePolicyCollection>_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA:
+
+  setAttributeActionCriticality_AttributeDefinition_AttributeAction_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy

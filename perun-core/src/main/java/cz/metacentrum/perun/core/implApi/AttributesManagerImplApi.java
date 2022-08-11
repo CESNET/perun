@@ -5,6 +5,7 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
@@ -27,6 +28,8 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsExcepti
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongModuleTypeException;
@@ -2730,4 +2733,38 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId);
+
+	/**
+	 * Checks if the action is critical on given attribute.
+	 *
+	 * @param sess session
+	 * @param attr attribute definition
+	 * @param action critical action
+	 * @return true if action is critical, false otherwise
+	 */
+	boolean isAttributeActionCritical(PerunSession sess, AttributeDefinition attr, AttributeAction action);
+
+	/**
+	 * Returns critical actions on given attribute.
+	 *
+	 * @param sess session
+	 * @param attrId attribute definition id
+	 * @return list of critical actions
+	 */
+	List<AttributeAction> getCriticalAttributeActions(PerunSession sess, int attrId);
+
+	/**
+	 * Marks the action on attribute as critical, which may require additional authentication of user
+	 * performing that action on attribute.
+	 *
+	 * @param sess session
+	 * @param attr attribute definition
+	 * @param action critical action
+	 * @param critical true if action should be set critical, false to non-critical
+	 *
+	 * @throws RelationExistsException if trying to mark already critical action
+	 * @throws RelationNotExistsException if trying to unmark not critical action
+	 */
+	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException;
+
 }
