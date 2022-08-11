@@ -244,4 +244,14 @@ sub setAttributePolicyCollections
 	return Perun::Common::callManagerMethod('setAttributePolicyCollections', '', @_)
 }
 
+sub getAttributeRules
+{
+	return Perun::Common::callManagerMethod('getAttributeRules', 'AttributeRules', @_)
+}
+
+sub setAttributeActionCriticality
+{
+	return Perun::Common::callManagerMethod('setAttributeActionCriticality', '', @_)
+}
+
 1;

@@ -18,6 +18,8 @@ sub help {
 	};
 }
 
+my $sortingFunction = getSortingFunction("getAction", 1);
+
 my ($attributeId, $attributeName);
 GetOptions("help|h"   => sub {
 	 	print help;
@@ -36,10 +38,18 @@ if (defined $attributeName and not defined $attributeId) {
 	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
 	$attributeId=$attributeDefinition->getId;
 }
-my @policyCollections;
-@policyCollections = $attributesAgent->getAttributePolicyCollections( attributeId => $attributeId );
+my $attributeRules;
+$attributeRules = $attributesAgent->getAttributeRules( attributeDefinition => $attributeId );
+
 #OUTPUT
-foreach my $collection (@policyCollections) {
+print "Critical actions: ";
+if (!$attributeRules->getCriticalActions) {
+	print "None\n";
+} else {
+	print join(", ", $attributeRules->getCriticalActions) . "\n";
+}
+print "Policy collections: \n";
+foreach my $collection (sort $sortingFunction $attributeRules->getAttributePolicyCollections) {
 	my $table = Text::ASCIITable->new({ headingText => "".$collection->getAction});
 	$table->setCols('Role','Object');
 	foreach my $policy ($collection->getPolicies) {
