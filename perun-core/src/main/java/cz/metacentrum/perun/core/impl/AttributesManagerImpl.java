@@ -4626,6 +4626,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public void removeAndUnregisterAttrModule(PerunSession sess, AttributeDefinition attribute) {
+
+		// core attributes doesn't have modules !!
+		if (isCoreAttribute(sess, attribute)) return;
+
+		String moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getFriendlyName());
+		AttributesModuleImplApi attributeModule = attributesModulesMap.get(moduleName);
+		if (attributeModule != null) {
+			removeAttributeModule(attributeModule);
+			unregisterAttributeModule(attributeModule);
+		}
+	}
+
+	@Override
 	public AttributesModuleImplApi getUninitializedAttributesModule(PerunSession sess, AttributeDefinition attributeDefinition) {
 
 		// core attributes doesn't have modules
