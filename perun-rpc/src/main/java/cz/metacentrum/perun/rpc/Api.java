@@ -64,6 +64,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -250,6 +251,7 @@ public class Api extends HttpServlet {
 		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
 			String iss = req.getHeader(OIDC_CLAIM_ISS);
 			extLogin = req.getHeader(OIDC_CLAIM_SUB);
+			additionalInformations.put(ISSUER, iss);
 			//this is configurable, as the OIDC server has the source of sub claim also configurable
 			if (iss != null) {
 				extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
@@ -273,7 +275,6 @@ public class Api extends HttpServlet {
 					extLogin = userInfoEndpointResponse.getSub();
 					extSourceName = userInfoEndpointResponse.getIssuer();
 					extSourceLoaString = "1";
-					additionalInformations.put("issuer", iss);
 				}
 			}
 			log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
@@ -365,6 +366,7 @@ public class Api extends HttpServlet {
 		}
 
 		// If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
+		// fixme: won't work with MFA-requiring operations, MFA properties are stored in additionalInformations!
 		if (des != null && extLogin != null) {
 			List<String> powerUsers = config.getRpcPowerusers();
 			if (powerUsers.contains(extLogin) && des.contains(DELEGATED_LOGIN)) {

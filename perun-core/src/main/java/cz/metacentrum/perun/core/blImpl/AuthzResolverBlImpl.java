@@ -71,6 +71,9 @@ import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,6 +87,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -2259,8 +2264,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			sess.getPerunPrincipal().setRoles(roles);
 		}
 
-		//for OAuth clients, do not allow delegating roles not allowed by scopes
 		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
+			//for OAuth clients, do not allow delegating roles not allowed by scopes
 			List<String> oauthScopes = sess.getPerunClient().getScopes();
 			log.trace("refreshAuthz({}) oauthScopes={}",sess.getLogId(),oauthScopes);
 			if(!oauthScopes.contains(PerunClient.PERUN_ADMIN_SCOPE)) {
@@ -2271,6 +2276,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(!oauthScopes.contains(PerunClient.PERUN_API_SCOPE)) {
 				log.debug("removing all roles from session {}",sess);
 				sess.getPerunPrincipal().getRoles().clear();
+			}
+
+			if (isAuthorizedByMfa(sess)) {
+				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
 			}
 		}
 
@@ -3945,5 +3954,34 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		return mapping;
+	}
+
+	/**
+	 * Checks, if principal was authorized by Multi-factor authentication.
+	 * The information is resolved in UserInfoEndpointCall and stored in principal's additionalInformations.
+	 * The timestamp of MFA must not be older than mfa timeout set in config.
+	 *
+	 * @param sess session
+	 * @return true if principal authorized by MFA in allowed limit, false otherwise
+	 */
+	private static boolean isAuthorizedByMfa(PerunSession sess) {
+		if (!sess.getPerunPrincipal().getAdditionalInformations().containsKey(MFA_TIMESTAMP)) {
+			return false;
+		}
+
+		String returnedTimestamp = sess.getPerunPrincipal().getAdditionalInformations().get(MFA_TIMESTAMP);
+		Instant parsedReturnedTimestamp;
+		try {
+			parsedReturnedTimestamp = Instant.parse(returnedTimestamp);
+		} catch (DateTimeParseException e) {
+			throw new InternalErrorException("MFA timestamp "  + returnedTimestamp + " could not be parsed", e);
+		}
+		if (parsedReturnedTimestamp.isAfter(Instant.now())) {
+			throw new InternalErrorException("MFA auth timestamp " + returnedTimestamp + " was greater than current time");
+		}
+
+		long mfaTimeoutInSec = Duration.ofHours(BeansUtils.getCoreConfig().getMfaAuthTimeout()).getSeconds();
+		Instant mfaValidUntil = parsedReturnedTimestamp.plusSeconds(mfaTimeoutInSec);
+		return mfaValidUntil.isAfter(Instant.now());
 	}
 }
