@@ -24,6 +24,9 @@ public class PerunPrincipal {
 	private Map<String, String> additionalInformations = new HashMap<String, String>();
 	// Specifies if the principal has initialized authZResolver
 	private volatile boolean authzInitialized = false;
+	// Keywords of additionalInformations
+	public static final String MFA_TIMESTAMP = "mfaTimestamp";
+	public static final String ISSUER = "issuer";
 
 	/**
 	 * Creates a new instance for a given string.

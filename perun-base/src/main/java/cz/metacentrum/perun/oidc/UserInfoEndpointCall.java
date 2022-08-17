@@ -19,6 +19,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
+
 /**
  * Class for executing call to User info endpoint.
  *
@@ -54,6 +56,7 @@ public class UserInfoEndpointCall {
 		log.debug("user info retrieved: {}", userInfo);
 
 		fillAdditionalInformationWithDataFromUserInfo(userInfo, additionalInformation);
+		fillMfaTimestamp(userInfo, additionalInformation);
 
 		String extSourceName = getExtSourceName(userInfo);
 
@@ -143,6 +146,23 @@ public class UserInfoEndpointCall {
 		}
 		if(StringUtils.isNotEmpty(idpName)) {
 			additionalInformation.put("sourceIdPName", idpName);
+		}
+	}
+
+	/**
+	 * Filling additional information with mfa timestamp if acr value is equal to MFA acr value
+	 * @param userInfo
+	 * @param additionalInformation
+	 */
+	private void fillMfaTimestamp(JsonNode userInfo, Map<String, String> additionalInformation) {
+		String acrProperty = BeansUtils.getCoreConfig().getUserInfoEndpointAcrPropertyName();
+		String acr = userInfo.path(acrProperty).asText();
+		if (StringUtils.isNotEmpty(acr) && acr.equals(BeansUtils.getCoreConfig().getUserInfoEndpointMfaAcrValue())) {
+			String mfaTimestampProperty = BeansUtils.getCoreConfig().getUserInfoEndpointMfaAuthTimestampPropertyName();
+			String mfaTimestamp = userInfo.path(mfaTimestampProperty).asText();
+			if (StringUtils.isNotEmpty(mfaTimestamp)) {
+				additionalInformation.put(MFA_TIMESTAMP, mfaTimestamp);
+			}
 		}
 	}
 }
