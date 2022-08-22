@@ -27,6 +27,7 @@ public class PerunPrincipal {
 	// Keywords of additionalInformations
 	public static final String MFA_TIMESTAMP = "mfaTimestamp";
 	public static final String ISSUER = "issuer";
+	public static final String ACCESS_TOKEN = "accessToken";
 
 	/**
 	 * Creates a new instance for a given string.

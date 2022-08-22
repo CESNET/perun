@@ -2,10 +2,12 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MFAuthenticationException;
 import cz.metacentrum.perun.core.api.exceptions.PerunBeanNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -1305,6 +1307,27 @@ public class AuthzResolver {
 	 */
 	public static void refreshAuthz(PerunSession sess) {
 		AuthzResolverBlImpl.refreshAuthz(sess);
+	}
+
+	/**
+	 * Calls UserInfo endpoint to obtain the newest information on performed MFA.
+	 * Requires access token and issuer to be stored in the additionalInformations.
+	 * If user used MFA to log in (MFA acr is returned from the endpoint), endpoint returns MFA timestamp.
+	 * This method stores the timestamp into principal's additionalInformations.
+	 *
+	 * @param sess perun session with required additionalInformation in Principal
+	 * @throws ExpiredTokenException expired access token
+	 * @throws MFAuthenticationException wrong configuration or missing required information
+	 * @throws PrivilegeException unauthorized
+	 */
+	public static void refreshMfa(PerunSession sess) throws ExpiredTokenException, MFAuthenticationException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		//Authorization
+		if (!authorizedInternal(sess, "refreshMfa_policy", sess.getPerunPrincipal().getUser()))
+			throw new PrivilegeException(sess, "refreshMfa");
+
+		AuthzResolverBlImpl.refreshMfa(sess);
 	}
 
 	/**

@@ -95,6 +95,7 @@ public class CoreConfig {
 	private String userInfoEndpointMfaAcrValue;
 	private String userInfoEndpointMfaAuthTimestampPropertyName;
 	private int mfaAuthTimeout;
+	private boolean enforceMfa;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -800,5 +801,13 @@ public class CoreConfig {
 
 	public void setMfaAuthTimeout(int mfaAuthTimeout) {
 		this.mfaAuthTimeout = mfaAuthTimeout;
+	}
+
+	public boolean isEnforceMfa() {
+		return enforceMfa;
+	}
+
+	public void setEnforceMfa(boolean enforceMfa) {
+		this.enforceMfa = enforceMfa;
 	}
 }

@@ -64,6 +64,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ACCESS_TOKEN;
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -252,6 +253,7 @@ public class Api extends HttpServlet {
 			String iss = req.getHeader(OIDC_CLAIM_ISS);
 			extLogin = req.getHeader(OIDC_CLAIM_SUB);
 			additionalInformations.put(ISSUER, iss);
+			additionalInformations.put(ACCESS_TOKEN, req.getHeader(OIDC_ACCESS_TOKEN));
 			//this is configurable, as the OIDC server has the source of sub claim also configurable
 			if (iss != null) {
 				extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
