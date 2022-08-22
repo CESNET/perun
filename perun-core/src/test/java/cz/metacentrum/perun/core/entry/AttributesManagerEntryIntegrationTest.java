@@ -51,7 +51,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.RoleObjectCombinationInvalidException;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -80,6 +82,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -5889,6 +5892,51 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find attribute because force deleted
 
 	}
+
+	@Test
+	public void deleteAttributeNotRemovesCommonModule() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeNotRemovesCommonModule");
+
+		// need this to get AttributesManagerImpl
+		PerunBlImpl perunBlImpl = ((PerunBlImpl) perun);
+
+		// create attribute in namespace under the same common namespace
+		AttributeDefinition test = new AttributeDefinition();
+		test.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		test.setDescription("test");
+		test.setFriendlyName("login-namespace:test");
+		test.setType(String.class.getName());
+		test = attributesManager.createAttribute(sess, test);
+
+		// create common namespace attribute that has a module
+		AttributeDefinition common = new AttributeDefinition();
+		common.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		common.setDescription("common");
+		common.setFriendlyName("login-namespace");
+		common.setType(String.class.getName());
+		attributesManager.createAttribute(sess, common);
+
+		// common module should now be initialized
+		AttributesModuleImplApi module = (AttributesModuleImplApi) perunBlImpl.getAttributesManagerImpl().getAttributesModule(sess, common);
+		assertNotNull(module);
+
+		attributesManager.deleteAttribute(sess, test);
+		// common module shouldn't be removed
+		module = (AttributesModuleImplApi) perunBlImpl.getAttributesManagerImpl().getAttributesModule(sess, common);
+		assertNotNull(module);
+
+		// try the same for namespace unspecific module, where the module should be deleted
+		AttributeDefinition pref = attributesManager.getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":phone");
+		AttributesModuleImplApi prefModule = (AttributesModuleImplApi) perunBlImpl.getAttributesManagerImpl().getAttributesModule(sess, pref);
+		assertNotNull(prefModule);
+
+		attributesManager.deleteAttribute(sess, pref);
+		prefModule = (AttributesModuleImplApi) perunBlImpl.getAttributesManagerImpl().getAttributesModule(sess, pref);
+		assertNull(prefModule);
+
+	}
+
+
 
 
 

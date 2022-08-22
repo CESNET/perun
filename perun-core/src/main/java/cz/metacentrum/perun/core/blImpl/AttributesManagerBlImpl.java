@@ -2608,12 +2608,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 
-		// try to remove and unregister attribute module
-		AttributesModuleImplApi module = (AttributesModuleImplApi) getAttributesManagerImpl().getAttributesModule(sess, attribute);
-		if (module != null) {
-			getAttributesManagerImpl().removeAttributeModule(module);
-			getAttributesManagerImpl().unregisterAttributeModule(module);
-		}
+		// try to remove and unregister attribute module, the common module (e.g. u:d:login-namespace) will stay even if
+		// the last namespace specific (e.g. u:d:login-namespace:einfra) module is removed
+		getAttributesManagerImpl().removeAndUnregisterAttrModule(sess, attribute);
 	}
 
 	/**

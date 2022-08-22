@@ -170,10 +170,20 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_VO_MAIL_FOOTER = AttributesManager.NS_VO_ATTR_DEF;
 	static final String URN_VO_MAIL_FOOTER = NAMESPACE_VO_MAIL_FOOTER + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER;
 
+	private static final String DISPLAY_NAME_VO_HTML_MAIL_FOOTER = "HTML Mail Footer";
+	private static final String FRIENDLY_NAME_VO_HTML_MAIL_FOOTER = "htmlMailFooter";
+	private static final String NAMESPACE_VO_HTML_MAIL_FOOTER = AttributesManager.NS_VO_ATTR_DEF;
+	static final String URN_VO_HTML_MAIL_FOOTER = NAMESPACE_VO_HTML_MAIL_FOOTER + ":" + FRIENDLY_NAME_VO_HTML_MAIL_FOOTER;
+
 	private static final String DISPLAY_NAME_GROUP_MAIL_FOOTER = "Mail Footer";
 	private static final String FRIENDLY_NAME_GROUP_MAIL_FOOTER = "mailFooter";
 	private static final String NAMESPACE_GROUP_MAIL_FOOTER = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_MAIL_FOOTER = NAMESPACE_GROUP_MAIL_FOOTER + ":" + FRIENDLY_NAME_GROUP_MAIL_FOOTER;
+
+	private static final String DISPLAY_NAME_GROUP_HTML_MAIL_FOOTER = "HTML Mail Footer";
+	private static final String FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER = "htmlMailFooter";
+	private static final String NAMESPACE_GROUP_HTML_MAIL_FOOTER = AttributesManager.NS_GROUP_ATTR_DEF;
+	static final String URN_GROUP_HTML_MAIL_FOOTER = NAMESPACE_GROUP_HTML_MAIL_FOOTER + ":" + FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER;
 
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
@@ -469,6 +479,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_HTML_MAIL_FOOTER);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_VO_HTML_MAIL_FOOTER);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_HTML_MAIL_FOOTER);
+			attrDef.setNamespace(NAMESPACE_VO_MAIL_FOOTER);
+			attrDef.setDescription("HTML email footer used in HTML mail notifications by tag {htmlMailFooter}. To edit text without loss of formatting, please use notification's GUI!!");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			// only PERUN ADMIN can set HTML notifications for now
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
+		}
+		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_MAIL_FOOTER);
 		} catch (AttributeNotExistsException ex) {
 			// create attr if not exists
@@ -485,6 +512,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
 			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
 			policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_HTML_MAIL_FOOTER);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_HTML_MAIL_FOOTER);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER);
+			attrDef.setNamespace(NAMESPACE_GROUP_HTML_MAIL_FOOTER);
+			attrDef.setDescription("HTML email footer used in HTML mail notifications by tag {htmlMailFooter}. To edit text without loss of formatting, please use notification's GUI!!");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+			// only PERUN ADMIN can set HTML notifications for now
 			perun.getAttributesManager().setAttributePolicyCollections(registrarSession, createInitialPolicyCollections(policies, attrDef.getId()));
 		}
 		try {

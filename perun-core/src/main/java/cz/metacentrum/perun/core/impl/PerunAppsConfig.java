@@ -40,11 +40,12 @@ public class PerunAppsConfig {
 	 * @return brand or null if domain is not present in the configuration
 	 */
 	public static Brand getBrandContainingDomain(String domain) {
+		Utils.notNull(domain, "domain");
 		for (Brand brand : instance.getBrands()) {
 			PerunAppsConfig.NewApps newApps = brand.getNewApps();
-			if (brand.getOldGuiDomain().equals(domain) || newApps.getAdmin().equals(domain) || newApps.getProfile().equals(domain)
-				|| newApps.getPublications().equals(domain) || newApps.getPwdReset().equals(domain) || newApps.getApi().equals(domain)
-				|| newApps.getConsolidator().equals(domain) || newApps.getLinker().equals(domain)) {
+			if (domain.equals(brand.getOldGuiDomain()) || domain.equals(newApps.getAdmin()) || domain.equals(newApps.getProfile())
+				|| domain.equals(newApps.getPublications()) || domain.equals(newApps.getPwdReset()) || domain.equals(newApps.getApi())
+				|| domain.equals(newApps.getConsolidator()) || domain.equals(newApps.getLinker())) {
 				return brand;
 			}
 		}
