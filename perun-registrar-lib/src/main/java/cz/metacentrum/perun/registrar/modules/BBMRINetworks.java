@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.registrar.modules;
 
+import com.google.common.base.Strings;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -46,11 +47,9 @@ import java.util.Set;
 public class BBMRINetworks extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(BBMRINetworks.class);
-	private static final String NETWORK_IDS_FIELD = "Comma or new-line separated list of IDs of networks you are representing:";
+	private static final String NETWORK_IDS_FIELD = "networkIds";
 	private static final String NETWORKS_GROUP_NAME = "networks";
 	private static final String NETWORK_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:networkID";
-	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
-	private static final String ADD_NEW_NETWORKS_GROUP_NAME = "addNewNetworks";
 
 	/**
 	 * Add users to the listed groups.
@@ -88,8 +87,10 @@ public class BBMRINetworks extends DefaultRegistrarModule {
 			}
 		}
 
-		if (app.getGroup() != null && app.getGroup().getName().equals(ADD_NEW_NETWORKS_GROUP_NAME)) {
+		try {
 			perun.getGroupsManager().removeMember(session, app.getGroup(), member);
+		} catch (MemberNotExistsException | NotGroupMemberException e) {
+			//we can ignore these exceptions
 		}
 
 		return app;
@@ -158,21 +159,37 @@ public class BBMRINetworks extends DefaultRegistrarModule {
 	 *
 	 * @return Map of collection IDs to group.
 	 */
-	private Map<String, Group> getNetworkIDsToGroupsMap (PerunSession session, PerunBl perun, Group networksGroup) throws GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, PrivilegeException {
+	private Map<String, Group> getNetworkIDsToGroupsMap (PerunSession session,
+														 PerunBl perun,
+														 Group networksGroup)
+		throws WrongAttributeAssignmentException, AttributeNotExistsException
+	{
 		Map<String, Group> networkIDsToGroupMap = new HashMap<>();
-		for (Group group : perun.getGroupsManagerBl().getSubGroups(session, networksGroup)) {
-			for (Group subgroup : perun.getGroupsManagerBl().getSubGroups(session, group)) {
-				if (REPRESENTATIVES_GROUP_NAME.equals(subgroup.getShortName())) {
-					Attribute networkID = perun.getAttributesManagerBl().getAttribute(session, subgroup, NETWORK_ID_ATTR_NAME);
-					networkIDsToGroupMap.put(networkID.valueAsString(), subgroup);
-				}
+		List<Group> networkGroups = perun.getGroupsManagerBl().getSubGroups(session, networksGroup);
+		if (networkGroups == null || networkGroups.isEmpty()) {
+			log.debug("No network groups found, returning empty map.");
+			return networkIDsToGroupMap;
+		}
+
+		for (Group networkGroup: networkGroups) {
+			Attribute networkIDAttr = perun.getAttributesManagerBl()
+				.getAttribute(session, networkGroup, NETWORK_ID_ATTR_NAME);
+
+			if (networkIDAttr == null || Strings.isNullOrEmpty(networkIDAttr.valueAsString())) {
+				log.warn("Found collection group ({}) without value in attr {}: ({})",
+					networkGroup, NETWORK_ID_ATTR_NAME, networkIDAttr);
+			} else {
+				networkIDsToGroupMap.put(networkIDAttr.valueAsString(), networkGroup);
 			}
 		}
 
 		return networkIDsToGroupMap;
 	}
 
-	private Set<String> getNetworkIDs(PerunSession session, PerunBl perun, Group collectionsGroup) throws PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException {
+	private Set<String> getNetworkIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
+		throws WrongAttributeAssignmentException, AttributeNotExistsException
+	{
 		return getNetworkIDsToGroupsMap(session, perun, collectionsGroup).keySet();
 	}
+
 }
