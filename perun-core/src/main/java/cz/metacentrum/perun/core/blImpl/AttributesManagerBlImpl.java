@@ -1544,76 +1544,76 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			AttributeDefinition attrDef = iterator.next();
 
 			if (this.isFromNamespace(sess, attrDef, NS_USER_FACILITY_ATTR) && user != null && facility != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user, facility)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user, facility, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user, facility));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user, facility, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_RESOURCE_ATTR) && member != null && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, resource, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, resource, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_GROUP_ATTR) && member != null && group != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, group)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, group, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, group));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, group, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR) && group != null && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group, resource, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group, resource, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_USER_ATTR) && user != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_ATTR) && member != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_VO_ATTR) && vo != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, vo)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, vo, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, vo));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, vo, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_RESOURCE_ATTR) && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, resource, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, resource, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_GROUP_ATTR) && group != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_FACILITY_ATTR) && facility != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, facility)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, facility, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, facility));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, facility, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_HOST_ATTR) && host != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, host)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, host, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, host));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, host, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_UES_ATTR) && ues != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, ues)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, ues, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, ues));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, ues, false));
 				}
 			} else {
 				//if there is another namespace or if there are no entities (which are needed for the namespace) remove this attributeDefinition

@@ -97,8 +97,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), facility)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), facility, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility, false));
 		}
 
 		return attributes;
@@ -113,8 +113,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), facility)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), facility, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility, false));
 		}
 		return attributes;
 	}
@@ -128,8 +128,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), vo)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, vo));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), vo, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, vo, false));
 		}
 
 		return attributes;
@@ -144,8 +144,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 		}
 
 		return attributes;
@@ -160,8 +160,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource, false));
 		}
 
 		return attributes;
@@ -174,8 +174,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 		}
 
 		return attributes;
@@ -193,20 +193,20 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attributes is not correct type : " + attrNext);
 			}
@@ -226,20 +226,20 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attributes is not correct type : " + attrNext);
 			}
@@ -258,8 +258,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 		}
 
 		return attributes;
@@ -276,8 +276,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		// Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 		}
 
 		return attributes;
@@ -295,15 +295,15 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attributes is not correct type : " + attrNext);
 			}
@@ -325,17 +325,17 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attributes is not correct type_: " + attrNext);
 			}
@@ -352,8 +352,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 		}
 		return attributes;
 	}
@@ -377,32 +377,32 @@ public class AttributesManagerEntry implements AttributesManager {
 			Attribute attrNext = attrIter.next();
 
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attribute is not of supported type : " + new AttributeDefinition(attrNext));
 			}
@@ -419,8 +419,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), vo)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, vo));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), vo, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, vo, false));
 		}
 		return attributes;
 	}
@@ -435,8 +435,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 		}
 		return attributes;
 	}
@@ -451,8 +451,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource, false));
 		}
 		return attributes;
 
@@ -467,8 +467,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 		}
 		return attributes;
 	}
@@ -482,8 +482,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 		}
 		return attributes;
 	}
@@ -497,8 +497,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource, false));
 		}
 		return attributes;
 	}
@@ -514,11 +514,11 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attributes is not correct type: " + attrNext);
 			}
@@ -535,8 +535,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 		}
 		return attributes;
 	}
@@ -550,8 +550,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), ues)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, ues));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), ues, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, ues, false));
 		}
 		return attributes;
 	}
@@ -566,8 +566,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, facility)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, facility, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 		}
 		return attributes;
 	}
@@ -582,8 +582,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), user, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 		}
 		return attributes;
 	}
@@ -597,8 +597,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), host)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), host, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host, false));
 		}
 		return attributes;
 	}
@@ -612,8 +612,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), host)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), host, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host, false));
 		}
 		return attributes;
 	}
@@ -631,8 +631,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), group, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 		}
 		return attributes;
 	}
@@ -651,11 +651,11 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attribute is not type of group or group_resource : " + attrNext);
 			}
@@ -675,11 +675,11 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attribute is not type of group or group_resource : " + attrNext);
 			}
@@ -698,12 +698,12 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else {
 				throw new ConsistencyErrorException("One of getting attribute is not type of member or user : " + attrNext);
 			}
@@ -734,8 +734,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), ues)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, ues));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(attrNext), ues, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, ues, false));
 		}
 		return attributes;
 	}
@@ -768,9 +768,9 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		Map<String, Attribute> result = attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName);
 		result.entrySet().removeIf(entry ->
-				!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(entry.getValue()), entry.getKey()));
+				!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(entry.getValue()), entry.getKey(), true));
 		result.forEach((s, attribute) -> {
-			attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, s));
+			attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, s, false));
 		});
 		return result;
 	}
@@ -791,9 +791,9 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		Map<String, Attribute> result = attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName, keys);
 		result.entrySet().removeIf(entry ->
-				!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(entry.getValue()), entry.getKey()));
+				!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, new AttributeDefinition(entry.getValue()), entry.getKey(), true));
 		result.forEach((s, attribute) -> {
-			attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, s));
+			attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, s, false));
 		});
 		return result;
 	}
@@ -831,7 +831,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), facility )) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), facility, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, facility, attributes);
 	}
@@ -843,7 +843,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), vo )) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), vo, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, vo, attributes);
 	}
@@ -855,7 +855,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group )) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, group, attributes);
 	}
@@ -867,7 +867,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), resource )) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, resource, attributes);
 	}
@@ -880,7 +880,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, member, resource, attributes);
 	}
@@ -894,7 +894,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		// Choose to which attributes has the principal access
 		for(Attribute attribute : attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		}
 		getAttributesManagerBl().setAttributes(sess, member, group, attributes);
 	}
@@ -909,13 +909,13 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_GROUP_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, group))
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, group, true))
 					throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR_DEF)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
 			}
@@ -932,16 +932,16 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR_DEF)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u , f)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u , f, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
 			}
@@ -958,10 +958,10 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member )) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
 			}
@@ -981,13 +981,13 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR_DEF)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
 			}
@@ -1007,15 +1007,15 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR_DEF)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , group)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , group, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
 			}
@@ -1030,7 +1030,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, member, attributes);
 	}
@@ -1043,7 +1043,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, facility, user, attributes);
 	}
@@ -1055,7 +1055,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, user, attributes);
 	}
@@ -1067,7 +1067,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), host)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), host, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		try {
 			getAttributesManagerBl().setAttributes(sess, host, attributes);
@@ -1084,7 +1084,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group , resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, resource, group, attributes);
 	}
@@ -1101,9 +1101,9 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group , resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("One of setting attribute has not correct type : " + new AttributeDefinition(attr));
 			}
@@ -1118,7 +1118,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), ues)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), ues, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().setAttributes(sess, ues, attributes);
 	}
@@ -1130,8 +1130,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, facility, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, facility)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, facility, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility, false));
 		return attr;
 	}
 
@@ -1142,8 +1142,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, vo, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, vo)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, vo));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, vo, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, vo, false));
 		return attr;
 	}
 
@@ -1154,8 +1154,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, group, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group, false));
 		return attr;
 	}
 
@@ -1166,8 +1166,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, resource, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, resource)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, resource));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, resource, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, resource, false));
 		return attr;
 	}
 
@@ -1179,8 +1179,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, member, resource, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member, resource)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, resource));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member, resource, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, resource, false));
 		return attr;
 	}
 
@@ -1192,8 +1192,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		Attribute attribute = getAttributesManagerBl().getAttribute(sess, member, group, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, member, group)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attribute));
-		else attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, member, group, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attribute));
+		else attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group, false));
 
 		return attribute;
 	}
@@ -1205,8 +1205,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, member, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, false));
 		return attr;
 	}
 
@@ -1218,8 +1218,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, facility, user, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user, facility)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user, facility));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user, facility, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user, facility, false));
 		return attr;
 	}
 
@@ -1230,8 +1230,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, user, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user, false));
 		return attr;
 	}
 
@@ -1242,8 +1242,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, host, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, host)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, host));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, host, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, host, false));
 		return attr;
 	}
 
@@ -1258,8 +1258,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, resource, group, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group, resource)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group, resource));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group, resource, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group, resource, false));
 		return attr;
 	}
 
@@ -1270,8 +1270,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		Attribute attr = getAttributesManagerBl().getAttribute(sess, ues, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, ues)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, ues));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, ues, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, ues, false));
 		return attr;
 	}
 
@@ -1337,8 +1337,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, facility, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, facility)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, facility, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility, false));
 		return attr;
 	}
 
@@ -1348,8 +1348,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, vo, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, vo)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, vo));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, vo, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, vo, false));
 		return attr;
 	}
 
@@ -1359,8 +1359,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, resource, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, resource)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, resource));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, resource, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, resource, false));
 		return attr;
 	}
 
@@ -1371,8 +1371,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, member, resource, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member, resource)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, resource));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member, resource, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, resource, false));
 		return attr;
 	}
 
@@ -1383,8 +1383,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		Attribute attribute = getAttributesManagerBl().getAttributeById(sess, member, group, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, member, group)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attribute));
-		else attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, member, group, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attribute));
+		else attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group, false));
 
 		return attribute;
 	}
@@ -1395,8 +1395,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, member, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, member, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, false));
 		return attr;
 	}
 
@@ -1407,8 +1407,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, facility, user, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user, facility)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user, facility));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user, facility, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user, facility, false));
 		return attr;
 	}
 
@@ -1418,8 +1418,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, user, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, user, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user, false));
 		return attr;
 	}
 
@@ -1429,8 +1429,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, host, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, host)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, host));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, host, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, host, false));
 		return attr;
 	}
 
@@ -1444,8 +1444,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, resource, group, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group, resource)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group, resource));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group, resource, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group, resource, false));
 		return attr;
 	}
 
@@ -1455,8 +1455,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, group, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, group, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group, false));
 		return attr;
 	}
 
@@ -1466,8 +1466,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, ues, id);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, ues)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
-		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, ues));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attr, ues, true)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, ues, false));
 		return attr;
 	}
 
@@ -1476,7 +1476,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, facility)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, facility, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, facility, attribute);
 	}
 
@@ -1485,7 +1485,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, vo)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, vo, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, vo, attribute);
 	}
 
@@ -1494,7 +1494,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, group, attribute);
 	}
 
@@ -1503,7 +1503,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, resource, attribute);
 	}
 
@@ -1513,7 +1513,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, member, resource, attribute);
 	}
 
@@ -1523,7 +1523,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, member, group, attribute);
 	}
 
@@ -1532,7 +1532,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, member, attribute);
 	}
 
@@ -1542,7 +1542,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user, facility)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user, facility, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, facility, user, attribute);
 	}
 
@@ -1551,7 +1551,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, user, attribute);
 	}
 
@@ -1560,7 +1560,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, host)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, host, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		try {
 			getAttributesManagerBl().setAttribute(sess, host, attribute);
 		} catch (WrongReferenceAttributeValueException ex) {
@@ -1574,7 +1574,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group, resource)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group, resource, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, resource, group, attribute);
 
 	}
@@ -1585,7 +1585,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		Utils.notNull(key, "key");
 		if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, key)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, key, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().setAttribute(sess, key, attribute);
 
@@ -1596,7 +1596,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, ues)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, ues, true)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
 		getAttributesManagerBl().setAttribute(sess, ues, attribute);
 	}
 
@@ -1651,8 +1651,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource, false));
 		}
 		return attributes;
 	}
@@ -1668,8 +1668,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 		}
 		return attributes;
 	}
@@ -1686,20 +1686,20 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)){
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u, f)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u, f));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u, f, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u, f, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -1719,8 +1719,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 		}
 		return attributes;
 	}
@@ -1738,15 +1738,15 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -1768,17 +1768,17 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -1797,8 +1797,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 		}
 		return attributes;
 	}
@@ -1813,8 +1813,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 		}
 		return attributes;
 	}
@@ -1829,8 +1829,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 		}
 		return attributes;
 	}
@@ -1845,8 +1845,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, host)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, host, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host, false));
 		}
 		return attributes;
 	}
@@ -1868,11 +1868,11 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not of expected type (group or group_resource).");
 			}
@@ -1906,20 +1906,20 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not of expected type (member, user, user_facility, member_group, member_resource).");
 			}
@@ -1938,8 +1938,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 		}
 		return attributes;
 	}
@@ -1954,8 +1954,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 		}
 		return attributes;
 	}
@@ -1971,8 +1971,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 		}
 		return attributes;
 	}
@@ -1988,20 +1988,20 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u, f)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u, f));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, u, f, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, u, f, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -2019,8 +2019,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 		}
 		return attributes;
 	}
@@ -2036,12 +2036,12 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				if (user == null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -2062,15 +2062,15 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				if (user == null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -2087,8 +2087,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 		}
 		return attributes;
 	}
@@ -2110,8 +2110,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, facility)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, facility, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility, false));
 		}
 		return attributes;
 	}
@@ -2126,8 +2126,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, facility)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, facility, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility, false));
 		}
 		return attributes;
 	}
@@ -2142,8 +2142,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, vo)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, vo));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, vo, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, vo, false));
 		}
 		return attributes;
 	}
@@ -2163,9 +2163,9 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, facility)) {
+			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, facility, true)) {
 				// if allowed to read, add it to result
-				attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility));
+				attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, facility, false));
 				result.add(attrNext);
 			}
 		}
@@ -2182,8 +2182,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource, false));
 		}
 		return attributes;
 	}
@@ -2198,8 +2198,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, resource, false));
 		}
 		return attributes;
 	}
@@ -2214,8 +2214,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, host)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, host, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, host, false));
 		}
 		return attributes;
 	}
@@ -2230,8 +2230,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 		}
 		return attributes;
 	}
@@ -2250,20 +2250,20 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)){
 				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				if (facility==null) facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -2289,23 +2289,23 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)){
 				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				if (facility==null) facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -2330,25 +2330,25 @@ public class AttributesManagerEntry implements AttributesManager {
 			while (attrIter.hasNext()) {
 				Attribute attrNext = attrIter.next();
 				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true))
 						attrIter.remove();
 					else
-					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 					} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true))
 						attrIter.remove();
 					else
-					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 					} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true))
 						attrIter.remove();
 					else
-					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 					} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true))
 						attrIter.remove();
 					else
-					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 					} else {
 					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 					}
@@ -2372,10 +2372,10 @@ public class AttributesManagerEntry implements AttributesManager {
 					while (attrIter.hasNext()) {
 				Attribute attrNext = attrIter.next();
 				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, resource, true))
 						attrIter.remove();
 					else
-					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource));
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, resource, false));
 					} else {
 					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 					}
@@ -2399,10 +2399,10 @@ public class AttributesManagerEntry implements AttributesManager {
 					while (attrIter.hasNext()) {
 				Attribute attrNext = attrIter.next();
 				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true))
 						attrIter.remove();
 					else
-					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 					} else {
 					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 					}
@@ -2426,10 +2426,10 @@ public class AttributesManagerEntry implements AttributesManager {
 					while (attrIter.hasNext()) {
 				Attribute attrNext = attrIter.next();
 				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, facility, true))
 						attrIter.remove();
 					else
-					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility));
+					attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, facility, false));
 					} else {
 					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 					}
@@ -2452,10 +2452,10 @@ public class AttributesManagerEntry implements AttributesManager {
 			while (attrIter.hasNext()) {
 				Attribute attrNext = attrIter.next();
 				if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user))
+					if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true))
 						attrIter.remove();
 					else
-						attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+						attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 				} else {
 					throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 				}
@@ -2476,8 +2476,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 		}
 
 		return attributes;
@@ -2496,15 +2496,15 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, group, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -2522,8 +2522,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, member, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, member, false));
 		}
 		return attributes;
 	}
@@ -2540,11 +2540,11 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)){
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, true)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -2566,8 +2566,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, resource, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, resource, false));
 		}
 		return attributes;
 	}
@@ -2582,8 +2582,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, group, true)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, group, false));
 		}
 		return attributes;
 	}
@@ -2594,7 +2594,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), resource )) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), resource, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, resource, attribute);
 		attr.setWritable(true);
@@ -2611,7 +2611,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), resource )) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), resource, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2624,7 +2624,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member , resource)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member , resource, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, member, resource, attribute);
 		attr.setWritable(true);
@@ -2642,7 +2642,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member , resource)) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, resource, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2662,19 +2662,19 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member)) attrIter.remove();
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, true)) attrIter.remove();
 				else attrNext.setWritable(true);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member , resource)) attrIter.remove();
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member , resource, true)) attrIter.remove();
 				else attrNext.setWritable(true);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), u)) attrIter.remove();
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), u, true)) attrIter.remove();
 				else attrNext.setWritable(true);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), u, f)) attrIter.remove();
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), u, f, true)) attrIter.remove();
 				else attrNext.setWritable(true);
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
@@ -2690,7 +2690,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, member, group, attribute);
 		attr.setWritable(true);
@@ -2708,7 +2708,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, group)) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, group, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2728,14 +2728,14 @@ public class AttributesManagerEntry implements AttributesManager {
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, group)) attrIter.remove();
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, group, true)) attrIter.remove();
 				else attrNext.setWritable(true);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), u)) attrIter.remove();
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), u, true)) attrIter.remove();
 				else attrNext.setWritable(true);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member)) attrIter.remove();
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, true)) attrIter.remove();
 				else attrNext.setWritable(true);
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
@@ -2760,25 +2760,25 @@ public class AttributesManagerEntry implements AttributesManager {
 		while (attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, true)) {
 					attrIter.remove();
 				} else {
 					attrNext.setWritable(true);
 				}
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, resource, true)) {
 					attrIter.remove();
 				} else {
 					attrNext.setWritable(true);
 				}
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), user)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), user, true)) {
 					attrIter.remove();
 				} else {
 					attrNext.setWritable(true);
 				}
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), user, facility)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), user, facility, true)) {
 					attrIter.remove();
 				} else {
 					attrNext.setWritable(true);
@@ -2797,7 +2797,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member )) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, member, attribute);
 		attr.setWritable(true);
@@ -2814,7 +2814,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext),member )) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), member, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2828,7 +2828,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user , facility)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user , facility, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, facility, user, attribute);
 		attr.setWritable(true);
@@ -2846,7 +2846,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), user, facility)) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), user, facility, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2859,7 +2859,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user )) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, user, attribute);
 		attr.setWritable(true);
@@ -2876,7 +2876,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext),user )) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), user, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2893,7 +2893,7 @@ public class AttributesManagerEntry implements AttributesManager {
 			throw new GroupResourceMismatchException("group and resource are not in the same VO");
 		}
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group , resource)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group , resource, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, resource, group, attribute);
 		attr.setWritable(true);
@@ -2914,7 +2914,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext),group ,resource)) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext),group ,resource, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2937,13 +2937,13 @@ public class AttributesManagerEntry implements AttributesManager {
 		while (attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
 			if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), group)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), group, true)) {
 					attrIter.remove();
 				} else {
 					attrNext.setWritable(true);
 				}
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), group, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), group, resource, true)) {
 					attrIter.remove();
 				} else {
 					attrNext.setWritable(true);
@@ -2962,7 +2962,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), host )) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), host, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, host, attribute);
 		attr.setWritable(true);
@@ -2979,7 +2979,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), host)) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), host, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -2992,7 +2992,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group )) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, group, attribute);
 		attr.setWritable(true);
@@ -3009,7 +3009,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext),group)) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), group, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -3022,7 +3022,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), ues)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), ues, true)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
 
 		Attribute attr = getAttributesManagerBl().fillAttribute(sess, ues, attribute);
 		attr.setWritable(true);
@@ -3039,7 +3039,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> attrIter = listOfAttributes.iterator();
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), ues)) attrIter.remove();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attrNext), ues, true)) attrIter.remove();
 			else attrNext.setWritable(true);
 		}
 
@@ -3052,7 +3052,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), facility )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, facility, attribute);
 	}
@@ -3064,7 +3064,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, facility, attributes);
 	}
@@ -3075,7 +3075,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), vo)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), vo, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, vo, attribute);
 	}
@@ -3087,7 +3087,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), vo)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), vo, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, vo, attributes);
 	}
@@ -3098,7 +3098,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, resource, attribute);
 	}
@@ -3110,7 +3110,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), resource )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, resource, attributes);
 	}
@@ -3122,7 +3122,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, member, resource, attribute);
 	}
@@ -3135,7 +3135,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, member, resource, attributes);
 	}
@@ -3147,7 +3147,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, member, group, attribute);
 	}
@@ -3160,7 +3160,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
 		for(Attribute attribute: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, member, group, attributes);
 	}
@@ -3174,12 +3174,12 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , group)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3196,16 +3196,16 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u , f)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u , f, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3224,13 +3224,13 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3244,7 +3244,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, member, attribute);
 	}
@@ -3256,7 +3256,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, member, attributes);
 	}
@@ -3268,7 +3268,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user , facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user , facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, facility, user, attribute);
 	}
@@ -3281,7 +3281,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, facility, user, attributes);
 	}
@@ -3292,7 +3292,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, user, attribute);
 	}
@@ -3303,7 +3303,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), host )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), host, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, host, attribute);
 	}
@@ -3315,7 +3315,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), host )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), host, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, host, attributes);
 	}
@@ -3326,7 +3326,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, group, attribute);
 	}
@@ -3338,7 +3338,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, user, attributes);
 	}
@@ -3354,7 +3354,7 @@ public class AttributesManagerEntry implements AttributesManager {
 			throw new GroupResourceMismatchException("group and resource are not in the same VO");
 		}
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, resource, group, attribute);
 	}
@@ -3371,7 +3371,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, resource, group, attributes);
 	}
@@ -3388,9 +3388,9 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			}
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, resource, group, attributes,workWithGroupAttribute);
@@ -3403,7 +3403,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), ues )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), ues, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSemantics(sess, ues, attribute);
 	}
@@ -3415,7 +3415,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), ues )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), ues, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSemantics(sess, ues, attributes);
 	}
@@ -3426,7 +3426,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), facility )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, facility, attribute);
 	}
@@ -3438,7 +3438,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, facility, attributes);
 	}
@@ -3449,7 +3449,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), vo)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), vo, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, vo, attribute);
 	}
@@ -3461,7 +3461,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), vo)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), vo, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, vo, attributes);
 	}
@@ -3472,7 +3472,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, resource, attribute);
 	}
@@ -3484,7 +3484,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), resource )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, resource, attributes);
 	}
@@ -3496,7 +3496,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, member, resource, attribute);
 	}
@@ -3509,7 +3509,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, member, resource, attributes);
 	}
@@ -3521,7 +3521,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, member, group, attribute);
 	}
@@ -3534,7 +3534,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
 		for(Attribute attribute: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, member, group, attributes);
 	}
@@ -3548,12 +3548,12 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , group)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3570,16 +3570,16 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				Facility f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u , f)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), u , f, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3598,13 +3598,13 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3618,7 +3618,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, member, attribute);
 	}
@@ -3630,7 +3630,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, member, attributes);
 	}
@@ -3642,7 +3642,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user , facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user , facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, facility, user, attribute);
 	}
@@ -3655,7 +3655,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user , facility, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, facility, user, attributes);
 	}
@@ -3666,7 +3666,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, user, attribute);
 	}
@@ -3677,7 +3677,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), host )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), host, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, host, attribute);
 	}
@@ -3689,7 +3689,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), host )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), host, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, host, attributes);
 	}
@@ -3700,7 +3700,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, group, attribute);
 	}
@@ -3712,7 +3712,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, user, attributes);
 	}
@@ -3728,7 +3728,7 @@ public class AttributesManagerEntry implements AttributesManager {
 			throw new GroupResourceMismatchException("group and resource are not in the same VO");
 		}
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), group , resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, resource, group, attribute);
 	}
@@ -3745,7 +3745,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, resource, group, attributes);
 	}
@@ -3762,9 +3762,9 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group , resource)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, resource, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attr, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 			}
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, resource, group, attributes,workWithGroupAttribute);
@@ -3777,7 +3777,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), ues )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute), ues, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().checkAttributeSyntax(sess, ues, attribute);
 	}
@@ -3789,7 +3789,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		//Choose to which attributes has the principal access
 		for(Attribute attr: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), ues )) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), ues, true)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().checkAttributesSyntax(sess, ues, attributes);
 	}
@@ -3800,7 +3800,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, facility )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, facility, attribute);
 	}
@@ -3810,7 +3810,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, key)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, key, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, key, attribute);
 	}
@@ -3827,9 +3827,9 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3844,7 +3844,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, facility )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, facility, attributes);
 	}
@@ -3860,13 +3860,13 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user , facility)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user, facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3886,15 +3886,15 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_MEMBER_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_USER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_USER_FACILITY_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user , facility)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user, facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_MEMBER_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, group)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3910,10 +3910,10 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_MEMBER_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_USER_ATTR)) {
 				User u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, u )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, u, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else {
 				throw new WrongAttributeAssignmentException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3928,7 +3928,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, facility);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, facility);
 	}
@@ -3945,9 +3945,9 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: allAttributes) {
 			if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else if(getAttributesManagerBl().isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR)) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -3962,7 +3962,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getUserFacilityAttributesForAnyUser(sess, facility);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, facility, removeAlsoUserFacilityAttributes);
 	}
@@ -3973,7 +3973,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, vo )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, vo, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, vo, attribute);
 	}
@@ -3985,7 +3985,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, vo )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, vo, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, vo, attributes);
 	}
@@ -3997,7 +3997,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, vo);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, vo )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, vo, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, vo);
 	}
@@ -4008,7 +4008,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, group, attribute);
 	}
@@ -4020,7 +4020,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, group, attributes);
 	}
@@ -4032,7 +4032,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, group);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, group);
 	}
@@ -4043,7 +4043,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, resource )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, resource, attribute);
 	}
@@ -4055,7 +4055,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, resource )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, resource, attributes);
 	}
@@ -4067,7 +4067,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, resource);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, resource )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, resource);
 	}
@@ -4079,7 +4079,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, member, resource, attribute);
 	}
@@ -4092,7 +4092,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, member, resource, attributes);
 	}
@@ -4105,7 +4105,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, member, resource);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, member, resource);
 	}
@@ -4117,7 +4117,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, member, group, attribute);
 	}
@@ -4135,7 +4135,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, group)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, member, group, attributes, workWithUserAttributes);
 	}
@@ -4148,7 +4148,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, group)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, group, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, member, group);
 	}
@@ -4159,7 +4159,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, member, attribute);
 	}
@@ -4171,7 +4171,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, member, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, member, attributes);
 	}
@@ -4183,7 +4183,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, member);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, member, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, member);
 	}
@@ -4195,7 +4195,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user , facility)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user , facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, facility, user, attribute);
 	}
@@ -4208,7 +4208,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user , facility)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user , facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, facility, user, attributes);
 	}
@@ -4221,7 +4221,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, facility, user);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user , facility)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user , facility, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, facility, user);
 	}
@@ -4232,7 +4232,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, user, attribute);
 	}
@@ -4244,7 +4244,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, user, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, user, attributes);
 	}
@@ -4256,7 +4256,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, user, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, user);
 	}
@@ -4267,7 +4267,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, host )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, host, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, host, attribute);
 
@@ -4280,7 +4280,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, host )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, host, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, host, attributes);
 	}
@@ -4292,7 +4292,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, host);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, host )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, host, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, host);
 	}
@@ -4308,7 +4308,7 @@ public class AttributesManagerEntry implements AttributesManager {
 			throw new GroupResourceMismatchException("group and resource are not in the same VO");
 		}
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, resource, group, attribute);
 	}
@@ -4321,7 +4321,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, group , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		if(!getPerunBl().getGroupsManagerBl().getVo(sess, group).equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
 			throw new GroupResourceMismatchException("group and resource are not in the same VO");
@@ -4341,7 +4341,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group , resource)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, group , resource, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, resource, group);
 	}
@@ -4352,7 +4352,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, ues )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, ues, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
 
 		getAttributesManagerBl().removeAttribute(sess, ues, attribute);
 	}
@@ -4364,7 +4364,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		//Choose to which attributes has the principal access
 		for(AttributeDefinition attrDef: attributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, ues )) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, ues, true)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
 		getAttributesManagerBl().removeAttributes(sess, ues, attributes);
 	}
@@ -4376,7 +4376,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose if principal has access to remove all attributes
 		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, ues);
 		for(Attribute attr: allAttributes) {
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, ues )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attr, ues, true )) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, ues);
 	}
@@ -4436,8 +4436,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		Iterator<Attribute> loginIter = logins.iterator();
 		while(loginIter.hasNext()) {
 			Attribute attrNext = loginIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user )) loginIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user));
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attrNext, user, true)) loginIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrNext, user, false));
 		}
 
 		return getAttributesManagerBl().getLogins(sess, user);

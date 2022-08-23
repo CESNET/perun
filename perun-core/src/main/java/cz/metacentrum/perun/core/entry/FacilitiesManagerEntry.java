@@ -184,7 +184,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Iterator<Facility> it = facilities.iterator();
 		while (it.hasNext()) {
 			Facility facility = it.next();
-			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attributeDef, facility)) {
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attributeDef, facility, true)) {
 				it.remove();
 			}
 		}
@@ -615,7 +615,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		//Filtering attributes
 		for (String attrName : attrNames) {
-			if (AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
+			if (AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1, true)) {
 				allowedAttributes.add(attrName);
 			}
 		}

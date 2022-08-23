@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static cz.metacentrum.perun.core.api.AuthzResolver.MFA_CRITICAL_ATTR;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -564,8 +565,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
 
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdGroup));
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdGroup));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdGroup, false));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdGroup, false));
 	}
 
 	@Test
@@ -589,13 +590,13 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		AuthzResolver.refreshAuthz(session);
 
 		// group is not assigned to resource yet
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdFacility));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdFacility, false));
 
 		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, createdResource, false, false, false);
 		AuthzResolver.refreshAuthz(session);
 
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdFacility));
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdFacility));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdFacility, false));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdFacility, false));
 	}
 
 	@Test
@@ -616,8 +617,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
 
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdGroup));
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdGroup));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdGroup, false));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdGroup, false));
 	}
 
 	@Test
@@ -1078,7 +1079,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.READ, attrDef, group));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.READ, attrDef, group, false));
 	}
 
 	@Test
@@ -1106,10 +1107,10 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.GROUPADMIN, group));
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.WRITE, attrDef, group));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.WRITE, attrDef, group, false));
 
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.GROUPOBSERVER, group));
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.WRITE, attrDef, group));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.WRITE, attrDef, group, false));
 	}
 
 	@Test
@@ -1137,8 +1138,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.WRITE, attrDef, group));
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.READ, attrDef, group));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.WRITE, attrDef, group, false));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.READ, attrDef, group, false));
 	}
 
 	@Test
@@ -1575,6 +1576,24 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		assertEquals(1, result.size());
 		assertTrue(result.contains(testSecurityTeam));
 	}
+
+	@Test
+	public void isAnyAttributeMfaCritical() throws Exception {
+		System.out.println(CLASS_NAME + "isAnyAttributeMfaCritical");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+
+		assertFalse(AuthzResolver.isAnyObjectMfaCritical(sess, List.of(vo, facility, resource)));
+
+		AttributeDefinition attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+		Attribute attr = new Attribute(attrDef, true);
+		perun.getAttributesManagerBl().setAttribute(sess, facility, attr);
+
+		assertTrue(AuthzResolver.isAnyObjectMfaCritical(sess, List.of(resource, vo, facility)));
+	}
+
 	// private methods ==============================================================
 
 	private Facility setUpFacility() throws Exception {
