@@ -50,7 +50,7 @@ sub setApplicationForm
 
 sub getFormItems
 {
-	return Perun::Common::callManagerMethod('getFormItems', '[]FormItem', @_);
+	return Perun::Common::callManagerMethod('getFormItems', '[]ApplicationFormItem', @_);
 }
 
 sub updateFormItems
