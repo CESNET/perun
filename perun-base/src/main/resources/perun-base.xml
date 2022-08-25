@@ -76,6 +76,7 @@
 		<property name="userInfoEndpointExtSourceName" value="${perun.userInfoEndpoint.extSourceName}"/>
 		<property name="userInfoEndpointExtSourceFriendlyName" value="#{'${perun.userInfoEndpoint.extSourceFriendlyName}'.split('\s*,\s*')}"/>
 		<property name="mfaAuthTimeout" value="${perun.userInfoEndpoint.mfaAuthTimeout}"/>
+		<property name="enforceMfa" value="${perun.enforceMfa}"/>
 		<property name="userInfoEndpointMfaAuthTimestampPropertyName" value="${perun.userInfoEndpoint.mfaAuthTimestampPropertyName}"/>
 		<property name="userInfoEndpointMfaAcrValue" value="${perun.userInfoEndpoint.mfaAcrValue}"/>
 		<property name="userInfoEndpointAcrPropertyName" value="${perun.userInfoEndpoint.acrPropertyName}"/>
@@ -177,6 +178,7 @@
 				<prop key="perun.userInfoEndpoint.mfaAuthTimeout">24</prop>
 				<prop key="perun.userInfoEndpoint.acrPropertyName">acr</prop>
 				<prop key="perun.userInfoEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
+				<prop key="perun.enforceMfa">false</prop>
 			</props>
 		</property>
 	</bean>

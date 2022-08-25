@@ -4023,6 +4023,19 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/authzResolver/refreshMfa:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: refreshMfa
+      summary: Refreshes MFA-related data for principal.
+      parameters: [ ]
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # AttributesManager                             #

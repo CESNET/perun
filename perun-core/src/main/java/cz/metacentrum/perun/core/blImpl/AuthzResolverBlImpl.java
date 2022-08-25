@@ -43,10 +43,12 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MFAuthenticationException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
@@ -67,6 +69,8 @@ import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
+import cz.metacentrum.perun.oidc.UserInfoEndpointResponse;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +92,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ACCESS_TOKEN;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
 import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -2332,6 +2339,35 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	}
 
+	public static void refreshMfa(PerunSession sess) throws ExpiredTokenException, MFAuthenticationException {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
+			throw new MFAuthenticationException("MFA enforcement is turned off");
+		}
+
+		if (!BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
+			throw new MFAuthenticationException("Cannot verify MFA - UserInfo endpoint not configured.");
+		}
+
+		String accessToken = sess.getPerunPrincipal().getAdditionalInformations().get(ACCESS_TOKEN);
+		if (accessToken == null) {
+			throw new MFAuthenticationException("Cannot verify MFA - access token is missing.");
+		}
+
+		String issuer = sess.getPerunPrincipal().getAdditionalInformations().get(ISSUER);
+		if (issuer == null) {
+			throw new MFAuthenticationException("Cannot verify MFA - issuer is missing.");
+		}
+
+		UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
+		String timestamp = userInfoEndpointCall.getUserInfoEndpointMfaData(accessToken, issuer);
+		if (timestamp != null && !timestamp.isEmpty()) {
+			sess.getPerunPrincipal().getAdditionalInformations().put(MFA_TIMESTAMP, timestamp);
+			if (isAuthorizedByMfa(sess)) {
+				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
+			}
+		}
+	}
+
 	/**
 	 * For the given role with association to "Group" add also all subgroups to authzRoles.
 	 * If authzRoles is null, return empty AuthzRoles.
@@ -3965,6 +4001,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return true if principal authorized by MFA in allowed limit, false otherwise
 	 */
 	private static boolean isAuthorizedByMfa(PerunSession sess) {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
+			return false;
+		}
+
 		if (!sess.getPerunPrincipal().getAdditionalInformations().containsKey(MFA_TIMESTAMP)) {
 			return false;
 		}
