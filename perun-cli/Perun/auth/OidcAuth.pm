@@ -7,13 +7,14 @@ use YAML::XS 'LoadFile';
 use JSON::XS;
 use LWP::UserAgent;
 use File::Basename;
-use Perun::Exception;
 use Try::Tiny;
+use Perun::Exception;
 
 my $PYTHON = "python3";
+my $MFA_REFS = "https://refeds.org/profile/mfa";
 my $dirname = dirname(__FILE__);
 my $configFilename = $dirname . '/oidc_config.yml';
-my $chosenConfigName = $ENV{PERUN_OIDC_CONFIG} || getDefaultConfig();
+our $chosenConfigName = $ENV{PERUN_OIDC_CONFIG} || getDefaultConfig();
 my $PERUN_OIDC = "perun_oidc" . "_" . $chosenConfigName;
 my $contentType = "application/x-www-form-urlencoded";
 my $authenticationFailed = "Authentication failed";
@@ -105,6 +106,7 @@ sub authentication
 sub polling
 {
 	my ($deviceCode, $interval) = @_;
+	my $config = loadConfiguration();
 	my $pollingLimit = int(300 / $interval); # polling for 300 seconds at most
 	my @i = (1..$pollingLimit);
 	for (@i) {
@@ -125,6 +127,8 @@ sub polling
 			} elsif ($error eq "expired_token") {
 				print("Expired token, restarting authentication\n");
 				return authentication;
+			} elsif ($error eq "unmet_authentication_requirements" && $config->{"enforce_mfa"}) {
+				die Perun::Exception->fromHash({ type =>$authenticationFailed, errorInfo => "No MFA is set up - please enroll an active MFA token first." });
 			} else {
 				die Perun::Exception->fromHash({ type => $authenticationFailed, name => $error, errorInfo => $response->{"error_description"} });
 			}
@@ -170,6 +174,7 @@ sub tokenRequest
 }
 
 # Sends authentication device code flow request.
+# If encorce_mfa is set to true, adds MFA acr value before acr_values
 #
 # Throws Perun::Exception when the response isn't successful.
 # Returns structure containing response (e.g. structure->{"device_code"}).
@@ -178,13 +183,18 @@ sub authenticationRequest
 	my $config = loadConfiguration();
 
 	my $ua = LWP::UserAgent->new;
+	my $acr_values = $config->{"acr_values"};
+	if ($config->{"enforce_mfa"}) {
+		length($acr_values) ? $acr_values = $MFA_REFS . " " . $acr_values : $acr_values = $MFA_REFS;
+	}
 	my $response = $ua->post(
 		$config->{"oidc_device_code_uri"},
 		"content_type" => $contentType,
 		Content => {
-			"client_id" => $config->{"client_id"},
-			"acr_values" => $config->{"acr_values"},
-			"scope" => $config->{"scopes"}
+			"client_id"  => $config->{"client_id"},
+			"acr_values" => $acr_values,
+			"scope"      => $config->{"scopes"},
+			"prompt"     => "login"
 		}
 	);
 
@@ -249,6 +259,11 @@ sub refreshAccessToken
 		}
 	}
 
+	reauthenticate();
+}
+
+sub reauthenticate
+{
 	my $auth = authentication();
 	unless ($auth->{"error"}) {
 		setAccessToken($auth->{"access_token"});
