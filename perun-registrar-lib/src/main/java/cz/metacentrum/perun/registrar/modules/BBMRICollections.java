@@ -37,9 +37,6 @@ import java.util.Set;
  *    - group representing collection has attribute CollectionID assigned and value represents the ID
  * 2. adds users to the appropriate groups
  *
- * NOTE!!!: On the form, configure item "targetGroupName" as hidden and value should be name of the group, under which
- * collections are stored.
- *
  * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
  */
@@ -47,10 +44,9 @@ public class BBMRICollections extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
 
-	private static final String COLLECTION_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
+	private static final String COLLECTION_IDS_FIELD = "collectionIds";
+	private static final String DIRECTORY_GROUP_FIELD = "directory";
 	private static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
-	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
-	private static final String TARGET_GROUP_FIELD = "targetGroupName";
 
 	/**
 	 * Find groups representing collections by input. Groups are looked for in subgroups
@@ -151,7 +147,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 		String directoryGroupName = null;
 		List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
 		for (ApplicationFormItemData field : formData) {
-			if (TARGET_GROUP_FIELD.equals(field.getShortname())) {
+			if (DIRECTORY_GROUP_FIELD.equals(field.getShortname())) {
 				directoryGroupName = field.getValue();
 				break;
 			}
@@ -197,29 +193,28 @@ public class BBMRICollections extends DefaultRegistrarModule {
 	 *
 	 * @return Map of collection IDs to group.
 	 */
-	private Map<String, Group> getCollectionIDsToGroupsMap (PerunSession session, PerunBl perun, Group directoryGroup)
-			throws GroupNotExistsException, WrongAttributeAssignmentException,
-			AttributeNotExistsException, PrivilegeException {
+	private Map<String, Group> getCollectionIDsToGroupsMap(PerunSession session,
+														   PerunBl perun,
+														   Group directoryGroup)
+			throws WrongAttributeAssignmentException, AttributeNotExistsException
+	{
 		Map<String, Group> collectionIDsToGroupMap = new HashMap<>();
 
 		List<Group> collectionGroups = perun.getGroupsManagerBl().getSubGroups(session, directoryGroup);
+		if (collectionGroups == null || collectionGroups.isEmpty()) {
+			log.debug("No collection groups found, returning empty map.");
+			return collectionIDsToGroupMap;
+		}
 
 		for (Group collectionGroup : collectionGroups) {
-			List<Group> representativesGroups = perun.getGroupsManagerBl().getSubGroups(session, collectionGroup);
-			for (Group representativesGroup: representativesGroups) {
-				if (REPRESENTATIVES_GROUP_NAME.equals(representativesGroup.getShortName())) {
-					Attribute collectionIDAttr = perun.getAttributesManagerBl()
-							.getAttribute(session, representativesGroup, COLLECTION_ID_ATTR_NAME);
+			Attribute collectionIDAttr = perun.getAttributesManagerBl()
+				.getAttribute(session, collectionGroup, COLLECTION_ID_ATTR_NAME);
 
-					if (collectionIDAttr == null || Strings.isNullOrEmpty(collectionIDAttr.valueAsString())) {
-						log.warn("Found representatives group ({}) without value in attr {}: ({})",
-								representativesGroup, COLLECTION_ID_ATTR_NAME, collectionIDAttr);
-
-						continue;
-					}
-
-					collectionIDsToGroupMap.put(collectionIDAttr.valueAsString(), representativesGroup);
-				}
+			if (collectionIDAttr == null || Strings.isNullOrEmpty(collectionIDAttr.valueAsString())) {
+				log.warn("Found collection group ({}) without value in attr {}: ({})",
+					collectionGroup, COLLECTION_ID_ATTR_NAME, collectionIDAttr);
+			} else {
+				collectionIDsToGroupMap.put(collectionIDAttr.valueAsString(), collectionGroup);
 			}
 		}
 
@@ -227,8 +222,9 @@ public class BBMRICollections extends DefaultRegistrarModule {
 	}
 
 	private Set<String> getCollectionIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
-			throws PrivilegeException, WrongAttributeAssignmentException,
-			AttributeNotExistsException, GroupNotExistsException {
+			throws WrongAttributeAssignmentException, AttributeNotExistsException
+	{
 		return getCollectionIDsToGroupsMap(session, perun, collectionsGroup).keySet();
 	}
+
 }

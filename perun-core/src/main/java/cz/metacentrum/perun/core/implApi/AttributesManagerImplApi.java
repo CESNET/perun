@@ -2674,6 +2674,18 @@ public interface AttributesManagerImplApi {
 	void removeAttributeModule(AttributesModuleImplApi module);
 
 	/**
+	 * Remove attribute module of the given non-core attribute from attribute module map in Impl layer and unregister the module from Auditer,
+	 * however only if it is namespace-specific to avoid removing common module from other active namespace-specific
+	 * modules. If no namespace-specific modules remain for the attribute, the common module will not be removed. To
+	 * remove the common module, pass the common definition as parameter.
+	 *
+	 * @param sess sess
+	 * @param attribute attribute of which module to remove
+	 */
+	void removeAndUnregisterAttrModule(PerunSession sess, AttributeDefinition attribute);
+
+
+	/**
 	 * Register attribute module in Auditer for message listening (if it is not there yet).
 	 *
 	 * @see AttributesManagerBlImpl#createAttribute(PerunSession, AttributeDefinition)

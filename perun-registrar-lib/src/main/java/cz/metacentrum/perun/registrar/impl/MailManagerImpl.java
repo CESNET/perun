@@ -97,6 +97,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String FIELD_DISPLAY_NAME = "{displayName}";
 	private static final String FIELD_INVITATION_LINK = "{invitationLink}";
 	private static final String FIELD_MAIL_FOOTER = "{mailFooter}";
+	private static final String FIELD_HTML_MAIL_FOOTER = "{htmlMailFooter}";
 	private static final String FIELD_APP_ID = "{appId}";
 	private static final String FIELD_ACTOR = "{actor}";
 	private static final String FIELD_EXT_SOURCE = "{extSource}";
@@ -964,14 +965,16 @@ public class MailManagerImpl implements MailManager {
 	 * {perunGuiUrl-[authz]} - url to perun GUI (user detail)
 	 *
 	 * {mailFooter} - common VO's footer
+	 * {htmlMailFooter} - common VO's HTML footer
 	 *
 	 * @param vo vo this template belongs to
 	 * @param group group this template belongs to
 	 * @param user User to get name from, if null, param 'name' is used instead.
 	 * @param name An optional name of user (for anonymous, used when user==null).
 	 * @param mailText Original mail text template
+	 * @param isAlternativePlainText if the text will be used as alternative plain text to an HTML text
 	 */
-	private String substituteCommonStringsForInvite(Vo vo, Group group, User user, String name, String mailText) {
+	private String substituteCommonStringsForInvite(Vo vo, Group group, User user, String name, String mailText, boolean isAlternativePlainText) {
 		// replace voName
 		if (mailText.contains(FIELD_VO_NAME)) {
 			mailText = mailText.replace(FIELD_VO_NAME, vo.getName());
@@ -1037,19 +1040,47 @@ public class MailManagerImpl implements MailManager {
 		mailText = replacePerunGuiUrl(mailText, vo, group);
 		mailText = replaceAppGuiUrl(mailText, vo, group);
 
-		// mail footer
-		if (mailText.contains(FIELD_MAIL_FOOTER)) {
+		mailText = replaceFooter(FIELD_MAIL_FOOTER, vo, group, mailText, true);
+		mailText = replaceFooter(FIELD_HTML_MAIL_FOOTER, vo, group, mailText, isAlternativePlainText);
+
+		return mailText;
+	}
+
+	/**
+	 * Replaces the footerTag in the mailText.
+	 *
+	 * @param footerTag either {mailFooter} or {htmlMailFooter}
+	 * @param vo
+	 * @param group
+	 * @param mailText
+	 * @param onlyPlainTextFooter if the footer must be plain text (if {htmlMailFooter} is used and
+	 *                            onlyPlainTextFooter is true, then plain text footer is used instead of the HTML footer)
+	 * @return
+	 */
+	private String replaceFooter(String footerTag, Vo vo, Group group, String mailText, boolean onlyPlainTextFooter) {
+		if (mailText.contains(footerTag)) {
 			String footer = EMPTY_STRING;
 			// get proper value from attribute
 			try {
 				Attribute attribute;
 				if (group != null) {
-					attribute = attrManager.getAttribute(registrarSession, group, URN_GROUP_MAIL_FOOTER);
-					if (attribute == null || attribute.getValue() == null) {
-						attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_MAIL_FOOTER);
+					if (onlyPlainTextFooter) {
+						attribute = attrManager.getAttribute(registrarSession, group, URN_GROUP_MAIL_FOOTER);
+						if (attribute == null || attribute.getValue() == null) {
+							attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_MAIL_FOOTER);
+						}
+					} else {
+						attribute = attrManager.getAttribute(registrarSession, group, URN_GROUP_HTML_MAIL_FOOTER);
+						if (attribute == null || attribute.getValue() == null) {
+							attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_HTML_MAIL_FOOTER);
+						}
 					}
 				} else {
-					attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_MAIL_FOOTER);
+					if (onlyPlainTextFooter) {
+						attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_MAIL_FOOTER);
+					} else {
+						attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_HTML_MAIL_FOOTER);
+					}
 				}
 				if (attribute != null && attribute.getValue() != null) {
 					footer = BeansUtils.attributeValueToString(attribute);
@@ -1059,7 +1090,7 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from the attribute.", ex);
 			}
 			// replace by the footer or empty
-			mailText = mailText.replace(FIELD_MAIL_FOOTER, (footer != null) ? footer : EMPTY_STRING);
+			mailText = mailText.replace(footerTag, (footer != null) ? footer : EMPTY_STRING);
 		}
 
 		return mailText;
@@ -1122,9 +1153,10 @@ public class MailManagerImpl implements MailManager {
 	 * @param mailText String to substitute parts of
 	 * @param reason Custom message passed by vo admin
 	 * @param exceptions list of exceptions thrown when processing registrar actions
+	 * @param isAlternativePlainText if the text will be used as alternative plain text to an HTML text
 	 * @return modified text
 	 */
-	private String substituteCommonStrings(Application app, List<ApplicationFormItemData> data, String mailText, String reason, List<Exception> exceptions) {
+	private String substituteCommonStrings(Application app, List<ApplicationFormItemData> data, String mailText, String reason, List<Exception> exceptions, boolean isAlternativePlainText) {
 		LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
 		PerunPrincipal applicationPrincipal = new PerunPrincipal(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), additionalAttributes);
 
@@ -1456,30 +1488,8 @@ public class MailManagerImpl implements MailManager {
 			mailText = mailText.replace(FIELD_PHONE, phone);
 		}
 
-		// mail footer
-		if (mailText.contains(FIELD_MAIL_FOOTER)) {
-			String footer = EMPTY_STRING;
-			// get proper value from attribute
-			try {
-				Attribute attribute;
-				if (app.getGroup() != null) {
-					attribute = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_MAIL_FOOTER);
-					if (attribute == null || attribute.getValue() == null) {
-						attribute = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_MAIL_FOOTER);
-					}
-				} else {
-					attribute = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_MAIL_FOOTER);
-				}
-				if (attribute != null && attribute.getValue() != null) {
-					footer = BeansUtils.attributeValueToString(attribute);
-				}
-			} catch (Exception ex) {
-				// we dont care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
-			}
-			// replace by footer or empty
-			mailText = mailText.replace(FIELD_MAIL_FOOTER, (footer != null) ? footer : EMPTY_STRING);
-		}
+		mailText = replaceFooter(FIELD_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, true);
+		mailText = replaceFooter(FIELD_HTML_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, isAlternativePlainText);
 
 		return mailText;
 	}
@@ -1925,10 +1935,10 @@ public class MailManagerImpl implements MailManager {
 
 		if (htmlMt.getText() != null && !htmlMt.getText().isBlank()) {
 			mailText = htmlMt.getText();
-			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
+			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, false);
 		} else if (mt.getText() != null && !mt.getText().isEmpty()) {
 			mailText = mt.getText();
-			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
+			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, false);
 		}
 
 		return mailText;
@@ -1941,7 +1951,7 @@ public class MailManagerImpl implements MailManager {
 
 		if (mt.getText() != null && !mt.getText().isEmpty()) {
 			mailText = mt.getText();
-			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
+			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, true);
 		}
 
 		return mailText;
@@ -1956,10 +1966,10 @@ public class MailManagerImpl implements MailManager {
 
 		if (htmlMt.getSubject() != null && !htmlMt.getSubject().isBlank()) {
 			mailSubject = htmlMt.getSubject();
-			mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
+			mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions, false);
 		} else if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
 			mailSubject = mt.getSubject();
-			mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
+			mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions, false);
 		}
 
 		// substitute common strings
@@ -1974,11 +1984,11 @@ public class MailManagerImpl implements MailManager {
 
 		if (htmlMt.getSubject() != null && !htmlMt.getSubject().isBlank()) {
 			mailSubject = htmlMt.getSubject();
-			mailSubject = substituteCommonStringsForInvite(vo, group, user, name, mailSubject);
+			mailSubject = substituteCommonStringsForInvite(vo, group, user, name, mailSubject, false);
 
 		} else if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
 			mailSubject = mt.getSubject();
-			mailSubject = substituteCommonStringsForInvite(vo, group, user, name, mailSubject);
+			mailSubject = substituteCommonStringsForInvite(vo, group, user, name, mailSubject, false);
 		}
 
 		return mailSubject;
@@ -1992,10 +2002,10 @@ public class MailManagerImpl implements MailManager {
 
 		if (htmlMt.getText() != null && !htmlMt.getText().isBlank()) {
 			mailText = htmlMt.getText();
-			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText);
+			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText, false);
 		} else if (mt.getText() != null && !mt.getText().isEmpty()) {
 			mailText = mt.getText();
-			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText);
+			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText, false);
 		}
 
 		return mailText;
@@ -2007,7 +2017,7 @@ public class MailManagerImpl implements MailManager {
 
 		if (mt.getText() != null && !mt.getText().isEmpty()) {
 			mailText = mt.getText();
-			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText);
+			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText, true);
 		}
 
 		return mailText;
@@ -2254,8 +2264,10 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	private boolean containsHtmlMessage(ApplicationMail mail, Locale lang) {
+		MailText plainMt = mail.getMessage(lang);
 		MailText htmlMt = mail.getHtmlMessage(lang);
-		return htmlMt.getText() != null && !htmlMt.getText().isBlank();
+		return (htmlMt.getText() != null && !htmlMt.getText().isBlank())
+			|| (plainMt.getText() != null && plainMt.getText().contains(FIELD_HTML_MAIL_FOOTER));
 	}
 
 	/**
