@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 import static cz.metacentrum.perun.core.api.AuthzResolver.MFA_CRITICAL_ATTR;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -1581,17 +1583,81 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	public void isAnyAttributeMfaCritical() throws Exception {
 		System.out.println(CLASS_NAME + "isAnyAttributeMfaCritical");
 
-		Vo vo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
 		Facility facility = setUpFacility();
 		Resource resource = setUpResource(vo, facility);
 
-		assertFalse(AuthzResolver.isAnyObjectMfaCritical(sess, List.of(vo, facility, resource)));
+		assertFalse(AuthzResolverBlImpl.isAnyObjectMfaCritical(sess, List.of(vo, facility, resource)));
 
 		AttributeDefinition attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
 		Attribute attr = new Attribute(attrDef, true);
 		perun.getAttributesManagerBl().setAttribute(sess, facility, attr);
 
-		assertTrue(AuthzResolver.isAnyObjectMfaCritical(sess, List.of(resource, vo, facility)));
+		assertTrue(AuthzResolverBlImpl.isAnyObjectMfaCritical(sess, List.of(resource, vo, facility)));
+	}
+
+	@Test
+	public void mfaGenericRule() throws Exception {
+		System.out.println(CLASS_NAME + "mfaGenericRule");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		boolean originalForce = BeansUtils.getCoreConfig().isEnforceMfa();
+		try {
+			BeansUtils.getCoreConfig().setEnforceMfa(true);
+			assertThatExceptionOfType(MfaPrivilegeException.class).isThrownBy(
+				() -> AuthzResolver.authorizedInternal(session, "test_mfa_generic", List.of())
+			);
+		} finally {
+			BeansUtils.getCoreConfig().setEnforceMfa(originalForce);
+		}
+	}
+
+	@Test
+	public void mfaSpecificObjectRule() throws Exception {
+		System.out.println(CLASS_NAME + "mfaSpecificObjectRule");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		// mark createdVo as critical
+		Attribute criticalObject = perun.getAttributesManagerBl().getAttribute(sess, createdVo,
+			AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+		criticalObject.setValue(true);
+		perun.getAttributesManagerBl().setAttribute(sess, createdVo, criticalObject);
+
+		final Member createdMember = createSomeMember(createdVo);
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		boolean originalForce = BeansUtils.getCoreConfig().isEnforceMfa();
+		try {
+			BeansUtils.getCoreConfig().setEnforceMfa(true);
+			assertThatExceptionOfType(MfaPrivilegeException.class).isThrownBy(
+				() -> AuthzResolver.authorizedInternal(session, "test_mfa_specific", List.of(createdVo))
+			);
+		} finally {
+			BeansUtils.getCoreConfig().setEnforceMfa(originalForce);
+		}
+	}
+
+	@Test
+	public void mfaNotCriticalObject() throws Exception {
+		System.out.println(CLASS_NAME + "mfaNotCriticalObject");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		boolean originalForce = BeansUtils.getCoreConfig().isEnforceMfa();
+		try {
+			BeansUtils.getCoreConfig().setEnforceMfa(true);
+			assertThatNoException().isThrownBy(
+				() -> AuthzResolver.authorizedInternal(session, "test_mfa_specific", List.of(createdVo))
+			);
+		} finally {
+			BeansUtils.getCoreConfig().setEnforceMfa(originalForce);
+		}
 	}
 
 	// private methods ==============================================================
