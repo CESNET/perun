@@ -206,6 +206,34 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return resolveAuthorization(sess, rules.getPrivilegedRolesToRead(), mapOfBeans);
 	}
 
+	/**
+	 * Returns true if principal has system role
+	 *
+	 * @param sess principal's perun session
+	 * @return true if principal has system role
+	 * @throws RoleManagementRulesNotExistsException when the role does not have the management rules.
+	 */
+	public static boolean hasSystemRole(PerunSession sess) throws RoleManagementRulesNotExistsException {
+		// We need to load additional information about the principal
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		// If the user has no roles, deny access
+		if (sess.getPerunPrincipal().getRoles() == null) {
+			return false;
+		}
+
+		AuthzRoles roles = sess.getPerunPrincipal().getRoles();
+		for (String role : roles.getRolesNames()) {
+			if (AuthzResolverImpl.getRoleManagementRules(role).isSystemRole()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean selfAuthorizedForApplication(PerunSession sess, Application app) {
 		//fetch necessary information
 		LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
@@ -379,8 +407,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		List<Attribute> allowedAttributes = new ArrayList<>();
 		for(Attribute attribute: attributes) {
 			try {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, bean)) {
-					attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, bean));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, bean, true)) {
+					attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, bean, false));
 					allowedAttributes.add(attribute);
 				}
 			} catch (InternalErrorException e) {

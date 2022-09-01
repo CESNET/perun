@@ -881,7 +881,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attribute);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user, true));
 
 		return users;
 	}
@@ -898,7 +898,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attributeName, attributeValue);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user, true));
 
 		return users;
 	}
@@ -915,7 +915,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		List<User> users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, attributeValue);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user, true));
 
 		return users;
 	}
