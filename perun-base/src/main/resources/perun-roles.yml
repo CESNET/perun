@@ -1298,6 +1298,15 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  parentGroup-moveGroup_Group_Group_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
   destination_null-moveGroup_Group_Group_policy:
     policy_roles:
       - VOADMIN: Vo
@@ -2309,7 +2318,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  allowGroupToHierarchicalVo_Group_Vo_policy:
+  group-allowGroupToHierarchicalVo_Group_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
@@ -2317,12 +2326,26 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
-  disallowGroupToHierarchicalVo_Group_Vo_policy:
+  vo-allowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  group-disallowGroupToHierarchicalVo_Group_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
     mfa_rules:
       - MFA: Group
+      - MFA: Vo
+
+  vo-disallowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
       - MFA: Vo
 
   getAllAllowedGroupsToHierarchicalVo_Vo_policy:

@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -166,10 +167,15 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteAllGroups_Vo_policy", vo)) {
-			throw new PrivilegeException(sess, "deleteAllGroups");
+		for (Group group: groupsManagerBl.getAllGroups(sess, vo)) {
+			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+				// Members group is skipped in the deletion so no reason check it
+				continue;
+			}
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "deleteAllGroups_Vo_policy", group)) {
+				throw new PrivilegeException(sess, "deleteAllGroups");
+			}
 		}
 
 		getGroupsManagerBl().deleteAllGroups(sess, vo);
@@ -240,8 +246,19 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		} else {
 			// Authorization (destination group is null)
-			if (!AuthzResolver.authorizedInternal(sess, "destination_null-moveGroup_Group_Group_policy", movingGroup)) {
-				throw new PrivilegeException(sess, "moveGroup");
+			// We want to check MFA for parent groups as well, since we are changing its structure (moving one of its subgroups)
+			Group parentGroup;
+			try {
+				parentGroup = groupsManagerBl.getParentGroup(sess, movingGroup);
+				if (!AuthzResolver.authorizedInternal(sess, "destination_null-moveGroup_Group_Group_policy", movingGroup) ||
+					!AuthzResolver.authorizedInternal(sess, "parentGroup-moveGroup_Group_Group_policy", parentGroup)) {
+					throw new PrivilegeException(sess, "moveGroup");
+				}
+			} catch (ParentGroupNotExistsException ex) {
+				// destination group is already top level
+				if (!AuthzResolver.authorizedInternal(sess, "destination_null-moveGroup_Group_Group_policy", movingGroup)) {
+					throw new PrivilegeException(sess, "moveGroup");
+				}
 			}
 		}
 
@@ -308,10 +325,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		for (Member member: members) {
-			if (!AuthzResolver.authorizedInternal(sess, "addMembers_Group_List<Member>_policy", member, group)) {
-				throw new PrivilegeException(sess, "addMembers");
-			}
+		if (!AuthzResolver.authorizedInternal(sess, "addMembers_Group_List<Member>_policy", group)) {
+			throw new PrivilegeException(sess, "addMembers");
 		}
 
 		// Check if the group is externally synchronized
@@ -344,7 +359,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		List<Group> groupsMemberIsNotDirect = new ArrayList<>();
 		for (Group group: groups) {
 			// Authorization
-			if (!AuthzResolver.authorizedInternal(sess, "addMember_List<Group>_Member_policy", group, member)) {
+			if (!AuthzResolver.authorizedInternal(sess, "addMember_List<Group>_Member_policy", group)) {
 				throw new PrivilegeException(sess, "addMember");
 			}
 
@@ -385,7 +400,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addMember_Group_Member_policy", Arrays.asList(group, member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addMember_Group_Member_policy", group)) {
 			throw new PrivilegeException(sess, "addMember");
 		}
 
@@ -1573,7 +1588,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "allowGroupToHierarchicalVo_Group_Vo_policy", group, vo)) {
+		if (!AuthzResolver.authorizedInternal(sess, "group-allowGroupToHierarchicalVo_Group_Vo_policy", group) ||
+			!AuthzResolver.authorizedInternal(sess, "vo-allowGroupToHierarchicalVo_Group_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "allowGroupToHierarchicalVo");
 		}
 
@@ -1587,7 +1603,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "disallowGroupToHierarchicalVo_Group_Vo_policy", group, vo)) {
+		if (!AuthzResolver.authorizedInternal(sess, "group-disallowGroupToHierarchicalVo_Group_Vo_policy", group) ||
+			!AuthzResolver.authorizedInternal(sess, "vo-disallowGroupToHierarchicalVo_Group_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "disallowGroupToHierarchicalVo");
 		}
 
