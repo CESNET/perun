@@ -768,7 +768,13 @@ perun_policies:
     mfa_rules:
       - MFA: Facility
 
-  copyOwners_Facility_Facility_policy:
+  source-copyOwners_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  destination-copyOwners_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
@@ -1050,16 +1056,27 @@ perun_policies:
     include_policies:
       - default_policy
 
-  copyManagers_Facility_Facility_policy:
+  source-copyManagers_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  destination-copyManagers_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
     mfa_rules:
       - MFA: Facility
-      - MFA: User
 
-  copyAttributes_Facility_Facility_policy:
+  source-copyAttributes_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  destination-copyAttributes_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
@@ -1074,6 +1091,21 @@ perun_policies:
       - default_policy
     mfa_rules:
       - MFA: Facility
+
+  removeHostByHostname_String_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Facility
+      - MFA: Host
+
+  filter-removeHostByHostname_String_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
 
   removeHost_Host_policy:
     policy_roles:
