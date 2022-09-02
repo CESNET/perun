@@ -23,6 +23,10 @@ import java.util.Objects;
  *            Example entry: key: User; value: user_id
  * assignedObjects is a map of objects which can be assigned with the role. Key is a object name and value is mapping to the database.
  *            Example entry: key: Resource; value: resource_id
+ * assignmentCheck is a list of maps defining which of the assigned objects should be checked for being critical (requiring MFA) when setting the role.
+ *            Example entry: key: MFA; value: Resource <- If resource is critical, MFA is required
+ *            Example entry: {} <- No MFA is required to set this role
+ *            Example entry: Key: MFA; value: <- No value means MFA is always required to set this role
  * associatedReadRoles is a list of related roles which are authorized to read attribute value if the main role is authorized.
  *            Example list for groupadmin role - value: [GROUPOBSERVER]
  * assignableToAttributes is a flag that determines whether the role can appear in attribute policies.
@@ -37,17 +41,19 @@ public class RoleManagementRules {
 	private List<Map<String, String>> privilegedRolesToRead;
 	private Map<String, String> entitiesToManage;
 	private Map<String, String> assignedObjects;
+	private List<Map<String, String>> assignmentCheck;
 	private List<String> associatedReadRoles;
 	private boolean assignableToAttributes;
 	private boolean systemRole;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<String> associatedReadRoles, boolean assignableToAttributes, boolean systemRole) {
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean systemRole) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
 		this.privilegedRolesToRead = privilegedRolesToRead;
 		this.entitiesToManage = entitiesToManage;
 		this.assignedObjects = assignedObjects;
+		this.assignmentCheck = assignmentCheck;
 		this.associatedReadRoles = associatedReadRoles;
 		this.assignableToAttributes = assignableToAttributes;
 		this.systemRole = systemRole;
@@ -101,6 +107,14 @@ public class RoleManagementRules {
 		this.assignedObjects = assignedObjects;
 	}
 
+	public List<Map<String, String>> getAssignmentCheck() {
+		return assignmentCheck;
+	}
+
+	public void setAssignmentCheck(List<Map<String, String>> assignmentCheck) {
+		this.assignmentCheck = assignmentCheck;
+	}
+
 	public List<String> getAssociatedReadRoles() {
 		return associatedReadRoles;
 	}
@@ -136,6 +150,7 @@ public class RoleManagementRules {
 			Objects.equals(privilegedRolesToRead, that.privilegedRolesToRead) &&
 			Objects.equals(entitiesToManage, that.entitiesToManage) &&
 			Objects.equals(assignedObjects, that.assignedObjects) &&
+			Objects.equals(assignmentCheck, that.assignmentCheck) &&
 			Objects.equals(associatedReadRoles, that.associatedReadRoles) &&
 			Objects.equals(assignableToAttributes, that.assignableToAttributes) &&
 			Objects.equals(systemRole, that.systemRole);
@@ -143,7 +158,7 @@ public class RoleManagementRules {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, associatedReadRoles, assignableToAttributes, systemRole);
+		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, systemRole);
 	}
 
 	@Override
@@ -155,6 +170,7 @@ public class RoleManagementRules {
 			", privilegedRolesToRead=" + privilegedRolesToRead +
 			", entitiesToManage=" + entitiesToManage +
 			", assignedObjects=" + assignedObjects +
+			", assignmentCheck=" + assignmentCheck +
 			", associatedReadRoles=" + associatedReadRoles +
 			", assignableToAttributes=" + assignableToAttributes +
 			", systemRole=" + systemRole +
