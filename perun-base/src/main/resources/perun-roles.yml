@@ -2877,16 +2877,6 @@ perun_policies:
       - MFA: Member
       - MFA: Vo
 
-  setStatus_Member_Status_String_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA: User
-      - MFA: Member
-      - MFA: Vo
-
   suspendMemberTo_Member_Date_policy:
     policy_roles:
       - VOADMIN: Vo
@@ -2981,6 +2971,9 @@ perun_policies:
       - SPONSORSHIP: Member
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
 
   sendAccountActivationLinkEmail_Member_String_String_String_String_policy:
     policy_roles:
@@ -2988,6 +2981,9 @@ perun_policies:
       - SPONSORSHIP: Member
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
 
   createSponsoredMember_Vo_String_Map<String_String>_String_User_LocalDate_policy:
     policy_roles:
@@ -3005,8 +3001,15 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      - MFA: User
       - MFA: Vo
+
+  sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
 
   createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy:
     policy_roles:
@@ -3043,9 +3046,16 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
+      - MFA: Vo
+
+  sponsoredMember-setSponsorshipForMember_Member_User_LocalDate_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
       - MFA: User
       - MFA: Member
-      - MFA: Vo
 
   unsetSponsorshipForMember_Member_policy:
     policy_roles: []
@@ -3071,10 +3081,6 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
-    mfa_rules:
-      - MFA: User
-      - MFA: Member
-      - MFA: Vo
 
   getSponsoredMembers_Vo_User_List<String>_policy:
     policy_roles:
@@ -3213,10 +3219,6 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
-    mfa_rules:
-      - MFA: User
-      - MFA: Member
-      - MFA: Vo
 
   getMembersPage_Vo_MembersPageQuery_List<String>_policy:
     policy_roles:
@@ -3245,9 +3247,16 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
+      - MFA: Vo
+
+  sponsoredMember-updateSponsorshipValidity_Member_User_LocalDate:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
       - MFA: User
       - MFA: Member
-      - MFA: Vo
 
   moveMembership_Vo_User_User_policy:
     policy_roles: []
