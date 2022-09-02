@@ -41,6 +41,7 @@ public class AuthzResolver {
 	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
 	 * @return true if the principal has particular rights, false otherwise.
 	 * @throws PolicyNotExistsException when the given policyDefinition does not exist in the PerunPoliciesContainer.
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 */
 	public static boolean authorizedExternal(PerunSession sess, String policyDefinition, List<PerunBean> objects) throws PolicyNotExistsException {
 		return AuthzResolverBlImpl.authorized(sess, policyDefinition, objects);
@@ -53,6 +54,7 @@ public class AuthzResolver {
 	 * @param sess PerunSession which contains the principal.
 	 * @param policyDefinition of policy which contains authorization rules.
 	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 * @return true if the principal has particular rights, false otherwise.
 	 */
 	public static boolean authorizedInternal(PerunSession sess, String policyDefinition, List<PerunBean> objects) {
@@ -70,6 +72,7 @@ public class AuthzResolver {
 	 * @param sess PerunSession which contains the principal.
 	 * @param policyDefinition of policy which contains authorization rules.
 	 * @param objects an array of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 * @return true if the principal has particular rights, false otherwise.
 	 */
 	public static boolean authorizedInternal(PerunSession sess, String policyDefinition, PerunBean... objects) {
@@ -87,6 +90,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess PerunSession which contains the principal.
 	 * @param policyDefinition of policy which contains authorization rules.
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 * @return true if the principal has particular rights, false otherwise.
 	 */
 	public static boolean authorizedInternal(PerunSession sess, String policyDefinition) {
@@ -400,7 +404,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(group, resource))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(group, resource))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -428,7 +432,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member, resource))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member, resource))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -456,7 +460,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(user, facility))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(user, facility))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -484,7 +488,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member, group))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member, group))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -511,7 +515,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(user))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(user))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -538,7 +542,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -565,7 +569,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(vo))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(vo))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -617,7 +621,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(group))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(group))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -644,7 +648,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(resource))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(resource))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -671,7 +675,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(facility))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(facility))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -698,7 +702,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(host))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(host))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -725,7 +729,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(ues))) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(ues))) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -752,7 +756,7 @@ public class AuthzResolver {
 			refreshAuthz(sess);
 		}
 
-		if (checkMfa && !isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList())) {
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList())) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -761,90 +765,6 @@ public class AuthzResolver {
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
-	}
-
-	/**
-	 * Checks authorization for attribute according to MFA rules.
-	 * Returns false if attribute action is marked as critical, attribute's object is marked as critical
-	 * and principal is not authorized by MFA and hasn't got a system role.
-	 * If MFA is globally disabled for whole instance, returns true.
-	 *
-	 * @param sess session
-	 * @param attrDef attribute definition
-	 * @param actionType type of action (READ / WRITE)
-	 * @param objects objects related to the attribute
-	 * @return true if MFA requirements are met, false otherwise
-	 */
-	public static boolean isMfaAuthorizedForAttribute(PerunSession sess, AttributeDefinition attrDef, AttributeAction actionType, List<Object> objects) {
-		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
-			return true;
-		}
-
-		boolean criticalAttribute = ((PerunBl) sess.getPerun()).getAttributesManagerBl().isAttributeActionCritical(sess, attrDef, actionType);
-		if (!criticalAttribute) {
-			return true;
-		}
-
-		boolean principalMfa = sess.getPerunPrincipal().getRoles().hasRole(Role.MFA);
-		boolean hasSystemRole;
-		try {
-			hasSystemRole = AuthzResolverBlImpl.hasSystemRole(sess);
-		} catch (RoleManagementRulesNotExistsException e) {
-			throw new InternalErrorException("Error checking system roles", e);
-		}
-
-		if (attrDef.getNamespace().startsWith(AttributesManager.NS_ENTITYLESS_ATTR)) {
-			return principalMfa || hasSystemRole;
-		}
-
-
-		return principalMfa || hasSystemRole || !isAnyObjectMfaCritical(sess, objects);
-
-	}
-
-	/**
-	 * Returns true if any of the objects is marked as mfaCriticalObject in its attribute.
-	 * Not usable for entityless attributes!
-	 * @param sess session
-	 * @param objects objects to be checked
-	 * @return if any object is critical
-	 */
-	public static boolean isAnyObjectMfaCritical(PerunSession sess, List<Object> objects) {
-		AttributesManagerBl attributesManagerBl = ((PerunBl) sess.getPerun()).getAttributesManagerBl();
-
-		for (Object object : objects) {
-			if (object == null) continue;
-			Attribute attr;
-			try {
-				if (object instanceof Member m) {
-					attr = attributesManagerBl.getAttribute(sess, m, AttributesManager.NS_MEMBER_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else if (object instanceof User u) {
-					attr = attributesManagerBl.getAttribute(sess, u, AttributesManager.NS_USER_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else if (object instanceof Resource r) {
-					attr = attributesManagerBl.getAttribute(sess, r, AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else if (object instanceof Facility f) {
-					attr = attributesManagerBl.getAttribute(sess, f, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else if (object instanceof Group g) {
-					attr = attributesManagerBl.getAttribute(sess, g, AttributesManager.NS_GROUP_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else if (object instanceof Vo v) {
-					attr = attributesManagerBl.getAttribute(sess, v, AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else if (object instanceof Host h) {
-					attr = attributesManagerBl.getAttribute(sess, h, AttributesManager.NS_HOST_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else if (object instanceof UserExtSource ues) {
-					attr = attributesManagerBl.getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
-				} else {
-					throw new InternalErrorException("Object of class " + object.getClass().getName() + "could not be checked for MFA criticality.");
-				}
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-				throw new InternalErrorException(e);
-			}
-
-			if (attr.getValue() != null && attr.valueAsBoolean()) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 
