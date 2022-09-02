@@ -3480,26 +3480,37 @@ perun_policies:
       - MFA: Vo
       - MFA: Facility
 
-  copyResource_Resource_Resource_boolean_policy:
+  source-copyResource_Resource_Resource_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  destination-copyResource_Resource_Resource_boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
     mfa_rules:
-      - MFA: Resource
       - MFA: Vo
       - MFA: Facility
 
-  withGroups-copyResource_Resource_Resource_boolean_policy:
+  source-withGroups-copyResource_Resource_Resource_boolean_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
     mfa_rules:
-      - MFA: Resource
+      - MFA: Group
+
+  destination-withGroups-copyResource_Resource_Resource_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
       - MFA: Vo
       - MFA: Facility
-      - MFA: Group
 
   deleteResource_Resource_policy:
     policy_roles:
@@ -4147,7 +4158,13 @@ perun_policies:
     include_policies:
       - default_policy
 
-  copyAttributes_Resource_Resource_policy:
+  source-copyAttributes_Resource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  destination-copyAttributes_Resource_Resource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
@@ -4157,7 +4174,13 @@ perun_policies:
       - MFA: Vo
       - MFA: Facility
 
-  copyServices_Resource_Resource_policy:
+  source-copyServices_Resource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  destination-copyServices_Resource_Resource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
@@ -4167,7 +4190,18 @@ perun_policies:
       - MFA: Vo
       - MFA: Facility
 
-  copyGroups_Resource_Resource_policy:
+  source-copyGroups_Resource_Resource_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+
+  destination-copyGroups_Resource_Resource_policy:
     policy_roles:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
@@ -4177,7 +4211,6 @@ perun_policies:
       - default_policy
     mfa_rules:
       - MFA: Resource
-      - MFA: Group
       - MFA: Vo
       - MFA: Facility
 
@@ -4384,7 +4417,6 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      - MFA: Group
       - MFA: Resource
       - MFA: Vo
       - MFA: Facility
@@ -4395,9 +4427,6 @@ perun_policies:
       - default_policy
     mfa_rules:
       - MFA: Group
-      - MFA: Resource
-      - MFA: Vo
-      - MFA: Facility
 
   removeResourceSelfServiceUser_Resource_User_policy:
     policy_roles:
@@ -4418,7 +4447,6 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      - MFA: Group
       - MFA: Resource
       - MFA: Vo
       - MFA: Facility
@@ -4429,9 +4457,6 @@ perun_policies:
       - default_policy
     mfa_rules:
       - MFA: Group
-      - MFA: Resource
-      - MFA: Vo
-      - MFA: Facility
 
   getResourceAssignments_Group_policy:
     policy_roles:
