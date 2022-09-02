@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -28,9 +29,24 @@ public class IcsmuniczPasswordManagerModule extends GenericPasswordManagerModule
 
 	private final static Logger log = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
 
+	protected final int passwordMinLength = 10;
+
 	public IcsmuniczPasswordManagerModule() {
 		// set proper namespace
 		this.actualLoginNamespace = "ics-muni-cz";
+	}
+
+	@Override
+	public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
+
+		super.checkPasswordStrength(sess, login, password);
+
+		// we know it must be non-empty by super implementation
+		if (password.length() < passwordMinLength) {
+			log.warn("Password for {}:{} is too short. At least {} characters are required.", actualLoginNamespace, login, passwordMinLength);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too short. At least "+passwordMinLength+" characters are required.");
+		}
+
 	}
 
 	@Override
