@@ -62,7 +62,9 @@ public interface MailManager {
 	 * @param sess for Authz
 	 * @param mails mail definitions to update
 	 * @param enabled true = enable sending / false = disable sending
-	 * @throws PerunException
+	 * @throws FormNotExistsException When application form related to the mail template not exists
+	 * @throws PrivilegeException When caller is not authorized
+	 * @throws ApplicationMailNotExistsException When application mail does not exist
 	 */
 	void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws PerunException;
 

@@ -6949,15 +6949,7 @@ perun_policies:
     mfa_rules:
       - MFA: Vo
 
-  copyMailsFromVoToVo_Vo_Vo_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA: Vo
-
-  copyMailsFromVoToGroup_Vo_Group_boolean_policy:
+  group-updateMailById_ApplicationMail_policy:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
@@ -6967,7 +6959,71 @@ perun_policies:
       - MFA: Vo
       - MFA: Group
 
-  copyMailsFromGroupToGroup_Group_Group_policy:
+  vo-updateMailById_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  vo-setSendingEnabled_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+
+  group-setSendingEnabled_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  source-copyMailsFromVoToVo_Vo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  destination-copyMailsFromVoToVo_Vo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  source-copyMailsFromVoToGroup_Vo_Group_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  destination-copyMailsFromVoToGroup_Vo_Group_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+
+  source-copyMailsFromGroupToGroup_Group_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  destination-copyMailsFromGroupToGroup_Group_Group_policy:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
@@ -7158,6 +7214,24 @@ perun_policies:
       - default_policy
     mfa_rules:
       - MFA: Vo
+
+  vo-updateFormItemTexts_ApplicationFormItem_Locale_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  group-updateFormItemTexts_ApplicationFormItem_Locale_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-updateFormItemTexts_ApplicationFormItem_policy:
     policy_roles:
@@ -7377,7 +7451,13 @@ perun_policies:
       - MFA: Vo
       - MFA: Group
 
-  copyFormFromVoToVo_Vo_Vo_policy:
+  source-copyFormFromVoToVo_Vo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  destination-copyFormFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
@@ -7390,8 +7470,6 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
-    mfa_rules:
-      - MFA: Vo
 
   destination-copyFormFromVoToGroup_Vo_Group_Policy:
     policy_roles:
