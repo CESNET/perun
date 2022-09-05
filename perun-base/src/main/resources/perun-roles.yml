@@ -6671,6 +6671,21 @@ perun_policies:
     include_policies:
       - default_policy
 
+  convertSponsoredUsers_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  convertSponsoredUsersWithNewSponsor_Vo_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: User
+
   addMemberVo_Vo_Vo_policy:
     policy_roles: []
     include_policies:
