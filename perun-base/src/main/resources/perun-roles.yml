@@ -4928,13 +4928,6 @@ perun_policies:
     mfa_rules:
       - MFA:
 
-  suspendTasksPropagation_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA:
-
   getFacilityAssignedServicesForGUI_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -5434,6 +5427,13 @@ perun_policies:
       - default_policy
     mfa_rules:
       - MFA: Facility
+
+  suspendTasksPropagation_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA:
 
   #UsersManagerEntry
   getUserByUserExtSource_UserExtSource_policy:
