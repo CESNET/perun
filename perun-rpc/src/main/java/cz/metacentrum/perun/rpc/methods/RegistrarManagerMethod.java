@@ -1192,6 +1192,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @param mails List<ApplicationMail> Mail definitions to update
 	 * @param enabled boolean true for enabled, false for disabled
 	 * @return Object Always null
+	 * @throw FormNotExistsException When application form related to the mail template not exists
+	 * @throw PrivilegeException When caller is not authorized
+	 * @throw ApplicationMailNotExistsException When application mail does not exist
 	 */
 	setSendingEnabled {
 
