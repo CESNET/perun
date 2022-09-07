@@ -152,7 +152,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		//Fetch super objects like Vo for group etc.
 		Map <String, Set<Integer>> mapOfBeans = fetchAllRelatedObjects(objects);
 
-		if (!mfaAuthorized(sess, mfaRules, mapOfBeans)) {
+		if (!mfaAuthorized(sess, mfaRules, mapOfBeans) && !updatePrincipalMfa(sess)) {
 			throw new MfaPrivilegeException("Multi-Factor authentication required");
 		}
 
@@ -1648,26 +1648,40 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return true;
 		}
 
-		boolean criticalAttribute = ((PerunBl) sess.getPerun()).getAttributesManagerBl().isAttributeActionCritical(sess, attrDef, actionType);
-		if (!criticalAttribute) {
-			return true;
-		}
-
-		boolean principalMfa = sess.getPerunPrincipal().getRoles().hasRole(Role.MFA);
-		boolean hasSystemRole;
 		try {
-			hasSystemRole = hasSystemRole(sess);
+			if (hasSystemRole(sess)) {
+				return true;
+			}
 		} catch (RoleManagementRulesNotExistsException e) {
 			throw new InternalErrorException("Error checking system roles", e);
 		}
 
-		if (attrDef.getNamespace().startsWith(AttributesManager.NS_ENTITYLESS_ATTR)) {
-			return principalMfa || hasSystemRole;
+		if (!((PerunBl) sess.getPerun()).getAttributesManagerBl().isAttributeActionCritical(sess, attrDef, actionType)) {
+			return true;
 		}
 
+		boolean principalMfa = sess.getPerunPrincipal().getRoles().hasRole(Role.MFA);
+		if (attrDef.getNamespace().startsWith(AttributesManager.NS_ENTITYLESS_ATTR)) {
+			return principalMfa || updatePrincipalMfa(sess);
+		}
 
-		return principalMfa || hasSystemRole || !isAnyObjectMfaCritical(sess, objects);
+		return principalMfa || !isAnyObjectMfaCritical(sess, objects) || updatePrincipalMfa(sess);
 
+	}
+
+	/**
+	 * Updates principal MFA role by calling UserInfo Endpoint
+	 * @param sess perun session
+	 * @return true if principal has MFA role
+	 */
+	private static boolean updatePrincipalMfa(PerunSession sess) {
+		try {
+			refreshMfa(sess);
+		} catch (ExpiredTokenException | MFAuthenticationException ignored) {
+			// couldn't recheck with endpoint, either exception would have been thrown already or principal didn't use OIDC
+		}
+
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.MFA);
 	}
 
 	/**
