@@ -7714,6 +7714,8 @@ perun_roles_management:
   PERUNADMIN:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -7728,6 +7730,8 @@ perun_roles_management:
   PERUNOBSERVER:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -7741,6 +7745,8 @@ perun_roles_management:
   AUDITCONSUMERADMIN:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -7755,6 +7761,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7775,6 +7783,9 @@ perun_roles_management:
     assign_to_objects:
       Group: group_id
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+      - MFA: Group
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7798,6 +7809,9 @@ perun_roles_management:
     assign_to_objects:
       Group: group_id
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+      - MFA: Group
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7819,6 +7833,8 @@ perun_roles_management:
     primary_object:
     assign_to_objects:
       User: user_id
+    assignment_check:
+      - MFA: User
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -7829,6 +7845,8 @@ perun_roles_management:
     primary_object: Facility
     assign_to_objects:
       Facility: facility_id
+    assignment_check:
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7848,6 +7866,8 @@ perun_roles_management:
     primary_object: Facility
     assign_to_objects:
       Facility: facility_id
+    assignment_check:
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7866,6 +7886,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7886,6 +7908,10 @@ perun_roles_management:
       Resource: resource_id
       Vo: vo_id
       Facility: facility_id
+    assignment_check:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7916,6 +7942,10 @@ perun_roles_management:
       Resource: resource_id
       Vo: vo_id
       Facility: facility_id
+    assignment_check:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7945,6 +7975,10 @@ perun_roles_management:
       Resource: resource_id
       Vo: vo_id
       Facility: facility_id
+    assignment_check:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7971,6 +8005,7 @@ perun_roles_management:
   REGISTRAR:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -7981,6 +8016,7 @@ perun_roles_management:
   ENGINE:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -7991,6 +8027,7 @@ perun_roles_management:
   RPC:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -8001,6 +8038,7 @@ perun_roles_management:
   NOTIFICATIONS:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -8011,6 +8049,7 @@ perun_roles_management:
   SERVICEUSER:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -8021,6 +8060,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -8039,6 +8080,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -8057,6 +8100,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -8075,6 +8120,8 @@ perun_roles_management:
     primary_object: SecurityTeam
     assign_to_objects:
       SecurityTeam: security_team_id
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -8091,6 +8138,8 @@ perun_roles_management:
   CABINETADMIN:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -8110,6 +8159,7 @@ perun_roles_management:
       Vo: vo_id
       Facility: facility_id
       Resource: resource_id
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -8120,6 +8170,7 @@ perun_roles_management:
     primary_object:
     assign_to_objects:
       Member: member_id
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -8129,6 +8180,7 @@ perun_roles_management:
   UNKNOWN:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []

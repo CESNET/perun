@@ -994,7 +994,7 @@ public class AuthzResolver {
 	}
 
 	/**
-	 * Check wheter the principal is authorized to manage the role on the object.
+	 * Check whether the principal is authorized to manage the role on the object.
 	 *
 	 * @param sess principal's perun session
 	 * @param complementaryObject bounded with the role

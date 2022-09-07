@@ -254,7 +254,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Check wheter the principal is authorized to manage the role on the object.
+	 * Check whether the principal is authorized to manage the role on the object.
 	 *
 	 * @param sess principal's perun session
 	 * @param object bounded with the role
@@ -1922,6 +1922,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new RoleCannotBeManagedException(role, complementaryObject, user);
 		}
 
+		checkMfaForSettingRole(sess, user, complementaryObject, role);
+
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(user, complementaryObject, role);
 
 		try {
@@ -1953,6 +1955,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!objectAndRoleManageableByEntity(authorizedGroup.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, authorizedGroup);
 		}
+
+		checkMfaForSettingRole(sess, authorizedGroup, complementaryObject, role);
 
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(authorizedGroup, complementaryObject, role);
 
@@ -1987,6 +1991,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!objectAndRoleManageableByEntity(user.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, user);
 		}
+
+		checkMfaForSettingRole(sess, user, complementaryObject, role);
 
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(user, complementaryObject, role);
 
@@ -2023,6 +2029,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!objectAndRoleManageableByEntity(authorizedGroup.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, authorizedGroup);
 		}
+
+		checkMfaForSettingRole(sess, authorizedGroup, complementaryObject, role);
 
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(authorizedGroup, complementaryObject, role);
 
@@ -4149,6 +4157,49 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if setting role requires MFA based on configuration in perun-roles, throws MfaPrivilegeException if requirements unmet.
+	 * @param assigningEntity user or group to which the role will be assigned (User)
+	 * @param complementaryObject which will be bounded with the role (Vo)
+	 * @param role role name (VOADMIN)
+	 * @throws MfaPrivilegeException if MFA requirements are not met
+	 */
+	private static void checkMfaForSettingRole(PerunSession sess, PerunBean assigningEntity, PerunBean complementaryObject, String role) {
+		RoleManagementRules rules;
+		try {
+			rules = AuthzResolverImpl.getRoleManagementRules(role);
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Management rules not exist for the role " + role, e);
+		}
+
+		List<Map<String, String>> mfaPolicies = rules.getAssignmentCheck();
+		Map<String, Set<Integer>> mapOfBeans = new HashMap<>();
+
+		if (mfaPolicies != null && !mfaPolicies.isEmpty() && complementaryObject != null) {
+			mapOfBeans = fetchAllRelatedObjects(Arrays.asList(complementaryObject));
+		}
+
+		// check complementary objects for MFA requirements
+		if (!mfaAuthorized(sess, mfaPolicies, mapOfBeans)) {
+			if (complementaryObject == null) {
+				throw new MfaPrivilegeException("Multi-Factor authentication is required to set this role.");
+			}
+			String message = complementaryObject.getBeanName() != null ? complementaryObject.getBeanName() : "object";
+			message += " with id " + complementaryObject.getId() + " or related object is critical.";
+			throw new MfaPrivilegeException("Multi-Factor authentication is required - " + message);
+		}
+
+		// check assigning entity for MFA requirements
+		try {
+			if (BeansUtils.getCoreConfig().isEnforceMfa() && isAnyObjectMfaCritical(sess, Arrays.asList(assigningEntity))
+			 && !sess.getPerunPrincipal().getRoles().hasRole(Role.MFA) && !hasSystemRole(sess)) {
+				throw new MfaPrivilegeException("Multi-Factor authentication is required - assigning entity is critical.");
+			}
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Error checking system roles", e);
+		}
 	}
 
 	/**
