@@ -613,6 +613,9 @@ public class Api extends HttpServlet {
 				// prevent cookie stealing (if remote user changed, rebuild session)
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
+			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getAdditionalInformations().get(PerunPrincipal.ACCESS_TOKEN), req.getHeader(OIDC_ACCESS_TOKEN))) {
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
+				req.getSession(true).setAttribute(APICALLER, caller);
 			}
 			// Does user want to logout from perun?
 			if ("utils".equals(manager) && "logout".equals(method)) {
