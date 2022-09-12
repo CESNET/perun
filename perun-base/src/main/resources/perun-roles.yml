@@ -8013,7 +8013,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
-    system_role: true
+    skip_mfa: true
 
   ENGINE:
     primary_object:
@@ -8024,7 +8024,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
-    system_role: true
+    skip_mfa: true
 
   RPC:
     primary_object:
@@ -8035,7 +8035,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
-    system_role: true
+    skip_mfa: true
 
   NOTIFICATIONS:
     primary_object:
@@ -8046,7 +8046,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
-    system_role: true
+    skip_mfa: true
 
   SERVICEUSER:
     primary_object:

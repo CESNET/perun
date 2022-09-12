@@ -180,7 +180,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private static boolean mfaAuthorized(PerunSession sess, List<Map<String, String>> mfaRules, Map<String, Set<Integer>> mapOfBeans) {
 		try {
 			return !BeansUtils.getCoreConfig().isEnforceMfa() || sess.getPerunPrincipal().getRoles().hasRole(Role.MFA)
-						|| hasSystemRole(sess) || !requiresMfa(sess, mfaRules, mapOfBeans);
+						|| hasMFASkippableRole(sess) || !requiresMfa(sess, mfaRules, mapOfBeans);
 		} catch (RoleManagementRulesNotExistsException e) {
 			throw new InternalErrorException("Error checking system roles", e);
 		}
@@ -317,13 +317,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Returns true if principal has system role
+	 * Returns true if principal has a role which should skip MFA check
 	 *
 	 * @param sess principal's perun session
 	 * @return true if principal has system role
 	 * @throws RoleManagementRulesNotExistsException when the role does not have the management rules.
 	 */
-	public static boolean hasSystemRole(PerunSession sess) throws RoleManagementRulesNotExistsException {
+	public static boolean hasMFASkippableRole(PerunSession sess) throws RoleManagementRulesNotExistsException {
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
 			refreshAuthz(sess);
@@ -342,7 +342,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		AuthzRoles roles = sess.getPerunPrincipal().getRoles();
 		for (String role : roles.getRolesNames()) {
-			if (AuthzResolverImpl.getRoleManagementRules(role).isSystemRole()) {
+			if (AuthzResolverImpl.getRoleManagementRules(role).shouldSkipMFA()) {
 				return true;
 			}
 		}
@@ -1656,7 +1656,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		try {
-			if (hasSystemRole(sess)) {
+			if (hasMFASkippableRole(sess)) {
 				return true;
 			}
 		} catch (RoleManagementRulesNotExistsException e) {
@@ -4212,7 +4212,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		// check assigning entity for MFA requirements
 		try {
 			if (BeansUtils.getCoreConfig().isEnforceMfa() && isAnyObjectMfaCritical(sess, Arrays.asList(assigningEntity))
-			 && !sess.getPerunPrincipal().getRoles().hasRole(Role.MFA) && !hasSystemRole(sess)) {
+			 && !sess.getPerunPrincipal().getRoles().hasRole(Role.MFA) && !hasMFASkippableRole(sess)) {
 				throw new MfaPrivilegeException("Multi-Factor authentication is required - assigning entity is critical.");
 			}
 		} catch (RoleManagementRulesNotExistsException e) {
