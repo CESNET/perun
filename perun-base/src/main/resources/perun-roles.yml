@@ -8177,6 +8177,16 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: true
 
+  MFA:
+    primary_object:
+    assign_to_objects: { }
+    assignment_check: [ ]
+    entities_to_manage: { }
+    privileged_roles_to_manage: [ ]
+    privileged_roles_to_read: [ ]
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+
   UNKNOWN:
     primary_object:
     assign_to_objects: {}
