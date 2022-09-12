@@ -31,7 +31,7 @@ import java.util.Objects;
  *            Example list for groupadmin role - value: [GROUPOBSERVER]
  * assignableToAttributes is a flag that determines whether the role can appear in attribute policies.
  * systemRole is a flag that whether the role is a Perun system role.
- *
+ * mfaCriticalRole is a flag marking roles always requiring MFA from users having that role
  */
 public class RoleManagementRules {
 
@@ -45,8 +45,9 @@ public class RoleManagementRules {
 	private List<String> associatedReadRoles;
 	private boolean assignableToAttributes;
 	private boolean systemRole;
+	private boolean mfaCriticalRole;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean systemRole) {
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean systemRole, boolean mfaCriticalRole) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
@@ -57,6 +58,7 @@ public class RoleManagementRules {
 		this.associatedReadRoles = associatedReadRoles;
 		this.assignableToAttributes = assignableToAttributes;
 		this.systemRole = systemRole;
+		this.mfaCriticalRole = mfaCriticalRole;
 	}
 
 	public String getRoleName() {
@@ -139,6 +141,14 @@ public class RoleManagementRules {
 		this.systemRole = systemRole;
 	}
 
+	public boolean isMfaCriticalRole() {
+		return mfaCriticalRole;
+	}
+
+	public void setMfaCriticalRole(boolean mfaCriticalRole) {
+		this.mfaCriticalRole = mfaCriticalRole;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -153,12 +163,13 @@ public class RoleManagementRules {
 			Objects.equals(assignmentCheck, that.assignmentCheck) &&
 			Objects.equals(associatedReadRoles, that.associatedReadRoles) &&
 			Objects.equals(assignableToAttributes, that.assignableToAttributes) &&
-			Objects.equals(systemRole, that.systemRole);
+			Objects.equals(systemRole, that.systemRole) &&
+			Objects.equals(mfaCriticalRole, that.mfaCriticalRole);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, systemRole);
+		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, systemRole, mfaCriticalRole);
 	}
 
 	@Override
@@ -174,6 +185,7 @@ public class RoleManagementRules {
 			", associatedReadRoles=" + associatedReadRoles +
 			", assignableToAttributes=" + assignableToAttributes +
 			", systemRole=" + systemRole +
+			", mfaCriticalRole=" + mfaCriticalRole +
 			'}';
 	}
 }

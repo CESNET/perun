@@ -53,6 +53,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MFAuthenticationException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
@@ -331,6 +332,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		// If the user has no roles, deny access
 		if (sess.getPerunPrincipal().getRoles() == null) {
 			return false;
+		}
+
+		// System role which was defined in coreConfig with PERUNADMIN rights
+		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
+		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
+			return true;
 		}
 
 		AuthzRoles roles = sess.getPerunPrincipal().getRoles();
@@ -2488,10 +2495,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		//set empty set of roles
 		sess.getPerunPrincipal().setRoles(new AuthzRoles());
 		//Prepare service roles like engine, service, registrar, perunAdmin etc.
-		prepareServiceRoles(sess);
+		boolean serviceRole = prepareServiceRoles(sess);
 
 		// if have some of the service principal, we do not need to search further
-		if (sess.getPerunPrincipal().getRoles().isEmpty()) {
+		if (!serviceRole) {
 			User user = sess.getPerunPrincipal().getUser();
 			AuthzRoles roles;
 			if (user == null) {
@@ -2531,6 +2538,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if (isAuthorizedByMfa(sess)) {
 				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
 			}
+		}
+
+		if (!serviceRole) {
+			checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
 		}
 
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
@@ -2921,10 +2932,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Prepare service roles to session AuthzRoles (PERUNADMIN, SERVICE, RPC, ENGINE etc.)
 	 *
 	 * @param sess use session to add roles
+	 * @return true if some service role was added, false otherwise
 	 */
-	private static void prepareServiceRoles(PerunSession sess) {
+	private static boolean prepareServiceRoles(PerunSession sess) {
 		// Load list of perunAdmins from the configuration, split the list by the comma
 		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
+		boolean serviceRole = false;
 
 		// Check if the PerunPrincipal is in a group of Perun Admins
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
@@ -2932,26 +2945,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			sess.getPerunPrincipal().setAuthzInitialized(true);
 			// We can quit, because perun admin has all privileges
 			log.trace("AuthzResolver.init: Perun Admin {} loaded", sess.getPerunPrincipal().getActor());
-			return;
+			return true;
 		}
 
 		String perunRpcAdmin = BeansUtils.getCoreConfig().getRpcPrincipal();
 		if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
 			log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
+			serviceRole = true;
 		}
 
 		List<String> perunEngineAdmins = BeansUtils.getCoreConfig().getEnginePrincipals();
 		if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
+			serviceRole = true;
 		}
 
 		List<String> perunNotifications = BeansUtils.getCoreConfig().getNotificationPrincipals();
 		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
-
 			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
+			serviceRole = true;
 		}
 
 		List<String> perunRegistrars = BeansUtils.getCoreConfig().getRegistrarPrincipals();
@@ -2962,7 +2977,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
 
 			log.trace("AuthzResolver.init: Perun Registrar {} loaded", perunRegistrars);
+			serviceRole = true;
 		}
+
+		return serviceRole;
 	}
 
 	/**
@@ -4199,6 +4217,29 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		} catch (RoleManagementRulesNotExistsException e) {
 			throw new InternalErrorException("Error checking system roles", e);
+		}
+	}
+
+	/**
+	 * Checks if having a role requires MFA based on configuration in perun-roles, throws MfaRolePrivilegeException if requirements unmet.
+	 * @param roles roles to be set to principal
+	 * @throws MfaRolePrivilegeException if MFA requirements are not met
+	 */
+	private static void checkMfaForHavingRole(PerunSession sess, AuthzRoles roles) {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa() || sess.getPerunPrincipal().getRoles().hasRole(Role.MFA)) {
+			return;
+		}
+
+		RoleManagementRules rules;
+		for (String role : roles.keySet()) {
+			try {
+				rules = AuthzResolverImpl.getRoleManagementRules(role);
+			} catch (RoleManagementRulesNotExistsException e) {
+				throw new InternalErrorException("Management rules not exist for the role " + role, e);
+			}
+			if (rules.isMfaCriticalRole()) {
+				throw new MfaRolePrivilegeException(sess, role);
+			}
 		}
 	}
 
