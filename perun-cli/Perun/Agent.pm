@@ -49,12 +49,16 @@ my $contentType = 'application/json; charset=utf-8';
 use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _configAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _attributesAgent _ownersAgent _authzResolverAgent _auditMessagesAgent _tasksAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
 
 use constant {
-	AUTHENTICATION_FAILED => "Authentication failed",
-	SERVER_ERROR          => "Perun server error",
-	WRONG_URL             => "Wrong PERUN_URL",
-	MISSING_URL           => "Missing PERUN_URL environment variable",
-	WRONG_AGENT_VERSION   => "Version of the command tools and Perun server mismatch",
+	AUTHENTICATION_FAILED   => "Authentication failed",
+	SERVER_ERROR            => "Perun server error",
+	WRONG_URL               => "Wrong PERUN_URL",
+	MISSING_URL             => "Missing PERUN_URL environment variable",
+	WRONG_AGENT_VERSION     => "Version of the command tools and Perun server mismatch",
+	MFA_PRIVILEGE_EXCEPTION => "Multi-Factor Authentication required",
+	MFA_PRIVILEGE_EXC_NAME  => "MfaPrivilegeException",
 };
+
+sub gotMfaPrivilegeException;
 
 sub new {
 	my $self = fields::new(shift);
@@ -191,19 +195,37 @@ sub call
 	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
 	my $code = $response->code;
 
-	#print $response->decoded_content;
-	#print "\n\n\n";
+	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
 
-	# if using OIDC and ended with 401, token might be expired
-	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1" && $code eq 401) {
-		# try to refresh tokens
-		Perun::auth::OidcAuth::refreshAccessToken();
-		$accessToken = Perun::auth::OidcAuth::getAccessToken();
+		# if using OIDC and ended with 401, token might be expired
+		if ($code eq 401) {
+			# try to refresh tokens
+			Perun::auth::OidcAuth::refreshAccessToken();
+			$accessToken = Perun::auth::OidcAuth::getAccessToken();
 
-		# retry
-		$self->{_lwpUserAgent}->default_header( 'authorization' => "bearer $accessToken" );
-		$response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
-		$code = $response->code;
+			# retry
+			$self->{_lwpUserAgent}->default_header('authorization' => "bearer $accessToken");
+			$response = $self->{_lwpUserAgent}->request(PUT($fullUrl, Content_Type => $contentType, Content => $content));
+			$code = $response->code;
+		}
+
+		if (gotMfaPrivilegeException $response) {
+			if (Perun::auth::OidcAuth::loadConfiguration()->{"enforce_mfa"}) {
+				# mfa_timestamp might have timeouted
+				Perun::auth::OidcAuth::reauthenticate();
+				$accessToken = Perun::auth::OidcAuth::getAccessToken();
+
+				# retry
+				$self->{_lwpUserAgent}->default_header('authorization' => "bearer $accessToken");
+				$response = $self->{_lwpUserAgent}->request(PUT($fullUrl, Content_Type => $contentType, Content => $content));
+				$code = $response->code;
+			}
+			else {
+				die Perun::Exception->fromHash({ type => MFA_PRIVILEGE_EXC_NAME, errorInfo => MFA_PRIVILEGE_EXCEPTION . ". To continue, update your OIDC configuration with 'enforce_mfa' to true and retry request." });
+			}
+		}
+	} elsif (gotMfaPrivilegeException $response) {
+		die Perun::Exception->fromHash( { type => MFA_PRIVILEGE_EXC_NAME, errorInfo => MFA_PRIVILEGE_EXCEPTION . ", please use OIDC to connect to Perun. Ensure to have 'enforce_mfa' enabled in OIDC configuration." } );
 	}
 
 	unless ($code == 200 || $code == 400 || $code == 500) {
@@ -447,6 +469,23 @@ sub getBanOnFacilityAgent {
 
 		return $self->{_banOnFacilityAgent};
 	}
+}
+
+###################################
+##        HELPER METHODS         ##
+###################################
+
+# Checks, if MfaPrivilegeException was thrown for the request
+# Arguments:
+# - response for the request
+sub gotMfaPrivilegeException {
+	my $response = shift;
+	my $content;
+
+	return 0 if $response->is_success;
+
+	$content = JSON::XS->new->decode($response->decoded_content);
+	return $content && $content->{errorId} && $content->{type} && $content->{type} eq MFA_PRIVILEGE_EXC_NAME;
 }
 
 1;
