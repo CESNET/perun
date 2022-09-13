@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -1673,8 +1674,10 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		boolean originalMfaForce = BeansUtils.getCoreConfig().isEnforceMfa();
 		List<Map<String, String>> originalAssignmentCheck = AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).getAssignmentCheck();
+		List<String> originalAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
 		try {
 			BeansUtils.getCoreConfig().setEnforceMfa(true);
+			BeansUtils.getCoreConfig().getAdmins().remove("perunTests");
 			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setAssignmentCheck(List.of(Map.ofEntries(
 				entry("MFA", "")
 			)));
@@ -1685,6 +1688,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		} finally {
 			BeansUtils.getCoreConfig().setEnforceMfa(originalMfaForce);
 			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setAssignmentCheck(originalAssignmentCheck);
+			BeansUtils.getCoreConfig().setAdmins(originalAdmins);
 		}
 	}
 
@@ -1700,9 +1704,11 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		boolean originalMfaForce = BeansUtils.getCoreConfig().isEnforceMfa();
 		List<Map<String, String>> originalAssignmentCheck = AuthzResolverImpl.getRoleManagementRules(Role.VOADMIN).getAssignmentCheck();
+		List<String> originalAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
 
 		try {
 			BeansUtils.getCoreConfig().setEnforceMfa(true);
+			BeansUtils.getCoreConfig().getAdmins().remove("perunTests");
 			AuthzResolverImpl.getRoleManagementRules(Role.VOADMIN).setAssignmentCheck(List.of(Map.ofEntries(
 				entry("MFA", "Vo")
 			)));
@@ -1721,6 +1727,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		} finally {
 			BeansUtils.getCoreConfig().setEnforceMfa(originalMfaForce);
 			AuthzResolverImpl.getRoleManagementRules(Role.VOADMIN).setAssignmentCheck(originalAssignmentCheck);
+			BeansUtils.getCoreConfig().setAdmins(originalAdmins);
 		}
 	}
 
@@ -1736,10 +1743,12 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		boolean originalMfaForce = BeansUtils.getCoreConfig().isEnforceMfa();
 		List<Map<String, String>> originalAssignmentCheck = AuthzResolverImpl.getRoleManagementRules(Role.VOADMIN).getAssignmentCheck();
+		List<String> originalAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
 
 		try {
 			BeansUtils.getCoreConfig().setEnforceMfa(true);
 			perun.getAttributesManagerBl().setAttribute(sess, createdVo, attr);
+			BeansUtils.getCoreConfig().getAdmins().remove("perunTests");
 
 			// setting VOADMIN does not require MFA even if VO is critical
 			AuthzResolverImpl.getRoleManagementRules(Role.VOADMIN).setAssignmentCheck(new ArrayList<>());
@@ -1749,6 +1758,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		} finally {
 			BeansUtils.getCoreConfig().setEnforceMfa(originalMfaForce);
 			AuthzResolverImpl.getRoleManagementRules(Role.VOADMIN).setAssignmentCheck(originalAssignmentCheck);
+			BeansUtils.getCoreConfig().setAdmins(originalAdmins);
 		}
 	}
 
@@ -1763,16 +1773,47 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		Attribute attr = new Attribute(attrDef, true);
 
 		boolean originalMfaForce = BeansUtils.getCoreConfig().isEnforceMfa();
+		List<String> originalAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
 
 		try {
 			BeansUtils.getCoreConfig().setEnforceMfa(true);
 			perun.getAttributesManagerBl().setAttribute(sess, createdUser, attr);
+			BeansUtils.getCoreConfig().getAdmins().remove("perunTests");
 			// setting new role for critical user
 			assertThatExceptionOfType(MfaPrivilegeException.class).isThrownBy(
 				() -> AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN)
 			);
 		} finally {
 			BeansUtils.getCoreConfig().setEnforceMfa(originalMfaForce);
+			BeansUtils.getCoreConfig().setAdmins(originalAdmins);
+		}
+	}
+
+	@Test
+	public void mfaCriticalRole() throws Exception {
+		System.out.println(CLASS_NAME + "mfaCriticalRole");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		PerunSession session = getHisSession(createdMember);
+
+		boolean originalForce = BeansUtils.getCoreConfig().isEnforceMfa();
+		boolean originalCriticalRole = AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).isMfaCriticalRole();
+		AuthzResolver.setRole(sess, createdUser, null, Role.PERUNADMIN);
+
+		try {
+			BeansUtils.getCoreConfig().setEnforceMfa(true);
+			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(true);
+			assertThatExceptionOfType(MfaRolePrivilegeException.class).isThrownBy(
+				() -> AuthzResolver.refreshAuthz(session)
+			);
+			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(false);
+			assertThatNoException().isThrownBy(
+				() -> AuthzResolver.refreshAuthz(session)
+			);
+		} finally {
+			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(originalCriticalRole);
+			BeansUtils.getCoreConfig().setEnforceMfa(originalForce);
 		}
 	}
 

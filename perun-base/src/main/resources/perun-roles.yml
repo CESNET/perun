@@ -7726,6 +7726,7 @@ perun_roles_management:
     associated_read_roles:
       - PERUNOBSERVER
     assignable_to_attributes: false
+    mfa_critical_role: true
 
   PERUNOBSERVER:
     primary_object:
@@ -7741,6 +7742,7 @@ perun_roles_management:
       - PERUNOBSERVER:
     associated_read_roles: []
     assignable_to_attributes: false
+    mfa_critical_role: true
 
   AUDITCONSUMERADMIN:
     primary_object:
