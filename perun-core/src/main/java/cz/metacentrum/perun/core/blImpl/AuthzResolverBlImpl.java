@@ -52,6 +52,7 @@ import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MFAuthenticationException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MfaInvalidRolesException;
 import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
@@ -335,7 +336,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		// System role which was defined in coreConfig with PERUNADMIN rights
-		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
+		List<String> perunAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
+		perunAdmins.addAll(BeansUtils.getCoreConfig().getRegistrarPrincipals());
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
 			return true;
 		}
@@ -2540,9 +2542,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		}
 
-		if (!serviceRole) {
-			checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
-		}
+		checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
 
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
@@ -2971,7 +2971,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		List<String> perunRegistrars = BeansUtils.getCoreConfig().getRegistrarPrincipals();
 		if (perunRegistrars.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
+			//sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
 
 			//FIXME ted pridame i roli plneho admina
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
@@ -4221,16 +4221,20 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Checks if having a role requires MFA based on configuration in perun-roles, throws MfaRolePrivilegeException if requirements unmet.
+	 * Checks if having a role requires MFA based on configuration in perun-roles.
+	 * Throws uncatched exceptions if MFA roles are inconsistent or MFA requirements are not met.
 	 * @param roles roles to be set to principal
 	 * @throws MfaRolePrivilegeException if MFA requirements are not met
+	 * @throws MfaInvalidRolesException if principal has roles both requiring and skipping MFA check
 	 */
 	private static void checkMfaForHavingRole(PerunSession sess, AuthzRoles roles) {
-		if (!BeansUtils.getCoreConfig().isEnforceMfa() || sess.getPerunPrincipal().getRoles().hasRole(Role.MFA)) {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
 			return;
 		}
 
 		RoleManagementRules rules;
+		List<String> skipMfaRoles = new ArrayList<>();
+		List<String> requireMfaRoles = new ArrayList<>();
 		for (String role : roles.keySet()) {
 			try {
 				rules = AuthzResolverImpl.getRoleManagementRules(role);
@@ -4238,8 +4242,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				throw new InternalErrorException("Management rules not exist for the role " + role, e);
 			}
 			if (rules.isMfaCriticalRole()) {
-				throw new MfaRolePrivilegeException(sess, role);
+				requireMfaRoles.add(rules.getRoleName());
 			}
+			if (rules.isSystemRole()) {
+				skipMfaRoles.add(rules.getRoleName());
+			}
+		}
+
+		if (!skipMfaRoles.isEmpty() && !requireMfaRoles.isEmpty()) {
+			throw new MfaInvalidRolesException(sess, requireMfaRoles, skipMfaRoles);
+		}
+
+		if (!requireMfaRoles.isEmpty() && !sess.getPerunPrincipal().getRoles().hasRole(Role.MFA)) {
+			throw new MfaRolePrivilegeException(sess, requireMfaRoles.get(0));
 		}
 	}
 
