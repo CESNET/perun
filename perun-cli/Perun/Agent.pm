@@ -56,6 +56,7 @@ use constant {
 	WRONG_AGENT_VERSION     => "Version of the command tools and Perun server mismatch",
 	MFA_PRIVILEGE_EXCEPTION => "Multi-Factor Authentication required",
 	MFA_PRIVILEGE_EXC_NAME  => "MfaPrivilegeException",
+	MFA_ROLE_EXC_NAME		=> "MfaRolePrivilegeException"
 };
 
 sub gotMfaPrivilegeException;
@@ -485,7 +486,8 @@ sub gotMfaPrivilegeException {
 	return 0 if $response->is_success;
 
 	$content = JSON::XS->new->decode($response->decoded_content);
-	return $content && $content->{errorId} && $content->{type} && $content->{type} eq MFA_PRIVILEGE_EXC_NAME;
+	return $content && $content->{errorId} && $content->{type} &&
+		($content->{type} eq MFA_PRIVILEGE_EXC_NAME || $content->{type} eq MFA_ROLE_EXC_NAME);
 }
 
 1;
