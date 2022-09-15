@@ -98,6 +98,21 @@ public interface FacilitiesManager {
 
 
 	/**
+	 * Searches (partially!) for facilities with the attribute 'searchAttributeName' and its value 'searchAttributeValue'.
+	 * Found Facilities are returned along with attributes listed in 'attrNames'.
+	 *
+	 * @param sess
+	 * @param searchAttributeName name of the attribute to search by
+	 * @param searchAttributeValue value to search for
+	 * @param attrNames names of attributes to return with facilities
+	 * @return list of facilities with attributes
+	 * @throws PrivilegeException
+	 * @throws AttributeNotExistsException when the attribute to search by does not exist
+	 */
+	List<FacilityWithAttributes> getFacilitiesByAttributeWithAttributes(PerunSession sess, String searchAttributeName, String searchAttributeValue, List<String> attrNames) throws PrivilegeException, AttributeNotExistsException;
+
+
+	/**
 	 * Get count of all facilities.
 	 *
 	 * @return count of all facilities

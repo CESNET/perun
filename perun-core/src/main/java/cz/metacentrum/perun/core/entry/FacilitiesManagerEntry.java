@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.FacilityWithAttributes;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
@@ -188,6 +189,22 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				it.remove();
 			}
 		}
+
+		return facilities;
+	}
+
+	@Override
+	public List<FacilityWithAttributes> getFacilitiesByAttributeWithAttributes(PerunSession sess, String searchAttributeName, String searchAttributeValue, List<String> attrNames) throws PrivilegeException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getFacilitiesByAttributeWithAttributes_String_String_List<String>_policy")) {
+			throw new PrivilegeException(sess, "getFacilitiesByAttributeWithAttributes");
+		}
+
+		List<FacilityWithAttributes> facilities = getFacilitiesManagerBl().getFacilitiesByAttributeWithAttributes(sess, searchAttributeName, searchAttributeValue, attrNames);
+		// filter out facilities user does not have access to
+		facilities.removeIf(facilityWithAttributes -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilitiesByAttributeWithAttributes_String_String_List<String>_policy", facilityWithAttributes.getFacility()));
 
 		return facilities;
 	}
