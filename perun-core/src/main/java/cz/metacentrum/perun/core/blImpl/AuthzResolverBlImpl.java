@@ -4244,7 +4244,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if (rules.isMfaCriticalRole()) {
 				requireMfaRoles.add(rules.getRoleName());
 			}
-			if (rules.isSystemRole()) {
+			if (rules.shouldSkipMFA()) {
 				skipMfaRoles.add(rules.getRoleName());
 			}
 		}
