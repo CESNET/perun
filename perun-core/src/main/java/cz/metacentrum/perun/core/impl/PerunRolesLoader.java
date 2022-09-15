@@ -150,10 +150,10 @@ public class PerunRolesLoader {
 			List<Map<String, String>> assignmentCheck = createListOfMapsFromJsonNode(roleNode.get("assignment_check"));
 			List<String> associatedReadRoles = createListFromJsonNode(roleNode.get("associated_read_roles"));
 			boolean assignableToAttribute = roleNode.get("assignable_to_attributes").asBoolean();
-			boolean systemRole = roleNode.get("system_role") != null && roleNode.get("system_role").asBoolean();
+			boolean skipMFA = roleNode.get("skip_mfa") != null && roleNode.get("skip_mfa").asBoolean();
 			boolean mfaCriticalRole = roleNode.get("mfa_critical_role") != null && roleNode.get("mfa_critical_role").asBoolean();
 
-			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, assignmentCheck, associatedReadRoles, assignableToAttribute, systemRole, mfaCriticalRole));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, assignmentCheck, associatedReadRoles, assignableToAttribute, skipMFA, mfaCriticalRole));
 		}
 
 		return rules;
