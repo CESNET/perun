@@ -631,6 +631,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
 		if (anonymizeInstead) {
 			getUsersManagerImpl().anonymizeUser(sess, user);
+			getPerunBl().getAuditer().log(sess, new UserUpdated(user));
 
 			// delete all users applications and submitted data, this is needed only when 'anonymizeInstead'
 			// because applications are deleted on cascade when user's row is deleted in DB
