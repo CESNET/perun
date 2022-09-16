@@ -7709,6 +7709,26 @@ perun_policies:
 
 
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
+#  primary_object serves to determine with which object is the role primarily connected. Other objects are just complementary.
+#  assign_to_objects is a map of objects which can be assigned with the role. Key is a object name and value is mapping to the database.
+#             Example entry: key: Resource; value: resource_id
+#  assignment_check is a list of maps defining which of the assigned objects should be checked for being critical (requiring MFA) when setting the role.
+#             Example entry: key: MFA; value: Resource <- If resource is critical, MFA is required
+#             Example entry: {} <- No MFA is required to set this role
+#             Example entry: Key: MFA; value: <- No value means MFA is always required to set this role
+#  entities_to_manage is a map of entities which can be set to the role. Key is a entity name and value is mapping to the database.
+#             Example entry: key: User; value: user_id
+#  privileged_roles_to_manage serves to determine which roles (in relation to which objects) a user/group has to have, to have rights to set/unset the role to other users/groups.
+#             It is a list of maps where each map entry consists from a role name as a key and a role object as a value.
+#             Relation between each map in the list is logical OR and relation between each entry in the map is logical AND.
+#             Example map - key: VOADMIN ; value: Vo
+#                           key: GROUPADMIN ; value: Group
+#  privileged_roles_to_read is same as the privileged_roles_to_manage, but its purpose is to determine which roles have rights to read the roleName.
+#  associated_read_roles is a list of related roles which are authorized to read attribute value if the main role is authorized.
+#             Example list for groupadmin role - value: [GROUPOBSERVER]
+#  assignable_to_attributes is a flag that determines whether the role can appear in attribute policies.
+#  mfa_critical_role is a flag marking roles always requiring MFA from users having that role
+#  skip_mfa is a flag that whether the role should skip MFA check.
 perun_roles_management:
 
   PERUNADMIN:
