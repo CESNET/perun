@@ -2,34 +2,25 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunBeanNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
-import cz.metacentrum.perun.core.impl.Privileges;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class AuthzResolver {
@@ -840,22 +831,6 @@ public class AuthzResolver {
 			throw new InternalErrorException("Role: "+ role +" does not exists.");
 		}
 		return AuthzResolverBlImpl.hasRole(perunPrincipal, role);
-	}
-
-	/**
-	 * Check if principal is allowed to manage the given role to the given object.
-	 *
-	 * @param sess session
-	 * @param complementaryObject complementary object
-	 * @param role role
-	 * @return true, if the current principal can unset the given role for the given object, false otherwise
-	 * @throws InternalErrorException internal error
-	 */
-	public static boolean isAuthorizedToManageRole(PerunSession sess, PerunBean complementaryObject, String role) {
-		if (!roleExists(role)) {
-			throw new InternalErrorException("Role: "+ role +" does not exists.");
-		}
-		return hasOneOfTheRolesForObject(sess, complementaryObject, Privileges.getRolesWhichCanManageRole(role));
 	}
 
 	/**

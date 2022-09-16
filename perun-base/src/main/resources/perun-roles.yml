@@ -22,6 +22,8 @@
 # GROUPOBSERVER role has access to all information, to which has access Group admin, but Group observer is not able to
 # perform any changes.
 #
+# GROUPMEMBERSHIPMANAGER role can approve or reject group applications, invite, add, extend or remove member from a group.
+#
 # SELF role is a user’s primary role through which the user is able to read and to change
 # only their personal information. It is assigned to all the authenticated users and cannot be removed.
 #
@@ -109,6 +111,7 @@ perun_roles:
   - VOADMIN
   - GROUPADMIN
   - GROUPOBSERVER
+  - GROUPMEMBERSHIPMANAGER
   - SELF
   - FACILITYADMIN
   - FACILITYOBSERVER
@@ -1218,6 +1221,7 @@ perun_policies:
       - PERUNOBSERVER:
       - RPC:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - GROUPOBSERVER: Group
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1233,6 +1237,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - GROUPOBSERVER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1248,6 +1253,7 @@ perun_policies:
       - PERUNOBSERVER:
       - RPC:
       - GROUPADMIN:
+      - GROUPMEMBERSHIPMANAGER:
       - GROUPOBSERVER:
       - VOOBSERVER:
       - VOADMIN:
@@ -1265,6 +1271,7 @@ perun_policies:
       - RPC:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1274,6 +1281,7 @@ perun_policies:
   addMembers_Group_List<Member>_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1281,6 +1289,7 @@ perun_policies:
   addMember_List<Group>_Member_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1292,6 +1301,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1299,6 +1309,7 @@ perun_policies:
   addMember_Group_Member_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1306,6 +1317,7 @@ perun_policies:
   removeMember_Group_Member_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1313,6 +1325,7 @@ perun_policies:
   removeMembers_Group_List<Member>_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1320,6 +1333,7 @@ perun_policies:
   removeMember_Member_List<Group>_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1330,6 +1344,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1340,6 +1355,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1350,6 +1366,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1360,6 +1377,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1370,6 +1388,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1380,6 +1399,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1390,6 +1410,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1400,6 +1421,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1410,6 +1432,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1420,6 +1443,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1431,6 +1455,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1441,6 +1466,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1451,6 +1477,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1461,6 +1488,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1499,6 +1527,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1519,6 +1548,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1537,6 +1567,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1554,6 +1585,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1567,6 +1599,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - GROUPOBSERVER: Vo
       - VOADMIN: Vo
     include_policies:
@@ -1578,6 +1611,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1591,6 +1625,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1606,6 +1641,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1620,6 +1656,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1633,6 +1670,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1647,6 +1685,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1660,6 +1699,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1673,6 +1713,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1699,6 +1740,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -1713,6 +1755,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1750,6 +1793,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1823,6 +1867,19 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getMemberGroups_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1917,6 +1974,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1927,6 +1985,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1939,6 +1998,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1953,6 +2013,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1966,6 +2027,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1979,6 +2041,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1992,6 +2055,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2005,6 +2069,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2018,6 +2083,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2072,6 +2138,7 @@ perun_policies:
   setMemberGroupStatus_Member_Group_MemberGroupStatus_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2082,6 +2149,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2090,6 +2158,7 @@ perun_policies:
     policy_roles:
       - SELF: User
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2101,6 +2170,7 @@ perun_policies:
       - SELF: User
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2112,6 +2182,7 @@ perun_policies:
       - SELF: User
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2143,6 +2214,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2152,6 +2224,7 @@ perun_policies:
       - SELF: User
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2162,6 +2235,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - SELF: User
       - RPC:
       - PERUNOBSERVER:
@@ -2251,6 +2325,7 @@ perun_policies:
   createMember_Vo_ExtSource_String_List<Group>_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2267,6 +2342,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - SELF: User
       - RPC:
       - PERUNOBSERVER:
@@ -2279,6 +2355,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - SELF:
       - RPC:
       - PERUNOBSERVER:
@@ -2291,6 +2368,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - SELF: User
       - RPC:
       - PERUNOBSERVER:
@@ -2303,6 +2381,7 @@ perun_policies:
     policy_roles:
       - SELF: User
       - GROUPADMIN: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - GROUPOBSERVER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -2327,6 +2406,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2337,6 +2417,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2348,6 +2429,7 @@ perun_policies:
       - SELF: User
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2359,6 +2441,7 @@ perun_policies:
       - SELF: User
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2369,6 +2452,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2379,6 +2463,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2389,6 +2474,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2399,6 +2485,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2409,6 +2496,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2419,6 +2507,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2436,6 +2525,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2446,6 +2536,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2457,6 +2548,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2470,6 +2562,7 @@ perun_policies:
       - FACILITYOBSERVER:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - PERUNOBSERVER:
       - VOOBSERVER:
       - VOADMIN:
@@ -2483,6 +2576,7 @@ perun_policies:
       - FACILITYOBSERVER: Facility
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2494,6 +2588,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2505,6 +2600,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2516,6 +2612,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2526,6 +2623,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2536,6 +2634,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2546,6 +2645,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2556,6 +2656,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2566,6 +2667,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2576,6 +2678,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2586,6 +2689,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2596,6 +2700,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2606,6 +2711,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2622,6 +2728,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -2632,6 +2739,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -2642,6 +2750,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2652,6 +2761,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2682,6 +2792,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2692,6 +2803,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2775,6 +2887,7 @@ perun_policies:
   getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy:
     policy_roles:
       - GROUPADMIN: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - GROUPOBSERVER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -2859,6 +2972,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2871,6 +2985,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2883,6 +2998,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2895,6 +3011,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2907,6 +3024,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2919,6 +3037,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2931,6 +3050,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2989,6 +3109,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2999,6 +3120,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -3021,6 +3143,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - SELF:
       - RPC:
       - PERUNOBSERVER:
@@ -3034,6 +3157,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - SELF: User
       - RPC:
       - PERUNOBSERVER:
@@ -4158,6 +4282,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -4927,6 +5052,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF: User
@@ -4938,6 +5064,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SELF: User
@@ -4951,6 +5078,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SELF: User
@@ -4992,6 +5120,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5017,6 +5146,7 @@ perun_policies:
       - SELF: User
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5028,6 +5158,7 @@ perun_policies:
       - SELF: User
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5052,6 +5183,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF:
@@ -5065,6 +5197,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF: User
@@ -5078,6 +5211,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF:
@@ -5091,6 +5225,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF: User
@@ -5153,6 +5288,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF: User
@@ -5166,6 +5302,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF: User
@@ -5178,6 +5315,7 @@ perun_policies:
       - RPC:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5201,6 +5339,7 @@ perun_policies:
       - RPC:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5232,6 +5371,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5333,6 +5473,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF:
@@ -5347,6 +5488,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF:
@@ -5361,6 +5503,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF:
@@ -5375,6 +5518,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF:
@@ -5388,6 +5532,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - SELF: User
@@ -5538,6 +5683,7 @@ perun_policies:
       - RESOURCEOBSERVER:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSREVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5560,6 +5706,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5704,6 +5851,7 @@ perun_policies:
       - RESOURCEOBSERVER:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5720,6 +5868,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5736,6 +5885,7 @@ perun_policies:
       - RESOURCEOBSERVER:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5752,6 +5902,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5770,6 +5921,7 @@ perun_policies:
       - FACILITYOBSERVER:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5810,6 +5962,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5828,6 +5981,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5847,6 +6001,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5866,6 +6021,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN:
       - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
@@ -5885,6 +6041,7 @@ perun_policies:
       - ENGINE:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5914,6 +6071,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -5932,6 +6090,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -5942,6 +6101,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -5949,6 +6109,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -6008,6 +6169,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -6326,6 +6488,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6388,6 +6551,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6401,6 +6565,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6415,6 +6580,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6550,6 +6716,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6563,6 +6730,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6576,6 +6744,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6589,6 +6758,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6607,6 +6777,7 @@ perun_policies:
       - VOADMIN: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6627,6 +6798,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6653,6 +6825,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6663,6 +6836,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6681,6 +6855,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
@@ -6979,6 +7154,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     associated_read_roles:
       - GROUPOBSERVER
     assignable_to_attributes: true
@@ -7002,8 +7178,32 @@ perun_roles_management:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     associated_read_roles: []
     assignable_to_attributes: false
+
+  GROUPMEMBERSHIPMANAGER:
+    primary_object: Group
+    assign_to_objects:
+      Group: group_id
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    associated_read_roles: []
+    assignable_to_attributes: true
 
   SELF:
     primary_object:

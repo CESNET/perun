@@ -1575,6 +1575,23 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		assertEquals(1, result.size());
 		assertTrue(result.contains(testSecurityTeam));
 	}
+
+	@Test
+	public void testGroupMembershipManager() throws Exception {
+		System.out.println(CLASS_NAME + "testGroupMembershipManager");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPMEMBERSHIPMANAGER);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_groupmembershipmanager", Arrays.asList(createdGroup)));
+	}
+
 	// private methods ==============================================================
 
 	private Facility setUpFacility() throws Exception {
