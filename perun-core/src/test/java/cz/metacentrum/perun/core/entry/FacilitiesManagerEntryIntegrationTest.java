@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.FacilityWithAttributes;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
@@ -210,29 +211,30 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void getFacilitiesByAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilitiesByAttribute");
 
-		// Check if the attribute already exists
-		Attribute attr;
-		AttributeDefinition attrDef;
-		String attributeName = "urn:perun:facility:attribute-def:def:facility-test-attribute";
-		try {
-			attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
-		} catch (AttributeNotExistsException e) {
-			// Attribute doesn't exist, so create it
-			attrDef = new AttributeDefinition();
-			attrDef.setNamespace("urn:perun:facility:attribute-def:def");
-			attrDef.setFriendlyName("facility-test-attribute");
-			attrDef.setType(String.class.getName());
-
-			attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
-		}
-
-		attr = new Attribute(attrDef);
+		Attribute attr = setUpAttribute4();
 		attr.setValue("value");
 
 		// Set the attribute to the facility
 		perun.getAttributesManagerBl().setAttribute(sess, facility, attr);
 
-		assertTrue("results must contain user", facilitiesManagerEntry.getFacilitiesByAttribute(sess, attributeName, "value").contains(facility));
+		assertTrue("results must contain user", facilitiesManagerEntry.getFacilitiesByAttribute(sess, attr.getName(), "value").contains(facility));
+	}
+
+	@Test
+	public void getFacilitiesByAttributeWithAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByAttributeWithAttributes");
+
+		Attribute attr = setUpAttribute4();
+		attr.setValue("valueeeee");
+
+		// Set the attribute to the facility
+		perun.getAttributesManagerBl().setAttribute(sess, facility, attr);
+
+
+		FacilityWithAttributes result = facilitiesManagerEntry.getFacilitiesByAttributeWithAttributes(sess, attr.getName(), "value", List.of(AttributesManager.NS_FACILITY_ATTR_CORE + ":name")).get(0);
+
+		assertEquals(result.getFacility(), facility);
+		assertEquals(result.getAttributes().get(0).getValue(), facility.getName());
 	}
 
 	@Test
@@ -2406,6 +2408,25 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Attribute attribute = new Attribute(attrDef);
 		attribute.setValue("Testing value for third attribute");
 		return attribute;
+	}
+
+	private Attribute setUpAttribute4() throws Exception {
+		// Check if the attribute already exists
+		AttributeDefinition attrDef;
+		String attributeName = "urn:perun:facility:attribute-def:def:facility-test-attribute";
+		try {
+			attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+		} catch (AttributeNotExistsException e) {
+			// Attribute doesn't exist, so create it
+			attrDef = new AttributeDefinition();
+			attrDef.setNamespace("urn:perun:facility:attribute-def:def");
+			attrDef.setFriendlyName("facility-test-attribute");
+			attrDef.setType(String.class.getName());
+
+			attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		}
+
+		return new Attribute(attrDef);
 	}
 
 	private SecurityTeam setUpSecurityTeam0() throws Exception {

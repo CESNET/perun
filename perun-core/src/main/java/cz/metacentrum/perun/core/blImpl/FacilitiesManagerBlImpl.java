@@ -15,11 +15,11 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.FacilityWithAttributes;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
@@ -560,6 +560,25 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException("Attribute name:'" + attributeName + "', value:'" + attributeValue + "' not exists ", e);
 		}
+	}
+
+	@Override
+	public List<FacilityWithAttributes> getFacilitiesByAttributeWithAttributes(PerunSession sess, String searchAttributeName, String searchAttributeValue, List<String> attrNames) throws AttributeNotExistsException {
+		List<Facility> facilities;
+		List<FacilityWithAttributes> result = new ArrayList<>();
+		AttributeDefinition attrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, searchAttributeName);
+		facilities = getFacilitiesManagerImpl().getFacilitiesByAttributePartialMatch(sess, attrDef, searchAttributeValue);
+
+		for (Facility facility : facilities) {
+			try {
+				List<Attribute> attr = getPerunBl().getAttributesManager().getAttributes(sess, facility, attrNames);
+				FacilityWithAttributes facWithAttr = new FacilityWithAttributes(facility, attr);
+				result.add(facWithAttr);
+			} catch (FacilityNotExistsException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+		return result;
 	}
 
 	@Override
