@@ -13,7 +13,8 @@ import java.util.Objects;
  *
  * roleName is role's unique identification which is used in the configuration file perun-roles.yml
  * primaryObject serves to determine with which object is the role primarily connected. Other objects are just complementary.
- * privilegedRolesToManage is a list of maps where each map entry consists from a role name as a key and a role object as a value.
+ * privilegedRolesToManage serves to determine which roles (in relation to which objects) a user/group has to have, to have rights to set/unset the role to other users/groups.
+ * 			  It is a list of maps where each map entry consists from a role name as a key and a role object as a value.
  *            Relation between each map in the list is logical OR and relation between each entry in the map is logical AND.
  *            Example list - (Map1, Map2...)
  *            Example map - key: VOADMIN ; value: Vo
