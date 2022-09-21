@@ -138,6 +138,25 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Searches (partially!) for facilities with the attribute 'attributeName' and its value 'attributeValue'.
+	 * Found Facilities are returned along with attributes listed in 'attrNames'.
+	 *
+	 * @param attributeName String
+	 * @param attributeValue String
+	 * @param attrNames List<String>
+	 * @return List<FacilityWithAttribute> facilities with attributes
+	 * @throw AttributeNotExistsException when the attribute to search by does not exist
+	 */
+	getFacilitiesByAttributeWithAttributes {
+		@Override
+		public List<FacilityWithAttributes> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getFacilitiesByAttributeWithAttributes(ac.getSession(),
+				parms.readString("attributeName"), parms.readString("attributeValue"),
+				parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
 	 * List all facilities.
 	 *
 	 * @return List<Facility> All facilities

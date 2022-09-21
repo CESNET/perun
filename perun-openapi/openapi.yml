@@ -471,6 +471,14 @@ components:
       discriminator:
         propertyName: beanName
 
+    FacilityWithAttributes:
+      allOf:
+        - $ref: '#/components/schemas/Facility'
+      properties:
+        attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
+      required:
+        - attributes
+
     Host:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1714,6 +1722,16 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/EnrichedFacility"
+
+    ListOfFacilitiesWithAttributesResponse:
+      description: "returns List<FacilityWithAttributes>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/FacilityWithAttributes"
+
 
     OwnerResponse:
       description: "returns Owner"
@@ -10487,6 +10505,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilitiesByAttributeWithAttributes:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByAttributeWithAttributes
+      summary: Searches (partially!) for facilities with the attribute 'attributeName' and its value 'attributeValue'. 
+                  Found Facilities are returned along with attributes listed in 'attrNames'.
+      parameters:
+        - $ref: '#/components/parameters/attributeName'
+        - $ref: '#/components/parameters/attributeValue'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesWithAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

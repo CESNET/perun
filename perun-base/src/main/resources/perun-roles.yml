@@ -700,6 +700,22 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getFacilitiesByAttributeWithAttributes_String_String_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getFacilitiesByAttributeWithAttributes_String_String_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getFacilities_policy:
     policy_roles:
       - ENGINE:

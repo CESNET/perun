@@ -14,6 +14,7 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 	import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 	import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 	import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+	import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 	import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 	import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 	import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -30,7 +31,7 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 
 	private final static Logger log = LoggerFactory.getLogger(LifescienceidusernamePasswordManagerModule.class);
 
-	private final static int targetVoId = 3346;
+	private final static String VO_NAME = "lifescience_hostel";
 	private final static String LS_DOMAIN = "@hostel.aai.lifescience-ri.eu";
 	private final static String EXT_SOURCE_NAME = "https://hostel.aai.lifescience-ri.eu/lshostel/";
 	private final static String REGISTRAR = "perunRegistrar";
@@ -54,14 +55,16 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 			}
 
 			try {
-				// set userExtSource
 				ExtSource extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
-				UserExtSource ues = new UserExtSource(extSource, userLogin + LS_DOMAIN);
-				ues.setLoa(0);
+				UserExtSource ues;
 				try {
+					// get userExtSource
+					ues = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserExtSourceByExtLogin(sess, extSource, userLogin + LS_DOMAIN);
+				} catch (UserExtSourceNotExistsException ex) {
+					// ues do not exist yet so we need to create it
+					ues = new UserExtSource(extSource, userLogin + LS_DOMAIN);
+					ues.setLoa(0);
 					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch (UserExtSourceExistsException ex) {
-					//this is OK
 				}
 
 				// set additional identifiers
@@ -75,10 +78,10 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 				((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttribute(sess, ues, additionalIdentifiers);
 
 				// add user to specific vo
-				Vo targetVo = ((PerunBl) sess.getPerun()).getVosManagerBl().getVoById(sess, targetVoId);
+				Vo targetVo = ((PerunBl) sess.getPerun()).getVosManagerBl().getVoByShortName(sess, VO_NAME);
 				((PerunBl) sess.getPerun()).getMembersManagerBl().createMember(sess, targetVo, user);
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException | ExtSourceNotExistsException |
-				WrongAttributeValueException | WrongReferenceAttributeValueException | VoNotExistsException | ExtendMembershipException ex) {
+				WrongAttributeValueException | WrongReferenceAttributeValueException | VoNotExistsException | ExtendMembershipException | UserExtSourceExistsException ex) {
 				throw new InternalErrorException(ex);
 			} catch (AlreadyMemberException ignored) {
 			}

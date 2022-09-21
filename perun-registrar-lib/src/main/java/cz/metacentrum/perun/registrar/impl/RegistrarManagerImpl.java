@@ -69,6 +69,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static cz.metacentrum.perun.core.api.AttributeAction.READ;
 import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
@@ -1631,6 +1632,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		Member member = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
+		boolean isTransactionOngoing = TransactionSynchronizationManager.isActualTransactionActive();
 
 		try {
 
@@ -1639,11 +1641,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// once member is validated
 			new Thread(() -> {
 
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				// if there was ongoing transaction, we have to wait before validating the member,
+				// because the member might not be committed in DB yet
+				if (isTransactionOngoing) {
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 
 				try {
