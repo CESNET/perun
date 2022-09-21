@@ -154,5 +154,10 @@ perun_policies:
     include_policies:
       - test_resource_admin
 
+  test_groupmembershipmanager:
+    policy_roles:
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies: []
+
 perun_roles_management: {}
 ...
