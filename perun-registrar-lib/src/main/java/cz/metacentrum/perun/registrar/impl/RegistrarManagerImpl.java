@@ -2385,6 +2385,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public List<Application> getOpenApplicationsForUser(User user) {
+
+		try {
+			return jdbc.query(APP_SELECT + " where user_id=? and state in (?,?) order by a.id desc",
+				APP_MAPPER, user.getId(), AppState.VERIFIED.toString(), AppState.NEW.toString());
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		}
+
+	}
+
+	@Override
+	public List<Application> getOpenApplicationsForUser(PerunSession sess) {
+
+		try {
+			List<Application> applications = jdbc.query(APP_SELECT + " where state in (?,?) order by a.id desc",
+				APP_MAPPER, AppState.VERIFIED.toString(), AppState.NEW.toString());
+			return filterPrincipalApplications(sess, applications);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		}
+
+	}
+
+	@Override
 	public List<Application> getOpenApplicationsForUserInVo(User user, Vo vo) {
 
 		try {

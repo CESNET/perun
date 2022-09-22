@@ -10,6 +10,7 @@
 create table attribute_critical_actions (attr_id integer not null, action attribute_action not null, constraint attrcritops_pk primary key (attr_id, action),	constraint attrcritops_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade);
 grant all on attribute_critical_actions to perun;
 create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
+create index app_state_idx ON application (state);
 UPDATE configurations SET value='3.1.97' WHERE property='DATABASE VERSION';
 INSERT INTO attribute_critical_actions (attr_id, action) SELECT attr_names.id, 'WRITE' FROM attr_names;
 
