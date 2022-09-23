@@ -91,6 +91,12 @@ public class CoreConfig {
 	private List<String> userInfoEndpointExtSourceLogin;
 	private String userInfoEndpointExtSourceName;
 	private List<String> userInfoEndpointExtSourceFriendlyName;
+	private String userInfoEndpointAcrPropertyName;
+	private String userInfoEndpointMfaAcrValue;
+	private String userInfoEndpointMfaAuthTimestampPropertyName;
+	private int mfaAuthTimeout;
+	private boolean enforceMfa;
+
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
 	}
@@ -763,5 +769,45 @@ public class CoreConfig {
 
 	public void setUserInfoEndpointExtSourceFriendlyName(List<String> userInfoEndpointExtSourceFriendlyName) {
 		this.userInfoEndpointExtSourceFriendlyName = userInfoEndpointExtSourceFriendlyName;
+	}
+
+	public String getUserInfoEndpointAcrPropertyName() {
+		return userInfoEndpointAcrPropertyName;
+	}
+
+	public void setUserInfoEndpointAcrPropertyName(String userInfoEndpointAcrPropertyName) {
+		this.userInfoEndpointAcrPropertyName = userInfoEndpointAcrPropertyName;
+	}
+
+	public String getUserInfoEndpointMfaAuthTimestampPropertyName() {
+		return userInfoEndpointMfaAuthTimestampPropertyName;
+	}
+
+	public void setUserInfoEndpointMfaAuthTimestampPropertyName(String userInfoEndpointMfaAuthTimestampPropertyName) {
+		this.userInfoEndpointMfaAuthTimestampPropertyName = userInfoEndpointMfaAuthTimestampPropertyName;
+	}
+
+	public String getUserInfoEndpointMfaAcrValue() {
+		return userInfoEndpointMfaAcrValue;
+	}
+
+	public void setUserInfoEndpointMfaAcrValue(String userInfoEndpointAcrValue) {
+		this.userInfoEndpointMfaAcrValue = userInfoEndpointAcrValue;
+	}
+
+	public int getMfaAuthTimeout() {
+		return mfaAuthTimeout;
+	}
+
+	public void setMfaAuthTimeout(int mfaAuthTimeout) {
+		this.mfaAuthTimeout = mfaAuthTimeout;
+	}
+
+	public boolean isEnforceMfa() {
+		return enforceMfa;
+	}
+
+	public void setEnforceMfa(boolean enforceMfa) {
+		this.enforceMfa = enforceMfa;
 	}
 }

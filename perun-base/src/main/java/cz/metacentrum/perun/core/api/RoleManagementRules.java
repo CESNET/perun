@@ -13,7 +13,8 @@ import java.util.Objects;
  *
  * roleName is role's unique identification which is used in the configuration file perun-roles.yml
  * primaryObject serves to determine with which object is the role primarily connected. Other objects are just complementary.
- * privilegedRolesToManage is a list of maps where each map entry consists from a role name as a key and a role object as a value.
+ * privilegedRolesToManage serves to determine which roles (in relation to which objects) a user/group has to have, to have rights to set/unset the role to other users/groups.
+ * 			  It is a list of maps where each map entry consists from a role name as a key and a role object as a value.
  *            Relation between each map in the list is logical OR and relation between each entry in the map is logical AND.
  *            Example list - (Map1, Map2...)
  *            Example map - key: VOADMIN ; value: Vo
@@ -23,10 +24,15 @@ import java.util.Objects;
  *            Example entry: key: User; value: user_id
  * assignedObjects is a map of objects which can be assigned with the role. Key is a object name and value is mapping to the database.
  *            Example entry: key: Resource; value: resource_id
+ * assignmentCheck is a list of maps defining which of the assigned objects should be checked for being critical (requiring MFA) when setting the role.
+ *            Example entry: key: MFA; value: Resource <- If resource is critical, MFA is required
+ *            Example entry: {} <- No MFA is required to set this role
+ *            Example entry: Key: MFA; value: <- No value means MFA is always required to set this role
  * associatedReadRoles is a list of related roles which are authorized to read attribute value if the main role is authorized.
  *            Example list for groupadmin role - value: [GROUPOBSERVER]
  * assignableToAttributes is a flag that determines whether the role can appear in attribute policies.
- *
+ * skipMFA is a flag that whether the role should skip MFA check.
+ * mfaCriticalRole is a flag marking roles always requiring MFA from users having that role
  */
 public class RoleManagementRules {
 
@@ -36,18 +42,24 @@ public class RoleManagementRules {
 	private List<Map<String, String>> privilegedRolesToRead;
 	private Map<String, String> entitiesToManage;
 	private Map<String, String> assignedObjects;
+	private List<Map<String, String>> assignmentCheck;
 	private List<String> associatedReadRoles;
 	private boolean assignableToAttributes;
+	private boolean skipMFA;
+	private boolean mfaCriticalRole;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<String> associatedReadRoles, boolean assignableToAttributes) {
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean skipMFA, boolean mfaCriticalRole) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
 		this.privilegedRolesToRead = privilegedRolesToRead;
 		this.entitiesToManage = entitiesToManage;
 		this.assignedObjects = assignedObjects;
+		this.assignmentCheck = assignmentCheck;
 		this.associatedReadRoles = associatedReadRoles;
 		this.assignableToAttributes = assignableToAttributes;
+		this.skipMFA = skipMFA;
+		this.mfaCriticalRole = mfaCriticalRole;
 	}
 
 	public String getRoleName() {
@@ -98,12 +110,44 @@ public class RoleManagementRules {
 		this.assignedObjects = assignedObjects;
 	}
 
+	public List<Map<String, String>> getAssignmentCheck() {
+		return assignmentCheck;
+	}
+
+	public void setAssignmentCheck(List<Map<String, String>> assignmentCheck) {
+		this.assignmentCheck = assignmentCheck;
+	}
+
 	public List<String> getAssociatedReadRoles() {
 		return associatedReadRoles;
 	}
 
 	public void setAssociatedReadRoles(List<String> associatedReadRoles) {
 		this.associatedReadRoles = associatedReadRoles;
+	}
+
+	public boolean isAssignableToAttributes() {
+		return assignableToAttributes;
+	}
+
+	public void setAssignableToAttributes(boolean assignableToAttributes) {
+		this.assignableToAttributes = assignableToAttributes;
+	}
+
+	public boolean shouldSkipMFA() {
+		return skipMFA;
+	}
+
+	public void setSkipMFA(boolean skipMFA) {
+		this.skipMFA = skipMFA;
+	}
+
+	public boolean isMfaCriticalRole() {
+		return mfaCriticalRole;
+	}
+
+	public void setMfaCriticalRole(boolean mfaCriticalRole) {
+		this.mfaCriticalRole = mfaCriticalRole;
 	}
 
 	@Override
@@ -117,12 +161,16 @@ public class RoleManagementRules {
 			Objects.equals(privilegedRolesToRead, that.privilegedRolesToRead) &&
 			Objects.equals(entitiesToManage, that.entitiesToManage) &&
 			Objects.equals(assignedObjects, that.assignedObjects) &&
-			Objects.equals(associatedReadRoles, that.associatedReadRoles);
+			Objects.equals(assignmentCheck, that.assignmentCheck) &&
+			Objects.equals(associatedReadRoles, that.associatedReadRoles) &&
+			Objects.equals(assignableToAttributes, that.assignableToAttributes) &&
+			Objects.equals(skipMFA, that.skipMFA) &&
+			Objects.equals(mfaCriticalRole, that.mfaCriticalRole);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, associatedReadRoles);
+		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, skipMFA, mfaCriticalRole);
 	}
 
 	@Override
@@ -134,15 +182,11 @@ public class RoleManagementRules {
 			", privilegedRolesToRead=" + privilegedRolesToRead +
 			", entitiesToManage=" + entitiesToManage +
 			", assignedObjects=" + assignedObjects +
+			", assignmentCheck=" + assignmentCheck +
 			", associatedReadRoles=" + associatedReadRoles +
+			", assignableToAttributes=" + assignableToAttributes +
+			", skipMFA=" + skipMFA +
+			", mfaCriticalRole=" + mfaCriticalRole +
 			'}';
-	}
-
-	public boolean isAssignableToAttributes() {
-		return assignableToAttributes;
-	}
-
-	public void setAssignableToAttributes(boolean assignableToAttributes) {
-		this.assignableToAttributes = assignableToAttributes;
 	}
 }

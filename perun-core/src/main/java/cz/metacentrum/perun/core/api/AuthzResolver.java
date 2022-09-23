@@ -2,9 +2,12 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MFAuthenticationException;
+import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
@@ -25,6 +28,8 @@ import java.util.Set;
 
 public class AuthzResolver {
 
+	public final static String MFA_CRITICAL_ATTR = "mfaCriticalObject";
+
 	/**
 	 * Checks if the principal is authorized.
 	 * This method should be accessed through external components.
@@ -34,6 +39,7 @@ public class AuthzResolver {
 	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
 	 * @return true if the principal has particular rights, false otherwise.
 	 * @throws PolicyNotExistsException when the given policyDefinition does not exist in the PerunPoliciesContainer.
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 */
 	public static boolean authorizedExternal(PerunSession sess, String policyDefinition, List<PerunBean> objects) throws PolicyNotExistsException {
 		return AuthzResolverBlImpl.authorized(sess, policyDefinition, objects);
@@ -46,6 +52,7 @@ public class AuthzResolver {
 	 * @param sess PerunSession which contains the principal.
 	 * @param policyDefinition of policy which contains authorization rules.
 	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 * @return true if the principal has particular rights, false otherwise.
 	 */
 	public static boolean authorizedInternal(PerunSession sess, String policyDefinition, List<PerunBean> objects) {
@@ -63,6 +70,7 @@ public class AuthzResolver {
 	 * @param sess PerunSession which contains the principal.
 	 * @param policyDefinition of policy which contains authorization rules.
 	 * @param objects an array of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 * @return true if the principal has particular rights, false otherwise.
 	 */
 	public static boolean authorizedInternal(PerunSession sess, String policyDefinition, PerunBean... objects) {
@@ -80,6 +88,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess PerunSession which contains the principal.
 	 * @param policyDefinition of policy which contains authorization rules.
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 * @return true if the principal has particular rights, false otherwise.
 	 */
 	public static boolean authorizedInternal(PerunSession sess, String policyDefinition) {
@@ -384,9 +393,19 @@ public class AuthzResolver {
 	 * @param attrDef attribute what principal want to work with
 	 * @param group primary Bean of Attribute (can't be null)
 	 * @param resource secondary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group, Resource resource) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group, Resource resource, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(group, resource))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group, resource);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -402,9 +421,19 @@ public class AuthzResolver {
 	 * @param attrDef attribute what principal want to work with
 	 * @param resource primary Bean of Attribute (can't be null)
 	 * @param member secondary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Resource resource) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Resource resource, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member, resource))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, resource);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -420,9 +449,19 @@ public class AuthzResolver {
 	 * @param attrDef attribute what principal want to work with
 	 * @param user primary Bean of Attribute (can't be null)
 	 * @param facility secondary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user, Facility facility) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user, Facility facility, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(user, facility))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user, facility);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -438,9 +477,19 @@ public class AuthzResolver {
 	 * @param attrDef attribute what principal want to work with
 	 * @param member primary Bean of Attribute (can't be null)
 	 * @param group secondary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Group group) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, Group group, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member, group))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, group);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -455,9 +504,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param user primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, User user, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(user))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -472,9 +531,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param member primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Member member, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(member))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -489,9 +558,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param vo primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Vo vo) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Vo vo, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(vo))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, vo);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -506,18 +585,20 @@ public class AuthzResolver {
 	 * @param actionType action type
 	 * @param attrDef attr def
 	 * @param bean bean
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true, if principal is authorized for attribute and action
 	 */
 	@SuppressWarnings("unused")
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, PerunBean bean) throws InternalErrorException {
-		if (bean instanceof Vo) return isAuthorizedForAttribute(sess, actionType, attrDef, (Vo)bean);
-		if (bean instanceof User) return isAuthorizedForAttribute(sess, actionType, attrDef, (User)bean);
-		if (bean instanceof Member) return isAuthorizedForAttribute(sess, actionType, attrDef, (Member)bean);
-		if (bean instanceof Group) return isAuthorizedForAttribute(sess, actionType, attrDef, (Group)bean);
-		if (bean instanceof Resource) return isAuthorizedForAttribute(sess, actionType, attrDef, (Resource)bean);
-		if (bean instanceof Facility) return isAuthorizedForAttribute(sess, actionType, attrDef, (Facility)bean);
-		if (bean instanceof Host) return isAuthorizedForAttribute(sess, actionType, attrDef, (Host)bean);
-		if (bean instanceof UserExtSource) return isAuthorizedForAttribute(sess, actionType, attrDef, (UserExtSource)bean);
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, PerunBean bean, boolean checkMfa) throws InternalErrorException {
+		if (bean instanceof Vo) return isAuthorizedForAttribute(sess, actionType, attrDef, (Vo)bean, checkMfa);
+		if (bean instanceof User) return isAuthorizedForAttribute(sess, actionType, attrDef, (User)bean, checkMfa);
+		if (bean instanceof Member) return isAuthorizedForAttribute(sess, actionType, attrDef, (Member)bean, checkMfa);
+		if (bean instanceof Group) return isAuthorizedForAttribute(sess, actionType, attrDef, (Group)bean, checkMfa);
+		if (bean instanceof Resource) return isAuthorizedForAttribute(sess, actionType, attrDef, (Resource)bean, checkMfa);
+		if (bean instanceof Facility) return isAuthorizedForAttribute(sess, actionType, attrDef, (Facility)bean, checkMfa);
+		if (bean instanceof Host) return isAuthorizedForAttribute(sess, actionType, attrDef, (Host)bean, checkMfa);
+		if (bean instanceof UserExtSource) return isAuthorizedForAttribute(sess, actionType, attrDef, (UserExtSource)bean, checkMfa);
 		throw new UnsupportedOperationException(
 			"method - isAuthorizedForAttribute - called with unsupported PerunBean type - " + bean.getBeanName());
 	}
@@ -529,9 +610,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param group primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Group group, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(group))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -546,9 +637,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param resource primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Resource resource) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Resource resource, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(resource))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, resource);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -563,9 +664,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param facility primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Facility facility) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Facility facility, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(facility))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, facility);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -580,9 +691,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param host primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Host host) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, Host host, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(host))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, host);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -597,9 +718,19 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param ues primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, UserExtSource ues) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, UserExtSource ues, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList(ues))) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, ues);
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
@@ -614,15 +745,26 @@ public class AuthzResolver {
 	 * @param actionType type of action on attribute
 	 * @param attrDef attribute what principal want to work with
 	 * @param key primary Bean of Attribute (can't be null)
+	 * @param checkMfa if true, checks also MFA rules and throws exception if unmet
+	 * @throws MfaPrivilegeException thrown when checkMfa is true and MFA rules are unmet
 	 * @return true if principal is authorized, false if not
 	 */
-	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, String key) throws InternalErrorException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, AttributeAction actionType, AttributeDefinition attrDef, String key, boolean checkMfa) throws InternalErrorException {
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		if (checkMfa && !AuthzResolverBlImpl.isMfaAuthorizedForAttribute(sess, attrDef, actionType, Arrays.asList())) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
+
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
+
 
 	/**
 	 * Checks if the principal is authorized.
@@ -834,7 +976,7 @@ public class AuthzResolver {
 	}
 
 	/**
-	 * Check wheter the principal is authorized to manage the role on the object.
+	 * Check whether the principal is authorized to manage the role on the object.
 	 *
 	 * @param sess principal's perun session
 	 * @param complementaryObject bounded with the role
@@ -1280,6 +1422,27 @@ public class AuthzResolver {
 	 */
 	public static void refreshAuthz(PerunSession sess) {
 		AuthzResolverBlImpl.refreshAuthz(sess);
+	}
+
+	/**
+	 * Calls UserInfo endpoint to obtain the newest information on performed MFA.
+	 * Requires access token and issuer to be stored in the additionalInformations.
+	 * If user used MFA to log in (MFA acr is returned from the endpoint), endpoint returns MFA timestamp.
+	 * This method stores the timestamp into principal's additionalInformations.
+	 *
+	 * @param sess perun session with required additionalInformation in Principal
+	 * @throws ExpiredTokenException expired access token
+	 * @throws MFAuthenticationException wrong configuration or missing required information
+	 * @throws PrivilegeException unauthorized
+	 */
+	public static void refreshMfa(PerunSession sess) throws ExpiredTokenException, MFAuthenticationException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		//Authorization
+		if (!authorizedInternal(sess, "refreshMfa_policy", sess.getPerunPrincipal().getUser()))
+			throw new PrivilegeException(sess, "refreshMfa");
+
+		AuthzResolverBlImpl.refreshMfa(sess);
 	}
 
 	/**

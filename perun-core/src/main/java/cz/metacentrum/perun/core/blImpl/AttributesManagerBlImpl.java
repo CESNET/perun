@@ -55,6 +55,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
+import cz.metacentrum.perun.core.api.AttributeRules;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -89,6 +90,8 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -1541,76 +1544,76 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			AttributeDefinition attrDef = iterator.next();
 
 			if (this.isFromNamespace(sess, attrDef, NS_USER_FACILITY_ATTR) && user != null && facility != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user, facility)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user, facility, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user, facility));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user, facility, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_RESOURCE_ATTR) && member != null && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, resource, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, resource, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_GROUP_ATTR) && member != null && group != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, group)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, group, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, group));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, group, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR) && group != null && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group, resource, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group, resource, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_USER_ATTR) && user != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, user, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, user, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_MEMBER_ATTR) && member != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, member, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, member, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_VO_ATTR) && vo != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, vo)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, vo, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, vo));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, vo, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_RESOURCE_ATTR) && resource != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, resource)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, resource, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, resource));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, resource, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_GROUP_ATTR) && group != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, group, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, group, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_FACILITY_ATTR) && facility != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, facility)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, facility, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, facility));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, facility, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_HOST_ATTR) && host != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, host)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, host, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, host));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, host, false));
 				}
 			} else if (this.isFromNamespace(sess, attrDef, NS_UES_ATTR) && ues != null) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, ues)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, READ, attrDef, ues, true)) {
 					iterator.remove();
 				} else {
-					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, ues));
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, WRITE, attrDef, ues, false));
 				}
 			} else {
 				//if there is another namespace or if there are no entities (which are needed for the namespace) remove this attributeDefinition
@@ -2485,6 +2488,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		if (calculateDependencies) {
 			handleAttributeModuleDependencies(sess, attribute);
+		}
+
+		// mark WRITE action on this attribute as critical
+		try {
+			setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true);
+		} catch (RelationExistsException | RelationNotExistsException ignored) {
 		}
 
 		getPerunBl().getAuditer().log(sess, new AttributeCreated(attribute));
@@ -8014,6 +8023,94 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn_perun_ues_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the external source requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_user_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the user requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_member_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the member requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_group_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the group requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_vo_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the organization requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_resource_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the resource requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_facility_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the facility requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_host_attribute_def_def_mfaCriticalObject
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_HOST_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("mfaCriticalObject");
+		attr.setDisplayName("MFA critical object");
+		attr.setDescription("Updating the host requires Multi-factor authentication.");
+
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		// create namespaced attributes for each namespace
 		for (String namespace : BeansUtils.getCoreConfig().getAutocreatedNamespaces()) {
 
@@ -8451,6 +8548,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public AttributeRules getAttributeRules(PerunSession sess, int attributeId) {
+		AttributeRules attrRules = new AttributeRules(getAttributesManagerImpl().getAttributePolicyCollections(sess, attributeId));
+		attrRules.setCriticalActions(getAttributesManagerImpl().getCriticalAttributeActions(sess, attributeId));
+		return attrRules;
+	}
+
+	@Override
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		return getAttributesManagerImpl().getUserVirtualAttributeModule(sess, attribute);
 	}
@@ -8566,6 +8670,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {
 		return allDependencies;
+	}
+
+	@Override
+	public boolean isAttributeActionCritical(PerunSession sess, AttributeDefinition attr, AttributeAction action) {
+		return getAttributesManagerImpl().isAttributeActionCritical(sess, attr, action);
+	}
+
+	@Override
+	public List<AttributeAction> getCriticalAttributeActions(PerunSession sess, int attrId) {
+		return getAttributesManagerImpl().getCriticalAttributeActions(sess, attrId);
+	}
+
+	@Override
+	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException {
+		getAttributesManagerImpl().setAttributeActionCriticality(sess, attr, action, critical);
 	}
 
 	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------

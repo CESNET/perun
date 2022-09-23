@@ -2728,8 +2728,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<Attribute> groupAttributes = richGroup.getAttributes();
 			List<Attribute> allowedGroupAttributes = new ArrayList<>();
 			for(Attribute groupAttr : groupAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup)) {
-					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup, true)) {
+					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup, false));
 					allowedGroupAttributes.add(groupAttr);
 				}
 			}
@@ -2799,20 +2799,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						//if not, get information about authz rights and set record to contextMap
 						boolean canRead = false;
 						if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup, resource);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup, resource, true);
 						} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup, null);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, richGroup, null, true);
 						} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, member, richGroup);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, groupAttr, member, richGroup, true);
 						}
 						if(canRead) {
 							boolean isWritable = false;
 							if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup, resource);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup, resource, false);
 							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup, null);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, richGroup, null, false);
 							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, member, richGroup);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttr, member, richGroup, false);
 							}
 							groupAttr.setWritable(isWritable);
 							allowedGroupAttributes.add(groupAttr);

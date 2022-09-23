@@ -222,40 +222,49 @@ perun_policies:
     include_policies:
       - default_policy
 
-  setAttribute_String_Attribute_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
   createAttribute_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteAttribute_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteAttribute_AttributeDefinition_boolean:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateAttributeDefinition_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   doTheMagic_Member_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: User
 
   doTheMagic_Member_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: User
 
   getAttributeRights_int_policy:
     policy_roles:
@@ -267,8 +276,16 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getAttributePolicyCollections_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAttributeRules_int_policy:
     policy_roles:
       - PERUNOBSERVER:
     include_policies:
@@ -278,16 +295,29 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
+
+  setAttributeActionCriticality_AttributeDefinition_AttributeAction_boolean_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA:
 
   convertAttributeToUnique_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   convertAttributeToNonunique_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getModulesDependenciesGraph_GraphTextFormat_policy:
     policy_roles:
@@ -350,17 +380,23 @@ perun_policies:
       - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   log_String_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   setLastProcessedId_String_int_policy:
     policy_roles:
       - AUDITCONSUMERADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   #AuthzResolver
   getUserRoleNames_User_policy:
@@ -391,6 +427,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getVosWhereUserIsInRoles_User_List<String>_policy:
     policy_roles:
@@ -423,6 +461,12 @@ perun_policies:
       - default_policy
 
   getSecurityTeamsWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  refreshMfa_policy:
     policy_roles:
       - SELF: User
     include_policies:
@@ -462,11 +506,15 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteExtSource_ExtSource_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getExtSourceById_int_policy:
     policy_roles:
@@ -511,23 +559,31 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   addExtSource_Group_ExtSource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
 
   removeExtSource_Vo_ExtSource_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   removeExtSource_Group_ExtSource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
 
   getInvalidUsers_ExtSource_policy:
     policy_roles:
@@ -539,6 +595,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getCandidate_ExtSource_String_policy:
     policy_roles:
@@ -710,24 +768,38 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addOwner_Facility_Owner_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeOwner_Facility_Owner_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
-  copyOwners_Facility_Facility_policy:
+  source-copyOwners_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+
+  destination-copyOwners_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getAllowedVos_Facility_policy:
     policy_roles:
@@ -808,18 +880,24 @@ perun_policies:
       - FACILITYADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteFacility_Facility_Boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   updateFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getOwnerFacilities_Owner_policy:
     policy_roles:
@@ -946,42 +1024,25 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addHosts_Facility_List<String>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeHosts_List<Host>_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
-
-  addAdmin_Facility_User_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-
-  addAdmin_Facility_Group_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-
-  removeAdmin_Facility_User_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-
-  removeAdmin_Facility_Group_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
+    mfa_rules:
+      - MFA: Facility
+      - MFA: Host
 
   getAdmins_Facility_boolean_policy:
     policy_roles:
@@ -1014,19 +1075,52 @@ perun_policies:
     include_policies:
       - default_policy
 
-  copyManagers_Facility_Facility_policy:
+  source-copyManagers_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
-  copyAttributes_Facility_Facility_policy:
+  destination-copyManagers_Facility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
+
+  source-copyAttributes_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  destination-copyAttributes_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addHost_Host_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Facility
+
+  removeHostByHostname_String_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Facility
+      - MFA: Host
+
+  filter-removeHostByHostname_String_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
@@ -1037,6 +1131,9 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
+      - MFA: Host
 
   getHostById_int_policy:
     policy_roles:
@@ -1108,18 +1205,24 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeSecurityTeam_Facility_SecurityTeam_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   setBan_BanOnFacility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getBanById_int_policy:
     policy_roles:
@@ -1158,18 +1261,24 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeBan_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeBan_int_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   #GroupsManagerEntry
   createGroup_Vo_Group_policy:
@@ -1178,6 +1287,8 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   createGroup_Group_Group_policy:
     policy_roles:
@@ -1185,6 +1296,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   deleteGroup_Group_boolean_policy:
     policy_roles:
@@ -1192,12 +1306,18 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   deleteAllGroups_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   deleteGroups_List<Group>_boolean_policy:
     policy_roles:
@@ -1205,6 +1325,9 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   updateGroup_Group_policy:
     policy_roles:
@@ -1212,6 +1335,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   moveGroup_Group_Group_policy:
     policy_roles:
@@ -1219,6 +1345,18 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  parentGroup-moveGroup_Group_Group_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   destination_null-moveGroup_Group_Group_policy:
     policy_roles:
@@ -1227,6 +1365,9 @@ perun_policies:
         TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   getGroupById_int_policy:
     policy_roles:
@@ -1301,6 +1442,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   addMember_List<Group>_Member_policy:
     policy_roles:
@@ -1309,6 +1453,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   isDirectGroupMember_Group_Member_policy:
     policy_roles:
@@ -1329,6 +1476,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   removeMember_Group_Member_policy:
     policy_roles:
@@ -1337,6 +1487,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Member
+      - MFA: Vo
 
   removeMembers_Group_List<Member>_policy:
     policy_roles:
@@ -1345,6 +1499,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Member
+      - MFA: Vo
 
   removeMember_Member_List<Group>_policy:
     policy_roles:
@@ -1353,6 +1511,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Member
+      - MFA: Vo
 
   getGroupMembers_Group_policy:
     policy_roles:
@@ -1505,34 +1667,6 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addAdmin_Group_User_policy:
-    policy_roles:
-      - GROUPADMIN: Group
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addAdmin_Group_Group_policy:
-    policy_roles:
-      - GROUPADMIN: Group
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Group_User_policy:
-    policy_roles:
-      - GROUPADMIN: Group
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Group_Group_policy:
-    policy_roles:
-      - GROUPADMIN: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -1851,6 +1985,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   forceAllSubGroupsSynchronization_Group_policy:
     policy_roles:
@@ -1858,6 +1995,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   forceGroupStructureSynchronization_Group_policy:
     policy_roles:
@@ -1865,16 +2005,23 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   synchronizeGroups_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   synchronizeGroupsStructures_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getMemberGroups_Member_policy:
     policy_roles:
@@ -2113,6 +2260,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   operand-createGroupUnion_Group_Group_policy:
     policy_roles:
@@ -2123,6 +2273,9 @@ perun_policies:
       - PERUNOBSERVER:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   result-removeGroupUnion_Group_Group_policy:
     policy_roles:
@@ -2130,6 +2283,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   operand-removeGroupUnion_Group_Group_policy:
     policy_roles:
@@ -2140,6 +2296,9 @@ perun_policies:
       - PERUNOBSERVER:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   getGroupUnions_Group_boolean_policy:
     policy_roles:
@@ -2158,6 +2317,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Group
+      - MFA: Vo
 
   getGroupMemberById_Group_int_policy:
     policy_roles:
@@ -2178,6 +2341,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Vo
+      - MFA: Group
 
   canExtendMembershipInGroup_Member_Group_policy:
     policy_roles:
@@ -2216,6 +2383,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   addGroupsToAutoRegistration_List<Group>_policy:
     policy_roles:
@@ -2223,6 +2393,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
   getIndirectMembershipPaths_Member_Group_policy:
     policy_roles:
@@ -2267,15 +2440,35 @@ perun_policies:
     include_policies:
       - default_policy
 
-  allowGroupToHierarchicalVo_Group_Vo_policy:
+  group-allowGroupToHierarchicalVo_Group_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
 
-  disallowGroupToHierarchicalVo_Group_Vo_policy:
+  vo-allowGroupToHierarchicalVo_Group_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  group-disallowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  vo-disallowGroupToHierarchicalVo_Group_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   getAllAllowedGroupsToHierarchicalVo_Vo_policy:
     policy_roles:
@@ -2295,48 +2488,76 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Group
+      - MFA: Vo
 
   deleteMembers_List<Member>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Group
+      - MFA: Vo
 
   deleteAllMembers_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Member
+      - MFA: Group
+      - MFA: Vo
 
   createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_Candidate_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_String_String_String_Candidate_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_String_String_int_String_Candidate_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_User_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Vo
+      - MFA: Group
 
   createMember_Vo_ExtSource_String_List<Group>_policy:
     policy_roles:
@@ -2345,6 +2566,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   getMemberByUserExtSource_Vo_UserExtSource_policy:
     policy_roles:
@@ -2831,24 +3055,30 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
-
-  setStatus_Member_Status_String_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   suspendMemberTo_Member_Date_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   unsuspendMember_Member_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   validateMemberAsync_Member_policy:
     policy_roles:
@@ -2856,6 +3086,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   extendMembership_Member_policy:
     policy_roles:
@@ -2863,6 +3097,10 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   canExtendMembership_Member_policy:
     policy_roles:
@@ -2917,6 +3155,9 @@ perun_policies:
       - SPONSORSHIP: Member
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
 
   sendAccountActivationLinkEmail_Member_String_String_String_String_policy:
     policy_roles:
@@ -2924,6 +3165,9 @@ perun_policies:
       - SPONSORSHIP: Member
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
 
   createSponsoredMember_Vo_String_Map<String_String>_String_User_LocalDate_policy:
     policy_roles:
@@ -2931,6 +3175,8 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   setSponsoredMember_Vo_User_String_String_User_LocalDate_policy:
     policy_roles:
@@ -2938,6 +3184,16 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
 
   createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy:
     policy_roles:
@@ -2945,6 +3201,8 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy:
     policy_roles:
@@ -2952,13 +3210,18 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
-
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+    
   createSponsoredMembers_Vo_String_List<String>_User_policy:
     policy_roles:
       - SPONSOR: Vo
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   setSponsorshipForMember_Member_User_LocalDate_policy:
     policy_roles:
@@ -2966,17 +3229,36 @@ perun_policies:
         SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  sponsoredMember-setSponsorshipForMember_Member_User_LocalDate_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
 
   unsetSponsorshipForMember_Member_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsored-sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
       - SPONSOR: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsor-sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
@@ -3108,12 +3390,20 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsored-removeSponsor_Member_User_policy:
     policy_roles:
       - SPONSORSHIP: Member
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   sponsor-removeSponsor_Member_User_policy:
     policy_roles:
@@ -3149,11 +3439,26 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  sponsoredMember-updateSponsorshipValidity_Member_User_LocalDate:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
 
   moveMembership_Vo_User_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: Vo
 
   getRichMembersByIds_List<Integer>_List<String>_policy:
     policy_roles:
@@ -3188,16 +3493,22 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteOwner_Owner_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteOwner_Owner_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getOwnerById_int_policy:
     policy_roles:
@@ -3369,18 +3680,41 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Facility
 
-  copyResource_Resource_Resource_boolean_policy:
+  source-copyResource_Resource_Resource_boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
-  withGroups-copyResource_Resource_Resource_boolean_policy:
+  destination-copyResource_Resource_Resource_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Facility
+
+  source-withGroups-copyResource_Resource_Resource_boolean_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+
+  destination-withGroups-copyResource_Resource_Resource_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Facility
 
   deleteResource_Resource_policy:
     policy_roles:
@@ -3388,12 +3722,20 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   deleteAllResources_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Resource
+      - MFA: Facility
 
   getFacility_Resource_policy:
     policy_roles:
@@ -3493,6 +3835,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   assignGroupsToResource_List<Group>_Resource_policy:
     policy_roles:
@@ -3504,6 +3851,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   assignGroupToResources_Group_List<Resource>_policy:
     policy_roles:
@@ -3515,6 +3867,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   removeGroupFromResource_Group_Resource_policy:
     policy_roles:
@@ -3526,6 +3883,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   removeGroupsFromResource_List<Group>_Resource_policy:
     policy_roles:
@@ -3537,6 +3899,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   removeGroupFromResources_Group_List<Resource>_policy:
     policy_roles:
@@ -3548,6 +3915,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Group
+      - MFA: Vo
+      - MFA: Facility
 
   getAssignedGroups_Resource_policy:
     policy_roles:
@@ -3653,34 +4025,58 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   assignServices_Resource_List<Service>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   assignServicesPackage_Resource_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeService_Resource_Service_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeServices_Resource_List<Service>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeServicesPackage_Resource_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   getResources_Vo_policy:
     policy_roles:
@@ -3875,48 +4271,72 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   createResourceTag_ResourceTag_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   updateResourceTag_ResourceTag_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   deleteResourceTag_ResourceTag_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   deleteAllResourcesTagsForVo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   assignResourceTagToResource_ResourceTag_Resource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeResourceTagFromResource_ResourceTag_Resource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeAllResourcesTagFromResource_Resource_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   getAllResourcesByResourceTag_ResourceTag_policy:
     policy_roles:
@@ -3942,19 +4362,39 @@ perun_policies:
     include_policies:
       - default_policy
 
-  copyAttributes_Resource_Resource_policy:
+  source-copyAttributes_Resource_Resource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
-  copyServices_Resource_Resource_policy:
+  destination-copyAttributes_Resource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
+
+  source-copyServices_Resource_Resource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
-  copyGroups_Resource_Resource_policy:
+  destination-copyServices_Resource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
+
+  source-copyGroups_Resource_Resource_policy:
     policy_roles:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
@@ -3962,6 +4402,21 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+
+  destination-copyGroups_Resource_Resource_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   getAdmins_Resource_boolean_policy:
     policy_roles:
@@ -4075,45 +4530,15 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addAdmin_Resource_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addAdmin_Resource_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  group-addAdmin_Resource_Group_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  removeAdmin_Resource_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Resource_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  group-removeAdmin_Resource_Group_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
   setBan_BanOnResource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   resource-getBanById_int_policy:
     policy_roles:
@@ -4152,18 +4577,30 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   resource-removeBan_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   resource-removeBan_int_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   addResourceSelfServiceUser_Resource_User_policy:
     policy_roles:
@@ -4171,6 +4608,11 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   addResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles:
@@ -4178,11 +4620,17 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   group-addResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
 
   removeResourceSelfServiceUser_Resource_User_policy:
     policy_roles:
@@ -4190,6 +4638,11 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   removeResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles:
@@ -4197,11 +4650,17 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   group-removeResourceSelfServiceGroup_Resource_Group_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
 
   getResourceAssignments_Group_policy:
     policy_roles:
@@ -4273,6 +4732,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   deactivateGroupResourceAssignment_Group_Resource_policy:
     policy_roles:
@@ -4284,6 +4748,11 @@ perun_policies:
         FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
 
   #SearcherEntry
   getUsers_Map<String_String>_policy:
@@ -4368,18 +4837,24 @@ perun_policies:
       - SECURITYADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateSecurityTeam_SecurityTeam_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteSecurityTeam_SecurityTeam__boolean_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getSecurityTeamById_int_policy:
     policy_roles:
@@ -4415,41 +4890,21 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addAdmin_SecurityTeam_User_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  addAdmin_SecurityTeam_Group_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  removeAdmin_SecurityTeam_User_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  removeAdmin_SecurityTeam_Group_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
   addUserToBlacklist_SecurityTeam_User_String_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeUserFromBlacklist_SecurityTeam_User_policy:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getBlacklist_SecurityTeam_policy:
     policy_roles:
@@ -4487,24 +4942,32 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   blockServiceOnDestination_Service_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   blockAllServicesOnFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   blockAllServicesOnDestination_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getServicesBlockedOnFacility_Facility_policy:
     policy_roles:
@@ -4543,24 +5006,32 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   unblockAllServicesOnDestination_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   unblockServiceOnFacility_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   unblockServiceOnDestination_Service_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   forceServicePropagation_Facility_Service_policy:
     policy_roles:
@@ -4568,6 +5039,8 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   forceServicePropagation_Service_policy:
     policy_roles:
@@ -4575,6 +5048,8 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   planServicePropagation_Facility_Service_policy:
     policy_roles:
@@ -4582,6 +5057,8 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   planServicePropagation_Service_policy:
     policy_roles:
@@ -4589,11 +5066,8 @@ perun_policies:
       - ENGINE:
     include_policies:
       - default_policy
-
-  suspendTasksPropagation_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
+    mfa_rules:
+      - MFA:
 
   getFacilityAssignedServicesForGUI_Facility_policy:
     policy_roles:
@@ -4607,16 +5081,22 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteService_Service_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateService_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getServiceById_int_policy:
     policy_roles:
@@ -4764,26 +5244,36 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateServicesPackage_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   deleteServicesPackage_ServicesPackage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   addServiceToServicesPackage_ServicesPackage_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeServiceFromServicesPackage_ServicesPackage_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getServicesFromServicesPackage_ServicesPackage_policy:
     policy_roles:
@@ -4799,44 +5289,60 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   addRequiredAttributes_Service_List<AttributeDefinition>_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeRequiredAttribute_Service_AttributeDefinition_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeRequiredAttributes_Service_List<AttributeDefinition>_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removeAllRequiredAttributes_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   addDestination_List<Service>_Facility_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestination_Service_Facility_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   removeDestination_Service_Facility_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getDestinationById_int_policy:
     policy_roles:
@@ -4896,6 +5402,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   getAssignedServices_Facility_policy:
     policy_roles:
@@ -4920,24 +5428,32 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestinationsDefinedByHostsOnFacility_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestinationsDefinedByHostsOnFacility_List<Services>_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   addDestinationsDefinedByHostsOnFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   #TasksManagerEntry
   getTask_Service_Facility_policy:
@@ -5034,19 +5550,32 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   deleteTaskResultById_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
-  
+    mfa_rules:
+      - MFA: Facility
+
   deleteTaskResults_Task_Destination_policy:
     policy_roles:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
-  
+    mfa_rules:
+      - MFA: Facility
+
+  suspendTasksPropagation_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA:
+
   #UsersManagerEntry
   getUserByUserExtSource_UserExtSource_policy:
     policy_roles:
@@ -5108,11 +5637,15 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   owner-removeSpecificUserOwner_User_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   addSpecificUserOwner_User_User_policy:
     policy_roles:
@@ -5120,11 +5653,15 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   owner-addSpecificUserOwner_User_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   getSpecificUsers_policy:
     policy_roles:
@@ -5253,37 +5790,56 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   owner-setSpecificUser_User_SpecificUserType_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   unsetSpecificUser_User_SpecificUserType_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   deleteUser_User_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   deleteUser_User_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: UserExtSource
 
   anonymizeUser_User_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+      - MFA: UserExtSource
 
   updateUser_User_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   updateNameTitles_User_policy:
     policy_roles:
@@ -5291,12 +5847,17 @@ perun_policies:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   updateUserExtSource_UserExtSource_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: UserExtSource
+      - MFA: User
 
   getUserExtSources_User_policy:
     policy_roles:
@@ -5366,22 +5927,34 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   removeUserExtSource_User_UserExtSource_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   removeUserExtSource_User_UserExtSource_boolean_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   moveUserExtSource_User_User_UserExtSource_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: UserExtSource
 
   getUserExtSourceByExtLogin_ExtSource_String_policy:
     policy_roles:
@@ -5580,6 +6153,8 @@ perun_policies:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   changePassword_String_String_String_String_boolean_policy:
     policy_roles:
@@ -5587,42 +6162,56 @@ perun_policies:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   reserveRandomPassword_User_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-reserveRandomPassword_User_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   reservePassword_String_String_String_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA:
 
   reservePassword_User_String_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-reservePassword_User_String_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   validatePassword_String_String_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA:
 
   validatePassword_User_String_policy:
     policy_roles:
@@ -5630,18 +6219,24 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-validatePassword_User_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   deletePassword_String_String_policy:
     policy_roles:
       - REGISTRAR:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA:
 
   deletePassword_User_String_policy:
     policy_roles:
@@ -5649,12 +6244,16 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   service_user-deletePassword_User_String_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   loginExist_User_String_policy:
     policy_roles:
@@ -5677,12 +6276,16 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   deleteAlternativePassword_User_String_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   getAllRichUsersWithAttributes_boolean_List<String>_policy:
     policy_roles:
@@ -5740,18 +6343,24 @@ perun_policies:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   requestPreferredEmailChange_String_User_String_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   validatePreferredEmailChange_User_String_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: User
 
   getPendingPreferredEmailChanges_User_policy:
     policy_roles:
@@ -5764,6 +6373,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      -MFA: UserExtSource
 
   generateAccount_String_Map<String_String>_policy:
     policy_roles:
@@ -5771,6 +6382,8 @@ perun_policies:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getSponsors_Member_List<String>_policy:
     policy_roles:
@@ -5793,6 +6406,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   getGroupsWhereUserIsActive_Resource_User_policy:
     policy_roles:
@@ -5834,6 +6449,8 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getUsersPage_UsersPageQuery_List<String>_policy:
     policy_roles:
@@ -5951,23 +6568,31 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   deleteVo_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   createVo_Vo_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updateVo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   getVoByShortName_String_policy:
     policy_roles:
@@ -6132,30 +6757,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addAdmin_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addAdmin_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeAdmin_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
   getAdmins_Vo_String_boolean_policy:
     policy_roles:
       - PERUNOBSERVER:
@@ -6192,47 +6793,29 @@ perun_policies:
     include_policies:
       - default_policy
 
-  addSponsorRole_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  addSponsorRole_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeSponsorRole_Vo_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  removeSponsorRole_Vo_Group_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
   setBan_BanOnVo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   vo-removeBan_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   vo-removeBanForMember_member_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   vo-getBanById_int_policy:
     policy_roles:
@@ -6266,15 +6849,34 @@ perun_policies:
     include_policies:
       - default_policy
 
+  convertSponsoredUsers_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  convertSponsoredUsersWithNewSponsor_Vo_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: User
+
   addMemberVo_Vo_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   removeMemberVo_Vo_Vo_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   getParentVos_int_policy:
     policy_roles:
@@ -6307,11 +6909,15 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removePerunNotifReceiverById_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getPerunNotifRegexById_int_policy:
     policy_roles:
@@ -6329,16 +6935,22 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updatePerunNotifRegex_PerunNotifRegex_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   removePerunNotifRegexById_int_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getPerunNotifTemplateById_int_policy:
     policy_roles:
@@ -6356,11 +6968,15 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updatePerunNotifTemplate_PerunNotifTemplate_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   getPerunNotifTemplateMessageById_int_policy:
     policy_roles:
@@ -6378,21 +6994,29 @@ perun_policies:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   updatePerunNotifTemplateMessage_PerunNotifTemplateMessage_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   stopNotifications_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   startNotifications_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   #CabinetManagerImpl
   createPublicationSystem_PublicationSystem_policy:
@@ -6523,12 +7147,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-addMail_ApplicationForm_ApplicationMail_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-deleteMailById_ApplicationForm_Integer_policy:
     policy_roles:
@@ -6536,32 +7165,101 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-deleteMailById_ApplicationForm_Integer_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
-  copyMailsFromVoToVo_Vo_Vo_policy:
+  group-updateMailById_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+
+  vo-updateMailById_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  vo-setSendingEnabled_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+
+  group-setSendingEnabled_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  source-copyMailsFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
 
-  copyMailsFromVoToGroup_Vo_Group_boolean_policy:
+  destination-copyMailsFromVoToVo_Vo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  source-copyMailsFromVoToGroup_Vo_Group_boolean_policy:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
     include_policies:
       - default_policy
 
-  copyMailsFromGroupToGroup_Group_Group_policy:
+  destination-copyMailsFromVoToGroup_Vo_Group_boolean_policy:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+
+  source-copyMailsFromGroupToGroup_Group_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  destination-copyMailsFromGroupToGroup_Group_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   group-sendMessage_Application_MailType_String_policy:
     policy_roles:
@@ -6570,12 +7268,17 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-sendMessage_Application_MailType_String_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-sendInvitation_Vo_Group_String_String_String_policy:
     policy_roles:
@@ -6584,6 +7287,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-sendInvitation_Vo_Group_String_String_String_policy:
     policy_roles:
@@ -6591,6 +7297,8 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-sendInvitation_Vo_Group_User_policy:
     policy_roles:
@@ -6599,12 +7307,17 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-sendInvitation_Vo_Group_User_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   #RegistrarManagerImpl
   createApplicationFormInVo_Vo_policy:
@@ -6612,6 +7325,8 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   createApplicationFormInGroup_Group_policy:
     policy_roles:
@@ -6619,6 +7334,9 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-getFormById_int_policy:
     policy_roles:
@@ -6663,6 +7381,8 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-addFormItem_ApplicationForm_ApplicationFormItem_policy:
     policy_roles:
@@ -6670,12 +7390,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy:
     policy_roles:
@@ -6683,12 +7408,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-updateForm_ApplicationForm_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateForm_ApplicationForm_policy:
     policy_roles:
@@ -6696,24 +7426,51 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   deleteFormItem_ApplicationForm_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   moveFormItem_ApplicationForm_int_boolean_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  vo-updateFormItemTexts_ApplicationFormItem_Locale_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  group-updateFormItemTexts_ApplicationFormItem_Locale_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-updateFormItemTexts_ApplicationFormItem_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateFormItemTexts_ApplicationFormItem_policy:
     policy_roles:
@@ -6721,12 +7478,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-deleteApplication_Application_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-deleteApplication_Application_policy:
     policy_roles:
@@ -6735,12 +7497,17 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-verifyApplication_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-verifyApplication_int_policy:
     policy_roles:
@@ -6749,12 +7516,17 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-rejectApplication_int_String_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-rejectApplication_int_String_policy:
     policy_roles:
@@ -6763,12 +7535,17 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-approveApplicationInternal_int_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-approveApplicationInternal_int_policy:
     policy_roles:
@@ -6777,6 +7554,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   vo-canBeApproved_Application_policy:
     policy_roles:
@@ -6898,6 +7678,8 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   group-updateFormItem_ApplicationFormItem_policy:
     policy_roles:
@@ -6905,12 +7687,23 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
-  copyFormFromVoToVo_Vo_Vo_policy:
+  source-copyFormFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+
+  destination-copyFormFromVoToVo_Vo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
 
   source-copyFormFromVoToGroup_Vo_Group_Policy:
     policy_roles:
@@ -6924,6 +7717,9 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   source-copyFormFromGroupToGroup_Group_Group_policy:
     policy_roles:
@@ -6938,11 +7734,17 @@ perun_policies:
       - GROUPADMIN: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   updateFormItemData_int_ApplicationFormItemData_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   #integrationManagerEntry
   getGroupMemberData_policy:
@@ -7071,30 +7873,60 @@ perun_policies:
       - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Facility
 
   changeConsentStatus_Consent_ConsentStatus_policy:
     policy_roles:
       - SELF: User
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: User
 
   evaluateConsents_ConsentHub_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
   evaluateConsents_Service_policy:
     policy_roles: []
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA:
 
 
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
+#  primary_object serves to determine with which object is the role primarily connected. Other objects are just complementary.
+#  assign_to_objects is a map of objects which can be assigned with the role. Key is a object name and value is mapping to the database.
+#             Example entry: key: Resource; value: resource_id
+#  assignment_check is a list of maps defining which of the assigned objects should be checked for being critical (requiring MFA) when setting the role.
+#             Example entry: key: MFA; value: Resource <- If resource is critical, MFA is required
+#             Example entry: {} <- No MFA is required to set this role
+#             Example entry: Key: MFA; value: <- No value means MFA is always required to set this role
+#  entities_to_manage is a map of entities which can be set to the role. Key is a entity name and value is mapping to the database.
+#             Example entry: key: User; value: user_id
+#  privileged_roles_to_manage serves to determine which roles (in relation to which objects) a user/group has to have, to have rights to set/unset the role to other users/groups.
+#             It is a list of maps where each map entry consists from a role name as a key and a role object as a value.
+#             Relation between each map in the list is logical OR and relation between each entry in the map is logical AND.
+#             Example map - key: VOADMIN ; value: Vo
+#                           key: GROUPADMIN ; value: Group
+#  privileged_roles_to_read is same as the privileged_roles_to_manage, but its purpose is to determine which roles have rights to read the roleName.
+#  associated_read_roles is a list of related roles which are authorized to read attribute value if the main role is authorized.
+#             Example list for groupadmin role - value: [GROUPOBSERVER]
+#  assignable_to_attributes is a flag that determines whether the role can appear in attribute policies.
+#  mfa_critical_role is a flag marking roles always requiring MFA from users having that role
+#  skip_mfa is a flag that whether the role should skip MFA check.
 perun_roles_management:
 
   PERUNADMIN:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -7105,10 +7937,13 @@ perun_roles_management:
     associated_read_roles:
       - PERUNOBSERVER
     assignable_to_attributes: false
+    mfa_critical_role: true
 
   PERUNOBSERVER:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -7118,10 +7953,13 @@ perun_roles_management:
       - PERUNOBSERVER:
     associated_read_roles: []
     assignable_to_attributes: false
+    mfa_critical_role: true
 
   AUDITCONSUMERADMIN:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -7136,6 +7974,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7156,6 +7996,9 @@ perun_roles_management:
     assign_to_objects:
       Group: group_id
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+      - MFA: Group
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7180,6 +8023,9 @@ perun_roles_management:
     assign_to_objects:
       Group: group_id
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+      - MFA: Group
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7203,6 +8049,9 @@ perun_roles_management:
     assign_to_objects:
       Group: group_id
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+      - MFA: Group
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7225,6 +8074,8 @@ perun_roles_management:
     primary_object:
     assign_to_objects:
       User: user_id
+    assignment_check:
+      - MFA: User
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -7235,6 +8086,8 @@ perun_roles_management:
     primary_object: Facility
     assign_to_objects:
       Facility: facility_id
+    assignment_check:
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7254,6 +8107,8 @@ perun_roles_management:
     primary_object: Facility
     assign_to_objects:
       Facility: facility_id
+    assignment_check:
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7272,6 +8127,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7292,6 +8149,10 @@ perun_roles_management:
       Resource: resource_id
       Vo: vo_id
       Facility: facility_id
+    assignment_check:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7322,6 +8183,10 @@ perun_roles_management:
       Resource: resource_id
       Vo: vo_id
       Facility: facility_id
+    assignment_check:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7351,6 +8216,10 @@ perun_roles_management:
       Resource: resource_id
       Vo: vo_id
       Facility: facility_id
+    assignment_check:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7377,42 +8246,51 @@ perun_roles_management:
   REGISTRAR:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    skip_mfa: true
 
   ENGINE:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    skip_mfa: true
 
   RPC:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    skip_mfa: true
 
   NOTIFICATIONS:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    skip_mfa: true
 
   SERVICEUSER:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -7423,6 +8301,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7441,6 +8321,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7459,6 +8341,8 @@ perun_roles_management:
     primary_object: Vo
     assign_to_objects:
       Vo: vo_id
+    assignment_check:
+      - MFA: Vo
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7477,6 +8361,8 @@ perun_roles_management:
     primary_object: SecurityTeam
     assign_to_objects:
       SecurityTeam: security_team_id
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -7493,6 +8379,8 @@ perun_roles_management:
   CABINETADMIN:
     primary_object:
     assign_to_objects: {}
+    assignment_check:
+      - MFA:
     entities_to_manage:
       User: user_id
     privileged_roles_to_manage:
@@ -7512,6 +8400,7 @@ perun_roles_management:
       Vo: vo_id
       Facility: facility_id
       Resource: resource_id
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
@@ -7522,15 +8411,27 @@ perun_roles_management:
     primary_object:
     assign_to_objects:
       Member: member_id
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: true
 
+  MFA:
+    primary_object:
+    assign_to_objects: { }
+    assignment_check: [ ]
+    entities_to_manage: { }
+    privileged_roles_to_manage: [ ]
+    privileged_roles_to_read: [ ]
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+
   UNKNOWN:
     primary_object:
     assign_to_objects: {}
+    assignment_check: []
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []

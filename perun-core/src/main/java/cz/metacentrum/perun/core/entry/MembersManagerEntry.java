@@ -102,8 +102,10 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", member)) {
-			throw new PrivilegeException(sess, "deleteMember");
+		for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
+			if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", member, group)) {
+				throw new PrivilegeException(sess, "deleteMember");
+			}
 		}
 
 
@@ -121,7 +123,8 @@ public class MembersManagerEntry implements MembersManager {
 
 		// Authorization
 		for (Member member: members) {
-			if (!AuthzResolver.authorizedInternal(sess, "deleteMembers_List<Member>_policy", member)) {
+			for (Group group: perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member))
+			if (!AuthzResolver.authorizedInternal(sess, "deleteMembers_List<Member>_policy", member, group)) {
 				throw new PrivilegeException(sess, "deleteMembers");
 			}
 		}
@@ -136,12 +139,14 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		for (Member member : getPerunBl().getMembersManagerBl().getMembers(sess, vo)) {
 			getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
+			// Authorization
+			for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
+				if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", vo, member, group)) {
+					throw new PrivilegeException(sess, "deleteAllMembers");
+				}
+			}
 		}
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", vo)) {
-			throw new PrivilegeException(sess, "deleteAllMembers");
-		}
 
 		getMembersManagerBl().deleteAllMembers(sess, vo);
 	}
@@ -1304,10 +1309,15 @@ public class MembersManagerEntry implements MembersManager {
 
 		if (sponsor == null) {
 			//sponsor is the caller, authorization is checked in Bl
+			//however still need to check for MFA for User object
+			if (!AuthzResolver.authorizedInternal(session, "sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", userToBeSponsored)) {
+				throw new PrivilegeException(session, "setSponsoredMember");
+			}
 			sponsor = session.getPerunPrincipal().getUser();
 		} else {
-			//Authorization
-			if (!AuthzResolver.authorizedInternal(session, "setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", vo, sponsor)) {
+			//Authorization and MFA
+			if (!AuthzResolver.authorizedInternal(session, "setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", vo, sponsor) ||
+				!AuthzResolver.authorizedInternal(session, "sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", userToBeSponsored)) {
 				throw new PrivilegeException(session, "setSponsoredMember");
 			}
 		}
@@ -1389,8 +1399,9 @@ public class MembersManagerEntry implements MembersManager {
 			throw new InternalErrorException(e);
 		}
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_LocalDate_policy", memberVo, sponsor)) {
+		//Authorization and MFA
+		if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_LocalDate_policy", memberVo, sponsor) ||
+			!AuthzResolver.authorizedInternal(session, "sponsoredMember-setSponsorshipForMember_Member_User_LocalDate_policy", sponsoredMember)) {
 			throw new PrivilegeException(session, "setSponsorshipForMember");
 		}
 
@@ -1646,7 +1657,8 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		if (!AuthzResolver.authorizedInternal(sess, "updateSponsorshipValidity_Member_User_LocalDate", memberVo,
-				sponsor)) {
+				sponsor) ||
+			!AuthzResolver.authorizedInternal(sess, "sponsoredMember-updateSponsorshipValidity_Member_User_LocalDate", sponsoredMember)) {
 			throw new PrivilegeException("updateSponsorshipValidity");
 		}
 
@@ -1662,7 +1674,8 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "moveMembership_Vo_User_User_policy", vo)) {
+		Member sourceMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, sourceUser);
+		if (!AuthzResolver.authorizedInternal(sess, "moveMembership_Vo_User_User_policy", vo, sourceUser, sourceMember, targetUser)) {
 			throw new PrivilegeException("moveMembership");
 		}
 

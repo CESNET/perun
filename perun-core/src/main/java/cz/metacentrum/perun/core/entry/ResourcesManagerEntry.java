@@ -196,8 +196,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, templateResource);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyResource_Resource_Resource_boolean_policy", templateResource) ||
-			!AuthzResolver.authorizedInternal(sess, "copyResource_Resource_Resource_boolean_policy", destinationResource)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyResource_Resource_Resource_boolean_policy", templateResource) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyResource_Resource_Resource_boolean_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyResource");
 		}
 
@@ -205,10 +205,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			if(destinationResource.getVoId() != templateResource.getVoId()) {
 				throw new InternalErrorException("Resources are not from the same VO.");
 			}
-
-			if(!AuthzResolver.authorizedInternal(sess, "withGroups-copyResource_Resource_Resource_boolean_policy", templateResource) ||
-				!AuthzResolver.authorizedInternal(sess, "withGroups-copyResource_Resource_Resource_boolean_policy", destinationResource)) {
-				throw new PrivilegeException(sess, "copyResource");
+			for (Group group : perunBl.getResourcesManager().getAssignedGroups(sess, templateResource)) {
+				if (!AuthzResolver.authorizedInternal(sess, "source-withGroups-copyResource_Resource_Resource_boolean_policy", templateResource, group) ||
+					!AuthzResolver.authorizedInternal(sess, "destination-withGroups-copyResource_Resource_Resource_boolean_policy", destinationResource)) {
+					throw new PrivilegeException(sess, "copyResource");
+				}
 			}
 		}
 
@@ -236,8 +237,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteAllResources_Vo_policy", vo)) {
-			throw new PrivilegeException(sess, "deleteAllResources");
+		for (Resource resource : perunBl.getResourcesManagerBl().getResources(sess, vo)) {
+			if (!AuthzResolver.authorizedInternal(sess, "deleteAllResources_Vo_policy", resource)) {
+				throw new PrivilegeException(sess, "deleteAllResources");
+			}
 		}
 
 		getResourcesManagerBl().deleteAllResources(sess, vo);
@@ -972,8 +975,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, destinationResource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyAttributes_Resource_Resource_policy", sourceResource) ||
-			!AuthzResolver.authorizedInternal(sess, "copyAttributes_Resource_Resource_policy", destinationResource)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyAttributes_Resource_Resource_policy", sourceResource) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyAttributes_Resource_Resource_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyAttributes");
 		}
 
@@ -988,8 +991,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, destinationResource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyServices_Resource_Resource_policy", sourceResource) ||
-			!AuthzResolver.authorizedInternal(sess, "copyServices_Resource_Resource_policy", destinationResource)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyServices_Resource_Resource_policy", sourceResource) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyServices_Resource_Resource_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyServices");
 		}
 
@@ -1004,8 +1007,12 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, destinationResource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyGroups_Resource_Resource_policy", sourceResource) ||
-			!AuthzResolver.authorizedInternal(sess, "copyGroups_Resource_Resource_policy", destinationResource)) {
+		for (Group group : perunBl.getResourcesManager().getAssignedGroups(sess, sourceResource)) {
+			if (!AuthzResolver.authorizedInternal(sess, "source-copyGroups_Resource_Resource_policy", sourceResource, group)) {
+				throw new PrivilegeException(sess, "copyGroups");
+			}
+		}
+		if (!AuthzResolver.authorizedInternal(sess, "destination-copyGroups_Resource_Resource_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyGroups");
 		}
 

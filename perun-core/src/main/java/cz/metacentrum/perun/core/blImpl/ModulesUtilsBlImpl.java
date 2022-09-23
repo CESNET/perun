@@ -204,7 +204,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(attrDef, "attributeDefinition");
 		if(resources == null || resources.isEmpty()) return false;
 		for(Resource r: resources) {
-			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef , r)) return true;
+			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef , r, true)) return true;
 		}
 		return false;
 	}
@@ -214,7 +214,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(attrDef, "attributeDefinition");
 		if(groups == null || groups.isEmpty()) return false;
 		for(Group g: groups) {
-			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, g)) return true;
+			if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attrDef, g, true)) return true;
 		}
 		return false;
 	}
@@ -272,7 +272,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 			for(String gidToCheck : gidsToCheck){
 				try{
-					Integer gid = new Integer(gidToCheck);
+					Integer gid = Integer.valueOf(gidToCheck);
 
 					if ( ! isGIDWithinRanges(gidRanges, gid) ) {
 						throw new WrongAttributeValueException(attribute, "GID number is not in allowed ranges " + gidRanges + " for namespace " + gidNamespace);
@@ -422,13 +422,13 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public boolean haveRightToWriteAttributeInAnyGroupOrResource(PerunSessionImpl sess, List<Group> groups, List<Resource> resources, AttributeDefinition groupAttribute, AttributeDefinition resourceAttribute) {
 		if(groups != null && !groups.isEmpty() && groupAttribute != null) {
 			for(Group g: groups) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttribute, g)) return true;
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, groupAttribute, g, false)) return true;
 			}
 		}
 
 		if(resources != null && !resources.isEmpty() && resourceAttribute != null) {
 			for(Resource r: resources) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, resourceAttribute, r)) return true;
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, resourceAttribute, r, false)) return true;
 			}
 		}
 

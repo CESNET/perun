@@ -410,7 +410,7 @@ public interface FacilitiesManager {
 	 * @throws HostAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 * @throws HostNotExistsException if there is ambiguity in host to remove
 	 */
-	void removeHostByHostname(PerunSession perunSession, String Hostname) throws InternalErrorException, HostNotExistsException, HostAlreadyRemovedException;
+	void removeHostByHostname(PerunSession perunSession, String Hostname) throws InternalErrorException, HostNotExistsException, HostAlreadyRemovedException, PrivilegeException;
 
 	/**
 	 * Get the host by its ID.

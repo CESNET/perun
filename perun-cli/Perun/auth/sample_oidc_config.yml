@@ -13,6 +13,7 @@ perun:
   acr_values: "" # List of ACR values for authentication
   scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
   perun_api_endpoint: ""
+  enforce_mfa: false # if true, requests Multi-Factor Authentication
 
 otherPerun:
   client_id: "" # Identifier of the CLI app on the OIDC server
@@ -22,4 +23,5 @@ otherPerun:
   acr_values: "" # List of ACR values for authentication
   scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
   perun_api_endpoint: ""
+  enforce_mfa: false # if true, requests Multi-Factor Authentication
   default: true
