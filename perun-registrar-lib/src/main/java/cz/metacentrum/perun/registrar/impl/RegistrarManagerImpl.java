@@ -1044,6 +1044,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				continue; // continue to next item
 			}
 
+			String oldname = jdbc.queryForObject("select shortname from application_form_items where id=" + item.getId(), String.class);
+
 			// else update form item
 
 			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?," +
@@ -1063,6 +1065,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (result == 0) {
 				// skip whole set if not found for update
 				continue;
+			}
+
+			// did shortname change? => update open applications' data
+			if (oldname != null && !oldname.equals(item.getShortname())) {
+				jdbc.update("update application_data set shortname=? where item_id=? and shortname=? and app_id in (" +
+					"select app_id from application where application.state in (?,?))",
+					item.getShortname(), item.getId(), oldname, AppState.VERIFIED.toString(), AppState.NEW.toString());
 			}
 
 			// update form item texts (easy way = delete and new insert)
