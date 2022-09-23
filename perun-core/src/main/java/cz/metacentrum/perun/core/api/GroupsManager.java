@@ -87,6 +87,8 @@ public interface GroupsManager {
 	String GROUP_START_OF_LAST_SUCCESSFUL_SYNC_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":startOfLastSuccessfulSynchronization";
 	// Defines timestamp with start of last synchronization
 	String GROUP_START_OF_LAST_SYNC_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":startOfLastSynchronization";
+	// Defines if we want to update statuses of already existing members
+	String GROUP_KEEP_MEMBER_STATUS = AttributesManager.NS_GROUP_ATTR_DEF + ":keepMemberStatus";
 
 	String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
 	String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";

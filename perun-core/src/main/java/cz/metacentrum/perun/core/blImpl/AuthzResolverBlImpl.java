@@ -2509,6 +2509,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				// Load all user's roles with all possible subgroups
 				roles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(user), Role.GROUPADMIN);
 				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPOBSERVER);
+				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPMEMBERSHIPMANAGER);
 				// Add self role for the user
 				roles.putAuthzRole(Role.SELF, user);
 				// Add service user role

@@ -1792,7 +1792,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	@Test
 	public void mfaCriticalRole() throws Exception {
 		System.out.println(CLASS_NAME + "mfaCriticalRole");
-		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
 		final Member createdMember = createSomeMember(createdVo);
 		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
 		PerunSession session = getHisSession(createdMember);
@@ -1815,6 +1815,22 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(originalCriticalRole);
 			BeansUtils.getCoreConfig().setEnforceMfa(originalForce);
 		}
+	}
+
+	@Test
+	public void testGroupMembershipManager() throws Exception {
+		System.out.println(CLASS_NAME + "testGroupMembershipManager");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPMEMBERSHIPMANAGER);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_groupmembershipmanager", Arrays.asList(createdGroup)));
 	}
 
 	// private methods ==============================================================

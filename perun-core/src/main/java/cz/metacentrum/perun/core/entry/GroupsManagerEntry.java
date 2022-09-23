@@ -1197,7 +1197,9 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getMemberGroups for " + member);
 		}
 
-		return getGroupsManagerBl().getMemberGroups(sess, member);
+		List<Group> groups = getGroupsManagerBl().getMemberGroups(sess, member);
+		groups.removeIf(group -> !AuthzResolver.authorizedInternal(sess, "filter-getMemberGroups_Member_policy", group));
+		return groups;
 	}
 
 

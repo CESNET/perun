@@ -171,5 +171,10 @@ perun_policies:
       - MFA: Vo
       - MFA: Member
 
+  test_groupmembershipmanager:
+    policy_roles:
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies: []
+
 perun_roles_management: {}
 ...
