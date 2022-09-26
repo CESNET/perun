@@ -1856,6 +1856,7 @@ create index idx_fk_attr_cons_attr ON consent_attr_defs(attr_id);
 create index idx_fk_alwd_grps_group ON allowed_groups_to_hierarchical_vo(group_id);
 create index idx_fk_alwd_grps_vo ON allowed_groups_to_hierarchical_vo(vo_id);
 create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
+create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
 insert into configurations values ('DATABASE VERSION','3.1.97');

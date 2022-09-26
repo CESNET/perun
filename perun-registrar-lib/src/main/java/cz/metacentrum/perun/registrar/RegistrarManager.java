@@ -431,6 +431,23 @@ public interface RegistrarManager {
 	 */
 	List<Application> getApplicationsForUser(PerunSession sess);
 
+
+	/**
+	 * Returns open applications submitted by user
+	 *
+	 * @param user user to get applications for
+	 * @return open applications submitted by user
+	 */
+	List<Application> getOpenApplicationsForUser(User user);
+
+	/**
+	 * Returns open applications submitted by user (in session)
+	 *
+	 * @param sess PerunSession
+	 * @return open applications submitted by user (in session)
+	 */
+	List<Application> getOpenApplicationsForUser(PerunSession sess);
+
 	/**
 	 * Returns open applications submitted by user in a specific VO
 	 *
