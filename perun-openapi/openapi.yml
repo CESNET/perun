@@ -457,7 +457,7 @@ components:
         - $ref: '#/components/schemas/Auditable'
       properties:
         name: { type: string }
-        description: { type: string }
+        description: { type: string, nullable: true }
       discriminator:
         propertyName: beanName
 
