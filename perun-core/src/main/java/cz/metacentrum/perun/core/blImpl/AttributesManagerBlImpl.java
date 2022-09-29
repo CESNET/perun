@@ -8032,6 +8032,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the external source requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_user_attribute_def_def_mfaCriticalObject
@@ -8043,6 +8044,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the user requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_member_attribute_def_def_mfaCriticalObject
@@ -8054,6 +8056,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the member requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_group_attribute_def_def_mfaCriticalObject
@@ -8065,6 +8071,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the group requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_vo_attribute_def_def_mfaCriticalObject
@@ -8076,6 +8085,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the organization requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_resource_attribute_def_def_mfaCriticalObject
@@ -8087,6 +8100,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the resource requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.RESOURCEADMIN, READ, RoleObject.Resource));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_facility_attribute_def_def_mfaCriticalObject
@@ -8098,6 +8115,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the facility requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_host_attribute_def_def_mfaCriticalObject
@@ -8109,6 +8128,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Updating the host requires Multi-factor authentication.");
 
 		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		// create namespaced attributes for each namespace
