@@ -12472,6 +12472,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getParentGroup:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getParentGroup
+      summary: Returns a parent group of a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getIndirectMembershipPaths:
     get:
       tags:
