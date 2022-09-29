@@ -26,8 +26,10 @@ sub help {
 # Specific attributes besides READ for user, user-facility, member and member-group attributes
 my @readAttributes = (
 	"urn:perun:vo:attribute-def:def:blockManualMemberAdding",
+	"urn:perun:vo:attribute-def:def:mfaCriticalObject",
 	"urn:perun:group:attribute-def:def:groupMembershipExpirationRules",
-	"urn:perun:group:attribute-def:def:blockManualMemberAdding"
+	"urn:perun:group:attribute-def:def:blockManualMemberAdding",
+	"urn:perun:group:attribute-def:def:mfaCriticalObject"
 );
 my @writeAttributes = (
 	"urn:perun:member_group:attribute-def:def:groupMembershipExpiration"
