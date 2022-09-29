@@ -90,7 +90,12 @@ sub check_against_next_group_level {
 			my @all_sub_group_members = @{$dbh->selectcol_arrayref($sth_group_members, {}, ($sub_group))};
 			foreach my $sub_group_member (@all_sub_group_members) {
 				unless ($sub_group_member ~~ @{$current_indirect_members->{$parent_group}->{$sub_group}}) {
-					print("Inconsistency found. Member $sub_group_member should exists as Indirect in parent group $parent_group of group $sub_group.\n");
+					print("Inconsistency found. Member $sub_group_member should exist as Indirect in parent group $parent_group of group $sub_group.\n");
+				}
+			}
+			foreach my $expected_sub_group_member (@{$current_indirect_members->{$parent_group}->{$sub_group}}) {
+				unless ($expected_sub_group_member ~~ @all_sub_group_members) {
+					print("Inconsistency found. Indirect member $expected_sub_group_member should exist as Direct in operand group $sub_group of parent group $parent_group.\n");
 				}
 			}
 			push(@all_sub_groups, $sub_group);
