@@ -1275,6 +1275,45 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertEquals(1, result.getData().size());
 	}
 
+	@Test
+	public void updateShortnameDataWithFormItemOnOpenApps() throws PerunException {
+		System.out.println("updateShortnameDataWithFormItemOnOpenApps");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationFormItem toChange = new ApplicationFormItem();
+		toChange.setType(ApplicationFormItem.Type.TEXTFIELD);
+		toChange.setShortname("wrongone");
+
+		ApplicationFormItem toNotChange = new ApplicationFormItem();
+		toNotChange.setType(ApplicationFormItem.Type.TEXTFIELD);
+		toNotChange.setShortname("correctone");
+
+		registrarManager.updateFormItems(session, form, List.of(toChange, toNotChange));
+
+		User user =  setUpUser("Jo", "Jo");
+		Application application = prepareApplicationToVo(user);
+
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		appItemsData.add(new ApplicationFormItemData(toChange, "wrongone", "value1", "0"));
+		appItemsData.add(new ApplicationFormItemData(toNotChange, "correctone", "value2", "0"));
+		Application app = registrarManager.submitApplication(session, application, appItemsData);
+
+		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("wrongone")));
+		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
+
+		List<ApplicationFormItem> items = registrarManager.getFormItems(session, form);
+		items.stream()
+			.filter(f -> f.getShortname().equals("wrongone"))
+			.findFirst().get().setShortname("newone");
+
+		registrarManager.updateFormItems(session, form, items);
+
+		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).noneMatch(n -> n.equals("wrongone")));
+		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("newone")));
+		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
+	}
+
 	private Group setUpGroup(String name, String desc) throws Exception {
 		GroupsManager groupsManager = perun.getGroupsManager();
 
