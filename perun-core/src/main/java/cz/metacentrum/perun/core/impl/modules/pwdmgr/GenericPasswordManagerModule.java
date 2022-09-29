@@ -61,6 +61,8 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	protected String passwordManagerProgram = BeansUtils.getCoreConfig().getPasswordManagerProgram();
 	protected String altPasswordManagerProgram = BeansUtils.getCoreConfig().getAlternativePasswordManagerProgram();
 
+	private static final int MINIMUM_PASSWORD_LENGTH = 8;
+
 	protected int randomPasswordLength = 12;
 	protected char[] randomPasswordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?".toCharArray();
 
@@ -160,9 +162,9 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	@Override
 	public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
 
-		if (StringUtils.isBlank(password)) {
-			log.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
-			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
+		if (StringUtils.length(password) < MINIMUM_PASSWORD_LENGTH) {
+			log.warn("Password for {}:{} must be at least {} characters long.", actualLoginNamespace, login, MINIMUM_PASSWORD_LENGTH);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " must be at least " + MINIMUM_PASSWORD_LENGTH + " characters long.");
 		}
 
 		String weakpassFilename = "";
