@@ -251,6 +251,7 @@ components:
         serviceId: { type: integer }
         resourceId: { type: integer }
         onlyAllowed: { type: boolean }
+        consentStatuses: { type: array, items: { $ref: '#/components/schemas/ConsentStatus' } }
       required:
         - pageSize
         - offset
