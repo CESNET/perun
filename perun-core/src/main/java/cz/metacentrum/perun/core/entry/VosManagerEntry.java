@@ -367,7 +367,12 @@ public class VosManagerEntry implements VosManager {
 			}
 
 			List<Vo> membersVos = perunBl.getUsersManagerBl().getVosWhereUserIsMember(sess, candidate.getRichUser());
-			boolean isEligible = membersVos.stream().anyMatch(vo -> AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy", vo));
+			boolean isEligible = false;
+			if (membersVos.isEmpty()) {
+				isEligible = AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy");
+			} else {
+				isEligible = membersVos.stream().anyMatch(vo -> AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy", vo));
+			}
 			if (isEligible) {
 				eligibleCandidates.add(candidate);
 			}
