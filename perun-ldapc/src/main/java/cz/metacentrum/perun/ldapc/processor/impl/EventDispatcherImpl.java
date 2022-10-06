@@ -244,7 +244,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 					message = messagesIterator.next();
 					messagesIterator.remove();
 					//Warning when two consecutive messages are separated by more than 15 ids
-					if (lastProcessedIdNumber > 0 && lastProcessedIdNumber < message.getId()) {
+					if (lastProcessedIdNumber >= 0 && lastProcessedIdNumber < message.getId()) {
 						if ((message.getId() - lastProcessedIdNumber) > 15)
 							log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: " + lastProcessedIdNumber + " - newMessageNumber: " + message.getId() + " = " + (lastProcessedIdNumber - message.getId()));
 					}
@@ -348,7 +348,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		try {
 			List<String> id_s = Files.readAllLines(file, Charset.defaultCharset());
 			int lastId = id_s.isEmpty() ? 0 : Integer.parseInt(id_s.get(0));
-			if (lastId > 0) {
+			if (lastId >= 0) {
 				this.lastProcessedIdNumber = lastId;
 			} else {
 				log.error("Wrong number for last processed message id {}, exiting.", id_s);
