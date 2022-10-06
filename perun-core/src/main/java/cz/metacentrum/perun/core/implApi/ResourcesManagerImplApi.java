@@ -41,6 +41,15 @@ import java.util.List;
 public interface ResourcesManagerImplApi {
 
 	/**
+	 * Get all resources from database.
+	 *
+	 * @param sess Perun session
+	 *
+	 * @return list of all resources
+	 */
+	List<Resource> getAllResources(PerunSession sess);
+
+	/**
 	 * Searches for the Resource with specified id.
 	 *
 	 * @param perunSession

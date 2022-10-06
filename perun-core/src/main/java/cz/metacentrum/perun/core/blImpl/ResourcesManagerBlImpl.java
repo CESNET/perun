@@ -105,6 +105,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<Resource> getAllResources(PerunSession sess) {
+		return getResourcesManagerImpl().getAllResources(sess);
+	}
+
+	@Override
 	public Resource getResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
 		return getResourcesManagerImpl().getResourceById(sess, id);
 	}

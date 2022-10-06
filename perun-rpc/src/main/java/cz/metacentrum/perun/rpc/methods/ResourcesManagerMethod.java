@@ -29,6 +29,18 @@ import java.util.List;
 public enum ResourcesManagerMethod implements ManagerMethod {
 
 	/*#
+	 * Returns all resources.
+	 *
+	 * @return List<Resource> All resources
+	 */
+	getAllResources {
+		@Override
+		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAllResources(ac.getSession());
+		}
+	},
+
+	/*#
 	 * Returns resource by its <code>id</code>.
 	 *
 	 * @param id int Resource <code>id</code>

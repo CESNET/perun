@@ -41,6 +41,17 @@ import java.util.List;
 public interface ResourcesManager {
 
 	/**
+	 * Get all resources from database. Returned resources are filtered based on the principal rights.
+	 *
+	 * @param sess Perun session
+	 *
+	 * @return list of all resources
+	 *
+	 * @throws PrivilegeException if the principal has insufficient permission
+	 */
+	List<Resource> getAllResources(PerunSession sess) throws PrivilegeException;
+
+	/**
 	 * Searches for the Resource with specified id.
 	 *
 	 * @param perunSession
