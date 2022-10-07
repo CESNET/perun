@@ -87,6 +87,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunni
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -3703,31 +3704,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		addUserExtSources(sess, candidate, memberToUpdate);
 
 		//Set correct member Status
-		try {
-			if (isMemberStatusChangeAllowed(sess, group)) {
-				updateMemberStatus(sess, memberToUpdate);
-			}
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	/**
-	 * Return false if attribute group:keepMemberStatus is set to true.
-	 * True otherwise.
-	 *
-	 * @param sess session
-	 * @param group group to be synchronized
-	 *
-	 * @return false if change of member's status is not allowed, true otherwise
-	 *
-	 * @throws InternalErrorException if obtaining attribute failed
-	 * @throws WrongAttributeAssignmentException if incorrect assignment of attribute
-	 * @throws AttributeNotExistsException if attribute does not exist in database
-	 */
-	private boolean isMemberStatusChangeAllowed(PerunSession sess, Group group) throws WrongAttributeAssignmentException, AttributeNotExistsException {
-		Attribute keepStatusAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_KEEP_MEMBER_STATUS);
-		return keepStatusAttr == null || keepStatusAttr.getValue() == null;
+		updateMemberStatus(sess, memberToUpdate);
 	}
 
 	/**
