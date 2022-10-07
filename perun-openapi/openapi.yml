@@ -753,6 +753,8 @@ components:
     Group:
       allOf:
         - $ref: '#/components/schemas/Auditable'
+      type: object
+      nullable: true
       properties:
         name: { type: string }
         shortName: { type: string }
