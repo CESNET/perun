@@ -7336,7 +7336,9 @@ paths:
       tags:
         - AuditMessagesManager
       operationId: getMessagesByIdAndCount
-      summary: Returns "count" number of messages that are less or equal than the given ID (descending order).
+      summary: |
+        Returns "count" number of messages that are more or equal than the given ID (ascending order),
+        i.e. the method returns newer messages by provided ID.
       parameters:
         - { name: id, in: query, schema: { type: integer }, description: "Starting id from which the messages will be taken", required: true }
         - { name: count, in: query, schema: { type: integer }, description: "Number of messages that will be returned", required: true }

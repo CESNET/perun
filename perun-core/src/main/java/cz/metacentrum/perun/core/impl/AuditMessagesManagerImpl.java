@@ -206,7 +206,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	@Override
 	public List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id, int count) {
 		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id<=? order by id desc limit ?", AUDIT_MESSAGE_MAPPER, id, count);
+			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id >=? order by id asc limit ?", AUDIT_MESSAGE_MAPPER, id, count);
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
