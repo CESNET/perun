@@ -1087,38 +1087,6 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 	}
 
 	@Test
-	public void synchronizeGroupButKeepMemberStatus() throws Exception {
-		System.out.println(CLASS_NAME + "synchronizeGroupButKeepMemberStatus");
-
-		Attribute keepStatus = new Attribute(attributesManagerBl.getAttributeDefinition(sess, GroupsManager.GROUP_KEEP_MEMBER_STATUS));
-		keepStatus.setValue(true);
-		attributesManagerBl.setAttribute(sess, group, keepStatus);
-
-		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
-
-		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-		attr.setValue(extSource.getName());
-		attributesManagerBl.setAttribute(sess, group, attr);
-
-		List<Map<String, String>> subjects = new ArrayList<>();
-		Map<String, String> attributes = new HashMap<>();
-		attributes.put("login", "metodej");
-		subjects.add(attributes);
-		Candidate candidate = setUpCandidate();
-
-		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-		perun.getMembersManagerBl().setStatus(sess, member, Status.DISABLED);
-		groupsManagerBl.addMember(sess, group, member);
-
-		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
-		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-		assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
-		groupsManagerBl.synchronizeGroup(sess, group);
-		assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
-	}
-
-	@Test
 	public void synchronizeGroupUpdateMemberOrganizationsAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMemberOrganizationsAttribute");
 
