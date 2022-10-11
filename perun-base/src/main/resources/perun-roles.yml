@@ -3518,6 +3518,26 @@ perun_policies:
       - default_policy
 
   #ResourcesManagerEntry
+  getAllResources_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  filter-getAllResources_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - RPC:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getResourceById_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility

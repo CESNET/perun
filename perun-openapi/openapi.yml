@@ -12819,6 +12819,18 @@ paths:
   #                                               #
   #################################################
 
+  /json/resourcesManager/getAllResources:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAllResources
+      summary: Returns all resources.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/resourcesManager/getResourceById:
     get:
       tags:

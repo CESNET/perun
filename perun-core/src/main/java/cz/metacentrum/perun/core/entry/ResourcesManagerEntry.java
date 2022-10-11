@@ -83,6 +83,20 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public List<Resource> getAllResources(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getAllResources_policy")) {
+			throw new PrivilegeException(sess, "getAllResources");
+		}
+
+		List<Resource> resources = resourcesManagerBl.getAllResources(sess);
+		resources.removeIf(resource -> !AuthzResolver.authorizedInternal(sess, "filter-getAllResources_policy", resource));
+
+		return resources;
+	}
+
+	@Override
 	public Resource getResourceById(PerunSession sess, int id) throws PrivilegeException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 
