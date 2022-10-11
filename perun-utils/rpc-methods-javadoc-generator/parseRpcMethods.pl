@@ -216,6 +216,10 @@ $objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Res
 $objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
 $objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
 
+$objectExamples{"FacilityWithAttributes"} = "{ \"facility\" : " .$objectExamples{"Facility"} . " , \"attributes\" : " .$objectExamples{"List&lt;Attribute&gt;"} . " }";
+$objectExamples{"List&lt;FacilityWithAttributes&gt;"} = $listPrepend . $objectExamples{"FacilityWithAttributes"} . $listAppend;
+$objectExamples{"List<FacilityWithAttributes>"} = $objectExamples{"List&lt;FacilityWithAttributes&gt;"};
+
 $objectExamples{"EnrichedVo"} = "{ \"vo\" : " . $objectExamples{"Vo"} . " , \"memberVos\" : " . $objectExamples{"List&lt;Vo&gt;"} . " , \"parentVos\" : " . $objectExamples{"List&lt;Vo&gt;"} . " }";
 $objectExamples{"List&lt;EnrichedVo&gt;"} = $listPrepend . $objectExamples{"EnrichedVo"} . $listAppend;
 $objectExamples{"List<EnrichedVo>"} = $objectExamples{"List&lt;EnrichedVo&gt;"};
@@ -271,6 +275,8 @@ $objectExamples{"List<AttributePolicy>"} = $objectExamples{"List&lt;AttributePol
 $objectExamples{"AttributePolicyCollection"} = "{ \"id\" : 10 , \"attributeId\" : 2220 , \"action\" : \"READ\" , \"policies\" : " . $objectExamples{"List&lt;AttributePolicyCollection&gt;"} . " }";
 $objectExamples{"List&lt;AttributePolicyCollection&gt;"} = $listPrepend . $objectExamples{"AttributePolicyCollection"} . $listAppend;
 $objectExamples{"List<AttributePolicyCollection>"} = $objectExamples{"List&lt;AttributePolicyCollection&gt;"};
+
+$objectExamples{"AttributeRules"} = "{\"attributePolicyCollections\": " . $objectExamples{"List&lt;AttributePolicyCollection&gt;"} . ", \"criticalActions\": [\"WRITE\" , \"READ\"]}";
 
 $objectExamples{"ConsentHub"} = "{ \"id\" : 10 , \"name\" : \"Test Consent Hub\" , \"enforceConsents\" : false , \"facilities\" : " . $objectExamples{"List&lt;Facility&gt;"} . " , \"beanName\" : \"ConsentHub\" }";
 $objectExamples{"List&lt;ConsentHub&gt;"} = $listPrepend . $objectExamples{"ConsentHub"} . $listAppend;

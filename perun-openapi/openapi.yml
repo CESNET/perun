@@ -317,6 +317,18 @@ components:
       discriminator:
         propertyName: beanName
 
+    AttributeRules:
+      type: object
+      properties:
+        attributePolicyCollections:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributePolicyCollection'
+        criticalActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributeAction'
+
     AuditEvent:
       type: object
       properties:
@@ -445,7 +457,7 @@ components:
         - $ref: '#/components/schemas/Auditable'
       properties:
         name: { type: string }
-        description: { type: string }
+        description: { type: string, nullable: true }
       discriminator:
         propertyName: beanName
 
@@ -458,6 +470,14 @@ components:
         - facilityOwners
       discriminator:
         propertyName: beanName
+
+    FacilityWithAttributes:
+      allOf:
+        - $ref: '#/components/schemas/Facility'
+      properties:
+        attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
+      required:
+        - attributes
 
     Host:
       allOf:
@@ -733,6 +753,8 @@ components:
     Group:
       allOf:
         - $ref: '#/components/schemas/Auditable'
+      type: object
+      nullable: true
       properties:
         name: { type: string }
         shortName: { type: string }
@@ -1703,6 +1725,16 @@ components:
             items:
               $ref: "#/components/schemas/EnrichedFacility"
 
+    ListOfFacilitiesWithAttributesResponse:
+      description: "returns List<FacilityWithAttributes>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/FacilityWithAttributes"
+
+
     OwnerResponse:
       description: "returns Owner"
       content:
@@ -1864,6 +1896,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/AttributePolicyCollection"
+
+    AttributeRulesResponse:
+      description: "returns AttributeRules"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AttributeRules"
 
     AttributeResponse:
       description: "returns Attribute"
@@ -4001,6 +4040,19 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfSecurityTeamsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/refreshMfa:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: refreshMfa
+      summary: Refreshes MFA-related data for principal.
+      parameters: [ ]
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -7106,6 +7158,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getAttributeRules:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeRules
+      summary: "Gets attribute rules containing policy collections and critical actions for an attribute definition with given id"
+      parameters:
+        - $ref: '#/components/parameters/attributeDefinitionId'
+      responses:
+        '200':
+          $ref: '#/components/responses/AttributeRulesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/attributesManager/setAttributePolicyCollections:
     post:
       tags:
@@ -7127,6 +7193,22 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/AttributePolicyCollection'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/setAttributeActionCriticality:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setAttributeActionCriticality
+      summary: Marks the action on attribute as critical, which may require additional authentication of user performing that action on attribute.
+      parameters:
+        - $ref: '#/components/parameters/attributeDefinitionId'
+        - {name: action, in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true}
+        - {name: critical, description: "if action should be marked as critical", schema: { type: boolean }, in: query, required: true}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10428,6 +10510,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getFacilitiesByAttributeWithAttributes:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByAttributeWithAttributes
+      summary: Searches (partially!) for facilities with the attribute 'attributeName' and its value 'attributeValue'. 
+                  Found Facilities are returned along with attributes listed in 'attrNames'.
+      parameters:
+        - $ref: '#/components/parameters/attributeName'
+        - $ref: '#/components/parameters/attributeValue'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesWithAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getFacilities:
     get:
       tags:
@@ -12507,6 +12606,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getParentGroup:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getParentGroup
+      summary: Returns a parent group of a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

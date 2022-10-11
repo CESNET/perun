@@ -631,6 +631,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
 		if (anonymizeInstead) {
 			getUsersManagerImpl().anonymizeUser(sess, user);
+			getPerunBl().getAuditer().log(sess, new UserUpdated(user));
 
 			// delete all users applications and submitted data, this is needed only when 'anonymizeInstead'
 			// because applications are deleted on cascade when user's row is deleted in DB
@@ -1204,8 +1205,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			List<Attribute> userAttributes = richUser.getUserAttributes();
 			List<Attribute> allowedUserAttributes = new ArrayList<>();
 			for(Attribute userAttr: userAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, userAttr, richUser)) {
-					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, userAttr, richUser));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, userAttr, richUser, true)) {
+					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, userAttr, richUser, false));
 					allowedUserAttributes.add(userAttr);
 				}
 			}

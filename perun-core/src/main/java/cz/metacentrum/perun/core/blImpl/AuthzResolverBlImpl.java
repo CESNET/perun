@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -43,10 +44,17 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MFAuthenticationException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MfaInvalidRolesException;
+import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
@@ -55,10 +63,12 @@ import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsExce
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
@@ -67,10 +77,14 @@ import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,6 +98,12 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static cz.metacentrum.perun.core.api.AuthzResolver.MFA_CRITICAL_ATTR;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ACCESS_TOKEN;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -109,6 +129,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
 	 * @return true if the principal has particular rights, false otherwise.
 	 * @throws PolicyNotExistsException when the given policyDefinition does not exist in the PerunPoliciesContainer.
+	 * @throws MfaPrivilegeException when the principal isn't authenticated with MFA but the policy definition requires it
 	 */
 	public static boolean authorized(PerunSession sess, String policyDefinition, List<PerunBean> objects) throws PolicyNotExistsException {
 		// We need to load additional information about the principal
@@ -124,16 +145,118 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		List<PerunPolicy> allPolicies = AuthzResolverImpl.fetchPolicyWithAllIncludedPolicies(policyDefinition);
 
 		List<Map<String, String>> policyRoles = new ArrayList<>();
-		for (PerunPolicy policy : allPolicies) policyRoles.addAll(policy.getPerunRoles());
+		List<Map<String, String>> mfaRules = new ArrayList<>();
+		for (PerunPolicy policy : allPolicies) {
+			policyRoles.addAll(policy.getPerunRoles());
+			if (policy.getMfaRules() != null) mfaRules.addAll(policy.getMfaRules());
+		}
 
 		//Fetch super objects like Vo for group etc.
 		Map <String, Set<Integer>> mapOfBeans = fetchAllRelatedObjects(objects);
+
+		if (!mfaAuthorized(sess, mfaRules, mapOfBeans) && !updatePrincipalMfa(sess)) {
+			throw new MfaPrivilegeException("Multi-Factor authentication required");
+		}
 
 		return resolveAuthorization(sess, policyRoles, mapOfBeans);
 	}
 
 	/**
-	 * Check wheter the principal is authorized to manage the role on the object.
+	 * Checks authorization according to MFA rules.
+	 *
+	 * Returns false if there is an MFA rule on an object which is marked as critical,
+	 * and principal is not authorized by MFA and hasn't got a system role.
+	 * If MFA is globally disabled for whole instance, returns true.
+	 *
+	 * @param sess session
+	 * @param mfaRules is a list of maps where each map entry consists from a role name as a key and a role object as a value.
+	 *                    Relation between each map in the list is logical OR and relation between each entry in the map is logical AND.
+	 *                    Example list - (Map1, Map2...)
+	 *                    Example map - key: MFA ; value: Vo
+	 *                                 key: MFA ; value: Group
+	 * @param mapOfBeans is a map of objects against which will be authorization done.
+	 *                    Example map entry - key: Member ; values: (10,15,26)
+	 * @return true if MFA requirements are met, false otherwise
+	 */
+	private static boolean mfaAuthorized(PerunSession sess, List<Map<String, String>> mfaRules, Map<String, Set<Integer>> mapOfBeans) {
+		try {
+			return !BeansUtils.getCoreConfig().isEnforceMfa() || sess.getPerunPrincipal().getRoles().hasRole(Role.MFA)
+						|| hasMFASkippableRole(sess) || !requiresMfa(sess, mfaRules, mapOfBeans);
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Error checking system roles", e);
+		}
+	}
+
+	/**
+	 * Returns true if at least one of the given MFA rules requires MFA on objects which are marked as critical.
+	 *
+	 * @param sess
+	 * @param mfaRules
+	 * @param mapOfBeans
+	 * @return
+	 */
+	private static boolean requiresMfa(PerunSession sess, List<Map<String, String>> mfaRules, Map<String, Set<Integer>> mapOfBeans) {
+		for (Map<String, String> rule : mfaRules) {
+			// every rule should have exactly one map entry (with key 'MFA')
+			if (!rule.containsKey(Role.MFA)) continue;
+
+			String ruleObject = rule.get(Role.MFA);
+			if (isBlank(ruleObject)) return true;
+
+			Set<Integer> ids = mapOfBeans.get(ruleObject);
+			if (ids != null && ids.stream().anyMatch(id -> isCriticalObject(sess, ruleObject, id))) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true if the object of given type with given ID is marked as critical.
+	 *
+	 * @param sess
+	 * @param objectType
+	 * @param id
+	 * @return
+	 */
+	private static boolean isCriticalObject(PerunSession sess, String objectType, Integer id) {
+		try {
+			if ("Group".equals(objectType)) {
+				Group group = perunBl.getGroupsManagerBl().getGroupById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(group));
+			} else if ("Vo".equals(objectType)) {
+				Vo vo = perunBl.getVosManagerBl().getVoById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(vo));
+			} else if ("User".equals(objectType)) {
+				User user = perunBl.getUsersManagerBl().getUserById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(user));
+			} else if ("Member".equals(objectType)) {
+				Member member = perunBl.getMembersManagerBl().getMemberById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(member));
+			} else if ("Resource".equals(objectType)) {
+				Resource resource = perunBl.getResourcesManagerBl().getResourceById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(resource));
+			} else if ("Facility".equals(objectType)) {
+				Facility facility = perunBl.getFacilitiesManagerBl().getFacilityById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(facility));
+			} else if ("Host".equals(objectType)) {
+				Host host = perunBl.getFacilitiesManagerBl().getHostById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(host));
+			} else if ("UserExtSource".equals(objectType)) {
+				UserExtSource ues = perunBl.getUsersManagerBl().getUserExtSourceById(sess, id);
+				return isAnyObjectMfaCritical(sess, List.of(ues));
+			} else {
+				throw new InternalErrorException("Object of type " + objectType + "could not be checked for MFA criticality.");
+			}
+		} catch (MemberNotExistsException | GroupNotExistsException | UserNotExistsException | VoNotExistsException | HostNotExistsException |
+			UserExtSourceNotExistsException | FacilityNotExistsException | ResourceNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Check whether the principal is authorized to manage the role on the object.
 	 *
 	 * @param sess principal's perun session
 	 * @param object bounded with the role
@@ -192,6 +315,41 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		return resolveAuthorization(sess, rules.getPrivilegedRolesToRead(), mapOfBeans);
+	}
+
+	/**
+	 * Returns true if principal has a role which should skip MFA check
+	 *
+	 * @param sess principal's perun session
+	 * @return true if principal has system role
+	 * @throws RoleManagementRulesNotExistsException when the role does not have the management rules.
+	 */
+	public static boolean hasMFASkippableRole(PerunSession sess) throws RoleManagementRulesNotExistsException {
+		// We need to load additional information about the principal
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		// If the user has no roles, deny access
+		if (sess.getPerunPrincipal().getRoles() == null) {
+			return false;
+		}
+
+		// System role which was defined in coreConfig with PERUNADMIN rights
+		List<String> perunAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
+		perunAdmins.addAll(BeansUtils.getCoreConfig().getRegistrarPrincipals());
+		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
+			return true;
+		}
+
+		AuthzRoles roles = sess.getPerunPrincipal().getRoles();
+		for (String role : roles.getRolesNames()) {
+			if (AuthzResolverImpl.getRoleManagementRules(role).shouldSkipMFA()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static boolean selfAuthorizedForApplication(PerunSession sess, Application app) {
@@ -367,8 +525,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		List<Attribute> allowedAttributes = new ArrayList<>();
 		for(Attribute attribute: attributes) {
 			try {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, bean)) {
-					attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, bean));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, bean, true)) {
+					attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, bean, false));
 					allowedAttributes.add(attribute);
 				}
 			} catch (InternalErrorException e) {
@@ -1483,6 +1641,104 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Checks authorization for attribute according to MFA rules.
+	 * Returns false if attribute action is marked as critical, attribute's object is marked as critical
+	 * and principal is not authorized by MFA and hasn't got a system role.
+	 * If MFA is globally disabled for whole instance, returns true.
+	 *
+	 * @param sess session
+	 * @param attrDef attribute definition
+	 * @param actionType type of action (READ / WRITE)
+	 * @param objects objects related to the attribute
+	 * @return true if MFA requirements are met, false otherwise
+	 */
+	public static boolean isMfaAuthorizedForAttribute(PerunSession sess, AttributeDefinition attrDef, AttributeAction actionType, List<Object> objects) {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
+			return true;
+		}
+
+		try {
+			if (hasMFASkippableRole(sess)) {
+				return true;
+			}
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Error checking system roles", e);
+		}
+
+		if (!((PerunBl) sess.getPerun()).getAttributesManagerBl().isAttributeActionCritical(sess, attrDef, actionType)) {
+			return true;
+		}
+
+		boolean principalMfa = sess.getPerunPrincipal().getRoles().hasRole(Role.MFA);
+		if (attrDef.getNamespace().startsWith(AttributesManager.NS_ENTITYLESS_ATTR)) {
+			return principalMfa || updatePrincipalMfa(sess);
+		}
+
+		return principalMfa || !isAnyObjectMfaCritical(sess, objects) || updatePrincipalMfa(sess);
+
+	}
+
+	/**
+	 * Updates principal MFA role by calling UserInfo Endpoint
+	 * @param sess perun session
+	 * @return true if principal has MFA role
+	 */
+	private static boolean updatePrincipalMfa(PerunSession sess) {
+		try {
+			refreshMfa(sess);
+		} catch (ExpiredTokenException | MFAuthenticationException ignored) {
+			// couldn't recheck with endpoint, either exception would have been thrown already or principal didn't use OIDC
+		}
+
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.MFA);
+	}
+
+	/**
+	 * Returns true if any of the objects is marked as mfaCriticalObject in its attribute.
+	 * Not usable for entityless attributes!
+	 * @param sess session
+	 * @param objects objects to be checked
+	 * @return if any object is critical
+	 */
+	public static boolean isAnyObjectMfaCritical(PerunSession sess, List<Object> objects) {
+		AttributesManagerBl attributesManagerBl = ((PerunBl) sess.getPerun()).getAttributesManagerBl();
+
+		for (Object object : objects) {
+			if (object == null) continue;
+			Attribute attr;
+			try {
+				if (object instanceof Member m) {
+					attr = attributesManagerBl.getAttribute(sess, m, AttributesManager.NS_MEMBER_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else if (object instanceof User u) {
+					attr = attributesManagerBl.getAttribute(sess, u, AttributesManager.NS_USER_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else if (object instanceof Resource r) {
+					attr = attributesManagerBl.getAttribute(sess, r, AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else if (object instanceof Facility f) {
+					attr = attributesManagerBl.getAttribute(sess, f, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else if (object instanceof Group g) {
+					attr = attributesManagerBl.getAttribute(sess, g, AttributesManager.NS_GROUP_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else if (object instanceof Vo v) {
+					attr = attributesManagerBl.getAttribute(sess, v, AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else if (object instanceof Host h) {
+					attr = attributesManagerBl.getAttribute(sess, h, AttributesManager.NS_HOST_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else if (object instanceof UserExtSource ues) {
+					attr = attributesManagerBl.getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+				} else {
+					throw new InternalErrorException("Object of class " + object.getClass().getName() + "could not be checked for MFA criticality.");
+				}
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+				throw new InternalErrorException(e);
+			}
+
+			if (attr.getValue() != null && attr.valueAsBoolean()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Retrieves all attribute policy collections for given attribute definition and action type
 	 * @param sess session
 	 * @param actionType type of action (READ / WRITE)
@@ -1675,6 +1931,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new RoleCannotBeManagedException(role, complementaryObject, user);
 		}
 
+		checkMfaForSettingRole(sess, user, complementaryObject, role);
+
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(user, complementaryObject, role);
 
 		try {
@@ -1706,6 +1964,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!objectAndRoleManageableByEntity(authorizedGroup.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, authorizedGroup);
 		}
+
+		checkMfaForSettingRole(sess, authorizedGroup, complementaryObject, role);
 
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(authorizedGroup, complementaryObject, role);
 
@@ -1740,6 +2000,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!objectAndRoleManageableByEntity(user.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, user);
 		}
+
+		checkMfaForSettingRole(sess, user, complementaryObject, role);
 
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(user, complementaryObject, role);
 
@@ -1776,6 +2038,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!objectAndRoleManageableByEntity(authorizedGroup.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, authorizedGroup);
 		}
+
+		checkMfaForSettingRole(sess, authorizedGroup, complementaryObject, role);
 
 		Map<String, Integer> mappingOfValues = createMappingToManageRole(authorizedGroup, complementaryObject, role);
 
@@ -2233,10 +2497,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		//set empty set of roles
 		sess.getPerunPrincipal().setRoles(new AuthzRoles());
 		//Prepare service roles like engine, service, registrar, perunAdmin etc.
-		prepareServiceRoles(sess);
+		boolean serviceRole = prepareServiceRoles(sess);
 
 		// if have some of the service principal, we do not need to search further
-		if (sess.getPerunPrincipal().getRoles().isEmpty()) {
+		if (!serviceRole) {
 			User user = sess.getPerunPrincipal().getUser();
 			AuthzRoles roles;
 			if (user == null) {
@@ -2245,6 +2509,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				// Load all user's roles with all possible subgroups
 				roles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(user), Role.GROUPADMIN);
 				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPOBSERVER);
+				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPMEMBERSHIPMANAGER);
 				// Add self role for the user
 				roles.putAuthzRole(Role.SELF, user);
 				// Add service user role
@@ -2259,8 +2524,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			sess.getPerunPrincipal().setRoles(roles);
 		}
 
-		//for OAuth clients, do not allow delegating roles not allowed by scopes
 		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
+			//for OAuth clients, do not allow delegating roles not allowed by scopes
 			List<String> oauthScopes = sess.getPerunClient().getScopes();
 			log.trace("refreshAuthz({}) oauthScopes={}",sess.getLogId(),oauthScopes);
 			if(!oauthScopes.contains(PerunClient.PERUN_ADMIN_SCOPE)) {
@@ -2272,7 +2537,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				log.debug("removing all roles from session {}",sess);
 				sess.getPerunPrincipal().getRoles().clear();
 			}
+
+			if (isAuthorizedByMfa(sess)) {
+				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
+			}
 		}
+
+		checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
 
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
@@ -2321,6 +2592,35 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		AuthzResolverBlImpl.refreshAuthz(sess);
 
+	}
+
+	public static void refreshMfa(PerunSession sess) throws ExpiredTokenException, MFAuthenticationException {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
+			throw new MFAuthenticationException("MFA enforcement is turned off");
+		}
+
+		if (!BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
+			throw new MFAuthenticationException("Cannot verify MFA - UserInfo endpoint not configured.");
+		}
+
+		String accessToken = sess.getPerunPrincipal().getAdditionalInformations().get(ACCESS_TOKEN);
+		if (accessToken == null) {
+			throw new MFAuthenticationException("Cannot verify MFA - access token is missing.");
+		}
+
+		String issuer = sess.getPerunPrincipal().getAdditionalInformations().get(ISSUER);
+		if (issuer == null) {
+			throw new MFAuthenticationException("Cannot verify MFA - issuer is missing.");
+		}
+
+		UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
+		String timestamp = userInfoEndpointCall.getUserInfoEndpointMfaData(accessToken, issuer);
+		if (timestamp != null && !timestamp.isEmpty()) {
+			sess.getPerunPrincipal().getAdditionalInformations().put(MFA_TIMESTAMP, timestamp);
+			if (isAuthorizedByMfa(sess)) {
+				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
+			}
+		}
 	}
 
 	/**
@@ -2633,10 +2933,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Prepare service roles to session AuthzRoles (PERUNADMIN, SERVICE, RPC, ENGINE etc.)
 	 *
 	 * @param sess use session to add roles
+	 * @return true if some service role was added, false otherwise
 	 */
-	private static void prepareServiceRoles(PerunSession sess) {
+	private static boolean prepareServiceRoles(PerunSession sess) {
 		// Load list of perunAdmins from the configuration, split the list by the comma
 		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
+		boolean serviceRole = false;
 
 		// Check if the PerunPrincipal is in a group of Perun Admins
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
@@ -2644,37 +2946,42 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			sess.getPerunPrincipal().setAuthzInitialized(true);
 			// We can quit, because perun admin has all privileges
 			log.trace("AuthzResolver.init: Perun Admin {} loaded", sess.getPerunPrincipal().getActor());
-			return;
+			return true;
 		}
 
 		String perunRpcAdmin = BeansUtils.getCoreConfig().getRpcPrincipal();
 		if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
 			log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
+			serviceRole = true;
 		}
 
 		List<String> perunEngineAdmins = BeansUtils.getCoreConfig().getEnginePrincipals();
 		if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
+			serviceRole = true;
 		}
 
 		List<String> perunNotifications = BeansUtils.getCoreConfig().getNotificationPrincipals();
 		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
-
 			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
+			serviceRole = true;
 		}
 
 		List<String> perunRegistrars = BeansUtils.getCoreConfig().getRegistrarPrincipals();
 		if (perunRegistrars.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
+			//sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
 
 			//FIXME ted pridame i roli plneho admina
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
 
 			log.trace("AuthzResolver.init: Perun Registrar {} loaded", perunRegistrars);
+			serviceRole = true;
 		}
+
+		return serviceRole;
 	}
 
 	/**
@@ -3872,6 +4179,87 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Checks if setting role requires MFA based on configuration in perun-roles, throws MfaPrivilegeException if requirements unmet.
+	 * @param assigningEntity user or group to which the role will be assigned (User)
+	 * @param complementaryObject which will be bounded with the role (Vo)
+	 * @param role role name (VOADMIN)
+	 * @throws MfaPrivilegeException if MFA requirements are not met
+	 */
+	private static void checkMfaForSettingRole(PerunSession sess, PerunBean assigningEntity, PerunBean complementaryObject, String role) {
+		RoleManagementRules rules;
+		try {
+			rules = AuthzResolverImpl.getRoleManagementRules(role);
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Management rules not exist for the role " + role, e);
+		}
+
+		List<Map<String, String>> mfaPolicies = rules.getAssignmentCheck();
+		Map<String, Set<Integer>> mapOfBeans = new HashMap<>();
+
+		if (mfaPolicies != null && !mfaPolicies.isEmpty() && complementaryObject != null) {
+			mapOfBeans = fetchAllRelatedObjects(Arrays.asList(complementaryObject));
+		}
+
+		// check complementary objects for MFA requirements
+		if (!mfaAuthorized(sess, mfaPolicies, mapOfBeans)) {
+			if (complementaryObject == null) {
+				throw new MfaPrivilegeException("Multi-Factor authentication is required to set this role.");
+			}
+			String message = complementaryObject.getBeanName() != null ? complementaryObject.getBeanName() : "object";
+			message += " with id " + complementaryObject.getId() + " or related object is critical.";
+			throw new MfaPrivilegeException("Multi-Factor authentication is required - " + message);
+		}
+
+		// check assigning entity for MFA requirements
+		try {
+			if (BeansUtils.getCoreConfig().isEnforceMfa() && isAnyObjectMfaCritical(sess, Arrays.asList(assigningEntity))
+			 && !sess.getPerunPrincipal().getRoles().hasRole(Role.MFA) && !hasMFASkippableRole(sess)) {
+				throw new MfaPrivilegeException("Multi-Factor authentication is required - assigning entity is critical.");
+			}
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Error checking system roles", e);
+		}
+	}
+
+	/**
+	 * Checks if having a role requires MFA based on configuration in perun-roles.
+	 * Throws uncatched exceptions if MFA roles are inconsistent or MFA requirements are not met.
+	 * @param roles roles to be set to principal
+	 * @throws MfaRolePrivilegeException if MFA requirements are not met
+	 * @throws MfaInvalidRolesException if principal has roles both requiring and skipping MFA check
+	 */
+	private static void checkMfaForHavingRole(PerunSession sess, AuthzRoles roles) {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
+			return;
+		}
+
+		RoleManagementRules rules;
+		List<String> skipMfaRoles = new ArrayList<>();
+		List<String> requireMfaRoles = new ArrayList<>();
+		for (String role : roles.keySet()) {
+			try {
+				rules = AuthzResolverImpl.getRoleManagementRules(role);
+			} catch (RoleManagementRulesNotExistsException e) {
+				throw new InternalErrorException("Management rules not exist for the role " + role, e);
+			}
+			if (rules.isMfaCriticalRole()) {
+				requireMfaRoles.add(rules.getRoleName());
+			}
+			if (rules.shouldSkipMFA()) {
+				skipMfaRoles.add(rules.getRoleName());
+			}
+		}
+
+		if (!skipMfaRoles.isEmpty() && !requireMfaRoles.isEmpty()) {
+			throw new MfaInvalidRolesException(sess, requireMfaRoles, skipMfaRoles);
+		}
+
+		if (!requireMfaRoles.isEmpty() && !sess.getPerunPrincipal().getRoles().hasRole(Role.MFA)) {
+			throw new MfaRolePrivilegeException(sess, requireMfaRoles.get(0));
+		}
+	}
+
+	/**
 	 * Create a mapping of column names and ids which will be used for setting or unsetting of the role.
 	 *
 	 * @param entityToManage to which will be the role set or unset
@@ -3945,5 +4333,38 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		return mapping;
+	}
+
+	/**
+	 * Checks, if principal was authorized by Multi-factor authentication.
+	 * The information is resolved in UserInfoEndpointCall and stored in principal's additionalInformations.
+	 * The timestamp of MFA must not be older than mfa timeout set in config.
+	 *
+	 * @param sess session
+	 * @return true if principal authorized by MFA in allowed limit, false otherwise
+	 */
+	private static boolean isAuthorizedByMfa(PerunSession sess) {
+		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
+			return false;
+		}
+
+		if (!sess.getPerunPrincipal().getAdditionalInformations().containsKey(MFA_TIMESTAMP)) {
+			return false;
+		}
+
+		String returnedTimestamp = sess.getPerunPrincipal().getAdditionalInformations().get(MFA_TIMESTAMP);
+		Instant parsedReturnedTimestamp;
+		try {
+			parsedReturnedTimestamp = Instant.parse(returnedTimestamp);
+		} catch (DateTimeParseException e) {
+			throw new InternalErrorException("MFA timestamp "  + returnedTimestamp + " could not be parsed", e);
+		}
+		if (parsedReturnedTimestamp.isAfter(Instant.now())) {
+			throw new InternalErrorException("MFA auth timestamp " + returnedTimestamp + " was greater than current time");
+		}
+
+		long mfaTimeoutInSec = Duration.ofHours(BeansUtils.getCoreConfig().getMfaAuthTimeout()).getSeconds();
+		Instant mfaValidUntil = parsedReturnedTimestamp.plusSeconds(mfaTimeoutInSec);
+		return mfaValidUntil.isAfter(Instant.now());
 	}
 }

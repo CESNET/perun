@@ -587,6 +587,33 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets open applications for the current user
+	 * based on authz and internal user ID.
+	 *
+	 * @return List<Application> Found open applications
+	 */
+	/*#
+	 * Gets open applications for a specific user
+	 * by user ID. Ignores session data.
+	 *
+	 * @param id int User <code>id</code>
+	 * @return List<Application> Found open applications
+	 */
+	getOpenApplicationsForUser {
+
+		@Override
+		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			if (parms.contains("id")) {
+				return ac.getRegistrarManager().getOpenApplicationsForUser(ac.getUserById(parms.readInt("id")));
+			} else {
+				return ac.getRegistrarManager().getOpenApplicationsForUser(ac.getSession());
+			}
+		}
+
+	},
+
+	/*#
 	 * Gets all applications for member
 	 *
 	 * @param member int <code>id</code> of member to get applications for
@@ -1192,6 +1219,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @param mails List<ApplicationMail> Mail definitions to update
 	 * @param enabled boolean true for enabled, false for disabled
 	 * @return Object Always null
+	 * @throw FormNotExistsException When application form related to the mail template not exists
+	 * @throw PrivilegeException When caller is not authorized
+	 * @throw ApplicationMailNotExistsException When application mail does not exist
 	 */
 	setSendingEnabled {
 

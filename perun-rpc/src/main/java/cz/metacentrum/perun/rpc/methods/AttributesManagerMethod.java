@@ -4072,5 +4072,47 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 			return ac.getAttributesManager().getModulesDependenciesGraph(ac.getSession(), format);
 		}
+	},
+
+	/*#
+	 * Marks the action on attribute as critical, which may require additional authentication of user
+	 * performing that action on attribute.
+	 *
+	 * @param sess session
+	 * @param attributeDefinition attribute definition id
+	 * @param action critical action
+	 * @param critical true if action should be set critical, false to non-critical
+	 *
+	 * @throws RelationExistsException if trying to mark already critical action
+	 * @throws RelationNotExistsException if trying to unmark not critical action
+	 */
+	setAttributeActionCriticality {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getAttributesManager().setAttributeActionCriticality(
+				ac.getSession(),
+				ac.getAttributeDefinitionById(parms.readInt("attributeDefinition")),
+				AttributeAction.valueOf(parms.readString("action").toUpperCase()),
+				parms.readBoolean("critical"));
+			return null;
+		}
+	},
+
+	/*#
+	 * Gets attribute rules containing policy collections and critical actions for an attribute definition with given id
+	 *
+	 * @param sess perun session
+	 * @param attributeDefinition id of the attribute definition
+	 * @return attribute rules of the attribute definition
+	 * @throws AttributeNotExistsException when there is no attribute definition with such id
+	 */
+	getAttributeRules {
+		@Override
+		public AttributeRules call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAttributesManager().getAttributeRules(
+				ac.getSession(),
+				parms.readInt("attributeDefinition"));
+		}
 	}
 }

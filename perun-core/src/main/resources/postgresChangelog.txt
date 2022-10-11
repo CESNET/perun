@@ -6,6 +6,14 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.97
+create table attribute_critical_actions (attr_id integer not null, action attribute_action not null, constraint attrcritops_pk primary key (attr_id, action),	constraint attrcritops_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade);
+grant all on attribute_critical_actions to perun;
+create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
+create index app_state_idx ON application (state);
+UPDATE configurations SET value='3.1.97' WHERE property='DATABASE VERSION';
+INSERT INTO attribute_critical_actions (attr_id, action) SELECT attr_names.id, 'WRITE' FROM attr_names;
+
 3.1.96
 ALTER TABLE application_reserved_logins ADD COLUMN user_id integer;
 ALTER TABLE application_reserved_logins ADD COLUMN extsourcename varchar;

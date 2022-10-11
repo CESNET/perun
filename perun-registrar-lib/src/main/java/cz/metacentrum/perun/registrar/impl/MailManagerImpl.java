@@ -288,6 +288,17 @@ public class MailManagerImpl implements MailManager {
 	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException {
 		ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
 
+		//Authorization
+		if (form.getGroup() != null) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-updateMailById_ApplicationMail_policy", Arrays.asList(form.getGroup(), form.getVo()))) {
+				throw new PrivilegeException(sess, "updateMailById");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-updateMailById_ApplicationMail_policy", Collections.singletonList(form.getVo()))) {
+				throw new PrivilegeException(sess, "updateMailById");
+			}
+		}
+
 		int numberOfExistences = jdbc.queryForInt("select count(1) from application_mails where id=?", mail.getId());
 		if (numberOfExistences < 1) throw new ApplicationMailNotExistsException("Application mail does not exist.", mail);
 		if (numberOfExistences > 1) throw new ConsistencyErrorException("There is more than one mail with id = " + mail.getId());
@@ -318,11 +329,23 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
-	public void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws ApplicationMailNotExistsException {
-		// TODO authz
+	public void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws ApplicationMailNotExistsException, PrivilegeException, FormNotExistsException {
 		if (mails == null) { throw new InternalErrorException("Mails definitions to update can't be null"); }
 
 		for (ApplicationMail mail : mails) {
+			ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
+
+			//Authorization
+			if (form.getGroup() != null) {
+				if (!AuthzResolver.authorizedInternal(sess, "group-setSendingEnabled_ApplicationMail_policy", Arrays.asList(form.getGroup(), form.getVo()))) {
+					throw new PrivilegeException(sess, "setSendingEnabled");
+				}
+			} else {
+				if (!AuthzResolver.authorizedInternal(sess, "vo-setSendingEnabled_ApplicationMail_policy", Collections.singletonList(form.getVo()))) {
+					throw new PrivilegeException(sess, "setSendingEnabled");
+				}
+			}
+
 			// update sending (enabled / disabled)
 			try {
 				int existence = jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
@@ -367,8 +390,8 @@ public class MailManagerImpl implements MailManager {
 		perun.getVosManagerBl().checkVoExists(sess, toVo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToVo_Vo_Vo_policy", fromVo) ||
-			!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToVo_Vo_Vo_policy", toVo)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyMailsFromVoToVo_Vo_Vo_policy", fromVo) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyMailsFromVoToVo_Vo_Vo_policy", toVo)) {
 			throw new PrivilegeException(sess, "copyMailsFromVoToVo");
 		}
 
@@ -382,18 +405,23 @@ public class MailManagerImpl implements MailManager {
 		perun.getVosManagerBl().checkVoExists(sess, fromVo);
 		perun.getGroupsManagerBl().checkGroupExists(sess, toGroup);
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToGroup_Vo_Group_boolean_policy", fromVo) ||
-			!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToGroup_Vo_Group_boolean_policy", toGroup)) {
-			throw new PrivilegeException(sess, "copyMailsFromVoToGroup");
-		}
 
 		if (reverse) {
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "source-copyMailsFromVoToGroup_Vo_Group_boolean_policy", toGroup) ||
+				!AuthzResolver.authorizedInternal(sess, "destination-copyMailsFromVoToGroup_Vo_Group_boolean_policy", fromVo)) {
+				throw new PrivilegeException(sess, "copyMailsFromVoToGroup");
+			}
 			// copy notifications from Group to VO
 			ApplicationForm voForm = registrarManager.getFormForVo(fromVo);
 			ApplicationForm groupForm = registrarManager.getFormForGroup(toGroup);
 			copyApplicationMails(sess, groupForm, voForm);
 		} else {
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "source-copyMailsFromVoToGroup_Vo_Group_boolean_policy", fromVo) ||
+				!AuthzResolver.authorizedInternal(sess, "destination-copyMailsFromVoToGroup_Vo_Group_boolean_policy", toGroup)) {
+				throw new PrivilegeException(sess, "copyMailsFromVoToGroup");
+			}
 			// copy notifications from VO to Group
 			ApplicationForm voForm = registrarManager.getFormForVo(fromVo);
 			ApplicationForm groupForm = registrarManager.getFormForGroup(toGroup);
@@ -407,8 +435,8 @@ public class MailManagerImpl implements MailManager {
 		perun.getGroupsManagerBl().checkGroupExists(sess, toGroup);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromGroupToGroup_Group_Group_policy", fromGroup) ||
-			!AuthzResolver.authorizedInternal(sess, "copyMailsFromGroupToGroup_Group_Group_policy", toGroup)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyMailsFromGroupToGroup_Group_Group_policy", fromGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyMailsFromGroupToGroup_Group_Group_policy", toGroup)) {
 			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
 		}
 
@@ -478,13 +506,13 @@ public class MailManagerImpl implements MailManager {
 
 		//Authorization
 		if (app.getGroup() != null) {
-			if (!AuthzResolver.authorizedInternal(sess, "group-sendMessage_Application_MailType_String_policy", Arrays.asList(app.getGroup(), app.getVo())) &&
-				!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+			if (!AuthzResolver.selfAuthorizedForApplication(sess, app) &&
+				!AuthzResolver.authorizedInternal(sess, "group-sendMessage_Application_MailType_String_policy", Arrays.asList(app.getGroup(), app.getVo()))) {
 				throw new PrivilegeException(sess, "sendMessage");
 			}
 		} else {
-			if (!AuthzResolver.authorizedInternal(sess, "vo-sendMessage_Application_MailType_String_policy", Collections.singletonList(app.getVo())) &&
-				!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+			if (!AuthzResolver.selfAuthorizedForApplication(sess, app) &&
+				!AuthzResolver.authorizedInternal(sess, "vo-sendMessage_Application_MailType_String_policy", Collections.singletonList(app.getVo()))) {
 				throw new PrivilegeException(sess, "sendMessage");
 			}
 		}

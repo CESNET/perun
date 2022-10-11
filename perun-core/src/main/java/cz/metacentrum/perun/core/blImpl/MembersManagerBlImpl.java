@@ -2095,16 +2095,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					} else {
 						boolean canRead = false;
 						if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, membAttr, rm, group);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, membAttr, rm, group, true);
 						} else if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, membAttr, rm);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, membAttr, rm, true);
 						}
 						if(canRead) {
 							boolean isWritable = false;
 							if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, membAttr, rm, group);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, membAttr, rm, group, false);
 							} else if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, membAttr, rm);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, membAttr, rm, false);
 							}
 							membAttr.setWritable(isWritable);
 							allowedMemberAttributes.add(membAttr);
@@ -2130,8 +2130,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						}
 					//if not, get information about authz rights and set record to contextMap
 					} else {
-						if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, userAttr, rm.getUser())) {
-							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, userAttr, rm.getUser());
+						if(AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, userAttr, rm.getUser(), true)) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, userAttr, rm.getUser(), false);
 							userAttr.setWritable(isWritable);
 							allowedUserAttributes.add(userAttr);
 							contextMap.put(userAttr.getFriendlyName(), isWritable);

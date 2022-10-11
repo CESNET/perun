@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.FacilityWithAttributes;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
@@ -184,10 +185,26 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Iterator<Facility> it = facilities.iterator();
 		while (it.hasNext()) {
 			Facility facility = it.next();
-			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attributeDef, facility)) {
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attributeDef, facility, true)) {
 				it.remove();
 			}
 		}
+
+		return facilities;
+	}
+
+	@Override
+	public List<FacilityWithAttributes> getFacilitiesByAttributeWithAttributes(PerunSession sess, String searchAttributeName, String searchAttributeValue, List<String> attrNames) throws PrivilegeException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getFacilitiesByAttributeWithAttributes_String_String_List<String>_policy")) {
+			throw new PrivilegeException(sess, "getFacilitiesByAttributeWithAttributes");
+		}
+
+		List<FacilityWithAttributes> facilities = getFacilitiesManagerBl().getFacilitiesByAttributeWithAttributes(sess, searchAttributeName, searchAttributeValue, attrNames);
+		// filter out facilities user does not have access to
+		facilities.removeIf(facilityWithAttributes -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilitiesByAttributeWithAttributes_String_String_List<String>_policy", facilityWithAttributes.getFacility()));
 
 		return facilities;
 	}
@@ -299,8 +316,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyOwners_Facility_Facility_policy", sourceFacility) ||
-			!AuthzResolver.authorizedInternal(sess, "copyOwners_Facility_Facility_policy", destinationFacility)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyOwners_Facility_Facility_policy", sourceFacility) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyOwners_Facility_Facility_policy", destinationFacility)) {
 			throw new PrivilegeException(sess, "copyOwners");
 		}
 
@@ -328,7 +345,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		List<PerunBean> beans = createListOfBeans(perunSession, facility, specificVo, specificService);
 
-		//Authrorization
+		//Authorization
 		if (!AuthzResolver.authorizedInternal(perunSession, "getAllowedGroups_Facility_Vo_Service_policy", beans)) {
 			throw new PrivilegeException(perunSession, "getGroupsWhereUserIsActive");
 		}
@@ -342,7 +359,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		List<PerunBean> beans = createListOfBeans(perunSession, facility, specificVo, specificService);
 
-		//Authrorization
+		//Authorization
 		if (!AuthzResolver.authorizedInternal(perunSession, "getAllowedRichGroupsWithAttributes_Facility_Vo_Service_List<String>_policy", beans)) {
 			throw new PrivilegeException(perunSession, "getAllowedRichGroupsWithAttributes");
 		}
@@ -615,7 +632,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		//Filtering attributes
 		for (String attrName : attrNames) {
-			if (AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
+			if (AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1, true)) {
 				allowedAttributes.add(attrName);
 			}
 		}
@@ -953,8 +970,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyManagers_Facility_Facility_policy", sourceFacility) ||
-			!AuthzResolver.authorizedInternal(sess, "copyManagers_Facility_Facility_policy", destinationFacility)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyManagers_Facility_Facility_policy", sourceFacility) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyManagers_Facility_Facility_policy", destinationFacility)) {
 			throw new PrivilegeException(sess, "copyManager");
 		}
 
@@ -969,8 +986,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyAttributes_Facility_Facility_policy", sourceFacility) ||
-			!AuthzResolver.authorizedInternal(sess, "copyAttributes_Facility_Facility_policy", destinationFacility)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyAttributes_Facility_Facility_policy", sourceFacility) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyAttributes_Facility_Facility_policy", destinationFacility)) {
 			throw new PrivilegeException(sess, "copyAttributes");
 		}
 
@@ -1050,7 +1067,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public void removeHostByHostname(PerunSession sess, String hostname) throws HostNotExistsException, HostAlreadyRemovedException {
+	public void removeHostByHostname(PerunSession sess, String hostname) throws HostNotExistsException, HostAlreadyRemovedException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		List<Host> hosts = getFacilitiesManagerBl().getHostsByHostname(sess, hostname);
@@ -1061,7 +1078,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			Facility facility = getFacilitiesManagerBl().getFacilityForHost(sess, host);
 
 			// Authorization
-			if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			if (!AuthzResolver.authorizedInternal(sess, "filter-removeHostByHostname_String_policy", Arrays.asList(facility, host))) {
 				hostIterator.remove();
 			}
 		}
@@ -1070,6 +1087,10 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Host host = hosts.get(0);
 		Facility facility = getFacilitiesManagerBl().getFacilityForHost(sess, host);
 
+		// Check MFA
+		if (!AuthzResolver.authorizedInternal(sess, "removeHostByHostname_String_policy", Arrays.asList(facility, host))) {
+			throw new PrivilegeException(sess, "removeHostByHostname");
+		}
 		getFacilitiesManagerBl().removeHost(sess, host, facility);
 	}
 

@@ -1,0 +1,116 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings FATAL => 'all';
+
+use DBI;
+use POSIX qw(:errno_h);
+use Getopt::Long qw(:config no_ignore_case);
+
+sub help {
+	return qq{
+        Adds GROUPMEMBERSHIPMANAGER role to attribute policies.
+        GROUPMEMBERSHIPMANAGER can read user, member, user-facility and member-group attributes
+        and selected vo and group attributes, if groupadmin can read them too.
+        The manager can also write to group membership expiration attribute.
+        The script creates new policy collections for these attributes with single policy containing the new role.
+        If the role is not in the database, the script inserts it first.
+        --------------------------------------
+        Available options:
+
+        --user      | -u Username for Perun DB (required)
+        --password  | -w Password for Perun DB (required)
+        --overwrite | -o removes all existing COLLECTIONS! containing policy with Groupmembershipmanager role
+        };
+}
+
+# Specific attributes besides READ for user, user-facility, member and member-group attributes
+my @readAttributes = (
+	"urn:perun:vo:attribute-def:def:blockManualMemberAdding",
+	"urn:perun:vo:attribute-def:def:mfaCriticalObject",
+	"urn:perun:group:attribute-def:def:groupMembershipExpirationRules",
+	"urn:perun:group:attribute-def:def:blockManualMemberAdding",
+	"urn:perun:group:attribute-def:def:mfaCriticalObject"
+);
+my @writeAttributes = (
+	"urn:perun:member_group:attribute-def:def:groupMembershipExpiration"
+);
+my ($user, $pwd, $overwrite);
+
+GetOptions ("help|h" => sub { print help(); exit 0;},
+	"user|u=s" => \$user,
+	"password|w=s" => \$pwd,
+	"overwrite|o" => \$overwrite) || die help();
+
+if (!defined $user) { print "[ERROR] Username for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
+if (!defined $pwd) { print "[ERROR] Password for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
+
+my $dbh = DBI->connect('dbi:Pg:dbname=perun',$user,$pwd,{RaiseError=>1,AutoCommit=>0,pg_enable_utf8=>1}) or die EPERM," Connect";
+
+my $sthCollections = $dbh->prepare(q{select a.id, a.attr_name from attr_names a, attribute_policy_collections c,
+	attribute_policies p, roles r where p.policy_collection_id=c.id and c.attr_id=a.id
+	and r.name='groupadmin' and r.id=p.role_id and c.action='READ';});
+
+my $sthNewCollection = $dbh->prepare(q{insert into attribute_policy_collections (id, attr_id, action) values (?,?,?);});
+
+my $sthNewPolicy = $dbh->prepare(q{insert into attribute_policies (id, role_id, object, policy_collection_id) values (?,?,?,?);});
+
+my $sthInsertRole = $dbh->prepare(q{insert into roles (id, name) values (?,'groupmembershipmanager');});
+
+my $sthDelCollections = $dbh->prepare(q{delete from attribute_policy_collections where id=?;});
+
+my $sthExistingPolicies = $dbh -> prepare(q{select policy_collection_id from attribute_policies where role_id=?;});
+
+#-------------------------------------------------------------------------------------------------- execution
+
+# Insert GROUPMEMBERSHIPMANAGER role to DB if not created yet
+my $roleId = $dbh->selectrow_array(q{select id from roles where name='groupmembershipmanager'});
+unless ($roleId) {
+	$roleId = $dbh->selectrow_array('select nextval(\'roles_id_seq\')');
+	$sthInsertRole->execute($roleId);
+	$dbh->commit() or die $dbh->errstr;
+	print "INFO: Groupmembershipmanager role created\n";
+}
+
+# Remove all collections where any policy with Groupmembershipmanager exists
+if ($overwrite) {
+	$sthExistingPolicies->execute($roleId);
+	while (my @row = $sthExistingPolicies->fetchrow_array()) {
+		my ($collectionId) = @row;
+		$sthDelCollections->execute($collectionId);
+	}
+	$dbh->commit() or die $dbh->errstr;
+	print "INFO: Existing policy collections successfully removed.\n";
+}
+
+# Fetch attribute definitions which also groupadmin is allowed to read
+$sthCollections->execute();
+while (my @row = $sthCollections->fetchrow_array()) {
+	my ($attrId, $attrName) = @row;
+	my $attrType = (split ':', $attrName)[2];
+
+	# add READ policy for GROUPMEMBERSHIPMANAGER
+	my ($shouldRead) = grep {$attrName eq $_} @readAttributes;
+	my $object = ($attrType eq "member" || $attrType eq "vo" || $attrType eq "user") ? "Vo" : "Group";
+
+	if ($attrType eq "member" || $attrType eq "member_group" || $attrType eq "user_facility" || $attrType eq "user" || $shouldRead) {
+		my $nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+		my $nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+		$sthNewCollection->execute($nextCollectionId, $attrId, "READ"); #(id, attr_id, action)
+		$sthNewPolicy->execute($nextPolicyId, $roleId, $object, $nextCollectionId); #(id, role_id, object, policy_collection_id)
+	}
+
+	# add WRITE policy to GROUPMEMBERSHIPMANAGER
+	my ($shouldWrite) = grep {$attrName eq $_} @writeAttributes;
+	if ($shouldWrite) {
+		my $nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+		my $nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+		$sthNewCollection->execute($nextCollectionId, $attrId, "WRITE"); #(id, attr_id, action)
+		$sthNewPolicy->execute($nextPolicyId, $roleId, $object, $nextCollectionId); #(id, role_id, object, policy_collection_id)
+	}
+}
+
+$dbh->commit() or die $dbh->errstr;
+
+print "INFO: Groupmembershipmanager role successfully set.\n";
+print "===================================================\n";
+$dbh->disconnect() or die $dbh->errstr;

@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
@@ -593,6 +594,20 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"join facility_attr_values on facilities.id=facility_attr_values.facility_id " +
 					"where facility_attr_values.attr_id=? and facility_attr_values.attr_value=?",
 					FACILITY_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Facility> getFacilitiesByAttributePartialMatch(PerunSession sess, AttributeDefinition attrDef, String value) {
+		try {
+			return  jdbc.query("select " + facilityMappingSelectQuery + " from facilities " +
+					"join facility_attr_values on facilities.id=facility_attr_values.facility_id " +
+					"where facility_attr_values.attr_id=? " +
+					"and lower(" + Compatibility.convertToAscii("facility_attr_values.attr_value") + ") LIKE CONCAT ('%', CONCAT(lower(" + Compatibility.convertToAscii("?") +"), '%'))",
+					FACILITY_MAPPER, attrDef.getId(), value);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {

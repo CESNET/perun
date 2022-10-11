@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -402,6 +403,16 @@ public interface FacilitiesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute);
+
+	/**
+	 * Partial search for facilities with the attribute 'attrDef' set to a similar value to 'value'
+	 *
+	 * @param sess
+	 * @param attrDef
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByAttributePartialMatch(PerunSession sess, AttributeDefinition attrDef, String value);
 
 	/**
 	 * List hosts from facility.

@@ -415,8 +415,10 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "deleteUser_User_policy", user)) {
-			throw new PrivilegeException(sess, "deleteUser");
+		for (UserExtSource ues : perunBl.getUsersManagerBl().getUserExtSources(sess, user)) {
+			if (!AuthzResolver.authorizedInternal(sess, "deleteUser_User_policy", user, ues)) {
+				throw new PrivilegeException(sess, "deleteUser");
+			}
 		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -429,8 +431,18 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "deleteUser_User_boolean_policy", user)) {
-			throw new PrivilegeException(sess, "deleteUser");
+		for (UserExtSource ues : perunBl.getUsersManager().getUserExtSources(sess, user)) {
+			if (!AuthzResolver.authorizedInternal(sess, "deleteUser_User_boolean_policy", user, ues)) {
+				throw new PrivilegeException(sess, "deleteUser");
+			}
+		}
+		if (forceDelete) {
+			//loop through user's members as well to check MFA
+			for (Member member : perunBl.getMembersManager().getMembersByUser(sess, user)) {
+				if (!AuthzResolver.authorizedInternal(sess, "deleteUser_User_boolean_policy", user, member)) {
+					throw new PrivilegeException(sess, "deleteUser");
+				}
+			}
 		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -443,8 +455,18 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "anonymizeUser_User_boolean_policy", user)) {
-			throw new PrivilegeException(sess, "anonymizeUser");
+		for (UserExtSource ues : perunBl.getUsersManager().getUserExtSources(sess, user)) {
+			if (!AuthzResolver.authorizedInternal(sess, "anonymizeUser_User_boolean_policy", user, ues)) {
+				throw new PrivilegeException(sess, "anonymizeUser");
+			}
+		}
+		if (force) {
+			//loop through user's members as well to check MFA
+			for (Member member : perunBl.getMembersManager().getMembersByUser(sess, user)) {
+				if (!AuthzResolver.authorizedInternal(sess, "anonymizeUser_User_boolean_policy", user, member)) {
+					throw new PrivilegeException(sess, "anonymizeUser");
+				}
+			}
 		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -881,7 +903,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attribute);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user, true));
 
 		return users;
 	}
@@ -898,7 +920,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attributeName, attributeValue);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user, true));
 
 		return users;
 	}
@@ -915,7 +937,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		List<User> users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, attributeValue);
-		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user));
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, user, true));
 
 		return users;
 	}

@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.2</version>
+		<version>2.7.4</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -76,7 +76,7 @@
 		<jdom.version>1.0</jdom.version>
 		<json.version>20190722</json.version>
 		<reflections.version>0.9.11</reflections.version>
-		<testcontainers.version>1.17.2</testcontainers.version>
+		<testcontainers.version>1.17.3</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS

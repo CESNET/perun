@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.bl;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.FacilityWithAttributes;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
@@ -542,6 +544,20 @@ public interface FacilitiesManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 */
 	List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws WrongAttributeAssignmentException;
+
+	/**
+	 * Searches (partially!) for facilities with the attribute 'searchAttributeName' and its value 'searchAttributeValue'.
+	 * Found Facilities are returned along with attributes listed in 'attrNames'.
+	 *
+	 * @param sess
+	 * @param searchAttributeName name of the attribute to search by
+	 * @param searchAttributeValue value to search for
+	 * @param attrNames names of attributes to return with facilities
+	 * @return list of facilities with attributes
+	 * @throws AttributeNotExistsException when the attribute to search by does not exist
+	 */
+	List<FacilityWithAttributes> getFacilitiesByAttributeWithAttributes(PerunSession sess, String searchAttributeName, String searchAttributeValue, List<String> attrNames) throws AttributeNotExistsException;
+
 
 	/**
 	 * List hosts of Facility.

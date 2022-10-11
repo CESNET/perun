@@ -38,9 +38,9 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	private static final String SYSLOG_LOGGER_NAME = "syslog-logger";
-	
+
 	private static final Logger syslog = LoggerFactory.getLogger(SYSLOG_LOGGER_NAME);
-	
+
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -70,7 +70,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 		try {
 			perunSession = auditLoggerManager.getPerunSession();
 			perun = auditLoggerManager.getPerunBl();
-			
+
 			if (lastProcessedIdNumber == 0) {
 				loadLastProcessedId();
 			}
@@ -96,14 +96,14 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 
 					//If there are no messages, sleep for 5 sec and then try it again
 					if (messages == null || messages.isEmpty()) Thread.sleep(5000);
-				} 
+				}
 				//If new messages exist, resolve them all
 				Iterator<AuditMessage> messagesIterator = messages.iterator();
 				log.debug("Trying to send {} messages", messages.size());
 				while (messagesIterator.hasNext()) {
 					message = messagesIterator.next();
 					//Warning when two consecutive messages are separated by more than 15 ids
-					if (lastProcessedIdNumber > 0 && lastProcessedIdNumber < message.getId()) {
+					if (lastProcessedIdNumber >= 0 && lastProcessedIdNumber < message.getId()) {
 						if ((message.getId() - lastProcessedIdNumber) > 15)
 							log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: {} - newMessageNumber: {} = {}",
 									lastProcessedIdNumber, message.getId(), (lastProcessedIdNumber - message.getId()));
@@ -131,7 +131,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 			//If auditlogger is interrupted
 		} catch (InterruptedException e) {
 			Date date = new Date();
-			log.error("Last message has ID='{}' and was INTERRUPTED at {} due to interrupting.", 
+			log.error("Last message has ID='{}' and was INTERRUPTED at {} due to interrupting.",
 					((message != null) ? message.getId() : 0), DATE_FORMAT.format(date));
 			running = false;
 			Thread.currentThread().interrupt();
@@ -174,7 +174,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 			try {
 				List<String> id_s = Files.readAllLines(file, Charset.defaultCharset());
 				int lastId = id_s.isEmpty() ? 0 : Integer.parseInt(id_s.get(0));
-				if (lastId > 0) {
+				if (lastId >= 0) {
 					this.lastProcessedIdNumber = lastId;
 				} else {
 					log.error("Wrong number for last processed message id {}, exiting.", id_s);

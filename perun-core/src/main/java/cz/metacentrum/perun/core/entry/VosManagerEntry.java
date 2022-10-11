@@ -131,7 +131,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteVo_Vo_boolean_policy")) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteVo_Vo_boolean_policy", vo)) {
 			throw new PrivilegeException(sess, "deleteVo");
 		}
 
@@ -145,7 +145,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteVo_Vo_policy")) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteVo_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "deleteVo");
 		}
 
@@ -367,7 +367,12 @@ public class VosManagerEntry implements VosManager {
 			}
 
 			List<Vo> membersVos = perunBl.getUsersManagerBl().getVosWhereUserIsMember(sess, candidate.getRichUser());
-			boolean isEligible = membersVos.stream().anyMatch(vo -> AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy", vo));
+			boolean isEligible = false;
+			if (membersVos.isEmpty()) {
+				isEligible = AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy");
+			} else {
+				isEligible = membersVos.stream().anyMatch(vo -> AuthzResolver.authorizedInternal(sess, "filter-getCompleteCandidates_policy", vo));
+			}
 			if (isEligible) {
 				eligibleCandidates.add(candidate);
 			}
@@ -767,7 +772,10 @@ public class VosManagerEntry implements VosManager {
 
 	@Override
 	public void convertSponsoredUsers(PerunSession sess, Vo vo) throws PrivilegeException {
-		if (!AuthzResolver.authorizedInternal(sess, "default_policy")) {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "convertSponsoredUsers_Vo_policy", vo)) {
 			throw new PrivilegeException("convertSponsoredUsers");
 		}
 
@@ -776,7 +784,10 @@ public class VosManagerEntry implements VosManager {
 
 	@Override
 	public void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor) throws PrivilegeException {
-		if (!AuthzResolver.authorizedInternal(sess, "default_policy")) {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "convertSponsoredUsersWithNewSponsor_Vo_User_policy", vo, newSponsor)) {
 			throw new PrivilegeException("convertSponsoredUsersWithNewSponsor");
 		}
 

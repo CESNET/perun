@@ -63,4 +63,9 @@ sub getGroupRoleNames
 	return Perun::Common::callManagerMethod('getGroupRoleNames', '', @_);
 }
 
+sub refreshMfa
+{
+	return Perun::Common::callManagerMethod('refreshMfa', '', @_);
+}
+
 1;

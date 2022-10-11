@@ -10,8 +10,15 @@ using [OpenAPI Generator](https://openapi-generator.tech/docs/usage#generate) wh
 
 The generated classes depend on "dateutil" library, which needs to be installed.
  
-Thus to prepare the CLI tools to run, do: 
+To prepare the CLI tools to run, do:
 ```bash
 ./generate.sh
-apt install python3-dateutil
+apt install python3-dateutil python3-typing-extensions
+```
+
+Run the CLI programs like:
+```bash
+./get_user.py --PERUN_URL https://cloud1.perun-aai.org/ba/rpc \
+              --PERUN_USER 'perun/test' \
+              -id 1
 ```

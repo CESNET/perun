@@ -19,6 +19,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
+
 /**
  * Class for executing call to User info endpoint.
  *
@@ -29,6 +31,34 @@ public class UserInfoEndpointCall {
 	private final static Logger log = LoggerFactory.getLogger(UserInfoEndpointCall.class);
 
 	public UserInfoEndpointResponse getUserInfoEndpointData(String accessToken, String issuer, Map<String, String> additionalInformation) throws ExpiredTokenException {
+		JsonNode userInfo = callUserInfo(accessToken, issuer);
+
+		fillAdditionalInformationWithDataFromUserInfo(userInfo, additionalInformation);
+
+		String mfaTimestamp = getMfaTimestamp(userInfo);
+		if (mfaTimestamp != null && !mfaTimestamp.isEmpty()) {
+			additionalInformation.put(MFA_TIMESTAMP, mfaTimestamp);
+		}
+
+		String extSourceName = getExtSourceName(userInfo);
+		String extSourceLogin = getExtSourceLogin(userInfo);
+		return new UserInfoEndpointResponse(extSourceName, extSourceLogin);
+	}
+
+	/**
+	 * Calls UserInfo endpoint and returns MFA timestamp if available and acr is equal to MFA acr
+	 * @param accessToken access token
+	 * @param issuer issuer
+	 * @throws ExpiredTokenException if access token is expired
+	 * @return mfa timestamp or null
+	 */
+	public String getUserInfoEndpointMfaData(String accessToken, String issuer) throws ExpiredTokenException {
+		JsonNode userInfo = callUserInfo(accessToken, issuer);
+
+		return getMfaTimestamp(userInfo);
+	}
+
+	private static JsonNode callUserInfo(String accessToken, String issuer) throws ExpiredTokenException {
 		RestTemplate restTemplate = new RestTemplate();
 		JsonNode config = restTemplate.getForObject(issuer + "/.well-known/openid-configuration", JsonNode.class);
 		HttpHeaders headers = new HttpHeaders();
@@ -52,14 +82,7 @@ public class UserInfoEndpointCall {
 			throw new InternalErrorException("Call to user info endpoint failed, the error is" + userInfo);
 		}
 		log.debug("user info retrieved: {}", userInfo);
-
-		fillAdditionalInformationWithDataFromUserInfo(userInfo, additionalInformation);
-
-		String extSourceName = getExtSourceName(userInfo);
-
-		String extSourceLogin = getExtSourceLogin(userInfo);
-
-		return new UserInfoEndpointResponse(extSourceName, extSourceLogin);
+		return userInfo;
 	}
 
 	/**
@@ -144,5 +167,23 @@ public class UserInfoEndpointCall {
 		if(StringUtils.isNotEmpty(idpName)) {
 			additionalInformation.put("sourceIdPName", idpName);
 		}
+	}
+
+	/**
+	 * Returns mfa timestamp if acr value is equal to MFA acr value
+	 * @param userInfo parsed response from userInfo endpoint
+	 */
+	private String getMfaTimestamp(JsonNode userInfo) {
+		String acrProperty = BeansUtils.getCoreConfig().getUserInfoEndpointAcrPropertyName();
+		String acr = userInfo.path(acrProperty).asText();
+		if (StringUtils.isNotEmpty(acr) && acr.equals(BeansUtils.getCoreConfig().getUserInfoEndpointMfaAcrValue())) {
+			String mfaTimestampProperty = BeansUtils.getCoreConfig().getUserInfoEndpointMfaAuthTimestampPropertyName();
+			String mfaTimestamp = userInfo.path(mfaTimestampProperty).asText();
+			if (StringUtils.isNotEmpty(mfaTimestamp)) {
+				return mfaTimestamp;
+			}
+		}
+
+		return null;
 	}
 }

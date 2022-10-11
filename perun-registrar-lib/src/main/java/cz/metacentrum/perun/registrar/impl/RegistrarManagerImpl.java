@@ -1044,6 +1044,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				continue; // continue to next item
 			}
 
+			String oldname = jdbc.queryForObject("select shortname from application_form_items where id=" + item.getId(), String.class);
+
 			// else update form item
 
 			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?," +
@@ -1063,6 +1065,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (result == 0) {
 				// skip whole set if not found for update
 				continue;
+			}
+
+			// did shortname change? => update open applications' data
+			if (oldname != null && !oldname.equals(item.getShortname())) {
+				jdbc.update("update application_data set shortname=? where item_id=? and shortname=? and app_id in (" +
+					"select app_id from application where application.state in (?,?))",
+					item.getShortname(), item.getId(), oldname, AppState.VERIFIED.toString(), AppState.NEW.toString());
 			}
 
 			// update form item texts (easy way = delete and new insert)
@@ -1168,10 +1177,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item, Locale locale) throws PrivilegeException, FormNotExistsException {
 
+		ApplicationForm form;
+
 		try {
-			getFormByItemId(sess, item.getId());
+			form = getFormByItemId(sess, item.getId());
 		} catch (PrivilegeException ex) {
 			throw new PrivilegeException(sess, "updateFormItemTexts");
+		}
+
+		//Authorization
+		if (form.getGroup() == null) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-updateFormItemTexts_ApplicationFormItem_Locale_policy", Collections.singletonList(form.getVo()))) {
+				throw new PrivilegeException(sess, "updateFormItemById");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "group-updateFormItemTexts_ApplicationFormItem_Locale_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
+				throw new PrivilegeException(sess, "updateFormItemById");
+			}
 		}
 
 		ItemTexts texts = item.getTexts(locale);
@@ -2372,6 +2394,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public List<Application> getOpenApplicationsForUser(User user) {
+
+		try {
+			return jdbc.query(APP_SELECT + " where user_id=? and state in (?,?) order by a.id desc",
+				APP_MAPPER, user.getId(), AppState.VERIFIED.toString(), AppState.NEW.toString());
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		}
+
+	}
+
+	@Override
+	public List<Application> getOpenApplicationsForUser(PerunSession sess) {
+
+		try {
+			List<Application> applications = jdbc.query(APP_SELECT + " where state in (?,?) order by a.id desc",
+				APP_MAPPER, AppState.VERIFIED.toString(), AppState.NEW.toString());
+			return filterPrincipalApplications(sess, applications);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		}
+
+	}
+
+	@Override
 	public List<Application> getOpenApplicationsForUserInVo(User user, Vo vo) {
 
 		try {
@@ -3162,8 +3209,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		vosManager.checkVoExists(sess, toVo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyFormFromVoToVo_Vo_Vo_policy", fromVo) ||
-			!AuthzResolver.authorizedInternal(sess, "copyFormFromVoToVo_Vo_Vo_policy", toVo)) {
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromVoToVo_Vo_Vo_policy", fromVo) ||
+			!AuthzResolver.authorizedInternal(sess, "destination-copyFormFromVoToVo_Vo_Vo_policy", toVo)) {
 			throw new PrivilegeException(sess, "copyFormFromVoToVo");
 		}
 
@@ -3175,15 +3222,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		vosManager.checkVoExists(sess, fromVo);
 		groupsManager.checkGroupExists(sess, toGroup);
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(fromVo))
-			|| !AuthzResolver.authorizedInternal(sess, "destination-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(toGroup))) {
-			throw new PrivilegeException(sess, "copyFormFromVoToGroup");
-		}
-
 		if (reverse) {
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(toGroup))
+				|| !AuthzResolver.authorizedInternal(sess, "destination-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(fromVo))) {
+					throw new PrivilegeException(sess, "copyFormFromVoToGroup");
+			}
+
 			copyItems(sess, getFormForGroup(toGroup), getFormForVo(fromVo));
 		} else {
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(fromVo))
+				|| !AuthzResolver.authorizedInternal(sess, "destination-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(toGroup))) {
+					throw new PrivilegeException(sess, "copyFormFromVoToGroup");
+			}
+
 			copyItems(sess, getFormForVo(fromVo), getFormForGroup(toGroup));
 		}
 	}
@@ -3246,13 +3299,20 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	public void updateFormItemData(PerunSession sess, int appId, ApplicationFormItemData data) throws RegistrarException, PrivilegeException {
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "updateFormItemData_int_ApplicationFormItemData_policy")) {
-			throw new PrivilegeException(sess, "updateFormItemData");
-		}
 
 		Application app = getApplicationById(sess, appId);
 		if (AppState.APPROVED.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Form items of once approved or rejected applications can't be modified.");
+
+		//Authorization
+		if (app.getGroup() == null) {
+			if ((!AuthzResolver.authorizedInternal(sess, "updateFormItemData_int_ApplicationFormItemData_policy", app.getVo()))) {
+				throw new PrivilegeException(sess, "updateFormItemData");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "updateFormItemData_int_ApplicationFormItemData_policy", app.getGroup())) {
+				throw new PrivilegeException(sess, "updateFormItemData");
+			}
+		}
 
 		ApplicationFormItemData existingData = getFormItemDataById(data.getId(), appId);
 		if (existingData == null) throw new RegistrarException("Form item data specified by ID: "+ data.getId() + " not found or doesn't belong to the application "+appId);
