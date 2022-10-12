@@ -120,7 +120,7 @@ public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttribute
 
 		// check whether key has options, cut them if so
 		if (!ALLOWED_SSH_TYPES.contains(sshKeyParts[0])) {
-			String[] keyPartsWithoutPrefix = Arrays.copyOfRange(sshKeyParts, 1, sshKeyParts.length - 1);
+			String[] keyPartsWithoutPrefix = Arrays.copyOfRange(sshKeyParts, 1, sshKeyParts.length);
 			return String.join(" ", keyPartsWithoutPrefix);
 		}
 		return sshKey;
