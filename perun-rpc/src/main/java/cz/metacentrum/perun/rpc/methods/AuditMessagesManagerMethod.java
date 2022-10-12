@@ -48,7 +48,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns "count" number of messages that are less or equal than the given ID (descending order).
+	 * Returns "count" number of messages that are more or equal than the given ID (ascending order),
+	 * i.e. the method returns newer messages by provided ID.
 	 *
 	 * @param perunSession perun session
 	 * @param id starting id from which the messages will be taken
