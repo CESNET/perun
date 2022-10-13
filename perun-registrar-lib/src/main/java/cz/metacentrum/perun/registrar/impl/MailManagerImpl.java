@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationNotNewException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.InvitationSentEvent;
@@ -542,7 +543,7 @@ public class MailManagerImpl implements MailManager {
 					if (app.getState().equals(Application.AppState.NEW)) {
 						sendMessage(app, mailType, null, null);
 					} else {
-						throw new RegistrarException("Application must be in state NEW to allow sending of "+mailType+" notification.");
+						throw new ApplicationNotNewException("Application must be in state NEW to allow sending of "+mailType+" notification.", app.getState().toString());
 					}
 				} break;
 				case APP_APPROVED_USER: {
