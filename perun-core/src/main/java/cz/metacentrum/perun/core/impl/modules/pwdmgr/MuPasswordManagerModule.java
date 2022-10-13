@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISResponseData;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISServiceCaller;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -90,16 +91,26 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			parameters.put(PASSWORD_KEY, generateRandomPassword(session, "--not yet known--"));
 		}
 
-		try {
-			int requestID = (new Random()).nextInt(1000000) + 1;
-			String requestBody = getGenerateAccountRequest(session, parameters, requestID);
-			ISResponseData responseData = isServiceCaller.call(requestBody, requestID);
-			if (!IS_OK_STATUS.equals(responseData.getStatus())) {
-				throw new InternalErrorException("IS MU (password manager backend) responded with error to a Request ID: " + requestID + " Error: "+ responseData.getError());
+		if (allowISCall()) {
+			// PRODUCTION instance
+			try {
+				int requestID = (new Random()).nextInt(1000000) + 1;
+				String requestBody = getGenerateAccountRequest(session, parameters, requestID);
+				ISResponseData responseData = isServiceCaller.call(requestBody, requestID);
+				if (!IS_OK_STATUS.equals(responseData.getStatus())) {
+					throw new InternalErrorException("IS MU (password manager backend) responded with error to a Request ID: " + requestID + " Error: " + responseData.getError());
+				}
+				return parseUCO(responseData.getResponse(), requestID);
+			} catch (IOException e) {
+				throw new InternalErrorException(e);
 			}
-			return parseUCO(responseData.getResponse(), requestID);
-		} catch (IOException e) {
-			throw new InternalErrorException(e);
+
+		} else {
+			// TEST / DEVEL instance - mock assigned UCO
+			String login = String.valueOf(RandomUtils.nextInt(9100000, 9200000));
+			HashMap<String,String> result = new HashMap<>();
+			result.put(PasswordManagerModule.LOGIN_PREFIX + "mu", login);
+			return result;
 		}
 
 	}
@@ -123,7 +134,10 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws PasswordStrengthException {
 		checkPasswordStrength(sess, userLogin, newPassword);
 
-		changePasswordWithoutCheck(sess, userLogin, newPassword);
+		if (allowISCall()) {
+			// PRODUCTION instance
+			changePasswordWithoutCheck(sess, userLogin, newPassword);
+		}
 	}
 
 	@Override
@@ -220,6 +234,10 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 	public String getPasswordTestUco() {
 		return BeansUtils.getPropertyFromCustomConfiguration("pwchange.mu.is", "muPasswordStrengthTestLogin");
+	}
+
+	public boolean allowISCall() {
+		return Boolean.parseBoolean(BeansUtils.getPropertyFromCustomConfiguration("pwchange.mu.is", "allowISCall"));
 	}
 
 	private void changePasswordWithoutCheck(PerunSession sess, String login, String password) throws PasswordStrengthException {
