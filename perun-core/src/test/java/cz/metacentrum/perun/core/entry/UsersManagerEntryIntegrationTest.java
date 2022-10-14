@@ -8,6 +8,8 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.Consent;
+import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -2131,6 +2133,72 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals(1, users.getData().size());
 		assertEquals(1, users.getTotalCount());
 		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
+	}
+
+	@Test
+	public void getUsersPage_facilityResourceConsent() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_facilityResourceConsent");
+
+		User user = setUpUser("john", "smith");
+		User user2 = setUpUser("jane", "smith");
+
+		Facility facility = new Facility();
+		facility.setName("UsersManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource r = new Resource(0, "name", "description", facility.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, facility);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, user);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member2, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
+
+		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManagerBl().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		Consent consent2 = new Consent(-11, user2.getId(), perun.getConsentsManagerBl().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+
+		perun.getConsentsManagerBl().createConsent(sess, consent1);
+		perun.getConsentsManagerBl().createConsent(sess, consent2);
+
+
+		UsersPageQuery query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, null, r.getId(), false, List.of(ConsentStatus.UNSIGNED));
+
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(2, users.getTotalCount());
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+
+		perun.getConsentsManagerBl().changeConsentStatus(sess, consent1, ConsentStatus.GRANTED);
+		
+		query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, null, r.getId(), false, List.of(ConsentStatus.GRANTED));
+
+		users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(1, users.getData().size());
+		assertEquals(1, users.getTotalCount());
+		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user)));
+
+		query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, null, r.getId(), false, List.of(ConsentStatus.GRANTED,  ConsentStatus.UNSIGNED));
+
+		users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(2, users.getData().size());
+		assertEquals(2, users.getTotalCount());
+		assertTrue(users.getData().containsAll(usersManager.getRichUsersByIds(sess, List.of(user.getId(), user2.getId()))));
+
+		query = new UsersPageQuery(3, 0, SortingOrder.ASCENDING, UsersOrderColumn.ID, "", facility.getId(), null, null, r.getId(), false, List.of(ConsentStatus.REVOKED));
+
+		users = usersManager.getUsersPage(sess, query, List.of());
+		assertNotNull(users);
+		assertEquals(0, users.getData().size());
+		assertEquals(0, users.getTotalCount());
+
+
 	}
 
 	@Test

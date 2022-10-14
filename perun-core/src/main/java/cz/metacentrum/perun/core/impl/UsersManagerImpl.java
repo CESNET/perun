@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -66,6 +67,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPER;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR;
@@ -1619,6 +1621,27 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			if (query.getServiceId() != null) {
 				namedParams.addValue("serviceId", query.getServiceId());
 				joinString += " join resource_services on resources.id=resource_services.resource_id and resource_services.service_id=(:serviceId)";
+			}
+
+			if (query.getConsentStatuses() != null && !query.getConsentStatuses().isEmpty()) {
+				List<String> statusStrings = query.getConsentStatuses().stream()
+					.map(ConsentStatus::toString).toList();
+				namedParams.addValue("consentStatuses", statusStrings);
+				joinString += " join consents on users.id = consents.user_id" +
+					" and" +
+						" (select consents.status" +
+						" from consents" +
+						" where consents.user_id=users.id" +
+							" and consents.consent_hub_id in" +
+							" (select consent_hub_id" +
+							" from consent_hubs_facilities" +
+							" where consent_hubs_facilities.facility_id=(:facilityId))" +
+						" order by consents.modified_at desc" +
+						" limit 1)::text in (:consentStatuses)" +
+					" and consents.consent_hub_id in" +
+						" (select consent_hub_id" +
+						" from consent_hubs_facilities" +
+						" where consent_hubs_facilities.facility_id=(:facilityId))";
 			}
 		}
 
