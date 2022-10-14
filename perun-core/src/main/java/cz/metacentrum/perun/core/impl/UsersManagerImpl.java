@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -69,6 +70,8 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.KEY_VALUE_DELIMITER;
+import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.LIST_DELIMITER;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPER;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceMappingSelectQuery;
@@ -848,36 +851,39 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attributeValue) {
-		String value = "";
-		String operator = "=";
-		if (attributeDefinition.getType().equals(String.class.getName())) {
-			value = attributeValue.trim();
-			operator = "=";
-		} else if (attributeDefinition.getType().equals(Integer.class.getName())) {
-			value = attributeValue.trim();
-			operator = "=";
-		}  else if (attributeDefinition.getType().equals(Boolean.class.getName())) {
-			value = attributeValue.trim();
-			operator = "=";
-		} else if (attributeDefinition.getType().equals(ArrayList.class.getName())) {
-			value = "%" + attributeValue.trim() + "%";
-			operator = "like";
-		} else if (attributeDefinition.getType().equals(LinkedHashMap.class.getName())) {
-			value = "%" + attributeValue.trim() + "%";
-			operator = "like";
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("attr_id", attributeDefinition.getId());
+		String matchingPart = "=:value";
+
+		String attributeType = attributeDefinition.getType();
+		var simpleTypes = List.of(String.class.getName(), Integer.class.getName(), Boolean.class.getName());
+		if (simpleTypes.contains(attributeType)) {
+			namedParams.addValue("value", attributeValue.trim());
+		} else if (attributeType.equals(ArrayList.class.getName())) {
+			matchingPart = "~ any(array[(:firstElementRegex),(:anyOtherElementRegex)])";
+			// escape commas in value, double escape backslashes
+			String escapedValue = AttributesManagerBlImpl.escapeListAttributeValue(attributeValue.trim()).replace("\\", "\\\\");
+			namedParams.addValue("firstElementRegex", "^" + escapedValue + LIST_DELIMITER + ".*");
+			// avoid matching escaped commas, f.e. 'corgi' in 'horse,dog\,corgi,'
+			namedParams.addValue("anyOtherElementRegex", ".*[^\\\\]" + LIST_DELIMITER  + escapedValue + LIST_DELIMITER + ".*");
+		} else if (attributeType.equals(LinkedHashMap.class.getName())) {
+			// escape commas and colons in value, double escape backslashes
+			String escapedValue = AttributesManagerBlImpl.escapeMapAttributeValue(attributeValue.trim()).replace("\\", "\\\\");
+			matchingPart = "~ any(array[(:firstKeyRegex),(:anyValueRegex),(:anyOtherKeyRegex)])";
+			namedParams.addValue("firstKeyRegex", "^" + escapedValue + KEY_VALUE_DELIMITER + ".*");
+			// avoid matching escaped delimiters, f.e. 'dalmatian' in 'animals:dog\,dalmatian,'
+			namedParams.addValue("anyValueRegex", ".*[^\\\\]" + KEY_VALUE_DELIMITER + escapedValue + LIST_DELIMITER + ".*");
+			namedParams.addValue("anyOtherKeyRegex", ".*[^\\\\]" + LIST_DELIMITER + escapedValue + KEY_VALUE_DELIMITER + ".*");
+		} else {
+			throw new InternalErrorException("Unknown attribute type: " + attributeType);
 		}
 
 		String query = "select " + userMappingSelectQuery + " from users, user_attr_values where " +
-			" user_attr_values.attr_value " + operator + " :value and users.id=user_attr_values.user_id and user_attr_values.attr_id=:attr_id";
+				" user_attr_values.attr_value " + matchingPart + " and users.id=user_attr_values.user_id and user_attr_values.attr_id=:attr_id";
 
-		MapSqlParameterSource namedParams = new MapSqlParameterSource();
-		namedParams.addValue("value", value);
-		namedParams.addValue("attr_id", attributeDefinition.getId());
 
 		try {
 			return namedParameterJdbcTemplate.query(query, namedParams, USER_MAPPER);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

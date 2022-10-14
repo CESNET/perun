@@ -2369,6 +2369,129 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(users.getData().contains(usersManager.getRichUser(sess, user2)));
 	}
 
+	@Test
+	public void getUsersByAttributeValue_string() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersByAttributeValue_string");
+
+		User user = setUpUser("john", "smith");
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace("urn:perun:user:attribute-def:def");
+		attr.setFriendlyName("getUsersByAttributeValueTest");
+		attr.setType(String.class.getName());
+		attr.setDisplayName("getUsersByAttributeValueTest");
+		attr.setDescription("getUsersByAttributeValueTest");
+
+		AttributeDefinition attrDef = perun.getAttributesManager().createAttribute(sess, attr);
+		Attribute attribute = new Attribute(attrDef, "element1");
+		perun.getAttributesManagerBl().setAttribute(sess, user, attribute);
+
+		String attributeName = attr.getNamespace() + ":" + attr.getFriendlyName();
+
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "element1"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "element"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "element12"))
+			.isEmpty();
+
+		perun.getAttributesManagerBl().setAttribute(sess, user, new Attribute(attrDef, "value@1_with,wei/rd:chars"));
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "value@1_with,wei/rd:chars"))
+			.containsExactly(user);
+	}
+
+	@Test
+	public void getUsersByAttributeValue_list() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersByAttributeValue_list");
+
+		User user = setUpUser("john", "smith");
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace("urn:perun:user:attribute-def:def");
+		attr.setFriendlyName("getUsersByAttributeValueTest");
+		attr.setType(ArrayList.class.getName());
+		attr.setDisplayName("getUsersByAttributeValueTest");
+		attr.setDescription("getUsersByAttributeValueTest");
+
+		AttributeDefinition attrDef = perun.getAttributesManager().createAttribute(sess, attr);
+		Attribute attribute = new Attribute(attrDef, new ArrayList<>(List.of("element1", "ah,oj,", "middle@element", "value@1_with/weird:char,s", "lašt.eĺement")));
+		perun.getAttributesManagerBl().setAttribute(sess, user, attribute);
+
+		String attributeName = attr.getNamespace() + ":" + attr.getFriendlyName();
+
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "element1"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "middle@element"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "lašt.eĺement"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "ah,oj,"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "value@1_with/weird:char,s"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "element"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "element12"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "mymiddle@element"))
+			.isEmpty();
+		// substrings between commas shouldn't get matched either
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "ah"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "oj"))
+			.isEmpty();
+	}
+
+	@Test
+	public void getUsersByAttributeValue_map() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersByAttributeValue_map");
+
+		User user = setUpUser("john", "smith");
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace("urn:perun:user:attribute-def:def");
+		attr.setFriendlyName("getUsersByAttributeValueTest");
+		attr.setType(LinkedHashMap.class.getName());
+		attr.setDisplayName("getUsersByAttributeValueTest");
+		attr.setDescription("getUsersByAttributeValueTest");
+
+		AttributeDefinition attrDef = perun.getAttributesManager().createAttribute(sess, attr);
+		Attribute attribute = new Attribute(attrDef, new LinkedHashMap<>(Map.of("key1", "value@1_with,wei/rd:chars", "key@2", "last val:ue, with ň")));
+		perun.getAttributesManagerBl().setAttribute(sess, user, attribute);
+
+		String attributeName = attr.getNamespace() + ":" + attr.getFriendlyName();
+
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "key1"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "value@1_with,wei/rd:chars"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "key@2"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "last val:ue, with ň"))
+			.containsExactly(user);
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "key"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "mykey1"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "key@21"))
+			.isEmpty();
+		// substrings between comma and colon or colon and comma shouldn't get matched either
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "wei/rd"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "ue"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "ue,"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, ":ue,"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "chars"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, ":chars"))
+			.isEmpty();
+		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "chars,"))
+			.isEmpty();
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	/**
