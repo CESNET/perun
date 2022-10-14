@@ -3634,6 +3634,58 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/authzResolver/setRole/u:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleForUser
+      summary: Set role for user
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleForUser
+              description: "input to setRoleForUser"
+              type: object
+              required:
+                - role
+                - user
+              properties:
+                role: { type: string, nullable: false }
+                user: { type: integer, nullable: false }
+                
+  /json/authzResolver/unsetRole/u:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleForUser
+      summary: Unset role for user
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleForUser
+              description: "input to unsetRoleForUser"
+              type: object
+              required:
+                - role
+                - user
+              properties:
+                role: { type: string, nullable: false }
+                user: { type: integer, nullable: false }
+
   /json/authzResolver/setRole/u-co:
     post:
       tags:
@@ -3698,6 +3750,57 @@ paths:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
+  /json/authzResolver/setRole/g:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleForGroup
+      summary: Set role for authorizedGroup
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleForGroup
+              description: "input to setRoleForGroup"
+              type: object
+              required:
+                - role
+                - authorizedGroup
+              properties:
+                role: { type: string, nullable: false }
+                authorizedGroup: { type: integer, nullable: false }
+
+  /json/authzResolver/unsetRole/g:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleForGroup
+      summary: Unset role for authorizedGroup
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleForGroup
+              description: "input to unsetRoleForGroup"
+              type: object
+              required:
+                - role
+                - authorizedGroup
+              properties:
+                role: { type: string, nullable: false }
+                authorizedGroup: { type: integer, nullable: false }
 
   /json/authzResolver/setRole/g-co:
     post:
