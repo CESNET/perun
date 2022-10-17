@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
@@ -995,15 +996,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PerunException {
-		//map storing [temporaryId : savedId] to enable fixing invalid dependencies on temporary ids
-		Map<Integer, Integer> temporaryToSaved = new HashMap<>();
-		//map storing [temporaryId : disabledDependencyTemporaryId]
-		Map<Integer, Integer> temporaryToDisabled = new HashMap<>();
-		//map storing [temporaryId : hiddenDependencyTemporaryId]
-		Map<Integer, Integer> temporaryToHidden = new HashMap<>();
-
-		prepareIdsMapping(items, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
-
 		//Authorization
 		if (form.getGroup() == null) {
 			// VO application
@@ -1023,6 +1015,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (countEmbeddedGroupFormItems(items) > 1) {
 			throw new MultipleApplicationFormItemsException("Multiple definitions of embedded groups. Only one definition is allowed.");
 		}
+
+		if (items.stream()
+			.filter(i -> i.getId() > 0)
+			.anyMatch(i -> !checkItemBelongsToForm(sess, form.getId(), i.getId()))) {
+			throw new IllegalArgumentException(String.format("Form items do not belong to %s's application form", form.getGroup() == null ? "vo" : "group"));
+		}
+
+		//map storing [temporaryId : savedId] to enable fixing invalid dependencies on temporary ids
+		Map<Integer, Integer> temporaryToSaved = new HashMap<>();
+		//map storing [temporaryId : disabledDependencyTemporaryId]
+		Map<Integer, Integer> temporaryToDisabled = new HashMap<>();
+		//map storing [temporaryId : hiddenDependencyTemporaryId]
+		Map<Integer, Integer> temporaryToHidden = new HashMap<>();
+
+		prepareIdsMapping(items, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
 
 		int finalResult = 0;
 		for (ApplicationFormItem item : items) {
@@ -4793,6 +4800,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Checks if form item belongs to form with given id
+	 *
+	 * @param sess
+	 * @param formId id of application form
+	 * @param itemId id of form item
+	 * @return true if item belongs to the form, false otherwise
+	 */
+	private boolean checkItemBelongsToForm(PerunSession sess, int formId, int itemId) {
+		int storedFormId;
+		try {
+			storedFormId = jdbc.queryForInt("select form_id from application_form_items where id=?", itemId);
+		} catch (EmptyResultDataAccessException e) {
+			return false;
+		}
+		return storedFormId == formId;
 	}
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
