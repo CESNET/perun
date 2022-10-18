@@ -69,7 +69,6 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static cz.metacentrum.perun.core.api.AttributeAction.READ;
 import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
@@ -1641,7 +1640,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		Member member = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
-		boolean isTransactionOngoing = TransactionSynchronizationManager.isActualTransactionActive();
 
 		try {
 
@@ -1650,15 +1648,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// once member is validated
 			new Thread(() -> {
 
-				// if there was ongoing transaction, we have to wait before validating the member,
-				// because the member might not be committed in DB yet
-				if (isTransactionOngoing) {
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
 				try {
@@ -4735,20 +4729,38 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 
 	/**
-	 * Processes delayed group notifications
+	 * Processes delayed group notifications.
 	 *
 	 * @param application for which will be notifications processed
 	 */
 	private void processDelayedGroupNotifications(PerunSession sess, Application application) throws MemberNotExistsException {
 
 		Member member = perun.getMembersManagerBl().getMemberByUser(sess, application.getVo(), application.getUser());
-
-		if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
+		if ((member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID))
+			&& !isAppNotificationAlreadySent(application.getId(), MailType.APP_CREATED_VO_ADMIN)) {
 			getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
 			getMailManager().sendMessage(application, MailType.APPROVABLE_GROUP_APP_USER, null, null);
+			insertAppNotificationSent(sess, application.getId(), MailType.APP_CREATED_VO_ADMIN);
 		}
 	}
 
+	/**
+	 * Returns true if a notification of the given type was already sent
+	 * for the given application.
+	 */
+	private boolean isAppNotificationAlreadySent(int appId, MailType notificationType) {
+		return jdbc.queryForInt("SELECT count(*) FROM app_notifications_sent " +
+			"WHERE app_id=? and notification_type=?::mail_type", appId, notificationType.toString()) > 0;
+	}
+
+	/**
+	 * Sets a flag in DB for the given application, which means that a notification
+	 * of the given type was already sent.
+	 */
+	private void insertAppNotificationSent(PerunSession sess, int appId, MailType notificationType) {
+		jdbc.update("INSERT INTO app_notifications_sent(app_id, notification_type, created_by) " +
+				"values (?,?::mail_type,?)", appId, notificationType.toString(), sess.getPerunPrincipal().getActor());
+	}
 
 	/**
 	 * Processes notifications for created application
@@ -4787,6 +4799,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					Member member = perun.getMembersManagerBl().getMemberByUser(session, application.getVo(), application.getUser());
 					if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
 						getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
+						insertAppNotificationSent(session, application.getId(), MailType.APP_CREATED_VO_ADMIN);
 					}
 				} catch (MemberNotExistsException e) {
 					// Means that we do not send notification to admins yet
