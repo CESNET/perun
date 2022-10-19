@@ -22,3 +22,7 @@ sub new
 sub reloadAppsConfig {
 	return Perun::Common::callManagerMethod('reloadAppsConfig', '', @_)
 }
+
+sub getPerunOidcConfig {
+	return Perun::Common::callManagerMethod('getPerunOidcConfig', '', @_)
+}

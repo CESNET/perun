@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.bl.ConfigManagerBl;
 import cz.metacentrum.perun.core.implApi.ConfigManagerImplApi;
 
@@ -22,6 +23,11 @@ public class ConfigManagerBlImpl implements ConfigManagerBl {
 	@Override
 	public void reloadAppsConfig() {
 		configManagerImpl.reloadAppsConfig();
+	}
+
+	@Override
+	public OidcConfig getPerunOidcConfig() {
+		return configManagerImpl.getPerunOidcConfig();
 	}
 
 }

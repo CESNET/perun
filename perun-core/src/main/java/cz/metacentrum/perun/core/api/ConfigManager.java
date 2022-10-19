@@ -15,4 +15,12 @@ public interface ConfigManager {
 	 * @throws PrivilegeException wrong privilege to call this method
 	 */
 	void reloadAppsConfig(PerunSession sess) throws PrivilegeException;
+
+	/**
+	 * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
+	 *
+	 * @param sess session
+	 * @return oidcConfig
+	 */
+	OidcConfig getPerunOidcConfig(PerunSession sess);
 }
