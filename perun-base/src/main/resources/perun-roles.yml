@@ -1671,7 +1671,7 @@ perun_policies:
 
   getAllGroups_policy:
     policy_roles:
-      - SELF: User
+      - SELF:
     include_policies:
       - default_policy
 
@@ -3520,7 +3520,7 @@ perun_policies:
   #ResourcesManagerEntry
   getAllResources_policy:
     policy_roles:
-      - SELF: User
+      - SELF:
     include_policies:
       - default_policy
 
