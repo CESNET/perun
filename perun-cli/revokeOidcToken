@@ -31,7 +31,7 @@ GetOptions ("help|h"    => sub {
 	"config|c=s"	=> \$configId
 ) || die help();
 if (!defined $configId && !defined $removeAllConfigs) {
-	$configId = $ENV{PERUN_OIDC_CONFIG} || die "ERROR: environment variable PERUN_OIDC_CONFIG not set and configuration not specified.\n";
+	$configId = $ENV{PERUN_OIDC_CONFIG} || Perun::auth::OidcAuth::getDefaultConfig();
 }
 
 my $message;
