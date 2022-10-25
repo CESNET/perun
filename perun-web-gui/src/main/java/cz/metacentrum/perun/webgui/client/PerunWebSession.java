@@ -79,6 +79,7 @@ public class PerunWebSession {
 	private ArrayList<GeneralObject> entitiesHistoryList = new ArrayList<GeneralObject>();
 
 	private BasicOverlayType configuration;
+	private String newGuiAlert;
 
 	// RPC URL
 	private String rpcUrl = "";
@@ -885,5 +886,13 @@ public class PerunWebSession {
 
 	public void setConfiguration(BasicOverlayType configuration) {
 		this.configuration = configuration;
+	}
+
+	public String getNewGuiAlert() {
+		return newGuiAlert;
+	}
+
+	public void setNewGuiAlert(String newGuiAlert) {
+		this.newGuiAlert = newGuiAlert;
 	}
 }

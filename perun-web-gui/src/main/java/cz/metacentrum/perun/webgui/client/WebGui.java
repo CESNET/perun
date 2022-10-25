@@ -20,6 +20,7 @@ import cz.metacentrum.perun.webgui.client.resources.ExceptionLogger;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
+import cz.metacentrum.perun.webgui.json.GetNewGuiAlert;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
@@ -44,10 +45,14 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CantLogAsServiceUserWidget;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
+import org.eclipse.jetty.util.ajax.JSON;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The main web GUI class. It's GWT Entry point.
@@ -168,17 +173,27 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 				final PerunPrincipal pp = (PerunPrincipal)jso;
 				session.setPerunPrincipal(pp);
 
+				GetNewGuiAlert getNewGuiAlert = new GetNewGuiAlert(new JsonCallbackEvents() {
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						BasicOverlayType basic = (jso == null) ? null : jso.cast();
+						String alert = (basic == null) ? null : basic.getString();
+						session.setNewGuiAlert(alert);
+
+						String newGuiAlertContent = session.getNewGuiAlert();
+						if (newGuiAlertContent != null && !newGuiAlertContent.isEmpty()) {
+							DOM.getElementById("perun-new-gui-alert").setInnerHTML(session.getNewGuiAlert());
+							DOM.getElementById("perun-new-gui-alert").setClassName("newGuiAlertActive");
+						}
+					}
+				});
+				getNewGuiAlert.retrieveData();
+
 				GetGuiConfiguration getConfig = new GetGuiConfiguration(new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 
 						session.setConfiguration((BasicOverlayType)jso.cast());
-
-						String newGuiAlertContent = session.getConfiguration().getCustomProperty("newAdminGuiAlert");
-						if (newGuiAlertContent != null && !newGuiAlertContent.isEmpty()) {
-							DOM.getElementById("perun-new-gui-alert").setInnerHTML(newGuiAlertContent);
-							DOM.getElementById("perun-new-gui-alert").setClassName("newGuiAlertActive");
-						}
 
 						// check if user exists
 						if (session.getUser() == null && !pp.getRoles().hasAnyRole()) {

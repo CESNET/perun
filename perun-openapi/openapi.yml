@@ -1429,6 +1429,8 @@ components:
         name: { type: string }
         oldGuiDomain: { type: string }
         newApps: { $ref: '#/components/schemas/NewApps' }
+        vos: { type: array, items: { type: string } }
+        oldGuiAlert: { type: string }
 
     PerunAppsConfig:
       type: object
@@ -3532,6 +3534,19 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/PerunAppsConfigResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/utils/getNewGuiAlert:
+    get:
+      tags:
+        - Utils
+      operationId: getNewGuiAlert
+      summary: Gets new GUI alert (banner html content) for the brand of incoming request.
+      description: Returns new GUI alert
+      responses:
+        '200':
+          $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
