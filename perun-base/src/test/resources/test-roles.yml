@@ -176,5 +176,10 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies: []
 
+  test_spregapplication:
+    policy_roles:
+      - SPREGAPPLICATION:
+    include_policies: []
+
 perun_roles_management: {}
 ...

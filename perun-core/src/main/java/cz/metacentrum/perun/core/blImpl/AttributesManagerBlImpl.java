@@ -7162,6 +7162,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.SPREGAPPLICATION, READ, RoleObject.None));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:phone
