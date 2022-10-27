@@ -77,7 +77,7 @@ import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
-import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
+import cz.metacentrum.perun.oidc.UserDataResolver;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +120,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private final static String userObjectType = "User";
 	private final static List<String> authorizedDefaultReadRoles = List.of(Role.PERUNADMIN, Role.PERUNOBSERVER, Role.RPC, Role.ENGINE);
 	private final static List<String> authorizedDefaultWriteRoles = List.of(Role.PERUNADMIN);
+	private final static UserDataResolver userDataResolver = new UserDataResolver();
 
 	/**
 	 * Prepare necessary structures and resolve access rights for the session's principal.
@@ -2564,7 +2565,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				sess.getPerunPrincipal().getRoles().clear();
 			}
 
-			if (isAuthorizedByMfa(sess)) {
+			if (isMfaTimestampValid(sess)) {
 				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
 			}
 		}
@@ -2639,11 +2640,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new MFAuthenticationException("Cannot verify MFA - issuer is missing.");
 		}
 
-		UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
-		String timestamp = userInfoEndpointCall.getUserInfoEndpointMfaData(accessToken, issuer);
+		HashMap<String, String> additionalInformation = new HashMap<>();
+		userDataResolver.fetchUserData(accessToken, issuer, additionalInformation);
+		String timestamp = additionalInformation.get(MFA_TIMESTAMP);
 		if (timestamp != null && !timestamp.isEmpty()) {
 			sess.getPerunPrincipal().getAdditionalInformations().put(MFA_TIMESTAMP, timestamp);
-			if (isAuthorizedByMfa(sess)) {
+			if (isMfaTimestampValid(sess)) {
 				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
 			}
 		}
@@ -4369,7 +4371,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param sess session
 	 * @return true if principal authorized by MFA in allowed limit, false otherwise
 	 */
-	private static boolean isAuthorizedByMfa(PerunSession sess) {
+	private static boolean isMfaTimestampValid(PerunSession sess) {
 		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
 			return false;
 		}

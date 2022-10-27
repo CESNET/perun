@@ -55,6 +55,9 @@ public class CoreConfig {
 	private boolean userDeletionForced;
 	private boolean forceConsents;
 	private boolean requestUserInfoEndpoint;
+	private boolean requestIntrospectionEndpoint;
+	private String oidcClientId;
+	private String oidcClientSecret;
 	private String alternativePasswordManagerProgram;
 	private String instanceId;
 	private String instanceName;
@@ -766,6 +769,30 @@ public class CoreConfig {
 
 	public boolean getRequestUserInfoEndpoint() {
 		return this.requestUserInfoEndpoint;
+	}
+
+	public void setRequestIntrospectionEndpoint(boolean requestIntrospectionEndpoint) {
+		this.requestIntrospectionEndpoint = requestIntrospectionEndpoint;
+	}
+
+	public boolean getRequestIntrospectionEndpoint() {
+		return this.requestIntrospectionEndpoint;
+	}
+
+	public void setOidcClientId(String clientId) {
+		this.oidcClientId = clientId;
+	}
+
+	public String getOidcClientId() {
+		return this.oidcClientId;
+	}
+
+	public void setOidcClientSecret(String clientSecret) {
+		this.oidcClientSecret = clientSecret;
+	}
+
+	public String getOidcClientSecret() {
+		return this.oidcClientSecret;
 	}
 
 	public List<String> getUserInfoEndpointExtSourceLogin() {

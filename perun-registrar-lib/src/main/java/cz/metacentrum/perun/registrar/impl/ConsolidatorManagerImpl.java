@@ -15,8 +15,9 @@ import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
-import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
-import cz.metacentrum.perun.oidc.UserInfoEndpointResponse;
+import cz.metacentrum.perun.oidc.EndpointCaller;
+import cz.metacentrum.perun.oidc.EndpointResponse;
+import cz.metacentrum.perun.oidc.UserDataResolver;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
@@ -58,7 +59,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	private PerunSession registrarSession;
 	// expiring thread safe map cache
 	private ExpiringMap<String, Map<String, Object>> requestCache;
-	private static UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
+	private static final UserDataResolver userDataResolver = new UserDataResolver();
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {
 		this.registrarManager = registrarManager;
@@ -424,7 +425,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
     @Override
     public void consolidate(PerunSession sess, String accessToken) throws PerunException {
 		Map<String, String> additionalInformationNonCaller = new HashMap<>();
-		UserInfoEndpointResponse userInfoNonCaller = userInfoEndpointCall.getUserInfoEndpointData(accessToken, sess.getPerunPrincipal().getAdditionalInformations().get(ISSUER), additionalInformationNonCaller);
+		EndpointResponse userInfoNonCaller = userDataResolver.fetchUserData(accessToken, sess.getPerunPrincipal().getAdditionalInformations().get(ISSUER), additionalInformationNonCaller);
 		if (StringUtils.isEmpty(userInfoNonCaller.getSub()) || StringUtils.isEmpty(userInfoNonCaller.getIssuer()) ||
 			StringUtils.isEmpty(sess.getPerunPrincipal().getActor()) || StringUtils.isEmpty(sess.getPerunPrincipal().getExtSourceName())) {
 			log.error("Call to user info endpoint didn't found original issuer or original sub.");

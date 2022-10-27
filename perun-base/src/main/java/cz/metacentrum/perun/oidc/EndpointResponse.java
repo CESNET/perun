@@ -5,11 +5,11 @@ package cz.metacentrum.perun.oidc;
  *
  * @author Lucie Kureckova <luckureckova@gmail.com>
  */
-public class UserInfoEndpointResponse {
+public class EndpointResponse {
 	private String issuer;
 	private String sub;
 
-	public UserInfoEndpointResponse(String issuer, String sub) {
+	public EndpointResponse(String issuer, String sub) {
 		this.issuer = issuer;
 		this.sub = sub;
 	}

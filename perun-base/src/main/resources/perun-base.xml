@@ -18,6 +18,7 @@
 		<property name="userDeletionForced" value="${perun.user.deletion.forced}"/>
 		<property name="forceConsents" value="${perun.force.consents}"/>
 		<property name="requestUserInfoEndpoint" value="${perun.requestUserInfoEndpoint}"/>
+		<property name="requestIntrospectionEndpoint" value="${perun.requestIntrospectionEndpoint}"/>
 		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
@@ -55,6 +56,8 @@
 		<property name="attributesForUpdateIdP" value="#{'${perun.attributesForUpdate.idp}'.split('\s*,\s*')}"/>
 		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
 		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
+		<property name="oidcClientId" value="${perun.oidcClientId}"/>
+		<property name="oidcClientSecret" value="${perun.oidcClientSecret}"/>
 		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
 		<property name="pdfFontPath" value="${perun.pdfFontPath}" />
 		<property name="notifSendMessages" value="${notif.sendMessages}" />
@@ -111,6 +114,7 @@
 				<prop key="perun.user.deletion.forced">false</prop>
 				<prop key="perun.force.consents">false</prop>
 				<prop key="perun.requestUserInfoEndpoint">false</prop>
+				<prop key="perun.requestIntrospectionEndpoint">false</prop>
 				<prop key="perun.group.synchronization.interval">1</prop>
 				<prop key="perun.group.synchronization.timeout">10</prop>
 				<prop key="perun.group.structure.synchronization.interval">1</prop>
@@ -187,6 +191,8 @@
 				<prop key="perun.userInfoEndpoint.acrPropertyName">acr</prop>
 				<prop key="perun.userInfoEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
 				<prop key="perun.enforceMfa">false</prop>
+				<prop key="perun.oidcClientId"/>
+				<prop key="perun.oidcClientSecret"/>
 			</props>
 		</property>
 	</bean>
