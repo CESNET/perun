@@ -42,11 +42,11 @@ my $sth_child_groups = $dbh->prepare(q{
 });
 
 my $sth_indirect_group_members = $dbh->prepare(q{
-	select member_id, source_group_id from groups_members where group_id = ? and membership_type = 2
+	select members.user_id as user_id, groups_members.source_group_id as source_group_id from groups_members join members on groups_members.member_id = members.id where groups_members.group_id = ? and groups_members.membership_type = 2
 });
 
 my $sth_group_members = $dbh->prepare(q{
-	select distinct member_id from groups_members where group_id = ?
+	select distinct members.user_id as user_id from groups_members join members on groups_members.member_id = members.id where groups_members.group_id = ?
 });
 
 if (defined $input_vo) {
@@ -90,12 +90,12 @@ sub check_against_next_group_level {
 			my @all_sub_group_members = @{$dbh->selectcol_arrayref($sth_group_members, {}, ($sub_group))};
 			foreach my $sub_group_member (@all_sub_group_members) {
 				unless ($sub_group_member ~~ @{$current_indirect_members->{$parent_group}->{$sub_group}}) {
-					print("Inconsistency found. Member $sub_group_member should exist as Indirect in parent group $parent_group of group $sub_group.\n");
+					print("Inconsistency found. Member with user id $sub_group_member should exist as Indirect in parent group $parent_group of group $sub_group.\n");
 				}
 			}
 			foreach my $expected_sub_group_member (@{$current_indirect_members->{$parent_group}->{$sub_group}}) {
 				unless ($expected_sub_group_member ~~ @all_sub_group_members) {
-					print("Inconsistency found. Indirect member $expected_sub_group_member should exist as Direct in operand group $sub_group of parent group $parent_group.\n");
+					print("Inconsistency found. Indirect member with user id $expected_sub_group_member should exist as Direct in operand group $sub_group of parent group $parent_group.\n");
 				}
 			}
 			push(@all_sub_groups, $sub_group);
@@ -120,8 +120,8 @@ sub prepare_structure_of_indirect_members {
 			$indirect_members{$_}{$child} = ();
 		}
 		$sth_indirect_group_members->execute($_);
-		while (my ($member_id, $source_group_id) = $sth_indirect_group_members->fetchrow_array()) {
-			push(@{$indirect_members{$_}{$source_group_id}}, $member_id);
+		while (my ($user_id, $source_group_id) = $sth_indirect_group_members->fetchrow_array()) {
+			push(@{$indirect_members{$_}{$source_group_id}}, $user_id);
 		}
 	}
 
