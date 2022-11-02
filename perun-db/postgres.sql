@@ -1,4 +1,4 @@
--- database version 3.1.97 (don't forget to update insert statement at the end of file)
+-- database version 3.1.98 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1635,6 +1635,27 @@ create table consent_attr_defs (
 	constraint consentatt_consent_fk foreign key (consent_id) references consents(id)
 );
 
+create type mail_type as enum (
+	'APP_CREATED_USER',
+	'APPROVABLE_GROUP_APP_USER',
+	'APP_CREATED_VO_ADMIN',
+	'MAIL_VALIDATION',
+	'APP_APPROVED_USER',
+	'APP_REJECTED_USER',
+	'APP_ERROR_VO_ADMIN',
+	'USER_INVITE'
+);
+
+-- APP_NOTIFICATIONS_SENT - sent applications notifications, used only for APP_CREATED_VO_ADMIN type for now
+create table app_notifications_sent (
+	app_id int not null,
+	notification_type mail_type not null,
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	constraint appnotifsent_pk primary key(app_id, notification_type),
+	constraint appnotifsent_app_fk foreign key (app_id) references application(id) on delete cascade
+);
+
 create sequence "attr_names_id_seq";
 create sequence "attribute_policies_id_seq";
 create sequence "attribute_policy_collections_id_seq";
@@ -1963,9 +1984,10 @@ grant all on consents to perun;
 grant all on consent_attr_defs to perun;
 grant all on allowed_groups_to_hierarchical_vo to perun;
 grant all on attribute_critical_actions to perun;
+grant all on app_notifications_sent to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.97');
+insert into configurations values ('DATABASE VERSION','3.1.98');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
