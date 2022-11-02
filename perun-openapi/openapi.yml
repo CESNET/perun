@@ -722,6 +722,7 @@ components:
           additionalProperties:
             type: string
         assignableToAttributes: { type: boolean }
+        displayName: { type: string }
       required:
         - roleName
         - primaryObject
@@ -730,6 +731,7 @@ components:
         - entitiesToManage
         - assignedObjects
         - assignableToAttributes
+        - displayName
 
     NamespaceRules:
       type: object
