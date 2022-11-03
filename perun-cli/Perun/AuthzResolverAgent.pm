@@ -68,4 +68,10 @@ sub refreshMfa
 	return Perun::Common::callManagerMethod('refreshMfa', '', @_);
 }
 
+sub getAllRolesManagementRules
+{
+	return Perun::Common::callManagerMethod('getAllRolesManagementRules', '[]RoleManagementRules', @_);
+}
+
+
 1;

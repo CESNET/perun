@@ -57,6 +57,7 @@ use Perun::beans::AttributePolicy;
 use Perun::beans::AttributePolicyCollection;
 use Perun::beans::AttributeRules;
 use Perun::beans::OidcConfig;
+use Perun::beans::RoleManagementRules;
 
 sub newEmptyBean
 {
