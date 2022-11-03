@@ -6997,7 +6997,7 @@ perun_policies:
   getAuthorsByPublicationId_int_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - CABINETADMIN:
+      - SELF:
     include_policies:
       - default_policy
 
