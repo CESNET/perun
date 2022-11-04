@@ -152,8 +152,10 @@ public class PerunRolesLoader {
 			boolean assignableToAttribute = roleNode.get("assignable_to_attributes").asBoolean();
 			boolean skipMFA = roleNode.get("skip_mfa") != null && roleNode.get("skip_mfa").asBoolean();
 			boolean mfaCriticalRole = roleNode.get("mfa_critical_role") != null && roleNode.get("mfa_critical_role").asBoolean();
+			JsonNode displayNameNode = roleNode.get("display_name");
+			String displayName = displayNameNode.isNull() ? null : displayNameNode.textValue();
 
-			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, assignmentCheck, associatedReadRoles, assignableToAttribute, skipMFA, mfaCriticalRole));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, assignmentCheck, associatedReadRoles, assignableToAttribute, skipMFA, mfaCriticalRole, displayName));
 		}
 
 		return rules;

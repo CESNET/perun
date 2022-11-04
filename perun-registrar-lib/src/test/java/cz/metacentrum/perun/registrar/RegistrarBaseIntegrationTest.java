@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -48,6 +49,7 @@ import static cz.metacentrum.perun.registrar.model.Application.AppType.INITIAL;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.CS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.EN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
 
 /**
@@ -1312,6 +1314,26 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).noneMatch(n -> n.equals("wrongone")));
 		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("newone")));
 		assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream().map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
+	}
+
+	@Test
+	public void updateFormItems_formItemsMismatch() throws PerunException {
+		System.out.println("updateFormItems_formItemsMismatch");
+
+		Vo vo2 = new Vo(0,"registrarTestVO2","regTestVO2");
+		vo2 = perun.getVosManagerBl().createVo(session, vo2);
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+		ApplicationForm anotherForm = registrarManager.getFormForVo(vo2);
+
+		ApplicationFormItem testItem = new ApplicationFormItem();
+		testItem.setType(ApplicationFormItem.Type.TEXTFIELD);
+		testItem.setShortname("testItem");
+
+		ApplicationFormItem updatedItem = registrarManager.addFormItem(session, form, testItem);
+		updatedItem.setShortname("updatedItem");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> registrarManager.updateFormItems(session, anotherForm, List.of(updatedItem)));
 	}
 
 	private Group setUpGroup(String name, String desc) throws Exception {

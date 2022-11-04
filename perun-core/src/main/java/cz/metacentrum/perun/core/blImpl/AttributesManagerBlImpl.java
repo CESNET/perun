@@ -109,6 +109,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribu
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isLifecycleAlterable;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
@@ -7932,6 +7933,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//urn:perun:member_group:attribute-def:virt:groupStatus
 		attr = new AttributeDefinition( (new urn_perun_member_group_attribute_def_virt_groupStatus()).getAttributeDefinition() );
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:member_group:attribute-def:virt:groupStatusIndirect
+		attr = new AttributeDefinition( (new urn_perun_member_group_attribute_def_virt_groupStatusIndirect()).getAttributeDefinition() );
 		policies = new ArrayList<>();
 		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));

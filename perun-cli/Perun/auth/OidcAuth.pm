@@ -182,6 +182,10 @@ sub authenticationRequest
 {
 	my $config = loadConfiguration();
 
+	if (!$ENV{PERUN_OIDC_CONFIG} && $config->{"default"}) {
+		print "Environment variable PERUN_OIDC_CONFIG not set, using default config $chosenConfigName.\n";
+	}
+
 	my $ua = LWP::UserAgent->new;
 	my $acr_values = $config->{"acr_values"};
 	if ($config->{"enforce_mfa"}) {
@@ -422,7 +426,6 @@ sub getDefaultConfig
 	};
 	foreach my $config (keys %configs) {
 		if ($configs{$config}->{"default"}) {
-			print "Environment variable PERUN_OIDC_CONFIG not set, using default config $config.\n";
 			return $config;
 		}
 	}

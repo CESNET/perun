@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -1193,11 +1194,19 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("groupId", group.getId());
-		parameters.addValue("memberIds", memberIds);
 
 		try {
-			Map<Integer, List<Integer>> map = namedParameterJdbcTemplate.query("select member_id, source_group_status FROM groups_members" +
-				" join members on groups_members.member_id=members.id where group_id=(:groupId) and member_id in (:memberIds)", parameters, MEMBERID_MEMBERGROUPSTATUS_EXTRACTOR);
+			// The list of member ids needs to be split into smaller chunks because of max length of sql
+			Map<Integer, List<Integer>> map = new HashMap<>();
+
+			for(List<Integer> partMemberIds : Lists.partition(memberIds, 10000)) {
+				parameters.addValue("partMemberIds", partMemberIds);
+
+				Map<Integer, List<Integer>> partMap = namedParameterJdbcTemplate.query("select member_id, source_group_status FROM groups_members" +
+					" join members on groups_members.member_id=members.id where group_id=(:groupId) and member_id in (:partMemberIds)", parameters, MEMBERID_MEMBERGROUPSTATUS_EXTRACTOR);
+
+				map.putAll(partMap);
+			}
 
 			Map<Integer, MemberGroupStatus> resultMap = new HashMap<>();
 

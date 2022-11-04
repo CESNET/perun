@@ -85,15 +85,18 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	public void testGetMessagesByIdAndCount() throws Exception {
 		System.out.println(CLASS_NAME + "testGetMessagesByIdAndCount");
 		int total = 40;
+		int idToChoose = total / 2;
 		int count = 10;
 
 		for (int i = 0; i < total; i++) {
-			perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: "+ i));
+			perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: " + i));
 		}
 		List<AuditMessage> allNewMessages = perun.getAuditMessagesManager().getMessages(sess, total);
-		int id = allNewMessages.get(0).getId();
+		int id = allNewMessages.get(idToChoose).getId();
 		List<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesByIdAndCount(sess, id, count);
-		assertEquals("getMessagesByIdAndCount(sess, id, count) returns wrong count of messages", count , messages.size());
+		assertEquals("getMessagesByIdAndCount(sess, id, count) returns wrong count of messages", count, messages.size());
+		assertEquals(messages.get(0).getId(), id);
+		assertEquals(messages.get(count - 1), allNewMessages.get(idToChoose - count + 1));
 	}
 
 	/*

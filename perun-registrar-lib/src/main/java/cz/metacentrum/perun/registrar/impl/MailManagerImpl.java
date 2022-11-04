@@ -35,9 +35,11 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.PerunAppsConfig;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationNotNewException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.InvitationSentEvent;
@@ -542,7 +544,7 @@ public class MailManagerImpl implements MailManager {
 					if (app.getState().equals(Application.AppState.NEW)) {
 						sendMessage(app, mailType, null, null);
 					} else {
-						throw new RegistrarException("Application must be in state NEW to allow sending of "+mailType+" notification.");
+						throw new ApplicationNotNewException("Application must be in state NEW to allow sending of "+mailType+" notification.", app.getState().toString());
 					}
 				} break;
 				case APP_APPROVED_USER: {
@@ -1524,8 +1526,8 @@ public class MailManagerImpl implements MailManager {
 
 	/**
 	 * Return base URL of Perun instance taken from VO/Group attribute. If not set,
-	 * value of config property "perunUrl" is used. If can't determine, then empty
-	 * string is returned.
+	 * value of branded, old gui domain is used. Otherwise, value of config property "perunUrl" is used.
+	 * If can't determine, then empty string is returned.
 	 *
 	 * e.g. https://perun.cesnet.cz
 	 *
@@ -1535,6 +1537,11 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private String getPerunUrl(Vo vo, Group group) {
 		String result = getPropertyFromConfiguration("perunUrl");
+
+		PerunAppsConfig.Brand voBrand = PerunAppsConfig.getBrandContainingVo(vo.getShortName());
+		if (voBrand != null && !voBrand.getName().equals("default")) {
+			result = voBrand.getOldGuiDomain();
+		}
 		try {
 			if (group != null) {
 				Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_REGISTRAR_URL);
@@ -1594,10 +1601,14 @@ public class MailManagerImpl implements MailManager {
 					// only namespace "fed", "cert",...
 					String namespace = m2.group(1);
 
-					newValue = getPerunUrl(vo, group);
-					if (newValue != null && !newValue.isEmpty()) {
-						if (!newValue.endsWith("/")) newValue += "/";
-						newValue += namespace + "/gui/";
+					if (namespace.equals("newGUI")) {
+						newValue = PerunAppsConfig.getBrandContainingVo(vo.getShortName()).getNewApps().getAdmin();
+					} else {
+						newValue = getPerunUrl(vo, group);
+						if (newValue != null && !newValue.isEmpty()) {
+							if (!newValue.endsWith("/")) newValue += "/";
+							newValue += namespace + "/gui/";
+						}
 					}
 				}
 				// substitute {appGuiUrl-authz} with actual value or empty string
@@ -1698,14 +1709,23 @@ public class MailManagerImpl implements MailManager {
 					// only namespace "fed", "cert",...
 					String namespace = m2.group(1);
 
-					newValue = getPerunUrl(vo, group);
-					if (newValue != null && !newValue.isEmpty()) {
-						if (!newValue.endsWith("/")) newValue += "/";
-						newValue += namespace + "/gui/";
-						newValue += "?vo/appdetail?id="+appId;
-						//newValue += getFedAuthz().contains(namespace) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId;
+					if (namespace.equals("newGUI")) {
+						newValue = PerunAppsConfig.getBrandContainingVo(vo.getShortName()).getNewApps().getAdmin();
+						if (newValue != null && !newValue.isEmpty()) {
+							if (!newValue.endsWith("/")) newValue += "/";
+							newValue += "organizations/" + vo.getId();
+							newValue += group == null ? "" : "/groups/" + group.getId();
+							newValue += "/applications/" + appId;
+						}
+					} else {
+						newValue = getPerunUrl(vo, group);
+						if (newValue != null && !newValue.isEmpty()) {
+							if (!newValue.endsWith("/")) newValue += "/";
+							newValue += namespace + "/gui/";
+							newValue += "?vo/appdetail?id="+appId;
+							//newValue += getFedAuthz().contains(namespace) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId;
+						}
 					}
-
 				}
 
 				// substitute {appDetailUrl-authz} with actual value or empty string

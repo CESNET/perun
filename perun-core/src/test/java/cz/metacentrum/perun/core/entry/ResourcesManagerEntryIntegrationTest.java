@@ -95,6 +95,21 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager = perun.getResourcesManager();
 	}
 
+	@Test
+	public void getAllResources() throws Exception {
+		System.out.println(CLASS_NAME + "getAllResources");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		Resource resource2 = setUpResource2();
+
+
+		List<Resource> resources = resourcesManager.getAllResources(sess);
+
+		assertThat(resources).contains(resource, resource2);
+		assertEquals(2, resources.size());
+	}
 
 	@Test
 	public void getResourceById() throws Exception {

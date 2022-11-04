@@ -1676,7 +1676,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 					parms.readString("password"),
 					parms.readString("namespace"),
 					parms.contains("login") ? parms.readString("login") : null);
-
 			return null;
 		}
 	},

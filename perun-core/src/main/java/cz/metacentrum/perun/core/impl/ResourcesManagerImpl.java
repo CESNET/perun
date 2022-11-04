@@ -221,6 +221,15 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
+	public List<Resource> getAllResources(PerunSession sess) {
+		try {
+			return jdbc.query("select " + resourceMappingSelectQuery + " from resources", RESOURCE_MAPPER);
+		} catch(RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public Resource getResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + resourceMappingSelectQuery + " from resources where resources.id=?", RESOURCE_MAPPER, id);

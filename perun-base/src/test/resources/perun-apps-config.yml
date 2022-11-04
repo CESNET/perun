@@ -10,14 +10,16 @@ brands:
       pwd_reset: "pwd-reset"
       publications: "publications"
     old_gui_domain: "perun-dev"
+    old_gui_alert: New GUI is <b><a href="http://www.google.com">here</a></b>
   - name: other
     new_apps:
-      api: ""
-      admin: ""
-      consolidator: ""
-      linker: ""
-      profile: ""
-      pwd_reset: ""
-      publications: ""
-    old_gui_domain: ""
+      api: "other-api"
+      admin: "other-admin"
+      consolidator: "other-consolidator"
+      linker: "other-linker"
+      profile: "other-profile"
+      pwd_reset: "other-pwd-reset"
+      publications: "other-publication"
+    old_gui_domain: "other-old_gui_domain"
+    vos: ["test_vo", "other_vo"]
 ...

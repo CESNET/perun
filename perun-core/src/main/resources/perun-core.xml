@@ -415,6 +415,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	</bean>
 	<bean id="configManagerImpl" class="cz.metacentrum.perun.core.impl.ConfigManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunAppsConfigLoader" ref="perunAppsConfigLoader"/>
+		<property name="perunOidcConfigLoader" ref="perunOidcConfigLoader"/>
 	</bean>
 	<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
 		<constructor-arg ref="dataSource" />
@@ -566,6 +567,11 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader" init-method="initialize">
 			<property name="configPath" value="file:@perun.conf@perun-apps-config.yml"/>
 		</bean>
+
+		<!-- PerunOidcConfigLoader implementation -->
+		<bean id="perunOidcConfigLoader" class="cz.metacentrum.perun.core.impl.PerunOidcConfigLoader">
+			<property name="configurationPath" value="file:@perun.conf@perun-oidc-config.yml"/>
+		</bean>
 	</beans>
 
 	<!-- Containerized Perun for local testing -->
@@ -609,6 +615,11 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<!-- Loader for the perunAppsConfig-->
 		<bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader" init-method="initialize">
 			<property name="configPath" value="classpath:perun-apps-config.yml"/>
+		</bean>
+
+		<!-- PerunOidcConfigLoader implementation -->
+		<bean id="perunOidcConfigLoader" class="cz.metacentrum.perun.core.impl.PerunOidcConfigLoader">
+			<property name="configurationPath" value="classpath:perun-oidc-config.yml"/>
 		</bean>
 
 		<!-- Spring's @Async execution runs synchronously	-->

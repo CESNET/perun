@@ -223,6 +223,13 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 						return false;
 					}
 
+				} else {
+
+					// check default minimum length for password
+					if (newPass.getTextBox().getValue().length() < 8) {
+						newPass.setError("Password must be <b>at least 8 characters</b> long!");
+						return false;
+					}
 				}
 
 				if (!newPass.getTextBox().getValue().equals(confPass.getTextBox().getValue())) {
@@ -494,7 +501,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 		if ("einfra".equals(namespace)) {
 			layout.setHTML(row, 0, "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
 		} else {
-			layout.setHTML(row, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+			layout.setHTML(row, 0, "Password must be at least 8 characters long. Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
 		}
 		layout.getFlexCellFormatter().setColSpan(row, 0, 2);
 		layout.getCellFormatter().setStyleName(row, 0,"inputFormInlineComment");

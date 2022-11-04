@@ -33,6 +33,7 @@ import java.util.Objects;
  * assignableToAttributes is a flag that determines whether the role can appear in attribute policies.
  * skipMFA is a flag that whether the role should skip MFA check.
  * mfaCriticalRole is a flag marking roles always requiring MFA from users having that role
+ * displayName is a more user-friendly name
  */
 public class RoleManagementRules {
 
@@ -48,7 +49,9 @@ public class RoleManagementRules {
 	private boolean skipMFA;
 	private boolean mfaCriticalRole;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean skipMFA, boolean mfaCriticalRole) {
+	private String displayName;
+
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean skipMFA, boolean mfaCriticalRole, String displayName) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
@@ -60,6 +63,7 @@ public class RoleManagementRules {
 		this.assignableToAttributes = assignableToAttributes;
 		this.skipMFA = skipMFA;
 		this.mfaCriticalRole = mfaCriticalRole;
+		this.displayName = displayName;
 	}
 
 	public String getRoleName() {
@@ -150,6 +154,14 @@ public class RoleManagementRules {
 		this.mfaCriticalRole = mfaCriticalRole;
 	}
 
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -165,12 +177,13 @@ public class RoleManagementRules {
 			Objects.equals(associatedReadRoles, that.associatedReadRoles) &&
 			Objects.equals(assignableToAttributes, that.assignableToAttributes) &&
 			Objects.equals(skipMFA, that.skipMFA) &&
-			Objects.equals(mfaCriticalRole, that.mfaCriticalRole);
+			Objects.equals(mfaCriticalRole, that.mfaCriticalRole) &&
+			Objects.equals(displayName, that.displayName);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, skipMFA, mfaCriticalRole);
+		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, skipMFA, mfaCriticalRole, displayName);
 	}
 
 	@Override
@@ -187,6 +200,7 @@ public class RoleManagementRules {
 			", assignableToAttributes=" + assignableToAttributes +
 			", skipMFA=" + skipMFA +
 			", mfaCriticalRole=" + mfaCriticalRole +
+			", displayName=" + displayName +
 			'}';
 	}
 }

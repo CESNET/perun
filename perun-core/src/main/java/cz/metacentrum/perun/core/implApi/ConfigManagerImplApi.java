@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.core.implApi;
 
 
+import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.impl.PerunAppsConfigLoader;
+import cz.metacentrum.perun.core.impl.PerunOidcConfigLoader;
 
 /**
  * ConfigManager serves to manage configuration files.
@@ -18,8 +20,22 @@ public interface ConfigManagerImplApi {
 	void setPerunAppsConfigLoader(PerunAppsConfigLoader perunAppsConfigLoader);
 
 	/**
+	 * Sets the PerunOidcConfigLoader
+	 *
+	 * @param perunOidcConfigLoader loader to set
+	 */
+	void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader);
+
+	/**
 	 * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
 	 *
 	 */
 	void reloadAppsConfig();
+
+	/**
+	 * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
+	 *
+	 * @return oidcConfig
+	 */
+	OidcConfig getPerunOidcConfig();
 }

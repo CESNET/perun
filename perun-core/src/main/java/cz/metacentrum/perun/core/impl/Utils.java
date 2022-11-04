@@ -1161,8 +1161,11 @@ public class Utils {
 				}
 			} else {
 				// if no brand contains specified domain, set default old gui domain
-				brand = getInstance().getBrands().get(0);
-				url = brand.getOldGuiDomain();
+				PerunAppsConfig.Brand defaultBrand = getInstance().getBrands().stream()
+					.filter(b -> b.getName().equals("default"))
+					.findFirst()
+					.orElseThrow(() -> new InternalErrorException("Default GUI branding configuration is missing"));
+				url = defaultBrand.getOldGuiDomain();
 			}
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);

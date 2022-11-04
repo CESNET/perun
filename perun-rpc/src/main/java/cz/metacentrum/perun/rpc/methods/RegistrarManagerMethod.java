@@ -151,6 +151,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @param reason String you can specify reason for case: mailType == APP_REJECTED_USER
 	 *
 	 * @throws RegistrarException if notification can't be sent
+	 * @throws ApplicationNotCreatedException if message of type MAIL_VERIFICATION and application is no longer 'NEW'
 	 */
 	sendMessage{
 

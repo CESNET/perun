@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.ConfigManagerBl;
@@ -47,5 +48,12 @@ public class ConfigManagerEntry implements ConfigManager {
 			throw new PrivilegeException(sess, "reloadAppsConfig");
 
 		configManagerBl.reloadAppsConfig();
+	}
+
+	@Override
+	public OidcConfig getPerunOidcConfig(PerunSession sess) {
+		Utils.checkPerunSession(sess);
+
+		return configManagerBl.getPerunOidcConfig();
 	}
 }

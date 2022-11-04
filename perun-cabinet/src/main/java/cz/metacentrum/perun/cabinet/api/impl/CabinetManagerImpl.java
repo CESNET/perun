@@ -347,30 +347,12 @@ public class CabinetManagerImpl implements CabinetManager {
 	@Override
 	public List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws PrivilegeException, CabinetException {
 
-		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(id);
-		boolean oneOfAuthors = false;
-		for (Author author : authors) {
-			if (author.getId() == session.getPerunPrincipal().getUserId()) {
-				oneOfAuthors = true;
-				break;
-			}
-		}
-
 		//Authorization
-		if (AuthzResolver.authorizedInternal(session, "getAuthorsByPublicationId_int_policy")) {
-			oneOfAuthors = true;
+		if (!AuthzResolver.authorizedInternal(session, "getAuthorsByPublicationId_int_policy")) {
+			throw new PrivilegeException("getAuthorsByPublicationId");
 		}
 
-		if (!oneOfAuthors) {
-			// not author, but check if user created publication, then he can list current authors
-			Publication publication = getPublicationManagerBl().getPublicationById(id);
-			if ((publication.getCreatedByUid() != session.getPerunPrincipal().getUserId()) &&
-					!(Objects.equals(publication.getCreatedBy(), session.getPerunPrincipal().getActor()))) {
-				throw new PrivilegeException("getAuthorsByPublicationId");
-			}
-		}
-
-		return authors;
+		return getAuthorshipManagerBl().getAuthorsByPublicationId(id);
 
 	}
 

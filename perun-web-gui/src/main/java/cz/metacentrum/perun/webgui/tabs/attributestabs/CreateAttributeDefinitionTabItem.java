@@ -221,9 +221,11 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 			}
 		}));
 
-		String newGuiAlertContent = session.getConfiguration().getCustomProperty("newAdminGuiAlert");
+		String newGuiAlertContent = session.getNewGuiAlert();
 		final FlexTable alert = new FlexTable();
-		alert.setHTML(0,0,"<p>Setting attribute rights is no longer supported in this GUI. In order to set attribute rights please use the New GUI.</p> "+ newGuiAlertContent);
+		String alertText = "<p>Setting attribute rights is no longer supported in this GUI. In order to set attribute rights please use the New GUI.</p> ";
+		if (newGuiAlertContent != null && !newGuiAlertContent.isEmpty()) alertText += newGuiAlertContent;
+		alert.setHTML(0,0,alertText);
 
 		vp.add(layout);
 		vp.add(alert);

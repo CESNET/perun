@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
@@ -69,7 +70,6 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static cz.metacentrum.perun.core.api.AttributeAction.READ;
 import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
@@ -995,15 +995,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PerunException {
-		//map storing [temporaryId : savedId] to enable fixing invalid dependencies on temporary ids
-		Map<Integer, Integer> temporaryToSaved = new HashMap<>();
-		//map storing [temporaryId : disabledDependencyTemporaryId]
-		Map<Integer, Integer> temporaryToDisabled = new HashMap<>();
-		//map storing [temporaryId : hiddenDependencyTemporaryId]
-		Map<Integer, Integer> temporaryToHidden = new HashMap<>();
-
-		prepareIdsMapping(items, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
-
 		//Authorization
 		if (form.getGroup() == null) {
 			// VO application
@@ -1023,6 +1014,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (countEmbeddedGroupFormItems(items) > 1) {
 			throw new MultipleApplicationFormItemsException("Multiple definitions of embedded groups. Only one definition is allowed.");
 		}
+
+		if (items.stream()
+			.filter(i -> i.getId() > 0)
+			.anyMatch(i -> !checkItemBelongsToForm(sess, form.getId(), i.getId()))) {
+			throw new IllegalArgumentException(String.format("Form items do not belong to %s's application form", form.getGroup() == null ? "vo" : "group"));
+		}
+
+		//map storing [temporaryId : savedId] to enable fixing invalid dependencies on temporary ids
+		Map<Integer, Integer> temporaryToSaved = new HashMap<>();
+		//map storing [temporaryId : disabledDependencyTemporaryId]
+		Map<Integer, Integer> temporaryToDisabled = new HashMap<>();
+		//map storing [temporaryId : hiddenDependencyTemporaryId]
+		Map<Integer, Integer> temporaryToHidden = new HashMap<>();
+
+		prepareIdsMapping(items, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
 
 		int finalResult = 0;
 		for (ApplicationFormItem item : items) {
@@ -1641,7 +1647,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		Member member = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
-		boolean isTransactionOngoing = TransactionSynchronizationManager.isActualTransactionActive();
 
 		try {
 
@@ -1650,15 +1655,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// once member is validated
 			new Thread(() -> {
 
-				// if there was ongoing transaction, we have to wait before validating the member,
-				// because the member might not be committed in DB yet
-				if (isTransactionOngoing) {
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
 				try {
@@ -4735,20 +4736,38 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 
 	/**
-	 * Processes delayed group notifications
+	 * Processes delayed group notifications.
 	 *
 	 * @param application for which will be notifications processed
 	 */
 	private void processDelayedGroupNotifications(PerunSession sess, Application application) throws MemberNotExistsException {
 
 		Member member = perun.getMembersManagerBl().getMemberByUser(sess, application.getVo(), application.getUser());
-
-		if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
+		if ((member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID))
+			&& !isAppNotificationAlreadySent(application.getId(), MailType.APP_CREATED_VO_ADMIN)) {
 			getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
 			getMailManager().sendMessage(application, MailType.APPROVABLE_GROUP_APP_USER, null, null);
+			insertAppNotificationSent(sess, application.getId(), MailType.APP_CREATED_VO_ADMIN);
 		}
 	}
 
+	/**
+	 * Returns true if a notification of the given type was already sent
+	 * for the given application.
+	 */
+	private boolean isAppNotificationAlreadySent(int appId, MailType notificationType) {
+		return jdbc.queryForInt("SELECT count(*) FROM app_notifications_sent " +
+			"WHERE app_id=? and notification_type=?::mail_type", appId, notificationType.toString()) > 0;
+	}
+
+	/**
+	 * Sets a flag in DB for the given application, which means that a notification
+	 * of the given type was already sent.
+	 */
+	private void insertAppNotificationSent(PerunSession sess, int appId, MailType notificationType) {
+		jdbc.update("INSERT INTO app_notifications_sent(app_id, notification_type, created_by) " +
+				"values (?,?::mail_type,?)", appId, notificationType.toString(), sess.getPerunPrincipal().getActor());
+	}
 
 	/**
 	 * Processes notifications for created application
@@ -4787,12 +4806,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					Member member = perun.getMembersManagerBl().getMemberByUser(session, application.getVo(), application.getUser());
 					if (member.getStatus().equals(Status.VALID) || member.getStatus().equals(Status.INVALID)) {
 						getMailManager().sendMessage(application, MailType.APP_CREATED_VO_ADMIN, null, null);
+						insertAppNotificationSent(session, application.getId(), MailType.APP_CREATED_VO_ADMIN);
 					}
 				} catch (MemberNotExistsException e) {
 					// Means that we do not send notification to admins yet
 				}
 			}
 		}
+	}
+
+	/**
+	 * Checks if form item belongs to form with given id
+	 *
+	 * @param sess
+	 * @param formId id of application form
+	 * @param itemId id of form item
+	 * @return true if item belongs to the form, false otherwise
+	 */
+	private boolean checkItemBelongsToForm(PerunSession sess, int formId, int itemId) {
+		int storedFormId;
+		try {
+			storedFormId = jdbc.queryForInt("select form_id from application_form_items where id=?", itemId);
+		} catch (EmptyResultDataAccessException e) {
+			return false;
+		}
+		return storedFormId == formId;
 	}
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------

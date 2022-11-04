@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use JSON;
+
+use Perun::Agent;
+use Getopt::Long qw(:config no_ignore_case);
+
+
+sub help {
+	return qq{
+	Returns the OIDC configuration for this Perun instance.
+	The configuration can then be used in Perun/auth/oidc_config.yml to connect via OIDC.
+
+};
+}
+GetOptions("help|h"            => sub { print help(); exit 0; });
+
+my $agent = Perun::Agent->new();
+
+my $configAgent = $agent->getConfigAgent;
+
+my $oidcConfig = $configAgent->getPerunOidcConfig();
+
+my @result = ();
+
+foreach my $key (keys %$oidcConfig) {
+	my $fieldValue = $oidcConfig->{$key};
+	unless (defined $fieldValue) {
+		warn "WARNING: Field $_ is not defined in the OIDC config of this Perun instance!";
+		next;
+	}
+	push(@result, decamelize($key). ": " . encode_json($fieldValue) . "\n");
+}
+
+print(@result);
+
+
+sub decamelize {
+	my ($s) = @_;
+	$s =~ s{(\w+)}{
+		($a = $1) =~ s<(^[A-Z]|(?![a-z])[A-Z])><
+			"_" . lc $1
+		>eg;
+		substr $a, 0;
+	}eg;
+	$s;
+}

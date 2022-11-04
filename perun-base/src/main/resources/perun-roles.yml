@@ -1671,7 +1671,7 @@ perun_policies:
 
   getAllGroups_policy:
     policy_roles:
-      - SELF: User
+      - SELF:
     include_policies:
       - default_policy
 
@@ -3518,6 +3518,26 @@ perun_policies:
       - default_policy
 
   #ResourcesManagerEntry
+  getAllResources_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+  filter-getAllResources_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - RPC:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getResourceById_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -6977,7 +6997,7 @@ perun_policies:
   getAuthorsByPublicationId_int_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - CABINETADMIN:
+      - SELF:
     include_policies:
       - default_policy
 
@@ -7802,6 +7822,7 @@ perun_policies:
 #  assignable_to_attributes is a flag that determines whether the role can appear in attribute policies.
 #  mfa_critical_role is a flag marking roles always requiring MFA from users having that role
 #  skip_mfa is a flag that whether the role should skip MFA check.
+#  display_name is a more user-friendly name
 perun_roles_management:
 
   PERUNADMIN:
@@ -7820,6 +7841,7 @@ perun_roles_management:
       - PERUNOBSERVER
     assignable_to_attributes: false
     mfa_critical_role: true
+    display_name: "Perun admin"
 
   PERUNOBSERVER:
     primary_object:
@@ -7836,6 +7858,7 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: false
     mfa_critical_role: true
+    display_name: "Perun observer"
 
   AUDITCONSUMERADMIN:
     primary_object:
@@ -7851,6 +7874,7 @@ perun_roles_management:
       - PERUNOBSERVER:
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Audit consumer admin"
 
   VOADMIN:
     primary_object: Vo
@@ -7872,6 +7896,7 @@ perun_roles_management:
     associated_read_roles:
       - VOOBSERVER
     assignable_to_attributes: true
+    display_name: "Organization admin"
 
   GROUPADMIN:
     primary_object: Group
@@ -7899,6 +7924,7 @@ perun_roles_management:
     associated_read_roles:
       - GROUPOBSERVER
     assignable_to_attributes: true
+    display_name: "Group admin"
 
   GROUPOBSERVER:
     primary_object: Group
@@ -7925,6 +7951,7 @@ perun_roles_management:
       - GROUPMEMBERSHIPMANAGER: Group
     associated_read_roles: []
     assignable_to_attributes: false
+    display_name: "Group observer"
 
   GROUPMEMBERSHIPMANAGER:
     primary_object: Group
@@ -7951,6 +7978,7 @@ perun_roles_management:
       - GROUPMEMBERSHIPMANAGER: Group
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Group membership manager"
 
   SELF:
     primary_object:
@@ -7963,6 +7991,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Self"
 
   FACILITYADMIN:
     primary_object: Facility
@@ -7984,6 +8013,7 @@ perun_roles_management:
     associated_read_roles:
       - FACILITYOBSERVER
     assignable_to_attributes: true
+    display_name: "Facility admin"
 
   FACILITYOBSERVER:
     primary_object: Facility
@@ -8004,6 +8034,8 @@ perun_roles_management:
       - FACILITYOBSERVER: Facility
     associated_read_roles: []
     assignable_to_attributes: false
+    display_name: "Facility observer"
+
 
   TRUSTEDFACILITYADMIN:
     primary_object: Vo
@@ -8024,6 +8056,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Trusted facility admin"
 
   RESOURCEADMIN:
     primary_object: Resource
@@ -8058,6 +8091,7 @@ perun_roles_management:
     associated_read_roles:
       - RESOURCEOBSERVER
     assignable_to_attributes: true
+    display_name: "Resource admin"
 
   RESOURCEOBSERVER:
     primary_object: Resource
@@ -8091,6 +8125,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles: []
     assignable_to_attributes: false
+    display_name: "Resource observer"
 
   RESOURCESELFSERVICE:
     primary_object: Resource
@@ -8124,6 +8159,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Resource self service"
 
   REGISTRAR:
     primary_object:
@@ -8135,6 +8171,7 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: false
     skip_mfa: true
+    display_name: "Registrar"
 
   ENGINE:
     primary_object:
@@ -8146,6 +8183,7 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: false
     skip_mfa: true
+    display_name: "Engine"
 
   RPC:
     primary_object:
@@ -8157,6 +8195,7 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: false
     skip_mfa: true
+    display_name: "RPC"
 
   NOTIFICATIONS:
     primary_object:
@@ -8168,6 +8207,7 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: false
     skip_mfa: true
+    display_name: "Notifications"
 
   SERVICEUSER:
     primary_object:
@@ -8178,6 +8218,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    display_name: "Service user"
 
   SPONSOR:
     primary_object: Vo
@@ -8198,6 +8239,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Sponsor"
 
   VOOBSERVER:
     primary_object: Vo
@@ -8218,6 +8260,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles: []
     assignable_to_attributes: false
+    display_name: "Organization observer"
 
   TOPGROUPCREATOR:
     primary_object: Vo
@@ -8238,6 +8281,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Topgroup creator"
 
   SECURITYADMIN:
     primary_object: SecurityTeam
@@ -8257,6 +8301,7 @@ perun_roles_management:
       - SECURITYADMIN: SecurityTeam
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Security admin"
 
   CABINETADMIN:
     primary_object:
@@ -8274,6 +8319,7 @@ perun_roles_management:
       - CABINETADMIN:
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Cabinet admin"
 
   MEMBERSHIP:
     primary_object:
@@ -8288,6 +8334,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Membership"
 
   SPONSORSHIP:
     primary_object:
@@ -8299,6 +8346,7 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: true
+    display_name: "Sponsorship"
 
   MFA:
     primary_object:
@@ -8309,6 +8357,7 @@ perun_roles_management:
     privileged_roles_to_read: [ ]
     associated_read_roles: [ ]
     assignable_to_attributes: false
+    display_name: "MFA"
 
   UNKNOWN:
     primary_object:
@@ -8319,5 +8368,6 @@ perun_roles_management:
     privileged_roles_to_read: []
     associated_read_roles: []
     assignable_to_attributes: false
+    display_name: "Unknown"
 
 ...

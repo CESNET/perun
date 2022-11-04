@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -19,6 +20,7 @@ public class UsersPageQuery {
 	private Integer facilityId;
 	private Integer serviceId;
 	private boolean onlyAllowed = false;
+	private List<ConsentStatus> consentStatuses;
 
 	public UsersPageQuery() {}
 
@@ -97,6 +99,20 @@ public class UsersPageQuery {
 		this.resourceId = resourceId;
 		this.onlyAllowed = onlyAllowed;
 	}
+	public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString, Integer facilityId, Integer voId, Integer serviceId, Integer resourceId, boolean onlyAllowed, List<ConsentStatus> consentStatuses) {
+		this.pageSize = pageSize;
+		this.offset = offset;
+		this.order = order;
+		this.sortColumn = sortColumn;
+		this.searchString = searchString;
+		this.facilityId = facilityId;
+		this.serviceId = serviceId;
+		this.voId = voId;
+		this.resourceId = resourceId;
+		this.onlyAllowed = onlyAllowed;
+		this.consentStatuses = consentStatuses;
+	}
+
 
 	public int getPageSize() {
 		return pageSize;
@@ -186,6 +202,15 @@ public class UsersPageQuery {
 		this.serviceId = serviceId;
 	}
 
+
+	public List<ConsentStatus> getConsentStatuses() {
+		return consentStatuses;
+	}
+
+	public void setConsentStatuses(List<ConsentStatus> consentStatuses) {
+		this.consentStatuses = consentStatuses;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -203,6 +228,7 @@ public class UsersPageQuery {
 		if (!Objects.equals(voId, that.voId)) return false;
 		if (!Objects.equals(resourceId, that.resourceId)) return false;
 		if (!Objects.equals(serviceId, that.serviceId)) return false;
+		if (!Objects.equals(consentStatuses, that.consentStatuses)) return false;
 		return Objects.equals(facilityId, that.facilityId);
 	}
 
@@ -218,6 +244,7 @@ public class UsersPageQuery {
 		result = 31 * result + (resourceId != null ? resourceId.hashCode() : 0);
 		result = 31 * result + (facilityId != null ? facilityId.hashCode() : 0);
 		result = 31 * result + (serviceId != null ? serviceId.hashCode() : 0);
+		result = 31 * result + (consentStatuses != null ? consentStatuses.hashCode() : 0);
 		result = 31 * result + (onlyAllowed ? 1 : 0);
 		return result;
 	}
