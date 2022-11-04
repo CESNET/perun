@@ -306,6 +306,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<p><strong>{appDetailUrl-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{appDetailUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{appDetailUrl-cert}</strong> - link for personal certificate authentication" +
+				"<br/><strong>{appDetailUrl-newGUI}</strong> - link for new admin GUI" +
 
 				"<p><strong><u>Perun GUI links for administrators:</u></strong>" +
 
@@ -317,6 +318,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<p><strong>{perunGuiUrl-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{perunGuiUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{perunGuiUrl-cert}</strong> - link for personal certificate authentication" +
+				"<br/><strong>{perunGuiUrl-newGUI}</strong> - link for new admin GUI" +
 
 				"<p><strong><u>User invitations:</u></strong>" +
 

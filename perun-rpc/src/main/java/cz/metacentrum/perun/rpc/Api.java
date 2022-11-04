@@ -662,6 +662,18 @@ public class Api extends HttpServlet {
 				out.close();
 				return;
 
+			} else if ("utils".equals(manager) && "getNewGuiAlert".equals(method)) {
+
+				String requestDomain = req.getScheme() + "://" + req.getServerName();
+				if (PerunAppsConfig.getBrandContainingDomain(requestDomain) == null) {
+					ser.write(null);
+				} else {
+					ser.write(PerunAppsConfig.getBrandContainingDomain(requestDomain).getOldGuiAlert());
+				}
+				// closes the request
+				out.close();
+				return;
+
 			} else if ("utils".equals(manager) && PERUNSTATUS.equals(method)) {
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());

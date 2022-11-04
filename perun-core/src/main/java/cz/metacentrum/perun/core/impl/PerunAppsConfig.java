@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,15 +54,31 @@ public class PerunAppsConfig {
 	}
 
 	/**
+	 * Iterates brands and searches for such that contains vo's shortname.
+	 * If none found, returns default branding.
+	 */
+	public static Brand getBrandContainingVo(String voShortname) {
+		Brand defaultBrand = instance.getBrands()
+			.stream()
+			.filter(brand -> brand.getName().equals("default"))
+			.findFirst()
+			.orElse(null);
+		return instance.getBrands().stream()
+			.filter(brand -> brand.getVoShortnames().contains(voShortname))
+			.findFirst()
+			.orElse(defaultBrand);
+	}
+
+	/**
 	 * Class holding data for a single branding.
 	 */
 	public static class Brand {
 
 		private String name;
-
 		private String oldGuiDomain;
-
 		private NewApps newApps;
+		private List<String> voShortnames = new ArrayList<>();
+		private String oldGuiAlert;
 
 		@JsonGetter("name")
 		public String getName() {
@@ -83,6 +100,26 @@ public class PerunAppsConfig {
 			this.newApps = newApps;
 		}
 
+		@JsonGetter("voShortnames")
+		public List<String> getVoShortnames() {
+			return voShortnames;
+		}
+
+		@JsonSetter("vos")
+		public void setVoShortnames(List<String> voShortnames) {
+			this.voShortnames = voShortnames;
+		}
+
+		@JsonGetter("oldGuiAlert")
+		public String getOldGuiAlert() {
+			return oldGuiAlert;
+		}
+
+		@JsonSetter("old_gui_alert")
+		public void setOldGuiAlert(String oldGuiAlert) {
+			this.oldGuiAlert = oldGuiAlert;
+		}
+
 		@JsonGetter("oldGuiDomain")
 		public String getOldGuiDomain() {
 			return oldGuiDomain;
@@ -98,7 +135,9 @@ public class PerunAppsConfig {
 			return "Brand{" +
 					"name='" + name + '\'' +
 					", oldGuiDomain='" + oldGuiDomain + '\'' +
+					", oldGuiAlert='" + oldGuiAlert + '\'' +
 					", newApps=" + newApps +
+					", vos=" + voShortnames +
 					'}';
 		}
 	}
