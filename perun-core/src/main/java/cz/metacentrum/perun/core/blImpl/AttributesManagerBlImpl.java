@@ -108,9 +108,12 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribu
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isLifecycleAlterable;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isSuspended;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_optional_login_namespace;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
@@ -7924,6 +7927,28 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
 		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_user_facility_attribute_def_virt_isBanned
+		attr = new AttributeDefinition( (new urn_perun_user_facility_attribute_def_virt_isBanned()).getAttributeDefinition() );
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_member_resource_attribute_def_virt_isBanned
+		attr = new AttributeDefinition( (new urn_perun_member_resource_attribute_def_virt_isBanned()).getAttributeDefinition() );
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_member_attribute_def_virt_isSuspended
+		attr = new AttributeDefinition( (new urn_perun_member_attribute_def_virt_isSuspended()).getAttributeDefinition() );
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:member:attribute-def:virt:isLifecycleAlterable
