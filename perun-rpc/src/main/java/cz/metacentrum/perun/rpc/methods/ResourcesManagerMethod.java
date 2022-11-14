@@ -1378,7 +1378,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		public List<BanOnResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getResourcesManager().getBansForResource(ac.getSession(),
-					parms.readInt("resourceId"));
+					parms.readInt("resource"));
 
 		}
 	},
