@@ -110,6 +110,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attrib
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isLifecycleAlterable;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_optional_login_namespace;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
@@ -7162,6 +7163,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.SPREGAPPLICATION, READ, RoleObject.None));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:def:phone
@@ -8140,6 +8142,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setFriendlyName("login-namespace:"+namespace);
 			attr.setDisplayName("Login in namespace: "+namespace);
 			attr.setDescription("Logname in namespace '"+namespace+"'.");
+
+			policies = new ArrayList<>();
+			policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+			policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+			policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+			attributes.put(attr, createInitialPolicyCollections(policies));
+
+			// optional-login-namespace
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("optional-login-namespace:"+namespace);
+			attr.setDisplayName("Optional login in namespace: "+namespace);
+			attr.setDescription("Contains an optional login in namespace" + namespace + " if the user has it.");
 
 			policies = new ArrayList<>();
 			policies.add(Triple.of(Role.SELF, READ, RoleObject.User));

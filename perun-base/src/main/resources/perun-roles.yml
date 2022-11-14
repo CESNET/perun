@@ -75,6 +75,9 @@
 # It is a sign of an account with a Self role being created by someone else.
 # The only role with privileges to create a Service user is the Perun administrator role.
 #
+# SPREGAPPLICATION is a role that can be assigned to a service account primarily to work
+# with facilities, groups and attributes.
+#
 # SPONSOR users or groups of a VO can provide other users with VO membership even without them passing the VO registration.
 # The sponsor role may be assigned to users or groups of users by VO administrators or Perun administrators.
 # However, Sponsors are not allowed to delegate this role to other users or groups.
@@ -124,6 +127,7 @@ perun_roles:
   - RPC
   - NOTIFICATIONS
   - SERVICEUSER
+  - SPREGAPPLICATION
   - SPONSOR
   - VOOBSERVER
   - TOPGROUPCREATOR
@@ -592,6 +596,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -668,6 +673,7 @@ perun_policies:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - PERUNOBSERVER:
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -846,12 +852,14 @@ perun_policies:
   createFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN:
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
   deleteFacility_Facility_Boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -860,6 +868,7 @@ perun_policies:
   updateFacility_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1023,6 +1032,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -1038,6 +1048,7 @@ perun_policies:
     policy_roles:
       - PERUNOBSERVER:
       - SELF: User
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -1260,6 +1271,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1270,6 +1282,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1299,6 +1312,7 @@ perun_policies:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1440,6 +1454,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1451,6 +1466,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1463,6 +1479,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1475,6 +1492,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1490,6 +1508,7 @@ perun_policies:
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -1534,6 +1553,7 @@ perun_policies:
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -2588,6 +2608,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -4769,6 +4790,7 @@ perun_policies:
   getFacilities_Map<String_String>_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -5536,6 +5558,7 @@ perun_policies:
       - VOADMIN:
       - SELF: User
       - PERUNOBSERVER:
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -5619,6 +5642,7 @@ perun_policies:
       - SELF: User
       - REGISTRAR:
       - PERUNOBSERVER:
+      - SPREGAPPLICATION:
     include_policies:
       - default_policy
 
@@ -8005,11 +8029,13 @@ perun_roles_management:
     privileged_roles_to_manage:
       - PERUNADMIN:
       - FACILITYADMIN: Facility
+      - SPREGAPPLICATION:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - SPREGAPPLICATION:
     associated_read_roles:
       - FACILITYOBSERVER
     assignable_to_attributes: true
@@ -8027,11 +8053,13 @@ perun_roles_management:
     privileged_roles_to_manage:
       - PERUNADMIN:
       - FACILITYADMIN: Facility
+      - SPREGAPPLICATION:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - SPREGAPPLICATION:
     associated_read_roles: []
     assignable_to_attributes: false
     display_name: "Facility observer"
@@ -8219,6 +8247,23 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: false
     display_name: "Service user"
+
+  SPREGAPPLICATION:
+    primary_object:
+    assign_to_objects: {}
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+    associated_read_roles: []
+    assignable_to_attributes: true
+    skip_mfa: true
+    display_name: "SPREG application"
 
   SPONSOR:
     primary_object: Vo

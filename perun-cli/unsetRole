@@ -2,173 +2,129 @@
 
 use strict;
 use warnings;
+use Switch;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
 use Perun::Common qw(printMessage);
 
+
 sub help {
 	return qq{
-	Remove Role from user or authorizedGroup. User or group is required.
-	Role is required. Some complementaryObject is required if not PERUNADMIN.
-	For now only 1 object is supported to be set at once.
+	Remove role from user or authorizedGroup. User or group is required.
+	Name of the role to remove in all caps with no spaces is required (e.g. GROUPADMIN).
+	Unless the role does not have a complementary object (e.g. PERUNADMIN),
+	the type of complementary object (e.g. Vo, Resource, Facility) to remove is required along with its id.
 	------------------------------------
 	Available options:
 	--userId            | -u user id
 	--authorizedGroupId | -a authorizedGroup id
-	--role              | -R role name
-	--facilityId        | -f facility comp object id
-	--groupId           | -g group comp object id
-	--voId              | -v vo comp object id
-	--resourceId        | -r resource comp object id
-	--serviceId         | -s service comp object id
+	--role              | -r role name
+	--compObject	    | -o object name
+	--objectId          | -i object id
 	--batch             | -b batch
 	--help              | -h prints this help
-	};
+};
 }
 
 our $batch;
 
-my ($userId, $authorizedGroupId, $role, $facilityId, $groupId, $voId, $resourceId, $serviceId);
+my ($userId, $authorizedGroupId, $role, $compObjectName, $objectId);
+
 GetOptions ("help|h"        => sub {
-		print help();
-		exit 0;
-	}, "batch|b"            => \$batch,
+	print help();
+	exit 0;
+}, "batch|b"            => \$batch,
 	"userId|u=i"            => \$userId,
 	"authorizedGroupId|a=i" => \$authorizedGroupId,
-	"role|R=s"              => \$role,
-	"facilityId|f=i"        => \$facilityId,
-	"groupId|g=i"           => \$groupId,
-	"voId|v=i"              => \$voId,
-	"resourceId|r=i"        => \$resourceId,
-	"serviceId|s=i"         => \$serviceId) || die help();
+	"role|r=s"              => \$role,
+	"compObject|o=s" 		=> \$compObjectName,
+	"objectId|i=i"			=> \$objectId) || die help();
 
-my $agent = Perun::Agent->new();
-my $authzResolverAgent = $agent->getAuthzResolverAgent;
-#Check options
 
-#one of userId or authorizedGroupId must be set
-if (!defined($userId) && !defined($authorizedGroupId)) { die "ERROR: one of userId and authorizedGroupId is requried\n";}
-if (defined($userId) && defined($authorizedGroupId)) { die "ERROR: only one of userId and authorizedGroupId must be set at one moment\n";}
+# One of userId or authorizedGroupId must be set
+if (!defined($userId) && !defined($authorizedGroupId)) { die "ERROR: one of userId and authorizedGroupId is required\n"; }
+if (defined($userId) && defined($authorizedGroupId)) { die "ERROR: only one of userId and authorizedGroupId must be set at one moment\n"; }
 
-#role must be set
-unless (defined($role)) { die "ERROR: role name is required"};
+# Role must be set
+unless (defined($role)) { die "ERROR: role name is required\n" };
 if ($role !~ /^[A-Z]+$/) { die "ERROR: role must be one word in uppercase format\n"; }
 
-#if role is perunadmin, no other object need to be set
-if ($role eq "PERUNADMIN") {
-	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
-		die "ERROR: no other object needed when setting role $role\n";
-	}
-	if (defined($userId)) {
-		$authzResolverAgent->unsetRole( user => $userId, role => $role );
-		printMessage("PERUNADMIN role was removed from user $userId", $batch);
-	} else {
-		die "ERROR: PERUNADMIN role cannot be unset from group \n";
-	}
-} elsif ($role eq "PERUNOBSERVER") {
-	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
-		die "ERROR: no other object needed when setting role $role\n";
-	}
-	if (defined($userId)) {
-		$authzResolverAgent->unsetRole( user => $userId, role => $role );
-		printMessage("PERUNOBSERVER role was removed from user $userId", $batch);
-	} else {
-		$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, role => $role );
-		printMessage("PERUNOBSERVER role was removed from authorizedGroup $authorizedGroupId", $batch);
-	}
-	#if there is other role, only one complementary object is needed
-} elsif ($role eq "AUDITCONSUMERADMIN") {
-	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
-		die "ERROR: no other object needed when setting role $role\n";
-	}
-	if (defined($userId)) {
-		$authzResolverAgent->unsetRole( user => $userId, role => $role );
-		printMessage("AUDITCONSUMERADMIN role was removed from user $userId", $batch);
-	} else {
-		$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, role => $role );
-		printMessage("AUDITCONSUMERADMIN role was removed from authorizedGroup $authorizedGroupId", $batch);
-	}
-	#if there is other role, only one complementary object is needed
-} elsif ($role eq "CABINETADMIN") {
-	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
-		die "ERROR: no other object needed when setting role $role\n";
-	}
-	if (defined($userId)) {
-		$authzResolverAgent->unsetRole( user => $userId, role => $role );
-		printMessage("CABINETADMIN role was removed from user $userId", $batch);
-	} else {
-		die "ERROR: CABINETADMIN role cannot be unset from group \n";
-	}
-	#if there is other role, only one complementary object is needed
-} else {
-	#facility
-	if (defined($facilityId) && !defined($groupId) && !defined($voId) && !defined($resourceId) && !defined($serviceId)) {
-		my $facilitiesAgent = $agent->getFacilitiesAgent;
-		my $facility = $facilitiesAgent->getFacilityById( id => $facilityId );
-		if (defined($userId)) {
-			$authzResolverAgent->unsetRole( user => $userId, complementaryObject => $facility, role => $role );
-			printMessage("$role role was removed from user $userId and facility $facilityId", $batch);
-		} else {
-			$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => $facility, role => $role );
-			printMessage("$role role was removed from authorizedGroup $authorizedGroupId and facility $facilityId", $batch);
-		}
-	#group
-	} elsif (!defined($facilityId) && defined($groupId) && !defined($voId) && !defined($resourceId) && !defined($serviceId)) {
-		my $groupsAgent = $agent->getGroupsAgent;
-		my $group = $groupsAgent->getGroupById( id => $groupId );
-		if (defined($userId)) {
-			$authzResolverAgent->unsetRole( user => $userId, complementaryObject => $group, role => $role );
-			printMessage("$role role was removed from user $userId and group $groupId", $batch);
-		} else {
-			$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => $group, role => $role );
-			printMessage("$role role was removed from authorizedGroup $authorizedGroupId and group $groupId", $batch);
-		}
-	#vo
-	} elsif (!defined($facilityId) && !defined($groupId) && defined($voId) && !defined($resourceId) && !defined($serviceId)) {
-		my $vosAgent = $agent->getVosAgent;
-		my $vo = $vosAgent->getVoById( id => $voId );
-		if (defined($userId)) {
-			if ("SPONSOR" eq $role) {
-				$vosAgent->removeSponsorRole( user => $userId, vo => $vo->getId());
-			} else {
-				$authzResolverAgent->unsetRole( user => $userId, complementaryObject => $vo, role => $role );
-			}
-			printMessage("$role role was removed from user $userId and VO $voId", $batch);
-		} else {
-			if ("SPONSOR" eq $role) {
-				$vosAgent->removeSponsorRole( authorizedGroup => $authorizedGroupId, vo => $vo->getId());
-			} else {
-				$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => $vo, role => $role );
-			}
 
-			printMessage("$role role was removed from authorizedGroup $authorizedGroupId and VO $voId", $batch);
+my $agent = Perun::Agent->new();
+my $authzResolverAgent = $agent->getAuthzResolverAgent();
+my @rules = $authzResolverAgent->getAllRolesManagementRules();
+
+foreach (@rules) {
+	my $rule = $_;
+	if ($rule->getRoleName() eq $role) {
+		my $primObject = $rule->getPrimaryObject();
+		if (!defined($primObject)) {
+			if (defined($compObjectName)) {
+				die "ERROR: role $role doesn't have a complementary object\n";
+			}
+		} elsif (!defined($compObjectName) || !defined($objectId) || lc $primObject ne lc $compObjectName) {
+			die "ERROR: role $role requires object $primObject";
 		}
-	#resource
-	} elsif (!defined($facilityId) && !defined($groupId) && !defined($voId) && defined($resourceId) && !defined($serviceId)) {
-		my $resourcesAgent = $agent->getResourcesAgent;
-		my $resource = $resourcesAgent->getResourceById( id => $resourceId );
+
 		if (defined($userId)) {
-			$authzResolverAgent->unsetRole( user => $userId, complementaryObject => $resource, role => $role );
-			printMessage("$role role was removed from user $userId and resource $resourceId", $batch);
-		} else {
-			$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => $resource, role => $role );
-			printMessage("$role role was removed from authorizedGroup $authorizedGroupId and resource $resourceId", $batch);
+			if (!exists($rule->getEntitiesToManage()->{User})) {
+				die "ERROR: $role is not assignable to user\n";
+			}
+			if (defined($primObject)) {
+				$authzResolverAgent->unsetRole(user => $userId, complementaryObject => getObject(), role => $role);
+			} else {
+				$authzResolverAgent->unsetRole(user => $userId,  role => $role);
+			}
+			my $displayName = $rule->getDisplayName();
+			printMessage("Role $displayName successfully removed from user $userId", $batch);
+			exit 0;
+		} elsif (defined($authorizedGroupId)) {
+			if (!exists($rule->getEntitiesToManage->{Group})) {
+				die "ERROR: $role is not assignable to group\n";
+			}
+			if (defined($primObject)) {
+				$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId, complementaryObject => getObject(), role => $role);
+			} else {
+				$authzResolverAgent->unsetRole(authorizedGroup => $authorizedGroupId,  role => $role);
+			}
+			my $displayName = $rule->getDisplayName();
+			printMessage("Role $displayName successfully removed from group $authorizedGroupId", $batch);
+			exit 0;
 		}
-	#serviceId
-	} elsif (!defined($facilityId) && !defined($groupId) && !defined($voId) && !defined($resourceId) && defined($serviceId)) {
-		my $servicesAgent = $agent->getServicesAgent;
-		my $service = $servicesAgent->getServiceById( id => $serviceId );
-		if (defined($userId)) {
-			$authzResolverAgent->unsetRole( user => $userId, complementaryObject => $service, role => $role );
-			printMessage("$role role was removed from user $userId and service $serviceId", $batch);
-		} else {
-			$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => $service, role => $role );
-			printMessage("$role role was removed from authorizedGroup $authorizedGroupId and service $serviceId", $batch);
-		}
-	#no object or more than one
-	} else {
-		die "ERROR: only one of objects (facility,vo,group,resource,service) id need to be set\n";
 	}
 }
 
+die "ERROR: role $role not found\n";
 
+
+sub getObject {
+	switch(lc $compObjectName) {
+		case "vo" {
+			my $vosAgent = $agent->getVosAgent;
+			return $vosAgent->getVoById( id => $objectId );
+		}
+		case "facility" {
+			my $facilitiesAgent = $agent->getFacilitiesAgent;
+			return $facilitiesAgent->getFacilityById( id => $objectId );
+		}
+		case "group" {
+			my $groupsAgent = $agent->getGroupsAgent;
+			return $groupsAgent->getGroupById( id => $objectId );
+		}
+		case "resource" {
+			my $resourcesAgent = $agent->getResourcesAgent;
+			return $resourcesAgent->getResourceById( id => $objectId );
+		}
+		case "service" {
+			my $servicesAgent = $agent->getServicesAgent;
+			return $servicesAgent->getServiceById( id => $objectId );
+		}
+		case "securityteam" {
+			my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
+			return $securityTeamsAgent->getSecurityTeamById( id => $objectId );
+		}
+		else {
+			die "ERROR: Invalid object name\n";
+		}
+	}
+}
