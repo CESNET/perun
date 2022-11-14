@@ -1850,8 +1850,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member to get user to send link mail to
 	 * @param namespace String Namespace to change password in (member must have login in it)
-	 * @param emailAttributeURN urn of the attribute with stored mail
-	 * @param language language of the message
+	 * @param emailAttributeURN String URN of the attribute with stored mail
+	 * @param language String 2-char language code of the message
 	 * @param baseUrl String base url of Perun instance (optional)
 	 */
 	sendPasswordResetLinkEmail {
@@ -1886,8 +1886,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member to get user to send link mail to
 	 * @param namespace String Namespace to activate account in (member must have login in it)
-	 * @param emailAttributeURN urn of the attribute with stored mail
-	 * @param language language of the message
+	 * @param emailAttributeURN String URN of the attribute with stored mail
+	 * @param language String 2-char language code of the message
 	 */
 	sendAccountActivationLinkEmail {
 		@Override
