@@ -1,4 +1,4 @@
--- database version 3.1.98 (don't forget to update insert statement at the end of file)
+-- database version 3.1.99 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -674,6 +674,7 @@ create table facility_service_destinations (
 	created_by_uid integer,
 	modified_by_uid integer,
 	propagation_type varchar default 'PARALLEL',
+	constraint fac_srv_dest_pk primary key (facility_id, service_id, destination_id),
 	constraint dest_srv_fk foreign key (service_id) references services(id),
   constraint dest_fac_fk foreign key (facility_id) references facilities(id),
   constraint dest_dest_fk foreign key(destination_id) references destinations(id)
@@ -1987,7 +1988,7 @@ grant all on attribute_critical_actions to perun;
 grant all on app_notifications_sent to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.98');
+insert into configurations values ('DATABASE VERSION','3.1.99');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
