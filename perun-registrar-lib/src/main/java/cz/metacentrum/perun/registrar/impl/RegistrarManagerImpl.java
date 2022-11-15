@@ -3130,11 +3130,49 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (member.isSponsored()) {
 					throw new CantBeSubmittedException("Sponsored member cannot apply for membership extension, it must be extended by the sponsor.");
 				}
-
+				checkExtensionWithNeverExpiration(sess, form, vo, member);
 			}
 
 		}
 
+	}
+
+	/**
+	 * Checks that members without expiration attribute (it is NEVER) can't submit extension forms
+	 * in VOs with defined expiration rules. Throws CantBeSubmittedException in such a case. The only
+	 * exception is if the form doesn't contain any submit button.
+	 *
+	 * @param sess
+	 * @param form
+	 * @param vo
+	 * @param member
+	 * @throws CantBeSubmittedException
+	 */
+	private void checkExtensionWithNeverExpiration(PerunSession sess, ApplicationForm form, Vo vo, Member member) throws CantBeSubmittedException {
+		if (member.getStatus() == Status.EXPIRED) return; // expired member can always submit extension form
+
+		try {
+			Attribute membershipExpirationRules = attrManager.getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
+			Attribute memberExpiration = attrManager.getAttribute(sess, member, MembersManager.membershipExpirationAttributeName);
+
+			if (membershipExpirationRules.getValue() != null && memberExpiration.getValue() == null) {
+				List<ApplicationFormItem> formItems;
+				try {
+					formItems = getFormItems(registrarSession, form, AppType.EXTENSION);
+				} catch (PerunException e) {
+					throw new InternalErrorException(e);
+				}
+				boolean hasSubmitButton = formItems
+					.stream()
+					.anyMatch(item -> item.getType() == SUBMIT_BUTTON || item.getType() == AUTO_SUBMIT_BUTTON);
+				if (hasSubmitButton) {
+					throw new CantBeSubmittedException("Members with expiration set to NEVER cannot apply for " +
+						"membership extension in VOs with defined expiration rules.", "NEVER_EXPIRATION" , null, null);
+				}
+			}
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+			// ignore, shouldn't happen
+		}
 	}
 
 	@Override

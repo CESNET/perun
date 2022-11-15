@@ -53,6 +53,11 @@ public interface MembersManager {
 	String membershipExpirationRulesAttributeName = AttributesManager.NS_VO_ATTR_DEF + ":" + "membershipExpirationRules";
 
 	/**
+	 * Attribute which contains member's expiration
+	 */
+	String membershipExpirationAttributeName = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+
+	/**
 	 *  Deletes only member data  appropriated by member id.
 	 *
 	 * @param sess
