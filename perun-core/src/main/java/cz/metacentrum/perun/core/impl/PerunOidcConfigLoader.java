@@ -5,25 +5,48 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class PerunOidcConfigLoader {
 
 	private Resource configurationPath;
+	private final static Logger log = LoggerFactory.getLogger(PerunOidcConfigLoader.class);
 
 	public void setConfigurationPath(Resource configurationPath) {
 		this.configurationPath = configurationPath;
 	}
 
-	public OidcConfig loadPerunOidcConfig() {
-		OidcConfig oidcConfig = new OidcConfig();
-		JsonNode rootNode = loadConfigurationFile(configurationPath);
+	public Map<String, OidcConfig> loadPerunOidcConfigs() {
+		Map<String, OidcConfig> oidcConfigs = new HashMap<>();
+		JsonNode rootNode;
+		try {
+			rootNode = loadConfigurationFile(configurationPath);
+		} catch (FileNotFoundException ex) {
+			log.debug("Configuration file for OIDC configurations was not found in : {}, continuing without it.", configurationPath);
+			return null;
+		}
 
+		Iterator<String> configNames = rootNode.fieldNames();
+
+		while (configNames.hasNext()) {
+			String configName = configNames.next();
+			oidcConfigs.put(configName, getOidcConfigFromJsonNode(rootNode.get(configName)));
+		}
+		return oidcConfigs;
+	}
+
+	private static OidcConfig getOidcConfigFromJsonNode(JsonNode rootNode) {
+		OidcConfig oidcConfig = new OidcConfig();
 		try {
 			oidcConfig.setClientId(rootNode.get("client_id").asText());
 			oidcConfig.setOidcDeviceCodeUri(rootNode.get("oidc_device_code_uri").asText());
@@ -39,13 +62,13 @@ public class PerunOidcConfigLoader {
 		return oidcConfig;
 	}
 
-	private JsonNode loadConfigurationFile(Resource resource) {
+	private JsonNode loadConfigurationFile(Resource resource) throws FileNotFoundException {
 		ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 		JsonNode rootNode;
 		try (InputStream is = resource.getInputStream()) {
 			rootNode = objectMapper.readTree(is);
 		} catch (FileNotFoundException e) {
-			throw new InternalErrorException("Configuration file not found for oidc config. It should be in: " + resource, e);
+			throw e;
 		} catch (IOException e) {
 			throw new InternalErrorException("IO exception was thrown during the processing of the file: " + resource, e);
 		}

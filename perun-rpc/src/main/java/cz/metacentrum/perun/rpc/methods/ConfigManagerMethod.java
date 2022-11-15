@@ -21,11 +21,13 @@ public enum ConfigManagerMethod implements ManagerMethod {
 	},
 	/*#
 	 * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
+	 * @throw OidcConfigNotExistsException when a configuration under the name does not exist.
+	 * @throw OidcConfigFileNotExistsException when configuration file for oidc configs doesn't exist.
 	 */
 	getPerunOidcConfig {
 		@Override
 		public OidcConfig call (ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getConfigManager().getPerunOidcConfig(ac.getSession());
+			return ac.getConfigManager().getPerunOidcConfig(ac.getSession(), parms.getServletRequest().getRequestURL().toString());
 		}
 	}
 }
