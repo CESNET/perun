@@ -40,9 +40,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of publication connector for OBD 3.0 from ZČU.
+ * Implementation of publication connector for OBD 3.0 from ZČU or UK
  *
- * Remote API documentation: http://support.zcu.cz/index.php/OBD
+ * Remote API documentation: https://support.zcu.cz/index.php/OBD
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -50,8 +50,8 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 
 	private static Logger log = LoggerFactory.getLogger(OBD30Strategy.class);
 
-	// ZČU
-	// http://obd.zcu.cz:6443/fcgi/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Habernal&_diakritika=0&_a_jmeno=Ivan&_diakritika=0
+	// ZČU (all "?", "&" and "=" must be replaced with "/" so that their proxy can offer data without authentication)
+	// https://obd.zcu.cz/fcgi/verso.fpl/fname/obd_exportt_xml/_a_prijmeni/Habernal/_diakritika=0/_a_jmeno=Ivan/_diakritika=0
 	// UK
 	// https://verso.is.cuni.cz/pub/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Voc%C5%AF&_diakritika=0&_v_vlo=2010
 
@@ -83,10 +83,17 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 		// prepare valid uri
 		URI uri = null;
 		try {
-			uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, StandardCharsets.UTF_8));
+			if (ps.getUrl().startsWith("https://obd.zcu.cz/")) {
+				// ZČU OBD
+				String params = URLEncodedUtils.format(formparams, StandardCharsets.UTF_8);
+				params = params.replaceAll("[?&=]", "/");
+				uri = new URI(ps.getUrl() + params);
+			} else {
+				// generic OBD
+				uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, StandardCharsets.UTF_8));
+			}
 			// log response into /var/log/perun/perun-cabinet.log
 			//log.debug("URI: {}", uri);
-
 		} catch (URISyntaxException e) {
 			log.error("Wrong URL syntax for contacting OBD 3.0 publication system.", e);
 		}
