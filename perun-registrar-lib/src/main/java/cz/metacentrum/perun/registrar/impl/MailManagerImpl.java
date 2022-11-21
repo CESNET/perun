@@ -117,6 +117,8 @@ public class MailManagerImpl implements MailManager {
 	private static final String FIELD_REDIRECT_URL = "{redirectUrl}";
 
 	private static final Pattern FROM_APP_PATTERN = Pattern.compile("\\{fromApp-([^}]+)}");
+	private static final String GROUP = "Group";
+	private static final String VO = "Vo";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
@@ -923,9 +925,9 @@ public class MailManagerImpl implements MailManager {
 	/**
 	 * Get proper values "TO" for mail message based on VO or GROUP attribute "toEmail".
 	 * <p>
-	 * If group attribute not set and is group application, notify all corresponding group admins.
-	 * In case group admins not set, use VO attribute.
-	 * If Vo attribute not set (both group or vo application), notify all corresponding VO admins.
+	 * If group attribute not set and is group application, notify all corresponding group admins (admin roles configured to receive GROUP notifications).
+	 * In case no such admins not set, use VO attribute.
+	 * If Vo attribute not set (both group or vo application), notify all corresponding vo admins (admin roles configured to receive VO notifications).
 	 * Otherwise, BACKUP_FROM address will be used.
 	 *
 	 * @param app application to decide if it's VO or Group application
@@ -949,8 +951,13 @@ public class MailManagerImpl implements MailManager {
 				// not specified toEmail group attribute
 
 				// try to use all group admins with specified preferred emails
-				List<RichUser> admins = AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getGroup(), Role.GROUPADMIN);
+				List<String> rolesToNotify = getNotificationReceiverRoles(GROUP);
+				List<RichUser> admins = new ArrayList<>();
+				for (String role : rolesToNotify) {
+					admins.addAll(AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getGroup(), role));
+				}
 				result.addAll(getUserPreferredMails(registrarSession, admins));
+				result = result.stream().distinct().toList();
 
 				if (!result.isEmpty()) {
 					return result;
@@ -979,6 +986,15 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Returns list of roles, which should be notified for object's notification type
+	 * @return list of role names
+	 */
+	private List<String> getNotificationReceiverRoles(String object) {
+		List<RoleManagementRules> allManagementRules = AuthzResolver.getAllRolesManagementRules();
+		return allManagementRules.stream().filter(r -> r.getReceiveNotifications().contains(object)).map(RoleManagementRules::getRoleName).toList();
 	}
 
 	/**
@@ -2337,7 +2353,8 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Get notification emails for given VO. If toEmail is not specified, all VO admins are used.
+	 * Get notification emails for given VO. If toEmail is not specified,
+	 * all configured roles for receiving VO notifications are used.
 	 *
 	 * @param app  Application to get VO from
 	 * @param voEmailAttr  String name of given email attribute
@@ -2361,10 +2378,15 @@ public class MailManagerImpl implements MailManager {
 			return emails;
 		}
 
-		// in case no pre-defined attribute was found, use all valid VO admins with specified preferred email
+		// in case no pre-defined attribute was found, use all configured roles with specified preferred email
 		try {
-			List<RichUser> admins = AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getVo(), Role.VOADMIN);
+			List<String> rolesToNotify = getNotificationReceiverRoles(VO);
+			List<RichUser> admins = new ArrayList<>();
+			for (String role : rolesToNotify) {
+				admins.addAll(AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getVo(), role));
+			}
 			emails.addAll(getUserPreferredMails(registrarSession, admins));
+			emails = emails.stream().distinct().toList();
 		} catch (RoleCannotBeManagedException e) {
 			throw new InternalErrorException(e);
 		}
