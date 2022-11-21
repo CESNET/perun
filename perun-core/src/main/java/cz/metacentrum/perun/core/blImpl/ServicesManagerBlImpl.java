@@ -788,7 +788,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 				}
 			}
 		}
-		if(getServicesManagerImpl().destinationExists(sess, service, facility, destination)) throw new DestinationAlreadyAssignedException(destination);
 
 		getServicesManagerImpl().addDestination(sess, service, facility, destination);
 		getPerunBl().getAuditer().log(sess, new DestinationAddedToServiceAndFacility(destination, service, facility));
@@ -815,9 +814,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		}
 
 		for(Service s: services) {
-			if(!getServicesManagerImpl().destinationExists(perunSession, s, facility, destination)) {
+			try {
 				getServicesManagerImpl().addDestination(perunSession, s, facility, destination);
 				getPerunBl().getAuditer().log(perunSession, new DestinationAddedToServiceAndFacility(destination, s, facility));
+			} catch (DestinationAlreadyAssignedException ex) {
+				// skip service
 			}
 		}
 
@@ -843,9 +844,12 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			}
 		}
 		//if destination is already assigned, do not add message to the log and only return it back
-		if(getServicesManagerImpl().destinationExists(sess, service, facility, destination)) return destination;
 
-		getServicesManagerImpl().addDestination(sess, service, facility, destination);
+		try {
+			getServicesManagerImpl().addDestination(sess, service, facility, destination);
+		} catch (DestinationAlreadyAssignedException ex) {
+			return destination;
+		}
 		getPerunBl().getAuditer().log(sess, new DestinationAddedToServiceAndFacility(destination, service, facility));
 		return destination;
 	}

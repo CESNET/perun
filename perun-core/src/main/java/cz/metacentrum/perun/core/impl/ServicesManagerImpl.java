@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -692,11 +693,14 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void addDestination(PerunSession sess, Service service, Facility facility, Destination destination) {
+	public void addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException {
 		try {
 			jdbc.update("insert into facility_service_destinations (service_id, facility_id, destination_id, propagation_type, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", service.getId(), facility.getId(), destination.getId(),
 					destination.getPropagationType(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+		} catch (DuplicateKeyException e) {
+			throw new DestinationAlreadyAssignedException("combination of  facility: " + facility.getName() + " service: "
+				+ service.getName() + " destination: " + destination.getDestination() + " is not unique.");
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
