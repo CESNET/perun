@@ -286,13 +286,17 @@ $objectExamples{"Consent"} = "{ \"id\" : 1 , \"userId\" : 1 , \"status\" : \"UNS
 $objectExamples{"List&lt;Consent&gt;"} = $listPrepend . $objectExamples{"Consent"} . $listAppend;
 $objectExamples{"List<Consent>"} = $objectExamples{"List&lt;Consent&gt;"};
 
-$objectExamples{"EnrichedBanOnResource"} = "{ \"resource\" : " . $objectExamples{"Resource"} . " , \"member\" : " . $objectExamples{"RichMember"} . " , \"banOnResource\" : " . $objectExamples{"BanOnResource"} . " }";
+$objectExamples{"EnrichedBanOnResource"} = "{ \"resource\" : " . $objectExamples{"Resource"} . " , \"member\" : " . $objectExamples{"RichMember"} . " , \"ban\" : " . $objectExamples{"BanOnResource"} . " }";
 $objectExamples{"List&lt;EnrichedBanOnResource&gt;"} = $listPrepend . $objectExamples{"EnrichedBanOnResource"} . $listAppend;
 $objectExamples{"List<EnrichedBanOnResource>"} = $objectExamples{"List&lt;EnrichedBanOnResource&gt;"};
 
-$objectExamples{"EnrichedBanOnFacility"} = "{ \"facility\" : " . $objectExamples{"Facility"} . " , \"user\" : " . $objectExamples{"RichUser"} . " , \"banOnFacility\" : " . $objectExamples{"BanOnFacility"} . " }";
+$objectExamples{"EnrichedBanOnFacility"} = "{ \"facility\" : " . $objectExamples{"Facility"} . " , \"user\" : " . $objectExamples{"RichUser"} . " , \"ban\" : " . $objectExamples{"BanOnFacility"} . " }";
 $objectExamples{"List&lt;EnrichedBanOnFacility&gt;"} = $listPrepend . $objectExamples{"EnrichedBanOnFacility"} . $listAppend;
 $objectExamples{"List<EnrichedBanOnFacility>"} = $objectExamples{"List&lt;EnrichedBanOnFacility&gt;"};
+
+$objectExamples{"EnrichedBanOnVo"} = "{ \"vo\" : " . $objectExamples{"Vo"} . " , \"member\" : " . $objectExamples{"RichMember"} . " , \"ban\" : " . $objectExamples{"BanOnVo"} . " }";
+$objectExamples{"List&lt;EnrichedBanOnVo&gt;"} = $listPrepend . $objectExamples{"EnrichedBanOnVo"} . $listAppend;
+$objectExamples{"List<EnrichedBanOnVo>"} = $objectExamples{"List&lt;EnrichedBanOnVo&gt;"};
 
 # SUB HELP
 # help info

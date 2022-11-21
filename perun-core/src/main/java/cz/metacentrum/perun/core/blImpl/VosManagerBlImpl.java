@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedBanOnVo;
 import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
@@ -872,6 +874,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
+	public List<BanOnVo> getBansForUser(PerunSession sess, int userId) {
+		return vosManagerImpl.getBansForUser(sess, userId);
+	}
+
+	@Override
 	public BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo) {
 		Utils.notNull(banOnVo, "banOnVo");
 
@@ -1266,6 +1273,64 @@ public class VosManagerBlImpl implements VosManagerBl {
 		return memberCandidates;
 	}
 
+
+	public List<EnrichedBanOnVo> getEnrichedBansForVo(PerunSession sess, Vo vo, List<String> attrNames) throws AttributeNotExistsException {
+		List<EnrichedBanOnVo> enrichedBans = new ArrayList<>();
+		List<BanOnVo> bans = getBansForVo(sess, vo.getId());
+
+		// Parse attrNames
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
+		if (attrNames != null && !attrNames.isEmpty()) {
+			attrDefs = perunBl.getAttributesManagerBl().getAttributesDefinition(sess, attrNames);
+		}
+
+		for (BanOnVo ban : bans) {
+			try {
+				Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, ban.getMemberId());
+				RichMember richMember = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
+				if (attrDefs.isEmpty()) {
+					richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, List.of(richMember)).get(0);
+				} else {
+					richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, List.of(richMember), attrDefs).get(0);
+				}
+				enrichedBans.add(new EnrichedBanOnVo(richMember, vo, ban));
+			} catch (MemberNotExistsException e) {
+				log.error("Member not exists when getting enriched ban for user.", e);
+			}
+		}
+		return enrichedBans;
+	}
+
+	public List<EnrichedBanOnVo> getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws AttributeNotExistsException {
+		List<EnrichedBanOnVo> enrichedBans = new ArrayList<>();
+		List<BanOnVo> bans = getBansForUser(sess, userId);
+
+		// Parse attrNames
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
+		if (attrNames != null && !attrNames.isEmpty()) {
+			attrDefs = perunBl.getAttributesManagerBl().getAttributesDefinition(sess, attrNames);
+		}
+
+		for (BanOnVo ban : bans) {
+			try {
+				Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, ban.getVoId());
+				Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, ban.getMemberId());
+				RichMember richMember = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
+				if (attrDefs.isEmpty()) {
+					richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, List.of(richMember)).get(0);
+				} else {
+					richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, List.of(richMember), attrDefs).get(0);
+				}
+				enrichedBans.add(new EnrichedBanOnVo(richMember, vo, ban));
+			} catch (VoNotExistsException e) {
+				log.error("Vo not exists when getting enriched ban for vo.", e);
+			} catch (MemberNotExistsException e) {
+				log.error("Member not exists when getting enriched ban for user.", e);
+			}
+		}
+
+		return enrichedBans;
+	}
 
 	/**
 	 * Gets the vosManagerImpl.

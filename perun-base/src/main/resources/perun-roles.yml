@@ -6839,6 +6839,23 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getEnrichedVoBansForVo_int_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  getEnrichedVoBansForUser_int_List<String>_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   convertSponsoredUsers_Vo_policy:
     policy_roles: []
     include_policies:

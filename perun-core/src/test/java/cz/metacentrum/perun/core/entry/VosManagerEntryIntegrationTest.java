@@ -3,8 +3,10 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedBanOnVo;
 import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -35,12 +37,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.Date;
 
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
@@ -576,6 +578,68 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		BanOnVo returnedBan = vosManagerEntry.getBanById(sess, banOnVo.getId());
 		assertEquals(banOnVo, returnedBan);
+	}
+
+	@Test
+	public void getEnrichedBansForVoWithAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedBansForVoWithAttributes");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+
+		vosManagerEntry.setBan(sess, ban);
+
+		List<String> attrNames = List.of(AttributesManager.NS_MEMBER_ATTR_CORE + ":id");
+		List<EnrichedBanOnVo> enrichedBans = vosManagerEntry.getEnrichedBansForVo(sess, createdVo.getId(), attrNames);
+
+		assertThat(enrichedBans).hasSize(1);
+		assertThat(enrichedBans.get(0).getBanOnVo()).isEqualTo(ban);
+		assertThat(enrichedBans.get(0).getMember()).isEqualTo(member);
+		assertThat(enrichedBans.get(0).getVo()).isEqualTo(createdVo);
+		assertThat(enrichedBans.get(0).getMember().getMemberAttributes()).hasSize(1);
+		assertThat(enrichedBans.get(0).getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
+	}
+
+	@Test
+	public void getEnrichedBansForUserWithAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedBansForUserWithAttributes");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		User user = perun.getUsersManagerBl().createUser(sess, new User(-1, "BanManagerTestUser", "BanManagerTestUser", "BanManagerTestUser", "", ""));
+		Member member = perun.getMembersManagerBl().createMember(sess, createdVo, user);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+		ban = vosManagerEntry.setBan(sess, ban);
+
+		// Create other Vo, Member and Ban
+		Vo otherVo = new Vo(-1, "Other vo", "othervo");
+		otherVo = perun.getVosManagerBl().createVo(sess, otherVo);
+
+		Member otherMember = perun.getMembersManagerBl().createMember(sess, otherVo, user);
+
+		BanOnVo otherBan = new BanOnVo(-1, otherMember.getId(), otherVo.getId(), new Date(), "no reason");
+		vosManagerEntry.setBan(sess, otherBan);
+
+		List<String> attrNames = List.of(AttributesManager.NS_MEMBER_ATTR_CORE + ":id");
+
+		List<EnrichedBanOnVo> enrichedBans = perun.getVosManagerBl().getEnrichedBansForUser(sess, user.getId(), attrNames);
+		assertThat(enrichedBans).hasSize(2);
+		assertThat(enrichedBans.get(0).getVo()).isEqualTo(createdVo);
+		assertThat(enrichedBans.get(1).getVo()).isEqualTo(otherVo);
+		assertThat(enrichedBans.get(0).getMember().getId()).isEqualTo(member.getId());
+		assertThat(enrichedBans.get(1).getMember().getId()).isEqualTo(otherMember.getId());
+
+		assertThat(enrichedBans.get(0).getBanOnVo()).isEqualTo(ban);
+		assertThat(enrichedBans.get(1).getBanOnVo()).isEqualTo(otherBan);
+
+		assertThat(enrichedBans.get(0).getMember().getMemberAttributes()).hasSize(1);
+		assertThat(enrichedBans.get(0).getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
+		assertThat(enrichedBans.get(1).getMember().getMemberAttributes()).hasSize(1);
+		assertThat(enrichedBans.get(1).getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
 	}
 
 	@Test

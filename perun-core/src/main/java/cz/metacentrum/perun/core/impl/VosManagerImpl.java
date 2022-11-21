@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -60,9 +59,9 @@ public class VosManagerImpl implements VosManagerImplApi {
 		"vos.created_by_uid as vos_created_by_uid, vos.modified_by_uid as vos_modified_by_uid";
 
 	protected final static String banOnVoMappingSelectQuery = "vos_bans.id as vos_bans_id, vos_bans.description as vos_bans_description, " +
-			"vos_bans.member_id as vos_bans_member_id, vos_bans.vo_id as vos_bans_vo_id, vos_bans.banned_to as vos_bans_validity_to, " +
-			"vos_bans.created_at as vos_bans_created_at, vos_bans.created_by as vos_bans_created_by, vos_bans.modified_at as vos_bans_modified_at, " +
-			"vos_bans.modified_by as vos_bans_modified_by, vos_bans.created_by_uid as vos_bans_created_by_uid, vos_bans.modified_by_uid as vos_bans_modified_by_uid";
+    		"vos_bans.member_id as vos_bans_member_id, vos_bans.vo_id as vos_bans_vo_id, vos_bans.banned_to as vos_bans_validity_to, " +
+    		"vos_bans.created_at as vos_bans_created_at, vos_bans.created_by as vos_bans_created_by, vos_bans.modified_at as vos_bans_modified_at, " +
+    		"vos_bans.modified_by as vos_bans_modified_by, vos_bans.created_by_uid as vos_bans_created_by_uid, vos_bans.modified_by_uid as vos_bans_modified_by_uid";
 
 
 	/**
@@ -445,9 +444,19 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public BanOnVo getBanForMember(PerunSession sess, int memberId) throws BanNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + banOnVoMappingSelectQuery + " from vos_bans where member_id=? ",
-					BAN_ON_VO_MAPPER, memberId);
+    			BAN_ON_VO_MAPPER, memberId);
 		} catch (EmptyResultDataAccessException ex) {
 			throw new BanNotExistsException("Ban for member with id " + memberId + " does not exist.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<BanOnVo> getBansForUser(PerunSession sess, int userId) {
+		try {
+			return jdbc.query("select " + banOnVoMappingSelectQuery + " from vos_bans join members on vos_bans.member_id=members.id where members.user_id=?",
+				BAN_ON_VO_MAPPER, userId);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -457,12 +466,12 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo) {
 		try {
 			jdbc.update("UPDATE vos_bans SET " +
-							"description=?, " +
-							"banned_to=?, " +
-							"modified_by=?, " +
-							"modified_by_uid=?, " +
-							"modified_at= "+ Compatibility.getSysdate() +
-							" WHERE id=?",
+					"description=?, " +
+					"banned_to=?, " +
+					"modified_by=?, " +
+					"modified_by_uid=?, " +
+					"modified_at= "+ Compatibility.getSysdate() +
+					" WHERE id=?",
 					banOnVo.getDescription(),
 					Compatibility.getDate(banOnVo.getValidityTo().getTime()),
 					sess.getPerunPrincipal().getActor(),

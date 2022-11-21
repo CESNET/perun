@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedBanOnVo;
 import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -890,5 +892,36 @@ public class VosManagerEntry implements VosManager {
 	public void setVosManagerBl(VosManagerBl vosManagerBl)
 	{
 		this.vosManagerBl = vosManagerBl;
+	}
+
+	public List<EnrichedBanOnVo> getEnrichedBansForVo(PerunSession sess, int voId, List<String> attrNames) throws PrivilegeException, AttributeNotExistsException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo = vosManagerBl.getVoById(sess, voId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedVoBansForVo_int_List<String>_policy", vo)) {
+			throw new PrivilegeException(sess, "getEnrichedBansForVo");
+		}
+		List<EnrichedBanOnVo> bans = vosManagerBl.getEnrichedBansForVo(sess, vo, attrNames);
+		bans.forEach(ban -> ban.setMember(perunBl.getMembersManagerBl().filterOnlyAllowedAttributes(sess, ban.getMember())));
+		return bans;
+	}
+
+	public List<EnrichedBanOnVo> getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		User user = perunBl.getUsersManagerBl().getUserById(sess, userId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedVoBansForUser_int_List<String>_policy", user)) {
+			throw new PrivilegeException(sess, "getEnrichedBansForUser");
+		}
+
+		List<EnrichedBanOnVo> bans = vosManagerBl.getEnrichedBansForUser(sess, userId, attrNames);
+		bans.forEach(
+			ban -> ban.setMember(perunBl.getMembersManagerBl().filterOnlyAllowedAttributes(sess, ban.getMember()))
+		);
+		return bans;
 	}
 }

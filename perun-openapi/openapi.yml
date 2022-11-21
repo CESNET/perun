@@ -1176,6 +1176,13 @@ components:
       discriminator:
         propertyName: beanName
 
+    EnrichedBanOnVo:
+      type: object
+      properties:
+        vo: { $ref: '#/components/schemas/Vo' }
+        member: { $ref: '#/components/schemas/RichMember' }
+        ban: { $ref: '#/components/schemas/BanOnVo' }
+
     BanOnFacility:
       allOf:
         - $ref: '#/components/schemas/Ban'
@@ -2314,6 +2321,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnVo"
+
+    ListOfEnrichedBanOnVoResponse:
+      description: "return List<EnrichedBanOnVo>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedBanOnVo"
 
     BanOnResourceResponse:
       description: "returns banOnResource"
@@ -15024,6 +15040,36 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfBanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getEnrichedBansForVo:
+    get:
+      tags:
+        - VosManager
+      operationId: getEnrichedBansForVo
+      summary: Get list of all enriched bans for vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getEnrichedBansForUser:
+    get:
+      tags:
+        - VosManager
+      operationId: getEnrichedVoBansForUser
+      summary: Get list of all enriched bans for user.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBanOnVoResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

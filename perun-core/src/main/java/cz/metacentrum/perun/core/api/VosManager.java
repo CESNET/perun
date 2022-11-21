@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -678,4 +679,28 @@ public interface VosManager {
 	 * @throws PrivilegeException if not authorized
 	 */
 	List<Vo> getParentVos(PerunSession sess, int memberVoId) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Gets all Enriched Bans for given vo.
+	 * Attr names specify which attributes should be included in RichMember.
+	 * @param sess session
+	 * @param voId id of vo
+	 * @param attrNames List of attribute names, returns all attributes if empty or null
+	 * @return List of Enriched Bans
+	 * @throws PrivilegeException
+	 * @throws AttributeNotExistsException
+	 * @throws VoNotExistsException
+	 */
+	List<EnrichedBanOnVo> getEnrichedBansForVo(PerunSession sess, int voId, List<String> attrNames) throws PrivilegeException, AttributeNotExistsException, VoNotExistsException;
+
+
+	/**
+	 * Gets all Enriched Bans for given user.
+	 * @param sess session
+	 * @param userId id of user
+	 * @param attrNames List of attribute names, returns all attributes if empty or null
+	 * @return List of Enriched Bans
+	 * @throws UserNotExistsException if user does not exist
+	 */
+	List<EnrichedBanOnVo>  getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException;
 }

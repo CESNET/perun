@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedBanOnVo;
 import cz.metacentrum.perun.core.api.EnrichedVo;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -15,6 +16,7 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -615,4 +617,32 @@ public interface VosManagerBl {
 	 * @return list of direct parent vos
 	 */
 	List<Vo> getParentVos(PerunSession sess, int memberVoId);
+
+	/**
+	 * Gets all bans for given user
+	 * @param sess session
+	 * @param userId id of user
+	 * @return list of bans for given user
+	 */
+	List<BanOnVo> getBansForUser(PerunSession sess, int userId);
+
+	/**
+	 * Get all Enriched Bans for given VO and attribute names
+	 * @param sess sesion
+	 * @param vo VO
+	 * @param attrNames List of attributes, returns all attributes if null or empty
+	 * @return list of enriched bans
+	 * @throws VoNotExistsException if vo not exists
+	 */
+	List<EnrichedBanOnVo> getEnrichedBansForVo(PerunSession sess, Vo vo, List<String> attrNames) throws AttributeNotExistsException;
+
+	/**
+	 * Get all Enriched Bans for given User
+	 * @param sess sesion
+	 * @param userId User ID
+	 * @param attrNames List of attributes, returns all attributes if null or empty
+	 * @return List of Enriched Bans
+	 * @throws UserNotExistsException if user not exists
+	 */
+	List<EnrichedBanOnVo> getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws AttributeNotExistsException;
 }
