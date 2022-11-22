@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 
 import java.util.List;
 import java.util.Map;
@@ -476,8 +477,10 @@ public interface VosManagerBl {
 	 * @param sess session
 	 * @param banOnVo ban information, memberId, voId, validity and description are needed
 	 * @return created ban object
+	 * @throws MemberNotExistsException
+	 * @throws BanAlreadyExistsException
 	 */
-	BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) throws MemberNotExistsException;
+	BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) throws MemberNotExistsException, BanAlreadyExistsException;
 
 	/**
 	 * Get ban by its id.

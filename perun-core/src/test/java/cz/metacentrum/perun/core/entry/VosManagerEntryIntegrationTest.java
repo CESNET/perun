@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Date;
 
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY;
@@ -556,6 +557,25 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		List<BanOnVo> voBans = vosManagerEntry.getBansForVo(sess, createdVo.getId());
 
 		assertThat(voBans).containsOnly(ban);
+	}
+
+	@Test
+	public void updateBan() throws Exception {
+		System.out.println(CLASS_NAME + "updateBan");
+		Vo vo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(vo);
+
+		BanOnVo banOnVo = new BanOnVo();
+		banOnVo.setMemberId(member.getId());
+		banOnVo.setDescription("Description");
+		banOnVo.setValidityTo(new Date());
+		banOnVo = vosManagerEntry.setBan(sess, banOnVo);
+		banOnVo.setDescription("New description");
+		banOnVo.setValidityTo(new Date(banOnVo.getValidityTo().getTime() + 1000000));
+		vosManagerEntry.updateBan(sess, banOnVo);
+
+		BanOnVo returnedBan = vosManagerEntry.getBanById(sess, banOnVo.getId());
+		assertEquals(banOnVo, returnedBan);
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberSuspended;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberUnsuspended;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.BanUpdatedForVo;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoCreated;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
@@ -17,7 +18,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -40,7 +40,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -54,6 +53,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
@@ -822,14 +822,14 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) throws MemberNotExistsException {
+	public BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) throws MemberNotExistsException, BanAlreadyExistsException {
 		Utils.notNull(banOnVo, "banOnVo");
 
 		Member member = perunBl.getMembersManagerBl().getMemberById(sess, banOnVo.getMemberId());
 		banOnVo.setVoId(member.getVoId());
 
 		if (vosManagerImpl.isMemberBanned(sess, member.getId())) {
-			return updateBan(sess, banOnVo);
+			throw new BanAlreadyExistsException(banOnVo);
 		}
 
 		// if the validity is not specified, set a date from far future
@@ -879,8 +879,9 @@ public class VosManagerBlImpl implements VosManagerBl {
 		if (banOnVo.getValidityTo() == null) {
 			banOnVo.setValidityTo(FAR_FUTURE);
 		}
-
-		return vosManagerImpl.updateBan(sess, banOnVo);
+		banOnVo = getVosManagerImpl().updateBan(sess, banOnVo);
+		getPerunBl().getAuditer().log(sess, new BanUpdatedForVo(banOnVo, banOnVo.getMemberId(), banOnVo.getVoId()));
+		return banOnVo;
 	}
 
 	@Override

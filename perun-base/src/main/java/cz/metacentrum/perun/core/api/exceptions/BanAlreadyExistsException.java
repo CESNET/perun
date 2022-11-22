@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Ban;
 
 /**
- * This exception is thrown when the ban on the facility/resource already exists
+ * This exception is thrown when the ban on the facility/resource/vo already exists
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */

@@ -6753,6 +6753,14 @@ perun_policies:
     mfa_rules:
       - MFA: Vo
 
+  updateBan_BanOnVo_policy:
+    policy_roles:
+      - VOADMIN: VO
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
   vo-removeBan_int_policy:
     policy_roles:
       - VOADMIN: Vo

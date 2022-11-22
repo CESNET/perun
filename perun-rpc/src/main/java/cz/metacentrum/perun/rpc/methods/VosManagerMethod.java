@@ -1,14 +1,10 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -757,6 +753,24 @@ public enum VosManagerMethod implements ManagerMethod {
 		public List<BanOnVo> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getVosManager().getBansForVo(ac.getSession(),
 					parms.readInt("vo"));
+		}
+	},
+
+	/*#
+	 * Update existing ban (description, validation timestamp)
+	 *
+	 * @param banOnVo BanOnVo JSON object
+	 * @return BanOnVo updated banOnVo
+	 */
+	updateBan {
+
+		@Override
+		public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getVosManager().updateBan(ac.getSession(),
+				parms.read("banOnVo", BanOnVo.class));
+
 		}
 	},
 
