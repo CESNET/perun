@@ -64,7 +64,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get page of audit messages. Query parameter specifies offset and page size. Total count is only estimated.
+	 * Get page of audit messages. Query parameter specifies offset, page size and allows filtering  by name of event. Total count is only estimated.
 	 *
 	 * @param query MessagesPageQuery Query with page information
 	 * @return Paginated<AuditMessage> page of requested audit messages
@@ -74,6 +74,18 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getAuditMessagesManager().getMessagesPage(ac.getSession(),
 				parms.read("query", MessagesPageQuery.class));
+		}
+	},
+
+	/*#
+	 * Return list of names of all possible events
+	 *
+	 * @return list of all possible events
+	 */
+	findAllPossibleEvents {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAuditMessagesManager().findAllPossibleEvents(ac.getSession());
 		}
 	},
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.SponsorshipExpired;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityCreated;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFailed;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncStarted;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipEstablished;
 import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
@@ -11,9 +13,11 @@ import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.EnrichedSponsorship;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.MessagesPageQuery;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.SortingOrder;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
 import cz.metacentrum.perun.core.impl.AuditMessagesManagerImpl;
 import org.junit.Before;
@@ -21,6 +25,7 @@ import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -138,7 +143,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 			perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: "+ i));
 		}
 
-		MessagesPageQuery query = new MessagesPageQuery(5, 0, SortingOrder.DESCENDING);
+		MessagesPageQuery query = new MessagesPageQuery(5, 0, SortingOrder.DESCENDING, new ArrayList<>());
 
 		Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
 		assertThat(messages.getData().size()).isEqualTo(5);
@@ -153,7 +158,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test older"));
 		perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test newer"));
 
-		MessagesPageQuery query = new MessagesPageQuery(1, 0, SortingOrder.DESCENDING);
+		MessagesPageQuery query = new MessagesPageQuery(1, 0, SortingOrder.DESCENDING, new ArrayList<>());
 
 		Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
 		assertThat(messages.getData().size()).isEqualTo(1);
@@ -167,7 +172,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test older"));
 		perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test newer"));
 
-		MessagesPageQuery query = new MessagesPageQuery(1, 1, SortingOrder.DESCENDING);
+		MessagesPageQuery query = new MessagesPageQuery(1, 1, SortingOrder.DESCENDING, new ArrayList<>());
 
 		Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
 		assertThat(messages.getData().size()).isEqualTo(1);
@@ -181,10 +186,39 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test 1"));
 		perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test 2"));
 
-		MessagesPageQuery query = new MessagesPageQuery(2, 0, SortingOrder.ASCENDING);
+		MessagesPageQuery query = new MessagesPageQuery(2, 0, SortingOrder.ASCENDING, new ArrayList<>());
 
 		Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
 		assertThat(messages.getData().get(0).getId()).isLessThan(messages.getData().get(1).getId());
+	}
+
+	@Test
+	public void getMessagesPage_filteredByEventName() throws Exception {
+		System.out.println(CLASS_NAME + "getMessagesPage_filteredByEventName");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "TestVo", "Test"));
+		Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("GroupTest", "Test"));
+
+		perun.getAuditer().logWithoutTransaction(sess, new GroupSyncStarted(group));
+		perun.getAuditer().logWithoutTransaction(sess, new GroupSyncFailed(group));
+
+		MessagesPageQuery query = new MessagesPageQuery(2, 0, SortingOrder.ASCENDING, List.of("GroupSyncStarted"));
+		Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
+
+		assertThat(messages.getData().size()).isEqualTo(1);
+		assertThat(messages.getTotalCount()).isEqualTo(1);
+	}
+
+	@Test
+	public void findAllPossibleEvents() throws Exception {
+		System.out.println(CLASS_NAME + "findAllPossibleEvents");
+
+		List<String> events = perun.getAuditMessagesManager().findAllPossibleEvents(sess);
+
+		assertThat(events.size()).isGreaterThan(200);
+		assertThat(events).contains("MemberCreated");
+		assertThat(events).contains("VoCreated");
+		assertThat(events).contains("UserCreated");
 	}
 
 	private void testAuditEventMapper(ObjectMapper mapper, AuditEvent event) throws Exception {

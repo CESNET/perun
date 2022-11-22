@@ -62,7 +62,7 @@ public interface AuditMessagesManager {
 	List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id, int count) throws PrivilegeException;
 
 	/**
-	 * Returns page of audit messages. Query parameter specifies offset and page size. Total count is only estimated.
+	 * Returns page of audit messages. Query parameter specifies offset and page size and allows filtering by name of event. Total count is only estimated.
 	 *
 	 * @param perunSession perun session
 	 * @return Page of audit messages
@@ -175,4 +175,12 @@ public interface AuditMessagesManager {
 	 */
 	int getAuditerMessagesCount(PerunSession perunSession);
 
+	/**
+	 * Return list of names of all possible events
+	 *
+	 * @param sess perun session
+	 * @return list of all possible events
+	 * @throws InternalErrorException When implementation fails
+	 */
+	List<String> findAllPossibleEvents(PerunSession sess);
 }

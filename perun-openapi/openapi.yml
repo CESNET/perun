@@ -374,10 +374,12 @@ components:
         pageSize: { type: integer }
         offset: { type: integer }
         order: { $ref: '#/components/schemas/SortingOrder' }
+        selectedEvents: { type: array, items: { type: string } }
       required:
         - pageSize
         - offset
         - order
+        - selectedEvents
 
     ActionType:
       type: string
@@ -7645,6 +7647,18 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/auditMessagesManager/findAllPossibleEvents:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: findAllPossibleEvents
+      summary: Get list of names of all possible events.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
