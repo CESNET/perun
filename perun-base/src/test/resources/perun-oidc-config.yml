@@ -1,8 +1,9 @@
-client_id: "363b656e-d139-4290-99cd-ee64eeb830d5" # Identifier of the CLI app on the OIDC server
-oidc_device_code_uri: "https://login.cesnet.cz/oidc/devicecode" # Here the CLI requests from the OIDC server to start the authentication
-oidc_token_endpoint_uri: "https://login.cesnet.cz/oidc/token" # Token endpoint URI
-oidc_token_revoke_endpoint_uri: "https://login.cesnet.cz/oidc/revoke" # Token revoke endpoint URI
-acr_values: "" # List of ACR values for authentication
-scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
-perun_api_endpoint: "https://perun-dev.cesnet.cz/oauth/rpc"
-enforce_mfa: false # Nastavenim true se vynuti MFA pri prihlaseni
+perun-domain.name.com:
+  client_id: "1234" # Identifier of the CLI app on the OIDC server
+  oidc_device_code_uri: "https://test/devicecode" # Here the CLI requests from the OIDC server to start the authentication
+  oidc_token_endpoint_uri: "https://test/token" # Token endpoint URI
+  oidc_token_revoke_endpoint_uri: "https://test/revoke" # Token revoke endpoint URI
+  acr_values: "" # List of ACR values for authentication
+  scopes: "openid perun_api perun_admin offline_access" # List of scopes the access_token should grant access to
+  perun_api_endpoint: "https://test/rpc"
+  enforce_mfa: false # Nastavenim true se vynuti MFA pri prihlaseni

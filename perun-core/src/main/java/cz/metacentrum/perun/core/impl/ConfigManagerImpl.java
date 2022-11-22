@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.OidcConfig;
+import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
 import cz.metacentrum.perun.core.implApi.ConfigManagerImplApi;
-import org.springframework.core.io.PathResource;
-import org.springframework.core.io.Resource;
 
 /**
  *
@@ -14,6 +14,11 @@ public class ConfigManagerImpl implements ConfigManagerImplApi {
 	private PerunAppsConfigLoader perunAppsConfigLoader;
 	private PerunOidcConfigLoader perunOidcConfigLoader;
 
+	private final PerunOidcConfigContainer perunOidcConfigContainer = new PerunOidcConfigContainer();
+
+	public void initialize() {
+		this.perunOidcConfigContainer.setOidcConfigs(perunOidcConfigLoader.loadPerunOidcConfigs());
+	}
 	@Override
 	public void setPerunAppsConfigLoader(PerunAppsConfigLoader perunAppsConfigLoader) {
 		this.perunAppsConfigLoader = perunAppsConfigLoader;
@@ -28,7 +33,7 @@ public class ConfigManagerImpl implements ConfigManagerImplApi {
 		perunAppsConfigLoader.initialize();
 	}
 
-	public OidcConfig getPerunOidcConfig() {
-		return perunOidcConfigLoader.loadPerunOidcConfig();
+	public OidcConfig getPerunOidcConfig(String name) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
+		return perunOidcConfigContainer.getOidcConfig(name);
 	}
 }
