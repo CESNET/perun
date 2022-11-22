@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedBanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -1933,11 +1934,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 
 		BanOnResource returnedBan = resourcesManager.setBan(sess, banOnResource);
 		banOnResource.setId(returnedBan.getId());
@@ -1954,11 +1951,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		BanOnResource returnedBan = resourcesManager.getBanById(sess, banOnResource.getId());
@@ -1975,11 +1968,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		BanOnResource returnedBan = resourcesManager.getBan(sess, banOnResource.getMemberId(), banOnResource.getResourceId());
@@ -1996,11 +1985,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> returnedBans = resourcesManager.getBansForMember(sess, banOnResource.getMemberId());
@@ -2017,15 +2002,65 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> returnedBans = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
 		assertEquals(banOnResource, returnedBans.get(0));
+	}
+
+	@Test
+	public void getEnrichedBansForResource() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedBansForResource");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+
+		BanOnResource banOnResource = setUpBan(new Date());
+		resourcesManager.setBan(sess, banOnResource);
+		AttributeDefinition mmbrAttrDef = setUpMemberAttribute();
+		AttributeDefinition usrAttrDef = setUpUserAttribute();
+		Attribute mmbrAttr = new Attribute(mmbrAttrDef, "member attribute value");
+		Attribute userAttr = new Attribute(usrAttrDef, "user attribute value");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member), userAttr);
+		perun.getAttributesManagerBl().setAttribute(sess, member, mmbrAttr);
+
+		List<EnrichedBanOnResource> returnedBans = resourcesManager.getEnrichedBansForResource(sess, resource.getId(), List.of(mmbrAttr.getName(), userAttr.getName()));
+		assertEquals(1, returnedBans.size());
+		assertThat(returnedBans.get(0).getMember().getMemberAttributes()).containsExactly(mmbrAttr);
+		assertThat(returnedBans.get(0).getMember().getUserAttributes()).containsExactly(userAttr);
+		assertThat(returnedBans.get(0).getBan()).isEqualTo(banOnResource);
+		assertThat(returnedBans.get(0).getResource()).isEqualTo(resource);
+	}
+
+	@Test
+	public void getEnrichedBansForUser() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedBansForUser");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+
+		BanOnResource banOnResource = setUpBan(new Date());
+		resourcesManager.setBan(sess, banOnResource);
+		AttributeDefinition mmbrAttrDef = setUpMemberAttribute();
+		AttributeDefinition usrAttrDef = setUpUserAttribute();
+		Attribute mmbrAttr = new Attribute(mmbrAttrDef, "member attribute value");
+		Attribute userAttr = new Attribute(usrAttrDef, "user attribute value");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member), userAttr);
+		perun.getAttributesManagerBl().setAttribute(sess, member, mmbrAttr);
+
+		List<EnrichedBanOnResource> returnedBans = resourcesManager.getEnrichedBansForUser(sess, member.getUserId(), List.of(mmbrAttr.getName(), userAttr.getName()));
+		assertEquals(1, returnedBans.size());
+		assertThat(returnedBans.get(0).getMember().getMemberAttributes()).containsExactly(mmbrAttr);
+		assertThat(returnedBans.get(0).getMember().getUserAttributes()).containsExactly(userAttr);
+		assertThat(returnedBans.get(0).getBan()).isEqualTo(banOnResource);
+		assertThat(returnedBans.get(0).getResource()).isEqualTo(resource);
 	}
 
 	@Test
@@ -2038,11 +2073,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 		banOnResource.setDescription("New description");
 		banOnResource.setValidityTo(new Date(banOnResource.getValidityTo().getTime() + 1000000));
@@ -2062,11 +2093,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
@@ -2088,11 +2115,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
-		banOnResource.setValidityTo(new Date());
+		BanOnResource banOnResource = setUpBan(new Date());
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
@@ -2114,13 +2137,9 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
 		Date now = new Date();
 		Date yesterday = new Date(now.getTime() - (1000 * 60 * 60 * 24));
-		banOnResource.setValidityTo(yesterday);
+		BanOnResource banOnResource = setUpBan(yesterday);
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
@@ -2142,13 +2161,9 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setMemberId(member.getId());
-		banOnResource.setResourceId(resource.getId());
-		banOnResource.setDescription("Popisek");
 		Date now = new Date();
 		Date tommorow = new Date(now.getTime() + (1000 * 60 * 60 * 24));
-		banOnResource.setValidityTo(tommorow);
+		BanOnResource banOnResource = setUpBan(tommorow);
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
@@ -3133,6 +3148,30 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		return attribute;
 	}
 
+	private Attribute setUpUserAttribute() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName("testingAttribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		return attribute;
+	}
+
+	private Attribute setUpMemberAttribute() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName("testingAttribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		return attribute;
+	}
+
 	private Attribute setUpMailingListAttribute() throws Exception {
 		Attribute attribute = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":optOutMailingList"));
 		attribute.setValue("Testing value for mailing list attribute");
@@ -3153,6 +3192,15 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attribute);
 		return attributes;
+	}
+
+	private BanOnResource setUpBan(Date validity) {
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(validity);
+		return banOnResource;
 	}
 
 }

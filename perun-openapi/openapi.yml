@@ -1185,6 +1185,13 @@ components:
       discriminator:
         propertyName: beanName
 
+    EnrichedBanOnResource:
+      type: object
+      properties:
+        resource: { $ref: '#/components/schemas/Resource' }
+        member: { $ref: '#/components/schemas/RichMember' }
+        banOnResource: { $ref: '#/components/schemas/BanOnResource' }
+
     RichUserExtSource:
       properties:
         userExtSource: { $ref: '#/components/schemas/UserExtSource' }
@@ -2316,6 +2323,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnResource"
+
+    ListOfEnrichedBansOnResourceResponse:
+      description: "return List<BanOnResource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedBanOnResource"
 
     ListOfServiceForGUIResponse:
       description: "return List<ServiceForGUI>"
@@ -14232,6 +14248,36 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfBanOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getEnrichedBansForResource:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getEnrichedBansForResource
+      summary: Get all enriched bans for members on the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getEnrichedBansForUser:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getEnrichedBansForUser
+      summary: Get all enriched bans for user's members on resources.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnResourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

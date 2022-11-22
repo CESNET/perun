@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -1139,6 +1140,29 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 */
 	List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws PrivilegeException, ResourceNotExistsException;
+
+	/**
+	 * Get all enriched bans for members on the resource.
+	 *
+	 * @param sess
+	 * @param resourceId the id of resource
+	 * @param attrNames list of attributes names, returns all user/member attributes if null or empty
+	 * @return list of all enriched bans on resource
+	 * @throws PrivilegeException
+	 * @throws ResourceNotExistsException
+	 */
+	List<EnrichedBanOnResource> getEnrichedBansForResource(PerunSession sess, int resourceId, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException;
+
+	/**
+	 * Get all enriched bans on resources for user.
+	 *
+	 * @param sess
+	 * @param userId id of user
+	 * @return attrNames list of attributes names, returns all user/member attributes if null or empty
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 */
+	List<EnrichedBanOnResource> getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException;
 
 	/**
 	 * Update existing ban (description, validation timestamp)

@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.EnrichedBanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -1380,6 +1381,52 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			return ac.getResourcesManager().getBansForResource(ac.getSession(),
 					parms.readInt("resource"));
 
+		}
+	},
+
+	/*#
+	 *  Get all enriched bans for members on the resource.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @return List<BanOnResource> enriched bans on resource
+	 * @throw ResourceNotExistsException
+	 */
+	getEnrichedBansForResource {
+
+		@Override
+		public List<EnrichedBanOnResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+			return ac.getResourcesManager()
+				.getEnrichedBansForResource(ac.getSession(),
+					parms.readInt("resource"),
+					attrNames);
+		}
+	},
+
+	/*#
+	 *  Get all enriched bans for user's members on resources.
+	 *
+	 * @param user int user <code>id</code>
+	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @return List<BanOnResource> enriched bans for user
+	 * @throw UserNotExistsException
+	 */
+	getEnrichedBansForUser {
+
+		@Override
+		public List<EnrichedBanOnResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+			return ac.getResourcesManager()
+				.getEnrichedBansForUser(ac.getSession(),
+					parms.readInt("user"),
+					attrNames);
 		}
 	},
 

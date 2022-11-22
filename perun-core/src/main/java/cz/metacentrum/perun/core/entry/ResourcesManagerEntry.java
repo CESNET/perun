@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.EnrichedBanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -22,6 +23,7 @@ import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -1249,6 +1251,40 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		return getResourcesManagerBl().getBansForResource(sess, resourceId);
+	}
+
+	@Override
+	public List<EnrichedBanOnResource> getEnrichedBansForResource(PerunSession sess, int resourceId, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, resourceId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedBansForResource_int_List<String>_policy", resource)) {
+			throw new PrivilegeException(sess, "getEnrichedBansForResource");
+		}
+
+		List<EnrichedBanOnResource> bans = getResourcesManagerBl().getEnrichedBansForResource(sess, resource, attrNames);
+		bans.forEach(ban ->
+			ban.setMember(perunBl.getMembersManagerBl().filterOnlyAllowedAttributes(sess, ban.getMember()))
+		);
+		return bans;
+	}
+
+	@Override
+	public List<EnrichedBanOnResource> getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedResourceBansForUser_int_List<String>_policy", user)) {
+			throw new PrivilegeException(sess, "getEnrichedBansForUser");
+		}
+
+		List<EnrichedBanOnResource> bans = getResourcesManagerBl().getEnrichedBansForUser(sess, user, attrNames);
+		bans.forEach(ban ->
+			ban.setMember(perunBl.getMembersManagerBl().filterOnlyAllowedAttributes(sess, ban.getMember()))
+		);
+		return bans;
 	}
 
 	@Override

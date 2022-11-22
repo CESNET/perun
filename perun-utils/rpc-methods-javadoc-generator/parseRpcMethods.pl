@@ -286,6 +286,10 @@ $objectExamples{"Consent"} = "{ \"id\" : 1 , \"userId\" : 1 , \"status\" : \"UNS
 $objectExamples{"List&lt;Consent&gt;"} = $listPrepend . $objectExamples{"Consent"} . $listAppend;
 $objectExamples{"List<Consent>"} = $objectExamples{"List&lt;Consent&gt;"};
 
+$objectExamples{"EnrichedBanOnResource"} = "{ \"resource\" : " . $objectExamples{"Resource"} . " , \"member\" : " . $objectExamples{"RichMember"} . " , \"banOnResource\" : " . $objectExamples{"BanOnResource"} . " }";
+$objectExamples{"List&lt;EnrichedBanOnResource&gt;"} = $listPrepend . $objectExamples{"EnrichedBanOnResource"} . $listAppend;
+$objectExamples{"List<EnrichedBanOnResource>"} = $objectExamples{"List&lt;EnrichedBanOnResource&gt;"};
+
 # SUB HELP
 # help info
 sub help {
