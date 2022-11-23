@@ -4581,8 +4581,6 @@ perun_policies:
     policy_roles:
       - SELF: User
       - PERUNOBSERVER:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
 
