@@ -423,6 +423,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		BeansUtils.getCoreConfig().setAttributesToKeep(originalAttributesToKeep);
 
 		User updatedUser = perun.getUsersManagerBl().getUserById(sess, user.getId());
+		assertTrue(updatedUser.isAnonymized());
 		assertTrue("Firstname should be null or empty.", updatedUser.getFirstName() == null || updatedUser.getFirstName().isEmpty());
 		assertTrue("Lastname should be null or empty.", updatedUser.getLastName() == null || updatedUser.getLastName().isEmpty());
 

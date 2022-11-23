@@ -18,6 +18,7 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 	protected String titleAfter;
 	private boolean serviceUser = false;
 	private boolean sponsoredUser = false;
+	private boolean anonymized = false;
 	private UUID uuid;
 
 	public User() {
@@ -33,10 +34,11 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 		this.titleAfter = titleAfter;
 	}
 
-	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter, boolean serviceUser, boolean sponsoredUser) {
+	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter, boolean serviceUser, boolean sponsoredUser, boolean anonymized) {
 		this(id, firstName, lastName, middleName, titleBefore, titleAfter);
 		this.serviceUser = serviceUser;
 		this.sponsoredUser = sponsoredUser;
+		this.anonymized = anonymized;
 	}
 
 	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
@@ -50,11 +52,12 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 	}
 
 	public User(int id, UUID uuid, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
-	            String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, boolean sponsoredUser, Integer createdByUid, Integer modifiedByUid) {
+				String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, boolean sponsoredUser, boolean anonymized, Integer createdByUid, Integer modifiedByUid) {
 		this(id, firstName, lastName, middleName, titleBefore, titleAfter, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.uuid = uuid;
 		this.serviceUser = serviceUser;
 		this.sponsoredUser = sponsoredUser;
+		this.anonymized = anonymized;
 	}
 
 	@Override
@@ -158,6 +161,14 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 		this.sponsoredUser = sponsoredUser;
 	}
 
+	public boolean isAnonymized() {
+		return anonymized;
+	}
+
+	public void setAnonymized(boolean anonymized) {
+		this.anonymized = anonymized;
+	}
+
 	public boolean isSpecificUser() {
 		return isServiceUser() || isSponsoredUser();
 	}
@@ -214,6 +225,7 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 				", titleAfter=<" + (getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())) + ">" +
 				", serviceAccount=<" + isServiceUser() + ">" +
 				", sponsoredAccount=<" + isSponsoredUser() + ">" +
+				", anonymized=<" + isAnonymized() + ">" +
 				']';
 	}
 
@@ -238,6 +250,8 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 				serviceUser +
 				"', sponsoredAccount='" +
 				sponsoredUser +
+				"', anonymized='" +
+				anonymized +
 				"']";
 
 	}
@@ -261,6 +275,8 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 				+ ((serviceUser ? 1 : 2));
 		result = prime * result
 				+ ((sponsoredUser ? 1 : 2));
+		result = prime * result
+				+ ((anonymized ? 1 : 2));
 		return result;
 	}
 
@@ -303,6 +319,8 @@ public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 		else if (serviceUser != other.serviceUser)
 			return false;
 		else if (sponsoredUser != other.sponsoredUser)
+			return false;
+		else if (anonymized != other.anonymized)
 			return false;
 		return true;
 	}

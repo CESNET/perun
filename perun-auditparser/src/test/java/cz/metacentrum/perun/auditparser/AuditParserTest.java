@@ -29,7 +29,7 @@ public class AuditParserTest {
 	private final String textMismatch = "!@#$%^<<&*()_+<\\><:{[}][]{>} sd";
 	private final String CLASS_NAME = "AuditMessagesManagerEntry";
 	private AuditMessage createdAuditMessage = new AuditMessage();
-	private final User user = new User(5, textMismatch,textMismatch, textMismatch, textMismatch, textMismatch, false, false);
+	private final User user = new User(5, textMismatch,textMismatch, textMismatch, textMismatch, textMismatch, false, false, false);
 	private final ExtSource extSource = new ExtSource(9, textMismatch, textMismatch);
 	private final UserExtSource userExtSource1 = new UserExtSource(12, extSource, textMismatch, user.getId(), 133);
 	private final UserExtSource userExtSource2 = new UserExtSource(15, extSource, textMismatch, -1, 156);
@@ -223,7 +223,7 @@ public class AuditParserTest {
 		System.out.println(CLASS_NAME + ":sameObjectBeforeAndAfterSerializing");
 
 		//FOR USER
-		User user = new User(8, null, textMismatch, null, textMismatch, null, true, true);
+		User user = new User(8, null, textMismatch, null, textMismatch, null, true, true, false);
 		user.setUuid(UUID.randomUUID());
 
 		List<PerunBean> userInList = AuditParser.parseLog(user.serializeToString());

@@ -101,7 +101,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	protected final static String userMappingSelectQuery = "users.id as users_id, users.uu_id as users_uu_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
 		"users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
 		"users.created_at as users_created_at, users.created_by as users_created_by, users.modified_by as users_modified_by, users.modified_at as users_modified_at, " +
-		"users.sponsored_acc as users_sponsored_acc, users.service_acc as users_service_acc, users.created_by_uid as users_created_by_uid, users.modified_by_uid as users_modified_by_uid";
+		"users.sponsored_acc as users_sponsored_acc, users.service_acc as users_service_acc, users.anonymized as users_anonymized, users.created_by_uid as users_created_by_uid, users.modified_by_uid as users_modified_by_uid";
 
 	protected final static String userExtSourceMappingSelectQuery = "user_ext_sources.id as user_ext_sources_id, user_ext_sources.login_ext as user_ext_sources_login_ext, " +
 		"user_ext_sources.user_id as user_ext_sources_user_id, user_ext_sources.loa as user_ext_sources_loa, user_ext_sources.created_at as user_ext_sources_created_at, user_ext_sources.created_by as user_ext_sources_created_by, " +
@@ -132,7 +132,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		new User(resultSet.getInt("users_id"), resultSet.getObject("users_uu_id", UUID.class), resultSet.getString("users_first_name"), resultSet.getString("users_last_name"),
 			resultSet.getString("users_middle_name"), resultSet.getString("users_title_before"), resultSet.getString("users_title_after"),
 			resultSet.getString("users_created_at"), resultSet.getString("users_created_by"), resultSet.getString("users_modified_at"), resultSet.getString("users_modified_by"), resultSet.getBoolean("users_service_acc"),
-			resultSet.getBoolean("users_sponsored_acc"),
+			resultSet.getBoolean("users_sponsored_acc"), resultSet.getBoolean("users_anonymized"),
 			resultSet.getInt("users_created_by_uid") == 0 ? null : resultSet.getInt("users_created_by_uid"), resultSet.getInt("users_modified_by_uid") == 0 ? null : resultSet.getInt("users_modified_by_uid"));
 
 	private static final RowMapper<UserExtSource> USEREXTSOURCE_MAPPER = new RowMapper<UserExtSource>() {

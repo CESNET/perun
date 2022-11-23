@@ -4902,19 +4902,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
 			"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
 			"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
-			"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
+			"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc, u.anonymized as user_anonymized, u.uu_id as user_uu_id from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
 
 	static final String APP_SELECT_PAGE = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
 		"a.user_id as user_id,a.extsourcename as extsourcename, a.extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as app_modified_by, " +
 		"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
 		"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
 		"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
-		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a" +
+		"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc, u.anonymized as user_anonymized, u.uu_id as user_uu_id, count(*) OVER() AS total_count from application a" +
 		" left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id left outer join application_data d on a.id = d.app_id";
 
 	static final String APP_PAGE_GROUP_BY = " GROUP BY a.id, a.vo_id, a.group_id, a.apptype, a.fed_info, a.state, a.user_id, a.extsourcename, a.extsourcetype, a.extsourceloa, a.user_id, a.created_at, a.created_by, a.modified_at, a.modified_by," +
 		" v.name, v.short_name, v.created_by, v.created_at, v.created_by_uid, v.modified_by, v.modified_at, v.modified_by_uid, g.name, g.dsc, g.created_by, g.created_at, g.modified_by, g.created_by_uid, g.modified_by_uid, g.modified_at, g.vo_id, " +
-		"g.parent_group_id, g.uu_id, u.first_name, u.last_name, u.middle_name, u.title_before, u.title_after, u.service_acc, u.sponsored_acc, u.uu_id";
+		"g.parent_group_id, g.uu_id, u.first_name, u.last_name, u.middle_name, u.title_before, u.title_after, u.service_acc, u.sponsored_acc, u.anonymized, u.uu_id";
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 
@@ -4967,7 +4967,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			app.setUser(new User(resultSet.getInt("user_id"), resultSet.getString("user_first_name"),
 					resultSet.getString("user_last_name"), resultSet.getString("user_middle_name"),
 					resultSet.getString("user_title_before"), resultSet.getString("user_title_after"),
-					resultSet.getBoolean("user_service_acc"), resultSet.getBoolean("user_sponsored_acc")));
+					resultSet.getBoolean("user_service_acc"), resultSet.getBoolean("user_sponsored_acc"), resultSet.getBoolean("user_anonymized")));
 			app.getUser().setUuid(resultSet.getObject("user_uu_id", UUID.class));
 		}
 

@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +16,7 @@ public class RichUser extends User {
 	public RichUser(User user, List<UserExtSource> userExtSources) {
 		super(user.getId(), user.getUuid(), user.getFirstName(), user.getLastName(), user.getMiddleName(),
 				user.getTitleBefore(), user.getTitleAfter(), user.getCreatedAt(), user.getCreatedBy(),
-				user.getModifiedAt(), user.getModifiedBy(), user.isServiceUser(), user.isSponsoredUser(), user.getCreatedByUid(), user.getModifiedByUid());
+				user.getModifiedAt(), user.getModifiedBy(), user.isServiceUser(), user.isSponsoredUser(), user.isAnonymized(), user.getCreatedByUid(), user.getModifiedByUid());
 		this.userExtSources = userExtSources;
 		this.userAttributes = null;
 	}
@@ -80,6 +76,9 @@ public class RichUser extends User {
 			", lastName=<").append(getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())).append(">").append(
 			", middleName=<").append(getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())).append(">").append(
 			", titleAfter=<").append(getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())).append(">").append(
+			", serviceAccount=<").append(isServiceUser()).append(">").append(
+			", sponsoredAccount=<").append(isSponsoredUser()).append(">").append(
+			", anonymized=<").append(isAnonymized()).append(">").append(
 			", userExtSources=<").append(sUserESNew).append(">").append(
 			", userAttributes=<").append(sUserAttrNew).append(">").append(
 			']').toString();
@@ -89,7 +88,18 @@ public class RichUser extends User {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append("RichUser:[id='").append(getId()).append("', uuid='").append(getUuid()).append("', titleBefore='").append(getTitleBefore()).append("', firstName='").append(getFirstName()).append("', lastName='").append(getLastName()).append(
-			"', middleName='").append(getMiddleName()).append("', titleAfter='").append(getTitleAfter()).append("', userExtSources='").append(userExtSources).append("', userAttributes='").append(userAttributes).append("']").toString();
+		return str.append("RichUser:[id='").append(getId())
+			.append("', uuid='").append(getUuid())
+			.append("', titleBefore='").append(getTitleBefore())
+			.append("', firstName='").append(getFirstName())
+			.append("', lastName='").append(getLastName())
+			.append("', middleName='").append(getMiddleName())
+			.append("', titleAfter='").append(getTitleAfter())
+			.append("', serviceAccount='").append(isServiceUser())
+			.append("', sponsoredAccount='").append(isSponsoredUser())
+			.append("', anonymized='").append(isAnonymized())
+			.append("', userExtSources='").append(userExtSources)
+			.append("', userAttributes='").append(userAttributes)
+			.append("']").toString();
 	}
 }

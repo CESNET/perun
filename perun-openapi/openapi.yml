@@ -91,6 +91,7 @@ components:
         titleAfter: { type: string, nullable: true }
         serviceUser: { type: boolean }
         sponsoredUser: { type: boolean }
+        anonymized: { type: boolean }
         uuid: { type: string, format: uuid }
         specificUser: { type: boolean }
         majorSpecificType: { type: string }
