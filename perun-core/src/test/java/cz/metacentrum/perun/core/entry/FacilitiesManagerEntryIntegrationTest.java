@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.EnrichedBanOnFacility;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -63,6 +64,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1477,11 +1479,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 
 		BanOnFacility returnedBan = facilitiesManagerEntry.setBan(sess, banOnFacility);
 		banOnFacility.setId(returnedBan.getId());
@@ -1499,11 +1497,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		BanOnFacility returnedBan = facilitiesManagerEntry.getBanById(sess, banOnFacility.getId());
@@ -1521,11 +1515,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		BanOnFacility returnedBan = facilitiesManagerEntry.getBan(sess, banOnFacility.getUserId(), banOnFacility.getFacilityId());
@@ -1543,11 +1533,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> returnedBans = facilitiesManagerEntry.getBansForUser(sess, banOnFacility.getUserId());
@@ -1565,15 +1551,57 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> returnedBans = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
 		assertEquals(banOnFacility, returnedBans.get(0));
+	}
+
+	@Test
+	public void getEnrichedBansForFacility() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedBansForFacility");
+		vo = setUpVo();
+		Resource resource = setUpResource(vo);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		Group group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
+		facilitiesManagerEntry.setBan(sess, banOnFacility);
+		AttributeDefinition usrAttrDef = setUpUserAttribute();
+		Attribute userAttr = new Attribute(usrAttrDef, "user attribute value");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member), userAttr);
+
+		List<EnrichedBanOnFacility> returnedBans = facilitiesManagerEntry.getEnrichedBansForFacility(sess, facility.getId(), List.of(userAttr.getName()));
+		assertEquals(1, returnedBans.size());
+		assertThat(returnedBans.get(0).getUser().getUserAttributes()).containsExactly(userAttr);
+		assertThat(returnedBans.get(0).getBan()).isEqualTo(banOnFacility);
+		assertThat(returnedBans.get(0).getFacility()).isEqualTo(facility);
+	}
+
+	@Test
+	public void getEnrichedBansForUser() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedBansForUser");
+		vo = setUpVo();
+		Resource resource = setUpResource(vo);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		Group group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
+		facilitiesManagerEntry.setBan(sess, banOnFacility);
+		AttributeDefinition usrAttrDef = setUpUserAttribute();
+		Attribute userAttr = new Attribute(usrAttrDef, "user attribute value");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member), userAttr);
+
+		List<EnrichedBanOnFacility> returnedBans = facilitiesManagerEntry.getEnrichedBansForUser(sess, user.getId(), List.of(userAttr.getName()));
+		assertEquals(1, returnedBans.size());
+		assertThat(returnedBans.get(0).getUser().getUserAttributes()).containsExactly(userAttr);
+		assertThat(returnedBans.get(0).getBan()).isEqualTo(banOnFacility);
+		assertThat(returnedBans.get(0).getFacility()).isEqualTo(facility);
 	}
 
 	@Test
@@ -1587,11 +1615,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 		banOnFacility.setDescription("New description");
 		banOnFacility.setValidityTo(new Date(banOnFacility.getValidityTo().getTime() + 1000000));
@@ -1612,11 +1636,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
@@ -1639,11 +1659,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
-		banOnFacility.setValidityTo(new Date());
+		BanOnFacility banOnFacility = setUpBan(new Date(), user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
@@ -1666,13 +1682,9 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
 		Date now = new Date();
 		Date yesterday = new Date(now.getTime() - (1000 * 60 * 60 * 24));
-		banOnFacility.setValidityTo(yesterday);
+		BanOnFacility banOnFacility = setUpBan(yesterday, user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
@@ -1695,13 +1707,9 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Group group = setUpGroup(vo, member);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		BanOnFacility banOnFacility = new BanOnFacility();
-		banOnFacility.setUserId(user.getId());
-		banOnFacility.setFacilityId(facility.getId());
-		banOnFacility.setDescription("Popisek");
 		Date now = new Date();
 		Date tommorow = new Date(now.getTime() + (1000 * 60 * 60 * 24));
-		banOnFacility.setValidityTo(tommorow);
+		BanOnFacility banOnFacility = setUpBan(tommorow, user.getId());
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
@@ -2427,6 +2435,27 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 
 		return new Attribute(attrDef);
+	}
+
+	private Attribute setUpUserAttribute() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName("testingAttribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		return attribute;
+	}
+
+	private BanOnFacility setUpBan(Date validity, int userId) {
+		BanOnFacility banOnFacility = new BanOnFacility();
+		banOnFacility.setUserId(userId);
+		banOnFacility.setFacilityId(facility.getId());
+		banOnFacility.setDescription("Popisek");
+		banOnFacility.setValidityTo(validity);
+		return banOnFacility;
 	}
 
 	private SecurityTeam setUpSecurityTeam0() throws Exception {

@@ -1233,6 +1233,21 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getEnrichedBansForFacility_int_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
+  getEnrichedFacilityBansForUser_int_List<String>_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   updateBan_BanOnFacility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
