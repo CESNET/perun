@@ -154,8 +154,9 @@ public class PerunRolesLoader {
 			boolean mfaCriticalRole = roleNode.get("mfa_critical_role") != null && roleNode.get("mfa_critical_role").asBoolean();
 			JsonNode displayNameNode = roleNode.get("display_name");
 			String displayName = displayNameNode.isNull() ? null : displayNameNode.textValue();
+			List<String> receiveNotifications = createListFromJsonNode(roleNode.get("receive_notifications"));
 
-			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, assignmentCheck, associatedReadRoles, assignableToAttribute, skipMFA, mfaCriticalRole, displayName));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign, assignmentCheck, associatedReadRoles, assignableToAttribute, skipMFA, mfaCriticalRole, displayName, receiveNotifications));
 		}
 
 		return rules;
@@ -189,6 +190,10 @@ public class PerunRolesLoader {
 
 	private List<String> createListFromJsonNode(JsonNode node) {
 		List<String> resultList = new ArrayList<>();
+
+		if (node == null) {
+			return resultList;
+		}
 
 		Iterator<JsonNode> nodeArray = node.elements();
 		while (nodeArray.hasNext()) {

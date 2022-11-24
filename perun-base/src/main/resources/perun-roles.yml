@@ -7862,6 +7862,8 @@ perun_policies:
 #  mfa_critical_role is a flag marking roles always requiring MFA from users having that role
 #  skip_mfa is a flag that whether the role should skip MFA check.
 #  display_name is a more user-friendly name
+#  receive_notifications contains names of objects for which the role should get notifications
+#			   Example value: Vo ; meaning: will receive notifications when vo application is created/failed
 perun_roles_management:
 
   PERUNADMIN:
@@ -7936,6 +7938,8 @@ perun_roles_management:
       - VOOBSERVER
     assignable_to_attributes: true
     display_name: "Organization admin"
+    receive_notifications:
+      - Vo
 
   GROUPADMIN:
     primary_object: Group
@@ -7964,6 +7968,8 @@ perun_roles_management:
       - GROUPOBSERVER
     assignable_to_attributes: true
     display_name: "Group admin"
+    receive_notifications:
+      - Group
 
   GROUPOBSERVER:
     primary_object: Group
@@ -8018,6 +8024,8 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: true
     display_name: "Group membership manager"
+    receive_notifications:
+      - Group
 
   SELF:
     primary_object:

@@ -34,6 +34,8 @@ import java.util.Objects;
  * skipMFA is a flag that whether the role should skip MFA check.
  * mfaCriticalRole is a flag marking roles always requiring MFA from users having that role
  * displayName is a more user-friendly name
+ * receiveNotifications contains names of objects for which the role should get notifications
+ * 			   Example value: Vo ; meaning: will receive notifications when vo application is created/failed
  */
 public class RoleManagementRules {
 
@@ -48,10 +50,10 @@ public class RoleManagementRules {
 	private boolean assignableToAttributes;
 	private boolean skipMFA;
 	private boolean mfaCriticalRole;
-
 	private String displayName;
+	private List<String> receiveNotifications;
 
-	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean skipMFA, boolean mfaCriticalRole, String displayName) {
+	public RoleManagementRules(String roleName, String primaryObject, List<Map<String, String>> privilegedRolesToManage, List<Map<String, String>> privilegedRolesToRead, Map<String, String> entitiesToManage, Map<String, String> assignedObjects, List<Map<String, String>> assignmentCheck, List<String> associatedReadRoles, boolean assignableToAttributes, boolean skipMFA, boolean mfaCriticalRole, String displayName, List<String> receiveNotifications) {
 		this.roleName = roleName;
 		this.primaryObject = primaryObject;
 		this.privilegedRolesToManage = privilegedRolesToManage;
@@ -64,6 +66,7 @@ public class RoleManagementRules {
 		this.skipMFA = skipMFA;
 		this.mfaCriticalRole = mfaCriticalRole;
 		this.displayName = displayName;
+		this.receiveNotifications = receiveNotifications;
 	}
 
 	public String getRoleName() {
@@ -162,6 +165,14 @@ public class RoleManagementRules {
 		this.displayName = displayName;
 	}
 
+	public List<String> getReceiveNotifications() {
+		return receiveNotifications;
+	}
+
+	public void setReceiveNotifications(List<String> receiveNotifications) {
+		this.receiveNotifications = receiveNotifications;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -178,12 +189,13 @@ public class RoleManagementRules {
 			Objects.equals(assignableToAttributes, that.assignableToAttributes) &&
 			Objects.equals(skipMFA, that.skipMFA) &&
 			Objects.equals(mfaCriticalRole, that.mfaCriticalRole) &&
-			Objects.equals(displayName, that.displayName);
+			Objects.equals(displayName, that.displayName) &&
+			Objects.equals(receiveNotifications, that.receiveNotifications);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, skipMFA, mfaCriticalRole, displayName);
+		return Objects.hash(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, assignedObjects, assignmentCheck, associatedReadRoles, assignableToAttributes, skipMFA, mfaCriticalRole, displayName, receiveNotifications);
 	}
 
 	@Override
@@ -201,6 +213,7 @@ public class RoleManagementRules {
 			", skipMFA=" + skipMFA +
 			", mfaCriticalRole=" + mfaCriticalRole +
 			", displayName=" + displayName +
+			", receiveNotifications=" + receiveNotifications +
 			'}';
 	}
 }
