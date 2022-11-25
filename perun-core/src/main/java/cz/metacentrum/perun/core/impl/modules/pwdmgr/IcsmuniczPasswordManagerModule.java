@@ -39,13 +39,14 @@ public class IcsmuniczPasswordManagerModule extends GenericPasswordManagerModule
 	@Override
 	public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
 
-		super.checkPasswordStrength(sess, login, password);
-
-		// we know it must be non-empty by super implementation
+		// check our length constraint first, since its more strict
 		if (password.length() < passwordMinLength) {
 			log.warn("Password for {}:{} is too short. At least {} characters are required.", actualLoginNamespace, login, passwordMinLength);
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too short. At least "+passwordMinLength+" characters are required.");
 		}
+
+		// check rest of generic stuff
+		super.checkPasswordStrength(sess, login, password);
 
 	}
 
