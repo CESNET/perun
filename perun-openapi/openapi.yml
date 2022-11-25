@@ -1190,7 +1190,7 @@ components:
       properties:
         resource: { $ref: '#/components/schemas/Resource' }
         member: { $ref: '#/components/schemas/RichMember' }
-        banOnResource: { $ref: '#/components/schemas/BanOnResource' }
+        ban: { $ref: '#/components/schemas/BanOnResource' }
 
     RichUserExtSource:
       properties:
