@@ -656,6 +656,30 @@ public interface FacilitiesManager {
 	List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
+	 * Get all enriched bans for users on the facility.
+	 *
+	 * @param sess
+	 * @param facilityId id of the facility
+	 * @param attrNames list of attribute names, returns all user attributes if null or empty
+	 * @return list of enriched bans on facility
+	 * @throws PrivilegeException
+	 * @throws FacilityNotExistsException
+	 */
+	List<EnrichedBanOnFacility> getEnrichedBansForFacility(PerunSession sess, int facilityId, List<String> attrNames) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException;
+
+	/**
+	 * Get all enriched bans on facility for user.
+	 *
+	 * @param sess
+	 * @param userId id of user
+	 * @param attrNames list of attributes names, returns all user/member attributes if null or empty
+	 * @return list of user's enriched bans on assigned facilities
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 */
+	List<EnrichedBanOnFacility> getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException;
+
+	/**
 	 * Update existing ban (description and validation timestamp)
 	 *
 	 * @param banOnFacility the existing ban

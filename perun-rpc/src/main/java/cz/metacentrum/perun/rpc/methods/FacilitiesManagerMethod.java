@@ -1613,6 +1613,52 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 *  Get all enriched bans for users on the facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @return List<EnrichedBanOnFacility> enriched bans on facility
+	 * @throw FacilityNotExistsException
+	 */
+	getEnrichedBansForFacility {
+
+		@Override
+		public List<EnrichedBanOnFacility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+			return ac.getFacilitiesManager()
+				.getEnrichedBansForFacility(ac.getSession(),
+					parms.readInt("facility"),
+					attrNames);
+		}
+	},
+
+	/*#
+	 *  Get all user's enriched bans on assigned facilities.
+	 *
+	 * @param user int user <code>id</code>
+	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @return List<EnrichedBanOnFacility> enriched bans for user
+	 * @throw UserNotExistsException
+	 */
+	getEnrichedBansForUser {
+
+		@Override
+		public List<EnrichedBanOnFacility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+			return ac.getFacilitiesManager()
+				.getEnrichedBansForUser(ac.getSession(),
+					parms.readInt("user"),
+					attrNames);
+		}
+	},
+
+	/*#
 	 * Update existing ban (description, validation timestamp)
 	 *
 	 * @param banOnFacility BanOnFacility JSON object

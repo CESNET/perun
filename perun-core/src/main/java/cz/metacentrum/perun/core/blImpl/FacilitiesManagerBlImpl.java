@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.EnrichedBanOnFacility;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.FacilityWithAttributes;
@@ -973,6 +974,81 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) {
 		return getFacilitiesManagerImpl().getBansForFacility(sess, facilityId);
+	}
+
+	@Override
+	public List<EnrichedBanOnFacility> getEnrichedBansForFacility(PerunSession sess, Facility facility, List<String> attrNames) throws AttributeNotExistsException {
+		List<BanOnFacility> bans = getFacilitiesManagerImpl().getBansForFacility(sess, facility.getId());
+		List<EnrichedBanOnFacility> enrichedBans = new ArrayList<>();
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
+
+		if (attrNames != null && !attrNames.isEmpty()) {
+			attrDefs = perunBl.getAttributesManagerBl().getAttributesDefinition(sess, attrNames);
+		}
+
+		for (BanOnFacility ban : bans) {
+			EnrichedBanOnFacility enrichedBan = new EnrichedBanOnFacility();
+			enrichedBan.setBan(ban);
+			enrichedBan.setFacility(facility);
+			try {
+				User user = perunBl.getUsersManagerBl().getUserById(sess, ban.getUserId());
+				RichUser richUser = perunBl.getUsersManagerBl().getRichUser(sess, user);
+
+				if (attrDefs.isEmpty()) {
+					richUser = perunBl.getUsersManagerBl()
+						.convertRichUsersToRichUsersWithAttributes(sess, List.of(richUser)).get(0);
+				} else {
+					richUser = perunBl.getUsersManagerBl()
+						.convertUsersToRichUsersWithAttributes(sess, List.of(richUser), attrDefs).get(0);
+				}
+				enrichedBan.setUser(richUser);
+			} catch (UserNotExistsException e) {
+				// should not happen
+			}
+			enrichedBans.add(enrichedBan);
+		}
+
+		return enrichedBans;
+	}
+
+	@Override
+	public List<EnrichedBanOnFacility> getEnrichedBansForUser(PerunSession sess, User user, List<String> attrNames) throws AttributeNotExistsException {
+		List<BanOnFacility> bans = perunBl.getFacilitiesManagerBl().getBansForUser(sess, user.getId());
+		List<EnrichedBanOnFacility> enrichedBans = new ArrayList<>();
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
+
+
+		if (attrNames != null && !attrNames.isEmpty()) {
+			attrDefs = perunBl.getAttributesManagerBl().getAttributesDefinition(sess, attrNames);
+		}
+
+		RichUser richUser = perunBl.getUsersManagerBl().getRichUser(sess, user);
+		try {
+			if (attrDefs.isEmpty()) {
+				richUser = perunBl.getUsersManagerBl()
+					.convertRichUsersToRichUsersWithAttributes(sess, List.of(richUser)).get(0);
+			} else {
+				richUser = perunBl.getUsersManagerBl()
+					.convertUsersToRichUsersWithAttributes(sess, List.of(richUser), attrDefs).get(0);
+			}
+		} catch (UserNotExistsException e) {
+			// should not happen
+		}
+
+		for (BanOnFacility ban : bans) {
+			EnrichedBanOnFacility enrichedBan = new EnrichedBanOnFacility();
+			enrichedBan.setBan(ban);
+			enrichedBan.setUser(richUser);
+
+			try {
+				enrichedBan.setFacility(perunBl.getFacilitiesManagerBl().getFacilityById(sess, ban.getFacilityId()));
+			} catch(FacilityNotExistsException e) {
+				// should not happen
+			}
+			enrichedBans.add(enrichedBan);
+		}
+
+		return enrichedBans;
 	}
 
 	@Override

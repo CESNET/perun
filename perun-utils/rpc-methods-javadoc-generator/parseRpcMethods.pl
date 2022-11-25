@@ -290,6 +290,10 @@ $objectExamples{"EnrichedBanOnResource"} = "{ \"resource\" : " . $objectExamples
 $objectExamples{"List&lt;EnrichedBanOnResource&gt;"} = $listPrepend . $objectExamples{"EnrichedBanOnResource"} . $listAppend;
 $objectExamples{"List<EnrichedBanOnResource>"} = $objectExamples{"List&lt;EnrichedBanOnResource&gt;"};
 
+$objectExamples{"EnrichedBanOnFacility"} = "{ \"facility\" : " . $objectExamples{"Facility"} . " , \"user\" : " . $objectExamples{"RichUser"} . " , \"banOnFacility\" : " . $objectExamples{"BanOnFacility"} . " }";
+$objectExamples{"List&lt;EnrichedBanOnFacility&gt;"} = $listPrepend . $objectExamples{"EnrichedBanOnFacility"} . $listAppend;
+$objectExamples{"List<EnrichedBanOnFacility>"} = $objectExamples{"List&lt;EnrichedBanOnFacility&gt;"};
+
 # SUB HELP
 # help info
 sub help {

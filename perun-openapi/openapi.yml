@@ -1192,6 +1192,13 @@ components:
         member: { $ref: '#/components/schemas/RichMember' }
         banOnResource: { $ref: '#/components/schemas/BanOnResource' }
 
+    EnrichedBanOnFacility:
+      type: object
+      properties:
+        facility: { $ref: '#/components/schemas/Facility' }
+        user: { $ref: '#/components/schemas/RichUser' }
+        ban: { $ref: '#/components/schemas/BanOnFacility' }
+
     RichUserExtSource:
       properties:
         userExtSource: { $ref: '#/components/schemas/UserExtSource' }
@@ -2383,6 +2390,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnFacility"
+              
+    ListOfEnrichedBansOnFacilitiesResponse:
+      description: "return List<EnrichedBanOnFacility>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedBanOnFacility"
 
     ListOfMemberCandidatesResponse:
       description: "return List<MemberCandidate>"
@@ -12006,6 +12022,36 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+          
+  /json/facilitiesManager/getEnrichedBansForFacility:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getEnrichedBansForFacility
+      summary: Get all enriched bans on the facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+          
+  /json/facilitiesManager/getEnrichedBansForUser:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getEnricheFacilitydBansForUser
+      summary: Get all user's enriched bans on assigned facilities.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

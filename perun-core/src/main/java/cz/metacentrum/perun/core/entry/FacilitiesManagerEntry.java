@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
+import cz.metacentrum.perun.core.api.EnrichedBanOnFacility;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
@@ -1304,6 +1305,39 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		return getFacilitiesManagerBl().getBansForFacility(sess, facilityId);
+	}
+
+	public List<EnrichedBanOnFacility> getEnrichedBansForFacility(PerunSession sess, int facilityId, List<String> attrNames) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, facilityId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedBansForFacility_int_List<String>_policy", facility)) {
+			throw new PrivilegeException(sess, "getEnrichedBanForFacility");
+		}
+
+		List<EnrichedBanOnFacility> bans = getFacilitiesManagerBl().getEnrichedBansForFacility(sess, facility, attrNames);
+		bans.forEach(ban ->
+			ban.setUser(perunBl.getUsersManagerBl().filterOnlyAllowedAttributes(sess, ban.getUser())));
+
+		return bans;
+	}
+
+	@Override
+	public List<EnrichedBanOnFacility> getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedFacilityBansForUser_int_List<String>_policy", user)) {
+			throw new PrivilegeException(sess, "getEnrichedBansForUser");
+		}
+
+		List<EnrichedBanOnFacility> bans = getFacilitiesManagerBl().getEnrichedBansForUser(sess, user, attrNames);
+		bans.forEach(ban ->
+			ban.setUser(perunBl.getUsersManagerBl().filterOnlyAllowedAttributes(sess, ban.getUser())));
+
+		return bans;
 	}
 
 	@Override
