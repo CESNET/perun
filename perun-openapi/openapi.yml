@@ -15006,6 +15006,39 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/sendInvitationsFromCsv:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: sendInvitationsFromCsv
+      summary: Send invitations with link to VO / Group application form from provided csv data
+          If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
+          content is used as link to application form. Otherwise link is automatically generated based on
+          required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
+
+          General errors result in exception being thrown, single failures are skipped and added to result
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputInvitationsFromCsv
+              description: "input for sending invitations from csv"
+              type: object
+              required:
+                - voId
+                - invitationData
+              properties:
+                invitationData: { type: array, items: { type: string }, description: "values separated with semicolons" }
+                voId: { type: number, description: "id of VO to send invitation into" }
+                groupId: { type: number, description: "id of Group to send invitation into" }
+                language: { type: string }
+
   /urlinjsonout/registrarManager/sendInvitation/g:
     post:
       tags:

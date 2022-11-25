@@ -19,6 +19,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.sql.DataSource;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdAdded;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdRemoved;
@@ -598,6 +602,99 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		sendInvitationMail(sess, vo, group, email, language, message, app);
+	}
+
+	@Override
+	public Map<String, String> sendInvitationsFromCsv(PerunSession sess, Vo vo, Group group, List<String> data, String language) throws GroupNotExistsException, PrivilegeException, VoNotExistsException, RegistrarException {
+		perun.getVosManagerBl().checkVoExists(sess, vo);
+		Map<String, String> result = new HashMap<>();
+
+		//Authorization
+		if (group != null) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+			if (!AuthzResolver.authorizedInternal(sess, "group-sendInvitation_Vo_Group_String_String_String_policy", Arrays.asList(vo, group))) {
+				throw new PrivilegeException(sess, "sendInvitation");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-sendInvitation_Vo_Group_String_String_String_policy", Collections.singletonList(vo))) {
+				throw new PrivilegeException(sess, "sendInvitation");
+			}
+		}
+
+		// Fail fast checks
+		List<List<String>> parsedFile;
+		try {
+			parsedFile = parseInvitationCsv(data);
+			getForm(vo, group);
+		} catch (IOException e) {
+			throw new RegistrarException("[MAIL MANAGER] Invalid csv format", e);
+		} catch (FormNotExistsException e) {
+			throw new RegistrarException("[MAIL MANAGER] Form does not exist", e);
+		}
+		checkInvitationData(parsedFile);
+
+
+		for (List<String> parsedRow : parsedFile) {
+			if (parsedRow.size() == 0) {
+				continue;
+			}
+
+			String email = parsedRow.get(0);
+			String name = parsedRow.size() == 2 ? parsedRow.get(1) : null;
+
+			Application app = getFakeApplication(vo, group);
+			MimeMessage message;
+			try {
+				message = getInvitationMessage(vo, group, language, email, app, name, null);
+				sendInvitationMail(sess, vo, group, email, language, message, app);
+				result.put(email, "OK");
+			} catch (MessagingException | RegistrarException | FormNotExistsException e) {
+				result.put(email, "ERROR: " + e);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Parse semicolon ';' separated String into list of Strings
+	 * @param data list of row data
+	 * @return list of list of row values
+	 */
+	private List<List<String>> parseInvitationCsv(List<String> data) throws IOException {
+		CsvMapper csvMapper = new CsvMapper();
+		csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+		MappingIterator<List<String>> rows = csvMapper.readerFor(List.class)
+			.with(CsvSchema.emptySchema().withColumnSeparator(';'))
+			.readValues(String.join("\n", data));
+		return rows.readAll();
+	}
+
+	/**
+	 * Checks format of data and throws exception if invalid
+	 * @param parsedFile
+	 * @throws RegistrarException- if parsed file contains invalid values
+	 */
+	private void checkInvitationData(List<List<String>> parsedFile) throws RegistrarException {
+		Set<String> emails = new HashSet<>();
+		for (List<String> parsedRow : parsedFile) {
+			if (parsedRow.size() == 0) {
+				continue;
+			}
+
+			if (parsedRow.size() > 2) {
+				throw new RegistrarException("ERROR: Too many values: " + parsedRow);
+			}
+
+			String email = parsedRow.get(0);
+			if (!Utils.emailPattern.matcher(email).matches()) {
+				throw new RegistrarException("ERROR: Invalid email: " + email);
+			}
+
+			if (!emails.add(email)) {
+				throw new RegistrarException("ERROR: duplicated email found: " + email);
+			}
+		}
 	}
 
 	@Override

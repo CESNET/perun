@@ -1,17 +1,21 @@
 package cz.metacentrum.perun.registrar;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
@@ -149,6 +153,29 @@ public interface MailManager {
 	 * @param reason custom text passed to mail by admin (e.g. reason of application reject)
 	 */
 	void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
+
+	/**
+	 * Send invitations with link to VO / Group application form from provided csv data
+	 *
+	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
+	 * content is used as link to application form. Otherwise link is automatically generated based on
+	 * required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
+	 *
+	 * General errors result in exception being thrown, single failures are skipped and added to result
+	 *
+	 * @param sess PerunSession for authz
+	 * @param vo VO to link form to
+	 * @param group Group to link form to
+	 * @data csv file values separated by semicolon ';'. Only [email; name] or [email] is valid format.
+	 * 		example: ["mail@mail.cz", "mail2@mail.cz;user2"]
+	 * @param language Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
+	 * @return Map of {firstValue (should be email) : result}. Result can be 'OK' or 'ERROR: <error message>'
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 * @throws RegistrarException
+	 */
+	Map<String, String> sendInvitationsFromCsv(PerunSession sess, Vo vo, Group group, List<String> data, String language) throws GroupNotExistsException, PrivilegeException, VoNotExistsException, RegistrarException;
 
 	/**
 	 * Sends invitation with link to VO / Group application form.
