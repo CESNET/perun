@@ -111,7 +111,6 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attrib
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isSuspended;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_optional_login_namespace;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
@@ -7903,6 +7902,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//set attribute rights (with dummy id of attribute - not known yet)
 		policies = new ArrayList<>();
 		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:user:attribute-def:virt:anonymized
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+		attr.setFriendlyName("anonymized");
+		attr.setDisplayName("User anonymized");
+		attr.setType(Boolean.class.getName());
+		attr.setDescription("Anonymization flag (user was anonymized).");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:virt:autoRegistrationEnabled

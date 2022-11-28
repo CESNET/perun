@@ -659,6 +659,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	public boolean isUserAnonymized(PerunSession sess, User user) {
+		return usersManagerImpl.isUserAnonymized(sess, user);
+	}
+
+	@Override
 	public User updateUser(PerunSession sess, User user) throws UserNotExistsException {
 		//Convert user to version with no empty strings in object attributes (null instead)
 		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);

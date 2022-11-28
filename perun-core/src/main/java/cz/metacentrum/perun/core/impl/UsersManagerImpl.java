@@ -68,7 +68,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.KEY_VALUE_DELIMITER;
 import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.LIST_DELIMITER;
@@ -559,6 +558,18 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return user;
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public boolean isUserAnonymized(PerunSession sess, User user) {
+		try {
+			int numberOfExistences = jdbc.queryForInt("select count(1) from users where id=? and anonymized=true", user.getId());
+			return numberOfExistences == 1;
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
