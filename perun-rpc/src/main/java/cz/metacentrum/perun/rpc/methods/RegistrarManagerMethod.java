@@ -137,6 +137,41 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
+	/*#
+	 * Send invitations with link to VO / Group application form from provided csv data
+	 *
+	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
+	 * content is used as link to application form. Otherwise link is automatically generated based on
+	 * required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
+	 *
+	 * General errors result in exception being thrown, single failures are skipped and added to result
+	 *
+	 * @param invitationData csv file values separated by semicolon ';'. Only [email; name] or [email] is valid format.
+	 * @exampleParam invitationData ["mail@mail.cz", "mail2@mail.cz;user2"]
+	 * @param voId int <code>id</code> of VO to send invitation into
+	 * @param groupId int <code>id</code> of Group to send invitation into
+	 * @param language String Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
+	 * @return Map of {firstValue (should be email) : result}. Result can be 'OK' or 'ERROR: <error message>'
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 * @throws VoNotExistsException
+	 * @throws RegistrarException
+	 */
+	sendInvitationsFromCsv {
+
+		@Override
+		public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getRegistrarManager().getMailManager().sendInvitationsFromCsv(ac.getSession(),
+				ac.getVoById(parms.readInt("voId")),
+				parms.contains("groupId") ? ac.getGroupById(parms.readInt("groupId")) : null,
+				parms.readList("invitationData", String.class),
+				parms.contains("language") ? parms.readString("language") : null);
+		}
+	},
+
 	/*#
 	 * Re-send mail notification for existing application. Message of specified type is sent only,
 	 * when application is in expected state related to the notification.
