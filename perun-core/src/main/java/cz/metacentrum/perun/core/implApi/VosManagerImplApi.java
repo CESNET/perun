@@ -2,8 +2,6 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -344,5 +342,13 @@ public interface VosManagerImplApi {
 	 * @return list of direct parent vos
 	 */
 	List<Vo> getParentVos(PerunSession sess, int memberVoId);
+
+	/**
+	 * Gets all rich bans for given user.
+	 * @param sess session
+	 * @param userId user id
+	 * @return
+	 */
+	List<BanOnVo> getBansForUser(PerunSession sess, int userId);
 
 }
