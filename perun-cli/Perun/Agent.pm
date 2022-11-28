@@ -64,6 +64,13 @@ sub gotMfaPrivilegeException;
 sub new {
 	my $self = fields::new(shift);
 
+	# load custom data format
+	my $wanted_format = shift;
+	if (defined $wanted_format) {
+		$format = $wanted_format;
+	}
+
+	# use non authorization
 	$self->{_useNon} = shift;
 	if ($self->{_useNon}) {
 		if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
@@ -74,12 +81,6 @@ sub new {
 			if (!defined($ENV{PERUN_URL})) {die Perun::Exception->fromHash({ type => MISSING_URL });};
 			$ENV{PERUN_URL} = convertUrlToNonAuth($ENV{PERUN_URL});
 		}
-	}
-
-	# load custom data format
-	my $wanted_format = shift;
-	if (defined $wanted_format) {
-		$format = $wanted_format;
 	}
 
 	# Extract RPC type from ENV (if not defined, use "Perun RPC")
@@ -204,12 +205,7 @@ sub call
 		$accessToken = Perun::auth::OidcAuth::loadAccessToken();
 		$self->{_lwpUserAgent}->default_header('authorization' => "bearer $accessToken");
 	}
-	my $response;
-	if ($self->{_useNon}) {
-		$response = $self->{_lwpUserAgent}->request( GET($fullUrl, Content_Type => $contentType, Content => $content) );
-	} else {
-		$response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
-	}
+	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
 	my $code = $response->code;
 
 	if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {

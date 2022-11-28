@@ -18,7 +18,7 @@ sub help {
 }
 GetOptions("help|h"            => sub { print help(); exit 0; });
 
-my $agent = Perun::Agent->new(1);
+my $agent = Perun::Agent->new(undef, 1); # use NON auth
 
 my $configAgent = $agent->getConfigAgent;
 
