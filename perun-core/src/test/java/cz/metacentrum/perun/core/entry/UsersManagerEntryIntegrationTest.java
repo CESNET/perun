@@ -423,6 +423,10 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		BeansUtils.getCoreConfig().setAttributesToKeep(originalAttributesToKeep);
 
 		User updatedUser = perun.getUsersManagerBl().getUserById(sess, user.getId());
+		String anonymizationAttrName = AttributesManager.NS_USER_ATTR_VIRT + ":anonymized";
+		Attribute anonymizationAttribute = perun.getAttributesManagerBl().getAttribute(sess, user, anonymizationAttrName);
+
+		assertTrue("User should be marked as anonymized (attribute value).", (boolean) anonymizationAttribute.getValue());
 		assertTrue("Firstname should be null or empty.", updatedUser.getFirstName() == null || updatedUser.getFirstName().isEmpty());
 		assertTrue("Lastname should be null or empty.", updatedUser.getLastName() == null || updatedUser.getLastName().isEmpty());
 

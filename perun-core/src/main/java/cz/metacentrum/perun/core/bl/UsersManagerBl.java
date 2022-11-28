@@ -424,6 +424,15 @@ public interface UsersManagerBl {
 	void anonymizeUser(PerunSession perunSession, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException;
 
 	/**
+	 * Checks whether user has been anonymized or not.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return true if user has been anonymized, false otherwise.
+	 */
+	boolean isUserAnonymized(PerunSession sess, User user);
+
+	/**
 	 * Updates users data in DB.
 	 *
 	 * @param perunSession
