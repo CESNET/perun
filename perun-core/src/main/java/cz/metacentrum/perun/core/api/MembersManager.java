@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -1009,8 +1010,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws MemberNotExistsException if member not exists in Perun
+	 * @throws BanAlreadyExistsException
 	 */
-	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws MemberNotExistsException, PrivilegeException;
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws MemberNotExistsException, PrivilegeException, BanAlreadyExistsException;
 
 	/**
 	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.

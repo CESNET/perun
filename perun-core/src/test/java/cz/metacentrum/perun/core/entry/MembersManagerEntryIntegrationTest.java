@@ -480,15 +480,13 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		System.out.println(CLASS_NAME + "suspendMemberTo");
 
 		LocalDate today = LocalDate.now();
-		Date yesterday = Date.from(today.plusDays(-1).atStartOfDay(ZoneId.systemDefault()).toInstant());
 		Date tommorow = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 		Member member = perun.getMembersManager().getMemberById(sess, createdMember.getId());
-
-		perun.getMembersManager().suspendMemberTo(sess, member, yesterday);
-		member = perun.getMembersManager().getMemberById(sess, member.getId());
-
 		perun.getMembersManager().suspendMemberTo(sess, member, tommorow);
+		BanOnVo banOnVo = perun.getVosManager().getBanForMember(sess, member);
+
+		assertEquals(banOnVo.getValidityTo(), tommorow);
 	}
 
 	@Test

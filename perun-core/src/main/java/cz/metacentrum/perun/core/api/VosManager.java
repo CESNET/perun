@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 
 import java.util.List;
 import java.util.Map;
@@ -537,8 +538,9 @@ public interface VosManager {
 	 * @return created ban object
 	 * @throws PrivilegeException insufficient permissions
 	 * @throws MemberNotExistsException if there is no member with specified id
+	 * @throws BanAlreadyExistsException
 	 */
-	BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException;
+	BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException, BanAlreadyExistsException;
 
 	/**
 	 * Remove vo ban with given id.
@@ -593,6 +595,19 @@ public interface VosManager {
 	 * @throws VoNotExistsException if there is no vo with given id
 	 */
 	List<BanOnVo> getBansForVo(PerunSession sess, int voId) throws PrivilegeException, VoNotExistsException;
+
+	/**
+	 * Update existing ban (description, validation timestamp)
+	 *
+	 * @param sess
+	 * @param banOnVo the specific ban
+	 * @return updated ban
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws BanNotExistsException
+	 * @throws VoNotExistsException
+	 */
+	BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo) throws PrivilegeException, BanNotExistsException, VoNotExistsException;
 
 	/**
 	 * For the given vo, creates sponsored members for each sponsored user who is a member

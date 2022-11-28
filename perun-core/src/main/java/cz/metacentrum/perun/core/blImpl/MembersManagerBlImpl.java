@@ -1492,7 +1492,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) {
+	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws BanAlreadyExistsException {
 		BanOnVo ban = new BanOnVo();
 		ban.setMemberId(member.getId());
 		ban.setVoId(member.getVoId());
@@ -3288,6 +3288,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			banOnVo.get().setMemberId(targetMember.getId());
 			try {
 				getPerunBl().getVosManagerBl().setBan(sess, banOnVo.get());
+			} catch (BanAlreadyExistsException e) {
+				log.warn("Moving ban on vo {} from source member {} to target member {}, but the target member" +
+					" already has ban on the vo.", banOnVo, sourceMember, targetMember);
 			} catch (MemberNotExistsException e) {
 				throw new InternalErrorException(e);
 			}

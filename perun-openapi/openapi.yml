@@ -14961,6 +14961,30 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/vosManager/updateBan:
+    post:
+      tags:
+        - VosManager
+      operationId: updateVoBan
+      summary: Update existing ban (description, validation timestamp)
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateBan
+              description: "input to updateBan"
+              type: object
+              required:
+                - banOnVo
+              properties:
+                banOnVo: { $ref: '#/components/schemas/BanOnVo' }
+  
   /json/vosManager/getBanById:
     get:
       tags:

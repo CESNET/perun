@@ -51,6 +51,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
 import org.springframework.scheduling.annotation.Async;
 
@@ -1196,8 +1197,9 @@ public interface MembersManagerBl {
 	 * @param member member who will be suspended
 	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
 	 * @throws InternalErrorException
+	 * @throws BanAlreadyExistsException
 	 */
-	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo);
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws BanAlreadyExistsException;
 
 	/**
 	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.

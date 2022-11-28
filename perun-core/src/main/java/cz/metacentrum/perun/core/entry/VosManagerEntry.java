@@ -32,9 +32,9 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
-import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -679,7 +679,7 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException {
+	public BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException, BanAlreadyExistsException {
 		Utils.checkPerunSession(sess);
 
 		// We have to fetch the member object from DB because of authorization. The given ban object might contain
@@ -693,6 +693,21 @@ public class VosManagerEntry implements VosManager {
 
 		return vosManagerBl.setBan(sess, ban);
 	}
+
+	@Override
+	public BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo) throws PrivilegeException, BanNotExistsException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		vosManagerBl.getBanById(sess, banOnVo.getId());
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "updateBan_BanOnVo_policy", Collections.singletonList(banOnVo))) {
+			throw new PrivilegeException(sess, "updateBan");
+		}
+
+		banOnVo = vosManagerBl.updateBan(sess, banOnVo);
+		return banOnVo;
+	}
+
 
 	@Override
 	public void removeBan(PerunSession sess, int banId) throws PrivilegeException, BanNotExistsException {
