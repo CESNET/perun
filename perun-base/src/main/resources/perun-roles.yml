@@ -3211,7 +3211,7 @@ perun_policies:
     mfa_rules:
       - MFA: Vo
       - MFA: Group
-    
+
   createSponsoredMembers_Vo_String_List<String>_User_policy:
     policy_roles:
       - SPONSOR: Vo
@@ -3969,6 +3969,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - SELF: Member
     include_policies:
       - default_policy
 
