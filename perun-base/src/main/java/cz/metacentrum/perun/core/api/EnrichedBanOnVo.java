@@ -33,11 +33,11 @@ public class EnrichedBanOnVo {
 		this.member = member;
 	}
 
-	public BanOnVo getBanOnVo() {
+	public BanOnVo getBan() {
 		return ban;
 	}
 
-	public void setBanOnVo(BanOnVo ban) {
+	public void setBan(BanOnVo ban) {
 		this.ban = ban;
 	}
 
