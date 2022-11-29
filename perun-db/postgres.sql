@@ -1,4 +1,4 @@
--- database version 3.1.99 (don't forget to update insert statement at the end of file)
+-- database version 3.2.10 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1497,7 +1497,7 @@ create table resources_bans (
 	member_id integer not null,
 	resource_id integer not null,
 	description varchar,
-	banned_to timestamp not null,
+	banned_to timestamp not null default '2999-01-01 00:00:00' not null,
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
@@ -1515,7 +1515,7 @@ create table facilities_bans (
 	user_id integer not null,
 	facility_id integer not null,
 	description varchar,
-	banned_to timestamp not null,
+	banned_to timestamp not null default '2999-01-01 00:00:00' not null,
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
@@ -1988,7 +1988,7 @@ grant all on attribute_critical_actions to perun;
 grant all on app_notifications_sent to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.99');
+insert into configurations values ('DATABASE VERSION','3.2.10');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

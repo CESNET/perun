@@ -29,6 +29,7 @@ import org.springframework.jdbc.core.RowMapper;
 import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -385,7 +386,6 @@ public class VosManagerImpl implements VosManagerImplApi {
 
 	@Override
 	public BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) {
-		Utils.notNull(banOnVo.getValidityTo(), "banOnVo.getValidityTo");
 		try {
 			int newId = Utils.getNewId(jdbc, "vos_bans_id_seq");
 
@@ -398,10 +398,9 @@ public class VosManagerImpl implements VosManagerImplApi {
 							"modified_by, " +
 							"created_by, " +
 							"created_by_uid, " +
-							"modified_by_uid) values (?,?,?,?,?,?,?,?,?)",
+							"modified_by_uid) values (?,?,"+ (banOnVo.getValidityTo() != null ? "'" + Compatibility.getDate(banOnVo.getValidityTo().getTime()) + "'" : "DEFAULT") + ",?,?,?,?,?,?)",
 					newId,
 					banOnVo.getDescription(),
-					Compatibility.getDate(banOnVo.getValidityTo().getTime()),
 					banOnVo.getMemberId(),
 					banOnVo.getVoId(),
 					sess.getPerunPrincipal().getActor(),
@@ -411,6 +410,10 @@ public class VosManagerImpl implements VosManagerImplApi {
 			);
 
 			banOnVo.setId(newId);
+			// need to adjust date in object if original date was null and default date was assigned in db
+			if (banOnVo.getValidityTo() == null) {
+				banOnVo.setValidityTo(jdbc.queryForObject("select banned_to from vos_bans where id =" + newId, Timestamp.class));
+			}
 
 			return banOnVo;
 		} catch(RuntimeException ex) {
@@ -467,16 +470,21 @@ public class VosManagerImpl implements VosManagerImplApi {
 		try {
 			jdbc.update("UPDATE vos_bans SET " +
 					"description=?, " +
-					"banned_to=?, " +
-					"modified_by=?, " +
+					"banned_to="+ (banOnVo.getValidityTo() != null ? "'" + Compatibility.getDate(banOnVo.getValidityTo().getTime()) + "' " : "DEFAULT") +
+					", modified_by=?, " +
 					"modified_by_uid=?, " +
 					"modified_at= "+ Compatibility.getSysdate() +
 					" WHERE id=?",
 					banOnVo.getDescription(),
-					Compatibility.getDate(banOnVo.getValidityTo().getTime()),
 					sess.getPerunPrincipal().getActor(),
 					sess.getPerunPrincipal().getUserId(),
 					banOnVo.getId());
+
+			// need to adjust date in object if original date was null and default date was assigned in db
+			if (banOnVo.getValidityTo() == null) {
+				banOnVo.setValidityTo(jdbc.queryForObject("select banned_to from vos_bans where id =" + banOnVo.getId(), Timestamp.class));
+			}
+
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

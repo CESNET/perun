@@ -90,7 +90,6 @@ import java.util.stream.Collectors;
 public class VosManagerBlImpl implements VosManagerBl {
 
 	private final static Logger log = LoggerFactory.getLogger(VosManagerBlImpl.class);
-	private final static Date FAR_FUTURE = new GregorianCalendar(2999, Calendar.JANUARY, 1).getTime();
 	public final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
 	public final static String A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY = AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizationsHistory";
 
@@ -834,10 +833,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 			throw new BanAlreadyExistsException(banOnVo);
 		}
 
-		// if the validity is not specified, set a date from far future
-		if (banOnVo.getValidityTo() == null) {
-			banOnVo.setValidityTo(FAR_FUTURE);
-		}
 
 		banOnVo = vosManagerImpl.setBan(sess, banOnVo);
 
@@ -882,10 +877,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo) {
 		Utils.notNull(banOnVo, "banOnVo");
 
-		// if the validity is not specified, set a date from far future
-		if (banOnVo.getValidityTo() == null) {
-			banOnVo.setValidityTo(FAR_FUTURE);
-		}
 		banOnVo = getVosManagerImpl().updateBan(sess, banOnVo);
 		getPerunBl().getAuditer().log(sess, new BanUpdatedForVo(banOnVo, banOnVo.getMemberId(), banOnVo.getVoId()));
 		return banOnVo;
