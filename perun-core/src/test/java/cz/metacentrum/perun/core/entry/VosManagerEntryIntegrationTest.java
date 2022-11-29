@@ -596,7 +596,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		List<EnrichedBanOnVo> enrichedBans = vosManagerEntry.getEnrichedBansForVo(sess, createdVo.getId(), attrNames);
 
 		assertThat(enrichedBans).hasSize(1);
-		assertThat(enrichedBans.get(0).getBanOnVo()).isEqualTo(ban);
+		assertThat(enrichedBans.get(0).getBan()).isEqualTo(ban);
 		assertThat(enrichedBans.get(0).getMember()).isEqualTo(member);
 		assertThat(enrichedBans.get(0).getVo()).isEqualTo(createdVo);
 		assertThat(enrichedBans.get(0).getMember().getMemberAttributes()).hasSize(1);
@@ -633,8 +633,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertThat(enrichedBans.get(0).getMember().getId()).isEqualTo(member.getId());
 		assertThat(enrichedBans.get(1).getMember().getId()).isEqualTo(otherMember.getId());
 
-		assertThat(enrichedBans.get(0).getBanOnVo()).isEqualTo(ban);
-		assertThat(enrichedBans.get(1).getBanOnVo()).isEqualTo(otherBan);
+		assertThat(enrichedBans.get(0).getBan()).isEqualTo(ban);
+		assertThat(enrichedBans.get(1).getBan()).isEqualTo(otherBan);
 
 		assertThat(enrichedBans.get(0).getMember().getMemberAttributes()).hasSize(1);
 		assertThat(enrichedBans.get(0).getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
