@@ -709,12 +709,14 @@ components:
             type: object
             additionalProperties:
               type: string
+              nullable: true
         privilegedRolesToRead:
           type: array
           items:
             type: object
             additionalProperties:
               type: string
+              nullable: true
         entitiesToManage:
           type: object
           additionalProperties:
