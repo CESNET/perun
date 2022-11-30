@@ -42,6 +42,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -68,6 +70,8 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	private static final int PAGE_COUNT_PRECISION = 1000;
 
 	private final JdbcPerunTemplate jdbc;
+
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	static {
 
@@ -178,6 +182,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	public AuditMessagesManagerImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 	}
 
 	@Override
@@ -214,12 +219,17 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	@Override
 	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("selectedEvents", query.getSelectedEvents());
+		String filter = !query.getSelectedEvents().isEmpty() ? "where split_part(msg::json ->>'name', '.', 7) IN (:selectedEvents)" : "";
+
 		// take exact total count up to PAGE_COUNT_PRECISION entries, estimate it otherwise
-		return jdbc.query("select " + auditMessageMappingSelectQuery
-			+ ", case when (select count(*) from (select 1 from auditer_log limit" + PAGE_COUNT_PRECISION + ") as sample) < " + PAGE_COUNT_PRECISION + " then (select count(*) from auditer_log) else " +
-			"(select 100 * count(*) FROM auditer_log TABLESAMPLE SYSTEM (1)) end as total_count "
-			+ "from auditer_log order by id " + query.getOrder().getSqlValue() + " offset " + query.getOffset()
-			+ " limit " + query.getPageSize(), getPaginatedMessagesExtractor(query));
+		return namedParameterJdbcTemplate.query("select " + auditMessageMappingSelectQuery
+			+ ", case when (select count(*) from (select 1 from auditer_log " + filter + "limit " + PAGE_COUNT_PRECISION + ") as sample) < " + PAGE_COUNT_PRECISION
+			+ " then (select count(*) from auditer_log " + filter +")"
+			+ " else (select 100 * count(*) FROM auditer_log TABLESAMPLE SYSTEM (1) " + filter +") end as total_count "
+			+ "from auditer_log " + filter +  "order by id " + query.getOrder().getSqlValue() + " offset " + query.getOffset()
+			+ " limit " + query.getPageSize(), parameters, getPaginatedMessagesExtractor(query));
 	}
 
 	@Override

@@ -6,11 +6,14 @@ import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.MessagesPageQuery;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.implApi.AuditMessagesManagerImplApi;
+import org.reflections.Reflections;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +70,21 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	@Override
 	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
 		return getAuditMessagesManagerImpl().getMessagesPage(perunSession, query);
+	}
+
+	@Override
+	public List<String> findAllPossibleEvents(PerunSession sess) {
+		try {
+			Reflections reflections = new Reflections(AuditEvent.class);
+			List<String> events = new ArrayList<>((reflections.getSubTypesOf(AuditEvent.class).stream().map(Class::getSimpleName).toList()));
+
+			// Remove subclasses outside subpackages.
+			events.remove("StringMessageEvent");
+
+			return events;
+		} catch (Exception e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
