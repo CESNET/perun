@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import static cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISServiceCaller.IS_ERROR_STATUS;
 import static cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISServiceCaller.IS_OK_STATUS;
@@ -52,10 +53,16 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 	private static ISServiceCaller isServiceCaller = ISServiceCallerImpl.getInstance();
 
-	protected int randomPasswordLength = 12;
+	protected final int randomPasswordLength = 12;
+	protected final int passwordMinLength = 12;
 
 	// omit chars that can be mistaken by users: iI, oO, l, yY, zZ, 0 (zero), most of spec.chars
 	protected char[] randomPasswordCharacters = "ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,.-_".toCharArray();
+
+	private static final Pattern digitPattern = Pattern.compile(".*[0-9].*");
+	private static final Pattern lowerCasePattern = Pattern.compile(".*[a-z].*");
+	private static final Pattern upperCasePattern = Pattern.compile(".*[A-Z].*");
+	private static final Pattern specialCharPattern = Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
 
 	@Override
 	public String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws PasswordStrengthException {
@@ -199,15 +206,39 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 	@Override
 	public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
+
 		if (StringUtils.isBlank(password)) {
 			log.warn("Password for {}:{} cannot be empty.", "mu", login);
 			throw new PasswordStrengthException("Password for mu:" + login + " cannot be empty.");
+		}
+
+		if (password.length() < passwordMinLength) {
+			log.warn("Password for {}:{} is too short. At least {} characters are required.", "mu", login, passwordMinLength);
+			throw new PasswordStrengthException("Password for mu:" + login + " is too short. At least "+passwordMinLength+" characters are required.");
+		}
+
+		if (!StringUtils.isAsciiPrintable(password)) {
+			log.warn("Password for {}:{} must contain only printable characters.", "mu", login);
+			throw new PasswordStrengthException("Password for mu:" + login + " must contain only printable characters.");
+		}
+
+		// check that it contains at least 3 groups of 4
+		int groupsCounter = 0;
+		if (digitPattern.matcher(password).matches()) groupsCounter++;
+		if (upperCasePattern.matcher(password).matches()) groupsCounter++;
+		if (lowerCasePattern.matcher(password).matches()) groupsCounter++;
+		if (specialCharPattern.matcher(password).matches()) groupsCounter++;
+
+		if (groupsCounter < 3) {
+			log.warn("Password for {}:{} is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", "mu", login);
+			throw new PasswordStrengthException("Password for mu:" + login + " is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
 		}
 
 		// The IS password check is performed by trying to change a password to a user, which has been specifically
 		// created for this purpose.
 		String passwordTestUco = getPasswordTestUco();
 		changePasswordWithoutCheck(sess, passwordTestUco, password);
+
 	}
 
 	@Override
