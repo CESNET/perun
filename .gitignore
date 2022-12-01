@@ -19,6 +19,11 @@ dependency-reduced-pom.xml
 # Ignore config for OIDC authentication in CLI
 perun-cli/Perun/auth/oidc_config.yml
 
+# Ignore generated python cli files
+perun-cli-python/cli/__pycache__/
+perun-cli-python/perun_openapi/
+perun-cli-python/perun_openapi_README.md
+
 # Ignore IntelliJ project files #
 
 *.iml
