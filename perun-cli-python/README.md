@@ -33,9 +33,9 @@ The client supports two types fo authentication - OIDC and HTTP Basic Auth. The 
 
 ```bash
 ./perun_cli.py --ba \
-              --PERUN_URL https://cloud1.perun-aai.org/ba/rpc \
-              --PERUN_USER perun \
-              --PERUN_PASSWORD test \
+              --URL https://cloud1.perun-aai.org/ba/rpc \
+              --username perun \
+              --password test \
               getPerunStatus
 ```
 ## OIDC authentication
