@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Removes quota (dataQuotas, dataQuotasOverride) of those members assigned to resource whose hard quota is lower than resource's default hard quota (defaultDataQuotas).
+	Particular quota name can be specified in the quotaName parameter, otherwise all quotas in resource's attribute defaultDataQuotas are checked.
+	If memberId is not specified, all assigned members are checked.
+	Should be used if resource's quota is raised to remove deprecated members' quotas.
+
+	This script does NOT move member's dataQuotaOverride to dataQuotas if the value is lower than the maximum resource quota limit.
+	---------------------------------------------------------------
+	Available options:
+	--resourceId      | -r resource id
+	--memberId        | -m member id; optional
+	--quotaName       | -q name of quota which should be changed (e.g. "/mnt/export/test"); optional
+	--help            | -h prints this help
+	--batch           | -b  batch
+	};
+}
+
+my $R_DEFAULT_DATA_QUOTAS = "urn:perun:resource:attribute-def:def:defaultDataQuotas";
+my $M_R_DATA_QUOTAS = "urn:perun:member_resource:attribute-def:def:dataQuotas";
+my $M_R_DATA_QUOTAS_OVERRIDE = "urn:perun:member_resource:attribute-def:def:dataQuotasOverride";
+
+my $agent = Perun::Agent->new();
+my $resourcesAgent = $agent->getResourcesAgent;
+my $attributesAgent = $agent->getAttributesAgent;
+
+my ($resourceId, $quotaName, $memberId);
+our $batch;
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	},
+	"resourceId|r=i"  => \$resourceId,
+	"quotaName|q=s"   => \$quotaName,
+	"memberId|m=i"	  => \$memberId,
+	"batch|b"         => \$batch
+	) || die help();
+
+# Check options
+unless (defined($resourceId)) { die "ERROR: Resource id is required \n";}
+
+my $rQuotas = $attributesAgent->getAttribute( attributeName => $R_DEFAULT_DATA_QUOTAS, resource => $resourceId );
+$rQuotas = $rQuotas->getValue();
+
+if (defined $quotaName && !exists($rQuotas->{$quotaName})) {
+	die "Quota name is not included in resource's defaultDataQuotas attribute.";
+}
+
+my %updatedMembers = ();
+
+if (defined $memberId) {
+	resolveAttribute($memberId, $M_R_DATA_QUOTAS_OVERRIDE);
+	resolveAttribute($memberId, $M_R_DATA_QUOTAS);
+} else {
+	my @members = $resourcesAgent->getAssignedMembers( resource => $resourceId );
+	foreach my $member (sort { $a->getId <=> $b->getId } @members) {
+		resolveAttribute($member->getId, $M_R_DATA_QUOTAS_OVERRIDE);
+		resolveAttribute($member->getId, $M_R_DATA_QUOTAS);
+	}
+}
+
+printMessage "Finished. Updated " . (keys %updatedMembers) . " member(s).\n", $batch;
+
+
+# Check, if member's data quota or data override quota is not lower than resource's.
+# If so, remove the member's quota (resource's quota wil then be used in the member's virtual attribute)
+sub resolveAttribute
+{
+	my $memId = shift;
+	my $attributeName = shift;
+
+	my $mQuotasAttribute = $attributesAgent->getAttribute(resource => $resourceId, member => $memId, attributeName => $attributeName);
+	my $mQuotas = $mQuotasAttribute->getValue();
+
+	my $updated = 0;
+	foreach my $qName (keys %$rQuotas) {
+		if ((!defined $quotaName || $quotaName eq $qName) && exists $mQuotas->{$qName}) {
+			my @resourceQuota = split(':', $rQuotas->{$qName});
+			my @memberQuota = split(':', $mQuotas->{$qName});
+			if (isBigger($resourceQuota[1], $memberQuota[1])) {
+				delete($mQuotas->{$qName});
+				$updated = 1;
+			}
+		}
+	}
+
+	if ($updated) {
+		if (keys %$mQuotas == 0) {
+			$attributesAgent->removeAttribute(resource => $resourceId, member => $memId, attribute => $mQuotasAttribute->getId);
+		} else {
+			$attributesAgent->setAttribute(resource => $resourceId, member => $memId, attribute => $mQuotasAttribute);
+		}
+		$updatedMembers{$memId} = 1;
+	}
+}
+
+# Returns true, if first value is bigger than the second
+# Expects values in format ('100T' / '50G' / '150' (default is G) / '5M' / '10000K')
+sub isBigger
+{
+	return to_M($_[0]) > to_M($_[1]);
+}
+
+# Converts quota value to number
+# Expects value in format ('100T' / '50G' / '150' (default is G) / '5M' / '10000K')
+sub to_M {
+	my $val = shift;
+	$val =~ s/\,/\./;
+	$val =~ /(\d+\.?\d*)\s*(\D)/;
+
+	if (! defined $1) {
+		$val=$val * 1024; #default is G
+	} else {
+		if (uc($2) eq 'K') {$val=$1 / 1024;}
+		if (uc($2) eq 'M') {$val=$1;}
+		if (uc($2) eq 'G') {$val=$1 * 1024;}
+		if (uc($2) eq 'T') {$val=$1 * 1024 * 1024;}
+		if (uc($2) eq 'P') {$val=$1 * 1024 * 1024 * 1024;}
+	}
+	return $val;
+}
