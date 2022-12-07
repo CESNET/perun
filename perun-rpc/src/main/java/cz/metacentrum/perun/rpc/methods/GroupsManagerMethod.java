@@ -429,6 +429,39 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	* Copies direct members from one group to other groups in the same VO. The members are copied without their member-group attributes.
+	* Copies all direct members if members list is empty or null.
+	*
+	* @param sourceGroup int <code>id</code> of the group to copy members from
+	* @param destinationGroups List<Integer> <code>id</code> of groups to copy members to
+	* @param members List<Integer> <code>id</code> of members that will be copied
+    */
+	copyMembers {
+		@Override
+		public Void call (ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Member> members = new ArrayList<>();
+			if (parms.contains("members")) {
+				List<Integer> memberIds = parms.readList("members", Integer.class);
+				for (Integer id : memberIds) {
+					members.add(ac.getMemberById(id));
+				}
+			}
+
+			List<Group> groups = new ArrayList<>();
+			List<Integer> groupIds = parms.readList("destinationGroups", Integer.class);
+			for (Integer id : groupIds) {
+				groups.add(ac.getGroupById(id));
+			}
+
+			ac.getGroupsManager().copyMembers(ac.getSession(), ac.getGroupById(parms.readInt("sourceGroup")),
+				groups, members);
+			return null;
+		}
+	},
+
+	/*#
 	 * Adds a member to a group.
 	 *
 	 * @throws MemberNotExistsException When member doesn't exist

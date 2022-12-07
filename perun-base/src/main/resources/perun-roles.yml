@@ -1441,6 +1441,28 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  source-copyMembers_Group_List<Group>_List<Member>_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  dest-copyMembers_Group_List<Group>_List<Member>_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+
   addMember_List<Group>_Member_policy:
     policy_roles:
       - GROUPADMIN: Group

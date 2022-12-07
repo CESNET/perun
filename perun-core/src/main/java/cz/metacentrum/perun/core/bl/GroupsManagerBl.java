@@ -313,6 +313,19 @@ public interface GroupsManagerBl {
 
 
 	/**
+	 * Copies direct members from one group to other groups in the same VO. The members are copied without their member-group attributes.
+	 * Copies all direct members if members list is empty or null.
+	 *
+	 * @param sess perun session
+	 * @param sourceGroup group to copy members from
+	 * @param destinationGroups groups to copy members to
+	 * @param members members to be copies
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 */
+	void copyMembers(PerunSession sess, Group sourceGroup, List<Group> destinationGroups, List<Member> members) throws WrongReferenceAttributeValueException, WrongAttributeValueException, MemberGroupMismatchException;
+
+	/**
 	 * Special addMember which is able to add members into the members and administrators group.
 	 *
 	 * @param perunSession
