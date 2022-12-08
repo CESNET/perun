@@ -1,6 +1,6 @@
 from rich import print
 from perun_openapi import ApiException
-from perun.cli import PerunException
+from perun.rpc import PerunException
 import perun.cli
 import typer
 

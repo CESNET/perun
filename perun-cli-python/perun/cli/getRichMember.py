@@ -2,7 +2,7 @@ from perun_openapi import ApiException
 from rich import print
 from rich.console import Console
 from rich.table import Table
-from perun.cli import PerunException
+from perun.rpc import PerunException
 import perun.cli
 import typer
 
