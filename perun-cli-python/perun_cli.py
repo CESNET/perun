@@ -2,7 +2,7 @@
 import typer
 from perun_openapi.configuration import Configuration
 from perun.oidc import DeviceCodeOAuth, PerunInstance
-from perun.cli import PerunRpc
+from perun.rpc import PerunRpc
 import perun.cli.getGroupMembers
 import perun.cli.getPerunPrincipal
 import perun.cli.getPerunStatus
@@ -14,7 +14,7 @@ import perun.cli.listOfVos
 import perun.cli.testAttributeValues
 
 # see https://typer.tiangolo.com/tutorial/
-app = typer.Typer()
+app = typer.Typer(add_completion=False)
 app.command(name="getGroupMembers")(perun.cli.getGroupMembers.get_group_members)
 app.command(name="getPerunPrincipal")(perun.cli.getPerunPrincipal.main)
 app.command(name="getPerunStatus")(perun.cli.getPerunStatus.main)
@@ -28,7 +28,7 @@ app.command(name="testAttributeValues")(perun.cli.testAttributeValues.test_attri
 
 @app.callback()
 def main(debug: bool = typer.Option(False, "--debug", "-d", help="enable debug output"),
-         perun_instance: PerunInstance = typer.Option("cesnet",
+         perun_instance: PerunInstance = typer.Option(PerunInstance.einfra.value,
                                                       "--instance",
                                                       "-i",
                                                       help="Perun instance for OIDC auth",
@@ -39,6 +39,7 @@ def main(debug: bool = typer.Option(False, "--debug", "-d", help="enable debug o
                                                  help="password for encrypting stored OIDC tokens",
                                                  envvar="PERUN_ENCRYPT"),
          mfa: bool = typer.Option(False, "--mfa", "-m", help="request Multi-Factor Authentication"),
+         mfa_valid: int = typer.Option(8*60, "--mfa-valid", "-v", help="number of minutes MFA is considered valid"),
          basic_auth: bool = typer.Option(False, "--ba", '-b', help="use HTTP basic auth"),
          perun_url: str = typer.Option("https://cloud1.perun-aai.org/ba/rpc",
                                        "--url",
@@ -62,7 +63,7 @@ def main(debug: bool = typer.Option(False, "--debug", "-d", help="enable debug o
     if basic_auth:
         perun.cli.rpc = PerunRpc(Configuration(username=perun_user, password=perun_password, host=perun_url))
     else:
-        dca = DeviceCodeOAuth(perun_instance, encryption_password, mfa, debug)
+        dca = DeviceCodeOAuth(perun_instance, encryption_password, mfa, mfa_valid, debug)
         perun.cli.rpc = PerunRpc(Configuration(access_token=dca.get_access_token(), host=dca.get_perun_api_url()))
     perun.cli.rpc.config.debug = debug
 
