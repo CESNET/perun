@@ -8,19 +8,22 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -133,11 +136,17 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 		//for values use set because of avoiding duplicities
 		Set<String> valuesWithoutDuplicities = new HashSet<>();
 
+		List<String> attributeExceptions = BeansUtils.getCoreConfig().getIdpLoginValidityExceptions();
+		boolean skipLastAccessCheck = attributeExceptions != null && attributeExceptions.contains(this.getDestinationAttributeName());
+
 		String sourceAttributeFriendlyName = getSourceAttributeFriendlyName();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
 
 		for (UserExtSource userExtSource : userExtSources) {
+			if (!skipLastAccessCheck && !isLastAccessValid(userExtSource)) {
+				continue;
+			}
 			try {
 				String sourceAttributeName = getSourceAttributeName();
 				Attribute a = am.getAttribute(sess, userExtSource, sourceAttributeName);
@@ -159,6 +168,20 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 		//convert set to list (values in list will be without duplicities)
 		destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicities));
 		return destinationAttribute;
+	}
+
+	/**
+	 * Checks configuration properties idpLoginValidity if last access is not outdated. Skips non-idp ext sources.
+	 * @param ues user extsource to be checked
+	 * @return true if ues is of type IdP and its last access is not outdated, false otherwise
+	 */
+	private boolean isLastAccessValid(UserExtSource ues) {
+		if (!ExtSourcesManager.EXTSOURCE_IDP.equals(ues.getExtSource().getType())) {
+			return true;
+		}
+
+		LocalDateTime lastAccess = LocalDateTime.parse(ues.getLastAccess(), Utils.lastAccessFormatter);
+		return lastAccess.plusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity()).isAfter(LocalDateTime.now());
 	}
 
 	/**

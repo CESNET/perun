@@ -8,7 +8,10 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetFor
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
@@ -16,10 +19,12 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -263,6 +269,91 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonScopedAffiliations")).thenReturn(attribute);
 		auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
 		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
+	}
+
+	@Test
+	public void lastAccessValid() throws Exception {
+		prepareCoreConfig();
+
+		ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
+		ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity()+1).format(Utils.lastAccessFormatter));
+
+		urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance = new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
+		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+			Arrays.asList(ues1, ues2)
+		);
+
+		String attributeName = classInstance.getSourceAttributeName();
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
+			uesAtt1
+		);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
+			uesAtt2
+		);
+
+		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+		List<String> actual = receivedAttr.valueAsList();
+		assertFalse(actual.contains(VALUE1));
+		assertTrue(actual.contains(VALUE2));
+		assertTrue(actual.contains(VALUE3));
+
+
+		ues1.setLastAccess(LocalDateTime.now().format(Utils.lastAccessFormatter));
+		receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+		assertTrue(receivedAttr.valueAsList().contains(VALUE1));
+	}
+
+	@Test
+	public void lastAccessException() throws Exception {
+		prepareCoreConfig();
+
+		ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
+		ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity()+1).format(Utils.lastAccessFormatter));
+
+		urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance = new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
+		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+			Arrays.asList(ues1, ues2)
+		);
+
+		String attributeName = classInstance.getSourceAttributeName();
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
+			uesAtt1
+		);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
+			uesAtt2
+		);
+
+		List<String> exceptions = BeansUtils.getCoreConfig().getIdpLoginValidityExceptions();
+		if (exceptions == null) { exceptions = new ArrayList<>(); }
+		boolean exceptioned = exceptions.contains(classInstance.getDestinationAttributeName());
+		exceptions.add(classInstance.getDestinationAttributeName());
+		BeansUtils.getCoreConfig().setIdpLoginValidityExceptions(exceptions);
+
+		try {
+			Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+			List<String> actual = receivedAttr.valueAsList();
+			assertTrue(actual.contains(VALUE1));
+			assertTrue(actual.contains(VALUE2));
+			assertTrue(actual.contains(VALUE3));
+		} finally {
+			if (!exceptioned) {
+				BeansUtils.getCoreConfig().getIdpLoginValidityExceptions().remove(classInstance.getDestinationAttributeName());
+			}
+		}
+
+	}
+
+	private static void prepareCoreConfig() {
+		// if test is run separately, coreConfig might not have been initialized
+		if (BeansUtils.getCoreConfig() == null) {
+			CoreConfig testConfig = new CoreConfig();
+			testConfig.setIdpLoginValidity(12);
+			BeansUtils.setConfig(testConfig);
+		}
 	}
 
 }
