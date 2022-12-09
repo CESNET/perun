@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.BanOnFacility;
+import cz.metacentrum.perun.core.api.EnrichedBanOnFacility;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.FacilityWithAttributes;
@@ -1119,6 +1120,26 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId);
+
+	/**
+	 * Get all enriched bans for members on the resource with user and member attributes
+	 *
+	 * @param sess
+	 * @param facility facility
+	 * @param attrNames names of attributes
+	 * @return list of all enriched bans on facility
+	 */
+	List<EnrichedBanOnFacility> getEnrichedBansForFacility(PerunSession sess, Facility facility, List<String> attrNames) throws AttributeNotExistsException;
+
+	/**
+	 * Get enriched bans for user on all resources where user is assigned with user and member attributes
+	 *
+	 * @param sess
+	 * @param user user
+	 * @param attrNames names of attributes
+	 * @return list of all user's bans on facility
+	 */
+	List<EnrichedBanOnFacility> getEnrichedBansForUser(PerunSession sess, User user, List<String> attrNames) throws AttributeNotExistsException;
 
 	/**
 	 * Get all expired bans on any facility to now date

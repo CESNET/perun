@@ -22,8 +22,9 @@ public abstract class Ban extends Auditable implements Comparable<PerunBean> {
 	public Ban(int id, Date validityTo) {
 		super(id);
 		//set precision for validity on seconds
-		if(validityTo == null) this.validityTo = validityTo;
-		else validityTo = new Date(validityTo.getTime() / 1000 * 1000);
+		if (validityTo != null) {
+			validityTo = new Date(validityTo.getTime() / 1000 * 1000);
+		}
 		this.validityTo = validityTo;
 	}
 

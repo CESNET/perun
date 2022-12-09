@@ -439,9 +439,9 @@ public interface ServicesManagerImplApi {
 	 * @param facility
 	 * @param destination string contains destination address (mail, url, hostname, ...)
 	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyAssignedException
+	 * @throws DestinationAlreadyAssignedException when the combination already exists
 	 */
-	void addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination);
+	void addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException;
 
 	/**
 	 * Removes an destination from the facility and service.

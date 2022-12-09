@@ -6,6 +6,16 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.10
+ALTER TABLE resources_bans ALTER COLUMN banned_to SET DEFAULT '2999-01-01 00:00:00';
+ALTER TABLE facilities_bans ALTER COLUMN banned_to SET DEFAULT '2999-01-01 00:00:00';
+UPDATE configurations set value='3.2.10' WHERE property='DATABASE VERSION';
+
+3.1.99
+DELETE FROM facility_service_destinations a USING (SELECT MIN(ctid) as ctid, facility_id, service_id, destination_id FROM facility_service_destinations GROUP BY facility_id, service_id, destination_id HAVING COUNT(*) > 1) b WHERE a.facility_id = b.facility_id AND a.service_id = b.service_id AND a.destination_id = b.destination_id AND a.ctid <> b.ctid;
+ALTER TABLE facility_service_destinations ADD constraint fac_srv_dest_pk primary key (facility_id, service_id, destination_id);
+UPDATE configurations set value='3.1.99' WHERE property='DATABASE VERSION';
+
 3.1.98
 create type mail_type as enum ('APP_CREATED_USER','APPROVABLE_GROUP_APP_USER','APP_CREATED_VO_ADMIN','MAIL_VALIDATION','APP_APPROVED_USER','APP_REJECTED_USER','APP_ERROR_VO_ADMIN','USER_INVITE');
 create table app_notifications_sent (app_id int not null,notification_type mail_type not null,created_at timestamp default statement_timestamp() not null,created_by varchar default user not null,constraint appnotifsent_pk primary key(app_id, notification_type),constraint appnotifsent_app_fk foreign key (app_id) references application(id) on delete cascade);

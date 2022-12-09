@@ -271,6 +271,15 @@ public interface UsersManagerImplApi {
 	User anonymizeUser(PerunSession perunSession, User user);
 
 	/**
+	 * Checks whether user has been anonymized or not.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return true if user has been anonymized, false otherwise.
+	 */
+	boolean isUserAnonymized(PerunSession sess, User user);
+
+	/**
 	 *  Updates user;s userExtSource in DB.
 	 *
 	 * @param perunSession

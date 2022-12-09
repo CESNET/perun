@@ -65,6 +65,11 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
+	public List<String> findAllPossibleEvents(PerunSession sess) {
+		return getAuditMessagesManagerBl().findAllPossibleEvents(sess);
+	}
+
+	@Override
 	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws PrivilegeException {
 		if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerMessages_String_policy")) {
 			throw new PrivilegeException(perunSession, "pollConsumerMessages");

@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 
 /**
@@ -20,7 +22,10 @@ public interface ConfigManager {
 	 * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
 	 *
 	 * @param sess session
+	 * @param requestUrl url of the request
+	 * @throws OidcConfigNotExistsException when configuration under such name doesn't exist
+	 * @throws OidcConfigFileNotExistsException when configuration file for oidc configs doesn't exist.
 	 * @return oidcConfig
 	 */
-	OidcConfig getPerunOidcConfig(PerunSession sess);
+	OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException;
 }

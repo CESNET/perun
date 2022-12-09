@@ -1,4 +1,4 @@
--- database version 3.1.98 (don't forget to update insert statement at the end of file)
+-- database version 3.2.10 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -676,6 +676,7 @@ create table facility_service_destinations (
 												created_by_uid integer,
 												modified_by_uid integer,
 												propagation_type varchar default 'PARALLEL',
+												constraint fac_srv_dest_pk primary key (facility_id, service_id, destination_id),
 												constraint dest_srv_fk foreign key (service_id) references services(id),
 												constraint dest_fac_fk foreign key (facility_id) references facilities(id),
 												constraint dest_dest_fk foreign key(destination_id) references destinations(id)
@@ -1499,7 +1500,7 @@ create table resources_bans (
 								 member_id integer not null,
 								 resource_id integer not null,
 								 description varchar,
-								 banned_to timestamp not null,
+								 banned_to timestamp not null default '2999-01-01 00:00:00' not null,
 								 created_at timestamp default statement_timestamp() not null,
 								 created_by varchar default user not null,
 								 modified_at timestamp default statement_timestamp() not null,
@@ -1517,7 +1518,7 @@ create table facilities_bans (
 								  user_id integer not null,
 								  facility_id integer not null,
 								  description varchar,
-								  banned_to timestamp not null,
+								  banned_to timestamp not null default '2999-01-01 00:00:00' not null,
 								  created_at timestamp default statement_timestamp() not null,
 								  created_by varchar default user not null,
 								  modified_at timestamp default statement_timestamp() not null,
@@ -1880,7 +1881,7 @@ create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.98');
+insert into configurations values ('DATABASE VERSION','3.2.10');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

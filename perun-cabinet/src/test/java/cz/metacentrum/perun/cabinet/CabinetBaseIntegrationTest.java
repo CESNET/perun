@@ -106,9 +106,9 @@ public abstract class CabinetBaseIntegrationTest {
 		// publication systems
 
 		PublicationSystem ps = new PublicationSystem();
-		ps.setFriendlyName("OBD");
+		ps.setFriendlyName("OBD 3.0 (ZCU)");
 		ps.setLoginNamespace("zcu");
-		ps.setUrl("http://obd.zcu.cz:6443/fcgi/verso.fpl?");
+		ps.setUrl("https://obd.zcu.cz/fcgi/verso.fpl/");
 		ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.OBD30Strategy");
 
 		pubSysZcu = getCabinetManager().createPublicationSystem(sess, ps);

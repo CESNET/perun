@@ -413,7 +413,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	<bean id="consentsManagerImpl" class="cz.metacentrum.perun.core.impl.ConsentsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
 	</bean>
-	<bean id="configManagerImpl" class="cz.metacentrum.perun.core.impl.ConfigManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+	<bean id="configManagerImpl" class="cz.metacentrum.perun.core.impl.ConfigManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
 		<property name="perunAppsConfigLoader" ref="perunAppsConfigLoader"/>
 		<property name="perunOidcConfigLoader" ref="perunOidcConfigLoader"/>
 	</bean>

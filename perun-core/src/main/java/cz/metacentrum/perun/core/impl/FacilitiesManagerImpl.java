@@ -47,6 +47,7 @@ import org.springframework.jdbc.core.RowMapper;
 import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -950,17 +951,20 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	@Override
 	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) {
-		Utils.notNull(banOnFacility.getValidityTo(), "banOnFacility.getValidityTo");
 
 		try {
 			int newId = Utils.getNewId(jdbc, "facilities_bans_id_seq");
 
 			jdbc.update("insert into facilities_bans(id, description, banned_to, user_id, facility_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-					newId, banOnFacility.getDescription(), Compatibility.getDate(banOnFacility.getValidityTo().getTime()), banOnFacility.getUserId(), banOnFacility.getFacilityId(), sess.getPerunPrincipal().getActor(),
+					"values (?,?,"+ (banOnFacility.getValidityTo() != null ? "'" +  Compatibility.getDate(banOnFacility.getValidityTo().getTime()) + "'" : "DEFAULT") + ",?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+					newId, banOnFacility.getDescription(), banOnFacility.getUserId(), banOnFacility.getFacilityId(), sess.getPerunPrincipal().getActor(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
 			banOnFacility.setId(newId);
+			// need to adjust date in object if original date was null and default date was assigned in db
+			if (banOnFacility.getValidityTo() == null) {
+				banOnFacility.setValidityTo(jdbc.queryForObject("select banned_to from facilities_bans where id =" + newId, Timestamp.class));
+			}
 
 			return banOnFacility;
 		} catch(RuntimeException ex) {
@@ -1026,10 +1030,16 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) {
 		try {
-			jdbc.update("update facilities_bans set description=?, banned_to=?, modified_by=?, modified_by_uid=?, modified_at=" +
+			jdbc.update("update facilities_bans set description=?, banned_to="+ (banOnFacility.getValidityTo() != null ? "'" + Compatibility.getDate(banOnFacility.getValidityTo().getTime()) + "'" : "DEFAULT") + ", modified_by=?, modified_by_uid=?, modified_at=" +
 							Compatibility.getSysdate() + " where id=?",
-							banOnFacility.getDescription(), Compatibility.getDate(banOnFacility.getValidityTo().getTime()), sess.getPerunPrincipal().getActor(),
+							banOnFacility.getDescription(), sess.getPerunPrincipal().getActor(),
 							sess.getPerunPrincipal().getUserId(), banOnFacility.getId());
+
+			// need to adjust date in object if original date was null and default date was assigned in db
+			if (banOnFacility.getValidityTo() == null) {
+				banOnFacility.setValidityTo(jdbc.queryForObject("select banned_to from facilities_bans where id =" + banOnFacility.getId(), Timestamp.class));
+			}
+
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

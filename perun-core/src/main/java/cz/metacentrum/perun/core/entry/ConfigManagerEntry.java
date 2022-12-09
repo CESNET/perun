@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.ConfigManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -51,9 +53,10 @@ public class ConfigManagerEntry implements ConfigManager {
 	}
 
 	@Override
-	public OidcConfig getPerunOidcConfig(PerunSession sess) {
+	public OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
 		Utils.checkPerunSession(sess);
 
-		return configManagerBl.getPerunOidcConfig();
+
+		return configManagerBl.getPerunOidcConfig(requestUrl);
 	}
 }

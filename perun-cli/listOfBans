@@ -57,7 +57,7 @@ if (defined($resourceId) or defined($memberId)) {
 	my $banOnResourceAgent = $agent->getBanOnResourceAgent;
 
 	if (defined($resourceId)) {
-		@bans = $banOnResourceAgent->getBansForResource( resourceId => $resourceId );
+		@bans = $banOnResourceAgent->getBansForResource( resource => $resourceId );
 		@columnsNames = ('BanId', 'MemberId', 'BannedTo', 'Description');
 	}
 	if (defined($memberId)) {

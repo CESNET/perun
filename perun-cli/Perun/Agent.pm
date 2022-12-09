@@ -46,7 +46,7 @@ use Sys::Hostname;
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _configAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _attributesAgent _ownersAgent _authzResolverAgent _auditMessagesAgent _tasksAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _configAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _attributesAgent _ownersAgent _authzResolverAgent _auditMessagesAgent _tasksAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent _useNon);
 
 use constant {
 	AUTHENTICATION_FAILED   => "Authentication failed",
@@ -68,6 +68,19 @@ sub new {
 	my $wanted_format = shift;
 	if (defined $wanted_format) {
 		$format = $wanted_format;
+	}
+
+	# use non authorization
+	$self->{_useNon} = shift;
+	if ($self->{_useNon}) {
+		if (defined($ENV{PERUN_OIDC}) && $ENV{PERUN_OIDC} eq "1") {
+			my $config = Perun::auth::OidcAuth::loadConfiguration();
+			$ENV{PERUN_URL} = convertUrlToNonAuth($config->{"perun_api_endpoint"} . "/");
+			$ENV{PERUN_OIDC} = 0;
+		} else {
+			if (!defined($ENV{PERUN_URL})) {die Perun::Exception->fromHash({ type => MISSING_URL });};
+			$ENV{PERUN_URL} = convertUrlToNonAuth($ENV{PERUN_URL});
+		}
 	}
 
 	# Extract RPC type from ENV (if not defined, use "Perun RPC")
@@ -192,7 +205,6 @@ sub call
 		$accessToken = Perun::auth::OidcAuth::loadAccessToken();
 		$self->{_lwpUserAgent}->default_header('authorization' => "bearer $accessToken");
 	}
-
 	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
 	my $code = $response->code;
 
@@ -488,6 +500,16 @@ sub gotMfaPrivilegeException {
 	$content = JSON::XS->new->decode($response->decoded_content);
 	return $content && $content->{errorId} && $content->{type} &&
 		($content->{type} eq MFA_PRIVILEGE_EXC_NAME || $content->{type} eq MFA_ROLE_EXC_NAME);
+}
+
+sub convertUrlToNonAuth {
+	my $url = shift;
+	my $uri = URI->new($url);
+	my @segments = $uri->path_segments();
+	@segments[1] = "non";
+	$uri->path_segments(@segments);
+	return $uri->as_string;
+
 }
 
 1;

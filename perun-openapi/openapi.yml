@@ -374,10 +374,12 @@ components:
         pageSize: { type: integer }
         offset: { type: integer }
         order: { $ref: '#/components/schemas/SortingOrder' }
+        selectedEvents: { type: array, items: { type: string } }
       required:
         - pageSize
         - offset
         - order
+        - selectedEvents
 
     ActionType:
       type: string
@@ -707,12 +709,14 @@ components:
             type: object
             additionalProperties:
               type: string
+              nullable: true
         privilegedRolesToRead:
           type: array
           items:
             type: object
             additionalProperties:
               type: string
+              nullable: true
         entitiesToManage:
           type: object
           additionalProperties:
@@ -1176,6 +1180,13 @@ components:
       discriminator:
         propertyName: beanName
 
+    EnrichedBanOnVo:
+      type: object
+      properties:
+        vo: { $ref: '#/components/schemas/Vo' }
+        member: { $ref: '#/components/schemas/RichMember' }
+        ban: { $ref: '#/components/schemas/BanOnVo' }
+
     BanOnFacility:
       allOf:
         - $ref: '#/components/schemas/Ban'
@@ -1184,6 +1195,20 @@ components:
         facilityId: { type: integer }
       discriminator:
         propertyName: beanName
+
+    EnrichedBanOnResource:
+      type: object
+      properties:
+        resource: { $ref: '#/components/schemas/Resource' }
+        member: { $ref: '#/components/schemas/RichMember' }
+        ban: { $ref: '#/components/schemas/BanOnResource' }
+
+    EnrichedBanOnFacility:
+      type: object
+      properties:
+        facility: { $ref: '#/components/schemas/Facility' }
+        user: { $ref: '#/components/schemas/RichUser' }
+        ban: { $ref: '#/components/schemas/BanOnFacility' }
 
     RichUserExtSource:
       properties:
@@ -2301,6 +2326,15 @@ components:
             items:
               $ref: "#/components/schemas/BanOnVo"
 
+    ListOfEnrichedBanOnVoResponse:
+      description: "return List<EnrichedBanOnVo>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedBanOnVo"
+
     BanOnResourceResponse:
       description: "returns banOnResource"
       content:
@@ -2316,6 +2350,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnResource"
+
+    ListOfEnrichedBansOnResourceResponse:
+      description: "return List<BanOnResource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedBanOnResource"
 
     ListOfServiceForGUIResponse:
       description: "return List<ServiceForGUI>"
@@ -2367,6 +2410,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnFacility"
+              
+    ListOfEnrichedBansOnFacilitiesResponse:
+      description: "return List<EnrichedBanOnFacility>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedBanOnFacility"
 
     ListOfMemberCandidatesResponse:
       description: "return List<MemberCandidate>"
@@ -7600,6 +7652,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/auditMessagesManager/findAllPossibleEvents:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: findAllPossibleEvents
+      summary: Get list of names of all possible events.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # CabinetManager                                #
@@ -11992,6 +12056,36 @@ paths:
           $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+          
+  /json/facilitiesManager/getEnrichedBansForFacility:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getEnrichedBansForFacility
+      summary: Get all enriched bans on the facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+          
+  /json/facilitiesManager/getEnrichedBansForUser:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getEnricheFacilitydBansForUser
+      summary: Get all user's enriched bans on assigned facilities.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/facilitiesManager/updateBan:
     post:
@@ -14235,6 +14329,36 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/resourcesManager/getEnrichedBansForResource:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getEnrichedBansForResource
+      summary: Get all enriched bans for members on the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getEnrichedBansForUser:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getEnrichedBansForUser
+      summary: Get all enriched bans for user's members on resources.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBansOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/resourcesManager/updateBan:
     post:
       tags:
@@ -14869,6 +14993,30 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/vosManager/updateBan:
+    post:
+      tags:
+        - VosManager
+      operationId: updateVoBan
+      summary: Update existing ban (description, validation timestamp)
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateBan
+              description: "input to updateBan"
+              type: object
+              required:
+                - banOnVo
+              properties:
+                banOnVo: { $ref: '#/components/schemas/BanOnVo' }
+  
   /json/vosManager/getBanById:
     get:
       tags:
@@ -14908,6 +15056,36 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfBanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getEnrichedBansForVo:
+    get:
+      tags:
+        - VosManager
+      operationId: getEnrichedBansForVo
+      summary: Get list of all enriched bans for vo.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getEnrichedBansForUser:
+    get:
+      tags:
+        - VosManager
+      operationId: getEnrichedVoBansForUser
+      summary: Get list of all enriched bans for user.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedBanOnVoResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

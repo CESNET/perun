@@ -1,14 +1,10 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -757,6 +753,63 @@ public enum VosManagerMethod implements ManagerMethod {
 		public List<BanOnVo> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getVosManager().getBansForVo(ac.getSession(),
 					parms.readInt("vo"));
+		}
+	},
+
+	/**
+	 * Get list of all EnrichedBans for Vo.
+	 *
+	 * @param vo int vo id
+	 * @param attrNames List<String> list of attributes names, if null or empty, returns all attributes
+	 * @return List<BanOnVo> vo bans for given vo
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw VoNotExistsException if there is no vo with given id
+	 */
+	getEnrichedBansForVo {
+		@Override
+		public List<EnrichedBanOnVo> call(ApiCaller ac, Deserializer params) throws PerunException {
+			List<String> attrNames = null;
+			if (params.contains("attrNames")) {
+				attrNames = params.readList("attrNames", String.class);
+			}
+			return ac.getVosManager().getEnrichedBansForVo(ac.getSession(), params.readInt("vo"), attrNames);
+		}
+	},
+
+	/**
+	 * Get list of all EnrichedBans for User.
+	 * @param user int user id
+	 * @param attrNames List<String> list of attributes names, if null or empty, returns all attributes
+	 * @return List<BanOnVo> vo bans for given user
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw UserNotExistsException if there is no user with given id
+	 */
+	getEnrichedBansForUser{
+		@Override
+		public List<EnrichedBanOnVo> call(ApiCaller ac, Deserializer params) throws PerunException {
+			List<String> attrNames = null;
+			if (params.contains("attrNames")) {
+				attrNames = params.readList("attrNames", String.class);
+			}
+			return ac.getVosManager().getEnrichedBansForUser(ac.getSession(), params.readInt("user"), attrNames);
+		}
+	},
+
+	/*#
+	 * Update existing ban (description, validation timestamp)
+	 *
+	 * @param banOnVo BanOnVo JSON object
+	 * @return BanOnVo updated banOnVo
+	 */
+	updateBan {
+
+		@Override
+		public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getVosManager().updateBan(ac.getSession(),
+				parms.read("banOnVo", BanOnVo.class));
+
 		}
 	},
 

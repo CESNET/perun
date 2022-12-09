@@ -51,6 +51,7 @@ import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1352,17 +1353,19 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	@Override
 	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) {
-		Utils.notNull(banOnResource.getValidityTo(), "banOnResource.getValidityTo");
-
 		try {
 			int newId = Utils.getNewId(jdbc, "resources_bans_id_seq");
 
 			jdbc.update("insert into resources_bans(id, description, banned_to, member_id, resource_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-				newId, banOnResource.getDescription(), Compatibility.getDate(banOnResource.getValidityTo().getTime()), banOnResource.getMemberId(), banOnResource.getResourceId(), sess.getPerunPrincipal().getActor(),
+					"values (?,?,"+ (banOnResource.getValidityTo() != null ? "'" + Compatibility.getDate(banOnResource.getValidityTo().getTime()) + "'" : "DEFAULT") + ",?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+				newId, banOnResource.getDescription(), banOnResource.getMemberId(), banOnResource.getResourceId(), sess.getPerunPrincipal().getActor(),
 				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
 			banOnResource.setId(newId);
+			// need to adjust date in object if original date was null and default date was assigned in db
+			if (banOnResource.getValidityTo() == null) {
+				banOnResource.setValidityTo(jdbc.queryForObject("select banned_to from resources_bans where id =" + newId, Timestamp.class));
+			}
 
 			return banOnResource;
 		} catch(RuntimeException ex) {
@@ -1428,10 +1431,16 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) {
 		try {
-			jdbc.update("update resources_bans set description=?, banned_to=?, modified_by=?, modified_by_uid=?, modified_at=" +
+			jdbc.update("update resources_bans set description=?, banned_to="+ (banOnResource.getValidityTo() != null ? "'" + Compatibility.getDate(banOnResource.getValidityTo().getTime()) + "'" : "DEFAULT") + ", modified_by=?, modified_by_uid=?, modified_at=" +
 					Compatibility.getSysdate() + " where id=?",
-				banOnResource.getDescription(), Compatibility.getDate(banOnResource.getValidityTo().getTime()), sess.getPerunPrincipal().getActor(),
+				banOnResource.getDescription(), sess.getPerunPrincipal().getActor(),
 				sess.getPerunPrincipal().getUserId(), banOnResource.getId());
+
+			// need to adjust date in object if original date was null and default date was assigned in db
+			if (banOnResource.getValidityTo() == null) {
+				banOnResource.setValidityTo(jdbc.queryForObject("select banned_to from resources_bans where id =" + banOnResource.getId(), Timestamp.class));
+			}
+
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

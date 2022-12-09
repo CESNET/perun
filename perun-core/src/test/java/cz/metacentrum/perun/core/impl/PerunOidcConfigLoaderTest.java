@@ -14,19 +14,19 @@ public class PerunOidcConfigLoaderTest extends AbstractPerunIntegrationTest {
 	@Before
 	public void setUp() {
 		expectedConfig = new OidcConfig();
-		expectedConfig.setClientId("363b656e-d139-4290-99cd-ee64eeb830d5");
-		expectedConfig.setOidcDeviceCodeUri("https://login.cesnet.cz/oidc/devicecode");
-		expectedConfig.setOidcTokenEndpointUri("https://login.cesnet.cz/oidc/token");
-		expectedConfig.setOidcTokenRevokeEndpointUri("https://login.cesnet.cz/oidc/revoke");
+		expectedConfig.setClientId("1234");
+		expectedConfig.setOidcDeviceCodeUri("https://test/devicecode");
+		expectedConfig.setOidcTokenEndpointUri("https://test/token");
+		expectedConfig.setOidcTokenRevokeEndpointUri("https://test/revoke");
 		expectedConfig.setAcrValues("");
 		expectedConfig.setScopes("openid perun_api perun_admin offline_access");
-		expectedConfig.setPerunApiEndpoint("https://perun-dev.cesnet.cz/oauth/rpc");
+		expectedConfig.setPerunApiEndpoint("https://test/rpc");
 		expectedConfig.setEnforceMfa(false);
 	}
 
 	@Test
-	public void init() {
-		OidcConfig config = perun.getConfigManagerBl().getPerunOidcConfig();
+	public void init() throws Exception {
+		OidcConfig config = perun.getConfigManagerBl().getPerunOidcConfig("https://perun-domain.name.com/non/rpc/json/configManager/getPerunOidcConfig");
 		assertEquals(config, expectedConfig);
 	}
 }

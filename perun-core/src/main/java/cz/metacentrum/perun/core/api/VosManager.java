@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -15,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 
 import java.util.List;
 import java.util.Map;
@@ -537,8 +539,9 @@ public interface VosManager {
 	 * @return created ban object
 	 * @throws PrivilegeException insufficient permissions
 	 * @throws MemberNotExistsException if there is no member with specified id
+	 * @throws BanAlreadyExistsException
 	 */
-	BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException;
+	BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException, BanAlreadyExistsException;
 
 	/**
 	 * Remove vo ban with given id.
@@ -593,6 +596,19 @@ public interface VosManager {
 	 * @throws VoNotExistsException if there is no vo with given id
 	 */
 	List<BanOnVo> getBansForVo(PerunSession sess, int voId) throws PrivilegeException, VoNotExistsException;
+
+	/**
+	 * Update existing ban (description, validation timestamp)
+	 *
+	 * @param sess
+	 * @param banOnVo the specific ban
+	 * @return updated ban
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws BanNotExistsException
+	 * @throws VoNotExistsException
+	 */
+	BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo) throws PrivilegeException, BanNotExistsException, VoNotExistsException;
 
 	/**
 	 * For the given vo, creates sponsored members for each sponsored user who is a member
@@ -663,4 +679,28 @@ public interface VosManager {
 	 * @throws PrivilegeException if not authorized
 	 */
 	List<Vo> getParentVos(PerunSession sess, int memberVoId) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Gets all Enriched Bans for given vo.
+	 * Attr names specify which attributes should be included in RichMember.
+	 * @param sess session
+	 * @param voId id of vo
+	 * @param attrNames List of attribute names, returns all attributes if empty or null
+	 * @return List of Enriched Bans
+	 * @throws PrivilegeException
+	 * @throws AttributeNotExistsException
+	 * @throws VoNotExistsException
+	 */
+	List<EnrichedBanOnVo> getEnrichedBansForVo(PerunSession sess, int voId, List<String> attrNames) throws PrivilegeException, AttributeNotExistsException, VoNotExistsException;
+
+
+	/**
+	 * Gets all Enriched Bans for given user.
+	 * @param sess session
+	 * @param userId id of user
+	 * @param attrNames List of attribute names, returns all attributes if empty or null
+	 * @return List of Enriched Bans
+	 * @throws UserNotExistsException if user does not exist
+	 */
+	List<EnrichedBanOnVo>  getEnrichedBansForUser(PerunSession sess, int userId, List<String> attrNames) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException;
 }

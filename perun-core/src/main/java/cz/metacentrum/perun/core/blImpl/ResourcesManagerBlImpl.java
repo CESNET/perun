@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.EnrichedBanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -54,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceExcepti
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
@@ -1124,6 +1126,81 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) {
 		return getResourcesManagerImpl().getBansForResource(sess, resourceId);
+	}
+
+	@Override
+	public List<EnrichedBanOnResource> getEnrichedBansForResource(PerunSession sess, Resource resource, List<String> attrNames) throws AttributeNotExistsException {
+		List<BanOnResource> bans = getResourcesManagerImpl().getBansForResource(sess, resource.getId());
+		List<EnrichedBanOnResource> enrichedBans = new ArrayList<>();
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
+
+		if (attrNames != null && !attrNames.isEmpty()) {
+			attrDefs = perunBl.getAttributesManagerBl().getAttributesDefinition(sess, attrNames);
+		}
+
+		for (BanOnResource ban : bans) {
+			EnrichedBanOnResource newBan = new EnrichedBanOnResource();
+			newBan.setBan(ban);
+			newBan.setResource(resource);
+			try {
+				Member member = perunBl.getMembersManagerBl().getMemberById(sess, ban.getMemberId());
+				RichMember richMember = perunBl.getMembersManagerBl().getRichMember(sess, member);
+				if (attrDefs.isEmpty()) {
+					richMember = perunBl.getMembersManagerBl()
+						.convertMembersToRichMembersWithAttributes(sess, List.of(richMember)).get(0);
+				} else {
+					richMember = perunBl.getMembersManagerBl()
+						.convertMembersToRichMembersWithAttributes(sess, List.of(richMember), attrDefs).get(0);
+				}
+				newBan.setMember(richMember);
+			} catch (MemberNotExistsException e) {
+				// should not happen
+			}
+			enrichedBans.add(newBan);
+		}
+
+		return enrichedBans;
+	}
+
+	@Override
+	public List<EnrichedBanOnResource> getEnrichedBansForUser(PerunSession sess, User user, List<String> attrNames) throws AttributeNotExistsException {
+		List<Member> members = perunBl.getMembersManagerBl().getMembersByUser(sess, user);
+		List<EnrichedBanOnResource> enrichedBans = new ArrayList<>();
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
+
+		if (attrNames != null && !attrNames.isEmpty()) {
+			attrDefs = perunBl.getAttributesManagerBl().getAttributesDefinition(sess, attrNames);
+		}
+
+		for (Member member : members) {
+			List<BanOnResource> bans = getResourcesManagerImpl().getBansForMember(sess, member.getId());
+
+			if (!bans.isEmpty()) {
+
+				RichMember richMember = perunBl.getMembersManagerBl().getRichMember(sess, member);
+				if (attrDefs.isEmpty()) {
+					richMember = perunBl.getMembersManagerBl()
+						.convertMembersToRichMembersWithAttributes(sess, List.of(richMember)).get(0);
+				} else {
+					richMember = perunBl.getMembersManagerBl()
+						.convertMembersToRichMembersWithAttributes(sess, List.of(richMember), attrDefs).get(0);
+				}
+
+				for (BanOnResource ban : bans) {
+					EnrichedBanOnResource newBan = new EnrichedBanOnResource();
+					newBan.setBan(ban);
+					newBan.setMember(richMember);
+					try {
+						newBan.setResource(perunBl.getResourcesManagerBl().getResourceById(sess, ban.getResourceId()));
+					} catch (ResourceNotExistsException e) {
+						// should not happen
+					}
+					enrichedBans.add(newBan);
+				}
+			}
+		}
+
+		return enrichedBans;
 	}
 
 	@Override
