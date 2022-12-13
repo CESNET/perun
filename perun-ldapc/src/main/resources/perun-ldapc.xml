@@ -1263,6 +1263,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="earliestActiveLastAccess"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="earliestActiveLastAccess"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:virt"/>
+						</bean>
+					</property>
+				</bean>
 			</list>
 		</property>
 		<property name="attributeDescriptionsExt" ref="perunUserAttributesExt"/>
