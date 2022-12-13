@@ -1,6 +1,8 @@
 from enum import Enum
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
+
 from dateutil.parser import isoparse
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
@@ -34,7 +36,8 @@ class DeviceCodeOAuth:
     Class for authentication using OAuth Device Code grant
     """
 
-    def __init__(self, perun_instance: PerunInstance, encryption_password: str, mfa: bool, mfa_valid_minutes, debug: bool):
+    def __init__(self, perun_instance: PerunInstance, encryption_password: str, mfa: bool, mfa_valid_minutes,
+                 debug: bool):
         """
 
         :param perun_instance: identifier of Perun instance (used for getting configuration)
@@ -175,7 +178,7 @@ class DeviceCodeOAuth:
         with open(self.tokens_path, 'wb', opener=opener) as f:
             f.write(data)
 
-    def __read_tokens_from_file(self) -> dict | None:
+    def __read_tokens_from_file(self) -> Optional[dict]:
         """
         Reads tokens from file.
         """
@@ -268,7 +271,8 @@ class DeviceCodeOAuth:
             else:
                 # try to get it from userInfo
                 access_token = self.tokens.get('access_token')
-                decoded_access_token = jwt.decode(access_token, self.pyJWKClient.get_signing_key_from_jwt(access_token).key,
+                decoded_access_token = jwt.decode(access_token,
+                                                  self.pyJWKClient.get_signing_key_from_jwt(access_token).key,
                                                   algorithms=['RS256', 'ES256'],
                                                   audience=self.CLIENT_ID)
                 if 'authn_details' not in decoded_access_token['scope']:
@@ -373,7 +377,8 @@ class DeviceCodeOAuth:
         id_token = token_data['id_token']
         access_token = token_data['access_token']
         refresh_token = token_data['refresh_token']
-        if self.__verify_token(id_token, 'id') and self.__verify_token(access_token, 'access') and self.__verify_token(refresh_token, 'refresh'):
+        if self.__verify_token(id_token, 'id') and self.__verify_token(access_token, 'access') \
+           and self.__verify_token(refresh_token, 'refresh'):
             self.tokens = token_data
             self.__store_tokens(token_data)
             return access_token
