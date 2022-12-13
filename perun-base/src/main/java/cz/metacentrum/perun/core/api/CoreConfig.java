@@ -96,6 +96,8 @@ public class CoreConfig {
 	private String userInfoEndpointMfaAuthTimestampPropertyName;
 	private int mfaAuthTimeout;
 	private boolean enforceMfa;
+	private int idpLoginValidity;
+	private List<String> idpLoginValidityExceptions;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -809,5 +811,21 @@ public class CoreConfig {
 
 	public void setEnforceMfa(boolean enforceMfa) {
 		this.enforceMfa = enforceMfa;
+	}
+
+	public int getIdpLoginValidity() {
+		return idpLoginValidity;
+	}
+
+	public void setIdpLoginValidity(int idpLoginValidity) {
+		this.idpLoginValidity = idpLoginValidity;
+	}
+
+	public List<String> getIdpLoginValidityExceptions() {
+		return idpLoginValidityExceptions;
+	}
+
+	public void setIdpLoginValidityExceptions(List<String> idpLoginValidityExceptions) {
+		this.idpLoginValidityExceptions = idpLoginValidityExceptions;
 	}
 }

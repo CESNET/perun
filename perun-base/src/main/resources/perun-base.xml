@@ -80,6 +80,8 @@
 		<property name="userInfoEndpointMfaAuthTimestampPropertyName" value="${perun.userInfoEndpoint.mfaAuthTimestampPropertyName}"/>
 		<property name="userInfoEndpointMfaAcrValue" value="${perun.userInfoEndpoint.mfaAcrValue}"/>
 		<property name="userInfoEndpointAcrPropertyName" value="${perun.userInfoEndpoint.acrPropertyName}"/>
+		<property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
+		<property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
 	</bean>
 
 
@@ -148,6 +150,8 @@
 				<prop key="perun.attributesToSearchUsersAndMembersBy">urn:perun:user:attribute-def:def:preferredMail, urn:perun:member:attribute-def:def:mail</prop>
 				<prop key="perun.attributesToAnonymize"></prop>
 				<prop key="perun.attributesToKeep">urn:perun:user:attribute-def:def:login-namespace:*, urn:perun:user:attribute-def:def:uid-namespace:*</prop>
+				<prop key="perun.idpLoginValidityExceptions"/>
+				<prop key="perun.idpLoginValidity">24</prop>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->
