@@ -111,8 +111,8 @@ class DeviceCodeOAuth:
     def get_access_token(self) -> str:
         """ Provides valid access token with MFA if requested. """
         access_token = self.__get_valid_access_token()
-        if self.mfa and not self.__verify_mfa():
-            return self.__login()
+        while self.mfa and not self.__verify_mfa():
+            access_token = self.__login()
         return access_token
 
     def __get_valid_access_token(self) -> str:
@@ -209,9 +209,9 @@ class DeviceCodeOAuth:
                 print(token_type, 'token verified')
                 print(' issuer:', iss)
                 if 'iat' in decoded_token:
-                    print(' issued at: ', datetime.fromtimestamp(decoded_token['iat']))
+                    print(' issued at: ', datetime.fromtimestamp(decoded_token['iat']).astimezone())
                 if 'exp' in decoded_token:
-                    print(' expiration:', datetime.fromtimestamp(decoded_token['exp']))
+                    print(' expiration:', datetime.fromtimestamp(decoded_token['exp']).astimezone())
                 if 'scope' in decoded_token:
                     print(' scope:', decoded_token['scope'])
                 if 'name' in decoded_token:
@@ -219,7 +219,7 @@ class DeviceCodeOAuth:
                 if 'acr' in decoded_token:
                     print(' acr:', decoded_token['acr'])
                 if 'authn_instant' in decoded_token:
-                    print(' authn_instant:', decoded_token['authn_instant'])
+                    print(' authn_instant:', isoparse(decoded_token['authn_instant']).astimezone())
             if self.mfa and token_type == 'id':
                 acr = decoded_token.get('acr')
                 if acr is None or acr != 'https://refeds.org/profile/mfa':
@@ -262,7 +262,7 @@ class DeviceCodeOAuth:
             # get time of authentication
             authn_instant = decoded_id_token.get('authn_instant')
             if authn_instant is not None:
-                authn_instant = isoparse(authn_instant)
+                authn_instant = isoparse(authn_instant).astimezone()
                 if self.debug:
                     print('got authn_instant from id_token:', authn_instant)
             else:
@@ -281,7 +281,7 @@ class DeviceCodeOAuth:
                     print('Error calling userInfo endpoint')
                     print(userinfo_response)
                     raise typer.Exit(code=1)
-                authn_instant = isoparse(userinfo_response.json().get('authn_instant'))
+                authn_instant = isoparse(userinfo_response.json().get('authn_instant')).astimezone()
                 if self.debug:
                     print('got authn_instant from userInfo:', authn_instant)
             # check that time of MFA is not older than required
