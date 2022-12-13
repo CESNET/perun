@@ -7915,6 +7915,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn:perun:user:attribute-def:virt:earliestActiveLastAccess
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+		attr.setFriendlyName("earliestActiveLastAccess");
+		attr.setDisplayName("Earliest active last access");
+		attr.setType(String.class.getName());
+		attr.setDescription("Timestamp of the earliest active IdP extSource's lastAccess.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.None));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.None));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		//urn:perun:group:attribute-def:virt:autoRegistrationEnabled
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
