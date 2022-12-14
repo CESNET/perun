@@ -977,6 +977,36 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
+	public void copyMembers(PerunSession sess, Group sourceGroup, List<Group> destinationGroups, List<Member> members) throws WrongReferenceAttributeValueException, WrongAttributeValueException, MemberGroupMismatchException {
+		if (members == null || members.isEmpty()) {
+			members = getGroupDirectMembers(sess, sourceGroup);
+		}
+		for (Group destinationGroup : destinationGroups) {
+			// Check if the group is NOT members group
+			if (destinationGroup.getName().equals(VosManager.MEMBERS_GROUP)) {
+				throw new InternalErrorException("Cannot add member directly to the members group.");
+			}
+			for (Member member : members) {
+				if (!this.isGroupMember(sess, sourceGroup, member)) {
+					throw new MemberGroupMismatchException("Member is not a member of the group they are being copied from", member, sourceGroup);
+				}
+				if (!this.isDirectGroupMember(sess, sourceGroup, member)) {
+					// skip indirect members
+					continue;
+				}
+				try {
+					addDirectMember(sess, destinationGroup, member);
+				} catch (AlreadyMemberException ex) {
+					// skip member already in group
+					continue;
+				} catch (GroupNotExistsException ex) {
+					throw new ConsistencyErrorException("Group should exist");
+				}
+			}
+		}
+	}
+
 
 	private List<Group> getParentGroups(PerunSession sess, Group group) {
 		if(group == null) return new ArrayList<>();

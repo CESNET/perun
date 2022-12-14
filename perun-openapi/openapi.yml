@@ -12570,6 +12570,43 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/copyMembers:
+    post:
+      tags:
+        - GroupsManager
+      operationId: copyMembers
+      summary: Copies direct members from one group to other groups within the same VO. The members are copied without their member-group attributes. Empty or null members list will copy all of the group's direct members
+      parameters:
+        - { name: sourceGroup,
+            description: "id of the group to copy from",
+            schema: { type: integer },
+            in: query,
+            required: true
+        }
+        - { name: destinationGroups,
+            description: "ids of groups to copy to",
+            schema: {
+              type: array,
+              items: { type: integer }
+            },
+            in: query,
+            required: true
+        }
+        - { name: members,
+            description: "ids of members to copy",
+            schema: {
+              type: array,
+              items: { type: integer }
+            },
+            in: query,
+            required: false
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/removeMember:
     post:
       tags:

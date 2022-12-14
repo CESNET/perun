@@ -57,6 +57,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipEx
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.Assert;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.annotation.JsonAppend;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -1543,6 +1544,53 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertFalse(groupsManager.isDirectGroupMember(sess, group3, member));
 		assertTrue(groupsManager.isDirectGroupMember(sess, group4, member));
 		assertTrue(groupsManager.isDirectGroupMember(sess, group2, member));
+	}
+
+	@Test
+	public void copyMembersWithoutAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "copyMembersWithoutAttributes");
+
+		vo = setUpVo();
+
+		List<Group> groups = setUpGroups(vo);
+		Group group1 = groups.get(0);
+		Group group2 = groups.get(1);
+		Group group3 = groupsManager.createGroup(sess, vo, group8);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group1, member);
+
+		groupsManager.copyMembers(sess, group1, List.of(group2), List.of(member));
+		List<Member> group2Members = groupsManager.getGroupMembers(sess, group2);
+
+		assertThat(group2Members).containsExactly(member);
+
+		groupsManager.copyMembers(sess, group2, List.of(group3), List.of());
+		List<Member> group3Members = groupsManager.getGroupMembers(sess, group3);
+
+		assertThat(group3Members).containsExactly(member);
+	}
+
+
+	@Test
+	public void copyMembersToMultipleGroups() throws Exception {
+		System.out.println(CLASS_NAME + "copyMembersToMultipleGroups");
+
+		vo = setUpVo();
+
+		List<Group> groups = setUpGroups(vo);
+		Group group1 = groups.get(0);
+		Group group2 = groups.get(1);
+		Group group3 = groupsManager.createGroup(sess, vo, group8);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group1, member);
+
+
+		groupsManager.copyMembers(sess, group1, List.of(group2, group3), List.of());
+		List<Member> group2Members = groupsManager.getGroupMembers(sess, group2);
+		List<Member> group3Members = groupsManager.getGroupMembers(sess, group3);
+
+		assertThat(group2Members).containsExactly(member);
+		assertThat(group3Members).containsExactly(member);
 	}
 
 	@Test

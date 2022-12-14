@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -347,6 +348,24 @@ public interface GroupsManager {
 	 * @throws ExternallyManagedException
 	 */
 	void addMembers(PerunSession perunSession, Group group, List<Member> members) throws MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
+
+	/**
+	 * Copies direct members from one group to other groups in the same VO. The members are copied without their member-group attributes.
+	 * Copies all direct members if members list is empty or null.
+	 *
+	 * @param sess perun session
+	 * @param sourceGroup group to copy members from
+	 * @param destinationGroups groups to copy members to
+	 * @param members members to be copied
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws GroupNotExistsException when one of the groups does not exist
+	 * @throws MemberNotExistsException when one of the members does not exist
+	 * @throws GroupGroupMismatchException when the groups are not in the same Vo
+	 * @throws PrivilegeException
+	 * @throws ExternallyManagedException when destination group is managed from an external source
+	 */
+	void copyMembers(PerunSession sess, Group sourceGroup, List<Group> destinationGroups, List<Member> members) throws WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, MemberNotExistsException, GroupGroupMismatchException, PrivilegeException, ExternallyManagedException, MemberGroupMismatchException;
 
 
 
