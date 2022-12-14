@@ -795,6 +795,20 @@ public interface ResourcesManager {
 	void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagAlreadyAssignedException;
 
 	/**
+	 * Assign existing ResourceTags on existing Resource.
+	 *
+	 * @param perunSession
+	 * @param resourceTags
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ResourceTagNotExistsException
+	 * @throws ResourceNotExistsException
+	 * @throws ResourceTagAlreadyAssignedException
+	 */
+	void assignResourceTagsToResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagAlreadyAssignedException;
+
+	/**
 	 * Remove specific ResourceTag from existing Resource.
 	 *
 	 * @param perunSession
@@ -807,6 +821,20 @@ public interface ResourcesManager {
 	 * @throws ResourceTagNotAssignedException
 	 */
 	void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagNotAssignedException;
+
+	/**
+	 * Remove specific ResourceTags from existing Resource.
+	 *
+	 * @param perunSession
+	 * @param resourceTags
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ResourceTagNotExistsException
+	 * @throws ResourceNotExistsException
+	 * @throws ResourceTagNotAssignedException
+	 */
+	void removeResourceTagsFromResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagNotAssignedException;
 
 	/**
 	 * Remove all Resource tags for specific resource.

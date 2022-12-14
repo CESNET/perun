@@ -526,6 +526,38 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+
+	/*#
+	 * For an existing member, assigns a new sponsor.
+	 *
+	 * Can be called only by VO admin.
+	 *
+	 * @param members List<Integer> ids of sponsored members
+	 * @param sponsor int id of sponsoring user
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 */
+	sponsorMembers {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+
+
+			List<Member> sponsored = new ArrayList<>();
+			for (Integer id : params.readList("members", Integer.class)) {
+				sponsored.add(ac.getMemberById(id));
+			}
+
+
+			User sponsor = ac.getUserById(params.readInt("sponsor"));
+			LocalDate validityTo = null;
+			if (params.contains("validityTo")) {
+				validityTo = params.readLocalDate("validityTo");
+			}
+			ac.getMembersManager().sponsorMembers(ac.getSession(), sponsored, sponsor, validityTo);
+			return null;
+		}
+	},
+
 	/*#
 	 * Removes sponsor of existing member.
 	 *
@@ -541,6 +573,30 @@ public enum MembersManagerMethod implements ManagerMethod {
 			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
 			User sponsorToRemove = ac.getUserById(params.readInt("sponsor"));
 			ac.getMembersManager().removeSponsor(ac.getSession(), sponsoredMember, sponsorToRemove);
+			return null;
+		}
+	},
+
+	/*#
+	 * Removes sponsors of existing member.
+	 *
+	 * Can be called only by VO admin.
+	 *
+	 * @param member int id of sponsored member, optional
+	 * @param sponsorIds List<Integer> ids of sponsoring users that are to be removed
+	 */
+	removeSponsors {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+
+			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
+			List<User> sponsorsToRemove = new ArrayList<>();
+			for (Integer id : params.readList("sponsorIds", Integer.class)) {
+				sponsorsToRemove.add(ac.getUserById(id));
+			}
+
+			ac.getMembersManager().removeSponsors(ac.getSession(), sponsoredMember, sponsorsToRemove);
 			return null;
 		}
 	},

@@ -1441,6 +1441,21 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public void sponsorMembers(PerunSession session, List<Member> sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
+		for (Member member : sponsored) {
+			if (member.isSponsored()) {
+				sponsorMember(session, member, sponsor, validityTo);
+			} else {
+				try {
+					setSponsorshipForMember(session, member, sponsor, validityTo);
+				} catch (AlreadySponsoredMemberException | MemberNotExistsException ex) {
+					throw new InternalErrorException("Member should not be sponsored and should exist");
+				}
+			}
+		}
+	}
+
+	@Override
 	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames) throws AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -1608,6 +1623,13 @@ public class MembersManagerEntry implements MembersManager {
 		}
 		//remove sponsor
 		membersManagerBl.removeSponsor(sess,sponsoredMember, sponsorToRemove);
+	}
+
+	@Override
+	public void removeSponsors(PerunSession sess, Member sponsoredMember, List<User> sponsorsToRemove) throws PrivilegeException {
+		for (User sponsor : sponsorsToRemove) {
+			removeSponsor(sess, sponsoredMember, sponsor);
+		}
 	}
 
 	@Override

@@ -915,10 +915,24 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public void assignResourceTagsToResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws ResourceTagAlreadyAssignedException {
+		for (ResourceTag tag : resourceTags) {
+			assignResourceTagToResource(perunSession, tag, resource);
+		}
+	}
+
+	@Override
 	public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws ResourceTagNotAssignedException {
 		List<ResourceTag> allResourceTags = this.getAllResourcesTagsForResource(perunSession, resource);
 		if(!allResourceTags.contains(resourceTag)) throw new ResourceTagNotAssignedException(resourceTag);
 		getResourcesManagerImpl().removeResourceTagFromResource(perunSession, resourceTag, resource);
+	}
+
+	@Override
+	public void removeResourceTagsFromResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws ResourceTagNotAssignedException {
+		for (ResourceTag tag: resourceTags) {
+			removeResourceTagFromResource(perunSession, tag, resource);
+		}
 	}
 
 	@Override
