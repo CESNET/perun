@@ -295,6 +295,19 @@ public enum TasksManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Delete TaskResult by its IDs
+	 *
+	 * @param taskResultIds List<Integer> IDs of TaskResult to deleted
+	 */
+	deleteTaskResultsByIds {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getTasksManager().deleteTaskResultsByIds(ac.getSession(), parms.readList("taskResultIds", Integer.class));
+			return null;
+		}
+ 	},
+
+	/*#
 	 * Delete TaskResults for specified Task and Destination.
 	 *
 	 * @param taskId int ID of Task to delete TaskResults for

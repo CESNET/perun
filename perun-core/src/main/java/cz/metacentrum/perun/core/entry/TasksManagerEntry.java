@@ -12,7 +12,9 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -65,6 +67,33 @@ public class TasksManagerEntry implements TasksManager {
 			throw new PrivilegeException(sess, "deleteTaskResults");
 		}
 		tasksManagerBl.deleteTaskResultById(sess, result.getId());
+	}
+
+	@Override
+	public void deleteTaskResultsByIds(PerunSession sess, List<Integer> taskResultIds) throws PrivilegeException, FacilityMismatchException {
+		Utils.notNull(sess, "sess");
+
+		if (taskResultIds == null || taskResultIds.isEmpty()) {
+			throw new IllegalArgumentException("List of ids null or empty");
+		}
+
+		TaskResult result = tasksManagerBl.getTaskResultById(sess, taskResultIds.get(0));
+		Task task = tasksManagerBl.getTaskById(sess, result.getTaskId());
+		Facility facility = task.getFacility();
+
+		if (!AuthzResolver.authorizedInternal(sess, "deleteTaskResultById_int_policy", facility)) {
+			throw new PrivilegeException(sess, "deleteTaskResultsByIds");
+		}
+
+		for (int resultId : taskResultIds) {
+			TaskResult currResult = tasksManagerBl.getTaskResultById(sess, resultId);
+			Task currTask = tasksManagerBl.getTaskById(sess, currResult.getTaskId());
+			Facility currFac = currTask.getFacility();
+			if (currFac.getId() != facility.getId()) {
+				throw new FacilityMismatchException("Tasks are from different facilities.");
+			}
+			tasksManagerBl.deleteTaskResultById(sess, resultId);
+		}
 	}
 
 	@Override

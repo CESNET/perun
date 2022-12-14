@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.bl;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -256,10 +257,27 @@ public class TasksManagerBlImplTest {
 	
 	@Test 
 	public void testDeleteTaskResultsById() {
-		System.out.println("TasksManagerBlImplTest.testDeleteTaskresultsById");
+		System.out.println("TasksManagerBlImplTest.testDeleteTaskResultsById");
 		tasksManager.deleteTaskResultById(perunSession, result1Id);
 		assertThatExceptionOfType(EmptyResultDataAccessException.class)
 			.isThrownBy( () -> tasksManager.getTaskResultById(perunSession, result1Id) );
+	}
+
+	@Test
+	public void testDeleteTaskResultsByIds() throws Exception {
+		System.out.println("TasksManagerBlImplTest.testDeleteTaskResultsByIds");
+
+		List<Integer> taskResultIds = tasksManager.getTaskResults(perunSession).stream().map(TaskResult::getId).toList();
+
+
+		assertTrue(taskResultIds.containsAll(List.of(result1Id, result2Id)));
+
+		perun.getTasksManager().deleteTaskResultsByIds(perunSession, List.of(result1Id, result2Id));
+
+		taskResultIds = tasksManager.getTaskResults(perunSession).stream().map(TaskResult::getId).toList();
+
+		assertThat(taskResultIds).doesNotContain(result1Id, result2Id);
+
 	}
 	
 	@Test 

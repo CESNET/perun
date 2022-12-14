@@ -4,6 +4,7 @@ import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -44,6 +45,16 @@ public interface TasksManager {
 	 * @throws PrivilegeException
 	 */
 	void deleteTaskResultById(PerunSession sess, int taskResultId) throws PrivilegeException;
+
+	/**
+	 * Delete TaskResults by their IDs. TaskResults are expected to be from the same facility.
+	 *
+	 * @param sess sess
+	 * @param taskResultIds list of ids
+	 * @throws PrivilegeException
+	 * @throws FacilityMismatchException when the Tasks are not from the same facility
+	 */
+	void deleteTaskResultsByIds(PerunSession sess, List<Integer> taskResultIds) throws PrivilegeException, FacilityMismatchException;
 
 	/**
 	 * Delete all TaskResults related to specified Task and Destination
