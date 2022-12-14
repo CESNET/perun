@@ -1370,7 +1370,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all bans for members on the resource.
 	 *
-	 * @param resourceId int Resource <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @return List<BanOnResource> membersBansOnResource
 	 */
 	getBansForResource {
@@ -1388,7 +1388,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 *  Get all enriched bans for members on the resource.
 	 *
 	 * @param resource int Resource <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<BanOnResource> enriched bans on resource
 	 * @throw ResourceNotExistsException
 	 */
@@ -1411,7 +1411,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 *  Get all enriched bans for user's members on resources.
 	 *
 	 * @param user int user <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<BanOnResource> enriched bans for user
 	 * @throw UserNotExistsException
 	 */
