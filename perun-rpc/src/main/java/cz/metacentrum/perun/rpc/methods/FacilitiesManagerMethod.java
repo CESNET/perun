@@ -1616,7 +1616,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *  Get all enriched bans for users on the facility.
 	 *
 	 * @param facility int Facility <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<EnrichedBanOnFacility> enriched bans on facility
 	 * @throw FacilityNotExistsException
 	 */
@@ -1639,7 +1639,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *  Get all user's enriched bans on assigned facilities.
 	 *
 	 * @param user int user <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<EnrichedBanOnFacility> enriched bans for user
 	 * @throw UserNotExistsException
 	 */
@@ -1703,7 +1703,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	};
-	
+
 	private static Facility getFacility(ApiCaller ac, Deserializer parms) throws PerunException {
 		if (parms.contains("facilityName")) return ac.getFacilityByName(parms.readString("facilityName"));
 		else return ac.getFacilityById(parms.readInt("facility"));
