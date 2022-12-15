@@ -69,6 +69,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
@@ -131,7 +133,10 @@ public class Utils {
 	private static Properties properties;
 	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 	public static final Pattern ucoEmailPattern = Pattern.compile("^[0-9]+@muni\\.cz$");
-	public static final DateTimeFormatter lastAccessFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+	public static final DateTimeFormatter lastAccessFormatter = new DateTimeFormatterBuilder()
+		.appendPattern("yyyy-MM-dd HH:mm:ss")
+		.appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
+		.toFormatter();
 
 	private static final Pattern titleBeforePattern = Pattern.compile("^(([\\p{L}]+[.])|(et))$");
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
