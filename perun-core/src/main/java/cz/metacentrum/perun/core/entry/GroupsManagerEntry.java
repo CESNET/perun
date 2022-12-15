@@ -1643,6 +1643,24 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public void allowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException, RelationExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		for (Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "group-allowGroupToHierarchicalVo_Group_Vo_policy", group) ||
+				!AuthzResolver.authorizedInternal(sess, "vo-allowGroupToHierarchicalVo_Group_Vo_policy", vo)) {
+				throw new PrivilegeException(sess, "allowGroupsToHierarchicalVo");
+			}
+
+			getGroupsManagerBl().allowGroupToHierarchicalVo(sess, group, vo);
+		}
+	}
+
+	@Override
 	public void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -1655,6 +1673,24 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		getGroupsManagerBl().disallowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public void disallowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		for (Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "group-disallowGroupToHierarchicalVo_Group_Vo_policy", group) ||
+				!AuthzResolver.authorizedInternal(sess, "vo-disallowGroupToHierarchicalVo_Group_Vo_policy", vo)) {
+				throw new PrivilegeException(sess, "disallowGroupsToHierarchicalVo");
+			}
+
+			getGroupsManagerBl().disallowGroupToHierarchicalVo(sess, group, vo);
+		}
 	}
 
 	@Override

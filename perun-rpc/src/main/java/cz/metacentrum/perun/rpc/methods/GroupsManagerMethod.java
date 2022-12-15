@@ -2035,6 +2035,36 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Sets flag required for including groups to parent vo in a vo hierarchy.
+	 *
+	 * @param groups List<Integer> <code>id</code> of groups
+	 * @param vo int Vo <code>id</code>
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not from parent vo's member vos
+	 * @throw RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	allowGroupsToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupId : parms.readList("groups", Integer.class)) {
+				groups.add(ac.getGroupById(groupId));
+			}
+
+			Vo vo = ac.getVoById(parms.readInt("vo"));
+
+			ac.getGroupsManager().allowGroupsToHierarchicalVo(ac.getSession(),
+				groups,
+				vo);
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Unsets flag required for including group to parent vo in a vo hierarchy.
 	 *
 	 * @param group id of group
@@ -2050,6 +2080,35 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			ac.getGroupsManager().disallowGroupToHierarchicalVo(ac.getSession(),
 				ac.getGroupById(parms.readInt("group")),
 				ac.getVoById(parms.readInt("vo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Unsets flag required for including groups to parent vo in a vo hierarchy.
+	 *
+	 * @param groups List<Integer> <code>id</code> of groups
+	 * @param vo int VO <code>id</code>
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	disallowGroupsToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupId : parms.readList("groups", Integer.class)) {
+				groups.add(ac.getGroupById(groupId));
+			}
+
+			Vo vo = ac.getVoById(parms.readInt("vo"));
+
+			ac.getGroupsManager().disallowGroupsToHierarchicalVo(ac.getSession(),
+				groups,
+				vo);
+
 			return null;
 		}
 	},

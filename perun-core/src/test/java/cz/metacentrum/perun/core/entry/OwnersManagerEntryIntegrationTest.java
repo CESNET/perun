@@ -66,6 +66,17 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		ownersManagerEntry.getOwnerById(sess, createdOwner.getId());
 	}
 
+	@Test()
+	public void testDeleteOwners() throws Exception {
+		System.out.println(CLASS_NAME + "testDeleteOwners");
+
+		Owner createdOwner2 = ownersManagerEntry.createOwner(sess, new Owner(1234,"test","test",OwnerType.technical));
+		assertEquals(2, ownersManagerEntry.getOwners(sess).size());
+
+		ownersManagerEntry.deleteOwners(sess, List.of(createdOwner, createdOwner2), true);
+		assertEquals(0, ownersManagerEntry.getOwners(sess).size());
+	}
+
 	/**
 	 * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwnerById(cz.metacentrum.perun.core.api.PerunSession, int)}.
 	 */

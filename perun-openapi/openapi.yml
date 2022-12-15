@@ -3101,11 +3101,31 @@ components:
       in: query
       required: true
 
+    ownerIds:
+      name: owners[]
+      description: "list of owner ids"
+      schema:
+        type: array
+        items:
+          type: integer
+      in: query
+      required: true
+
     ownerName:
       name: owner
       description: "name of Owner"
       schema:
         type: string
+      in: query
+      required: true
+
+    ownerNames:
+      name: ownerNames[]
+      description: "list of owner names"
+      schema:
+        type: array
+        items:
+          type: string
       in: query
       required: true
 
@@ -10796,6 +10816,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addOwners:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwners
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addOwner/f-o-name:
     post:
       tags:
@@ -10805,6 +10840,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwners/f-o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnersByFacilityNameOwnerName
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10826,6 +10876,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addOwners/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnersByFacilityName
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addOwner/o-name:
     post:
       tags:
@@ -10835,6 +10900,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwners/o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnersByOwnerName
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10856,6 +10936,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeOwners:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwners
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/removeOwner/f-o-name:
     post:
       tags:
@@ -10865,6 +10960,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeOwners/f-o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnersByFacilityNameOwnerName
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10886,6 +10996,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeOwners/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnersByFacilityName
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/removeOwner/o-name:
     post:
       tags:
@@ -10895,6 +11020,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeOwners/o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnersByOwnerName
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -12185,12 +12325,27 @@ paths:
       summary: Deletes Owner specified by id. Returns null.
       responses:
         '200':
-          $ref: '#/components/responses/OwnerResponse'
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       parameters:
         - $ref: '#/components/parameters/ownerId'
         - $ref: '#/components/parameters/forceDelete'
+
+  /urlinjsonout/ownersManager/deleteOwners:
+    post:
+      tags:
+        - OwnersManager
+      operationId: deleteOwners
+      summary: Deletes owners by ids. Returns null.
+      parameters:
+        - $ref: '#/components/parameters/ownerIds'
+        - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/ownersManager/getOwnerById:
     get:
@@ -12994,6 +13149,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/allowGroupsToHierarchicalVo:
+    post:
+      tags:
+        - GroupsManager
+      operationId: allowGroupsToHierarchicalVo
+      summary: Sets flag required for including groups to parent vo in a vo hierarchy.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/disallowGroupToHierarchicalVo:
     post:
       tags:
@@ -13002,6 +13172,21 @@ paths:
       summary: Unsets flag required for including group to parent vo in a vo hierarchy.
       parameters:
         - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/disallowGroupsToHierarchicalVo:
+    post:
+      tags:
+        - GroupsManager
+      operationId: disallowGroupsToHierarchicalVo
+      summary: Unsets flag required for including groups to parent vo in a vo hierarchy.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
         - $ref: '#/components/parameters/voId'
       responses:
         '200':

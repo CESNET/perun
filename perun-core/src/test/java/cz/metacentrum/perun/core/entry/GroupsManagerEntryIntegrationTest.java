@@ -6438,6 +6438,28 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void allowGroupsToHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "allowGroupsToHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		groupsManager.createGroup(sess, memberVo, group2);
+		List<Group> groups = List.of(group, group2);
+
+		for (Group g : groups) {
+			assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+
+		groupsManager.allowGroupsToHierarchicalVo(sess, groups, vo);
+		for (Group g : groups) {
+			assertTrue(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+	}
+
+	@Test
 	public void allowGroupToNonParentHierarchicalVo() throws Exception {
 		System.out.println(CLASS_NAME + "allowGroupToNonParentHierarchicalVo");
 
@@ -6482,6 +6504,33 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.disallowGroupToHierarchicalVo(sess, group, vo);
 		assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
+	}
+
+	@Test
+	public void disallowGroupsToHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "disallowGroupsToHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		groupsManager.createGroup(sess, memberVo, group2);
+		List<Group> groups = List.of(group, group2);
+
+		for (Group g : groups) {
+			assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+
+		groupsManager.allowGroupsToHierarchicalVo(sess, groups, vo);
+		for (Group g : groups) {
+			assertTrue(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+
+		groupsManager.disallowGroupsToHierarchicalVo(sess, groups, vo);
+		for (Group g : groups) {
+			assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
 	}
 
 	@Test

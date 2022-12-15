@@ -453,7 +453,7 @@ public interface GroupsManager {
 	 *
 	 * Do not return expired members of the group.
 	 *
-	 * @param sess perun session
+	 * @param perunSession perun session
 	 * @param group to get members from
 	 * @return list of active (valid) members
 	 *
@@ -468,7 +468,7 @@ public interface GroupsManager {
 	 *
 	 * Do not return active members of the group.
 	 *
-	 * @param sess perun session
+	 * @param perunSession perun session
 	 * @param group to get members from
 	 * @return list of inactive (expired) members
 	 *
@@ -1429,6 +1429,20 @@ public interface GroupsManager {
 	 */
 	void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException, RelationExistsException;
 
+
+	/**
+	 * Sets flag required for including groups to parent vo in a vo hierarchy.
+	 * @param sess perun session
+	 * @param groups list of groups
+	 * @param vo parent vo
+	 * @throws VoNotExistsException if vo does not exist
+	 * @throws GroupNotExistsException if group does not exist
+	 * @throws PrivilegeException insufficient rights
+	 * @throws RelationNotExistsException if group is not from parent vo's member vos
+	 * @throws RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	void allowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException, RelationExistsException;
+
 	/**
 	 * Unsets flag required for including group to parent vo in a vo hierarchy
 	 * @param sess perun session
@@ -1440,6 +1454,18 @@ public interface GroupsManager {
 	 * @throws RelationNotExistsException if group is not allowed to be included in parent vo
 	 */
 	void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException;
+
+	/**
+	 * Unsets flag required for including groups to parent vo in a vo hierarchy
+	 * @param sess perun session
+	 * @param groups list of groups
+	 * @param vo parent vo
+	 * @throws VoNotExistsException if vo does not exist
+	 * @throws GroupNotExistsException if group does not exist
+	 * @throws PrivilegeException insufficient rights
+	 * @throws RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	void disallowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException;
 
 	/**
 	 * Returns flag representing if the group can be included in the (parent) vo's groups

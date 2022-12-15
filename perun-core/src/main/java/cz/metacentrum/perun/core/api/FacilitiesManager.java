@@ -163,9 +163,37 @@ public interface FacilitiesManager {
 	void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException;
 
 	/**
+	 * Add owners of the facility
+	 *
+	 * @param sess perun session
+	 * @param facility facility
+	 * @param owners list of owners to be added
+	 *
+	 * @throws PrivilegeException when the principal does not have sufficient rights
+	 * @throws OwnerNotExistsException when owner does not exist
+	 * @throws FacilityNotExistsException when facility does not exist
+	 * @throws OwnerAlreadyAssignedException when owner was already assigned to the facility
+	 */
+	void addOwners(PerunSession sess, Facility facility, List<Owner> owners) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException;
+
+	/**
 	 * Remove owner of the facility
 	 */
 	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
+
+	/**
+	 * Remove owners of the facility
+	 *
+	 * @param sess perun session
+	 * @param facility facility
+	 * @param owners list of owners to be removed
+	 *
+	 * @throws PrivilegeException when the principal does not have sufficient rights
+	 * @throws OwnerNotExistsException when owner does not exist
+	 * @throws FacilityNotExistsException when facility does not exist
+	 * @throws OwnerAlreadyRemovedException when owner was already removed from the facility
+	 */
+	void removeOwners(PerunSession sess, Facility facility, List<Owner> owners) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
 
 	/**
 	 * Copy all owners of the source facility to the destination facility.
