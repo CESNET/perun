@@ -88,6 +88,13 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
+	public void blockServicesOnDestinations(PerunSession sess, List<RichDestination> richDestinations) throws PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException, FacilityNotExistsException {
+		for (RichDestination richDestination : richDestinations) {
+			blockServiceOnDestination(sess, richDestination.getService(), richDestination.getId());
+		}
+	}
+
+	@Override
 	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws FacilityNotExistsException, PrivilegeException {
 
 		// Authorization
@@ -224,6 +231,13 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
+	public void unblockServicesOnDestinations(PerunSession sess, List<RichDestination> richDestinations) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException {
+		for(RichDestination richDestination : richDestinations) {
+			unblockServiceOnDestination(sess, richDestination.getService(), richDestination.getId());
+		}
+	}
+
+	@Override
 	public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) throws PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "forceServicePropagation_Facility_Service_policy", Arrays.asList(service, facility))) {
@@ -298,6 +312,13 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().checkServiceExists(sess, service);
 
 		getServicesManagerBl().deleteService(sess, service, forceFlag);
+	}
+
+	@Override
+	public void deleteServices(PerunSession sess, List<Service> services, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
+		for (Service service : services) {
+			deleteService(sess, service, forceFlag);
+		}
 	}
 
 	@Override
@@ -793,6 +814,13 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.notNull(destination.getType(), "destination.type");
 
 		getServicesManagerBl().removeDestination(sess, service, facility, destination);
+	}
+
+	@Override
+	public void removeDestinationsByRichDestinations(PerunSession sess, List<RichDestination> richDestinations) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException {
+		for (RichDestination richDestination : richDestinations) {
+			removeDestination(sess, richDestination.getService(), richDestination.getFacility(), richDestination);
+		}
 	}
 
 	@Override

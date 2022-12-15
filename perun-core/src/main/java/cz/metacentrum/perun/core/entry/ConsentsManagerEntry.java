@@ -337,6 +337,13 @@ public class ConsentsManagerEntry implements ConsentsManager {
 	}
 
 	@Override
+	public void evaluateConsents(PerunSession sess, List<ConsentHub> consentHubs) throws PrivilegeException {
+		for (ConsentHub consentHub : consentHubs) {
+			evaluateConsents(sess, consentHub);
+		}
+	}
+
+	@Override
 	public void evaluateConsents(PerunSession sess, Service service) throws PrivilegeException {
 		Utils.notNull(sess, "sess");
 

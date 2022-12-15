@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -748,6 +749,70 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		consents2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
 		assertThat(consents1).containsExactly(expectedConsent1);
 		assertThat(consents2).containsExactly(expectedConsent2);
+	}
+
+	@Test
+	public void evaluateConsentsForConsentHubsCreatesConsents() throws Exception {
+		System.out.println(CLASS_NAME + "evaluateConsentsForConsentHubsCreatesConsents");
+
+		User user1 = setUpUser("Jon", "Snow");
+		User user2 = setUpUser("Daenerys", "Targaryen");
+		User user3 = setUpUser("Jaime", "Lannister");
+		User user4 = setUpUser("Arya", "Stark");
+		Member member1 = perun.getMembersManager().createMember(sess, vo, user1);
+		Member member2 = perun.getMembersManager().createMember(sess, vo, user2);
+		Member member3 = perun.getMembersManager().createMember(sess, vo, user3);
+		Member member4 = perun.getMembersManager().createMember(sess, vo, user4);
+
+		perun.getGroupsManagerBl().addMember(sess, group, member1);
+		perun.getGroupsManagerBl().addMember(sess, group, member2);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.VALID);
+
+		Facility facility2 = setUpFacility("ConsentsTestFacility2");
+		Resource resource2 = setUpResource("testResource2", "testResource2", facility2, vo);
+		perun.getResourcesManagerBl().assignService(sess, resource2, service);
+
+		// add member to a group assigned to the resource
+		Group group2 = new Group("test2", "test group 2");
+		group2 = perun.getGroupsManagerBl().createGroup(sess, vo, group2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2, false, false, false);
+		perun.getGroupsManagerBl().addMember(sess, group2, member3);
+		perun.getGroupsManagerBl().addMember(sess, group2, member4);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group2, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member4, group2, MemberGroupStatus.VALID);
+
+		// validate both members in Vo, otherwise they will be skipped
+		perun.getMembersManagerBl().validateMember(sess, member1);
+		perun.getMembersManagerBl().validateMember(sess, member2);
+		perun.getMembersManagerBl().validateMember(sess, member3);
+		perun.getMembersManagerBl().validateMember(sess, member4);
+
+		ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+		ConsentHub consentHub2 = consentsManagerEntry.getConsentHubByFacility(sess, facility2.getId());
+		List<ConsentHub> consents = Arrays.asList(consentHub, consentHub2);
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+		try {
+			BeansUtils.getCoreConfig().setForceConsents(true);
+			perun.getConsentsManager().evaluateConsents(sess, consents);
+		} finally {
+			BeansUtils.getCoreConfig().setForceConsents(originalForce);
+		}
+
+		List<Consent> consentsUser1 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+		List<Consent> consentsUser2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
+		List<Consent> consentsUser3 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user3.getId(), consentHub2.getId());
+		List<Consent> consentsUser4 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user4.getId(), consentHub2.getId());
+
+		Consent expectedConsent1 = new Consent(consentsUser1.get(0).getId(), user1.getId(), consentHub, List.of(attrDef));
+		assertThat(consentsUser1).containsExactly(expectedConsent1);
+		Consent expectedConsent2 = new Consent(consentsUser2.get(0).getId(), user2.getId(), consentHub, List.of(attrDef));
+		assertThat(consentsUser2).containsExactly(expectedConsent2);
+		Consent expectedConsent3 = new Consent(consentsUser3.get(0).getId(), user3.getId(), consentHub2, List.of(attrDef));
+		assertThat(consentsUser3).containsExactly(expectedConsent3);
+		Consent expectedConsent4 = new Consent(consentsUser4.get(0).getId(), user4.getId(), consentHub2, List.of(attrDef));
+		assertThat(consentsUser4).containsExactly(expectedConsent4);
 	}
 
 	@Test

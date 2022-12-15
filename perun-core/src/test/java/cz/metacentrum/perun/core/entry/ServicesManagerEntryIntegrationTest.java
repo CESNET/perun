@@ -41,9 +41,11 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +154,38 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().deleteService(sess, service, false);
 		// shouldn't deleted service assigned to resource
 
+	}
+
+	@Test
+	public void deleteServices() throws Exception {
+		System.out.println(CLASS_NAME + "deleteServices");
+
+		service = setUpService();
+		Service service2 = new Service();
+		service2.setName("ServicesManagerTestService2");
+		service2 = perun.getServicesManager().createService(sess, service2);
+		assertNotNull("unable to create service2",service2);
+		Service service3 = new Service();
+		service3.setName("ServicesManagerTestService3");
+		service3 = perun.getServicesManager().createService(sess, service3);
+		assertNotNull("unable to create service3",service3);
+
+
+		List<Service> services = Arrays.asList(service, service2, service3);
+		int initialCountOfServices = perun.getServicesManager().getServices(sess).size();
+
+		perun.getServicesManager().deleteServices(sess, services, false);
+
+		Assertions.assertThatExceptionOfType(ServiceNotExistsException.class).isThrownBy(
+			() -> perun.getServicesManager().getServiceById(sess, service.getId()));
+		int service2Id = service2.getId();
+		Assertions.assertThatExceptionOfType(ServiceNotExistsException.class).isThrownBy(
+			() -> perun.getServicesManager().getServiceById(sess, service2Id));
+		int service3Id = service3.getId();
+		Assertions.assertThatExceptionOfType(ServiceNotExistsException.class).isThrownBy(
+			() -> perun.getServicesManager().getServiceById(sess, service3Id));
+
+		assertEquals("Initial count of services minus three deleted services should be presented", initialCountOfServices - 3, perun.getServicesManager().getServices(sess).size());
 	}
 
 	@Test
@@ -1083,6 +1117,76 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().removeAllDestinations(sess, service, new Facility());
 		// shouldn't find facility
 
+	}
+
+	@Test
+	public void removeDestinations() throws Exception {
+		System.out.println(CLASS_NAME + "removeDestinations");
+
+		facility = setUpFacility();
+		service = setUpService();
+		Service service2 = new Service();
+		service2.setName("ServicesManagerTestService2");
+		service2 = perun.getServicesManager().createService(sess, service2);
+		List<Destination> destinations = setUpDestinations();
+
+		Destination destination1 = perun.getServicesManager().addDestination(sess, service, facility, destinations.get(0));
+		Destination destination2 = perun.getServicesManager().addDestination(sess, service2, facility, destinations.get(1));
+		Destination destination3 = perun.getServicesManager().addDestination(sess, service2, facility, destinations.get(2));
+
+		RichDestination richDestination1 = new RichDestination(destination1, facility, service);
+		RichDestination richDestination2 = new RichDestination(destination2, facility, service2);
+		RichDestination richDestination3 = new RichDestination(destination3, facility, service2);
+
+		List<RichDestination> facilityDestinations = perun.getServicesManager().getAllRichDestinations(sess, facility);
+		perun.getServicesManager().getAllRichDestinations(sess, facility);
+		assertTrue("There need to be richDestination1", facilityDestinations.contains(richDestination1));
+		assertTrue("There need to be richDestination2", facilityDestinations.contains(richDestination2));
+		assertTrue("There need to be richDestination3", facilityDestinations.contains(richDestination3));
+
+		List<RichDestination> destinationsToRemove = Arrays.asList(richDestination1, richDestination2);
+		perun.getServicesManager().removeDestinationsByRichDestinations(sess, destinationsToRemove);
+		facilityDestinations = perun.getServicesManagerBl().getAllRichDestinations(sess, facility);
+
+		assertTrue("Service contains richDestination3", facilityDestinations.contains(richDestination3));
+		assertEquals("Service has exactly 1 richDestination", 1, facilityDestinations.size());
+		// destination and destination2 should be deleted
+		assertThatExceptionOfType(DestinationNotExistsException.class)
+			.isThrownBy(() -> perun.getServicesManager().getDestinationById(sess, destination1.getId()));
+		assertThatExceptionOfType(DestinationNotExistsException.class)
+			.isThrownBy(() -> perun.getServicesManager().getDestinationById(sess, destination2.getId()));
+	}
+
+	@Test
+	public void blockAndUnblockServiceOnDestinations() throws Exception {
+		System.out.println(CLASS_NAME + "blockAndUnblockServiceOnDestinations");
+
+		facility = setUpFacility();
+		service = setUpService();
+		Service service2 = new Service();
+		service2.setName("ServicesManagerTestService2");
+		service2 = perun.getServicesManager().createService(sess, service2);
+		List<Destination> destinations = setUpDestinations();
+
+		Destination destination1 = perun.getServicesManager().addDestination(sess, service, facility, destinations.get(0));
+		Destination destination2 = perun.getServicesManager().addDestination(sess, service2, facility, destinations.get(1));
+		Destination destination3 = perun.getServicesManager().addDestination(sess, service2, facility, destinations.get(2));
+
+		RichDestination richDestination1 = new RichDestination(destination1, facility, service);
+		RichDestination richDestination2 = new RichDestination(destination2, facility, service2);
+		RichDestination richDestination3 = new RichDestination(destination3, facility, service2);
+
+		List<RichDestination> serviceDestinations = perun.getServicesManagerBl().getAllRichDestinations(sess, facility);
+		assertTrue("There need to be richDestination1", serviceDestinations.contains(richDestination1));
+		assertTrue("There need to be richDestination2", serviceDestinations.contains(richDestination2));
+		assertTrue("There need to be richDestination3", serviceDestinations.contains(richDestination3));
+
+		List<RichDestination> destinationsToBlock = Arrays.asList(richDestination1, richDestination2);
+		perun.getServicesManager().blockServicesOnDestinations(sess, destinationsToBlock);
+
+		assertTrue("Service should be blocked on the richDestination1", perun.getServicesManager().isServiceBlockedOnDestination(sess, service, destination1.getId()));
+		assertTrue("Service should be blocked on the richDestination2", perun.getServicesManager().isServiceBlockedOnDestination(sess, service2, destination2.getId()));
+		assertFalse("Service should NOT be blocked on the richDestination3", perun.getServicesManager().isServiceBlockedOnDestination(sess, service2, destination3.getId()));
 	}
 
 	@Test
@@ -2346,6 +2450,22 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		//destination = perun.getServicesManager().addDestination(sess, service, facility, destination);
 
 		return destination;
+
+	}
+
+	private List<Destination> setUpDestinations() {
+
+		Destination destination1 = new Destination();
+		destination1.setDestination("testDestination");
+		destination1.setType("service-specific");
+		Destination destination2 = new Destination();
+		destination2.setDestination("testDestination2");
+		destination2.setType("service-specific");
+		Destination destination3 = new Destination();
+		destination3.setDestination("testDestination3");
+		destination3.setType("service-specific");
+
+		return Arrays.asList(destination1, destination2, destination3);
 
 	}
 

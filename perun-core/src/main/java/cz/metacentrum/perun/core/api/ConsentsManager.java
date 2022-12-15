@@ -192,6 +192,15 @@ public interface ConsentsManager {
 	void evaluateConsents(PerunSession sess, ConsentHub consentHub) throws PrivilegeException;
 
 	/**
+	 * Evaluates consents for given list of consent hubs with enforced consents enabled.
+	 *
+	 * Service defines whether only active users will be evaluated or expired ones as well.
+	 *  @param sess session
+	 * @param consentHubs consent hubs
+	 */
+	void evaluateConsents(PerunSession sess, List<ConsentHub> consentHubs) throws PrivilegeException;
+
+	/**
 	 * Evaluates consents for given service for all consent hubs with given service with enforced consents enabled.
 	 *
 	 * Corresponding consent hubs (containing the service) will have consents evaluated ONLY for selected service.
