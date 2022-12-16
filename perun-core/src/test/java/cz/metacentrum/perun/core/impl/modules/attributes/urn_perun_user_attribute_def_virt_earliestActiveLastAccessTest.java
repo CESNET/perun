@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -52,10 +53,11 @@ public class urn_perun_user_attribute_def_virt_earliestActiveLastAccessTest {
 		ues3 = new UserExtSource(10, new ExtSource(100, "earliestAccessExtSource3", ExtSourcesManager.EXTSOURCE_IDP), "login");
 		ues4 = new UserExtSource(10, new ExtSource(100, "earliestAccessExtSource4", ExtSourcesManager.EXTSOURCE_IDP), "login");
 
-		ues1.setLastAccess(LocalDateTime.now().minusMonths(validity+1).format(Utils.lastAccessFormatter));
+		// try variable length of seconds fractions in last access timestamp
+		ues1.setLastAccess(LocalDateTime.now().minusMonths(validity+1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS")));
 		ues2.setLastAccess(LocalDateTime.now().minusMonths(validity-1).format(Utils.lastAccessFormatter));
 		ues3.setLastAccess(LocalDateTime.now().minusMonths(validity-2).format(Utils.lastAccessFormatter));
-		ues4.setLastAccess(LocalDateTime.now().minusMonths(validity-3).format(Utils.lastAccessFormatter));
+		ues4.setLastAccess(LocalDateTime.now().minusMonths(validity-3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
 
 		attrDef = new AttributeDefinition();
 		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
