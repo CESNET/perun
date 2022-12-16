@@ -4680,9 +4680,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
-		if (changed)
-			log.info("{} removed attribute {} from resource {}.",sess.getLogId(), attribute.getName(), resource.getId());
-		getPerunBl().getAuditer().log(sess, new AttributeRemovedForResource(new AttributeDefinition(attribute), resource));
+		if (changed) {
+			log.info("{} removed attribute {} from resource {}.", sess.getLogId(), attribute.getName(), resource.getId());
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForResource(new AttributeDefinition(attribute), resource));
+		}
 		return changed;
 	}
 
@@ -5161,11 +5162,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().removeAttribute(sess, resource, group, attribute);
 		}
 
-		if (changed)
+		if (changed) {
 			getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
-		if (changed)
 			log.info("{} removed attribute {} from group {} on resource {}.", sess.getLogId(), attribute.getName(), group.getId(), resource.getId());
-		getPerunBl().getAuditer().log(sess, new AttributeRemovedForGroupAndResource(new AttributeDefinition(attribute), group, resource));
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForGroupAndResource(new AttributeDefinition(attribute), group, resource));
+		}
 		return changed;
 	}
 
