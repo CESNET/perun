@@ -58,6 +58,21 @@ public interface OwnersManager {
 	void deleteOwner(PerunSession perunSession, Owner owner, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException;
 
 	/**
+	 * Delete owners from underlaying data source.
+	 *
+	 * @param sess perun session
+	 * @param owners list of owners
+	 * @param forceDelete
+	 *
+	 * @throws OwnerNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws RelationExistsException
+	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 */
+	void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException;
+
+	/**
 	 * Find owner by id.
 	 *
 	 * @param perunSession

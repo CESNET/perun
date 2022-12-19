@@ -258,6 +258,51 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	addOwners {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<Owner> owners = new ArrayList<>();
+			if (parms.contains("ownerNames")) {
+				for (String ownerName : parms.readList("ownerNames", String.class)) {
+					owners.add(ac.getOwnerByName(ownerName));
+				}
+			} else {
+				for (Integer ownerId : parms.readList("owners", Integer.class)) {
+					owners.add(ac.getOwnerById(ownerId));
+				}
+			}
+
+			ac.getFacilitiesManager().addOwners(ac.getSession(),
+				getFacility(ac, parms),
+				owners);
+			return null;
+		}
+	},
+
+	/*#
 	 * Remove owner of a facility.
 	 *
 	 * @param facilityName String Facility name
@@ -292,6 +337,52 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			ac.getFacilitiesManager().removeOwner(ac.getSession(),
 					getFacility(ac, parms),
 					owner);
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	removeOwners {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<Owner> owners = new ArrayList<>();
+			if (parms.contains("ownerNames")) {
+				for (String ownerName : parms.readList("ownerNames", String.class)) {
+					owners.add(ac.getOwnerByName(ownerName));
+				}
+			} else {
+				for (Integer ownerId : parms.readList("owners", Integer.class)) {
+					owners.add(ac.getOwnerById(ownerId));
+				}
+			}
+
+			ac.getFacilitiesManager().removeOwners(ac.getSession(),
+				getFacility(ac, parms),
+				owners);
 			return null;
 		}
 	},

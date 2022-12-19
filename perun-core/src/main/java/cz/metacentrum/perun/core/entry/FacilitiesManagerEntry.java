@@ -295,6 +295,23 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
+	public void addOwners(PerunSession sess, Facility facility, List<Owner> owners) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException {
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		for (Owner owner : owners) {
+			getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "addOwner_Facility_Owner_policy", Arrays.asList(facility, owner))) {
+				throw new PrivilegeException(sess, "addOwners");
+			}
+
+			getFacilitiesManagerBl().addOwner(sess, facility, owner);
+		}
+	}
+
+	@Override
 	public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -307,6 +324,23 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		getFacilitiesManagerBl().removeOwner(sess, facility, owner);
+	}
+
+	@Override
+	public void removeOwners(PerunSession sess, Facility facility, List<Owner> owners) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		for (Owner owner : owners) {
+			getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "removeOwner_Facility_Owner_policy", Arrays.asList(facility, owner))) {
+				throw new PrivilegeException(sess, "removeOwners");
+			}
+
+			getFacilitiesManagerBl().removeOwner(sess, facility, owner);
+		}
 	}
 
 	@Override
