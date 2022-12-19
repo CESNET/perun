@@ -121,6 +121,36 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void bulkAddRemoveExtSources() throws Exception {
+		System.out.println(CLASS_NAME + "bulkAddRemoveExtSources");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testVo", "testVo1"));
+		Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("testGroup", "test"));
+
+
+		ExtSource extSource1 = new ExtSource("testExtSource1", ExtSourcesManager.EXTSOURCE_INTERNAL);
+		ExtSource extSource2 = new ExtSource("testExtSource2", ExtSourcesManager.EXTSOURCE_INTERNAL);
+
+		extSourcesManagerEntry.createExtSource(sess, extSource1, null);
+		extSourcesManagerEntry.createExtSource(sess, extSource2, null);
+
+		extSourcesManagerEntry.addExtSources(sess, vo, List.of(extSource1, extSource2));
+		extSourcesManagerEntry.addExtSources(sess, group, List.of(extSource1, extSource2));
+
+		assertTrue(extSourcesManagerEntry.getVoExtSources(sess, vo).containsAll(List.of(extSource1, extSource2)));
+		assertTrue(extSourcesManagerEntry.getGroupExtSources(sess, group).containsAll(List.of(extSource1, extSource2)));
+
+		extSourcesManagerEntry.removeExtSources(sess, group, List.of(extSource1, extSource2));
+
+		assertTrue(extSourcesManagerEntry.getGroupExtSources(sess, group).isEmpty());
+
+		extSourcesManagerEntry.removeExtSources(sess, vo, List.of(extSource1, extSource2));
+
+		assertTrue(extSourcesManagerEntry.getVoExtSources(sess, vo).isEmpty());
+
+	}
+
+	@Test
 	public void testGetGroupExtSources() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupExtSources");
 

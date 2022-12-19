@@ -3183,6 +3183,16 @@ components:
       in: query
       required: true
 
+    extSourceIds:
+      name: "extSources[]"
+      description: "list of extSource ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     resultGroupId:
       name: resultGroup
       description: "id of Group to have removed 'operandGroup' from subgroups"
@@ -8446,6 +8456,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/extSourcesManager/addExtSources/v-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: addExtSourcesWithVoSource
+      summary: Associate external source definitions with a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/extSourceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /urlinjsonout/extSourcesManager/addExtSource/g-s:
     post:
       tags:
@@ -8455,6 +8481,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/extSourcesManager/addExtSources/g-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: addExtSourcesWithGroupSource
+      summary: Associate external source definitions with a GROUP.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/extSourceIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8476,6 +8517,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/extSourcesManager/removeExtSources/v-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: removeExtSourcesWithVoSource
+      summary: remove associations of external source definitions with a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/extSourceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/extSourcesManager/removeExtSource/g-s:
     post:
       tags:
@@ -8485,6 +8541,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/extSourcesManager/removeExtSources/g-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: removeExtSourcesWithGroupSource
+      summary: Remove associations of external source definitions with a GROUP.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/extSourceIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -17543,6 +17614,28 @@ paths:
                 - taskResultId
               properties:
                 taskResultId: { type: integer, description: "task result id", nullable: false }
+
+  /urlinjsonout/tasksManager/deleteTaskResultsByIds:
+    post:
+      tags:
+        - TasksManager
+      operationId: deleteTaskResultsByIds
+      summary: Delete TaskResults by their IDs. TaskResults are expected to be from the same facility.
+      parameters:
+        - { name: taskResultIds,
+            description: "list of TaskResult ids",
+            schema: {
+              type: array,
+              items: { type: integer }
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/tasksManager/deleteTaskResults/id:
     post:
