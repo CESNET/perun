@@ -903,11 +903,31 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource <code>id</code>
 	 * @param service int Service <code>id</code>
 	 */
+
+	/*#
+	 * Removes service from multiple resources in the same facility.
+	 *
+	 * @param resources List<Integer> Resource <code>id</code>
+	 * @param service int Service <code>id</code>
+	 */
 	removeService {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
+
+			if (parms.contains("resources")) {
+				List<Resource> resources = new ArrayList<>();
+
+				for (Integer resourceId : parms.readList("resources", Integer.class)) {
+					resources.add(ac.getResourceById(resourceId));
+				}
+
+				ac.getResourcesManager().removeService(ac.getSession(),
+					resources,
+					ac.getServiceById(parms.readInt("service")));
+				return null;
+			}
 
 			ac.getResourcesManager().removeService(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),

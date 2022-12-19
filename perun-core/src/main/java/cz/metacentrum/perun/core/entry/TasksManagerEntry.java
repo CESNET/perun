@@ -90,7 +90,7 @@ public class TasksManagerEntry implements TasksManager {
 			Task currTask = tasksManagerBl.getTaskById(sess, currResult.getTaskId());
 			Facility currFac = currTask.getFacility();
 			if (currFac.getId() != facility.getId()) {
-				throw new FacilityMismatchException("Tasks are from different facilities.");
+				throw new FacilityMismatchException("Tasks are from different facilities.", facility, currFac);
 			}
 			tasksManagerBl.deleteTaskResultById(sess, resultId);
 		}
