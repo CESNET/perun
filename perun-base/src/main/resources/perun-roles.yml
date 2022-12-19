@@ -5358,6 +5358,7 @@ perun_policies:
   getDestinationById_int_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - RPC:
       - ENGINE:
       - FACILITYADMIN:
       - FACILITYOBSERVER:

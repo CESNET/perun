@@ -65,6 +65,17 @@ public interface ServicesManager {
 	void blockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException, FacilityNotExistsException;
 
 	/**
+	 * Bans the Service on the destination - each pair defined by the rich destination.
+	 * It wouldn't be possible to execute the given Service on this destination, however,
+	 * it still can be executed on all the other destinations in the facility.
+	 *
+	 * @param perunSession
+	 * @param richDestinations the list of rich destinations
+	 *
+	 */
+	void blockServicesOnDestinations(PerunSession perunSession, List<RichDestination> richDestinations) throws PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException, FacilityNotExistsException;
+
+	/**
 	 * Block all services currently assigned on this facility.
 	 * From this moment on, there are no Services being allowed on this facility.
 	 * If you assign a new service to the facility, it will be allowed!
@@ -182,6 +193,17 @@ public interface ServicesManager {
 	void unblockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException;
 
 	/**
+	 * Free the denial of the Service on the destination - each pair defined by the rich destination.
+	 * If the Service was banned on the destination, it will be freed.
+	 * In case the Service was not banned on the destination, nothing will happen.
+	 *
+	 * @param perunSession
+	 * @param richDestinations the list of rich destinations
+	 *
+	 */
+	void unblockServicesOnDestinations(PerunSession perunSession, List<RichDestination> richDestinations) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException;
+
+	/**
 	 * Forces service propagation on defined facility.
 	 *
 	 * @param perunSession
@@ -265,6 +287,20 @@ public interface ServicesManager {
 	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
 	void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
+
+	/**
+	 * Deletes given services.
+	 *
+	 * @param perunSession
+	 * @param services list of services
+	 * @param forceFlag if true, removes all dependant objects from database instead of raising exception
+	 * @throws InternalErrorException
+	 * @throws ServiceNotExistsException
+	 * @throws PrivilegeException
+	 * @throws RelationExistsException
+	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 */
+	void deleteServices(PerunSession perunSession, List<Service> services, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
 
 	/** Updates the service.
 	 *
@@ -952,6 +988,20 @@ public interface ServicesManager {
 	 * @throws DestinationAlreadyRemovedException
 	 */
 	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException;
+
+	/**
+	 * Removes destinations defined by list of rich destinations.
+	 * Each destination is removed from the rich destination's facility and service.
+	 *
+	 * @param perunSession
+	 * @param richDestinations list of rich destinations
+	 * @throws PrivilegeException
+	 * @throws InternalErrorException
+	 * @throws ServiceNotExistsException
+	 * @throws FacilityNotExistsException
+	 * @throws DestinationAlreadyRemovedException
+	 */
+	void removeDestinationsByRichDestinations(PerunSession perunSession, List<RichDestination> richDestinations) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException;
 
 	/**
 	 * Get destination by id

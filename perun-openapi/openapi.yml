@@ -2780,6 +2780,16 @@ components:
       in: query
       required: true
 
+    consentHubIds:
+      name: "consentHubs[]"
+      description: "list of ConsentHub ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     consentId:
       name: consent
       description: "id of Consent"
@@ -3084,6 +3094,16 @@ components:
         type: integer
       in: query
       required: true
+
+    destinationIds:
+      name: "destinations[]"
+      description: "list of Destination ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
 
     destinationName:
       name: destination
@@ -16584,6 +16604,45 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/servicesManager/blockServiceOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServiceOnDestinations
+      summary: Bans Service on given destinations.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/blockServicesOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServicesOnDestinations
+      summary: Bans the Service on the destination - each pair defined by the rich destination.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputBlockServicesOnDestinations
+              description: "input to blockServicesOnDestinations"
+              type: object
+              required:
+                - richDestinations
+              properties:
+                richDestinations: { type: array, items: { $ref: '#/components/schemas/RichDestination' } }
+
   /urlinjsonout/servicesManager/blockAllServicesOnFacility:
     post:
       tags:
@@ -16785,6 +16844,47 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/servicesManager/unblockServiceOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServiceOnDestinations
+      summary: Free the denial of the Service on these destinations. If the Service was banned on
+        these destinations, it will be freed. In case the Service was not banned on these
+        destinations, nothing will happen.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/unblockServicesOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServicesOnDestinations
+      summary: Free the denial of the Service on the destination - each pair defined by the rich destination.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUnlockServicesOnDestinations
+              description: "input to unblockServicesOnDestinations"
+              type: object
+              required:
+                - richDestinations
+              properties:
+                richDestinations: { type: array, items: { $ref: '#/components/schemas/RichDestination' } }
+
   /urlinjsonout/servicesManager/forceServicePropagation:
     post:
       tags:
@@ -16881,6 +16981,21 @@ paths:
       summary: Deletes a service.
       parameters:
         - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/deleteServices:
+    post:
+      tags:
+        - ServicesManager
+      operationId: deleteServices
+      summary: Deletes given services.
+      parameters:
+        - $ref: '#/components/parameters/serviceIds'
         - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
@@ -17532,6 +17647,47 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/removeDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeDestinations
+      summary: Removes the specified destinations from the facility and service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/destinationIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/removeDestinationsByRichDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeDestinationsByRichDestinations
+      summary: Removes destinations defined by list of rich destinations.
+        Each destination is removed from the rich destination's facility and service.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveRichDestinations
+              description: "input to removeRichDestinations"
+              type: object
+              required:
+                - richDestinations
+              properties:
+                richDestinations: { type: array, items: { $ref: '#/components/schemas/RichDestination' } }
 
   /urlinjsonout/servicesManager/removeAllDestinations:
     post:
@@ -18471,6 +18627,20 @@ paths:
       summary: Evaluates consents for given consent hub.
       parameters:
         - $ref: '#/components/parameters/consentHubId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/consentsManager/evaluateConsentsForConsentHubs:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: evaluateConsentsForConsentHubs
+      summary: Evaluates consents for given list of consent hubs.
+      parameters:
+        - $ref: '#/components/parameters/consentHubIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

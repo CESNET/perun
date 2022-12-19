@@ -8,6 +8,7 @@ import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public enum ConsentsManagerMethod implements ManagerMethod {
@@ -225,6 +226,25 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
 			ac.getConsentsManager().evaluateConsents(ac.getSession(), ac.getConsentHubById(params.readInt("consentHub")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Evaluates consents for given consent hubs.
+	 *
+	 * @param consentHubs List<Integer> <code>id</code> of consent hubs
+	 * @throw ConsentNotExistsException if consent hub does not exist
+	 */
+	evaluateConsentsForConsentHubs {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+
+			List<ConsentHub> consentHubs = new ArrayList<>();
+			for (int id : params.readList("consentHubs", Integer.class)) {
+				consentHubs.add(ac.getConsentHubById(id));
+			}
+			ac.getConsentsManager().evaluateConsents(ac.getSession(), consentHubs);
 			return null;
 		}
 	},
