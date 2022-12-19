@@ -1352,6 +1352,21 @@ public interface MembersManager {
 	RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
+	 * Assigns a new sponsor to existing members. If some members are non-sponsored, turn them into sponsored and assign the sponsor.
+	 * @param session actor
+	 * @param sponsored existing members that needs sponsoring
+	 * @param sponsor sponsoring user or null for the caller
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws MemberNotSponsoredException
+	 * @throws AlreadySponsorException
+	 * @throws UserNotInRoleException
+	 */
+	void sponsorMembers(PerunSession session, List<Member> sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
+
+	/**
 	 * Get all sponsored RichMembers with attributes by list of attribute names for specific User and Vo.
 	 *
 	 * @param sess
@@ -1444,6 +1459,17 @@ public interface MembersManager {
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws PrivilegeException;
+
+	/**
+	 * Removes the sponsors from member.
+	 *
+	 * @param sess actor
+	 * @param sponsoredMember existing member that is sponsored
+	 * @param sponsorsToRemove sponsoring users for removal
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
+	 */
+	void removeSponsors(PerunSession sess, Member sponsoredMember, List<User> sponsorsToRemove) throws PrivilegeException;
 
 	/**
 	 * Get page of members from the given vo, with the given attributes.

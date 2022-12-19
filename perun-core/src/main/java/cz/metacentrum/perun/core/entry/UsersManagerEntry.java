@@ -693,6 +693,13 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public void removeUserExtSources(PerunSession sess, User user, List<UserExtSource> userExtSources, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException {
+		for (UserExtSource src : userExtSources) {
+			removeUserExtSource(sess, user, src, forceDelete);
+		}
+	}
+
+		@Override
 	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

@@ -872,6 +872,29 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
+	@Test
+	public void bulkRemoveUserExtSources() throws Exception {
+		System.out.println(CLASS_NAME + "bulkRemoveUserExtSources");
+
+
+		ExtSource newExtSource = new ExtSource("test2", ExtSourcesManager.EXTSOURCE_INTERNAL);
+		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
+		// get and create real external source from DB
+		perun.getExtSourcesManager().addExtSource(sess, vo, es);
+
+		UserExtSource ues = new UserExtSource();
+		ues.setExtSource(newExtSource);
+		// put real external source into user's external source
+		ues.setLogin(extLogin);
+		usersManager.addUserExtSource(sess, user, ues);
+
+		assertThat(usersManager.getUserExtSources(sess, user)).contains(userExtSource, ues);
+
+		usersManager.removeUserExtSources(sess, user, List.of(userExtSource, ues), false);
+
+		assertThat(usersManager.getUserExtSources(sess, user)).doesNotContain(userExtSource, ues);
+	}
+
 	@Test (expected=UserExtSourceNotExistsException.class)
 	public void removeUserExtSourceWithAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "removeUserExtSourceWithAttribute");

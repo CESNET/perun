@@ -9015,6 +9015,29 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/removeUserExtSources:
+    post:
+      tags:
+        - UsersManager
+      operationId: removeUserExtSources
+      summary: Remove user's external sources. Persistent UserExtSources are not removed unless force param is present and set to true.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - name: userExtSources,
+          description: "list of userExtSource ids"
+          schema:
+            type: array
+            items:
+              type: integer
+          in: query
+          required: true
+        - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getUserExtSourceById:
     get:
       tags:
@@ -10190,6 +10213,28 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/removeSponsors:
+    post:
+      tags:
+        - MembersManager
+      operationId: removeSponsors
+      summary: Removes sponsors of existing member.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - name: sponsorIds
+          description: "list of ids of sponsors"
+          schema:
+            type: array
+            items:
+              type: integer
+          in: query
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/membersManager/updateSponsorshipValidity:
     post:
       tags:
@@ -10574,6 +10619,22 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RichMemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/membersManager/sponsorMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: sponsorMembers
+      summary: Assigns a new sponsor to existing members. If some members are non-sponsored, turn them into sponsored and assign the sponsor.
+      parameters:
+        - $ref: '#/components/parameters/memberIds'
+        - $ref: '#/components/parameters/sponsorId'
+        - $ref: '#/components/parameters/optionalValidityTo'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -14228,7 +14289,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignResourceTagToResource
-      summary: Assigns ResourceRag to resource. The ResourceTag must contain its id, voId and tagName.
+      summary: Assigns ResourceTag to resource. The ResourceTag must contain its id, voId and tagName.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14249,12 +14310,38 @@ paths:
                 resource: { type: integer, description: 'resource id' }
                 resourceTag: { $ref: '#/components/schemas/ResourceTag' }
 
+  /json/resourcesManager/assignResourceTagsToResource:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: assignResourceTagsToResource
+      summary: Assigns ResourceTags to resource. The ResourceTags must contain its id, voId and tagName.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAssignResourceTagsToResource
+              description: "input to assignResourceTagsToResource"
+              type: object
+              required:
+                - resource
+                - resourceTags
+              properties:
+                resource: { type: integer, description: 'resource id' }
+                resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
+
   /json/resourcesManager/removeResourceTagFromResource:
     post:
       tags:
         - ResourcesManager
       operationId: removeResourceTagFromResource
-      summary: Removes ResourceRag from a resource. The ResourceTag must contain its id, voId and tagName.
+      summary: Removes ResourceTag from a resource. The ResourceTag must contain its id, voId and tagName.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14274,6 +14361,32 @@ paths:
               properties:
                 resource: { type: integer, description: 'resource id' }
                 resourceTag: { $ref: '#/components/schemas/ResourceTag' }
+
+  /json/resourcesManager/removeResourceTagsFromResource:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: removeResourceTagsFromResource
+      summary: Removes ResourceTags from a resource. The ResourceTags must contain its id, voId and tagName.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveResourceTagsFromResource
+              description: "input to removeResourceTagsFromResource"
+              type: object
+              required:
+                - resource
+                - resourceTags
+              properties:
+                resource: { type: integer, description: 'resource id' }
+                resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
 
   /urlinjsonout/resourcesManager/removeAllResourcesTagFromResource:
     post:

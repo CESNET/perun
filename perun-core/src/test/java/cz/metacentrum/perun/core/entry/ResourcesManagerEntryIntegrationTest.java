@@ -1814,6 +1814,30 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void bulkAssignRemoveResourceTags() throws Exception {
+		System.out.println(CLASS_NAME + "bulkAssignRemoveResourceTags");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		ResourceTag tag1 = setUpResourceTag();
+		ResourceTag tag2 = new ResourceTag(1, "ResourceManagerTestResourceTag2", vo.getId());
+		tag2 = perun.getResourcesManager().createResourceTag(sess, tag2, vo);
+
+		resourcesManager.assignResourceTagsToResource(sess, List.of(tag1, tag2), resource);
+		List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForResource(sess, resource);
+
+		assertThat(tags).containsExactly(tag1, tag2);
+
+		resourcesManager.removeResourceTagsFromResource(sess, List.of(tag1, tag2), resource);
+
+		tags = perun.getResourcesManager().getAllResourcesTagsForResource(sess, resource);
+
+		assertThat(tags).isEmpty();
+
+	}
+
+	@Test
 	public void getAllResourcesByResourceTag() throws Exception {
 		System.out.println(CLASS_NAME + "getAllResourcesByResourceTag");
 

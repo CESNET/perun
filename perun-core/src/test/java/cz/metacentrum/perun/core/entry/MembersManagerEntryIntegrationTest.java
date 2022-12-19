@@ -2011,6 +2011,36 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void bulkRemoveSponsors() throws Exception {
+		System.out.println(CLASS_NAME + "bulkRemoveSponsors");
+
+		//create user which can sponsor
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		//create another user which can sponsor
+		User sponsorUser2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+		AuthzResolverBlImpl.setRole(sess, sponsorUser2, createdVo, Role.SPONSOR);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser2, Role.SPONSOR, createdVo, true));
+
+		Member member = setUpMember(createdVo);
+
+		perun.getMembersManager().sponsorMembers(sess, List.of(member), sponsorUser, null);
+		perun.getMembersManager().sponsorMembers(sess, List.of(member), sponsorUser2, null);
+
+		List<User> sponsors = perun.getUsersManagerBl().getSponsors(sess, member);
+		assertTrue("sponsor 1 is not reported as sponsor", sponsors.contains(sponsorUser));
+		assertTrue("sponsor 2 is not reported as sponsor", sponsors.contains(sponsorUser2));
+		assertTrue("unexpected sponsors", sponsors.size() == 2);
+		assertTrue(member.isSponsored());
+
+		perun.getMembersManager().removeSponsors(sess, member, List.of(sponsorUser, sponsorUser2));
+		// after removing all sponsors, member should no longer be sponsored
+		assertFalse(member.isSponsored());
+
+	}
+
+	@Test
 	public void getSoonExpiringSponsorshipsReturnsLowerBound() throws Exception {
 		System.out.println(CLASS_NAME + "getSoonExpiringSponsorshipsReturnsLowerBound");
 
@@ -2185,6 +2215,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertThat(sponsors.get(sponsor1)).isNull();
 		assertThat(sponsors.containsKey(sponsor2));
 		assertThat(sponsors.get(sponsor2)).isEqualTo(validity);
+
+	}
+
+	@Test
+	public void bulkSponsorMembers() throws Exception {
+		System.out.println(CLASS_NAME + "bulkSponsorMembers");
+
+		Member member1 = setUpMember(createdVo);
+		Member member2 = setUpMember2(createdVo);
+
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+
+		membersManagerEntry.sponsorMembers(sess, List.of(member1, member2), sponsor1, null);
+
+		List<MemberWithSponsors> membersWithSponsors = perun.getMembersManager()
+			.getSponsoredMembersAndTheirSponsors(sess, createdVo, Collections.emptyList());
+
+		assertThat(membersWithSponsors).hasSize(2);
+
+		for (MemberWithSponsors member: membersWithSponsors) {
+			assertThat(member.getSponsors()).hasSize(1);
+			assertThat(member.getSponsors().get(0).getUser()).isEqualTo(sponsor1);
+		}
+
 
 	}
 

@@ -1206,6 +1206,22 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Assign resource tags to resource
+	 *
+	 * @param resourceTags List<ResourceTag> ResourceTags to assign
+	 * @param resource int <code>id</code> of Resource to assign tags for
+	 */
+	assignResourceTagsToResource {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getResourcesManager().assignResourceTagsToResource(ac.getSession(),
+				parms.readList("resourceTags", ResourceTag.class),
+				ac.getResourceById(parms.readInt("resource")));
+			return null;
+		}
+	},
+
+	/*#
 	 * Remove resource tag from resource
 	 *
 	 * @param resourceTag ResourceTag ResourceTag to remove
@@ -1217,6 +1233,22 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			ac.getResourcesManager().removeResourceTagFromResource(ac.getSession(),
 					parms.read("resourceTag", ResourceTag.class),
 					ac.getResourceById(parms.readInt("resource")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove resource tags from resource
+	 *
+	 * @param resourceTags List<ResourceTag> ResourceTags to remove
+	 * @param resource int <code>id</code> of Resource to remove tags for
+	 */
+	removeResourceTagsFromResource {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getResourcesManager().removeResourceTagsFromResource(ac.getSession(),
+				parms.readList("resourceTags", ResourceTag.class),
+				ac.getResourceById(parms.readInt("resource")));
 			return null;
 		}
 	},
