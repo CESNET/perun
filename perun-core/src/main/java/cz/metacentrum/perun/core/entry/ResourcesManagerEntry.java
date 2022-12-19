@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -34,6 +35,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceExcepti
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -588,6 +590,32 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		getResourcesManagerBl().removeService(sess, resource, service);
+	}
+
+	@Override
+	public void removeService(PerunSession perunSession, List<Resource> resources, Service service) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException, FacilityNotExistsException, FacilityMismatchException {
+		Utils.checkPerunSession(perunSession);
+
+		if (resources == null || resources.isEmpty()) {
+			throw new IllegalArgumentException("List of resource ids null or empty");
+		}
+		getPerunBl().getServicesManagerBl().checkServiceExists(perunSession, service);
+
+		int facilityId = resources.get(0).getFacilityId();
+		for (Resource resource : resources) {
+			getResourcesManagerBl().checkResourceExists(perunSession, resource);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(perunSession, "removeService_Resource_Service_policy", Arrays.asList(resource, service))) {
+				throw new PrivilegeException(perunSession, "removeServices");
+			}
+
+			if (facilityId != resource.getFacilityId()) {
+				throw new FacilityMismatchException("Resources " + resource.getName() + " and " + resources.get(0).getName() + " are from different facilities!");
+			}
+
+			getResourcesManagerBl().removeService(perunSession, resource, service);
+		}
 	}
 
 	@Override

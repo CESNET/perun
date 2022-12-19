@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -519,6 +520,21 @@ public interface ResourcesManager {
 	 * @throws ServiceNotAssignedException
 	 */
 	void removeService(PerunSession perunSession, Resource resource, Service service) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
+
+	/**
+	 * Remove service from multiple resources in the same facility
+	 *
+	 * @param perunSession
+	 * @param resources
+	 * @param service
+	 * @throws PrivilegeException
+	 * @throws ResourceNotExistsException
+	 * @throws ServiceNotExistsException
+	 * @throws ServiceNotAssignedException
+	 * @throws FacilityMismatchException
+	 * @throws FacilityNotExistsException
+	 */
+	void removeService(PerunSession perunSession, List<Resource> resources, Service service) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException, FacilityNotExistsException, FacilityMismatchException;
 
 	/**
 	 * Remove services from resource.

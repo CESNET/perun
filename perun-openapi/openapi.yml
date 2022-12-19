@@ -14230,6 +14230,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/resourcesManager/removeService/forResources:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: removeServiceForResources
+      summary: Remove service from multiple resources in the same facility.
+      parameters:
+        - $ref: '#/components/parameters/resourceIds'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/resourcesManager/removeServices:
     post:
       tags:
