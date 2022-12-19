@@ -13127,6 +13127,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupDirectMembersCount:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupDirectMembersCount
+      summary: Returns count of direct group members.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /json/groupsManager/getGroupMembersCountsByVoStatus:
     get:
       tags:

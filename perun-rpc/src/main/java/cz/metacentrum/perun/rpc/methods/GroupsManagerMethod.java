@@ -746,6 +746,23 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns count of direct group members.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return int Direct Members count
+	 */
+	getGroupDirectMembersCount {
+
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupDirectMembersCount(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
 	 * Returns counts of group members by their status in VO.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist

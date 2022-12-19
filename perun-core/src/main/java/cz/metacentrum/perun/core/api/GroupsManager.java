@@ -581,6 +581,17 @@ public interface GroupsManager {
 	int getGroupMembersCount(PerunSession perunSession, Group group) throws GroupNotExistsException, PrivilegeException;
 
 	/**
+	 * Returns count of direct members in the group
+	 *
+	 * @param sess
+	 * @param group
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 * @return count
+	 */
+	int getGroupDirectMembersCount(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException;
+
+	/**
 	 * Returns counts of group members by their status in VO.
 	 *
 	 * @param sess

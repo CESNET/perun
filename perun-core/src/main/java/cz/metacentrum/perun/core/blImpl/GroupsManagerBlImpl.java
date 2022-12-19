@@ -1479,6 +1479,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public int getGroupDirectMembersCount(PerunSession sess, Group group) {
+		return this.getGroupDirectMembers(sess, group).size();
+	}
+
+	@Override
 	public Map<Status, Integer> getGroupMembersCountsByVoStatus(PerunSession sess, Group group) {
 		List<Member> members = this.getGroupMembers(sess, group);
 

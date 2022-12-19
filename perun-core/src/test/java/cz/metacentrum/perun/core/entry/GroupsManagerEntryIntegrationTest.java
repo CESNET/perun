@@ -3354,6 +3354,27 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
+	@Test
+	public void getGroupDirectMembersCount() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupDirectMembersCount");
+
+		vo = setUpVo();
+		Group parentGroup = setUpGroup(vo);
+		Group childGroup = setUpSubgroup(parentGroup);
+
+		Member member = setUpMember(vo);
+
+		groupsManager.addMember(sess, childGroup, member);
+
+		assertThat(groupsManager.getGroupMembersCount(sess, parentGroup)).isEqualTo(1);
+
+		assertThat(groupsManager.getGroupDirectMembersCount(sess, parentGroup)).isEqualTo(0);
+
+		groupsManager.addMember(sess, parentGroup, member);
+
+		assertThat(groupsManager.getGroupDirectMembersCount(sess, parentGroup)).isEqualTo(1);
+	}
+
 	@Test (expected=GroupNotExistsException.class)
 	public void getGroupMembersCountWhenGroupNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupMembersCountWhenGroupNotExists");

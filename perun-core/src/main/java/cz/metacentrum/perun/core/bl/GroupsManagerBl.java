@@ -740,6 +740,15 @@ public interface GroupsManagerBl {
 	int getGroupMembersCount(PerunSession perunSession, Group group);
 
 	/**
+	 * Returns count of direct members in the group
+	 *
+	 * @param sess
+	 * @param group
+	 * @return count
+	 */
+	int getGroupDirectMembersCount(PerunSession sess, Group group);
+
+	/**
 	 * Returns counts of group members by their status in VO.
 	 *
 	 * @param sess
