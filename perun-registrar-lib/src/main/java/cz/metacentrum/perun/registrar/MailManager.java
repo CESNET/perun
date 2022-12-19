@@ -227,4 +227,14 @@ public interface MailManager {
 	 */
 	String getPropertyFromConfiguration(String input);
 
+	/**
+	 * Checks if invitation form exists
+	 *
+	 * @param vo vo
+	 * @param group group
+	 * @return true if invitation form exists, false otherwise
+	 * @throws VoNotExistsException when vo does not exist
+	 * @throws GroupNotExistsException when group is defined and does not exist
+	 */
+	Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws VoNotExistsException, GroupNotExistsException;
 }

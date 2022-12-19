@@ -139,6 +139,54 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Invite member candidates. If candidate contains richUser, then his preferred mail is retrieved and used, otherwise email must be passed in candidate's attributes.
+	 *
+	 * @param vo Vo <code>id</code>
+	 * @param lang language
+	 * @param candidates List<MemberCandidate> list of member candidates
+	 */
+	/*#
+	 * Invite member candidates to group. If candidate contains richUser, then his preferred mail is retrieved and used, otherwise email must be passed in candidate's attributes.
+	 *
+	 * @param vo Vo <code>id</code>
+	 * @param lang language
+	 * @param candidates List<MemberCandidate> list of member candidates
+	 * @param group Group <code>id</code>
+	 */
+	inviteMemberCandidates {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getRegistrarManager().inviteMemberCandidates(
+				ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null,
+				parms.readString("lang"),
+				parms.readList("candidates", MemberCandidate.class)
+			);
+			return null;
+		}
+	},
+
+	/*#
+	 * Checks if invitation form exists.
+	 *
+	 * @param vo Vo <code>id</code>
+	 * @param group Group <code>id</code>
+	 *
+	 * @return true if invitation form exists, false otherwise
+	 */
+	invitationFormExists {
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getRegistrarManager().getMailManager().invitationFormExists(
+				ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null
+			);
+		}
+	},
+
+	/*#
 	 * Send invitations with link to VO / Group application form from provided csv data
 	 *
 	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL

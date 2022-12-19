@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -30,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
@@ -1538,4 +1540,43 @@ public interface MembersManager {
 	 * @return List<RichMember> RichMembers with specified IDs and attributes
 	 */
 	List<RichMember> getRichMembersByIds(PerunSession sess, List<Integer> ids, List<String> attrsNames) throws PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Add member candidates.
+	 *
+	 * @param sess Perun session
+	 * @param vo vo
+	 * @param candidates List<MemberCandidate> list of member candidates
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws GroupNotExistsException group does not exist
+	 * @throws UserNotExistsException user does not exist
+	 * @throws WrongAttributeValueException attribute value is illegal
+	 * @throws AlreadyMemberException candidate is already member
+	 * @throws WrongReferenceAttributeValueException attribute value is illegal
+	 * @throws ExtendMembershipException reason why user can't extend membership
+	 * @throws VoNotExistsException vo does not exist
+	 */
+	void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates) throws PrivilegeException, GroupNotExistsException, UserNotExistsException, WrongReferenceAttributeValueException, AlreadyMemberException, WrongAttributeValueException, ExtendMembershipException, VoNotExistsException;
+
+	/**
+	 * Add member candidates to Group.
+	 *
+	 * @param sess Perun session
+	 * @param vo vo
+	 * @param candidates List<MemberCandidate> list of member candidates
+	 * @param group group
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws ExternallyManagedException group is externally managed
+	 * @throws MemberNotExistsException member does not exist
+	 * @throws GroupNotExistsException group does not exist
+	 * @throws WrongReferenceAttributeValueException attribute value is illegal
+	 * @throws WrongAttributeAssignmentException attribute does not belong to appropriate entity
+	 * @throws AttributeNotExistsException attribute does not exist
+	 * @throws AlreadyMemberException candidate is already member
+	 * @throws WrongAttributeValueException attribute value is illegal
+	 * @throws UserNotExistsException user does not exist
+	 * @throws ExtendMembershipException reason why user can't extend membership
+	 * @throws VoNotExistsException vo does not exist
+	 */
+	void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates, Group group) throws PrivilegeException, ExternallyManagedException, MemberNotExistsException, GroupNotExistsException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, WrongAttributeValueException, UserNotExistsException, ExtendMembershipException, VoNotExistsException;
 }

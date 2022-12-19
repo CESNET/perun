@@ -662,4 +662,15 @@ public interface RegistrarManager {
 	 */
 	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException;
 
+	/**
+	 * Invite member candidates.
+	 *
+	 * @param sess session
+	 * @param vo Vo
+	 * @param lang language
+	 * @param candidates list of member candidates
+	 * @param group group
+	 * @throws PerunException unable to invite some candidate
+	 */
+	void inviteMemberCandidates(PerunSession sess, Vo vo, Group group, String lang, List<MemberCandidate> candidates) throws PerunException;
 }

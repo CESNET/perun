@@ -1501,6 +1501,26 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  addMemberCandidates_Vo_List<MemberCandidate>_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - SPREGAPPLICATION:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  addMemberCandidates_Vo_List<MemberCandidate>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
   removeMember_Group_Member_policy:
     policy_roles:
       - GROUPADMIN: Group
