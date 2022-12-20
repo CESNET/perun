@@ -9191,7 +9191,7 @@ paths:
       summary: Remove user's external sources. Persistent UserExtSources are not removed unless force param is present and set to true.
       parameters:
         - $ref: '#/components/parameters/userId'
-        - name: userExtSources,
+        - name: userExtSources
           description: "list of userExtSource ids"
           schema:
             type: array
