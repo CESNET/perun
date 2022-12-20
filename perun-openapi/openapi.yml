@@ -12,7 +12,7 @@ servers:
     description: Perun RPC server
     variables:
       server:
-        default: perun-api.e-infra.cz
+        default: api-dev.perun-aai.org
         description: DNS name of a Perun server
       authentication:
         default: ba
@@ -59,6 +59,7 @@ components:
   #############################################
   schemas:
     PerunException:
+      description: exception thrown from inside of Perun
       type: object
       properties:
         errorId: { type: string }
@@ -123,6 +124,7 @@ components:
         propertyName: beanName
 
     PaginatedRichUsers:
+      description: represents Paginated&lt;RichUser>
       properties:
         offset: { type: integer }
         pageSize: { type: integer }
@@ -135,6 +137,7 @@ components:
         - data
 
     Sponsor:
+      description: represents a Sponsor for some specific member
       type: object
       properties:
         user: { $ref: '#/components/schemas/User' }
@@ -150,6 +153,7 @@ components:
         - active
 
     Member:
+      description: represents Member of a Virtual Organization
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
@@ -165,12 +169,14 @@ components:
         propertyName: beanName
 
     AssignedMember:
+      description: represents a member of a group assigned to a resource
       type: object
       properties:
         richMember: { $ref: '#/components/schemas/RichMember' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
 
     RichMember:
+      description: Member data packed with member and user attributes, User and UserExtSources
       allOf:
         - $ref: '#/components/schemas/Member'
       properties:
@@ -273,6 +279,7 @@ components:
 
 
     UserExtSource:
+      description: represents specific user authentication or identification in external source of data
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
@@ -289,6 +296,7 @@ components:
         propertyName: beanName
 
     ExtSource:
+      description: represents external source of data for users such as an IdP or an HR database
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
