@@ -7,7 +7,7 @@ fi
 
 rm -rf perun_openapi
 # see https://openapi-generator.tech/docs/usage#generate
-# and https://openapi-generator.tech/docs/generators/python
+# and https://openapi-generator.tech/docs/generators/python-prior
 java \
  --add-opens java.base/java.util=ALL-UNNAMED \
  --add-opens java.base/java.lang=ALL-UNNAMED \

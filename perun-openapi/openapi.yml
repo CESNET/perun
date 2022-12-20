@@ -12,13 +12,22 @@ servers:
     description: Perun RPC server
     variables:
       server:
-        default: perun.cesnet.cz
+        default: perun-api.e-infra.cz
         description: DNS name of a Perun server
       authentication:
-        default: krb
-        description: way of authentication
+        default: ba
+        description: |
+          way of authentication:
+          ba - HTTP Basic Auth
+          krb - Kerberos
+          non - no authentication
+          cert - X509 client certificate
+          oauth - OAuth 2.0 bearer access token
+          fed - SAML federation
         enum:
+          - ba
           - krb
+          - non
           - cert
           - oauth
           - fed
@@ -57,6 +66,7 @@ components:
         message: { type: string }
 
     PerunBean:
+      description: identifiable entity in Perun, common ancestor of all entity classes
       type: object
       properties:
         id: { type: integer }
@@ -68,6 +78,7 @@ components:
         propertyName: beanName
 
     Auditable:
+      description: represents audit information
       allOf:
         - $ref: '#/components/schemas/PerunBean'
       properties:
@@ -81,6 +92,7 @@ components:
         propertyName: beanName
 
     User:
+      description: represents user as a physical person
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
@@ -98,6 +110,7 @@ components:
         propertyName: beanName
 
     RichUser:
+      description: user data packed together with all user attributes and UserExtSources
       allOf:
         - $ref: '#/components/schemas/User'
       properties:
@@ -3413,6 +3426,8 @@ components:
 #################################################
 
 tags:
+  - name: Utils
+    description: various utilities
   - name: AuthzResolver
     description: AuthzResolver RPC API in Perun
     externalDocs:
@@ -3477,6 +3492,22 @@ tags:
     description: ConsentsManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConsentsManager.html
+  - name: DatabaseManager
+    description: DatabaseManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-DatabaseManager.html
+  - name: ExtSourcesManager
+    description: ExtSourcesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ExtSourcesManager.html
+  - name: RegistrarManager
+    description: RegistrarManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-RegistrarManager.html
+  - name: ServicesManager
+    description: ServicesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ServicesManager.html
 
 
 #################################################
@@ -11630,7 +11661,7 @@ paths:
   /json/facilitiesManager/getAdminGroups/f-name:
     get:
       tags:
-        - FacilitiesManagerByFacilityName
+        - FacilitiesManager
       operationId: getFacilityAdminGroupsByFacilityName
       summary: Get all Facility group admins.
       parameters:
