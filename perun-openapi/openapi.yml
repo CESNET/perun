@@ -3837,6 +3837,38 @@ paths:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
+  /json/authzResolver/setRole/u-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleWithUserComplementaryObjects
+      summary: Set role for user and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleWithUserComplementaryObjects
+              description: "input to setRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - users
+              properties:
+                role: { type: string, nullable: false }
+                user: { type: integer, description: "user id", nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
+
   /json/authzResolver/unsetRole/u-co:
     post:
       tags:
@@ -3868,6 +3900,38 @@ paths:
                   items:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
+
+  /json/authzResolver/unsetRole/u-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleWithUserComplementaryObjects
+      summary: Unset role for user and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleWithUserComplementaryObjects
+              description: "input to unsetRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - users
+              properties:
+                role: { type: string, nullable: false }
+                user: { type: integer, description: "user id", nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
 
   /json/authzResolver/setRole/g:
     post:
@@ -3953,6 +4017,38 @@ paths:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
+  /json/authzResolver/setRole/g-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleWithGroupComplementaryObjects
+      summary: Set role for authorizedGroup and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleWithGroupComplementaryObjects
+              description: "input to setRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - authorizedGroups
+              properties:
+                role: { type: string, nullable: false }
+                authorizedGroup: { type: integer, nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
+
   /json/authzResolver/unsetRole/g-co:
     post:
       tags:
@@ -3984,6 +4080,38 @@ paths:
                   items:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
+
+  /json/authzResolver/unsetRole/g-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleWithGroupComplementaryObjects
+      summary: Unset role for authorizedGroup and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleWithGroupComplementaryObjects
+              description: "input to unsetRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - authorizedGroups
+              properties:
+                role: { type: string, nullable: false }
+                authorizedGroup: { type: integer, nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
 
   /json/authzResolver/getUserRoles:
     get:
