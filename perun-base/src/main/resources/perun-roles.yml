@@ -1672,6 +1672,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getGroupDirectMembersCount_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   getGroupMembersCountsByVoStatus_Group_policy:
     policy_roles:
       - PERUNOBSERVER:
