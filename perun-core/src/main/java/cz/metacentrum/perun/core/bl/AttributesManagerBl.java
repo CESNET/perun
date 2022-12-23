@@ -4822,5 +4822,12 @@ public interface AttributesManagerBl {
 	 * @throws RelationNotExistsException if trying to unmark not critical action
 	 */
 	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException;
+
+	/**
+	 * Returns list of definitions of IdP attributes that are filled to fedInfo
+	 * @param sess session
+	 * @return list of attribute definitions
+	 */
+	List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess);
 }
 
