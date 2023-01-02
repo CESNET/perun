@@ -1981,7 +1981,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 
               // Check if we are in grace period
-              if (gracePeriodDate.isBefore(LocalDate.now())) {
+              if (gracePeriodDate.isEqual(LocalDate.now()) || gracePeriodDate.isBefore(LocalDate.now())) {
                 // We are in grace period, so extend to the next period
                 localDate = localDate.plusYears(1);
               }
@@ -2398,7 +2398,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						fieldAmount = Utils.prepareGracePeriodDate(m);
 						LocalDate gracePeriodDate = localDate.minus(fieldAmount.getLeft(), fieldAmount.getRight());
 						// Check if we are in grace period
-						if (gracePeriodDate.isBefore(LocalDate.now())) {
+						if (gracePeriodDate.isEqual(LocalDate.now()) || gracePeriodDate.isBefore(LocalDate.now())) {
 							// We are in grace period, so extend to the next period
 							localDate = localDate.plusYears(1);
 						}
@@ -2488,11 +2488,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		LocalDate beginOfGracePeriod = LocalDate.parse(membershipExpiration, DateTimeFormatter.ISO_LOCAL_DATE);
 		beginOfGracePeriod = beginOfGracePeriod.minus(amount, gracePeriodTimeUnit);
 
-		if (beginOfGracePeriod.isBefore(LocalDate.now())) {
-			return true;
-		}
-
-		return false;
+		return beginOfGracePeriod.isEqual(LocalDate.now()) || beginOfGracePeriod.isBefore(LocalDate.now());
 
 	}
 

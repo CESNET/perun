@@ -5527,7 +5527,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				LocalDate gracePeriodDate = localDate.minus(amountField.getLeft(), amountField.getRight());
 
 				// Check if we are in grace period
-				if (gracePeriodDate.isBefore(LocalDate.now())) {
+				if (gracePeriodDate.isEqual(LocalDate.now()) || gracePeriodDate.isBefore(LocalDate.now())) {
 					// We are in grace period, so extend to the next period
 					localDate = localDate.plusYears(1);
 				}
@@ -5789,12 +5789,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		LocalDate beginOfGracePeriod = LocalDate.parse(membershipExpiration).minus(amount, gracePeriodTimeUnit);
-		if (beginOfGracePeriod.isBefore(LocalDate.now())) {
-			return true;
-		}
-
-		return false;
-
+		return beginOfGracePeriod.isEqual(LocalDate.now()) || beginOfGracePeriod.isBefore(LocalDate.now());
 	}
 
 	/**
