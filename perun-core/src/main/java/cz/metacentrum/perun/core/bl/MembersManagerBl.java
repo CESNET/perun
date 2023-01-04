@@ -1505,6 +1505,7 @@ public interface MembersManagerBl {
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @param sendActivationLink if true link for manual activation of account will be send to the email
 	 *                           be careful when using with empty (no-reply) email
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param url base URL of Perun Instance
 	 * @param validation Type of members validation, when using Validation.ASYNC do not call this method in a cycle!
 	 * @return created member
@@ -1519,7 +1520,7 @@ public interface MembersManagerBl {
 	 * @throws UserNotInRoleException if the member is not in required role
 	 * @throws AlreadySponsorException
 	 */
-	Member createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
+	Member createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor, LocalDate validityTo, boolean sendActivationLink, String language, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1595,6 +1596,7 @@ public interface MembersManagerBl {
 	 * @param sponsor sponsoring user
 	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
 	 *                           to email which was set for him, be careful when using no-reply emails
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param url base URL of Perun Instance
 	 * @param validation Type of members validation, when ASYNC do not call this method in a cycle!
 	 * @param groups groups, to which will be the created users assigned
@@ -1602,7 +1604,7 @@ public interface MembersManagerBl {
 	 */
 	List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               List<String> data, String header, User sponsor,
-	                                                               LocalDate validityTo, boolean sendActivationLink,
+	                                                               LocalDate validityTo, boolean sendActivationLink, String language,
 																   String url, Validation validation, List<Group> groups);
 
 	/**
@@ -1628,11 +1630,12 @@ public interface MembersManagerBl {
 	 * @param sponsor sponsoring user
 	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
 	 *                           to the email, be careful when using with empty (no-reply) email
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param url base URL of Perun Instance
 	 * @param validation Type of members validation, when ASYNC do not call this method in a cycle!
 	 * @return list of maps of name, status, login and password
 	 */
-	List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation);
+	List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String language, String url, Validation validation);
 
 	/**
 	 * Links sponsored member and sponsoring user.

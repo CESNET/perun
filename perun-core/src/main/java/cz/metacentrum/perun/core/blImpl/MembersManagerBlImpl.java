@@ -2680,7 +2680,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Member createSponsoredMember(PerunSession sess, SponsoredUserData data, Vo vo, User sponsor,
-	                                    LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException, PasswordStrengthException {
+	                                    LocalDate validityTo, boolean sendActivationLink, String language, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException, PasswordStrengthException {
 		User createdUser = createUser(sess, data);
 		String email = setEmailForUser(sess, createdUser, data.getEmail(), data.getNamespace());
 
@@ -2699,9 +2699,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Member sponsoredMember = setSponsoredMember(sess, data, vo, createdUser, sponsor, validityTo, validation);
 
 		if (sendActivationLink) {
-			//TODO: at this moment there is missing way how to specify if email should be in different language than english
-			String defaultLanguage = "en";
-			sendAccountActivationLinkEmail(sess, sponsoredMember, data.getNamespace(), url, email, defaultLanguage);
+			if (language == null) {
+				language = "en";
+			}
+			sendAccountActivationLinkEmail(sess, sponsoredMember, data.getNamespace(), url, email, language);
 		}
 		
 		return sponsoredMember;
@@ -2767,7 +2768,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink,
-			String url, Validation validation, List<Group> groups) {
+			String language, String url, Validation validation, List<Group> groups) {
 
 		List<Map<String, String>> totalResult = new ArrayList<>();
 		Set<Member> createdMembers = new HashSet<>();
@@ -2795,7 +2796,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			// async validation must be performed at the end, not directly during member creation
 			Validation localValidation = (Objects.equals(Validation.ASYNC, validation)) ? Validation.NONE : validation;
 			Map<String, Object> originalResult = createSingleSponsoredMemberFromCSV(sess, vo, namespace, singleRow,
-					sponsor, validityTo, sendActivationLink, url, localValidation, groups);
+					sponsor, validityTo, sendActivationLink, language, url, localValidation, groups);
 
 			// convert result to expected "type" for outer API
 			Map<String, String> newResult = new HashMap<>();
@@ -2830,7 +2831,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public List<Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) {
+	public List<Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String language, String url, Validation validation) {
 		List<Map<String, String>> result = new ArrayList<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
@@ -2857,7 +2858,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			try {
 				// async validation must be performed at the end, not directly during member creation
 				Validation localValidation = (Objects.equals(Validation.ASYNC, validation)) ? Validation.NONE : validation;
-				Member member = createSponsoredMember(sess, data, vo, sponsor, validityTo, sendActivationLink, url, localValidation);
+				Member member = createSponsoredMember(sess, data, vo, sponsor, validityTo, sendActivationLink, language, url, localValidation);
 				user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
@@ -3506,7 +3507,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 */
 	private Map<String, Object> createSingleSponsoredMemberFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               Map<String, String> data, User sponsor,
-	                                                               LocalDate validityTo, boolean sendActivationLink,
+	                                                               LocalDate validityTo, boolean sendActivationLink, String language,
 																   String url, Validation validation, List<Group> groups) {
 		for (String requiredField : SPONSORED_MEMBER_REQUIRED_FIELDS) {
 			if (!data.containsKey(requiredField)) {
@@ -3552,7 +3553,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Map<String, Object> status = new HashMap<>();
 		Member member = null;
 		try {
-			member = createSponsoredMember(sess, input, vo, sponsor, validityTo, sendActivationLink, url, validation);
+			member = createSponsoredMember(sess, input, vo, sponsor, validityTo, sendActivationLink, language, url, validation);
 			User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 			// get login to return
 			String login = null;

@@ -10272,6 +10272,7 @@ paths:
                 validityTo: { type: string }
                 sponsor: { type: integer }
                 sendActivationLink: { type: boolean }
+                language: { type: string }
                 userData: { $ref: '#/components/schemas/SponsoredUserData' }
 
   /json/membersManager/setSponsoredMember:
@@ -10339,6 +10340,7 @@ paths:
                 namespace: { type: string }
                 validityTo: { type: string }
                 sendActivationLinks: { type: boolean }
+                language: { type: string }
                 groups: { type: array, items: { type: integer }, description: "groups to which should be the created users assigned" }
 
   /json/membersManager/createSponsoredMembers:
@@ -10373,6 +10375,7 @@ paths:
                 validityTo: { type: string }
                 email: { type: string }
                 sendActivationLink: { type: boolean }
+                language: { type: string }
 
   /json/membersManager/createSpecificMember:
     post:
