@@ -1848,6 +1848,21 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue(AuthzResolver.authorizedInternal(session, "test_spregapplication", Arrays.asList(createdVo)));
 	}
 
+	@Test
+	public void testPasswordResetManager() throws Exception {
+		System.out.println(CLASS_NAME + "testPasswordResetManager");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "PasswordResetManagerTestVo", "PasswordResetManagerTestVo"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, null, Role.PASSWORDRESETMANAGER);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_passwordresetmanager", Arrays.asList(createdVo)));
+	}
+
 	// private methods ==============================================================
 
 	private Facility setUpFacility() throws Exception {
