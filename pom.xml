@@ -75,7 +75,7 @@
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20190722</json.version>
-		<reflections.version>0.9.11</reflections.version>
+		<reflections.version>0.10.2</reflections.version>
 		<testcontainers.version>1.17.6</testcontainers.version>
 	</properties>
 
