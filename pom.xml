@@ -71,7 +71,7 @@
 		<google-api-services-admin-directory.version>directory_v1-rev20210427-1.31.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
-		<jboss-jms-api.version>1.1.0.20070913080910</jboss-jms-api.version>
+		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20190722</json.version>
