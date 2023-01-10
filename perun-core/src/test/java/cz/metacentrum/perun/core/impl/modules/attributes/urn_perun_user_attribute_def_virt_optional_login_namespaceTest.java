@@ -41,12 +41,14 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespaceTest {
 	public void testCheckWithAttribute() {
 		System.out.println("testCheckWithAttribute()");
 		attributeToCheck.setValue("test-value");
+		attributeToCheck.setValueCreatedBy("testCreator");
 
 		Attribute attr = new Attribute();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("optional-login-namespace:einfra");
 
 		assertEquals(attributeToCheck.getValue(), classInstance.getAttributeValue(session, user, attr).getValue());
+		assertEquals(attributeToCheck.getValueCreatedBy(), classInstance.getAttributeValue(session, user, attr).getValueCreatedBy());
 	}
 
 	@Test
