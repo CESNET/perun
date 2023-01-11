@@ -7681,6 +7681,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getIdpAttributeDefinitions:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getIdpAttributeDefinitions
+      summary: Returns list of definitions of IdP attributes that are filled to fedInfo
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # AuditMessagesManager                          #

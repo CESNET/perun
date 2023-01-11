@@ -4146,4 +4146,11 @@ public interface AttributesManager {
 	 * @throws PrivilegeException insufficient permissions
 	 */
 	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns list of definitions of IdP attributes that are filled to fedInfo
+	 * @param sess session
+	 * @return list of attribute definitions
+	 */
+	List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess);
 }
