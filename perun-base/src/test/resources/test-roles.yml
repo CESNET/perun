@@ -181,5 +181,10 @@ perun_policies:
       - SPREGAPPLICATION:
     include_policies: []
 
+  test_passwordresetmanager:
+    policy_roles:
+      - PASSWORDRESETMANAGER:
+    include_policies: [ ]
+
 perun_roles_management: {}
 ...
