@@ -4583,8 +4583,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * Get Map groupsToUpdate and update their parent group and description.
-	 * We don't have to update short name, because if short name has changed, group will be removed and created with new name.
-	 *
 	 * If some problem occurs, add groupToUpdate to skippedGroups and skip it.
 	 *
 	 * Method is used by group structure synchronization.
@@ -4629,12 +4627,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 
-			boolean changed = updateGroupDescription(sess, groupToUpdate, candidateGroup);
-			if(changed) {
-				log.trace("Group structure synchronization {}: value of the group description for groupId {} changed. Original value {}, new value {}.",
-						baseGroup, groupToUpdate.getId(), groupToUpdate.getDescription(), candidateGroup.asGroup().getDescription());
-			}
-
+			updateGroupDetails(sess, baseGroup, groupToUpdate, candidateGroup);
 		}
 	}
 
@@ -4742,40 +4735,50 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
-	 * Update group description.
+	 * Update group name and description.
 	 *
 	 * Method is used by group structure synchronization.
 	 *
 	 * @param sess
-	 * @param groupWithOldDescription group with description which will be chaged
-	 * @param groupWithNewDescription candidate group with description which will replace the old one
-	 * @return true if description changed, false otherwise
+	 * @param baseGroup base group (for logging purposes)
+	 * @param oldGroup group which will be changed
+	 * @param updatedGroup candidate group with details that will replace the old one
+	 * @return true if description or name changed, false otherwise
 	 * @throws InternalErrorException
 	 */
-	private boolean updateGroupDescription(PerunSession sess, Group groupWithOldDescription, CandidateGroup groupWithNewDescription) {
-		//If the old description is not null, compare it with the newDescription and update it if they differ
-		if(groupWithOldDescription.getDescription() != null) {
-			if(!groupWithOldDescription.getDescription().equals(groupWithNewDescription.asGroup().getDescription())){
-				groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
-				try {
-					groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
-				} catch (GroupExistsException ex) {
-					throw new InternalErrorException("Unexpected exception when trying to modify group description!");
-				}
-				getPerunBl().getAuditer().log(sess, new GroupUpdated(groupWithOldDescription));
-				return true;
-			}
-		// If the new description is not null set the old description to new one
-		} else if(groupWithNewDescription.asGroup().getDescription() != null){
-			groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
+	private boolean updateGroupDetails(PerunSession sess, Group baseGroup, Group oldGroup, CandidateGroup updatedGroup) {
+		Group oldGroupCopy = new Group(oldGroup.getName(), oldGroup.getDescription());
+		oldGroupCopy.setShortName(oldGroup.getShortName());
+
+		boolean updatedDescription = !Objects.equals(oldGroup.getDescription(), updatedGroup.asGroup().getDescription());
+		if (updatedDescription) {
+			oldGroup.setDescription(updatedGroup.asGroup().getDescription());
+		}
+
+		boolean updatedShortname = !Objects.equals(oldGroup.getShortName(), updatedGroup.asGroup().getShortName());
+		if (updatedShortname) {
+			oldGroup.setShortName(updatedGroup.asGroup().getShortName());
+		}
+
+		if (updatedDescription || updatedShortname) {
 			try {
-				groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
+				groupsManagerImpl.updateGroup(sess, oldGroup);
 			} catch (GroupExistsException ex) {
-				throw new InternalErrorException("Unexpected exception when trying to modify group description!");
+				throw new InternalErrorException("Unexpected exception when trying to modify group details", ex);
 			}
-			getPerunBl().getAuditer().log(sess, new GroupUpdated(groupWithOldDescription));
+			getPerunBl().getAuditer().log(sess, new GroupUpdated(oldGroup));
+			if (updatedDescription) {
+				log.trace("Group structure synchronization {}: value of the group description for groupId {} changed. Original value {}, new value {}.",
+					baseGroup, oldGroup.getId(), oldGroupCopy.getDescription(), oldGroup.getDescription());
+			}
+			if (updatedShortname) {
+				log.trace("Group structure synchronization {}: shortName of the group for groupId {} changed. Original value {}, new value {}.",
+					baseGroup, oldGroup.getId(), oldGroupCopy.getShortName(), oldGroup.getShortName());
+			}
+
 			return true;
 		}
+
 		return false;
 	}
 
