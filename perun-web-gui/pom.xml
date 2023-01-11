@@ -20,7 +20,7 @@
 		<!-- used GWT version supports only java version up to 11 -->
 		<java.version>11</java.version>
 		<!-- Convenience property to set the GWT version -->
-		<gwtVersion>2.9.0</gwtVersion>
+		<gwtVersion>2.10.0</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.name}</webappDirectory>
 		<gui.url.modifier/>
 	</properties>
