@@ -917,6 +917,50 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void extendGroupMembershipInGracePeriodStart() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipInGracePeriodStart");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Period will be set to month from now
+		LocalDate date = LocalDate.now().plusMonths(1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
+		// Grace period is one month (so it starts today)
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.now().plusMonths(1).plusYears(1);
+
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
+	}
+
+	@Test
 	public void extendGroupMembershipOutsideGracePeriod() throws Exception {
 		System.out.println(CLASS_NAME + "extendGroupMembershipOutsideGracePeriod");
 

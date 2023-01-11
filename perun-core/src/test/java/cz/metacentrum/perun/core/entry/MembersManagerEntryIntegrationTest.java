@@ -1030,6 +1030,42 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void extendMembershipInGracePeriodStart() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipInGracePeriodStart");
+
+		// Period will be set to month from now
+		LocalDate date = LocalDate.now().plusMonths(1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
+
+		// Grace period is one month (so it starts today)
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Try to extend membership
+		membersManagerEntry.extendMembership(sess, createdMember);
+
+		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+
+		LocalDate extendedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.now().plusMonths(1).plusYears(1);
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+		assertEquals("Year must match", requiredDate.getYear(), extendedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonth(), extendedDate.getMonth());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), extendedDate.getDayOfMonth());
+	}
+
+	@Test
 	public void extendMembershipOutsideGracePeriod() throws Exception {
 		System.out.println(CLASS_NAME + "extendGroupMembershipOutsideGracePeriod");
 
