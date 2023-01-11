@@ -39,7 +39,6 @@
 
 	<set-property name="user.agent" value="gecko1_8" />	<!-- FF -->
 	<extend-property name="user.agent" values="safari" /> <!-- CHROME -->
-	<extend-property name="user.agent" values="ie10" /> <!--  IE 10+ / Edge -->
 	<!-- Other possibilities are 'ie8', 'ie9', 'ie10', 'gecko' - for FF2 -->
 	<!-- Or don't specify values to compile for all browsers -->
 
