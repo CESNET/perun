@@ -115,7 +115,7 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
 		// check if login is permitted
 		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted(actualLoginNamespace, login)) {
 			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
-			throw new InvalidLoginException("Login '"+login+"' is not allowed in 'mu' namespace by configuration.");
+			throw new InvalidLoginException("Login '"+login+"' is not allowed in '"+actualLoginNamespace+"' namespace by configuration.");
 		}
 	}
 
