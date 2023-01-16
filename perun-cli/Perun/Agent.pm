@@ -506,7 +506,7 @@ sub convertUrlToNonAuth {
 	my $url = shift;
 	my $uri = URI->new($url);
 	my @segments = $uri->path_segments();
-	@segments[1] = "non";
+	$segments[1] = "non";
 	$uri->path_segments(@segments);
 	return $uri->as_string;
 

@@ -258,6 +258,51 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Add owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	addOwners {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<Owner> owners = new ArrayList<>();
+			if (parms.contains("ownerNames")) {
+				for (String ownerName : parms.readList("ownerNames", String.class)) {
+					owners.add(ac.getOwnerByName(ownerName));
+				}
+			} else {
+				for (Integer ownerId : parms.readList("owners", Integer.class)) {
+					owners.add(ac.getOwnerById(ownerId));
+				}
+			}
+
+			ac.getFacilitiesManager().addOwners(ac.getSession(),
+				getFacility(ac, parms),
+				owners);
+			return null;
+		}
+	},
+
+	/*#
 	 * Remove owner of a facility.
 	 *
 	 * @param facilityName String Facility name
@@ -292,6 +337,52 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			ac.getFacilitiesManager().removeOwner(ac.getSession(),
 					getFacility(ac, parms),
 					owner);
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param ownerNames List<String> Owner name
+	 */
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	/*#
+	 * Remove owners of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param owners List<int> Owner <code>id</code>
+	 */
+	removeOwners {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<Owner> owners = new ArrayList<>();
+			if (parms.contains("ownerNames")) {
+				for (String ownerName : parms.readList("ownerNames", String.class)) {
+					owners.add(ac.getOwnerByName(ownerName));
+				}
+			} else {
+				for (Integer ownerId : parms.readList("owners", Integer.class)) {
+					owners.add(ac.getOwnerById(ownerId));
+				}
+			}
+
+			ac.getFacilitiesManager().removeOwners(ac.getSession(),
+				getFacility(ac, parms),
+				owners);
 			return null;
 		}
 	},
@@ -1616,7 +1707,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *  Get all enriched bans for users on the facility.
 	 *
 	 * @param facility int Facility <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<EnrichedBanOnFacility> enriched bans on facility
 	 * @throw FacilityNotExistsException
 	 */
@@ -1639,7 +1730,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *  Get all user's enriched bans on assigned facilities.
 	 *
 	 * @param user int user <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<EnrichedBanOnFacility> enriched bans for user
 	 * @throw UserNotExistsException
 	 */
@@ -1703,7 +1794,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	};
-	
+
 	private static Facility getFacility(ApiCaller ac, Deserializer parms) throws PerunException {
 		if (parms.contains("facilityName")) return ac.getFacilityByName(parms.readString("facilityName"));
 		else return ac.getFacilityById(parms.readInt("facility"));

@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -348,6 +349,24 @@ public interface GroupsManager {
 	 */
 	void addMembers(PerunSession perunSession, Group group, List<Member> members) throws MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
 
+	/**
+	 * Copies direct members from one group to other groups in the same VO. The members are copied without their member-group attributes.
+	 * Copies all direct members if members list is empty or null.
+	 *
+	 * @param sess perun session
+	 * @param sourceGroup group to copy members from
+	 * @param destinationGroups groups to copy members to
+	 * @param members members to be copied
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws GroupNotExistsException when one of the groups does not exist
+	 * @throws MemberNotExistsException when one of the members does not exist
+	 * @throws GroupGroupMismatchException when the groups are not in the same Vo
+	 * @throws PrivilegeException
+	 * @throws ExternallyManagedException when destination group is managed from an external source
+	 */
+	void copyMembers(PerunSession sess, Group sourceGroup, List<Group> destinationGroups, List<Member> members) throws WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, MemberNotExistsException, GroupGroupMismatchException, PrivilegeException, ExternallyManagedException, MemberGroupMismatchException;
+
 
 
 	/**
@@ -434,7 +453,7 @@ public interface GroupsManager {
 	 *
 	 * Do not return expired members of the group.
 	 *
-	 * @param sess perun session
+	 * @param perunSession perun session
 	 * @param group to get members from
 	 * @return list of active (valid) members
 	 *
@@ -449,7 +468,7 @@ public interface GroupsManager {
 	 *
 	 * Do not return active members of the group.
 	 *
-	 * @param sess perun session
+	 * @param perunSession perun session
 	 * @param group to get members from
 	 * @return list of inactive (expired) members
 	 *
@@ -560,6 +579,17 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 */
 	int getGroupMembersCount(PerunSession perunSession, Group group) throws GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns count of direct members in the group
+	 *
+	 * @param sess
+	 * @param group
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 * @return count
+	 */
+	int getGroupDirectMembersCount(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns counts of group members by their status in VO.
@@ -1410,6 +1440,20 @@ public interface GroupsManager {
 	 */
 	void allowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException, RelationExistsException;
 
+
+	/**
+	 * Sets flag required for including groups to parent vo in a vo hierarchy.
+	 * @param sess perun session
+	 * @param groups list of groups
+	 * @param vo parent vo
+	 * @throws VoNotExistsException if vo does not exist
+	 * @throws GroupNotExistsException if group does not exist
+	 * @throws PrivilegeException insufficient rights
+	 * @throws RelationNotExistsException if group is not from parent vo's member vos
+	 * @throws RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	void allowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException, RelationExistsException;
+
 	/**
 	 * Unsets flag required for including group to parent vo in a vo hierarchy
 	 * @param sess perun session
@@ -1421,6 +1465,18 @@ public interface GroupsManager {
 	 * @throws RelationNotExistsException if group is not allowed to be included in parent vo
 	 */
 	void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException;
+
+	/**
+	 * Unsets flag required for including groups to parent vo in a vo hierarchy
+	 * @param sess perun session
+	 * @param groups list of groups
+	 * @param vo parent vo
+	 * @throws VoNotExistsException if vo does not exist
+	 * @throws GroupNotExistsException if group does not exist
+	 * @throws PrivilegeException insufficient rights
+	 * @throws RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	void disallowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException;
 
 	/**
 	 * Returns flag representing if the group can be included in the (parent) vo's groups

@@ -5,7 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.DirectoryScopes;
 import com.google.api.services.directory.model.Member;
@@ -258,7 +258,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 		ExtSourceGoogle.SERVICE_ACCOUNT_EMAIL = getAttributes().get("serviceAccountEmail");
 		ExtSourceGoogle.USER_EMAIL = getAttributes().get("userEmail");
 		ExtSourceGoogle.SERVICE_ACCOUNT_PKCS12_FILE_PATH = getAttributes().get("p12File");
-		ExtSourceGoogle.JSON_FACTORY = JacksonFactory.getDefaultInstance();
+		ExtSourceGoogle.JSON_FACTORY = GsonFactory.getDefaultInstance();
 		ExtSourceGoogle.HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 		ExtSourceGoogle.SCOPES = Arrays.asList(DirectoryScopes.ADMIN_DIRECTORY_USER,
 				DirectoryScopes.ADMIN_DIRECTORY_USER_READONLY,

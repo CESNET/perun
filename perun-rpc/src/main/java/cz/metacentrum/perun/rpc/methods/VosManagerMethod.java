@@ -756,7 +756,7 @@ public enum VosManagerMethod implements ManagerMethod {
 		}
 	},
 
-	/**
+	/*#
 	 * Get list of all EnrichedBans for Vo.
 	 *
 	 * @param vo int vo id
@@ -776,7 +776,7 @@ public enum VosManagerMethod implements ManagerMethod {
 		}
 	},
 
-	/**
+	/*#
 	 * Get list of all EnrichedBans for User.
 	 * @param user int user id
 	 * @param attrNames List<String> list of attributes names, if null or empty, returns all attributes

@@ -102,6 +102,8 @@
 # SPONSORSHIP role that is set for all members who are sponsored by the principal. This role is not
 # explicitly saved in DB!!
 #
+# PASSWORDRESETMANAGER role is used to reset user's password.
+#
 # MEMBERSHIP role represents principal's membership in a group, VO or association with facility. This role is not
 ## explicitly saved in DB!!
 #
@@ -135,6 +137,7 @@ perun_roles:
   - CABINETADMIN
   - AUDITCONSUMERADMIN
   - SPONSORSHIP
+  - PASSWORDRESETMANAGER
   - MEMBERSHIP
   - UNKNOWN
 
@@ -1441,6 +1444,28 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  source-copyMembers_Group_List<Group>_List<Member>_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  dest-copyMembers_Group_List<Group>_List<Member>_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+
   addMember_List<Group>_Member_policy:
     policy_roles:
       - GROUPADMIN: Group
@@ -1640,6 +1665,17 @@ perun_policies:
       - default_policy
 
   getGroupMembersCount_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupDirectMembersCount_Group_policy:
     policy_roles:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -2624,6 +2660,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SPREGAPPLICATION:
+      - PASSWORDRESETMANAGER:
     include_policies:
       - default_policy
 
@@ -3151,6 +3188,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - SPONSORSHIP: Member
+      - PASSWORDRESETMANAGER:
     include_policies:
       - default_policy
     mfa_rules:
@@ -5336,6 +5374,7 @@ perun_policies:
   getDestinationById_int_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - RPC:
       - ENGINE:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
@@ -5674,6 +5713,7 @@ perun_policies:
       - REGISTRAR:
       - PERUNOBSERVER:
       - SPREGAPPLICATION:
+      - PASSWORDRESETMANAGER:
     include_policies:
       - default_policy
 
@@ -6592,6 +6632,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - PASSWORDRESETMANAGER:
     include_policies:
       - default_policy
 
@@ -8429,6 +8470,22 @@ perun_roles_management:
     associated_read_roles: []
     assignable_to_attributes: true
     display_name: "Cabinet admin"
+
+  PASSWORDRESETMANAGER:
+    primary_object:
+    assign_to_objects: { }
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+    skip_mfa: true
+    assignment_check: [ ]
+    display_name: "Password reset manager"
 
   MEMBERSHIP:
     primary_object:

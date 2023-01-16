@@ -679,6 +679,33 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Remove user's external sources.
+	 * Persistent UserExtSources are not removed unless <code>force</code> param is present and set to <code>true</code>.
+	 * @param user int User <code>id</code>
+	 * @param userExtSources List<Integer> UserExtSource <code>id</code>
+	 * @param force boolean If true, use force deletion.
+	 */
+	removeUserExtSources {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<UserExtSource> sources = new ArrayList<>();
+
+			for (Integer sourceId : parms.readList("userExtSources", Integer.class)) {
+				sources.add(ac.getUserExtSourceById(sourceId));
+			}
+
+			ac.getUsersManager().removeUserExtSources(ac.getSession(),
+				ac.getUserById(parms.readInt("user")),
+				sources, parms.contains("force") && parms.readBoolean("force"));
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Move user's external source from sourceUser to targetUser.
 	 * @param sourceUser int User <code>id</code>
 	 * @param targetUser int User <code>id</code>

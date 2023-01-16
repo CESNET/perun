@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public enum ExtSourcesManagerMethod implements ManagerMethod {
@@ -159,6 +161,46 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Associate external source definitions with a VO.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param sourceIds List<Integer> ExtSource <code>id</code>
+	 */
+	/*#
+	 * Associate external source definitions with a GROUP.
+	 *
+	 * @param group int GROUP <code>id</code>
+	 * @param extSources List<Integer> ExtSource <code>id</code>
+	 */
+	addExtSources {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms)
+			throws PerunException {
+			parms.stateChangingCheck();
+
+			List<ExtSource> sources = new ArrayList<>();
+			for (Integer srcId : parms.readList("extSources", Integer.class)) {
+				sources.add(ac.getExtSourceById(srcId));
+			}
+
+			if(parms.contains("vo")) {
+				ac.getExtSourcesManager().addExtSources(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					sources);
+			} else if(parms.contains("group")) {
+				ac.getExtSourcesManager().addExtSources(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					sources);
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+			}
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Remove an association of an external source from a VO.
 	 *
 	 * @param vo int VO <code>id</code>
@@ -191,6 +233,46 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 
 		
 		return null;
+		}
+	},
+
+	/*#
+	 * Remove associations of external sources from a VO.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param sourceIds List<Integer> ExtSource <code>id</code>
+	 */
+	/*#
+	 * Remove associations of external sources from a GROUP.
+	 *
+	 * @param group int GROUP <code>id</code>
+	 * @param extSources List<Integer> ExtSource <code>id</code>
+	 */
+	removeExtSources {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms)
+			throws PerunException {
+			parms.stateChangingCheck();
+
+			List<ExtSource> sources = new ArrayList<>();
+			for (Integer srcId : parms.readList("extSources", Integer.class)) {
+				sources.add(ac.getExtSourceById(srcId));
+			}
+
+			if(parms.contains("vo")) {
+				ac.getExtSourcesManager().removeExtSources(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					sources);
+			} else if(parms.contains("group")) {
+				ac.getExtSourcesManager().removeExtSources(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					sources);
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+			}
+
+			return null;
 		}
 	},
 

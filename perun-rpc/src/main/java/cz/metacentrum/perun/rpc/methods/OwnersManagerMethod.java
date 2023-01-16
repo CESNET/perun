@@ -7,6 +7,8 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public enum OwnersManagerMethod implements ManagerMethod {
@@ -67,7 +69,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	 */
 	deleteOwner {
 		@Override
-		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
 			boolean force = false;
@@ -75,6 +77,42 @@ public enum OwnersManagerMethod implements ManagerMethod {
 				force = parms.readBoolean("force");
 			}
 			ac.getOwnersManager().deleteOwner(ac.getSession(), ac.getOwnerById(parms.readInt("owner")), force);
+			return null;
+		}
+	},
+
+	/*#
+	 * Deletes owners.
+	 *
+	 * @param owners List<Integer> Owner <code>id</code>
+	 * @return Object Always null
+	 */
+	/*#
+	 * Forcefully deletes owners.
+	 *
+	 * @param owners List<Integer> Owner <code>id</code>
+	 * @param force boolean Force must be true
+	 * @return Object Always null
+	 */
+	deleteOwners {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Owner> owners = new ArrayList<>();
+			for (Integer ownerId : parms.readList("owners", Integer.class)) {
+				owners.add(ac.getOwnerById(ownerId));
+			}
+
+			boolean force = false;
+			if (parms.contains("force")) {
+				force = parms.readBoolean("force");
+			}
+
+			ac.getOwnersManager().deleteOwners(ac.getSession(),
+				owners,
+				force
+			);
 			return null;
 		}
 	},

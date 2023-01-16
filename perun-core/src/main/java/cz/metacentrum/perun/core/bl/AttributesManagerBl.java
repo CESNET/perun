@@ -847,7 +847,7 @@ public interface AttributesManagerBl {
 	void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 	/**
-	 * Store the attributes associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+	 * Store the attributes associated with the group and member combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
 	 * @param sess perun session
 	 * @param member member to set on
@@ -856,7 +856,7 @@ public interface AttributesManagerBl {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is illegal
-	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute
+	 * @throws WrongAttributeAssignmentException if attribute is not member-group attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException;
@@ -4822,5 +4822,12 @@ public interface AttributesManagerBl {
 	 * @throws RelationNotExistsException if trying to unmark not critical action
 	 */
 	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException;
+
+	/**
+	 * Returns list of definitions of IdP attributes that are filled to fedInfo
+	 * @param sess session
+	 * @return list of attribute definitions
+	 */
+	List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess);
 }
 

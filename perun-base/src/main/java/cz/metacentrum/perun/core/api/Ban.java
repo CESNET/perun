@@ -22,10 +22,7 @@ public abstract class Ban extends Auditable implements Comparable<PerunBean> {
 	public Ban(int id, Date validityTo) {
 		super(id);
 		//set precision for validity on seconds
-		if (validityTo != null) {
-			validityTo = new Date(validityTo.getTime() / 1000 * 1000);
-		}
-		this.validityTo = validityTo;
+		this.validityTo = (validityTo != null) ? new Date(validityTo.getTime() / 1000 * 1000) : null;
 	}
 
 	public Ban(int id, Date validityTo, String description) {
@@ -43,9 +40,7 @@ public abstract class Ban extends Auditable implements Comparable<PerunBean> {
 
 	public void setValidityTo(Date validityTo) {
 		//set precision for validity on seconds
-		if(validityTo == null) this.validityTo = validityTo;
-		else validityTo = new Date(validityTo.getTime() / 1000 * 1000);
-		this.validityTo = validityTo;
+		this.validityTo = (validityTo != null) ? new Date(validityTo.getTime() / 1000 * 1000) : null;
 	}
 
 	public String getDescription() {

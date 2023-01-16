@@ -111,9 +111,24 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
+	public void addExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources) throws ExtSourceAlreadyAssignedException {
+		for (ExtSource src: sources) {
+			addExtSource(perunSession, vo, src);
+		}
+	}
+
+
+	@Override
 	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws ExtSourceAlreadyAssignedException {
 		getExtSourcesManagerImpl().addExtSource(sess, group, source);
 		getPerunBl().getAuditer().log(sess, new ExtSourceAddedToGroup(source, group));
+	}
+
+	@Override
+	public void addExtSources(PerunSession perunSession, Group group, List<ExtSource> sources) throws ExtSourceAlreadyAssignedException {
+		for (ExtSource src: sources) {
+			addExtSource(perunSession, group, src);
+		}
 	}
 
 	@Override
@@ -146,9 +161,23 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
+	public void removeExtSources(PerunSession sess, Vo vo, List<ExtSource> sources) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		for (ExtSource src : sources) {
+			removeExtSource(sess, vo, src);
+		}
+	}
+
+	@Override
 	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		getExtSourcesManagerImpl().removeExtSource(sess, group, source);
 		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromGroup(source, group));
+	}
+
+	@Override
+	public void removeExtSources(PerunSession sess, Group group, List<ExtSource> sources) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		for (ExtSource src : sources) {
+			removeExtSource(sess, group, src);
+		}
 	}
 
 	@Override

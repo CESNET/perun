@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -521,6 +522,21 @@ public interface ResourcesManager {
 	void removeService(PerunSession perunSession, Resource resource, Service service) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
 
 	/**
+	 * Remove service from multiple resources in the same facility
+	 *
+	 * @param perunSession
+	 * @param resources
+	 * @param service
+	 * @throws PrivilegeException
+	 * @throws ResourceNotExistsException
+	 * @throws ServiceNotExistsException
+	 * @throws ServiceNotAssignedException
+	 * @throws FacilityMismatchException
+	 * @throws FacilityNotExistsException
+	 */
+	void removeService(PerunSession perunSession, List<Resource> resources, Service service) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException, FacilityNotExistsException, FacilityMismatchException;
+
+	/**
 	 * Remove services from resource.
 	 *
 	 * @param perunSession
@@ -795,6 +811,20 @@ public interface ResourcesManager {
 	void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagAlreadyAssignedException;
 
 	/**
+	 * Assign existing ResourceTags on existing Resource.
+	 *
+	 * @param perunSession
+	 * @param resourceTags
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ResourceTagNotExistsException
+	 * @throws ResourceNotExistsException
+	 * @throws ResourceTagAlreadyAssignedException
+	 */
+	void assignResourceTagsToResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagAlreadyAssignedException;
+
+	/**
 	 * Remove specific ResourceTag from existing Resource.
 	 *
 	 * @param perunSession
@@ -807,6 +837,20 @@ public interface ResourcesManager {
 	 * @throws ResourceTagNotAssignedException
 	 */
 	void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagNotAssignedException;
+
+	/**
+	 * Remove specific ResourceTags from existing Resource.
+	 *
+	 * @param perunSession
+	 * @param resourceTags
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ResourceTagNotExistsException
+	 * @throws ResourceNotExistsException
+	 * @throws ResourceTagNotAssignedException
+	 */
+	void removeResourceTagsFromResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagNotAssignedException;
 
 	/**
 	 * Remove all Resource tags for specific resource.

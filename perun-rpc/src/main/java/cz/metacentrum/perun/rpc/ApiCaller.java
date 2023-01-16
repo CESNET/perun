@@ -423,6 +423,10 @@ public class ApiCaller {
 		return d;
 	}
 
+	public Destination getDestinationById(int id) throws PerunException {
+		return getServicesManager().getDestinationById(rpcSession, id);
+	}
+
 	public List<Object> convertGroupsWithHierarchy(Group group, Map<Group, Object> groups) {
 		if (group != null) {
 			List<Object> groupHierarchy = new ArrayList<Object>();

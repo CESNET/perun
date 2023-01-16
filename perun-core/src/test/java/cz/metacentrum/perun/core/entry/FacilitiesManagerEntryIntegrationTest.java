@@ -333,6 +333,23 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void addOwners() throws Exception {
+		System.out.println(CLASS_NAME + "addOwners");
+
+		Facility testFacility = perun.getFacilitiesManager().createFacility(sess, new Facility(123, "test"));
+
+		Owner owner2 = new Owner();
+		owner2.setName("SecondTestOwner");
+		owner2.setContact("testingSecondOwner");
+		owner2.setType(OwnerType.technical);
+		perun.getOwnersManager().createOwner(sess, owner2);
+
+		perun.getFacilitiesManager().addOwners(sess, testFacility, List.of(owner, owner2));
+
+		assertEquals(2, perun.getFacilitiesManager().getOwners(sess, testFacility).size());
+	}
+
 	@Test (expected=OwnerNotExistsException.class)
 	public void addOwnerWhenOwnerNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "addOwnerWhenOwnerNotExists");
@@ -372,6 +389,24 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		List<Owner> owners = perun.getFacilitiesManager().getOwners(sess, facility);
 		assertTrue("facility shouldn't have owner", owners.isEmpty());
 
+	}
+
+	@Test
+	public void removeOwners() throws Exception {
+		System.out.println(CLASS_NAME + "removeOwners");
+
+		Owner owner2 = new Owner();
+		owner2.setName("SecondTestOwner");
+		owner2.setContact("testingSecondOwner");
+		owner2.setType(OwnerType.technical);
+		perun.getOwnersManager().createOwner(sess, owner2);
+		perun.getFacilitiesManager().addOwner(sess, facility, owner2);
+
+		assertEquals(2, perun.getFacilitiesManager().getOwners(sess, facility).size());
+
+		perun.getFacilitiesManager().removeOwners(sess, facility, List.of(owner, owner2));
+
+		assertEquals(0, perun.getFacilitiesManager().getOwners(sess, facility).size());
 	}
 
 	@Test (expected=OwnerAlreadyRemovedException.class)

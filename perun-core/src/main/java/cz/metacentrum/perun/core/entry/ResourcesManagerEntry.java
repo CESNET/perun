@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -34,6 +35,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceExcepti
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -591,6 +593,32 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public void removeService(PerunSession perunSession, List<Resource> resources, Service service) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException, FacilityNotExistsException, FacilityMismatchException {
+		Utils.checkPerunSession(perunSession);
+
+		if (resources == null || resources.isEmpty()) {
+			throw new IllegalArgumentException("List of resource ids null or empty");
+		}
+		getPerunBl().getServicesManagerBl().checkServiceExists(perunSession, service);
+
+		int facilityId = resources.get(0).getFacilityId();
+		for (Resource resource : resources) {
+			getResourcesManagerBl().checkResourceExists(perunSession, resource);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(perunSession, "removeService_Resource_Service_policy", Arrays.asList(resource, service))) {
+				throw new PrivilegeException(perunSession, "removeServices");
+			}
+
+			if (facilityId != resource.getFacilityId()) {
+				throw new FacilityMismatchException("Resources " + resource.getName() + " and " + resources.get(0).getName() + " are from different facilities!");
+			}
+
+			getResourcesManagerBl().removeService(perunSession, resource, service);
+		}
+	}
+
+	@Override
 	public void removeServices(PerunSession sess, Resource resource, List<Service> services) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -913,6 +941,25 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public void assignResourceTagsToResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagAlreadyAssignedException {
+		Utils.notNull(perunSession, "perunSession");
+		resourcesManagerBl.checkResourceExists(perunSession, resource);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(perunSession, "assignResourceTagToResource_ResourceTag_Resource_policy", resource)) {
+			throw new PrivilegeException(perunSession, "assignResourceTagsToResource");
+		}
+
+		for (ResourceTag tag : resourceTags) {
+			Utils.notNull(tag, "resourceTag");
+			resourcesManagerBl.checkResourceTagExists(perunSession, tag);
+			if (tag.getVoId() != resource.getVoId()) throw new ConsistencyErrorException("ResourceTag is from other Vo than Resource to which you want to assign it.");
+		}
+
+		resourcesManagerBl.assignResourceTagsToResource(perunSession, resourceTags, resource);
+	}
+
+	@Override
 	public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagNotAssignedException {
 		Utils.notNull(perunSession, "perunSession");
 		Utils.notNull(resourceTag, "resourceTag");
@@ -926,6 +973,26 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		resourcesManagerBl.removeResourceTagFromResource(perunSession, resourceTag, resource);
+	}
+
+	@Override
+	public void removeResourceTagsFromResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws PrivilegeException, ResourceTagNotExistsException, ResourceNotExistsException, ResourceTagNotAssignedException {
+		Utils.notNull(perunSession, "perunSession");
+		resourcesManagerBl.checkResourceExists(perunSession, resource);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(perunSession, "removeResourceTagFromResource_ResourceTag_Resource_policy", resource)) {
+			throw new PrivilegeException(perunSession, "removeResourceTagsFromResource");
+		}
+
+		for (ResourceTag tag : resourceTags) {
+			Utils.notNull(tag, "resourceTag");
+			resourcesManagerBl.checkResourceTagExists(perunSession, tag);
+			if (tag.getVoId() != resource.getVoId()) throw new ConsistencyErrorException("ResourceTag is from other Vo than Resource to which you want to remove from.");
+
+		}
+
+		resourcesManagerBl.removeResourceTagsFromResource(perunSession, resourceTags, resource);
 	}
 
 	@Override

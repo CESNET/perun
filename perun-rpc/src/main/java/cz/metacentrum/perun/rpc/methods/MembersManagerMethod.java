@@ -170,12 +170,17 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
 	 *                            default is false, can't be used with empty email parameter
 	 *                            If set to true, a non-empty namespace has to be provided.
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @return RichMember newly created sponsored member
 	 */
 	createSponsoredMember {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
 			params.stateChangingCheck();
+			String language = null;
+			if (params.contains("language")) {
+				language = params.readString("language");
+			}
 			if (!params.contains("userData")) {
 				// FIXME old behaviour - this should be removed once we are ready to use only the new behaviour
 
@@ -217,7 +222,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
 				}
 
-				return ac.getMembersManager().createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
+				return ac.getMembersManager().createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo, sendActivationLink, language, params.getServletRequest().getRequestURL().toString());
 			} else {
 				// FIXME new behaviour
 
@@ -253,7 +258,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
 				}
 				return ac.getMembersManager().createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo,
-						sendActivationLink, params.getServletRequest().getRequestURL().toString());
+						sendActivationLink, language, params.getServletRequest().getRequestURL().toString());
 			}
 		}
 	},
@@ -350,6 +355,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param sendActivationLinks (optional) boolean if true link for manual activation of every created sponsored member
 	 *                           account will be send to the email (can't be used with empty email parameter), default is false
 	 *                           If set to true, a non-empty namespace has to be provided.
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param groups int[] group ids, to which will be the created users assigned (has to be from the given vo)
 	 * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
 	 */
@@ -368,6 +374,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			}
 			if (sendActivationLink && isBlank(namespace)) {
 				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "If the sendActivationLink is set to true, a namespace has to be provided.");
+			}
+			String language = null;
+			if (params.contains("language")) {
+				language = params.readString("language");
 			}
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {
@@ -396,7 +406,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 			return ac.getMembersManager()
 					.createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo,
-							sendActivationLink, params.getServletRequest().getRequestURL().toString(), groups);
+							sendActivationLink, language, params.getServletRequest().getRequestURL().toString(), groups);
 		}
 	},
 
@@ -425,6 +435,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member account will be send
 	 *                           to the email, be careful when using with empty (no-reply) email, default is false
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
 	 */
@@ -442,6 +453,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			if (params.contains("validityTo")) {
 				validityTo = params.readLocalDate("validityTo");
 			}
+			String language = null;
+			if (params.contains("language")) {
+				language = params.readString("language");
+			}
 			String email = null;
 			if (params.contains("email")) {
 				email = params.readString("email");
@@ -457,7 +472,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value: 'guestNames' must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
+			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo, sendActivationLink, language, params.getServletRequest().getRequestURL().toString());
 		}
 	},
 
@@ -526,6 +541,38 @@ public enum MembersManagerMethod implements ManagerMethod {
 		}
 	},
 
+
+	/*#
+	 * For an existing member, assigns a new sponsor.
+	 *
+	 * Can be called only by VO admin.
+	 *
+	 * @param members List<Integer> ids of sponsored members
+	 * @param sponsor int id of sponsoring user
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 */
+	sponsorMembers {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+
+
+			List<Member> sponsored = new ArrayList<>();
+			for (Integer id : params.readList("members", Integer.class)) {
+				sponsored.add(ac.getMemberById(id));
+			}
+
+
+			User sponsor = ac.getUserById(params.readInt("sponsor"));
+			LocalDate validityTo = null;
+			if (params.contains("validityTo")) {
+				validityTo = params.readLocalDate("validityTo");
+			}
+			ac.getMembersManager().sponsorMembers(ac.getSession(), sponsored, sponsor, validityTo);
+			return null;
+		}
+	},
+
 	/*#
 	 * Removes sponsor of existing member.
 	 *
@@ -541,6 +588,30 @@ public enum MembersManagerMethod implements ManagerMethod {
 			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
 			User sponsorToRemove = ac.getUserById(params.readInt("sponsor"));
 			ac.getMembersManager().removeSponsor(ac.getSession(), sponsoredMember, sponsorToRemove);
+			return null;
+		}
+	},
+
+	/*#
+	 * Removes sponsors of existing member.
+	 *
+	 * Can be called only by VO admin.
+	 *
+	 * @param member int id of sponsored member, optional
+	 * @param sponsorIds List<Integer> ids of sponsoring users that are to be removed
+	 */
+	removeSponsors {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+
+			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
+			List<User> sponsorsToRemove = new ArrayList<>();
+			for (Integer id : params.readList("sponsorIds", Integer.class)) {
+				sponsorsToRemove.add(ac.getUserById(id));
+			}
+
+			ac.getMembersManager().removeSponsors(ac.getSession(), sponsoredMember, sponsorsToRemove);
 			return null;
 		}
 	},

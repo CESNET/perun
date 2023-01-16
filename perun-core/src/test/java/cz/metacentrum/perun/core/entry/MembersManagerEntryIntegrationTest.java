@@ -1030,6 +1030,42 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void extendMembershipInGracePeriodStart() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipInGracePeriodStart");
+
+		// Period will be set to month from now
+		LocalDate date = LocalDate.now().plusMonths(1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
+
+		// Grace period is one month (so it starts today)
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Try to extend membership
+		membersManagerEntry.extendMembership(sess, createdMember);
+
+		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+
+		LocalDate extendedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.now().plusMonths(1).plusYears(1);
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+		assertEquals("Year must match", requiredDate.getYear(), extendedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonth(), extendedDate.getMonth());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), extendedDate.getDayOfMonth());
+	}
+
+	@Test
 	public void extendMembershipOutsideGracePeriod() throws Exception {
 		System.out.println(CLASS_NAME + "extendGroupMembershipOutsideGracePeriod");
 
@@ -1757,7 +1793,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 				"Obi-wan;Kenobi;obi@ics.muni.cz;\"He has the high ground\""
 		);
 		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
-				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null, Validation.SYNC, null);
+				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null, null, Validation.SYNC, null);
 		assertThat(allResults).hasSize(2);
 
 		Map<String, String> user1Data = allResults.stream().filter(m -> m.get("name").equals("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"")).findFirst().get();
@@ -1794,7 +1830,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		);
 		assertThatExceptionOfType(InternalErrorException.class)
 				.isThrownBy(() -> perun.getMembersManagerBl().createSponsoredMembersFromCSV(sess, createdVo, "dummy",
-						data, header, sponsorUser, null, false, null, Validation.SYNC, null))
+						data, header, sponsorUser, null, false, null, null, Validation.SYNC, null))
 				.withMessageContaining("Not allowed additional value passed, value: ");
 	}
 
@@ -1812,7 +1848,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 				"Darth;Vader;vader@ics.muni.cz;\"Best dad ever\""
 		);
 		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
-				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null,
+				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null, null,
 				Validation.SYNC, List.of(createdGroup));
 
 		Map<String, String> user1Data = allResults.stream().filter(m -> m.get("name").equals("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"")).findFirst().get();
@@ -1836,7 +1872,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		//create guests
-		List<Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
+		List<Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), null, sponsorUser, null, false, null, null, Validation.SYNC);
 		assertEquals("there should be two members", 2, loginAndPassword.size());
 		for (Map<String, String> dataMap: loginAndPassword) {
 			assertEquals("status should be OK", "OK", dataMap.get("status"));
@@ -1859,7 +1895,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		//create guests
 		List<Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess,
-				createdVo, "dummy", Collections.singletonList(firstName + ";" + lastName), null, sponsorUser, null, false, null, Validation.SYNC);
+				createdVo, "dummy", Collections.singletonList(firstName + ";" + lastName), null, sponsorUser, null, false, null, null, Validation.SYNC);
 
 		assertThat(loginAndPassword).hasSize(1);
 
@@ -1884,7 +1920,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		//create guests
-		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Novák", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
+		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Novák", "Jan Novák"), null, sponsorUser, null, false, null, null, Validation.SYNC);
 		assertEquals("there should be three members", 3, allResults.size());
 
 		Map<String, String> user1Data = allResults.stream().filter(m -> m.get("name").equals("Ing. Jiří Novák, CSc.")).findFirst().get();
@@ -1913,7 +1949,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
 		perun.getGroupsManagerBl().addMember(sess, sponsors, sponsorMember);
 
-		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Jan Novák", "Jan Novák"), null, sponsorUser, null, false, null, Validation.SYNC);
+		List<Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Jan Novák", "Jan Novák"), null, sponsorUser, null, false, null, null, Validation.SYNC);
 		assertEquals("there should be two members", 2, allResults.size());
 	}
 
@@ -2008,6 +2044,36 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getMembersManager().sponsorMember(sess, sponsoredMember, sponsorUser, null);
 		sponsorship = perun.getMembersManagerBl().getSponsorship(sess, sponsoredMember, sponsorUser);
 		assertTrue(sponsorship.isActive());
+	}
+
+	@Test
+	public void bulkRemoveSponsors() throws Exception {
+		System.out.println(CLASS_NAME + "bulkRemoveSponsors");
+
+		//create user which can sponsor
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		//create another user which can sponsor
+		User sponsorUser2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+		AuthzResolverBlImpl.setRole(sess, sponsorUser2, createdVo, Role.SPONSOR);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser2, Role.SPONSOR, createdVo, true));
+
+		Member member = setUpMember(createdVo);
+
+		perun.getMembersManager().sponsorMembers(sess, List.of(member), sponsorUser, null);
+		perun.getMembersManager().sponsorMembers(sess, List.of(member), sponsorUser2, null);
+
+		List<User> sponsors = perun.getUsersManagerBl().getSponsors(sess, member);
+		assertTrue("sponsor 1 is not reported as sponsor", sponsors.contains(sponsorUser));
+		assertTrue("sponsor 2 is not reported as sponsor", sponsors.contains(sponsorUser2));
+		assertTrue("unexpected sponsors", sponsors.size() == 2);
+		assertTrue(member.isSponsored());
+
+		perun.getMembersManager().removeSponsors(sess, member, List.of(sponsorUser, sponsorUser2));
+		// after removing all sponsors, member should no longer be sponsored
+		assertFalse(member.isSponsored());
+
 	}
 
 	@Test
@@ -2185,6 +2251,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertThat(sponsors.get(sponsor1)).isNull();
 		assertThat(sponsors.containsKey(sponsor2));
 		assertThat(sponsors.get(sponsor2)).isEqualTo(validity);
+
+	}
+
+	@Test
+	public void bulkSponsorMembers() throws Exception {
+		System.out.println(CLASS_NAME + "bulkSponsorMembers");
+
+		Member member1 = setUpMember(createdVo);
+		Member member2 = setUpMember2(createdVo);
+
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+
+		membersManagerEntry.sponsorMembers(sess, List.of(member1, member2), sponsor1, null);
+
+		List<MemberWithSponsors> membersWithSponsors = perun.getMembersManager()
+			.getSponsoredMembersAndTheirSponsors(sess, createdVo, Collections.emptyList());
+
+		assertThat(membersWithSponsors).hasSize(2);
+
+		for (MemberWithSponsors member: membersWithSponsors) {
+			assertThat(member.getSponsors()).hasSize(1);
+			assertThat(member.getSponsors().get(0).getUser()).isEqualTo(sponsor1);
+		}
+
 
 	}
 
@@ -3511,6 +3603,6 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		input.setPassword(password);
 		input.setEmail(email);
 
-		return perun.getMembersManagerBl().createSponsoredMember(sess, input, vo, sponsor, null, false, null, Validation.SYNC);
+		return perun.getMembersManagerBl().createSponsoredMember(sess, input, vo, sponsor, null, false, null,null, Validation.SYNC);
 	}
 }

@@ -20,7 +20,7 @@
 		<!-- used GWT version supports only java version up to 11 -->
 		<java.version>11</java.version>
 		<!-- Convenience property to set the GWT version -->
-		<gwtVersion>2.9.0</gwtVersion>
+		<gwtVersion>2.10.0</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.name}</webappDirectory>
 		<gui.url.modifier/>
 	</properties>
@@ -34,7 +34,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.4</version>
+				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<phase>validate</phase>
@@ -72,7 +72,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-				<version>2.9.0</version>
+				<version>2.10.0</version>
 				<executions>
 					<execution>
 						<goals>

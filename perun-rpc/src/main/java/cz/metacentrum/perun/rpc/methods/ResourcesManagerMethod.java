@@ -903,11 +903,31 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource <code>id</code>
 	 * @param service int Service <code>id</code>
 	 */
+
+	/*#
+	 * Removes service from multiple resources in the same facility.
+	 *
+	 * @param resources List<Integer> Resource <code>id</code>
+	 * @param service int Service <code>id</code>
+	 */
 	removeService {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
+
+			if (parms.contains("resources")) {
+				List<Resource> resources = new ArrayList<>();
+
+				for (Integer resourceId : parms.readList("resources", Integer.class)) {
+					resources.add(ac.getResourceById(resourceId));
+				}
+
+				ac.getResourcesManager().removeService(ac.getSession(),
+					resources,
+					ac.getServiceById(parms.readInt("service")));
+				return null;
+			}
 
 			ac.getResourcesManager().removeService(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),
@@ -1206,6 +1226,22 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Assign resource tags to resource
+	 *
+	 * @param resourceTags List<ResourceTag> ResourceTags to assign
+	 * @param resource int <code>id</code> of Resource to assign tags for
+	 */
+	assignResourceTagsToResource {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getResourcesManager().assignResourceTagsToResource(ac.getSession(),
+				parms.readList("resourceTags", ResourceTag.class),
+				ac.getResourceById(parms.readInt("resource")));
+			return null;
+		}
+	},
+
+	/*#
 	 * Remove resource tag from resource
 	 *
 	 * @param resourceTag ResourceTag ResourceTag to remove
@@ -1217,6 +1253,22 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			ac.getResourcesManager().removeResourceTagFromResource(ac.getSession(),
 					parms.read("resourceTag", ResourceTag.class),
 					ac.getResourceById(parms.readInt("resource")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove resource tags from resource
+	 *
+	 * @param resourceTags List<ResourceTag> ResourceTags to remove
+	 * @param resource int <code>id</code> of Resource to remove tags for
+	 */
+	removeResourceTagsFromResource {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getResourcesManager().removeResourceTagsFromResource(ac.getSession(),
+				parms.readList("resourceTags", ResourceTag.class),
+				ac.getResourceById(parms.readInt("resource")));
 			return null;
 		}
 	},
@@ -1370,7 +1422,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all bans for members on the resource.
 	 *
-	 * @param resourceId int Resource <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @return List<BanOnResource> membersBansOnResource
 	 */
 	getBansForResource {
@@ -1388,7 +1440,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 *  Get all enriched bans for members on the resource.
 	 *
 	 * @param resource int Resource <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<BanOnResource> enriched bans on resource
 	 * @throw ResourceNotExistsException
 	 */
@@ -1411,7 +1463,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 *  Get all enriched bans for user's members on resources.
 	 *
 	 * @param user int user <code>id</code>
-	 * @attrNames list of attribute names, if empty or null returns all user and member attributes
+	 * @param attrNames List<String> list of attribute names, if empty or null returns all user and member attributes
 	 * @return List<BanOnResource> enriched bans for user
 	 * @throw UserNotExistsException
 	 */

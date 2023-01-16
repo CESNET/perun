@@ -7,6 +7,8 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Matej Hakoš
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_optional_login_namespace extends UserVirtualAttributesModuleAbstract {
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_optional_login_namespace.class);
 
@@ -24,8 +27,8 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace extends 
 		Attribute attr = new Attribute(attribute);
 		String namespace = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + attribute.getFriendlyNameParameter();
 		try {
-			Attribute a = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, namespace);
-			attr.setValue(a.getValue());
+			Attribute defLogin = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, namespace);
+			Utils.copyAttributeToVirtualAttributeWithValue(defLogin, attr);
 		} catch (AttributeNotExistsException e) {
 			// We log the non-existing attribute, but we don't throw an exception.
 			log.warn("Attribute {} does not exist.", namespace);

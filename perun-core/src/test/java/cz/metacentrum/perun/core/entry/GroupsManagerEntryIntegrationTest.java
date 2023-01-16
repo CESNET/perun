@@ -57,6 +57,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipEx
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.Assert;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.annotation.JsonAppend;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -916,6 +917,50 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void extendGroupMembershipInGracePeriodStart() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipInGracePeriodStart");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Period will be set to month from now
+		LocalDate date = LocalDate.now().plusMonths(1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
+		// Grace period is one month (so it starts today)
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.now().plusMonths(1).plusYears(1);
+
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
+	}
+
+	@Test
 	public void extendGroupMembershipOutsideGracePeriod() throws Exception {
 		System.out.println(CLASS_NAME + "extendGroupMembershipOutsideGracePeriod");
 
@@ -1543,6 +1588,53 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertFalse(groupsManager.isDirectGroupMember(sess, group3, member));
 		assertTrue(groupsManager.isDirectGroupMember(sess, group4, member));
 		assertTrue(groupsManager.isDirectGroupMember(sess, group2, member));
+	}
+
+	@Test
+	public void copyMembersWithoutAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "copyMembersWithoutAttributes");
+
+		vo = setUpVo();
+
+		List<Group> groups = setUpGroups(vo);
+		Group group1 = groups.get(0);
+		Group group2 = groups.get(1);
+		Group group3 = groupsManager.createGroup(sess, vo, group8);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group1, member);
+
+		groupsManager.copyMembers(sess, group1, List.of(group2), List.of(member));
+		List<Member> group2Members = groupsManager.getGroupMembers(sess, group2);
+
+		assertThat(group2Members).containsExactly(member);
+
+		groupsManager.copyMembers(sess, group2, List.of(group3), List.of());
+		List<Member> group3Members = groupsManager.getGroupMembers(sess, group3);
+
+		assertThat(group3Members).containsExactly(member);
+	}
+
+
+	@Test
+	public void copyMembersToMultipleGroups() throws Exception {
+		System.out.println(CLASS_NAME + "copyMembersToMultipleGroups");
+
+		vo = setUpVo();
+
+		List<Group> groups = setUpGroups(vo);
+		Group group1 = groups.get(0);
+		Group group2 = groups.get(1);
+		Group group3 = groupsManager.createGroup(sess, vo, group8);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group1, member);
+
+
+		groupsManager.copyMembers(sess, group1, List.of(group2, group3), List.of());
+		List<Member> group2Members = groupsManager.getGroupMembers(sess, group2);
+		List<Member> group3Members = groupsManager.getGroupMembers(sess, group3);
+
+		assertThat(group2Members).containsExactly(member);
+		assertThat(group3Members).containsExactly(member);
 	}
 
 	@Test
@@ -3304,6 +3396,27 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		int count = groupsManager.getGroupMembersCount(sess, group);
 		assertTrue(count == 1);
 
+	}
+
+	@Test
+	public void getGroupDirectMembersCount() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupDirectMembersCount");
+
+		vo = setUpVo();
+		Group parentGroup = setUpGroup(vo);
+		Group childGroup = setUpSubgroup(parentGroup);
+
+		Member member = setUpMember(vo);
+
+		groupsManager.addMember(sess, childGroup, member);
+
+		assertThat(groupsManager.getGroupMembersCount(sess, parentGroup)).isEqualTo(1);
+
+		assertThat(groupsManager.getGroupDirectMembersCount(sess, parentGroup)).isEqualTo(0);
+
+		groupsManager.addMember(sess, parentGroup, member);
+
+		assertThat(groupsManager.getGroupDirectMembersCount(sess, parentGroup)).isEqualTo(1);
 	}
 
 	@Test (expected=GroupNotExistsException.class)
@@ -6390,6 +6503,28 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void allowGroupsToHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "allowGroupsToHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		groupsManager.createGroup(sess, memberVo, group2);
+		List<Group> groups = List.of(group, group2);
+
+		for (Group g : groups) {
+			assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+
+		groupsManager.allowGroupsToHierarchicalVo(sess, groups, vo);
+		for (Group g : groups) {
+			assertTrue(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+	}
+
+	@Test
 	public void allowGroupToNonParentHierarchicalVo() throws Exception {
 		System.out.println(CLASS_NAME + "allowGroupToNonParentHierarchicalVo");
 
@@ -6434,6 +6569,33 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.disallowGroupToHierarchicalVo(sess, group, vo);
 		assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, group, vo));
+	}
+
+	@Test
+	public void disallowGroupsToHierarchicalVo() throws Exception {
+		System.out.println(CLASS_NAME + "disallowGroupsToHierarchicalVo");
+
+		vo = setUpVo();
+		Vo memberVo = perun.getVosManager().createVo(sess, new Vo(0, "memberVo", "memberVo"));
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+		groupsManager.createGroup(sess, memberVo, group);
+		groupsManager.createGroup(sess, memberVo, group2);
+		List<Group> groups = List.of(group, group2);
+
+		for (Group g : groups) {
+			assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+
+		groupsManager.allowGroupsToHierarchicalVo(sess, groups, vo);
+		for (Group g : groups) {
+			assertTrue(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
+
+		groupsManager.disallowGroupsToHierarchicalVo(sess, groups, vo);
+		for (Group g : groups) {
+			assertFalse(groupsManager.isAllowedGroupToHierarchicalVo(sess, g, vo));
+		}
 	}
 
 	@Test

@@ -1268,7 +1268,7 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public RichMember createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor,
-	                                        LocalDate validityTo, boolean sendActivationLink, String url)
+	                                        LocalDate validityTo, boolean sendActivationLink, String language, String url)
 			throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
 			ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
 			UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException {
@@ -1292,7 +1292,7 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 		//create the sponsored member
-		return membersManagerBl.getRichMemberWithAttributes(session, membersManagerBl.createSponsoredMember(session, data, vo, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC));
+		return membersManagerBl.getRichMemberWithAttributes(session, membersManagerBl.createSponsoredMember(session, data, vo, sponsor, validityTo, sendActivationLink, language, url, Validation.ASYNC));
 	}
 
 	@Override
@@ -1334,7 +1334,7 @@ public class MembersManagerEntry implements MembersManager {
 	@Override
 	public List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink,
-			String url, List<Group> groups) throws PrivilegeException {
+			String language, String url, List<Group> groups) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(data, "names");
@@ -1359,11 +1359,11 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		return membersManagerBl
-				.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC, groups);
+				.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, sendActivationLink, language, url, Validation.ASYNC, groups);
 	}
 
 	@Override
-	public List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException {
+	public List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String language, String url) throws PrivilegeException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");
@@ -1380,7 +1380,7 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// create sponsored members
-		return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, email, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC);
+		return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, email, sponsor, validityTo, sendActivationLink, language, url, Validation.ASYNC);
 	}
 
 	@Override
@@ -1438,6 +1438,21 @@ public class MembersManagerEntry implements MembersManager {
 		}
 		//create the link between sponsored and sponsoring users
 		return membersManagerBl.getRichMember(session, membersManagerBl.sponsorMember(session, sponsored, sponsor, validityTo));
+	}
+
+	@Override
+	public void sponsorMembers(PerunSession session, List<Member> sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
+		for (Member member : sponsored) {
+			if (member.isSponsored()) {
+				sponsorMember(session, member, sponsor, validityTo);
+			} else {
+				try {
+					setSponsorshipForMember(session, member, sponsor, validityTo);
+				} catch (AlreadySponsoredMemberException | MemberNotExistsException ex) {
+					throw new InternalErrorException("Member should not be sponsored and should exist");
+				}
+			}
+		}
 	}
 
 	@Override
@@ -1608,6 +1623,13 @@ public class MembersManagerEntry implements MembersManager {
 		}
 		//remove sponsor
 		membersManagerBl.removeSponsor(sess,sponsoredMember, sponsorToRemove);
+	}
+
+	@Override
+	public void removeSponsors(PerunSession sess, Member sponsoredMember, List<User> sponsorsToRemove) throws PrivilegeException {
+		for (User sponsor : sponsorsToRemove) {
+			removeSponsor(sess, sponsoredMember, sponsor);
+		}
 	}
 
 	@Override

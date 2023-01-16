@@ -49,7 +49,7 @@ import cz.metacentrum.perun.openapi.model.Group
 ## Clients in other programming languages
 
 The tool [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) can generate clients 
-in many languages, for the complete list see [Generators List](https://openapi-generator.tech/docs/generators.html).
+in many languages, for the complete list see [Generators List](https://openapi-generator.tech/docs/generators).
 
 An executable JAR file with the generator can be downloaded from Maven central repository using a command like this:
 ```bash

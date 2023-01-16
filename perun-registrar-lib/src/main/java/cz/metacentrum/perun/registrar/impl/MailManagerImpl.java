@@ -633,6 +633,8 @@ public class MailManagerImpl implements MailManager {
 		} catch (FormNotExistsException e) {
 			throw new RegistrarException("[MAIL MANAGER] Form does not exist", e);
 		}
+		// trim all values of leading/trailing white spaces
+		parsedFile = parsedFile.stream().map((list) -> list.stream().map(String::trim).toList()).toList();
 		checkInvitationData(parsedFile);
 
 

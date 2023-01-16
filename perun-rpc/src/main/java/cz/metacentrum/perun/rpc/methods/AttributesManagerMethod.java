@@ -4114,5 +4114,17 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getSession(),
 				parms.readInt("attributeDefinition"));
 		}
+	},
+
+	/*#
+	 * Returns list of definitions of IdP attributes that are filled to fedInfo
+	 * @param sess session
+	 * @return list of attribute definitions
+	 */
+	getIdpAttributeDefinitions {
+		@Override
+		public List<AttributeDefinition> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAttributesManager().getIdpAttributeDefinitions(ac.getSession());
+		}
 	}
 }

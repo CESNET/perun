@@ -12,13 +12,22 @@ servers:
     description: Perun RPC server
     variables:
       server:
-        default: perun.cesnet.cz
+        default: api-dev.perun-aai.org
         description: DNS name of a Perun server
       authentication:
-        default: krb
-        description: way of authentication
+        default: ba
+        description: |
+          way of authentication:
+          ba - HTTP Basic Auth
+          krb - Kerberos
+          non - no authentication
+          cert - X509 client certificate
+          oauth - OAuth 2.0 bearer access token
+          fed - SAML federation
         enum:
+          - ba
           - krb
+          - non
           - cert
           - oauth
           - fed
@@ -50,6 +59,7 @@ components:
   #############################################
   schemas:
     PerunException:
+      description: exception thrown from inside of Perun
       type: object
       properties:
         errorId: { type: string }
@@ -57,6 +67,7 @@ components:
         message: { type: string }
 
     PerunBean:
+      description: identifiable entity in Perun, common ancestor of all entity classes
       type: object
       properties:
         id: { type: integer }
@@ -68,6 +79,7 @@ components:
         propertyName: beanName
 
     Auditable:
+      description: represents audit information
       allOf:
         - $ref: '#/components/schemas/PerunBean'
       properties:
@@ -81,6 +93,7 @@ components:
         propertyName: beanName
 
     User:
+      description: represents user as a physical person
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
@@ -98,6 +111,7 @@ components:
         propertyName: beanName
 
     RichUser:
+      description: user data packed together with all user attributes and UserExtSources
       allOf:
         - $ref: '#/components/schemas/User'
       properties:
@@ -110,6 +124,7 @@ components:
         propertyName: beanName
 
     PaginatedRichUsers:
+      description: represents Paginated&lt;RichUser>
       properties:
         offset: { type: integer }
         pageSize: { type: integer }
@@ -122,6 +137,7 @@ components:
         - data
 
     Sponsor:
+      description: represents a Sponsor for some specific member
       type: object
       properties:
         user: { $ref: '#/components/schemas/User' }
@@ -137,6 +153,7 @@ components:
         - active
 
     Member:
+      description: represents Member of a Virtual Organization
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
@@ -152,12 +169,14 @@ components:
         propertyName: beanName
 
     AssignedMember:
+      description: represents a member of a group assigned to a resource
       type: object
       properties:
         richMember: { $ref: '#/components/schemas/RichMember' }
         status: { $ref: '#/components/schemas/GroupResourceStatus' }
 
     RichMember:
+      description: Member data packed with member and user attributes, User and UserExtSources
       allOf:
         - $ref: '#/components/schemas/Member'
       properties:
@@ -260,6 +279,7 @@ components:
 
 
     UserExtSource:
+      description: represents specific user authentication or identification in external source of data
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
@@ -276,6 +296,7 @@ components:
         propertyName: beanName
 
     ExtSource:
+      description: represents external source of data for users such as an IdP or an HR database
       allOf:
         - $ref: '#/components/schemas/Auditable'
       properties:
@@ -2780,6 +2801,16 @@ components:
       in: query
       required: true
 
+    consentHubIds:
+      name: "consentHubs[]"
+      description: "list of ConsentHub ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     consentId:
       name: consent
       description: "id of Consent"
@@ -3085,6 +3116,16 @@ components:
       in: query
       required: true
 
+    destinationIds:
+      name: "destinations[]"
+      description: "list of Destination ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     destinationName:
       name: destination
       description: "string name of destination"
@@ -3101,11 +3142,31 @@ components:
       in: query
       required: true
 
+    ownerIds:
+      name: owners[]
+      description: "list of owner ids"
+      schema:
+        type: array
+        items:
+          type: integer
+      in: query
+      required: true
+
     ownerName:
       name: owner
       description: "name of Owner"
       schema:
         type: string
+      in: query
+      required: true
+
+    ownerNames:
+      name: ownerNames[]
+      description: "list of owner names"
+      schema:
+        type: array
+        items:
+          type: string
       in: query
       required: true
 
@@ -3182,6 +3243,16 @@ components:
         type: string
       in: query
       required: true
+
+    extSourceIds:
+      name: "extSources[]"
+      description: "list of extSource ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
 
     resultGroupId:
       name: resultGroup
@@ -3413,6 +3484,8 @@ components:
 #################################################
 
 tags:
+  - name: Utils
+    description: various utilities
   - name: AuthzResolver
     description: AuthzResolver RPC API in Perun
     externalDocs:
@@ -3477,6 +3550,22 @@ tags:
     description: ConsentsManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConsentsManager.html
+  - name: DatabaseManager
+    description: DatabaseManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-DatabaseManager.html
+  - name: ExtSourcesManager
+    description: ExtSourcesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ExtSourcesManager.html
+  - name: RegistrarManager
+    description: RegistrarManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-RegistrarManager.html
+  - name: ServicesManager
+    description: ServicesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ServicesManager.html
 
 
 #################################################
@@ -3787,6 +3876,38 @@ paths:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
+  /json/authzResolver/setRole/u-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleWithUserComplementaryObjects
+      summary: Set role for user and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleWithUserComplementaryObjects
+              description: "input to setRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - users
+              properties:
+                role: { type: string, nullable: false }
+                user: { type: integer, description: "user id", nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
+
   /json/authzResolver/unsetRole/u-co:
     post:
       tags:
@@ -3818,6 +3939,38 @@ paths:
                   items:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
+
+  /json/authzResolver/unsetRole/u-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleWithUserComplementaryObjects
+      summary: Unset role for user and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleWithUserComplementaryObjects
+              description: "input to unsetRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - users
+              properties:
+                role: { type: string, nullable: false }
+                user: { type: integer, description: "user id", nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
 
   /json/authzResolver/setRole/g:
     post:
@@ -3903,6 +4056,38 @@ paths:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
+  /json/authzResolver/setRole/g-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleWithGroupComplementaryObjects
+      summary: Set role for authorizedGroup and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleWithGroupComplementaryObjects
+              description: "input to setRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - authorizedGroups
+              properties:
+                role: { type: string, nullable: false }
+                authorizedGroup: { type: integer, nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
+
   /json/authzResolver/unsetRole/g-co:
     post:
       tags:
@@ -3934,6 +4119,38 @@ paths:
                   items:
                     type: integer
                 complementaryObject: { $ref: "#/components/schemas/PerunBean" }
+
+  /json/authzResolver/unsetRole/g-cos:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleWithGroupComplementaryObjects
+      summary: Unset role for authorizedGroup and complementaryObjects
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleWithGroupComplementaryObjects
+              description: "input to unsetRoleWithUserComplementaryObjects"
+              type: object
+              required:
+                - role
+                - authorizedGroups
+              properties:
+                role: { type: string, nullable: false }
+                authorizedGroup: { type: integer, nullable: false }
+                complementaryObjects:
+                  type: array
+                  description: "List of complementary objects"
+                  nullable: false
+                  items:
+                    $ref: "#/components/schemas/PerunBean"
 
   /json/authzResolver/getUserRoles:
     get:
@@ -7464,6 +7681,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getIdpAttributeDefinitions:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getIdpAttributeDefinitions
+      summary: Returns list of definitions of IdP attributes that are filled to fedInfo
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # AuditMessagesManager                          #
@@ -8446,6 +8675,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/extSourcesManager/addExtSources/v-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: addExtSourcesWithVoSource
+      summary: Associate external source definitions with a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/extSourceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /urlinjsonout/extSourcesManager/addExtSource/g-s:
     post:
       tags:
@@ -8455,6 +8700,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/extSourcesManager/addExtSources/g-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: addExtSourcesWithGroupSource
+      summary: Associate external source definitions with a GROUP.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/extSourceIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8476,6 +8736,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/extSourcesManager/removeExtSources/v-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: removeExtSourcesWithVoSource
+      summary: remove associations of external source definitions with a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/extSourceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/extSourcesManager/removeExtSource/g-s:
     post:
       tags:
@@ -8485,6 +8760,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/extSourcesManager/removeExtSources/g-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: removeExtSourcesWithGroupSource
+      summary: Remove associations of external source definitions with a GROUP.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/extSourceIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8937,6 +9227,29 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/userExtSourceId'
+        - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/removeUserExtSources:
+    post:
+      tags:
+        - UsersManager
+      operationId: removeUserExtSources
+      summary: Remove user's external sources. Persistent UserExtSources are not removed unless force param is present and set to true.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - name: userExtSources
+          description: "list of userExtSource ids"
+          schema:
+            type: array
+            items:
+              type: integer
+          in: query
+          required: true
         - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
@@ -9971,6 +10284,7 @@ paths:
                 validityTo: { type: string }
                 sponsor: { type: integer }
                 sendActivationLink: { type: boolean }
+                language: { type: string }
                 userData: { $ref: '#/components/schemas/SponsoredUserData' }
 
   /json/membersManager/setSponsoredMember:
@@ -10038,6 +10352,7 @@ paths:
                 namespace: { type: string }
                 validityTo: { type: string }
                 sendActivationLinks: { type: boolean }
+                language: { type: string }
                 groups: { type: array, items: { type: integer }, description: "groups to which should be the created users assigned" }
 
   /json/membersManager/createSponsoredMembers:
@@ -10072,6 +10387,7 @@ paths:
                 validityTo: { type: string }
                 email: { type: string }
                 sendActivationLink: { type: boolean }
+                language: { type: string }
 
   /json/membersManager/createSpecificMember:
     post:
@@ -10113,6 +10429,28 @@ paths:
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/sponsorId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/membersManager/removeSponsors:
+    post:
+      tags:
+        - MembersManager
+      operationId: removeSponsors
+      summary: Removes sponsors of existing member.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - name: sponsorIds
+          description: "list of ids of sponsors"
+          schema:
+            type: array
+            items:
+              type: integer
+          in: query
+          required: true
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10506,6 +10844,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/sponsorMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: sponsorMembers
+      summary: Assigns a new sponsor to existing members. If some members are non-sponsored, turn them into sponsored and assign the sponsor.
+      parameters:
+        - $ref: '#/components/parameters/memberIds'
+        - $ref: '#/components/parameters/sponsorId'
+        - $ref: '#/components/parameters/optionalValidityTo'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/membersManager/moveMembership:
     post:
       tags:
@@ -10796,6 +11150,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addOwners:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwners
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addOwner/f-o-name:
     post:
       tags:
@@ -10805,6 +11174,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwners/f-o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnersByFacilityNameOwnerName
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10826,6 +11210,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addOwners/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnersByFacilityName
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addOwner/o-name:
     post:
       tags:
@@ -10835,6 +11234,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwners/o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnersByOwnerName
+      summary: Adds owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10856,6 +11270,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeOwners:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwners
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/removeOwner/f-o-name:
     post:
       tags:
@@ -10865,6 +11294,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeOwners/f-o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnersByFacilityNameOwnerName
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10886,6 +11330,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeOwners/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnersByFacilityName
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/removeOwner/o-name:
     post:
       tags:
@@ -10895,6 +11354,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeOwners/o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnersByOwnerName
+      summary: Removes owners from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerNames'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -11630,7 +12104,7 @@ paths:
   /json/facilitiesManager/getAdminGroups/f-name:
     get:
       tags:
-        - FacilitiesManagerByFacilityName
+        - FacilitiesManager
       operationId: getFacilityAdminGroupsByFacilityName
       summary: Get all Facility group admins.
       parameters:
@@ -12185,12 +12659,27 @@ paths:
       summary: Deletes Owner specified by id. Returns null.
       responses:
         '200':
-          $ref: '#/components/responses/OwnerResponse'
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       parameters:
         - $ref: '#/components/parameters/ownerId'
         - $ref: '#/components/parameters/forceDelete'
+
+  /urlinjsonout/ownersManager/deleteOwners:
+    post:
+      tags:
+        - OwnersManager
+      operationId: deleteOwners
+      summary: Deletes owners by ids. Returns null.
+      parameters:
+        - $ref: '#/components/parameters/ownerIds'
+        - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/ownersManager/getOwnerById:
     get:
@@ -12570,6 +13059,43 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/copyMembers:
+    post:
+      tags:
+        - GroupsManager
+      operationId: copyMembers
+      summary: Copies direct members from one group to other groups within the same VO. The members are copied without their member-group attributes. Empty or null members list will copy all of the group's direct members
+      parameters:
+        - { name: sourceGroup,
+            description: "id of the group to copy from",
+            schema: { type: integer },
+            in: query,
+            required: true
+        }
+        - { name: destinationGroups,
+            description: "ids of groups to copy to",
+            schema: {
+              type: array,
+              items: { type: integer }
+            },
+            in: query,
+            required: true
+        }
+        - { name: members,
+            description: "ids of members to copy",
+            schema: {
+              type: array,
+              items: { type: integer }
+            },
+            in: query,
+            required: false
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/removeMember:
     post:
       tags:
@@ -12783,6 +13309,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupDirectMembersCount:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupDirectMembersCount
+      summary: Returns count of direct group members.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /json/groupsManager/getGroupMembersCountsByVoStatus:
     get:
       tags:
@@ -12957,6 +13498,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/allowGroupsToHierarchicalVo:
+    post:
+      tags:
+        - GroupsManager
+      operationId: allowGroupsToHierarchicalVo
+      summary: Sets flag required for including groups to parent vo in a vo hierarchy.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/disallowGroupToHierarchicalVo:
     post:
       tags:
@@ -12965,6 +13521,21 @@ paths:
       summary: Unsets flag required for including group to parent vo in a vo hierarchy.
       parameters:
         - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/disallowGroupsToHierarchicalVo:
+    post:
+      tags:
+        - GroupsManager
+      operationId: disallowGroupsToHierarchicalVo
+      summary: Unsets flag required for including groups to parent vo in a vo hierarchy.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
         - $ref: '#/components/parameters/voId'
       responses:
         '200':
@@ -13856,6 +14427,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/resourcesManager/removeService/forResources:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: removeServiceForResources
+      summary: Remove service from multiple resources in the same facility.
+      parameters:
+        - $ref: '#/components/parameters/resourceIds'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/resourcesManager/removeServices:
     post:
       tags:
@@ -14120,7 +14706,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: assignResourceTagToResource
-      summary: Assigns ResourceRag to resource. The ResourceTag must contain its id, voId and tagName.
+      summary: Assigns ResourceTag to resource. The ResourceTag must contain its id, voId and tagName.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14141,12 +14727,38 @@ paths:
                 resource: { type: integer, description: 'resource id' }
                 resourceTag: { $ref: '#/components/schemas/ResourceTag' }
 
+  /json/resourcesManager/assignResourceTagsToResource:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: assignResourceTagsToResource
+      summary: Assigns ResourceTags to resource. The ResourceTags must contain its id, voId and tagName.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAssignResourceTagsToResource
+              description: "input to assignResourceTagsToResource"
+              type: object
+              required:
+                - resource
+                - resourceTags
+              properties:
+                resource: { type: integer, description: 'resource id' }
+                resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
+
   /json/resourcesManager/removeResourceTagFromResource:
     post:
       tags:
         - ResourcesManager
       operationId: removeResourceTagFromResource
-      summary: Removes ResourceRag from a resource. The ResourceTag must contain its id, voId and tagName.
+      summary: Removes ResourceTag from a resource. The ResourceTag must contain its id, voId and tagName.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14166,6 +14778,32 @@ paths:
               properties:
                 resource: { type: integer, description: 'resource id' }
                 resourceTag: { $ref: '#/components/schemas/ResourceTag' }
+
+  /json/resourcesManager/removeResourceTagsFromResource:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: removeResourceTagsFromResource
+      summary: Removes ResourceTags from a resource. The ResourceTags must contain its id, voId and tagName.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveResourceTagsFromResource
+              description: "input to removeResourceTagsFromResource"
+              type: object
+              required:
+                - resource
+                - resourceTags
+              properties:
+                resource: { type: integer, description: 'resource id' }
+                resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
 
   /urlinjsonout/resourcesManager/removeAllResourcesTagFromResource:
     post:
@@ -16178,6 +16816,45 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/servicesManager/blockServiceOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServiceOnDestinations
+      summary: Bans Service on given destinations.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/blockServicesOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServicesOnDestinations
+      summary: Bans the Service on the destination - each pair defined by the rich destination.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputBlockServicesOnDestinations
+              description: "input to blockServicesOnDestinations"
+              type: object
+              required:
+                - richDestinations
+              properties:
+                richDestinations: { type: array, items: { $ref: '#/components/schemas/RichDestination' } }
+
   /urlinjsonout/servicesManager/blockAllServicesOnFacility:
     post:
       tags:
@@ -16379,6 +17056,47 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/servicesManager/unblockServiceOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServiceOnDestinations
+      summary: Free the denial of the Service on these destinations. If the Service was banned on
+        these destinations, it will be freed. In case the Service was not banned on these
+        destinations, nothing will happen.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/unblockServicesOnDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServicesOnDestinations
+      summary: Free the denial of the Service on the destination - each pair defined by the rich destination.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUnlockServicesOnDestinations
+              description: "input to unblockServicesOnDestinations"
+              type: object
+              required:
+                - richDestinations
+              properties:
+                richDestinations: { type: array, items: { $ref: '#/components/schemas/RichDestination' } }
+
   /urlinjsonout/servicesManager/forceServicePropagation:
     post:
       tags:
@@ -16475,6 +17193,21 @@ paths:
       summary: Deletes a service.
       parameters:
         - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/deleteServices:
+    post:
+      tags:
+        - ServicesManager
+      operationId: deleteServices
+      summary: Deletes given services.
+      parameters:
+        - $ref: '#/components/parameters/serviceIds'
         - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
@@ -17127,6 +17860,47 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/servicesManager/removeDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeDestinations
+      summary: Removes the specified destinations from the facility and service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/destinationIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/removeDestinationsByRichDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeDestinationsByRichDestinations
+      summary: Removes destinations defined by list of rich destinations.
+        Each destination is removed from the rich destination's facility and service.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveRichDestinations
+              description: "input to removeRichDestinations"
+              type: object
+              required:
+                - richDestinations
+              properties:
+                richDestinations: { type: array, items: { $ref: '#/components/schemas/RichDestination' } }
+
   /urlinjsonout/servicesManager/removeAllDestinations:
     post:
       tags:
@@ -17506,6 +18280,28 @@ paths:
                 - taskResultId
               properties:
                 taskResultId: { type: integer, description: "task result id", nullable: false }
+
+  /urlinjsonout/tasksManager/deleteTaskResultsByIds:
+    post:
+      tags:
+        - TasksManager
+      operationId: deleteTaskResultsByIds
+      summary: Delete TaskResults by their IDs. TaskResults are expected to be from the same facility.
+      parameters:
+        - { name: taskResultIds,
+            description: "list of TaskResult ids",
+            schema: {
+              type: array,
+              items: { type: integer }
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/tasksManager/deleteTaskResults/id:
     post:
@@ -18043,6 +18839,20 @@ paths:
       summary: Evaluates consents for given consent hub.
       parameters:
         - $ref: '#/components/parameters/consentHubId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/consentsManager/evaluateConsentsForConsentHubs:
+    post:
+      tags:
+        - ConsentsManager
+      operationId: evaluateConsentsForConsentHubs
+      summary: Evaluates consents for given list of consent hubs.
+      parameters:
+        - $ref: '#/components/parameters/consentHubIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

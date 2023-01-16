@@ -4680,9 +4680,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
-		if (changed)
-			log.info("{} removed attribute {} from resource {}.",sess.getLogId(), attribute.getName(), resource.getId());
-		getPerunBl().getAuditer().log(sess, new AttributeRemovedForResource(new AttributeDefinition(attribute), resource));
+		if (changed) {
+			log.info("{} removed attribute {} from resource {}.", sess.getLogId(), attribute.getName(), resource.getId());
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForResource(new AttributeDefinition(attribute), resource));
+		}
 		return changed;
 	}
 
@@ -5161,11 +5162,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().removeAttribute(sess, resource, group, attribute);
 		}
 
-		if (changed)
+		if (changed) {
 			getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
-		if (changed)
 			log.info("{} removed attribute {} from group {} on resource {}.", sess.getLogId(), attribute.getName(), group.getId(), resource.getId());
-		getPerunBl().getAuditer().log(sess, new AttributeRemovedForGroupAndResource(new AttributeDefinition(attribute), group, resource));
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForGroupAndResource(new AttributeDefinition(attribute), group, resource));
+		}
 		return changed;
 	}
 
@@ -7785,6 +7786,36 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn:perun:group:attribute-def:def:applicationViewPreferences
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(ArrayList.class.getName());
+		attr.setFriendlyName("applicationViewPreferences");
+		attr.setDisplayName("Application view preferences");
+		attr.setDescription("Columns to be shown in application page. Use applications page configuration dialogue to set the value.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, WRITE, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:vo:attribute-def:def:applicationViewPreferences
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setType(ArrayList.class.getName());
+		attr.setFriendlyName("applicationViewPreferences");
+		attr.setDisplayName("Application view preferences");
+		attr.setDescription("Columns to be shown in application page. Use applications page configuration dialogue to set the value.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		//urn:perun:group:attribute-def:def:groupStructureResources
 		attr = new urn_perun_group_attribute_def_def_groupStructureResources().getAttributeDefinition();
 		//set attribute rights (with dummy id of attribute - not known yet)
@@ -7913,6 +7944,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDescription("Anonymization flag (user was anonymized).");
 		//set attribute rights (with dummy id of attribute - not known yet)
 		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:user:attribute-def:virt:earliestActiveLastAccess
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+		attr.setFriendlyName("earliestActiveLastAccess");
+		attr.setDisplayName("Earliest active last access");
+		attr.setType(String.class.getName());
+		attr.setDescription("Timestamp of the earliest active IdP extSource's lastAccess.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.None));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.None));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:virt:autoRegistrationEnabled
@@ -8754,6 +8798,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException {
 		getAttributesManagerImpl().setAttributeActionCriticality(sess, attr, action, critical);
+	}
+
+	@Override
+	public List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess) {
+		return BeansUtils.getCoreConfig().getAttributesForUpdate().get(ExtSourcesManager.EXTSOURCE_IDP).stream().distinct().toList();
 	}
 
 	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------

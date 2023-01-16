@@ -22,9 +22,11 @@ import java.util.regex.Pattern;
 
 /**
  * Attribute value depends on login-namespace:mu attribute
+ * Deprecated, use urn_perun_user_attribute_def_virt_optional_login_namespace_mu instead.
  *
  * @author Simona Kruppova, Michal Stava
  */
+@Deprecated
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_optionalLogin_namespace_mu extends UserVirtualAttributesModuleAbstract {
 

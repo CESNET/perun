@@ -1470,6 +1470,29 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+	@Test
+	public void removeServiceForResources() throws Exception {
+		System.out.println(CLASS_NAME + "removeServiceForResources");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		Resource resource2 = setUpResource2();
+		service = setUpService();
+
+		resourcesManager.assignService(sess, resource, service);
+		resourcesManager.assignService(sess, resource2, service);
+
+		assertThat(resourcesManager.getAssignedServices(sess, resource)).contains(service);
+		assertThat(resourcesManager.getAssignedServices(sess, resource2)).contains(service);
+
+		resourcesManager.removeService(sess, List.of(resource2, resource), service);
+
+		assertThat(resourcesManager.getAssignedServices(sess, resource)).doesNotContain(service);
+		assertThat(resourcesManager.getAssignedServices(sess, resource2)).doesNotContain(service);
+
+	}
+
 	@Test(expected = ResourceNotExistsException.class)
 	public void removeServiceWhenResourceNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeServiceWhenResourceNotExists");
@@ -1810,6 +1833,30 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		ResourceTag tag = setUpResourceTag();
 		List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForVo(sess, vo);
 		assertTrue("Created tag is not returned from VO", tags.contains(tag));
+
+	}
+
+	@Test
+	public void bulkAssignRemoveResourceTags() throws Exception {
+		System.out.println(CLASS_NAME + "bulkAssignRemoveResourceTags");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		ResourceTag tag1 = setUpResourceTag();
+		ResourceTag tag2 = new ResourceTag(1, "ResourceManagerTestResourceTag2", vo.getId());
+		tag2 = perun.getResourcesManager().createResourceTag(sess, tag2, vo);
+
+		resourcesManager.assignResourceTagsToResource(sess, List.of(tag1, tag2), resource);
+		List<ResourceTag> tags = perun.getResourcesManager().getAllResourcesTagsForResource(sess, resource);
+
+		assertThat(tags).containsExactly(tag1, tag2);
+
+		resourcesManager.removeResourceTagsFromResource(sess, List.of(tag1, tag2), resource);
+
+		tags = perun.getResourcesManager().getAllResourcesTagsForResource(sess, resource);
+
+		assertThat(tags).isEmpty();
 
 	}
 

@@ -20,7 +20,10 @@ dependency-reduced-pom.xml
 perun-cli/Perun/auth/oidc_config.yml
 
 # Ignore generated python cli files
-perun-cli-python/cli/__pycache__/
+perun-cli-python/perun/__pycache__/
+perun-cli-python/perun/cli/__pycache__/
+perun-cli-python/perun/oidc/__pycache__/
+perun-cli-python/perun/rpc/__pycache__/
 perun-cli-python/perun_openapi/
 perun-cli-python/perun_openapi_README.md
 

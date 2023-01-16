@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -57,7 +58,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
-import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
@@ -337,6 +337,50 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		getGroupsManagerBl().addMembers(sess, group, members);
 	}
+
+	@Override
+	public void copyMembers(PerunSession sess, Group sourceGroup, List<Group> destinationGroups, List<Member> members) throws WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, MemberNotExistsException, GroupGroupMismatchException, PrivilegeException, ExternallyManagedException, MemberGroupMismatchException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, sourceGroup);
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyMembers_Group_List<Group>_List<Member>_boolean_policy", sourceGroup)) {
+			throw new PrivilegeException(sess, "copyMembers");
+		}
+
+		for (Group destinationGroup : destinationGroups) {
+			getGroupsManagerBl().checkGroupExists(sess, destinationGroup);
+
+			if (sourceGroup.getId() == destinationGroup.getId()) {
+				throw new GroupGroupMismatchException("Cannot copy from group to itself", sourceGroup, sourceGroup);
+			}
+
+			if (sourceGroup.getVoId() != destinationGroup.getVoId()) {
+				throw new GroupGroupMismatchException("Groups are not from the same VO", sourceGroup, destinationGroup);
+			}
+
+			// Check if destinationGroup is externally synchronized
+			if (getGroupsManagerBl().isGroupSynchronizedFromExternallSource(sess, destinationGroup)) {
+				throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
+			}
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "dest-copyMembers_Group_List<Group>_List<Member>_boolean_policy", destinationGroup)) {
+				throw new PrivilegeException(sess, "copyMembers");
+			}
+		}
+
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+			// Check if the member and group are from the same VO
+			if (member.getVoId() != (sourceGroup.getVoId())) {
+				throw new MembershipMismatchException("Member and group are from different VOs");
+			}
+		}
+
+
+		getGroupsManagerBl().copyMembers(sess, sourceGroup, destinationGroups, members);
+	}
+
 
 	@Override
 	public void addMember(PerunSession sess, List<Group> groups, Member member) throws MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
@@ -634,6 +678,19 @@ public class GroupsManagerEntry implements GroupsManager {
 				}
 
 		return getGroupsManagerBl().getGroupMembersCount(sess, group);
+	}
+
+	@Override
+	public int getGroupDirectMembersCount(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupDirectMembersCount_Group_policy", group)) {
+			throw new PrivilegeException(sess, "getGroupDirectMembersCount");
+		}
+
+		return getGroupsManagerBl().getGroupDirectMembersCount(sess, group);
 	}
 
 	@Override
@@ -1599,6 +1656,24 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public void allowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException, RelationExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		for (Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "group-allowGroupToHierarchicalVo_Group_Vo_policy", group) ||
+				!AuthzResolver.authorizedInternal(sess, "vo-allowGroupToHierarchicalVo_Group_Vo_policy", vo)) {
+				throw new PrivilegeException(sess, "allowGroupsToHierarchicalVo");
+			}
+
+			getGroupsManagerBl().allowGroupToHierarchicalVo(sess, group, vo);
+		}
+	}
+
+	@Override
 	public void disallowGroupToHierarchicalVo(PerunSession sess, Group group, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -1611,6 +1686,24 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		getGroupsManagerBl().disallowGroupToHierarchicalVo(sess, group, vo);
+	}
+
+	@Override
+	public void disallowGroupsToHierarchicalVo(PerunSession sess, List<Group> groups, Vo vo) throws VoNotExistsException, GroupNotExistsException, PrivilegeException, RelationNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		for (Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "group-disallowGroupToHierarchicalVo_Group_Vo_policy", group) ||
+				!AuthzResolver.authorizedInternal(sess, "vo-disallowGroupToHierarchicalVo_Group_Vo_policy", vo)) {
+				throw new PrivilegeException(sess, "disallowGroupsToHierarchicalVo");
+			}
+
+			getGroupsManagerBl().disallowGroupToHierarchicalVo(sess, group, vo);
+		}
 	}
 
 	@Override

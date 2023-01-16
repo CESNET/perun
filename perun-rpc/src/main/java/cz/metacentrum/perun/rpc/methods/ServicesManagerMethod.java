@@ -12,11 +12,8 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -60,6 +57,21 @@ public enum ServicesManagerMethod implements ManagerMethod {
 			} else {
 				ac.getServicesManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
 			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Bans the Service on the destination - each pair defined by the rich destination.
+	 * It wouldn't be possible to execute the given Service on this destination, however,
+	 * it still can be executed on all the other destinations in the facility.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param richDestinations List<RichDestination> the list of rich destinations
+	 */
+	blockServicesOnDestinations {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getServicesManager().blockServicesOnDestinations(ac.getSession(), parms.readList("richDestinations", RichDestination.class));
 			return null;
 		}
 	},
@@ -244,6 +256,21 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Free the denial of the Service on the destination - each pair defined by the rich destination.
+	 * If the Service was banned on the destination, it will be freed.
+	 * In case the Service was not banned on the destination, nothing will happen.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param richDestinations List<RichDestination> list of rich destinations
+	 */
+	unblockServicesOnDestinations {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getServicesManager().unblockServicesOnDestinations(ac.getSession(), parms.readList("richDestinations", RichDestination.class));
+			return null;
+		}
+	},
+
+	/*#
 	 * Forces service propagation on defined facility.
 	 *
 	 * @param service int Service <code>id</code>
@@ -379,6 +406,35 @@ public enum ServicesManagerMethod implements ManagerMethod {
 			ac.getServicesManager().deleteService(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
 					parms.contains("force") ? parms.readBoolean("force") : false);
+			return null;
+		}
+	},
+
+	/*#
+	 * Deletes given services.
+	 *
+	 * @param services List<Service> Services
+	 */
+	/*#
+	 * Deletes given services.
+	 *
+	 * @param services List<Integer> <code>id</code> of services
+	 * @param force boolean if true, service will be removed with all dependant objects from the db instead of raising exception
+	 */
+	deleteServices {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Service> services = new ArrayList<>();
+			for (int id : parms.readList("services", Integer.class)) {
+				services.add(ac.getServiceById(id));
+			}
+
+			ac.getServicesManager().deleteServices(ac.getSession(),
+				services,
+				parms.contains("force") ? parms.readBoolean("force") : false);
 			return null;
 		}
 	},
@@ -1406,6 +1462,25 @@ public enum ServicesManagerMethod implements ManagerMethod {
 					ac.getServiceById(parms.readInt("service")),
 					ac.getFacilityById(parms.readInt("facility")),
 					ac.getDestination(parms.readString("destination"), parms.readString("type")));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Removes destinations defined by list of rich destinations.
+	 * Each destination is removed from the rich destination's facility and service.
+	 *
+	 * @param richDestinations List<RichDestination> list of rich destinations
+	 */
+	removeDestinationsByRichDestinations {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getServicesManager().removeDestinationsByRichDestinations(ac.getSession(),
+				parms.readList("richDestinations", RichDestination.class));
 
 			return null;
 		}

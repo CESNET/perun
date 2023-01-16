@@ -429,6 +429,39 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	* Copies direct members from one group to other groups in the same VO. The members are copied without their member-group attributes.
+	* Copies all direct members if members list is empty or null.
+	*
+	* @param sourceGroup int <code>id</code> of the group to copy members from
+	* @param destinationGroups List<Integer> <code>id</code> of groups to copy members to
+	* @param members List<Integer> <code>id</code> of members that will be copied
+    */
+	copyMembers {
+		@Override
+		public Void call (ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Member> members = new ArrayList<>();
+			if (parms.contains("members")) {
+				List<Integer> memberIds = parms.readList("members", Integer.class);
+				for (Integer id : memberIds) {
+					members.add(ac.getMemberById(id));
+				}
+			}
+
+			List<Group> groups = new ArrayList<>();
+			List<Integer> groupIds = parms.readList("destinationGroups", Integer.class);
+			for (Integer id : groupIds) {
+				groups.add(ac.getGroupById(id));
+			}
+
+			ac.getGroupsManager().copyMembers(ac.getSession(), ac.getGroupById(parms.readInt("sourceGroup")),
+				groups, members);
+			return null;
+		}
+	},
+
+	/*#
 	 * Adds a member to a group.
 	 *
 	 * @throws MemberNotExistsException When member doesn't exist
@@ -709,6 +742,23 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGroupsManager().getGroupMembersCount(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
+	 * Returns count of direct group members.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return int Direct Members count
+	 */
+	getGroupDirectMembersCount {
+
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupDirectMembersCount(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")));
 		}
 	},
 
@@ -2002,6 +2052,36 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Sets flag required for including groups to parent vo in a vo hierarchy.
+	 *
+	 * @param groups List<Integer> <code>id</code> of groups
+	 * @param vo int Vo <code>id</code>
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not from parent vo's member vos
+	 * @throw RelationExistsException if group is already allowed to be included to parent vo
+	 */
+	allowGroupsToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupId : parms.readList("groups", Integer.class)) {
+				groups.add(ac.getGroupById(groupId));
+			}
+
+			Vo vo = ac.getVoById(parms.readInt("vo"));
+
+			ac.getGroupsManager().allowGroupsToHierarchicalVo(ac.getSession(),
+				groups,
+				vo);
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Unsets flag required for including group to parent vo in a vo hierarchy.
 	 *
 	 * @param group id of group
@@ -2017,6 +2097,35 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			ac.getGroupsManager().disallowGroupToHierarchicalVo(ac.getSession(),
 				ac.getGroupById(parms.readInt("group")),
 				ac.getVoById(parms.readInt("vo")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Unsets flag required for including groups to parent vo in a vo hierarchy.
+	 *
+	 * @param groups List<Integer> <code>id</code> of groups
+	 * @param vo int VO <code>id</code>
+	 * @throw VoNotExistsException if vo does not exist
+	 * @throw GroupNotExistsException if group does not exist
+	 * @throw RelationNotExistsException if group is not allowed to be included in parent vo
+	 */
+	disallowGroupsToHierarchicalVo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupId : parms.readList("groups", Integer.class)) {
+				groups.add(ac.getGroupById(groupId));
+			}
+
+			Vo vo = ac.getVoById(parms.readInt("vo"));
+
+			ac.getGroupsManager().disallowGroupsToHierarchicalVo(ac.getSession(),
+				groups,
+				vo);
+
 			return null;
 		}
 	},

@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.6</version>
+		<version>2.7.7</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -64,19 +64,19 @@
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.5.0</commons-cli.version>
 		<commons-text.version>1.10.0</commons-text.version>
-		<docker-java.version>3.2.13</docker-java.version>
+		<docker-java.version>3.2.14</docker-java.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.10</expiringmap.version>
 		<flying-saucer-pdf.version>9.1.22</flying-saucer-pdf.version>
-		<google-api-services-admin-directory.version>directory_v1-rev20210427-1.31.0</google-api-services-admin-directory.version>
+		<google-api-services-admin-directory.version>directory_v1-rev20230103-2.0.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
-		<json.version>20190722</json.version>
+		<json.version>20220924</json.version>
 		<reflections.version>0.9.11</reflections.version>
-		<testcontainers.version>1.17.5</testcontainers.version>
+		<testcontainers.version>1.17.6</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
@@ -136,7 +136,7 @@
 				<plugin>
 					<groupId>eu.somatik.serviceloader-maven-plugin</groupId>
 					<artifactId>serviceloader-maven-plugin</artifactId>
-					<version>1.1.0</version>
+					<version>1.4.0</version>
 				</plugin>
 
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
@@ -366,7 +366,7 @@
 
 	<organization>
 		<name>CESNET, z.s.p.o.</name>
-		<url>http://www.cesnet.cz/</url>
+		<url>https://www.cesnet.cz/</url>
 	</organization>
 
 	<inceptionYear>2010</inceptionYear>

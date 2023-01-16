@@ -977,6 +977,36 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
+	public void copyMembers(PerunSession sess, Group sourceGroup, List<Group> destinationGroups, List<Member> members) throws WrongReferenceAttributeValueException, WrongAttributeValueException, MemberGroupMismatchException {
+		if (members == null || members.isEmpty()) {
+			members = getGroupDirectMembers(sess, sourceGroup);
+		}
+		for (Group destinationGroup : destinationGroups) {
+			// Check if the group is NOT members group
+			if (destinationGroup.getName().equals(VosManager.MEMBERS_GROUP)) {
+				throw new InternalErrorException("Cannot add member directly to the members group.");
+			}
+			for (Member member : members) {
+				if (!this.isGroupMember(sess, sourceGroup, member)) {
+					throw new MemberGroupMismatchException("Member is not a member of the group they are being copied from", member, sourceGroup);
+				}
+				if (!this.isDirectGroupMember(sess, sourceGroup, member)) {
+					// skip indirect members
+					continue;
+				}
+				try {
+					addDirectMember(sess, destinationGroup, member);
+				} catch (AlreadyMemberException ex) {
+					// skip member already in group
+					continue;
+				} catch (GroupNotExistsException ex) {
+					throw new ConsistencyErrorException("Group should exist");
+				}
+			}
+		}
+	}
+
 
 	private List<Group> getParentGroups(PerunSession sess, Group group) {
 		if(group == null) return new ArrayList<>();
@@ -1446,6 +1476,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public int getGroupMembersCount(PerunSession sess, Group group) {
 		List<Member> members = this.getGroupMembers(sess, group);
 		return members.size();
+	}
+
+	@Override
+	public int getGroupDirectMembersCount(PerunSession sess, Group group) {
+		return this.getGroupDirectMembers(sess, group).size();
 	}
 
 	@Override
@@ -5492,7 +5527,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				LocalDate gracePeriodDate = localDate.minus(amountField.getLeft(), amountField.getRight());
 
 				// Check if we are in grace period
-				if (gracePeriodDate.isBefore(LocalDate.now())) {
+				if (gracePeriodDate.isEqual(LocalDate.now()) || gracePeriodDate.isBefore(LocalDate.now())) {
 					// We are in grace period, so extend to the next period
 					localDate = localDate.plusYears(1);
 				}
@@ -5754,12 +5789,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		LocalDate beginOfGracePeriod = LocalDate.parse(membershipExpiration).minus(amount, gracePeriodTimeUnit);
-		if (beginOfGracePeriod.isBefore(LocalDate.now())) {
-			return true;
-		}
-
-		return false;
-
+		return beginOfGracePeriod.isEqual(LocalDate.now()) || beginOfGracePeriod.isBefore(LocalDate.now());
 	}
 
 	/**

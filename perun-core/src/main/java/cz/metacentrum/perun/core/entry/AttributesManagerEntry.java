@@ -4645,6 +4645,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 	@Override
 	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "setAttributeActionCriticality_AttributeDefinition_AttributeAction_boolean_policy")) {
@@ -4652,6 +4653,14 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 
 		attributesManagerBl.setAttributeActionCriticality(sess, attr, action, critical);
+	}
+
+	@Override
+	public List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess) {
+		Utils.checkPerunSession(sess);
+		// no authz - anyone can call this method
+
+		return attributesManagerBl.getIdpAttributeDefinitions(sess);
 	}
 
 	public PerunBl getPerunBl() {

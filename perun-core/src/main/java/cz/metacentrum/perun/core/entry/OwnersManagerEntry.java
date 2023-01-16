@@ -87,6 +87,21 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
+	public void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
+
+		for (Owner owner : owners) {
+			getOwnersManagerBl().checkOwnerExists(sess, owner);
+
+			// Authorization
+			if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", owner))
+				throw new PrivilegeException(sess, "deleteOwners");
+
+			getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
+		}
+	}
+
+	@Override
 	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

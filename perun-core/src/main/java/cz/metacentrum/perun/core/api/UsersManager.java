@@ -570,6 +570,21 @@ public interface UsersManager {
 	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
 
 	/**
+	 * Removes user's external sources.
+	 *
+	 * @param perunSession
+	 * @param user
+	 * @param userExtSources
+	 * @param forceDelete if true, persistent ExtSource is deleted too
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserExtSourceNotExistsException
+	 * @throws UserNotExistsException
+	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 */
+	void removeUserExtSources(PerunSession perunSession, User user, List<UserExtSource> userExtSources, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
+
+	/**
 	 * Take UserExtSource from sourceUser and move it to the targetUser.
 	 *
 	 * It removes old UserExtSource with all it's attributes from sourceUser and creates and assigns the new one with

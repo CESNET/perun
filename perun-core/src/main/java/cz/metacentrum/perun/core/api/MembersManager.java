@@ -1193,6 +1193,7 @@ public interface MembersManager {
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @param sendActivationLink if true link for manual activation of account will be send to the email
 	 *                           be careful when using with empty (no-reply) email
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param url base URL of Perun Instance
 	 * @return new Member in the Vo
 	 * @throws InternalErrorException if given parameters are invalid
@@ -1207,7 +1208,7 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException
 	 * @throws AlreadySponsorException
 	 */
-	RichMember createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
+	RichMember createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor, LocalDate validityTo, boolean sendActivationLink, String language, String url) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1262,6 +1263,7 @@ public interface MembersManager {
 	 * @param sponsor sponsoring user
 	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
 	 *                           to email which was set for him, be careful when using no-reply emails
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param url base URL of Perun Instance
 	 * @param groups groups, to which will be the created users assigned
 	 * @return list of maps of name, status, login and password
@@ -1269,7 +1271,7 @@ public interface MembersManager {
 	 */
 	List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               List<String> data, String header, User sponsor,
-	                                                               LocalDate validityTo, boolean sendActivationLink,
+	                                                               LocalDate validityTo, boolean sendActivationLink, String language,
 																   String url, List<Group> groups) throws PrivilegeException;
 
 	/**
@@ -1296,11 +1298,12 @@ public interface MembersManager {
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
 	 *                           to the email, be careful when using with empty (no-reply) email
+	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param url base URL of Perun Instance
 	 * @return list of maps of name, status, login and password
 	 * @throws PrivilegeException
 	 */
-	List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException;
+	List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String language, String url) throws PrivilegeException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
@@ -1350,6 +1353,21 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException
 	 */
 	RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
+
+	/**
+	 * Assigns a new sponsor to existing members. If some members are non-sponsored, turn them into sponsored and assign the sponsor.
+	 * @param session actor
+	 * @param sponsored existing members that needs sponsoring
+	 * @param sponsor sponsoring user or null for the caller
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws MemberNotSponsoredException
+	 * @throws AlreadySponsorException
+	 * @throws UserNotInRoleException
+	 */
+	void sponsorMembers(PerunSession session, List<Member> sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
 	 * Get all sponsored RichMembers with attributes by list of attribute names for specific User and Vo.
@@ -1444,6 +1462,17 @@ public interface MembersManager {
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws PrivilegeException;
+
+	/**
+	 * Removes the sponsors from member.
+	 *
+	 * @param sess actor
+	 * @param sponsoredMember existing member that is sponsored
+	 * @param sponsorsToRemove sponsoring users for removal
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
+	 */
+	void removeSponsors(PerunSession sess, Member sponsoredMember, List<User> sponsorsToRemove) throws PrivilegeException;
 
 	/**
 	 * Get page of members from the given vo, with the given attributes.

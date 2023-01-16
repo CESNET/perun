@@ -908,6 +908,17 @@ public interface ResourcesManagerBl {
 	void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws ResourceTagAlreadyAssignedException;
 
 	/**
+	 * Assign existing ResourceTags on existing Resource.
+	 *
+	 * @param perunSession
+	 * @param resourceTags
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws ResourceTagAlreadyAssignedException
+	 */
+	void assignResourceTagsToResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws ResourceTagAlreadyAssignedException;
+
+	/**
 	 * Remove specific ResourceTag from existing Resource.
 	 *
 	 * @param perunSession
@@ -917,6 +928,17 @@ public interface ResourcesManagerBl {
 	 * @throws ResourceTagNotAssignedException
 	 */
 	void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws ResourceTagNotAssignedException;
+
+	/**
+	 * Remove specific ResourceTags from existing Resource.
+	 *
+	 * @param perunSession
+	 * @param resourceTags
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws ResourceTagNotAssignedException
+	 */
+	void removeResourceTagsFromResource(PerunSession perunSession, List<ResourceTag> resourceTags, Resource resource) throws ResourceTagNotAssignedException;
 
 	/**
 	 * Remove all existing Resource tags for specific resource.
