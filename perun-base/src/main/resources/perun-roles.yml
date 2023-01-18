@@ -7225,20 +7225,20 @@ perun_policies:
   vo-setSendingEnabled_ApplicationMail_policy:
     policy_roles:
       - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  group-setSendingEnabled_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
       - GROUPADMIN: Group
     include_policies:
       - default_policy
     mfa_rules:
       - MFA: Vo
       - MFA: Group
-
-  group-setSendingEnabled_ApplicationMail_policy:
-    policy_roles:
-      - VOADMIN: Vo
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA: Vo
 
   source-copyMailsFromVoToVo_Vo_Vo_policy:
     policy_roles:
