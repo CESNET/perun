@@ -3,7 +3,6 @@ package cz.metacentrum.perun.notif.managers;
 import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.notif.utils.NotifUtils;
 import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
@@ -295,7 +294,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 				result.setMethodName(methodName);
 				result.setMethodType(ParsedMethod.MethodType.METHOD);
 
-				Integer position = new Integer(i + 1);
+				int position = i + 1;
 				while (className.length() >= position && className.charAt(position) != ')') {
 					ParsedMethod param = parseMethod(className, position);
 					result.addParam(param);
@@ -310,7 +309,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 				result.setLastPosition(i);
 				return result;
 			} else if (character == '.') {
-				Integer position = new Integer(i + 1);
+				Integer position = i + 1;
 				ParsedMethod nextMethod = parseMethod(className, position);
 				result.setNextMethod(nextMethod);
 				result.setMethodName(methodName);
