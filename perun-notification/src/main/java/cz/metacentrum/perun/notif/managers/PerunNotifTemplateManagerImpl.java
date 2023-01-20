@@ -297,9 +297,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			}
 
 			if (handlingSender != null) {
-				logger.debug("Found handling sender: {}", handlingSender.toString());
 				processedIds.addAll(handlingSender.send(messagesToSend.get(typeOfReceiver)));
-				logger.debug("Messages send by sender: {}", handlingSender.toString());
 			} else {
 				logger.error("No handling sender found for: {}", typeOfReceiver);
 			}

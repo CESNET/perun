@@ -34,10 +34,10 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 			Set<PerunNotifRegex> perunNotifRegexs = perunNotifRegexDao.getPerunNotifRegexForTemplateId(template.getId());
 			template.setMatchingRegexs(perunNotifRegexs);
 
-			List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate().query("SELECT * from pn_receiver where template_id = ?", new Object[]{template.getId()}, PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
+			List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate().query("SELECT * from pn_receiver where template_id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER, template.getId());
 			template.setReceivers(perunNotifReceiver);
 
-			List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate().query("SELECT * from pn_template_message where template_id = ?", new Object[]{template.getId()}, PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
+			List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate().query("SELECT * from pn_template_message where template_id = ?", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, template.getId());
 			template.setPerunNotifTemplateMessages(perunNotifTemplateMessages);
 		}
 
@@ -74,7 +74,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	public PerunNotifReceiver getPerunNotifReceiverById(int id) {
 
 		try {
-			PerunNotifReceiver object = this.getJdbcTemplate().queryForObject("select * from pn_receiver where id = ?", new Object[]{id}, PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
+			PerunNotifReceiver object = this.getJdbcTemplate().queryForObject("select * from pn_receiver where id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER, id);
 			return object;
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
@@ -112,7 +112,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
 		PerunNotifTemplate template = null;
 		try {
-			template = this.getJdbcTemplate().queryForObject("SELECT * from pn_template where id = ?", new Object[]{id}, PerunNotifTemplate.PERUN_NOTIF_TEMPLATE);
+			template = this.getJdbcTemplate().queryForObject("SELECT * from pn_template where id = ?", PerunNotifTemplate.PERUN_NOTIF_TEMPLATE, id);
 		} catch (EmptyResultDataAccessException ex) {
 			//This exception is thrown when object is not found
 			return null;
@@ -121,10 +121,10 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 		Set<PerunNotifRegex> regexes = perunNotifRegexDao.getPerunNotifRegexForTemplateId(template.getId());
 		template.setMatchingRegexs(regexes);
 
-		List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate().query("SELECT * from pn_receiver where template_id = ?", new Object[]{template.getId()}, PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
+		List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate().query("SELECT * from pn_receiver where template_id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER, template.getId());
 		template.setReceivers(perunNotifReceiver);
 
-		List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate().query("SELECT * from pn_template_message where template_id = ?", new Object[]{template.getId()}, PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
+		List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate().query("SELECT * from pn_template_message where template_id = ?", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, template.getId());
 		template.setPerunNotifTemplateMessages(perunNotifTemplateMessages);
 
 		return template;
@@ -151,7 +151,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) {
 
 		try {
-			return this.getJdbcTemplate().queryForObject("select * from pn_template_message where id = ?", new Object[]{id}, PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
+			return this.getJdbcTemplate().queryForObject("select * from pn_template_message where id = ?", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, id);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}
