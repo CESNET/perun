@@ -418,14 +418,14 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 	}
 
 	@Test
-	public void modifyGroupNameTest() throws Exception {
-		System.out.println(CLASS_NAME + "modifyGroupNameTest");
+	public void modifyGroupLoginTest() throws Exception {
+		System.out.println(CLASS_NAME + "modifyGroupLoginTest");
 
 		final Group subBaseGroup = new Group("group1", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
 		setLoginToGroup(baseGroup, subBaseGroup, "group1");
 
-		final TestGroup modifiedSubBaseTestGroup = new TestGroup("modified", "modified", null, "child of base group");
+		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "modified", null, "child of base group");
 		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -440,14 +440,14 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 	}
 
 	@Test
-	public void modifyGroupDescriptionTest() throws Exception {
-		System.out.println(CLASS_NAME + "modifyGroupDescriptionTest");
+	public void modifyGroupDetailsTest() throws Exception {
+		System.out.println(CLASS_NAME + "modifyGroupDetailsTest");
 
 		final Group subBaseGroup = new Group("group1", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
 		setLoginToGroup(baseGroup, subBaseGroup, "group1");
 
-		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "modified");
+		final TestGroup modifiedSubBaseTestGroup = new TestGroup("modifiedName", "group1", null, "modifiedDescription");
 		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
