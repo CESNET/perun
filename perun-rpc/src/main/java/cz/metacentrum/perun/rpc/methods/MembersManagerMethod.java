@@ -166,11 +166,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
-	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
-	 * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+	 * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param sendActivationLink boolean (optional) If true link for manual activation of account will be sent to the email
 	 *                            default is false, can't be used with empty email parameter
 	 *                            If set to true, a non-empty namespace has to be provided.
-	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
+	 * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @return RichMember newly created sponsored member
 	 */
 	createSponsoredMember {
@@ -275,7 +275,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param password String password
 	 * @param login String login
 	 * @param sponsor int id of sponsoring user
-	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member
 	 */
 	/*#
@@ -289,7 +289,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param namespace String used for selecting external system in which guest user account will be created
 	 * @param password String password
 	 * @param login String login
-	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member
 	 */
 	setSponsoredMember {
@@ -332,7 +332,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * If the sponsor is not specified, the current principal becomes the SPONSOR, if he has such privileges.
 	 *
-	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and
+	 * Since there may be error while creating some members, and we cannot simply roll back the transaction and
 	 * start over, exceptions during member creation are not thrown and the returned list has this structure:
 	 *
 	 * [{"name" -> name, "status" -> "OK" or "Error...", "login" -> login, "password" -> password}]
@@ -351,11 +351,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
-	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
-	 * @param sendActivationLinks (optional) boolean if true link for manual activation of every created sponsored member
-	 *                           account will be send to the email (can't be used with empty email parameter), default is false
+	 * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param sendActivationLinks boolean (optional) If true link for manual activation of every created sponsored member
+	 *                           account will be sent to the email (can't be used with empty email parameter), default is false
 	 *                           If set to true, a non-empty namespace has to be provided.
-	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
+	 * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
 	 * @param groups int[] group ids, to which will be the created users assigned (has to be from the given vo)
 	 * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
 	 */
@@ -416,7 +416,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
 	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
 	 *
-	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and start over,
+	 * Since there may be error while creating some members, and we cannot simply roll back the transaction and start over,
 	 * exceptions during member creation are not thrown and the returned list has this structure:
 	 *
 	 * [{"name" -> name, "status" -> "OK" or "Error...", "login" -> login, "password" -> password}]
@@ -431,12 +431,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
-	 * @param email (optional) preferred email that will be set to the created user. If no email
-	 *              is provided, "no-reply@muni.cz" is used.
-	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member account will be send
+	 * @param email String (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, default from the instance config is used (usually some kind of "no-reply" address).
+	 * @param sendActivationLink boolean (optional) If true link for manual activation of every created sponsored member account will be sent
 	 *                           to the email, be careful when using with empty (no-reply) email, default is false
-	 * @param language language of the activation email (e.g. "en", "cs"). Use english if null.
-	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
+	 * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
 	 */
 	createSponsoredMembers {
