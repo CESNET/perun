@@ -2499,8 +2499,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		//Prepare service roles like engine, service, registrar, perunAdmin etc.
 		boolean serviceRole = prepareServiceRoles(sess);
 
-		// if have some of the service principal, we do not need to search further
-		if (!serviceRole) {
+		// no need to search further for service principals included in 'dontlookupusers' configuration
+		if (!serviceRole || !BeansUtils.getCoreConfig().getDontLookupUsers().contains(sess.getPerunPrincipal().getActor())) {
 			User user = sess.getPerunPrincipal().getUser();
 			AuthzRoles roles;
 			if (user == null) {
