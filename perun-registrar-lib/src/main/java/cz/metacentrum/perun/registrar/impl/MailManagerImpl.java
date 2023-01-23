@@ -794,6 +794,25 @@ public class MailManagerImpl implements MailManager {
 		return EMPTY_STRING;
 	}
 
+	@Override
+	public Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws VoNotExistsException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		perun.getVosManagerBl().checkVoExists(sess, vo);
+		if (group != null) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+		}
+
+		try {
+			ApplicationForm form = getForm(vo, group);
+			getMail(form, AppType.INITIAL, MailType.USER_INVITE);
+		} catch (FormNotExistsException | RegistrarException e) {
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Retrieve mail definition from db by params.
 	 * Mail contains all texts.

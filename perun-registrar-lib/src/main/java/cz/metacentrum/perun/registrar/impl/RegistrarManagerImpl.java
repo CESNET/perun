@@ -3598,6 +3598,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public void inviteMemberCandidates(PerunSession sess, Vo vo, Group group, String lang, List<MemberCandidate> candidates) throws PerunException {
+		Utils.checkPerunSession(sess);
+
+		for (MemberCandidate candidate : candidates) {
+			if (candidate.getRichUser() != null) {
+				mailManager.sendInvitation(sess, vo, group, perun.getUsersManager().getUserById(sess, candidate.getRichUser().getId()));
+			} else if (candidate.getCandidate() != null) {
+				mailManager.sendInvitation(sess, vo, group, null, getCandidateEmail(candidate.getCandidate()), lang);
+			}
+		}
+	}
+
+	@Override
 	public void handleUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
 		// get group apps based on the vo
 		List<Application> apps = jdbc.query(
@@ -3652,6 +3665,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public ConsolidatorManager getConsolidatorManager() {
 		return this.consolidatorManager;
+	}
+
+	/**
+	 * Gets email for candidate.
+	 *
+	 * @param candidate candidate
+	 * @return email
+	 */
+	private String getCandidateEmail(Candidate candidate) {
+		if (candidate.getAttributes().containsKey("urn:perun:member:attribute-def:def:mail")) {
+			return candidate.getAttributes().get("urn:perun:member:attribute-def:def:mail");
+		} else if (candidate.getAttributes().containsKey("urn:perun:user:attribute-def:def:preferredMail")) {
+			return candidate.getAttributes().get("urn:perun:user:attribute-def:def:preferredMail");
+		}
+		return "";
 	}
 
 	/**

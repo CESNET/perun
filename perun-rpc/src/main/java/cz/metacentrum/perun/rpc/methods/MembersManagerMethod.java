@@ -2037,5 +2037,39 @@ public enum MembersManagerMethod implements ManagerMethod {
 					parms.read("query", MembersPageQuery.class),
 					parms.readList("attrNames", String.class));
 		}
+	},
+
+	/*#
+	 * Add member candidates.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param candidates List<MemberCandidate> Member candidates
+	 */
+	/*#
+	 * Add member candidates to group.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param candidates List<MemberCandidate> Member candidates
+	 * @param group int Group <code>id</code>
+	 */
+	addMemberCandidates {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("group")) {
+				ac.getMembersManager().addMemberCandidates(
+					ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readList("candidates", MemberCandidate.class),
+					ac.getGroupById(parms.readInt("group"))
+				);
+			} else {
+				ac.getMembersManager().addMemberCandidates(
+					ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readList("candidates", MemberCandidate.class)
+				);
+			}
+			return null;
+		}
 	}
 }
