@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.notif.dao.jdbc;
 
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifObjectDao;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
@@ -11,12 +10,10 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Jdbc implementation of PerunNotifObjectDao
- *
  * User: tomastunkl Date: 01.11.12 Time: 22:57
  */
 @Repository("perunNotifObjectDao")
@@ -63,7 +60,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 
 		logger.debug("Getting PerunNotifObject from db by id: {}", id);
 		try {
-			PerunNotifObject object = this.getJdbcTemplate().queryForObject("SELECT * FROM pn_object object where object.id = ?", new Object[]{id}, PerunNotifObject.PERUN_NOTIF_OBJECT);
+			PerunNotifObject object = this.getJdbcTemplate().queryForObject("SELECT * FROM pn_object object where object.id = ?", PerunNotifObject.PERUN_NOTIF_OBJECT, id);
 			logger.debug("PerunNotifObject retrieved from db: {}", object);
 			return object;
 		} catch (EmptyResultDataAccessException ex) {
@@ -75,14 +72,14 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	@Override
 	public boolean isObjectRelation(int templateId, Integer objectId) {
 
-		logger.debug("IsObjectRelation for templateId: {}, objectId: {}", Arrays.asList(templateId, objectId));
+		logger.debug("IsObjectRelation for templateId: {}, objectId: {}", templateId, objectId);
 		try {
 			SqlRowSet rowSet = this.getJdbcTemplate().queryForRowSet("select * from pn_regex_object where regex_id = ? AND object_id = ?", templateId, objectId);
-			logger.debug("Relation between templateId: {} and objectId: {}, found.", Arrays.asList(templateId, objectId));
+			logger.debug("Relation between templateId: {} and objectId: {}, found.", templateId, objectId);
 			return rowSet.next();
 		} catch (EmptyResultDataAccessException ex) {
 			//This exception signals empty row
-			logger.debug("Relation between templateId: {}, and objectId: {}, not found", Arrays.asList(templateId, objectId));
+			logger.debug("Relation between templateId: {}, and objectId: {}, not found", templateId, objectId);
 			return false;
 		}
 	}
@@ -90,17 +87,17 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	@Override
 	public void saveObjectRelation(int templateId, Integer objectId) {
 
-		logger.debug("Saving relation bewteen templateId: {}, and objectId: {} to db.", Arrays.asList(templateId, objectId));
+		logger.debug("Saving relation bewteen templateId: {}, and objectId: {} to db.", templateId, objectId);
 		int newId = Utils.getNewId(this.getJdbcTemplate(), "pn_regex_object_seq");
 
 		this.getJdbcTemplate().update("insert into pn_regex_object(id, regex_id, object_id) values(?,?,?)", newId, templateId, objectId);
-		logger.debug("Relation between templateId: {} and objectId: {} saved to db with id: {}", Arrays.asList(templateId, objectId, newId));
+		logger.debug("Relation between templateId: {} and objectId: {} saved to db with id: {}", templateId, objectId, newId);
 	}
 
 	@Override
 	public void removePerunNotifObjectRegexRelation(int regexId, int objectId) {
 
-		logger.debug("Removing relation between object: {} and regex: {} from db.", Arrays.asList(objectId, regexId));
+		logger.debug("Removing relation between object: {} and regex: {} from db.", objectId, regexId);
 		this.getJdbcTemplate().update("delete from pn_regex_object where regex_id = ? and object_id = ?", regexId, objectId);
 	}
 
