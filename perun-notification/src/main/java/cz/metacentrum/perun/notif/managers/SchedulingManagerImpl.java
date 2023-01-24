@@ -8,11 +8,9 @@ import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
 import cz.metacentrum.perun.notif.utils.NotifUtils;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +29,8 @@ public class SchedulingManagerImpl {
 	private static final Logger logger = LoggerFactory.getLogger(SchedulingManagerImpl.class);
 	private PerunSession session;
 
-	private static volatile AtomicBoolean running = new AtomicBoolean(false);
-	private static volatile AtomicBoolean runningAllowed = new AtomicBoolean(true);
-
-	@Autowired
-	private Properties propertiesBean;
-
-	@Autowired
-	private DataSource dataSource;
+	private static final AtomicBoolean running = new AtomicBoolean(false);
+	private static final AtomicBoolean runningAllowed = new AtomicBoolean(true);
 
 	@Autowired
 	private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
@@ -54,8 +46,6 @@ public class SchedulingManagerImpl {
 
 	@Autowired
 	private PerunBl perun;
-
-	private final String consumerName = "notifications";
 
 	@PostConstruct
 	public void init() {
@@ -97,12 +87,10 @@ public class SchedulingManagerImpl {
 	/**
 	 * Loads notif audit messages from db restart their processing.
 	 * Call processing of one perunAuditMessage for each gotten msg.
-	 *
-	 * @throws InternalErrorException
 	 */
 	private void processPerunNotifAuditMessages() throws Exception {
 
-		List<PerunNotifAuditMessage> oldAuditMessages = null;
+		List<PerunNotifAuditMessage> oldAuditMessages;
 		try {
 			oldAuditMessages = perunNotifAuditMessagesManager.getAll();
 		} catch (Exception ex) {
@@ -119,9 +107,9 @@ public class SchedulingManagerImpl {
 	/**
 	 * The method loads perun audit messages from the database and saves them as PerunNotifAudiMessages.
 	 */
-	public void processPerunAuditMessages() throws Exception {
+	public void processPerunAuditMessages() {
 		try {
-			List<AuditEvent> events = perun.getAuditMessagesManagerBl().pollConsumerEvents(session, consumerName);
+			List<AuditEvent> events = perun.getAuditMessagesManagerBl().pollConsumerEvents(session, "notifications");
 			for (AuditEvent event : events) {
 				try {
 					perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(event.getMessage(), session);
@@ -141,10 +129,6 @@ public class SchedulingManagerImpl {
 	 * auditer message from db. To accomplish a success, the message have to be well-formed, so that the
 	 * object can be parsed, there have to be matching notifRegex in the db. If the message is recognized and
 	 * the matching regex is assigned to the template,  PerunNotifPoolMessage is created.
-	 *
-	 * @param perunAuditMessage
-	 * @param session
-	 * @throws InternalErrorException
 	 */
 	private void processPerunNotifAuditMessage(PerunNotifAuditMessage perunAuditMessage, PerunSession session) throws Exception {
 
