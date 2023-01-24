@@ -49,9 +49,6 @@ public class AbstractTest {
 	@Autowired
 	private ApplicationContext appContext;
 
-	@Autowired
-	Properties propertiesBean;
-
 	public static String convertStreamToString(java.io.InputStream is) {
 		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : "";
@@ -67,8 +64,7 @@ public class AbstractTest {
 	@Before
 	public void startSmtpServer() {
 		if (smtpServer == null) {
-			int port = (propertiesBean.getProperty("notif.port") != null) ? Integer.parseInt(propertiesBean.getProperty("notif.port")) : 8086;
-			smtpServer = SimpleSmtpServer.start(port);
+			smtpServer = SimpleSmtpServer.start(8086);
 		}
 	}
 

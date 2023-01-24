@@ -17,9 +17,6 @@ import java.util.Properties;
 @Service("perunNotifEmailManager")
 public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 
-	@Autowired
-	private Properties propertiesBean;
-
 	private boolean sendMessages;
 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifEmailManager.class);
@@ -29,8 +26,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 
 	@PostConstruct
 	public void init() throws Exception {
-		String sendMessages_s = (String) propertiesBean.get("notif.sendMessages");
-		this.sendMessages = sendMessages_s != null && sendMessages_s.equals("true");
+		this.sendMessages = BeansUtils.getCoreConfig().getNotifSendMessages();
 	}
 
 	@Override
