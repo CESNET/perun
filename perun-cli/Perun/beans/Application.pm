@@ -66,7 +66,14 @@ sub TO_JSON
 		$type = undef;
 	}
 
-	return { id => $id, vo => $vo, group => $group, user => $user, type => $type, state => $state };
+	my $autoApproveError;
+	if (defined($self->{_autoApproveError})) {
+		$autoApproveError = $self->{_autoApproveError};
+	} else {
+		$autoApproveError = undef;
+	}
+
+	return { id => $id, vo => $vo, group => $group, user => $user, type => $type, state => $state, autoApproveError => $autoApproveError };
 }
 
 sub getId
@@ -111,6 +118,12 @@ sub getState
 	return $self->{_state};
 }
 
+sub getAutoApproveError
+{
+	my $self = shift;
+
+	return $self->{_autoApproveError};
+}
 
 sub getActor
 {
@@ -145,11 +158,12 @@ sub getCommonArrayRepresentation {
 	my $self = shift;
 	return ($self->{_id}, $self->{_type}, $self->{_state}, $self->{_vo}->{id} . " / " . $self->{_vo}->{shortName},
 		((defined $self->{_group}) ? $self->{_group}->{id} . " / " . $self->{_group}->{name} : ""),
-		((defined $self->{_user}) ? $self->getUserDisplayName : $self->{_createdBy} . " / " . $self->{_extSourceName}));
+		((defined $self->{_user}) ? $self->getUserDisplayName : $self->{_createdBy} . " / " . $self->{_extSourceName}),
+		((defined $self->{_autoApproveError}) ? $self->{_autoApproveError} : ""));
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Type', 'State', 'Vo', 'Group', 'Submitted by');
+	return ('ID', 'Type', 'State', 'Vo', 'Group', 'Submitted by', 'Automatic approval error');
 }
 
 1;

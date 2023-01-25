@@ -108,6 +108,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String FIELD_ACTOR = "{actor}";
 	private static final String FIELD_EXT_SOURCE = "{extSource}";
 	private static final String FIELD_CUSTOM_MESSAGE = "{customMessage}";
+	private static final String FIELD_AUTO_APPROVE_ERROR = "{autoApproveError}";
 	private static final String FIELD_FIRST_NAME = "{firstName}";
 	private static final String FIELD_LAST_NAME = "{lastName}";
 	private static final String FIELD_ERRORS = "{errors}";
@@ -1307,6 +1308,7 @@ public class MailManagerImpl implements MailManager {
 	 * {phone} - user phone submitted on application or stored in a system
 	 *
 	 * {customMessage} - message passed by the admin to mail (e.g. reason of application reject)
+	 * {autoApproveError} - error that caused automatic approval failure
 	 * {errors} - include errors, which occurred when processing registrar actions
 	 * (e.g. login reservation errors passed to mail for VO admin)
 	 *
@@ -1359,6 +1361,15 @@ public class MailManagerImpl implements MailManager {
 				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, reason);
 			} else {
 				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, EMPTY_STRING);
+			}
+		}
+
+		// replace autoApproveError
+		if (mailText.contains(FIELD_AUTO_APPROVE_ERROR)) {
+			if (exceptions != null && !exceptions.isEmpty()) {
+				mailText = mailText.replace(FIELD_AUTO_APPROVE_ERROR, exceptions.get(0).getMessage());
+			} else {
+				mailText = mailText.replace(FIELD_AUTO_APPROVE_ERROR, EMPTY_STRING);
 			}
 		}
 

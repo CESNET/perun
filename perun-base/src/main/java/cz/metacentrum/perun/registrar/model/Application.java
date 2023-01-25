@@ -25,7 +25,7 @@ public class Application {
 	private String extSourceType;
 	private int extSourceLoa = 0; // 0 - by default
 	private User user;
-
+	private String autoApproveError;
 	private String createdBy;
 	private String createdAt;
 	private String modifiedBy;
@@ -147,6 +147,10 @@ public class Application {
 		return modifiedAt;
 	}
 
+	public String getAutoApproveError() {
+		return autoApproveError;
+	}
+
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
@@ -161,6 +165,10 @@ public class Application {
 
 	public void setModifiedAt(String modifiedAt) {
 		this.modifiedAt = modifiedAt;
+	}
+
+	public void setAutoApproveError(String error) {
+		this.autoApproveError = error;
 	}
 
 	/**
@@ -181,6 +189,7 @@ public class Application {
 			", fedInfo='" + getFedInfo() + '\'' +
 			", type='" + getType().toString() + '\'' +
 			", state='" + getState().toString() + '\'' +
+			", autoApproveError='" + getAutoApproveError() + '\'' +
 			", extSourceName='" + getExtSourceName() + '\'' +
 			", extSourceType='" + getExtSourceType() + '\'' +
 			", extSourceLoa='" + getExtSourceLoa() + '\'' +
@@ -188,8 +197,7 @@ public class Application {
 			", created_at='" + getCreatedAt() + '\'' +
 			", created_by='" + getCreatedBy() + '\'' +
 			", modified_at='" + getModifiedAt() + '\'' +
-			", modified_by='" + getModifiedBy() + '\'' +
-			']';
+			", modified_by='" + getModifiedBy() + '\'' + ']';
 	}
 
 }
