@@ -206,7 +206,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 						}
 
 						// check if user exists
-						if (session.getUser().isServiceUser()) {
+						if (session.getUser() != null && session.getUser().isServiceUser()) {
 							// if not and no role, redraw page body
 							RootLayoutPanel body = RootLayoutPanel.get();
 							loadingBox.hide();
@@ -320,7 +320,9 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 
 						// display logged user
 						session.getUiElements().setLoggedUserInfo(pp);
-						session.getUiElements().setLogText("Welcome "+pp.getUser().getFullNameWithTitles());
+						if (pp.getUser() != null) {
+							session.getUiElements().setLogText("Welcome " + pp.getUser().getFullNameWithTitles());
+						}
 
 						// show extended info ?
 						boolean showExtendedInfo = false;
