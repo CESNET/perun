@@ -105,6 +105,7 @@ public class TabManager {
 	 * @return
 	 */
 	public boolean addTab(TabItem tab) {
+		if (tab == null) return false;
 		return addTab(tab, true);
 	}
 

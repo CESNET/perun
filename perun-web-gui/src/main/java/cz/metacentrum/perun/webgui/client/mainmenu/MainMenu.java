@@ -64,25 +64,24 @@ public class MainMenu {
 				int menuPosition = menuStackPanel.getSelectedIndex();
 				for(int i = 0; i < 6; i++){
 					if(sectionsIds.containsKey(i)){
-						if(sectionsIds.get(i) == menuPosition)
-		{
-			// THIS ENSURE ALL LINKS IN MENU ARE ALWAYS CURRENT WHEN MENU IS OPENED
-			updateHeaders();
-			updateLinks(i);
+						if(sectionsIds.get(i) == menuPosition) {
+							// THIS ENSURES ALL LINKS IN MENU ARE ALWAYS CURRENT WHEN MENU IS OPENED
+							updateHeaders();
+							updateLinks(i);
 
-			// IF NO TAB IS OPENED - OPEN ITS DEFAULT PAGE
-			if (session.getTabManager().getActiveTab() == null) {
-				// skip for perun admin menu
-				if (PERUN_ADMIN != i) {
-					MainMenuSection menuSec = sectionsMap.get(i);
-					if (menuSec != null) {
-						session.getTabManager().addTab(menuSec.getTabItem());
-					}
-				}
-			}
+							// IF NO TAB IS OPENED - OPEN ITS DEFAULT PAGE
+							if (session.getTabManager().getActiveTab() == null) {
+								// skip for perun admin menu
+								if (PERUN_ADMIN != i) {
+									MainMenuSection menuSec = sectionsMap.get(i);
+									if (menuSec != null) {
+										session.getTabManager().addTab(menuSec.getTabItem());
+									}
+								}
+							}
 
-			return;
-		}
+							return;
+						}
 					}
 				}
 			}
@@ -582,18 +581,16 @@ public class MainMenu {
 			if (session.getEditableSponsoredUsers().size() > 0) {
 				sponsored = new SelfSponsoredUsersTabItem(user);
 			}
-		} else {
-			detail = new IdentitySelectorTabItem();
 		}
 
 		// display user changer for PerunAdmin or user with service identities
 		if (session.isPerunAdmin() || session.getEditableUsers().size() > 1) {
-			changer = new IdentitySelectorTabItem();
+			if (user != null) changer = new IdentitySelectorTabItem();
 		}
 		menu.addItem(new MainMenuItem("Select identity", changer, SmallIcons.INSTANCE.userGrayIcon()));
 		menu.addSplitter();
 
-		menu.setTabItem(detail);
+		if (detail != null) menu.setTabItem(detail);
 		menu.addItem(new MainMenuItem((user != null) ? user.getFullNameWithTitles() : "My profile", detail, SmallIcons.INSTANCE.userGrayIcon()));
 		menu.addItem(new MainMenuItem("VO settings", settings, SmallIcons.INSTANCE.buildingIcon()));
 		menu.addItem(new MainMenuItem("Resources settings", resources, SmallIcons.INSTANCE.settingToolsIcon()));
@@ -601,17 +598,19 @@ public class MainMenu {
 		menu.addItem(new MainMenuItem("Publications", publications, SmallIcons.INSTANCE.booksIcon()));
 		menu.addItem(new MainMenuItem("Applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
 
-		if (user.isServiceUser()) {
-			menu.addItem(new MainMenuItem("Associated users", services, SmallIcons.INSTANCE.userRedIcon()));
-			if (user.isSponsoredUser()) {
-				menu.addItem(new MainMenuItem("Sponsors", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
-			}
-		} else {
-			menu.addItem(new MainMenuItem("Service identities", services, SmallIcons.INSTANCE.userRedIcon()));
-			if (user.isSponsoredUser()) {
-				menu.addItem(new MainMenuItem("Sponsors", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+		if (user != null) {
+			if (user.isServiceUser()) {
+				menu.addItem(new MainMenuItem("Associated users", services, SmallIcons.INSTANCE.userRedIcon()));
+				if (user.isSponsoredUser()) {
+					menu.addItem(new MainMenuItem("Sponsors", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+				}
 			} else {
-				menu.addItem(new MainMenuItem("Sponsored users", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+				menu.addItem(new MainMenuItem("Service identities", services, SmallIcons.INSTANCE.userRedIcon()));
+				if (user.isSponsoredUser()) {
+					menu.addItem(new MainMenuItem("Sponsors", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+				} else {
+					menu.addItem(new MainMenuItem("Sponsored users", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+				}
 			}
 		}
 
