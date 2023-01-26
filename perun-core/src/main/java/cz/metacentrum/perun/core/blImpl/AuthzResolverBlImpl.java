@@ -2494,20 +2494,22 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Utils.checkPerunSession(sess);
 		log.trace("Refreshing authz roles for session {}.", sess);
 
-		//set empty set of roles
+		// Set empty set of roles
 		sess.getPerunPrincipal().setRoles(new AuthzRoles());
-		//Prepare service roles like engine, service, registrar, perunAdmin etc.
+		// Prepare service roles like engine, service, registrar, perunAdmin etc.
 		boolean serviceRole = prepareServiceRoles(sess);
 
-		// no need to search further for service principals included in 'dontlookupusers' configuration
+		// No need to search further for service principals included in 'dontlookupusers' configuration
 		if (!serviceRole || !BeansUtils.getCoreConfig().getDontLookupUsers().contains(sess.getPerunPrincipal().getActor())) {
 			User user = sess.getPerunPrincipal().getUser();
-			AuthzRoles roles;
-			if (user == null) {
-				roles = new AuthzRoles();
-			} else {
+			AuthzRoles roles = sess.getPerunPrincipal().getRoles();
+			if (user != null)  {
+				AuthzRoles userRoles = authzResolverImpl.getRoles(user);
+				// Add service roles, they don't have complementary objects
+				roles.getRolesNames().forEach(userRoles::putAuthzRole);
+				roles = userRoles;
 				// Load all user's roles with all possible subgroups
-				roles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(user), Role.GROUPADMIN);
+				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPADMIN);
 				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPOBSERVER);
 				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPMEMBERSHIPMANAGER);
 				// Add self role for the user
