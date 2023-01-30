@@ -93,11 +93,6 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
 	}
 
 	@Override
-	public void deletePassword(PerunSession sess, String userLogin) {
-		throw new InternalErrorException("Deleting password in login namespace 'admin-meta' is not supported.");
-	}
-
-	@Override
 	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) throws PasswordStrengthException {
 		throw new InternalErrorException("Creating alternative password in login namespace 'admin-meta' is not supported.");
 	}
