@@ -18,7 +18,39 @@ public enum MembersOrderColumn {
 	                 "users.first_name " + getLangSql(query) + query.getOrder().getSqlValue()
 	),
 
-	ID("", "", query -> "members.id " + query.getOrder().getSqlValue());
+	ID("", "", query -> "members.id " + query.getOrder().getSqlValue()),
+	STATUS("","", query -> "members.status " + query.getOrder().getSqlValue()),
+	GROUP_STATUS("", "", query -> "groups_members.source_group_status " + query.getOrder().getSqlValue()),
+
+	// 1. user preferred mail, 2. member mail
+	EMAIL(
+			", usrvals.attr_value, memvals.attr_value ",
+			" left join " +
+			   	"(select attr_value, member_id, attr_id from member_attr_values) as memvals " +
+				"on members.id=memvals.member_id and memvals.attr_id=" +
+			   		"(select id from attr_names where attr_name='urn:perun:member:attribute-def:def:mail') " +
+			" left join " +
+				"(select attr_value, user_id, attr_id from user_attr_values) as usrvals " +
+				"on members.user_id=usrvals.user_id and usrvals.attr_id=" +
+					"(select id from attr_names where attr_name='urn:perun:user:attribute-def:def:preferredMail') ",
+			query -> "usrvals.attr_value " + query.getOrder().getSqlValue() + ", " +
+					 "memvals.attr_value " + query.getOrder().getSqlValue()
+	),
+
+	// 1. member organization, 2. user organization (from IdP)
+	ORGANIZATION(
+		", usrvals.attr_value, memvals.attr_value ",
+		" left join " +
+			"(select attr_value, member_id, attr_id from member_attr_values) as memvals " +
+			"on members.id=memvals.member_id and memvals.attr_id=" +
+			"(select id from attr_names where attr_name='urn:perun:member:attribute-def:def:organization') " +
+			" left join " +
+			"(select attr_value, user_id, attr_id from user_attr_values) as usrvals " +
+			"on members.user_id=usrvals.user_id and usrvals.attr_id=" +
+			"(select id from attr_names where attr_name='urn:perun:user:attribute-def:def:organization') ",
+		query -> "memvals.attr_value " + query.getOrder().getSqlValue() + ", " +
+			"usrvals.attr_value " + query.getOrder().getSqlValue()
+	);
 
 	private final Function<MembersPageQuery, String> orderBySqlFunction;
 	private final String selectSql;

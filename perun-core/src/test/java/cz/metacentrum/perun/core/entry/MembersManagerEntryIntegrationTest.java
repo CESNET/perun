@@ -2880,6 +2880,126 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getMembersPageSortsByEmail() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageSortsByEmail");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		AttributeDefinition mailAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, A_M_MAIL);
+		AttributeDefinition prefMailAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, A_U_PREFERRED_MAIL);
+
+		Attribute memberMail = new Attribute(mailAttrDef);
+		Attribute prefMail = new Attribute(prefMailAttrDef);
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		memberMail.setValue("mail@mail.com");
+		perun.getAttributesManagerBl().setAttribute(sess, member1, memberMail);
+
+		Member member2 = setUpMember(vo, "Do", "Jo");
+		memberMail.setValue("nail@nail.com");
+		perun.getAttributesManagerBl().setAttribute(sess, member2, memberMail);
+
+		Member member3 = setUpMember(vo, "Nom Ail", "Madelin");
+
+		Member member4 = setUpMember(vo, "Don", "Joe");
+		prefMail.setValue("ali@k.com");
+		memberMail.setValue("zli@k.com");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member4), prefMail);
+		perun.getAttributesManagerBl().setAttribute(sess, member4, memberMail);
+
+		Member member5 = setUpMember(vo, "Doney", "Joey");
+		prefMail.setValue("Don@ey.com");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member5), prefMail);
+
+		MembersPageQuery query = new MembersPageQuery(5, 0, SortingOrder.ASCENDING, MembersOrderColumn.EMAIL);
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of(prefMail.getName(), memberMail.getName()));
+
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds) // alik, doney, mail, nail, NULL
+			.containsExactly(member4.getId(), member5.getId(), member1.getId(), member2.getId(), member3.getId());
+	}
+
+	@Test
+	public void getMembersPageSortsByOrganization() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageSortsByOrganization");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		AttributeDefinition memberOrgDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF + ":organization");
+		AttributeDefinition userOrgDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":organization");
+
+		Attribute memberOrg = new Attribute(memberOrgDef);
+		Attribute userOrg = new Attribute(userOrgDef);
+
+		Member member3 = setUpMember(vo, "Don", "Joe");
+		userOrg.setValue("eleland");
+		memberOrg.setValue("Zazaland");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member3), userOrg);
+		perun.getAttributesManagerBl().setAttribute(sess, member3, memberOrg);
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		memberOrg.setValue("Babaland");
+		perun.getAttributesManagerBl().setAttribute(sess, member1, memberOrg);
+
+		Member member4 = setUpMember(vo, "Doney", "Joey");
+		userOrg.setValue("gagaland");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member4), userOrg);
+
+		Member member5 = setUpMember(vo, "Nom Ail", "Madelin");
+
+		Member member2 = setUpMember(vo, "Do", "Jo");
+		memberOrg.setValue("Dadaland");
+		perun.getAttributesManagerBl().setAttribute(sess, member2, memberOrg);
+
+		MembersPageQuery query = new MembersPageQuery(5, 0, SortingOrder.ASCENDING, MembersOrderColumn.ORGANIZATION);
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of(userOrg.getName(), memberOrg.getName()));
+
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member1.getId(), member2.getId(), member3.getId(), member4.getId(), member5.getId());
+	}
+
+	@Test
+	public void getMembersPageSortsByStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageSortsByStatus");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		perun.getMembersManagerBl().validateMember(sess, member1);
+		perun.getMembersManagerBl().setStatus(sess, member1, Status.getStatus(4));
+
+		Member member2 = setUpMember(vo, "Do", "Jo");
+		perun.getMembersManagerBl().validateMember(sess, member2);
+		perun.getMembersManagerBl().setStatus(sess, member2, Status.getStatus(3));
+
+		Member member3 = setUpMember(vo, "Do", "Jo");
+		perun.getMembersManagerBl().setStatus(sess, member3, Status.getStatus(0));
+
+		Member member4 = setUpMember(vo, "Don", "Joe");
+		perun.getMembersManagerBl().setStatus(sess, member4, Status.getStatus(1));
+
+		MembersPageQuery query = new MembersPageQuery(5, 0, SortingOrder.ASCENDING, MembersOrderColumn.STATUS);
+
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		assertThat(returnedMemberIds)
+			.containsExactly(member3.getId(), member4.getId(), member2.getId(), member1.getId());
+	}
+
+	@Test
 	public void getMembersPageIdSortDescendingWorks() throws Exception {
 		System.out.println(CLASS_NAME + "getMembersPageIdSortDescendingWorks");
 
@@ -3159,6 +3279,12 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		assertThat(returnedMemberIds).containsExactly(member2.getId());
 		assertThat(result.getData().get(0).getMembershipType()).isEqualTo(MembershipType.DIRECT);
+
+		query.setSortColumn(MembersOrderColumn.GROUP_STATUS);
+		query.setGroupStatuses(List.of());
+		result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of());
+
+		assertThat(result.getData().get(2).getId()).isEqualTo(member2.getId());
 	}
 
 	@Test

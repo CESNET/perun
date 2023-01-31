@@ -856,11 +856,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		String voSelect =
 			"SELECT " + memberMappingSelectQuery +
 				" ,count(*) OVER() AS total_count" +
-				" FROM members JOIN users on members.user_id = users.id";
+				query.getSortColumn().getSqlSelect() +
+				" FROM members JOIN users on members.user_id = users.id " +
+				query.getSortColumn().getSqlJoin();
 
 		String groupSelect =
 			"SELECT " + groupsMembersMappingSelectQuery +
 				" ,count(*) OVER() AS total_count" +
+				query.getSortColumn().getSqlSelect() +
 				"       FROM" +
 				"            (SELECT group_id, member_id, min(source_group_status) as source_group_status," +
 				"    min(membership_type) as membership_type, null as source_group_id" +
@@ -868,7 +871,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				"    WHERE group_id = (:groupId)" +
 				"    GROUP BY group_id, member_id) groups_members" +
 				"               LEFT JOIN members on groups_members.member_id = members.id" +
-				"                    LEFT JOIN users on members.user_id = users.id";
+				"                    LEFT JOIN users on members.user_id = users.id " +
+				query.getSortColumn().getSqlJoin();
 
 		return query.getGroupId() == null ? voSelect : groupSelect;
 	}
