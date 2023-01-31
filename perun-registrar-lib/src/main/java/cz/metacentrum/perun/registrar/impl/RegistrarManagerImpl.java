@@ -35,6 +35,7 @@ import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
 import cz.metacentrum.perun.registrar.model.RichApplication;
@@ -185,6 +186,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER = "htmlMailFooter";
 	private static final String NAMESPACE_GROUP_HTML_MAIL_FOOTER = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_HTML_MAIL_FOOTER = NAMESPACE_GROUP_HTML_MAIL_FOOTER + ":" + FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER;
+
+	private static final String DEFAULT_GROUP_MSG_VO = "Your application to group {groupName} was automatically rejected," +
+		" because the application for organization {voName} was rejected.";
 
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
@@ -1558,6 +1562,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			log.info("Application {} marked as REJECTED.", appId);
 
 			deleteApplicationReservedLogins(sess, app);
+			// reject all of user's other group applications to the VO
+			if (app.getGroup() == null && app.getType().equals(AppType.INITIAL)) {
+				// create dummy principal and session using users information to pass it into getOpenApplicationsForUserInVo
+				PerunPrincipal userPrincipal = new PerunPrincipal(app.getCreatedBy(), "", "", app.getUser());
+				userPrincipal.setExtSourceName(app.getExtSourceName());
+				userPrincipal.setExtSourceType(app.getExtSourceType());
+				userPrincipal.setAdditionalInformations(BeansUtils.stringToMapOfAttributes(app.getFedInfo()));
+				PerunSession helperSess = new PerunSessionImpl(sess.getPerun(), userPrincipal, sess.getPerunClient());
+				List<Application> otherApps = registrarManager.getOpenApplicationsForUserInVo(helperSess, app.getVo());
+				for (Application otherApp : otherApps) {
+					registrarManager.rejectApplication(sess, otherApp.getId(), DEFAULT_GROUP_MSG_VO);
+				}
+			}
 
 			// log
 			perun.getAuditer().log(sess, new ApplicationRejected(app));
