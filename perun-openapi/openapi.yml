@@ -16838,7 +16838,7 @@ paths:
       summary: Checks if invitation form exists.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/optionalGroupId'
       responses:
         '200':
           $ref: '#/components/responses/BooleanResponse'
