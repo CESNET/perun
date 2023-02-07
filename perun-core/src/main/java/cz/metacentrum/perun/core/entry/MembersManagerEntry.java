@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MembersOrderColumn;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -33,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
@@ -1648,6 +1650,10 @@ public class MembersManagerEntry implements MembersManager {
 			if (!AuthzResolver.authorizedInternal(sess, "getMembersPage_Vo_MembersPageQuery_List<String>_policy", vo)) {
 				throw new PrivilegeException(sess, "getMembersPage");
 			}
+		}
+
+		if (MembersOrderColumn.GROUP_STATUS.equals(query.getSortColumn()) && query.getGroupId() == null) {
+			throw new IllegalArgumentException("Group status cannot be used to sort VO members.");
 		}
 
 		Paginated<RichMember> result = membersManagerBl.getMembersPage(sess, vo, query, attrNames);

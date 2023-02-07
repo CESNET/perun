@@ -227,6 +227,10 @@ components:
       enum:
         - ID
         - NAME
+        - EMAIL
+        - GROUP_STATUS
+        - STATUS
+        - ORGANIZATION
 
     MemberGroupStatus:
       type: string
