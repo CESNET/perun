@@ -1,4 +1,4 @@
--- database version 3.2.10 (don't forget to update insert statement at the end of file)
+-- database version 3.2.11 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -12,7 +12,7 @@ create table vos (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint vo_pk primary key (id),
-	constraint vo_u unique (name)
+	constraint vo_u unique (short_name)
 );
 
 -- USERS - information about user as real person
@@ -1988,7 +1988,7 @@ grant all on attribute_critical_actions to perun;
 grant all on app_notifications_sent to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.10');
+insert into configurations values ('DATABASE VERSION','3.2.11');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
