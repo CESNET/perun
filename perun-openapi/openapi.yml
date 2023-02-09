@@ -10936,7 +10936,7 @@ paths:
   /json/membersManager/addMemberCandidates:
     post:
       tags:
-        - membersManager
+        - MembersManager
       operationId: addMemberCandidates
       summary: Adds member candidates.
       responses:
@@ -16808,7 +16808,7 @@ paths:
   /json/registrarManager/inviteMemberCandidates:
     post:
       tags:
-        - registrarManager
+        - RegistrarManager
       operationId: inviteMemberCandidates
       summary: Invite member candidates.
       responses:
@@ -16837,7 +16837,7 @@ paths:
   /json/registrarManager/invitationFormExists:
     get:
       tags:
-        - registrarManager
+        - RegistrarManager
       operationId: invitationFormExists
       summary: Checks if invitation form exists.
       parameters:
