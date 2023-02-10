@@ -9,6 +9,7 @@
 3.2.11
 ALTER TABLE vos DROP constraint vo_u;
 ALTER TABLE vos ADD CONSTRAINT vo_u unique (short_name);
+UPDATE configurations set value='3.2.11' WHERE property='DATABASE VERSION';
 
 3.2.10
 ALTER TABLE resources_bans ALTER COLUMN banned_to SET DEFAULT '2999-01-01 00:00:00';
