@@ -500,14 +500,13 @@ components:
         propertyName: beanName
 
     FacilityWithAttributes:
-      allOf:
-        - $ref: '#/components/schemas/Facility'
+      type: object
       properties:
+        facility: { $ref: '#/components/schemas/Facility' }
         attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
       required:
+        - facility
         - attributes
-      discriminator:
-        propertyName: beanName
 
     Host:
       allOf:
@@ -2762,7 +2761,7 @@ components:
       required: true
 
     attrNames:
-      name: "attrNames[]"
+      name: "attrNames"
       description: "list of attribute names List<String>"
       in: query
       required: true

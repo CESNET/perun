@@ -121,7 +121,7 @@ public class PerunCLI implements CommandLineRunner {
 		if (commandLine.hasOption(PERUN_URL_OPTION)) {
 			perunUrl = commandLine.getOptionValue(PERUN_URL_OPTION);
 		}
-		if (perunUrl == null) perunUrl = "https://perun.cesnet.cz/krb/rpc";
+		if (perunUrl == null) perunUrl = "https://perun-api.e-infra.cz/krb/rpc";
 
 		// find user and password
 		String user = System.getenv(PERUN_USER_VARIABLE);

@@ -23,18 +23,19 @@ def main(
     attr_names = attr_names.split(',')
     try:
         console = Console()
-        facilities: list[Facility] = rpc.facilities_manager.get_facilities_by_attribute(attr_name, attr_value)
+        facilitiesWithAttributes: list[FacilityWithAttributes] \
+            = rpc.facilities_manager.get_facilities_by_attribute_with_attributes(attr_name, attr_value, attr_names)
         table = Table(title="facilities")
         table.add_column("id", justify="right")
         table.add_column("name")
         table.add_column("description")
-        for facility in facilities:
-            table.add_row(str(facility.id), str(facility.name), str(facility.description))
+        for fwa in facilitiesWithAttributes:
+            table.add_row(str(fwa.facility.id), fwa.facility.name, fwa.facility.description)
         console.print(table)
 
-        for facility in facilities:
-            facility_attributes: list[Attribute] = perun.cli.rpc.attributes_manager.get_facility_attributes_by_names(facility.id, attr_names)
-            table = Table(title="facility " + facility.name + " attributes")
+        for fwa in facilitiesWithAttributes:
+            facility_attributes: list[Attribute] = fwa.attributes
+            table = Table(title="facility " + fwa.facility.name + " attributes")
             table.add_column("namespace")
             table.add_column("friendlyName")
             table.add_column("value")
@@ -44,8 +45,7 @@ def main(
             console.print(table)
 
         # does not work :-(
-        # facilitiesWA: list[FacilityWithAttributes] \
-        #    = rpc.facilities_manager.get_facilities_by_attribute_with_attributes(attr_name, attr_value, attr_names)
+
 
     except ApiException as ex:
         print('error name:', PerunException(ex).name)
