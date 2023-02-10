@@ -506,6 +506,8 @@ components:
         attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
       required:
         - attributes
+      discriminator:
+        propertyName: beanName
 
     Host:
       allOf:

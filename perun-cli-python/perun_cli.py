@@ -3,11 +3,14 @@ import typer
 from perun_openapi.configuration import Configuration
 from perun.oidc import DeviceCodeOAuth, PerunInstance
 from perun.rpc import PerunRpc
+import perun.cli.getFacilitiesByAttribute
+import perun.cli.getFacilitiesByAttributeWA
 import perun.cli.getGroupMembers
 import perun.cli.getPerunPrincipal
 import perun.cli.getPerunStatus
 import perun.cli.getRichMember
 import perun.cli.getUser
+import perun.cli.getUserAttributes
 import perun.cli.listOfMyVos
 import perun.cli.listOfUserRoles
 import perun.cli.listOfVos
@@ -15,11 +18,14 @@ import perun.cli.testAttributeValues
 
 # see https://typer.tiangolo.com/tutorial/
 app = typer.Typer(add_completion=False)
+app.command(name="getFacilitiesByAttribute")(perun.cli.getFacilitiesByAttribute.main)
+app.command(name="getFacilitiesByAttributeWA")(perun.cli.getFacilitiesByAttributeWA.main)
 app.command(name="getGroupMembers")(perun.cli.getGroupMembers.get_group_members)
 app.command(name="getPerunPrincipal")(perun.cli.getPerunPrincipal.main)
 app.command(name="getPerunStatus")(perun.cli.getPerunStatus.main)
 app.command(name="getRichMember")(perun.cli.getRichMember.get_rich_member)
 app.command(name="getUser")(perun.cli.getUser.get_user)
+app.command(name="getUserAttributes")(perun.cli.getUserAttributes.main)
 app.command(name="listOfMyVos")(perun.cli.listOfMyVos.main)
 app.command(name="listOfUserRoles")(perun.cli.listOfUserRoles.main)
 app.command(name="listOfVos")(perun.cli.listOfVos.main)
