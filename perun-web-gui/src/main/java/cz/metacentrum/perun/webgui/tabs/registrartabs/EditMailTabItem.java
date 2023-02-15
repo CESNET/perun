@@ -258,6 +258,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/><strong>{mailFooter}</strong> - common mail footer defined by VO" +
 				"<br/><strong>{errors}</strong> - errors description, what happened while processing new application. Useful for VO administrators." +
 				"<br/><strong>{customMessage}</strong> - optional message passed by administrators when rejecting an application" +
+				"<br/><strong>{autoApproveError}</strong> -  error that caused automatic approval failure" +
 				"<br/><strong>{fromApp-itemName}</strong> - value of a form item in user's application. You MUST specify the itemName, e.g. {fromApp-mail} will print value of item with short name 'mail' from user's application." +
 
 				"<p><strong><u>User related:</u></strong>" +

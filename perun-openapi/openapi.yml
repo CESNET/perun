@@ -1078,6 +1078,7 @@ components:
         createdAt: { type: string }
         modifiedBy: { type: string }
         modifiedAt: { type: string }
+        autoApproveError: { type: string }
 
     RichApplication:
       allOf:

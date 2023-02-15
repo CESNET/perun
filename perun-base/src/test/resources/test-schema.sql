@@ -517,6 +517,7 @@ create table application (
 							  state varchar,           --state of application (new/verified/approved/rejected)
 							  extSourceLoa integer,  --level of assurance of user by external source
 							  group_id integer,      --identifier of group (groups.id) if application is for group
+							  auto_approve_error varchar,	--error that occurred during automatic approval
 							  created_at timestamp default statement_timestamp() not null,
 							  created_by varchar default user not null,
 							  modified_at timestamp default statement_timestamp() not null,

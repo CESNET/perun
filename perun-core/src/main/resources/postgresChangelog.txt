@@ -9,6 +9,7 @@
 3.2.11
 ALTER TABLE vos DROP constraint vo_u;
 ALTER TABLE vos ADD CONSTRAINT vo_u unique (short_name);
+ALTER TABLE application ADD COLUMN auto_approve_error varchar;
 UPDATE configurations set value='3.2.11' WHERE property='DATABASE VERSION';
 
 3.2.10
