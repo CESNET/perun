@@ -42,31 +42,4 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		</property>
 	</bean>
 
-	<!-- Properties Bean -->
-	<beans profile="production">
-		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="locations">
-				<list>
-					<value>file:@perun.conf@perun-notification.properties</value>
-					<value>file:${perun.conf.custom}perun-notification.properties</value>
-				</list>
-			</property>
-			<property name="ignoreResourceNotFound" value="true"/>
-		</bean>
-	</beans>
-
-	<!-- Properties Bean -->
-	<beans profile="default">
-		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties">
-				<props>
-					<prop key="notif.emailFrom">perun@localhost</prop>
-					<prop key="notif.fromText">perun@localhost test message</prop>
-					<prop key="notif.sendMessages">true</prop>
-					<prop key="notif.dispatcherName">notifications</prop>
-				</props>
-			</property>
-		</bean>
-	</beans>
-
 </beans>

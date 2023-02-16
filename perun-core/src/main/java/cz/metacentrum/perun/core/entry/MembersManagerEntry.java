@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
@@ -11,6 +12,7 @@ import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MembersOrderColumn;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -29,8 +31,10 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
@@ -1648,6 +1652,10 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 
+		if (MembersOrderColumn.GROUP_STATUS.equals(query.getSortColumn()) && query.getGroupId() == null) {
+			throw new IllegalArgumentException("Group status cannot be used to sort VO members.");
+		}
+
 		Paginated<RichMember> result = membersManagerBl.getMembersPage(sess, vo, query, attrNames);
 
 		if (query.getGroupId() == null) {
@@ -1727,6 +1735,48 @@ public class MembersManagerEntry implements MembersManager {
 		richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, richMembers, attributeDefinitions);
 		//RichMembers with filtered attributes by rights from session
 		return membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers);
+	}
+
+	@Override
+	public void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates) throws PrivilegeException, GroupNotExistsException, UserNotExistsException, WrongReferenceAttributeValueException, AlreadyMemberException, WrongAttributeValueException, ExtendMembershipException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "addMemberCandidates_Vo_List<MemberCandidate>_policy", vo)) {
+			throw new PrivilegeException(sess, "addMemberCandidates");
+		}
+
+		for (MemberCandidate candidate : candidates) {
+			if (candidate.getRichUser() != null) {
+				Member member = this.createMember(sess, vo, candidate.getRichUser());
+				getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+			} else if (candidate.getCandidate() != null) {
+				Member member = this.createMember(sess, vo, candidate.getCandidate());
+				getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+			}
+		}
+	}
+
+	@Override
+	public void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates, Group group) throws PrivilegeException, ExternallyManagedException, MemberNotExistsException, GroupNotExistsException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, WrongAttributeValueException, UserNotExistsException, ExtendMembershipException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "addMemberCandidates_Vo_List<MemberCandidate>_Group_policy", group)) {
+			throw new PrivilegeException(sess, "addMemberCandidates");
+		}
+
+		for (MemberCandidate candidate : candidates) {
+			if (candidate.getMember() != null) {
+				getPerunBl().getGroupsManager().addMember(sess, group, candidate.getMember());
+			} else if (candidate.getRichUser() != null) {
+				Member member = this.createMember(sess, vo, candidate.getRichUser(), List.of(group));
+				getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+			} else if (candidate.getCandidate() != null) {
+				Member member = this.createMember(sess, vo, candidate.getCandidate(), List.of(group));
+				getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+			}
+		}
 	}
 
 	/**

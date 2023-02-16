@@ -149,9 +149,10 @@ perun_roles:
 # optional word with a dash at the end can be used before the method name.
 # Example: filter-getAllMembers_Group_policy
 #
-# Each policy is composed of two parts.
+# Each policy is composed of two parts and one optional part.
 # The first one is called policy_roles, which contains privileged roles for this policy.
 # The second one is include_policies which contains policies which add their policy_roles to this policy.
+# Another part, mfa_rules, is optional and is used for defining critical objects of the method.
 #
 # The policy_roles is a list of maps, where the relation between list entries is logical OR
 # and the relation between map entries is logical AND.
@@ -185,6 +186,19 @@ perun_roles:
 #            - default_policy
 #            - getAllVos_policy
 #
+# The mfa_rules is a list of rules marking critical objects of the method, which forces user to have valid Multi-Factor
+# authentication. The objects themselves need to be marked as critical (in an attribute). Requiring MFA does not need
+# to be related to critical objects, the method itself can be marked as critical. The elements of the list are related
+# by OR relation meaning if any of the objects is critical, then the method call is considered critical.
+# Example, creating subgroup in a group:
+#     mfa_rules:
+#      - MFA: Group
+#      - MFA: Vo
+# If parent group or virtual organization is marked as critical (in an attribute), then MFA is required to call this
+# method. If
+#      - MFA:
+# would be used instead, the method would require MFA always.
+# Some roles (usually system ones) can be exempted from having MFA to call critical operation.
 perun_policies:
 
   default_policy:
@@ -1499,6 +1513,26 @@ perun_policies:
       - default_policy
     mfa_rules:
       - MFA: Group
+      - MFA: Vo
+
+  addMemberCandidates_Vo_List<MemberCandidate>_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - SPREGAPPLICATION:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  addMemberCandidates_Vo_List<MemberCandidate>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
       - MFA: Vo
 
   removeMember_Group_Member_policy:

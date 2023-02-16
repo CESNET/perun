@@ -7814,6 +7814,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies = new ArrayList<>();
 		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:groupStructureResources

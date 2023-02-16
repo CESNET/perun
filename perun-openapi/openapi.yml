@@ -227,6 +227,10 @@ components:
       enum:
         - ID
         - NAME
+        - EMAIL
+        - GROUP_STATUS
+        - STATUS
+        - ORGANIZATION
 
     MemberGroupStatus:
       type: string
@@ -496,11 +500,12 @@ components:
         propertyName: beanName
 
     FacilityWithAttributes:
-      allOf:
-        - $ref: '#/components/schemas/Facility'
+      type: object
       properties:
+        facility: { $ref: '#/components/schemas/Facility' }
         attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
       required:
+        - facility
         - attributes
 
     Host:
@@ -1073,6 +1078,7 @@ components:
         createdAt: { type: string }
         modifiedBy: { type: string }
         modifiedAt: { type: string }
+        autoApproveError: { type: string }
 
     RichApplication:
       allOf:
@@ -2756,7 +2762,7 @@ components:
       required: true
 
     attrNames:
-      name: "attrNames[]"
+      name: "attrNames"
       description: "list of attribute names List<String>"
       in: query
       required: true
@@ -3474,6 +3480,16 @@ components:
         type: boolean
       in: query
       required: false
+
+    memberCandidates:
+      name: candidates[]
+      description: list of member candidates
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/MemberCandidate"
+      in: query
+      required: true
 
 
 
@@ -10919,6 +10935,33 @@ paths:
                 attrNames: { type: array, items: { type: string } }
                 query: { $ref: '#/components/schemas/MembersPageQuery' }
 
+  /json/membersManager/addMemberCandidates:
+    post:
+      tags:
+        - MembersManager
+      operationId: addMemberCandidates
+      summary: Adds member candidates.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddMemberCandidates
+              description: "input to add member candidates"
+              type: object
+              required:
+                - vo
+                - candidates
+              properties:
+                vo: { type: integer }
+                candidates: { type: array, items: { $ref: '#/components/schemas/MemberCandidate' } }
+                group: { type: integer }
+
   #################################################
   #                                               #
   # FacilitiesManager                             #
@@ -16761,6 +16804,50 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/inviteMemberCandidates:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: inviteMemberCandidates
+      summary: Invite member candidates.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputInviteMemberCandidates
+              description: "input to invite member candidates"
+              type: object
+              required:
+                - vo
+                - candidates
+                - lang
+              properties:
+                vo: { type: integer }
+                candidates: { type: array, items: { $ref: '#/components/schemas/MemberCandidate' } }
+                lang: { type: string }
+                group: { type: integer }
+
+  /json/registrarManager/invitationFormExists:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: invitationFormExists
+      summary: Checks if invitation form exists.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/optionalGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

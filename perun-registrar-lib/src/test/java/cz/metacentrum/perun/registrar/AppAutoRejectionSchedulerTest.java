@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.impl.Auditer;
-import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.impl.AppAutoRejectionScheduler;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -85,6 +84,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 		setUpVo();
 		setApplicationUser();
 
+
 		ReflectionTestUtils.setField(spyScheduler.getPerun(), "auditer", auditerMock);
 	}
 
@@ -107,7 +107,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 		System.out.println(CLASS_NAME + "checkApplicationsExpirationForGroup");
 
 		// set up expired application and reject it
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 		spyScheduler.checkApplicationsExpiration();
 
@@ -147,7 +147,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void checkGroupApplicationShouldBeAutoRejected() throws Exception {
 		System.out.println(CLASS_NAME + "checkGroupApplicationShouldBeAutoRejected");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -161,7 +161,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void checkGroupApplicationShouldNotBeAutoRejected() throws Exception {
 		System.out.println(CLASS_NAME + "checkGroupApplicationShouldNotBeAutoRejected");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(50, group, GROUP_APP_EXP_RULES);
 
@@ -170,6 +170,31 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 		// check results
 		Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
 		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.VERIFIED);
+	}
+
+	@Test
+	public void checkGroupApplicationsRejectedWhenVoApplicationRejected() throws Exception {
+		System.out.println(CLASS_NAME + "checkGroupApplicationsRejectedWhenVoApplicationRejected");
+
+		Group group1 = createGroup("Group1");
+		Group group2 = createGroup("Group2");
+
+		Application expiredVoApp = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+
+		Application nonExpiredGroupApp = setUpAndSubmitAppForPotentialAutoRejection(50, group1, GROUP_APP_EXP_RULES);
+		Application expiredGroupApp = setUpAndSubmitAppForPotentialAutoRejection(70, group2, GROUP_APP_EXP_RULES);
+
+		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", Collections.singletonList(vo));
+
+		// check results
+		Application returnedApp = registrarManager.getApplicationById(session, expiredVoApp.getId());
+		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+
+		returnedApp = registrarManager.getApplicationById(session, nonExpiredGroupApp.getId());
+		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+
+		returnedApp = registrarManager.getApplicationById(session, expiredGroupApp.getId());
+		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
 	}
 
 	@Test
@@ -242,7 +267,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void groupAdminIgnoredCustomMessage() throws Exception {
 		System.out.println(CLASS_NAME + "groupAdminIgnoredCustomMessage");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -260,7 +285,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void groupAdminIgnoredDefaultMessage() throws Exception {
 		System.out.println(CLASS_NAME + "groupAdminIgnoredDefaultMessage");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -276,7 +301,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void groupEmailVerificationCustomMessage() throws Exception {
 		System.out.println(CLASS_NAME + "groupEmailVerificationCustomMessage");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -297,7 +322,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void groupEmailVerificationDefaultMessage() throws Exception {
 		System.out.println(CLASS_NAME + "groupEmailVerificationDefaultMessage");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -398,7 +423,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void groupAdminIgnoredCustomMessageDefault() throws Exception {
 		System.out.println(CLASS_NAME + "groupAdminIgnoredCustomMessageDefault");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -420,7 +445,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void groupMailVerificationCustomMessageDefault() throws Exception {
 		System.out.println(CLASS_NAME + "groupMailVerificationCustomMessageDefault");
 
-		Group group = createGroup();
+		Group group = createGroup("Group for apply");
 
 		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -467,9 +492,9 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	 * @return created group
 	 * @throws GroupExistsException if group already exists
 	 */
-	private Group createGroup() throws GroupExistsException {
+	private Group createGroup(String name) throws GroupExistsException {
 		Group group = new Group();
-		group.setName("Group for apply");
+		group.setName(name);
 		return perun.getGroupsManagerBl().createGroup(session, vo, group);
 	}
 

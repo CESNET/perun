@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.11
+ALTER TABLE vos DROP constraint vo_u;
+ALTER TABLE vos ADD CONSTRAINT vo_u unique (short_name);
+ALTER TABLE application ADD COLUMN auto_approve_error varchar;
+UPDATE configurations set value='3.2.11' WHERE property='DATABASE VERSION';
+
 3.2.10
 ALTER TABLE resources_bans ALTER COLUMN banned_to SET DEFAULT '2999-01-01 00:00:00';
 ALTER TABLE facilities_bans ALTER COLUMN banned_to SET DEFAULT '2999-01-01 00:00:00';

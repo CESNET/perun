@@ -73,6 +73,7 @@ public class CoreConfig {
 	private String userExtSourcesPersistent;
 	private List<String> allowedCorsDomains;
 	private String pdfFontPath;
+	private boolean notifSendMessages;
 	private String smtpHost;
 	private int smtpPort;
 	private boolean smtpAuth;
@@ -596,6 +597,14 @@ public class CoreConfig {
 
 	public void setPdfFontPath(String pdfFontPath) {
 		this.pdfFontPath = pdfFontPath;
+	}
+
+	public boolean getNotifSendMessages() {
+		return notifSendMessages;
+	}
+
+	public void setNotifSendMessages(boolean notifSendMessages) {
+		this.notifSendMessages = notifSendMessages;
 	}
 
 	public String getSmtpHost() {

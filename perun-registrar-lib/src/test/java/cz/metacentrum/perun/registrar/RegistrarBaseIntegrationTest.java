@@ -1240,6 +1240,32 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
+	public void invitationFormExistsForGroup() throws Exception {
+		Group groupWithInvitation = perun.getGroupsManagerBl().createGroup(session, vo, new Group("group1", "group with form"));
+		Group groupWithoutInvitation = perun.getGroupsManagerBl().createGroup(session, vo, new Group("group2", "group without form"));
+
+		registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
+		ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
+		ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+		mailManager.addMail(session, form, mail);
+
+		assertTrue(mailManager.invitationFormExists(session, vo, groupWithInvitation));
+		assertFalse(mailManager.invitationFormExists(session, vo, groupWithoutInvitation));
+	}
+
+	@Test
+	public void invitationFormExistsForVo() throws Exception {
+		Vo voWithoutInvitation = perun.getVosManager().createVo(session, new Vo(1234, "test", "test"));
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+		ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+		mailManager.addMail(session, form, mail);
+
+		assertTrue(mailManager.invitationFormExists(session, vo, null));
+		assertFalse(mailManager.invitationFormExists(session, voWithoutInvitation, null));
+	}
+
+	@Test
 	public void getApplicationsPageMultipleFormItems() throws Exception {
 		System.out.println("getApplicationsPageMultipleFormItems");
 
