@@ -402,9 +402,24 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getUserRoles_int_policy:
+  getUserRoles_int_boolean_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getRoleComplementaryObjectsWithAuthorizedGroups_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getRolesObtainedFromAuthorizedGroupMemberships_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
     include_policies:
       - default_policy
 

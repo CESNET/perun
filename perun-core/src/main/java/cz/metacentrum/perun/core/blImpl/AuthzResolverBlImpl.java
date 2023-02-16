@@ -2304,24 +2304,48 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static List<String> getUserRoleNames(PerunSession sess,User user) {
 
-		return authzResolverImpl.getRoles(user).getRolesNames();
+		return authzResolverImpl.getRoles(user, true).getRolesNames();
 	}
 
 	/**
-	 * Returns all user's roles - including roles resulting from being a VALID member of authorized groups
+	 * Returns user's direct roles, can also include roles resulting from being a VALID member of authorized groups
 	 * Returns also sponsorship and membership roles, which are not stored in DB as authzRoles but retrieved separately.
 	 *
-	 * @param sess perun session
-	 * @param user user
+	 * @param sess                         perun session
+	 * @param user                         user
+	 * @param getAuthorizedGroupBasedRoles include roles based on membership in authorized groups
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 * @throws InternalErrorException
 	 */
-	public static AuthzRoles getUserRoles(PerunSession sess, User user) {
-
-		AuthzRoles roles = authzResolverImpl.getRoles(user);
+	public static AuthzRoles getUserRoles(PerunSession sess, User user, boolean getAuthorizedGroupBasedRoles) {
+		AuthzRoles roles = authzResolverImpl.getRoles(user, getAuthorizedGroupBasedRoles);
 		addMembershipRole(sess, roles, user);
 		setAdditionalRoles(sess, roles, user);
 		return roles;
+	}
+
+	/**
+	 * Returns user's roles resulting from being a VALID member of authorized groups.
+	 *
+	 * @param sess perun session
+	 * @param user user
+	 * @return AuthzRoles object which contains roles with perunbeans
+	 * @throws InternalErrorException
+	 */
+	public static AuthzRoles getRolesObtainedFromAuthorizedGroupMemberships(PerunSession sess, User user) {
+		return authzResolverImpl.getRolesObtainedFromAuthorizedGroupMemberships(user);
+	}
+
+	/**
+	 * Returns map of role name and map of corresponding role complementary objects (perun beans) distinguished by type.
+	 * together with list of authorized groups where user is member:
+	 *     Map< RoleName, Map< BeanName, Map< BeanID, List<AuthzGroup> >>>
+	 *
+	 * @param user
+	 * @return Map<String, Map<String, Map<Integer, List<Group>>>> roles with map of complementary objects with associated authorized groups
+	 */
+	public static Map<String, Map<String, Map<Integer, List<Group>>>> getRoleComplementaryObjectsWithAuthorizedGroups(PerunSession sess, User user) {
+		return authzResolverImpl.getRoleComplementaryObjectsWithAuthorizedGroups(user);
 	}
 
 	/**
@@ -2504,7 +2528,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			User user = sess.getPerunPrincipal().getUser();
 			AuthzRoles roles = sess.getPerunPrincipal().getRoles();
 			if (user != null)  {
-				AuthzRoles userRoles = authzResolverImpl.getRoles(user);
+				AuthzRoles userRoles = authzResolverImpl.getRoles(user, true);
 				// Add service roles, they don't have complementary objects
 				roles.getRolesNames().forEach(userRoles::putAuthzRole);
 				roles = userRoles;
