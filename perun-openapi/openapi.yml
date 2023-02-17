@@ -2575,6 +2575,21 @@ components:
           schema:
             $ref: "#/components/schemas/AuthzRoles"
 
+    ComplementaryObjectsWithAuthzGroupsResponse:
+      description: Complementary objects combined with authorized groups (connected by role)
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Group"
+
     RTMessageResponse:
       description: Confirmation with e-mail address the ticket was created for
       content:
@@ -4179,6 +4194,49 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getUserDirectRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getUserDirectRoles
+      summary: Returns all roles except for those obtained from membership in authorized groups as an AuthzRoles object for a given user.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getUserRolesObtainedFromAuthorizedGroupMemberships:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getUserRolesObtainedFromAuthorizedGroupMemberships
+      summary: Returns roles resulting from membership in authorized groups as an AuthzRoles object for a given user.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getRoleComplementaryObjectsWithAuthorizedGroups:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getRoleComplementaryObjectsWithAuthorizedGroups
+      summary: Returns map of role names with map of corresponding complementary objects (perun beans) 
+        together with list of authorized groups where user is member.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/ComplementaryObjectsWithAuthzGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

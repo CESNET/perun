@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -31,12 +30,31 @@ import java.util.Set;
 public interface AuthzResolverImplApi {
 
 	/**
-	 * Returns all user's roles - including roles resulting from being a VALID member of authorized groups
+	 * Returns user's direct roles, can also include roles resulting from being a VALID member of authorized groups
 	 *
 	 * @param user
+	 * @param getAuthorizedGroupBasedRoles
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
-	AuthzRoles getRoles(User user);
+	AuthzRoles getRoles(User user, boolean getAuthorizedGroupBasedRoles);
+
+	/**
+	 * Returns user's roles resulting from being a VALID member of authorized groups
+	 *
+	 * @param user user
+	 * @return AuthzRoles object which contains roles with perunbeans
+	 */
+	AuthzRoles getRolesObtainedFromAuthorizedGroupMemberships(User user);
+
+	/**
+	 * Returns map of role name and map of corresponding role complementary objects (perun beans) distinguished by type.
+	 * 	 * together with list of authorized groups where user is member:
+	 * 	 *     Map< RoleName, Map< BeanName, Map< BeanID, List<AuthzGroup> >>>
+	 *
+	 * @param user
+	 * @return Map<String, Map<String, Map<Integer, List<Group>>>> complementary objects with associated authorized groups
+	 */
+	Map<String, Map<String, Map<Integer, List<Group>>>> getRoleComplementaryObjectsWithAuthorizedGroups(User user);
 
 	/**
 	 * Returns all group's roles.

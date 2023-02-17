@@ -37,6 +37,13 @@ public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
 		this.description = description;
 	}
 
+	public Group(int id, String name, String description, int voId) {
+		super(id);
+		this.name = name;
+		this.description = description;
+		this.voId = voId;
+	}
+
 	public Group(String name, String description, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid){
 		super(createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.name = name;
