@@ -75,7 +75,7 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() {
+	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
 		List<Map<String, String>> subjects = super.getUsersSubjects();
 		return filterNonExistingUsers(subjects);
 	}

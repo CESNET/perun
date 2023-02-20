@@ -154,7 +154,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		if (!AuthzResolver.authorizedInternal(sess, "addExtSource_Vo_ExtSource_policy", Arrays.asList(vo, source)))
 			throw new PrivilegeException(sess, "addExtSource");
 
-		getExtSourcesManagerBl().addExtSourceToVo(sess, vo, source);
+		getExtSourcesManagerBl().addExtSource(sess, vo, source);
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		if (!AuthzResolver.authorizedInternal(sess, "addExtSource_Group_ExtSource_policy", Arrays.asList(group, source)))
 			throw new PrivilegeException(sess, "addExtSource");
 
-		getExtSourcesManagerBl().addExtSourceToGroup(sess, group, source);
+		getExtSourcesManagerBl().addExtSource(sess, group, source);
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Vo_ExtSource_policy", Arrays.asList(vo, source)))
 			throw new PrivilegeException(sess, "removeExtSource");
 
-		getExtSourcesManagerBl().removeExtSourceFromVo(sess, vo, source);
+		getExtSourcesManagerBl().removeExtSource(sess, vo, source);
 	}
 
 	@Override
@@ -257,7 +257,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Group_ExtSource_policy", Arrays.asList(group, source)))
 			throw new PrivilegeException(sess, "removeExtSource");
 
-		getExtSourcesManagerBl().removeExtSourceFromGroup(sess, group, source);
+		getExtSourcesManagerBl().removeExtSource(sess, group, source);
 	}
 
 	@Override

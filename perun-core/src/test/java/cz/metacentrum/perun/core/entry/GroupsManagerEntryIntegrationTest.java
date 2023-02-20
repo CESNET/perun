@@ -1955,10 +1955,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		ExtSource newExtSource = new ExtSource("ExtSourcesManagerEntryIntegrationTest1", ExtSourcesManager.EXTSOURCE_INTERNAL);
 		newExtSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
 
-		perun.getExtSourcesManagerBl().addExtSourceToVo(sess, vo, newExtSource);
+		perun.getExtSourcesManagerBl().addExtSource(sess, vo, newExtSource);
 
-		perun.getExtSourcesManagerBl().addExtSourceToGroup(sess, group, newExtSource);
-		perun.getExtSourcesManagerBl().addExtSourceToGroup(sess, group2, newExtSource);
+		perun.getExtSourcesManagerBl().addExtSource(sess, group, newExtSource);
+		perun.getExtSourcesManagerBl().addExtSource(sess, group2, newExtSource);
 
 		final List<Group> groups = groupsManagerBl.getGroupsWithAssignedExtSourceInVo(sess, newExtSource, vo);
 
@@ -3111,7 +3111,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		vo = setUpVo();
 		setUpGroup(vo);
 		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
-		perun.getExtSourcesManagerBl().addExtSourceToVo(sess, vo, es);
+		perun.getExtSourcesManagerBl().addExtSource(sess, vo, es);
 		perun.getGroupsManager().createGroup(sess, vo, group2);
 
 		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));

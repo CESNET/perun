@@ -26,7 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_DESCRIPTION;
+import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_NAME;
 import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_SYNC_DEFAULT_DATA;
+import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.PARENT_GROUP_LOGIN;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -124,10 +127,19 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 
 	// database columns for base attributes
 	private static final String[] BASE_COLUMNS = new String[]{"login", "firstName", "lastName", "middleName", "titleBefore", "titleAfter"};
-
+	private final static String[] GROUP_COLUMNS = new String[]{GroupsManagerBlImpl.GROUP_LOGIN, GroupsManagerBlImpl.GROUP_NAME, GroupsManagerBlImpl.PARENT_GROUP_LOGIN, GroupsManagerBlImpl.GROUP_DESCRIPTION};
 	// column name should be matched case-insensitively
 	private static String matchingBaseColumnName(String s) {
 		for (String baseName : BASE_COLUMNS) {
+			if (baseName.equalsIgnoreCase(s)) {
+				return baseName;
+			}
+		}
+		return null;
+	}
+
+	private static String matchingGroupColumnName(String s) {
+		for (String baseName : GROUP_COLUMNS) {
 			if (baseName.equalsIgnoreCase(s)) {
 				return baseName;
 			}
@@ -212,14 +224,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 
 	@Override
 	public void close() {
-		if (this.con != null) {
-			try {
-				this.con.close();
-				this.con = null;
-			} catch (SQLException e) {
-				throw new InternalErrorException(e);
-			}
-		}
+		// no-op
 	}
 
 	@Override
@@ -240,17 +245,20 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 				try (ResultSet rs = st.executeQuery()) {
 					List<Map<String, String>> subjects = new ArrayList<>();
 					log.trace("Query {}", query);
+					ResultSetMetaData metaData = rs.getMetaData();
+					List<ColumnMapping> columnMappings = new ArrayList<>(metaData.getColumnCount());
+					for (int i = 1; i <= metaData.getColumnCount(); i++) {
+						String columnName = metaData.getColumnLabel(i);
+						String baseName = matchingGroupColumnName(columnName);
+						if (baseName != null) {
+							columnMappings.add(new ColumnMapping(i, baseName, false));
+						}
+					}
 					while (rs.next()) {
 						Map<String, String> map = new HashMap<>();
-						try {
-							map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
-						} catch (SQLException ignored) {}
-						try {
-							map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_NAME));
-						} catch (SQLException ignored) {}
-						try {
-							map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
-						} catch (SQLException ignored) {}
+						for (ColumnMapping columnMapping : columnMappings) {
+							map.put(columnMapping.attributeName, rs.getString(columnMapping.columnIndex));
+						}
 						subjects.add(map);
 					}
 					log.debug("Returning {} subjects from external source {}", subjects.size(), this);
@@ -266,7 +274,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 		}
 	}
 
-	private DataSource getDataSource() {
+	protected DataSource getDataSource() {
 		if (dataSource == null) {
 			Map<String, String> attributes = this.getAttributes();
 			String dbpool = attributes.get(DBPOOL);

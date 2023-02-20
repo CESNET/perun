@@ -187,9 +187,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		List<Group> groupsWithAssignedExtSource = getPerunBl().getGroupsManagerBl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
 		for(Group group: groupsWithAssignedExtSource) {
-			getPerunBl().getExtSourcesManagerBl().removeExtSourceFromGroup(sess, group, source);
+			getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
 		}
-		getExtSourcesManagerImpl().removeExtSourceFromVo(sess, vo, source);
+		getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
 		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromVo(source, vo));
 	}
 

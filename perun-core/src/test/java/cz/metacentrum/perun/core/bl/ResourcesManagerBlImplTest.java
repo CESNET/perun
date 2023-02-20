@@ -64,6 +64,7 @@ public class ResourcesManagerBlImplTest {
 
 	@Before
 	public void setUp() throws Exception {
+		perun.getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
 
 		candidate = new Candidate();
 		candidate.setFirstName("some");

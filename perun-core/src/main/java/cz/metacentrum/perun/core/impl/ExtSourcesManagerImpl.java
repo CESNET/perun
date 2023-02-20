@@ -373,36 +373,36 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	 * All data from the extSouces XML file are synchronized with the DB.
 	 * <P>Example:</P>
 	 * <PRE>
-	 * &lt;extSources>
-	 *   &lt;dbpools>
-	 *     &lt;dbpool>
-	 *       &lt;name>MAIN&lt;/name>
-	 *       &lt;main&#47;>&lt;!-- indicates the main pool used by Perun -->
-	 *     &lt;/dbpool>
-	 *     &lt;dbpool>
-	 *       &lt;name>PEOPLEDB&lt;/name>&lt;!-- required -->
-	 *       &lt;url>jdbc:oracle:thin:@//oracle.example.com:1521/people&lt;/url>&lt;!-- required -->
-	 *       &lt;user>perun&lt;/user>&lt;!-- optional -->
-	 *       &lt;password>******&lt;/password>&lt;!-- optional -->
-	 *       &lt;driver>oracle.jdbc.OracleDriver&lt;/driver>&lt;!-- optional for postgresql, oracle, sqlite, mysql; required for others -->
-	 *       &lt;connectionTimeout>300000&lt;/connectionTimeout>&lt;!-- optional -->
-	 *       &lt;maxLifetime>600000&lt;/maxLifetime>&lt;!-- optional -->
-	 *       &lt;maximumPoolSize>10&lt;/maximumPoolSize>&lt;!-- optional -->
-	 *       &lt;minimumIdle>1&lt;/minimumIdle>&lt;!-- optional -->
-	 *       &lt;idleTimeout>300000&lt;/idleTimeout>&lt;!-- optional -->
-	 *       &lt;leakDetectionThreshold>30000&lt;/leakDetectionThreshold>&lt;!-- optional -->
-	 *     &lt;/dbpool>
-	 *   &lt;/dbpools>
-	 *   &lt;extSource>
-	 *     &lt;name>INET&lt;/name>
-	 *     &lt;type>cz.metacentrum.perun.core.impl.ExtSourceSql&lt;/type>
-	 *     &lt;description>&lt;/description>&lt;!-- ignored -->
-	 *     &lt;attributes>
-	 *       &lt;attribute name="dbpool">INETDB&lt;/attribute>
-	 *       &lt;attribute name="query">...&lt;/query>
-	 *       &lt;attribute name="loginQuery">...&lt;/query>
-	 *     &lt;/attributes>
-	 *   &lt;/extSource>
+	 * <extSources>
+	 *   <dbpools>
+	 *     <dbpool>
+	 *       <name>MAIN</name>
+	 *       <main/><!-- indicates the main pool used by Perun -->
+	 *     </dbpool>
+	 *     <dbpool>
+	 *       <name>PEOPLEDB</name><!-- required -->
+	 *       <url>jdbc:oracle:thin:@//oracle.example.com:1521/people</url><!-- required -->
+	 *       <user>perun</user><!-- optional -->
+	 *       <password>******</password><!-- optional -->
+	 *       <driver>oracle.jdbc.OracleDriver</driver><!-- optional for postgresql, oracle, sqlite, mysql; required for others -->
+	 *       <connectionTimeout>300000</connectionTimeout><!-- optional -->
+	 *       <maxLifetime>600000</maxLifetime><!-- optional -->
+	 *       <maximumPoolSize>10</maximumPoolSize><!-- optional -->
+	 *       <minimumIdle>1</minimumIdle><!-- optional -->
+	 *       <idleTimeout>300000</idleTimeout><!-- optional -->
+	 *       <leakDetectionThreshold>30000</leakDetectionThreshold><!-- optional -->
+	 *     </dbpool>
+	 *   </dbpools>
+	 *   <extSource>
+	 *     <name>INET</name>
+	 *     <type>cz.metacentrum.perun.core.impl.ExtSourceSql</type>
+	 *     <description></description><!-- ignored -->
+	 *     <attributes>
+	 *       <attribute name="dbpool">INETDB</attribute>
+	 *       <attribute name="query">...</query>
+	 *       <attribute name="loginQuery">...</query>
+	 *     </attributes>
+	 *   </extSource>
 	 * </PRE>
 	 */
 	@Override
