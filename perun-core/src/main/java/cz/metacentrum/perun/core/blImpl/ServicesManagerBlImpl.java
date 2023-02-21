@@ -29,24 +29,18 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCr
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
-import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
@@ -57,11 +51,8 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -74,8 +65,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
@@ -91,11 +80,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -353,207 +338,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return getServicesManagerImpl().getAssignedResources(sess, service);
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Resource resource) {
-		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
-		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
-
-		List<Member> members;
-		members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-		HashMap<Member, List<Attribute>> attributes;
-
-		try {
-			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, null, resource, members, true);
-		} catch(MemberResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		for (Member mem : attributes.keySet()) {
-			ServiceAttributes serviceAttributes = new ServiceAttributes();
-			serviceAttributes.addAttributes(attributes.get(mem));
-			resourceServiceAttributes.addChildElement(serviceAttributes);
-		}
-
-		return resourceServiceAttributes;
-	}
-
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource) {
-		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
-		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
-
-		List<Member> members;
-		if (!service.isUseExpiredMembers()) {
-			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
-		} else {
-			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-		}
-
-		HashMap<Member, List<Attribute>> attributes;
-
-		try {
-			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, true);
-		} catch(MemberResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		for (Member mem : attributes.keySet()) {
-			ServiceAttributes serviceAttributes = new ServiceAttributes();
-			serviceAttributes.addAttributes(attributes.get(mem));
-			resourceServiceAttributes.addChildElement(serviceAttributes);
-		}
-
-		return resourceServiceAttributes;
-
-	}
-
-	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource) {
-		// append resource attributes
-		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
-		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
-
-		// append also vo attributes to resource object
-		try {
-			Vo resourceVo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
-			resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resourceVo));
-		} catch (VoNotExistsException ex) {
-			throw new ConsistencyErrorException("There is missing Vo for existing resource " + resource);
-		}
-
-		ServiceAttributes membersAbstractSA = new ServiceAttributes();
-		Map<Member, ServiceAttributes> memberAttributes = new HashMap<>();
-
-		List<Member> members;
-		if (!service.isUseExpiredMembers()) {
-			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
-		} else {
-			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-		}
-
-		HashMap<Member, List<Attribute>> attributes;
-
-		try {
-			// append all member/member_resource/user/user_facility attributes
-			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, true);
-		} catch(MemberResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		for (Member mem : attributes.keySet()) {
-			ServiceAttributes tmpAttributes = new ServiceAttributes();
-			tmpAttributes.addAttributes(attributes.get(mem));
-			memberAttributes.put(mem, tmpAttributes);
-			membersAbstractSA.addChildElement(tmpAttributes);
-		}
-
-		// get all groups and append their sub structure
-		ServiceAttributes groupsAbstractSA = new ServiceAttributes();
-		List<Group> groups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-		for(Group group: groups) {
-			groupsAbstractSA.addChildElement(getData(sess, service, facility, resource, group, memberAttributes));
-		}
-
-		//assign abstract services attributes to resource service attributes
-		resourceServiceAttributes.addChildElement(groupsAbstractSA);
-		resourceServiceAttributes.addChildElement(membersAbstractSA);
-
-		return resourceServiceAttributes;
-	}
-
-	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources) {
-		ServiceAttributes voServiceAttributes = new ServiceAttributes();
-		voServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, vo));
-
-		for(Resource resource: resources) {
-			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource);
-			voServiceAttributes.addChildElement(resourceServiceAttributes);
-		}
-
-		return voServiceAttributes;
-	}
-
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes) {
-		ServiceAttributes groupServiceAttributes = new ServiceAttributes();
-		try {
-			// add group and group_resource attributes
-			groupServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource, group, true));
-		} catch (GroupResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		ServiceAttributes groupsMembersElement = new ServiceAttributes();
-		//Invalid and disabled are not allowed here
-		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
-
-		if (!service.isUseExpiredMembers()) {
-			List<Member> membersToRemove = new ArrayList<>();
-			for (Member member : members) {
-				if (member.getGroupStatus() == MemberGroupStatus.EXPIRED) {
-					membersToRemove.add(member);
-				}
-			}
-			members.removeAll(membersToRemove);
-		}
-
-		for(Member member : members) {
-			// append also member_group attributes for each member in a group
-			// rest of member/user attributes was passed in a param if present
-			ServiceAttributes tempAttrs = new ServiceAttributes();
-			if (memberAttributes.get(member) != null) {
-				tempAttrs.addAttributes(memberAttributes.get(member).getAttributes());
-			}
-			try {
-				tempAttrs.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, group));
-			} catch (MemberGroupMismatchException e) {
-				throw new InternalErrorException(e);
-			}
-			groupsMembersElement.addChildElement(tempAttrs);
-		}
-
-		// Services expect members to be second child element, so we create empty ServiceAttributes where subgroups used to be.
-		groupServiceAttributes.addChildElement(new ServiceAttributes());
-		groupServiceAttributes.addChildElement(groupsMembersElement);
-		return groupServiceAttributes;
-	}
-
-	private ServiceAttributes getData(PerunSession sess, Service service, Resource resource, Member member) {
-		ServiceAttributes memberServiceAttributes = new ServiceAttributes();
-		try {
-			memberServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, resource, true));
-		} catch(MemberResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
-		}
-		return memberServiceAttributes;
-	}
-
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Member member) {
-		ServiceAttributes memberServiceAttributes = new ServiceAttributes();
-
-		User user;
-		try {
-			user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
-			memberServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, user, member));
-		} catch (UserNotExistsException e) {
-			throw new ConsistencyErrorException("Member has assigned non-existing user.", e);
-		} catch (MemberResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		return memberServiceAttributes;
-	}
-
-	@Override
-	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) {
-		ServiceAttributes serviceAttributes = new ServiceAttributes();
-		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
-
-		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-		resources.retainAll(getAssignedResources(sess, service));
-		for(Resource resource: resources) {
-			ServiceAttributes resourceServiceAttributes = getData(sess, service, facility, resource);
-			serviceAttributes.addChildElement(resourceServiceAttributes);
-		}
-		return serviceAttributes;
-	}
-
 	@Override
 	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean consentEval) {
 		HashedDataGenerator hashedDataGenerator = new HierarchicalHashedDataGenerator.Builder()
@@ -578,92 +362,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 				.build();
 
 		return hashedDataGenerator.generateData();
-	}
-
-	@Override
-	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) {
-		ServiceAttributes serviceAttributes = new ServiceAttributes();
-		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
-
-		ServiceAttributes allResourcesServiceAttributes = new ServiceAttributes();
-		List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-		facilityResources.retainAll(getAssignedResources(sess, service));
-		for(Resource resource : facilityResources) {
-			ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
-			resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
-			allResourcesServiceAttributes.addChildElement(resourceServiceAttributes);
-		}
-
-		ServiceAttributes allUsersServiceAttributes = new ServiceAttributes();
-		List<User> facilityUsers;
-		if (!service.isUseExpiredMembers()) {
-			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsersNotExpiredInGroups(sess, facility, null, service);
-		} else {
-			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
-		}
-
-		// get attributes for all users at once !
-		HashMap<User, List<Attribute>> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, facilityUsers);
-		HashMap<User, List<Attribute>> userAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facilityUsers);
-
-		for (User user : facilityUsers) {
-			ServiceAttributes userServiceAttributes = new ServiceAttributes();
-			// Depending on a service requirements we might get null user or user-facility attributes
-			if (userAttributes.get(user) != null) userServiceAttributes.addAttributes(userAttributes.get(user));
-			if (userFacilityAttributes.get(user) != null) userServiceAttributes.addAttributes(userFacilityAttributes.get(user));
-			allUsersServiceAttributes.addChildElement(userServiceAttributes);
-		}
-
-		serviceAttributes.addChildElement(allResourcesServiceAttributes);
-		serviceAttributes.addChildElement(allUsersServiceAttributes);
-
-		return serviceAttributes;
-
-
-	}
-
-	@Override
-	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws VoNotExistsException {
-		ServiceAttributes serviceAttributes = new ServiceAttributes();
-		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
-
-		//Get resources only for facility and service
-		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-		resources.retainAll(getAssignedResources(sess, service));
-
-		//Get all vos for these resources
-		Set<Integer> vosIds = new HashSet<>();
-		for(Resource resource: resources) {
-			vosIds.add(resource.getVoId());
-		}
-
-		List<Vo> vos = new ArrayList<>();
-		for(Integer voId: vosIds) {
-			vos.add(getPerunBl().getVosManagerBl().getVoById(sess, voId));
-		}
-
-		for(Vo vo: vos) {
-			List<Resource> voResources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-			voResources.retainAll(resources);
-			ServiceAttributes voServiceAttributes = getDataWithVo(sess, service, facility, vo, voResources);
-			serviceAttributes.addChildElement(voServiceAttributes);
-		}
-
-		return serviceAttributes;
-	}
-
-	@Override
-	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) {
-		ServiceAttributes serviceAttributes = new ServiceAttributes();
-		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
-
-		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-		resources.retainAll(getAssignedResources(sess, service));
-		for(Resource resource: resources) {
-			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource);
-			serviceAttributes.addChildElement(resourceServiceAttributes);
-		}
-		return serviceAttributes;
 	}
 
 	@Override
