@@ -253,11 +253,11 @@ public class ApiCaller {
 	}
 
 	public Consent getConsentById(int id) throws PerunException {
-		return consentsManager.getConsentById(rpcSession, id);
+		return getConsentsManager().getConsentById(rpcSession, id);
 	}
 
 	public ConsentHub getConsentHubById(int id) throws PerunException {
-		return consentsManager.getConsentHubById(rpcSession, id);
+		return getConsentsManager().getConsentHubById(rpcSession, id);
 	}
 
 	public Vo getVoById(int id) throws PerunException {
