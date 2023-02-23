@@ -137,6 +137,9 @@ public class AddGroupUnionTabItem implements TabItem {
 			}
 		});
 
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		menu.addFilterWidget(box, new PerunSearchEvent() {
 			@Override
 			public void searchFor(String text) {

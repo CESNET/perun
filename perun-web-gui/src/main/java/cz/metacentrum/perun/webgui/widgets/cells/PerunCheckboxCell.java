@@ -44,27 +44,18 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 	private static final SafeHtml INPUT_DISABLED = SafeHtmlUtils
 		.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" disabled/>");
 
+	private static final String disabledCheckbox = "<input type=\"checkbox\" title=\"\" tabindex=\"-1\" disabled/>";
 
 	private final boolean dependsOnSelection;
 	private final boolean handlesSelection;
+
+	private final boolean blockManualAndSyncGroups;
 
 	/**
 	 * Construct a new {@link CheckboxCell}.
 	 */
 	public PerunCheckboxCell() {
-		this(false);
-	}
-
-	/**
-	 * Construct a new {@link CheckboxCell} that optionally controls selection.
-	 *
-	 * @param isSelectBox
-	 *            true if the cell controls the selection state
-	 * @deprecated use {@link #CheckboxCell(boolean, boolean)} instead
-	 */
-	@Deprecated
-	public PerunCheckboxCell(boolean isSelectBox) {
-		this(isSelectBox, isSelectBox, false);
+		this(false, false, false);
 	}
 
 	/**
@@ -82,6 +73,15 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 		this.dependsOnSelection = dependsOnSelection;
 		this.handlesSelection = handlesSelection;
 		this.editable = editable;
+		this.blockManualAndSyncGroups = false;
+	}
+
+	public PerunCheckboxCell(boolean dependsOnSelection, boolean handlesSelection, boolean editable, boolean blockManualAndSyncGroups) {
+		super("change", "keydown");
+		this.dependsOnSelection = dependsOnSelection;
+		this.handlesSelection = handlesSelection;
+		this.editable = editable;
+		this.blockManualAndSyncGroups = blockManualAndSyncGroups;
 	}
 
 	@Override
@@ -147,6 +147,18 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 
 		// Render disabled for different kinds of Types from Perun
 
+		// is synced or manual group, and we want to block them
+		if (blockManualAndSyncGroups && ((GeneralObject)value).getObjectType().equalsIgnoreCase("RichGroup")) {
+			if(((RichGroup)value).isSyncEnabled()){
+				sb.append(getDisabledCheckbox("Members can't be added to synchronized groups."));
+				return;
+			}
+			if(((RichGroup)value).isBlockManualMemberAdding()){
+				sb.append(getDisabledCheckbox("Members can't be added to groups which prevent manual adding of its members."));
+				return;
+			}
+		}
+
 		// is core group
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Group") || ((GeneralObject)value).getObjectType().equalsIgnoreCase("RichGroup")) {
 			if(((Group)value).isCoreGroup() && !editable){
@@ -166,15 +178,15 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 		// is user ext source persistent
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("UserExtSource")) {
 			if(((UserExtSource)value).isPersistent() && !editable){
-				sb.append(INPUT_DISABLED);
+				sb.append(getDisabledCheckbox("UserExtSource is persistent and can't be removed from user."));
 				return;
 			}
 		}
 
-		// is service disabled on facility
+		// member is indirect in the group
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichMember")) {
 			if(((RichMember)value).getMembershipType().equalsIgnoreCase("INDIRECT") && !editable){
-				sb.append(INPUT_DISABLED);
+				sb.append(getDisabledCheckbox("User is an INDIRECT member and can't be removed from the group directly. Remove the user from the source group or connection between the groups."));
 				return;
 			}
 		}
@@ -214,6 +226,10 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 		} else {
 			sb.append(INPUT_UNCHECKED);
 		}
+	}
+
+	private SafeHtml getDisabledCheckbox(String title) {
+		return SafeHtmlUtils.fromSafeConstant(disabledCheckbox.replace("title=\"\"","title=\""+title+"\""));
 	}
 
 }

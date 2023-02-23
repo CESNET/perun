@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
@@ -14,9 +15,13 @@ import cz.metacentrum.perun.webgui.client.resources.PerunStatus;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetGroupsCount;
 import cz.metacentrum.perun.webgui.json.membersManager.GetMembersCount;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetResourcesCount;
+import cz.metacentrum.perun.webgui.model.Attribute;
+import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.CreateGroupTabItem;
@@ -25,6 +30,8 @@ import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.CreateServiceMemberInVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.InviteUserTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+
+import java.util.ArrayList;
 
 /**
  * View VO overview details
@@ -150,10 +157,40 @@ public class VoOverviewTabItem implements TabItem {
 		toolsLayout.getFlexCellFormatter().setAlignment(6, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
 		toolsLayout.getFlexCellFormatter().setAlignment(6, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
 
-		CustomButton addMember = new CustomButton(ButtonTranslation.INSTANCE.addMemberButton()+"…", ButtonTranslation.INSTANCE.addMemberToVo(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+		CustomButton addMember = new CustomButton(ButtonTranslation.INSTANCE.addMemberButton()+"…", ButtonTranslation.INSTANCE.addMemberToVo(), SmallIcons.INSTANCE.addIcon());
+		addMember.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(vo), true);
+
+				GetAttributesV2 attrs = new GetAttributesV2(new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						addMember.setProcessing(false);
+						ArrayList<Attribute> voAttrs = JsonUtils.<Attribute>jsoAsList(jso);
+						for (Attribute a : voAttrs) {
+							if ("blockManualMemberAdding".equals(a.getFriendlyName())) {
+								// for everybody except the perun admin
+								if (a.getValueAsBoolean() && !PerunWebSession.getInstance().isPerunAdmin()) {
+									UiElements.generateAlert("Can't add members", "<p>This VO prevents manual addition of members.<p>Please ask users to use self-registration process. You can send them an invitation with the registration link.");
+									return;
+								}
+							}
+						}
+						session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(voId), true);
+					}
+
+					@Override
+					public void onError(PerunError error) {
+						addMember.setProcessing(false);
+					}
+
+					@Override
+					public void onLoadingStart() {
+						addMember.setProcessing(true);
+					}
+				});
+				attrs.getVoAttributes(voId);
+				attrs.retrieveData();
 			}
 		});
 		CustomButton addServiceMember = new CustomButton(ButtonTranslation.INSTANCE.createServiceMemberButton()+"…", ButtonTranslation.INSTANCE.createServiceMember(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
