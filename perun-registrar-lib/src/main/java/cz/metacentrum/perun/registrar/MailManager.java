@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
@@ -34,7 +35,7 @@ public interface MailManager {
 	 * @throws PrivilegeException when caller is not VOADMIN or GROUPADMIN
 	 * @throws ApplicationMailExistsException when mail definition already exists.
 	 */
-	Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws ApplicationMailExistsException, PrivilegeException;
+	Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws ApplicationMailExistsException, PrivilegeException, InvalidHtmlInputException;
 
 	/**
 	 * Delete mail notification from DB based on ID property.
@@ -58,7 +59,7 @@ public interface MailManager {
 	 * @throws PrivilegeException When caller is not authorized
 	 * @throws ApplicationMailNotExistsException When application mail does not exist
 	 */
-	void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException;
+	void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException;
 
 	/**
 	 * Enable or disable sending for list of mail definitions

@@ -39,6 +39,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.HTMLParser;
 import cz.metacentrum.perun.core.impl.PerunAppsConfig;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
@@ -163,7 +164,7 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws ApplicationMailExistsException, PrivilegeException {
+	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws ApplicationMailExistsException, PrivilegeException, InvalidHtmlInputException {
 
 		//Authorization
 		if (form.getGroup() != null) {
@@ -196,6 +197,29 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		for (Locale loc : mail.getHtmlMessage().keySet()) {
+			// Check if html mail contains invalid tags
+			String inputSubject = mail.getHtmlMessage(loc).getSubject();
+			String inputText = mail.getHtmlMessage(loc).getText();
+
+			if (inputSubject != null && inputText != null) {
+				// Sanitize HTML (remove unsafe tags, attributes, styles
+				HTMLParser parser = new HTMLParser()
+					.sanitizeHTML(inputSubject)
+					.checkEscapedHTML();
+				if (!parser.isInputValid()) {
+					throw new InvalidHtmlInputException("HTML Subject contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+				}
+				mail.getHtmlMessage(loc).setSubject(parser.getEscapedHTML());
+
+				HTMLParser parser2 = new HTMLParser()
+					.sanitizeHTML(inputText)
+					.checkEscapedHTML();
+				if (!parser2.isInputValid()) {
+					throw new InvalidHtmlInputException("HTML Text contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+				}
+				mail.getHtmlMessage(loc).setText(parser2.getEscapedHTML());
+			}
+
 			try {
 				jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
 					mail.getId(), loc.toString(), true, mail.getHtmlMessage(loc).getSubject(), mail.getHtmlMessage(loc).getText());
@@ -294,7 +318,7 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	@Transactional(rollbackFor=Exception.class)
-	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException {
+	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException {
 		ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
 
 		//Authorization
@@ -325,9 +349,32 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		for (Locale loc : mail.getHtmlMessage().keySet()) {
-			MailText htmlText = mail.getHtmlMessage(loc);
+			MailText htmlMessage = mail.getHtmlMessage(loc);
+			// Check if html text contains invalid tags
+			String inputSubject = htmlMessage.getSubject();
+			String inputText = htmlMessage.getText();
+
+			if (inputSubject != null && inputText != null) {
+				// Check if html text contains invalid tags (subject and text)
+				HTMLParser parser = new HTMLParser()
+					.sanitizeHTML(inputSubject)
+					.checkEscapedHTML();
+				if (!parser.isInputValid()) {
+					throw new InvalidHtmlInputException("HTML Subject contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+				}
+				htmlMessage.setSubject(parser.getEscapedHTML());
+
+				HTMLParser parser2 = new HTMLParser()
+                    .sanitizeHTML(inputText)
+                    .checkEscapedHTML();
+				if (!parser2.isInputValid()) {
+					throw new InvalidHtmlInputException("HTML Text contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+				}
+				htmlMessage.setText(parser2.getEscapedHTML());
+			}
+
 			jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
-				mail.getId(), loc.toString(), true, htmlText.getSubject(), htmlText.getText());
+				mail.getId(), loc.toString(), true, htmlMessage.getSubject(), htmlMessage.getText());
 		}
 
 		if (form.getGroup() != null) {

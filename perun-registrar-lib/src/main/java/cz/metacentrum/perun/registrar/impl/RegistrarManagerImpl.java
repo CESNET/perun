@@ -12,35 +12,101 @@ import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.FormItemsUpdated
 import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.FormUpdated;
 import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.MemberCreatedForApprovedApp;
 import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.MembershipExtendedForMemberInApprovedApp;
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberCandidate;
+import cz.metacentrum.perun.core.api.MembersManager;
+import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleObject;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.EmbeddedGroupApplicationSubmissionError;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotEmbeddedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.core.impl.HTMLParser;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_htmlMailFooter;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_htmlMailFooter;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
-import cz.metacentrum.perun.registrar.exceptions.*;
-import cz.metacentrum.perun.registrar.model.RichApplication;
+import cz.metacentrum.perun.registrar.MailManager;
+import cz.metacentrum.perun.registrar.RegistrarManager;
+import cz.metacentrum.perun.registrar.RegistrarModule;
+import cz.metacentrum.perun.registrar.exceptions.AlreadyProcessingException;
+import cz.metacentrum.perun.registrar.exceptions.AlreadyRegisteredException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
+import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
+import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
+import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataException;
+import cz.metacentrum.perun.registrar.exceptions.NoPrefilledUneditableRequiredDataException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.Application.AppState;
+import cz.metacentrum.perun.registrar.model.Application.AppType;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem.ItemTexts;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
+import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
+import cz.metacentrum.perun.registrar.model.RichApplication;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
@@ -48,6 +114,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -55,27 +122,44 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.core.bl.PerunBl;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationForm;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
-import cz.metacentrum.perun.registrar.model.Application.AppState;
-import cz.metacentrum.perun.registrar.model.Application.AppType;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem.ItemTexts;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type;
-import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
-import cz.metacentrum.perun.registrar.MailManager;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
+import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AttributeAction.READ;
 import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
 import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
-import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.CHECKBOX;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HEADING;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HTML_COMMENT;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.PASSWORD;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBMIT_BUTTON;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.USERNAME;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.VALIDATED_EMAIL;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -172,7 +256,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_VO_MAIL_FOOTER = AttributesManager.NS_VO_ATTR_DEF;
 	static final String URN_VO_MAIL_FOOTER = NAMESPACE_VO_MAIL_FOOTER + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER;
 
-	private static final String DISPLAY_NAME_VO_HTML_MAIL_FOOTER = "HTML Mail Footer";
 	private static final String FRIENDLY_NAME_VO_HTML_MAIL_FOOTER = "htmlMailFooter";
 	private static final String NAMESPACE_VO_HTML_MAIL_FOOTER = AttributesManager.NS_VO_ATTR_DEF;
 	static final String URN_VO_HTML_MAIL_FOOTER = NAMESPACE_VO_HTML_MAIL_FOOTER + ":" + FRIENDLY_NAME_VO_HTML_MAIL_FOOTER;
@@ -182,7 +265,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_GROUP_MAIL_FOOTER = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_MAIL_FOOTER = NAMESPACE_GROUP_MAIL_FOOTER + ":" + FRIENDLY_NAME_GROUP_MAIL_FOOTER;
 
-	private static final String DISPLAY_NAME_GROUP_HTML_MAIL_FOOTER = "HTML Mail Footer";
 	private static final String FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER = "htmlMailFooter";
 	private static final String NAMESPACE_GROUP_HTML_MAIL_FOOTER = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_HTML_MAIL_FOOTER = NAMESPACE_GROUP_HTML_MAIL_FOOTER + ":" + FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER;
@@ -487,12 +569,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_HTML_MAIL_FOOTER);
 		} catch (AttributeNotExistsException ex) {
 			// create attr if not exists
-			AttributeDefinition attrDef = new AttributeDefinition();
-			attrDef.setDisplayName(DISPLAY_NAME_VO_HTML_MAIL_FOOTER);
-			attrDef.setFriendlyName(FRIENDLY_NAME_VO_HTML_MAIL_FOOTER);
-			attrDef.setNamespace(NAMESPACE_VO_MAIL_FOOTER);
-			attrDef.setDescription("HTML email footer used in HTML mail notifications by tag {htmlMailFooter}. To edit text without loss of formatting, please use notification's GUI!!");
-			attrDef.setType(String.class.getName());
+			AttributeDefinition attrDef = new urn_perun_vo_attribute_def_def_htmlMailFooter().getAttributeDefinition();
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
 			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
@@ -523,12 +600,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_HTML_MAIL_FOOTER);
 		} catch (AttributeNotExistsException ex) {
 			// create attr if not exists
-			AttributeDefinition attrDef = new AttributeDefinition();
-			attrDef.setDisplayName(DISPLAY_NAME_GROUP_HTML_MAIL_FOOTER);
-			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_HTML_MAIL_FOOTER);
-			attrDef.setNamespace(NAMESPACE_GROUP_HTML_MAIL_FOOTER);
-			attrDef.setDescription("HTML email footer used in HTML mail notifications by tag {htmlMailFooter}. To edit text without loss of formatting, please use notification's GUI!!");
-			attrDef.setType(String.class.getName());
+			AttributeDefinition attrDef = new urn_perun_group_attribute_def_def_htmlMailFooter().getAttributeDefinition();
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
 			List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
@@ -1091,6 +1163,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// insert new
 			for (Locale locale : item.getI18n().keySet()) {
 				ItemTexts itemTexts = item.getTexts(locale);
+				// Escape HTML_COMMENT and HEADING attributes
+				if (item.getType() == HTML_COMMENT || item.getType() == HEADING) {
+					// Check if html text contains invalid tags (subject and text)
+					HTMLParser parser = new HTMLParser()
+						.sanitizeHTML(itemTexts.getLabel())
+						.checkEscapedHTML();
+					if (!parser.isInputValid()) {
+						throw new InvalidHtmlInputException("HTML content in '"+item.getShortname()+"' contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+					}
+					itemTexts.setLabel(parser.getEscapedHTML());
+                }
+
 				jdbc.update("insert into application_form_item_texts(item_id,locale,label,options,help,error_message) values (?,?,?,?,?,?)",
 						item.getId(), locale.getLanguage(), itemTexts.getLabel(),
 						itemTexts.getOptions(), itemTexts.getHelp(),
