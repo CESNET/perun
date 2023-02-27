@@ -18853,6 +18853,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/consentsManager/getConsentsForConsentHubByResource:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForConsentHubByResource
+      summary: Get consents for members assigned to the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/consentsManager/getConsentsForUserAndConsentHub:
     get:
       tags:
@@ -18931,6 +18945,20 @@ paths:
       summary: Returns a Consent Hub by facility id.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubByResource:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubByResource
+      summary: Returns a Consent Hub for facility to which resource belongs.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
       responses:
         '200':
           $ref: '#/components/responses/ConsentHubResponse'

@@ -7934,6 +7934,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getConsentHubByResource_Resource_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
   filter-getConsentHub_policy:
     policy_roles:
       - PERUNOBSERVER:

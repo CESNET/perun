@@ -104,6 +104,22 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns consents for members assigned to the chosen resource.
+	 *
+	 * @param resource int resource <code>id</code>
+	 * @throw ResourceNotExistsException when resource specified by <code>id</code> doesn't exist
+	 * @throw FacilityNotExistsException when facility doesn't exist
+	 * @throw ConsentHubNotExistsException when Consent Hub doesn't exist
+	 * @return List<Consent> Consents of the ConsentHub
+	 */
+	getConsentsForConsentHubByResource {
+		@Override
+		public List<Consent> call (ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getConsentsManager().getConsentsForConsentHubByResource(ac.getSession(), parms.readInt("resource"));
+		}
+	},
+
+	/*#
 	 * Returns all consents for a user in specified consent hub
 	 *
 	 * @param user int User <code>id</code>
@@ -176,6 +192,22 @@ public enum ConsentsManagerMethod implements ManagerMethod {
 		@Override
 		public ConsentHub call(ApiCaller ac, Deserializer params) throws PerunException {
 			return ac.getConsentsManager().getConsentHubByFacility(ac.getSession(), params.readInt("facility"));
+		}
+	},
+
+	/*#
+	 * Returns a Consent Hub for facility to which resource belongs.
+	 *
+	 * @param resourceId resource id
+	 * @throw ConsentHubNotExistsException If Consent Hub for facility with given id doesn't exist.
+	 * @throw FacilityNotExistsException If facility with given id does not exist.
+	 * @throw ResourceNotExistsException If resource with given id does not exist.
+	 * @return ConsentHub Found Consent Hub
+	 */
+	getConsentHubByResource {
+		@Override
+		public ConsentHub call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getConsentsManager().getConsentHubByResource(ac.getSession(), params.readInt("resource"));
 		}
 	},
 
