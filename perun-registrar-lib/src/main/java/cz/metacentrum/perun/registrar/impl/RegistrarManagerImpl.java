@@ -1112,6 +1112,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// is item to create ? => create
 			if (item.getId() <= 0 && !item.isForDelete()) {
 				int temporaryId = item.getId();
+				// Check if newly created item contains allowed tags (in case of Header and HTML Comment
+				if (item.getType() == HTML_COMMENT || item.getType() == HEADING) {
+					Map<Locale, ItemTexts> i18n = item.getI18n();
+					for (Locale locale : item.getI18n().keySet()) {
+                    	ItemTexts itemTexts = item.getTexts(locale);
+                        HTMLParser parser = new HTMLParser()
+                            .sanitizeHTML(itemTexts.getLabel())
+                            .checkEscapedHTML();
+                        if (!parser.isInputValid()) {
+                            throw new InvalidHtmlInputException("HTML content in '"+item.getShortname()+"' contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+                        }
+						itemTexts.setLabel(parser.getEscapedHTML());
+						i18n.put(locale, itemTexts);
+                    }
+					item.setI18n(i18n);
+                }
+
 				ApplicationFormItem savedItem = addFormItem(sess, form, item);
 				if (savedItem != null) {
 					finalResult++;
