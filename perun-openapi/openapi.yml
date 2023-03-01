@@ -9922,6 +9922,36 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/blockLogins:
+    post:
+      tags:
+        - UsersManager
+      operationId: blockLogins
+      summary: Block logins for given namespace or block logins globally (if no namespace is selected)
+      parameters:
+        - { name: "logins[]", schema: { type: array, items: { type: string } }, in: query, required: false, description: "list of logins to be blocked" }
+        - { name: namespace, schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/unblockLogins:
+    post:
+      tags:
+        - UsersManager
+      operationId: unblockLogins
+      summary: Unblock logins for given namespace or unblock logins globally (if no namespace is selected)
+      parameters:
+        - { name: "logins[]", schema: { type: array, items: { type: string } }, in: query, required: false, description: "list of logins to be blocked" }
+        - { name: namespace, schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/reserveRandomPassword:
     post:
       tags:

@@ -1248,6 +1248,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public boolean isLoginAlreadyUsed(PerunSession sess, String login, String namespace) {
+		try {
+			String namespaceValue = (namespace == null) ? "%" : namespace;
+			return jdbc.queryForInt(String.format("select count(*) from attr_names as attr join user_attr_values attr_val on attr.id=attr_val.attr_id\n" +
+				"where attr.friendly_name like 'login-namespace:%s' \n" +
+				"    and attr.friendly_name not like '%%persistent%%' \n" +
+				"    and attr_val.attr_value like ?", namespaceValue), login) > 0;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 
 
 	@Override

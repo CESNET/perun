@@ -1129,6 +1129,60 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Block logins for given namespace
+	 *
+	 * @param logins List<String> list of logins
+	 * @param namespace String Namespace
+	 * @throw LoginIsAlreadyBlockedException When some login is already blocked for given namespace (or globally)
+	 * @throw LoginExistsException When some login is already in use
+	 */
+	/*#
+	 * Block logins globally (for all namespaces)
+	 *
+	 * @param logins List<String> list of logins
+	 * @throw LoginIsAlreadyBlockedException When some login is already blocked for given namespace (or globally)
+	 * @throw LoginExistsException When some login is already in use
+	 */
+	blockLogins {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getUsersManager().blockLogins(ac.getSession(),
+				parms.readList("logins", String.class),
+				parms.contains("namespace") ? parms.readString("namespace") : null);
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Unblock logins for given namespace
+	 *
+	 * @param logins List<String> list of logins
+	 * @param namespace String Namespace
+	 * @throw LoginIsNotBlockedException When some login is not blocked
+	 */
+	/*#
+	 * Unblock logins globally (for all namespaces)
+	 *
+	 * @param logins List<String> list of logins
+	 * @throw LoginIsNotBlockedException When some login is not blocked
+	 */
+	unblockLogins {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getUsersManager().unblockLogins(ac.getSession(),
+				parms.readList("logins", String.class),
+				parms.contains("namespace") ? parms.readString("namespace") : null);
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Returns users by their IDs.
 	 *
 	 * @param ids List<Integer> list of users IDs

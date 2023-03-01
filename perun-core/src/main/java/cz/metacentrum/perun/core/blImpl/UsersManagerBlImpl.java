@@ -51,6 +51,9 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordChangeFailedException;
@@ -1149,6 +1152,44 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 	}
+
+	@Override
+	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+		return getUsersManagerImpl().getAllBlockedLoginsInNamespaces(sess);
+	}
+
+	@Override
+	public boolean isLoginBlocked(PerunSession sess, String login) {
+		return getUsersManagerImpl().isLoginBlocked(sess, login);
+	}
+
+	@Override
+	public boolean isLoginBlockedGlobally(PerunSession sess, String login) {
+		return getUsersManagerImpl().isLoginBlockedGlobally(sess, login);
+	}
+
+	@Override
+	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) {
+		return getUsersManagerImpl().isLoginBlockedForNamespace(sess, login, namespace);
+	}
+
+	@Override
+	public void blockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsAlreadyBlockedException, LoginExistsException {
+		for (String login : logins) {
+			if (getPerunBl().getAttributesManagerBl().isLoginAlreadyUsed(sess, login, namespace)) {
+				throw new LoginExistsException("Login: " + login + " is already in use.");
+			}
+			getUsersManagerImpl().blockLogin(sess, login, namespace);
+		}
+	}
+
+	@Override
+	public void unblockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsNotBlockedException {
+		for (String login : logins) {
+			getUsersManagerImpl().unblockLogin(sess, login, namespace);
+		}
+	}
+
 	/**
 	 * Gets the usersManagerImpl for this instance.
 	 *

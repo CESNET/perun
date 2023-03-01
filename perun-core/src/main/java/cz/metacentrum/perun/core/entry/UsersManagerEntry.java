@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -67,6 +68,8 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -970,6 +973,73 @@ public class UsersManagerEntry implements UsersManager {
 		// Authorization - must be public since it's used to check anonymous users input on registration form
 
 		return getUsersManagerBl().isLoginAvailable(sess, loginNamespace, login);
+	}
+
+	@Override
+	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getAllBlockedLoginsInNamespaces_policy")) {
+			throw new PrivilegeException(sess, "getAllBlockedLoginsInNamespaces");
+		}
+
+		return getUsersManagerBl().getAllBlockedLoginsInNamespaces(sess);
+	}
+
+	@Override
+	public boolean isLoginBlocked(PerunSession sess, String login) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "isLoginBlocked_String_policy")) {
+			throw new PrivilegeException(sess, "isLoginBlocked");
+		}
+
+		return getUsersManagerBl().isLoginBlocked(sess, login);
+	}
+
+	@Override
+	public boolean isLoginBlockedGlobally(PerunSession sess, String login) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "isLoginBlockedGlobally_String_policy")) {
+			throw new PrivilegeException(sess, "isLoginBlockedGlobally");
+		}
+
+		return getUsersManagerBl().isLoginBlockedGlobally(sess, login);
+
+	}
+
+	@Override
+	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "isLoginBlockedForNamespace_String_String_policy")) {
+			throw new PrivilegeException(sess, "isLoginBlockedForNamespace");
+		}
+
+		return getUsersManagerBl().isLoginBlockedForNamespace(sess, login, namespace);
+	}
+
+	@Override
+	public void blockLogins(PerunSession sess, List<String> logins, String namespace) throws PrivilegeException, LoginIsAlreadyBlockedException, LoginExistsException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "blockLogins_List<String>_String_policy")) {
+			throw new PrivilegeException(sess, "blockLogins");
+		}
+
+		getUsersManagerBl().blockLogins(sess, logins, namespace);
+	}
+
+	@Override
+	public void unblockLogins(PerunSession sess, List<String> logins, String namespace) throws PrivilegeException, LoginIsNotBlockedException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "unblockLogins_List<String>_String_policy")) {
+			throw new PrivilegeException(sess, "unblockLogins");
+		}
+
+		getUsersManagerBl().unblockLogins(sess, logins, namespace);
 	}
 
 	@Override
