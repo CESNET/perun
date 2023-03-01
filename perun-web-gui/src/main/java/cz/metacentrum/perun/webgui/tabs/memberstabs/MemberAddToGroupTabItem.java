@@ -12,12 +12,12 @@ import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.AddMember;
-import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
+import cz.metacentrum.perun.webgui.json.groupsManager.GetAllRichGroups;
 import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -79,7 +79,21 @@ public class MemberAddToGroupTabItem implements TabItem {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
-		final GetAllGroups groups = new GetAllGroups(member.getVoId());
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+		attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
+		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
+		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
+		attrNames.add("urn:perun:group:attribute-def:def:blockManualMemberAdding");
+		final GetAllRichGroups groups = new GetAllRichGroups(member.getVoId(), attrNames, true);
+
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
 			@Override
@@ -98,11 +112,11 @@ public class MemberAddToGroupTabItem implements TabItem {
 		addButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				ArrayList<Group> list = groups.getTableSelectedList();
+				ArrayList<RichGroup> list = groups.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					// TODO - should have only one callback to core
 					for (int i=0; i<list.size(); i++) {
-						final Group g = list.get(i);
+						final RichGroup g = list.get(i);
 						AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
 							@Override
 							public void onFinished(JavaScriptObject jso) {
@@ -126,7 +140,7 @@ public class MemberAddToGroupTabItem implements TabItem {
 			}
 		}));
 
-		CellTable<Group> table = groups.getTable();
+		CellTable<RichGroup> table = groups.getTable();
 
 		JsonUtils.addTableManagedButton(groups, table, addButton);
 

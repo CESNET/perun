@@ -19,13 +19,13 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetGroupMembersCount;
-import cz.metacentrum.perun.webgui.json.groupsManager.RemoveMember;
 import cz.metacentrum.perun.webgui.json.groupsManager.RemoveMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -101,7 +101,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 				group = jso.cast();
 			}
 		};
-		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
+		new GetEntityById(PerunEntity.RICH_GROUP, groupId, events).retrieveData();
 	}
 
 	public boolean isPrepared(){
@@ -169,7 +169,16 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 				session.getTabManager().addTabToCurrentTab(new AddMemberToGroupTabItem(groupId), true);
 			}
 		});
+		RichGroup rg = group.cast();
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
+		if (rg.isBlockManualMemberAdding() && !session.isPerunAdmin()) {
+			addButton.setEnabled(false);
+			addButton.setTitle("This Group prevents manual addition of members. Users can use self-registration process. You can send them an invitation with registration link.");
+		}
+		if (rg.isSyncEnabled()) {
+			addButton.setEnabled(false);
+			addButton.setTitle("Group members are synchronized with external source. You can't add members manually.");
+		}
 
 		CustomButton inviteButton = new CustomButton("Invite member…", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
 			@Override
@@ -178,6 +187,10 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) inviteButton.setEnabled(false);
+		if (rg.isSyncEnabled()) {
+			inviteButton.setEnabled(false);
+			inviteButton.setTitle("Group members are synchronized with external source. You can't invite members.");
+		}
 
 		// REMOVE
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromGroup());

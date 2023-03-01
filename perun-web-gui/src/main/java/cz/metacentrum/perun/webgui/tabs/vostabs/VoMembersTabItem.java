@@ -18,10 +18,12 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
 import cz.metacentrum.perun.webgui.json.membersManager.DeleteMember;
 import cz.metacentrum.perun.webgui.json.membersManager.DeleteMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
+import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
@@ -151,9 +153,38 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl {
 		tabMenu.addWidget(UiElements.getRefreshButton(this));
 
 		// ADD
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addMemberToVo(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addMemberToVo());
+		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(voId), true);
+				GetAttributesV2 attrs = new GetAttributesV2(new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						addButton.setProcessing(false);
+						ArrayList<Attribute> voAttrs = JsonUtils.<Attribute>jsoAsList(jso);
+						for (Attribute a : voAttrs) {
+							if ("blockManualMemberAdding".equals(a.getFriendlyName())) {
+								// for everybody except the perun admin
+								if (a.getValueAsBoolean() && !PerunWebSession.getInstance().isPerunAdmin()) {
+									UiElements.generateAlert("Can't add members", "<p>This VO prevents manual addition of members.<p>Please ask users to use self-registration process. You can send them an invitation with the registration link.");
+									return;
+								}
+							}
+						}
+						session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(voId), true);
+					}
+
+					@Override
+					public void onError(PerunError error) {
+						addButton.setProcessing(false);
+					}
+
+					@Override
+					public void onLoadingStart() {
+						addButton.setProcessing(true);
+					}
+				});
+				attrs.getVoAttributes(voId);
+				attrs.retrieveData();
 			}
 		});
 		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);

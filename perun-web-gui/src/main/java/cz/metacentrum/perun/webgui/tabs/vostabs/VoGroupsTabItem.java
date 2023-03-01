@@ -121,12 +121,13 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
 		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
 		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
+		attrNames.add("urn:perun:group:attribute-def:def:blockManualMemberAdding");
 		final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
 		if (!session.isVoAdmin(voId)) groups.setCheckable(false);
 
 		// refresh
-		 menu.addWidget(UiElements.getRefreshButton(this));
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// add new group button
 		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {

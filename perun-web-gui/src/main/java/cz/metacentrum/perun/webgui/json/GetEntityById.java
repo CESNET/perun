@@ -111,6 +111,7 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 			attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
 			attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
 			attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
+			attrNames.add("urn:perun:group:attribute-def:def:blockManualMemberAdding");
 			for (String value : attrNames) {
 				param += "&attrNames[]="+value;
 			}

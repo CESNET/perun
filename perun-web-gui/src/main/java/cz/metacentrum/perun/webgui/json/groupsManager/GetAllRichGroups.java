@@ -77,6 +77,8 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 	private boolean coreGroupsCheckable = false;
 	private boolean checkable = true;
 
+	private boolean blockManualAndSyncGroups = false;
+
 	/**
 	 * Creates a new callback
 	 *
@@ -86,6 +88,19 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 	public GetAllRichGroups(int id, ArrayList<String> attrNames) {
 		this.voId = id;
 		this.attrNames = attrNames;
+	}
+
+	/**
+	 * Creates a new callback
+	 *
+	 * @param id ID of VO for which we want groups for
+	 * @param attrNames Attribute names which we want to get.
+	 * @param blockManualAndSyncGroups TRUE to block selection of groups with blocked manuall adding of members or synced groups
+	 */
+	public GetAllRichGroups(int id, ArrayList<String> attrNames, boolean blockManualAndSyncGroups) {
+		this.voId = id;
+		this.attrNames = attrNames;
+		this.blockManualAndSyncGroups = blockManualAndSyncGroups;
 	}
 
 	/**
@@ -155,7 +170,7 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 		}
 
 		Column<RichGroup, RichGroup> checkBoxColumn = new Column<RichGroup, RichGroup>(
-				new PerunCheckboxCell<RichGroup>(true, false, coreGroupsCheckable)) {
+				new PerunCheckboxCell<RichGroup>(true, false, coreGroupsCheckable, blockManualAndSyncGroups)) {
 			@Override
 			public RichGroup getValue(RichGroup object) {
 				// Get the value from the selection model.
@@ -194,7 +209,7 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 
 		table.addIdColumn("Group ID", tableFieldUpdater);
 
-		// Add a synchronization clicable icon column.
+		// Add a synchronization clickable icon column.
 		final Column<RichGroup, RichGroup> syncColumn = new Column<RichGroup, RichGroup>(
 				new CustomClickableInfoCellWithImageResource("click")) {
 			@Override
@@ -365,8 +380,11 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 			}
 		});
 
-		table.addColumn(syncColumn, "Sync");
-		table.setColumnWidth(syncColumn, "70px");
+		if (!blockManualAndSyncGroups) {
+			// by default show the column
+			table.addColumn(syncColumn, "Sync");
+			table.setColumnWidth(syncColumn, "70px");
+		}
 
 		// set row styles based on: isCoreGroup()
 		table.setRowStyles(new RowStyles<RichGroup>(){
