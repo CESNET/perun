@@ -64,6 +64,7 @@ public class HTMLParser {
 	 */
 	private void computeEscapedStyles(String input, String escaped) {
 		Pattern pattern = Pattern.compile("style=\"(.*?)\"");
+		if (input == null || escaped == null) return;
 		Matcher matcher = pattern.matcher(input);
 		while (matcher.find()) {
 			String style = matcher.group(1);
