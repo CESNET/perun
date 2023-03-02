@@ -5251,15 +5251,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getHierarchicalData_Service_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
   getHashedHierarchicalData_Service_Facility_boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -5270,33 +5261,6 @@ perun_policies:
       - default_policy
 
   getHashedDataWithGroups_Service_Facility_boolean_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getFlatData_Service_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getDataWithGroups_Service_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getDataWithVos_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility

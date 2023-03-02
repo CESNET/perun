@@ -1272,12 +1272,6 @@ components:
       discriminator:
         propertyName: beanName
 
-    ServiceAttributes:
-      type: object
-      properties:
-        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-        childElements: { type: array, items: { $ref: '#/components/schemas/ServiceAttributes' } }
-
     GenDataNode:
       type: object
       properties:
@@ -2455,13 +2449,6 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/MemberCandidate"
-
-    ServiceAttributesResponse:
-      description: "return List<ServiceAttributes>"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ServiceAttributes"
 
     HashedGenDataResponse:
       description: "return hashed gen data"
@@ -17438,21 +17425,6 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/servicesManager/getHierarchicalData:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getHierarchicalData
-      summary: Generates the list of attributes per each member associated with the resource.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
   /json/servicesManager/getHashedHierarchicalData:
     get:
       tags:
@@ -17482,51 +17454,6 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getFlatData:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getFlatData
-      summary: Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getDataWithGroups:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getDataWithGroups
-      summary: Generates the list of attributes per each member associated with the resources and groups.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getDataWithVos:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getDataWithVos
-      summary: Generates the list of attributes per each member associated with the resources and groups in vos.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

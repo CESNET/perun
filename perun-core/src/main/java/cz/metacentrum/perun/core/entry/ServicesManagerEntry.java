@@ -6,12 +6,10 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.HashedGenData;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
@@ -403,21 +401,6 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getHierarchicalData_Service_Facility_policy", Arrays.asList(service, facility))) {
-			throw new PrivilegeException(sess, "getHierarchicalData");
-		}
-
-		getServicesManagerBl().checkServiceExists(sess, service);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		return getServicesManagerBl().getHierarchicalData(sess, service, facility);
-	}
-
-	@Override
 	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean consentEval) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -445,51 +428,6 @@ public class ServicesManagerEntry implements ServicesManager {
 		}
 
 		return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, consentEval);
-	}
-
-	@Override
-	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getFlatData_Service_Facility_policy", Arrays.asList(service, facility))) {
-			throw new PrivilegeException(sess, "getFlatData");
-		}
-
-		getServicesManagerBl().checkServiceExists(sess, service);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		return getServicesManagerBl().getFlatData(sess, service, facility);
-	}
-
-	@Override
-	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getDataWithGroups_Service_Facility_policy", Arrays.asList(service, facility))) {
-			throw new PrivilegeException(sess, "getDataWithGroups");
-		}
-
-		getServicesManagerBl().checkServiceExists(sess, service);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		return getServicesManagerBl().getDataWithGroups(sess, service, facility);
-	}
-
-	@Override
-	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getDataWithVos_Service_Facility_policy", Arrays.asList(service, facility))) {
-			throw new PrivilegeException(sess, "getDataWithVos");
-		}
-
-		getServicesManagerBl().checkServiceExists(sess, service);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		return getServicesManagerBl().getDataWithVos(sess, service, facility);
 	}
 
 	@Override
