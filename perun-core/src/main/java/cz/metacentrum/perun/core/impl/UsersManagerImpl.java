@@ -36,6 +36,8 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedExcep
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
@@ -179,6 +181,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
             return result;
         };
+
+	public static final RowMapper<Pair<String, String>> BLOCKED_LOGINS_MAPPER = new RowMapper<Pair<String, String>>() {
+		@Override
+		public Pair<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+			String login = rs.getString("login");
+			String namespace = rs.getString("namespace");
+			return new Pair<>(login, namespace);
+		}
+	};
 
 	/**
 	 * Returns ResultSetExtractor that can be used to extract returned paginated users
@@ -1142,6 +1153,98 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+		try {
+			return jdbc.query("select login, namespace from blocked_logins", BLOCKED_LOGINS_MAPPER);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean isLoginBlocked(PerunSession sess, String login) {
+		Utils.notNull(login, "userLogin");
+
+		try {
+			return jdbc.queryForInt("select count(1) from blocked_logins where login=?", login) == 1;
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean isLoginBlockedGlobally(PerunSession sess, String login) {
+		Utils.notNull(login, "userLogin");
+
+		try {
+			return jdbc.queryForInt("select count(1) from blocked_logins where login=? and namespace is null", login) == 1;
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) {
+		Utils.notNull(login, "userLogin");
+
+		try {
+			if (namespace == null) {
+				return this.isLoginBlockedGlobally(sess, login);
+			} else {
+				return jdbc.queryForInt("select count(1) from blocked_logins where login=? and namespace=?", login, namespace) == 1;
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException {
+		Utils.notNull(login, "userLogin");
+
+		try {
+			int newId = Utils.getNewId(jdbc, "blocked_logins_id_seq");
+			jdbc.update("insert into blocked_logins(id, login, namespace) values (?,?,?)",
+				newId, login, namespace);
+			if (namespace == null) {
+				log.info("Login {} globally blocked", login);
+			} else {
+				log.info("Login {} blocked in namespace: {}", login, namespace);
+			}
+		} catch (DuplicateKeyException ex) {
+			String error = namespace == null ?
+				"Login: " + login + " is already blocked globally" :
+				"Login: " + login + " is already blocked in namespace: " + namespace;
+			throw new LoginIsAlreadyBlockedException(error);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void unblockLogin(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		Utils.notNull(login, "userLogin");
+
+		try {
+			if (namespace == null) {
+				int numAffected = jdbc.update("delete from blocked_logins where login=? and namespace is null", login);
+				if (numAffected == 0){
+					throw new LoginIsNotBlockedException("Login: " + login + " is not blocked globally");
+				}
+				log.info("Login {} globally unblocked", login);
+			} else {
+				int numAffected = jdbc.update("delete from blocked_logins where login=? and namespace=?", login, namespace);
+				if (numAffected == 0){
+					throw new LoginIsNotBlockedException("Login: " + login + " is not blocked in namespace: " + namespace);
+				}
+				log.info("Login {} unblocked in namespace: {}", login, namespace);
+			}
+		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}

@@ -654,6 +654,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public boolean isLoginAlreadyUsed(PerunSession sess, String login, String namespace) {
+		return getAttributesManagerImpl().isLoginAlreadyUsed(sess, login, namespace);
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Host host) {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, host);

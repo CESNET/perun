@@ -37,6 +37,8 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 
 import java.util.List;
 import java.util.Map;
@@ -795,6 +797,62 @@ public interface UsersManager {
 	 */
 	boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InvalidLoginException;
 
+	/**
+	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 *
+	 * @param sess
+	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 */
+	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException;
+
+	/**
+	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not
+	 *
+	 * @param sess
+	 * @param login login to check
+	 * @return true if login is blocked
+	 */
+	boolean isLoginBlocked(PerunSession sess, String login) throws PrivilegeException;
+
+	/**
+	 * Return true if login is blocked globally (for all namespaces per instance - represented by namespace = null), false if not
+	 *
+	 * @param sess
+	 * @param login login to check
+	 * @return true if login is blocked globally
+	 */
+	boolean isLoginBlockedGlobally(PerunSession sess, String login) throws PrivilegeException;
+
+	/**
+	 * Return true if login is blocked for given namespace, false if not
+	 * When the namespace is null, then the method behaves like isLoginBlockedGlobally(), so it checks if the login is blocked globally
+	 *
+	 * @param sess
+	 * @param login login to check
+	 * @param namespace namespace for login
+	 * @return true if login is blocked for given namespace (or globally for null namespace)
+	 */
+	boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) throws PrivilegeException;
+
+	/**
+	 * Block logins for given namespace or block logins globally (if no namespace is selected)
+	 *
+	 * @param sess
+	 * @param logins list of logins to be blocked
+	 * @param namespace namespace where the logins should be blocked (null means block the logins globally)
+	 * @throws LoginIsAlreadyBlockedException
+	 * @throws LoginExistsException
+	 */
+	void blockLogins(PerunSession sess, List<String> logins, String namespace) throws PrivilegeException, LoginIsAlreadyBlockedException, LoginExistsException;
+
+	/**
+	 * Unblock logins for given namespace or unblock logins globally (if no namespace is selected)
+	 * @param sess
+	 * @param logins list of logins to be unblocked
+	 * @param namespace namespace where the logins should be unblocked (null means unblock the logins globally)
+	 * @throws LoginIsNotBlockedException
+	 */
+	void unblockLogins(PerunSession sess, List<String> logins, String namespace) throws PrivilegeException, LoginIsNotBlockedException;
 
 	/**
 	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.

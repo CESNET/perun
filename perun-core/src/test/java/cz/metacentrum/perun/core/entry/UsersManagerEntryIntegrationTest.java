@@ -34,6 +34,7 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.UsersOrderColumn;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -44,6 +45,9 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -68,6 +72,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
@@ -700,6 +705,171 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		 perun.getUsersManagerBl().checkReservedLogins(sess, namespace, login);
 		 }
 		 */
+
+	@Test
+	public void getAllBlockedLoginsInNamespaces() throws Exception {
+		System.out.println(CLASS_NAME + "getAllBlockedLoginsInNamespaces");
+
+		String login = "login";
+		String login2 = "login2";
+		String namespace = "namespace";
+		String namespace2 = "namespace2";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), null);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login2), namespace2);
+
+		List<Pair<String, String>> listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
+		assertEquals(listOfBlockedLogins.size(), 3);
+		assertEquals(listOfBlockedLogins.get(0).getLeft(), login);
+		assertNull(listOfBlockedLogins.get(0).getRight());
+		assertEquals(listOfBlockedLogins.get(1).getLeft(), login);
+		assertEquals(listOfBlockedLogins.get(1).getRight(), namespace);
+		assertEquals(listOfBlockedLogins.get(2).getLeft(), login2);
+		assertEquals(listOfBlockedLogins.get(2).getRight(), namespace2);
+	}
+
+	@Test
+	public void isLoginBlocked() throws Exception {
+		System.out.println(CLASS_NAME + "isLoginBlocked");
+
+		String globalLogin = "login";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
+		boolean isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, globalLogin);
+
+		assertTrue(isLoginBlockedGlobally);
+
+		String namespaceLogin = "loginNamespace";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceLogin), "namespace");
+		isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, namespaceLogin);
+
+		assertTrue(isLoginBlockedGlobally);
+	}
+
+	@Test
+	public void isLoginBlockedGlobally() throws Exception {
+		System.out.println(CLASS_NAME + "isLoginBlockedGlobally");
+
+		String globalLogin = "login";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
+		boolean isLoginBlockedGlobally = perun.getUsersManager().isLoginBlockedGlobally(sess, globalLogin);
+
+		assertTrue(isLoginBlockedGlobally);
+
+		String namespaceLogin = "loginNamespace";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceLogin), "namespace");
+		isLoginBlockedGlobally = perun.getUsersManager().isLoginBlockedGlobally(sess, namespaceLogin);
+
+		assertFalse(isLoginBlockedGlobally);
+	}
+
+	@Test
+	public void isLoginBlockedForNamespace() throws Exception {
+		System.out.println(CLASS_NAME + "isLoginBlockedForNamespace");
+
+		String globalLogin = "login";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
+		boolean isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, globalLogin, null);
+
+		assertTrue(isLoginBlocked);
+
+		String namespaceLogin = "loginNamespace";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceLogin), "namespace");
+		isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin, "namespace");
+
+		assertTrue(isLoginBlocked);
+
+		isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin, "namespace_test");
+
+		assertFalse(isLoginBlocked);
+	}
+
+	@Test
+	public void blockAndUnblockLogin() throws Exception {
+		System.out.println(CLASS_NAME + "blockAndUnblockLogin");
+
+		String login = "login";
+		String namespace = "namespace";
+
+		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null));
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), null);
+		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null));
+
+		perun.getUsersManager().unblockLogins(sess, Collections.singletonList(login), null);
+		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null));
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace));
+
+		perun.getUsersManager().unblockLogins(sess, Collections.singletonList(login), namespace);
+		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace));
+	}
+
+	@Test
+	public void bulkBlockAndUnblockLogins() throws Exception {
+		System.out.println(CLASS_NAME + "getAllBlockedLoginsInNamespaces");
+
+		String login = "login";
+		String login2 = "login2";
+		String login3 = "login3";
+		String namespace = "namespace";
+
+		perun.getUsersManager().blockLogins(sess, Arrays.asList(login, login2, login3), namespace);
+
+		List<Pair<String, String>> listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
+		assertEquals(listOfBlockedLogins.size(), 3);
+		assertEquals(listOfBlockedLogins.get(0).getLeft(), login);
+		assertEquals(listOfBlockedLogins.get(0).getRight(), namespace);
+		assertEquals(listOfBlockedLogins.get(1).getLeft(), login2);
+		assertEquals(listOfBlockedLogins.get(1).getRight(), namespace);
+		assertEquals(listOfBlockedLogins.get(2).getLeft(), login3);
+		assertEquals(listOfBlockedLogins.get(2).getRight(), namespace);
+
+		perun.getUsersManager().unblockLogins(sess, Arrays.asList(login, login2), namespace);
+
+		listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
+
+		assertEquals(listOfBlockedLogins.size(), 1);
+		assertEquals(listOfBlockedLogins.get(0).getLeft(), login3);
+		assertEquals(listOfBlockedLogins.get(0).getRight(), namespace);
+	}
+
+	@Test (expected=LoginIsAlreadyBlockedException.class)
+	public void blockAlreadyBlockedLogin() throws Exception {
+		System.out.println(CLASS_NAME + "blockAlreadyBlockedLogin");
+
+		String login = "login";
+		String namespace = "namespace";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace));
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		// shouldn't block already blocked login twice
+	}
+
+	@Test (expected=LoginIsNotBlockedException.class)
+	public void unblockNotBlockedLogin() throws Exception {
+		System.out.println(CLASS_NAME + "unblockNotBlockedLogin");
+
+		perun.getUsersManager().unblockLogins(sess, Collections.singletonList("login"), "namespace");
+	}
+
+	@Test (expected=LoginExistsException.class)
+	public void blockAlreadyUsedLogin() throws Exception {
+		System.out.println(CLASS_NAME + "blockAlreadyUsedLogin");
+
+		setUpUser("firstName", "lastName");
+		setUpNamespaceAttribute();
+		Attribute namespace = perun.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:dummy");
+		String login = "existingLogin";
+		namespace.setValue(login);
+		perun.getAttributesManagerBl().setAttribute(sess, user, namespace);
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), "dummy");
+		// shouldn't block already used login
+	}
 
 	@Test (expected=UserExtSourceNotExistsException.class)
 	public void getUserExtSourceByExtLoginWhenExtLoginNotExists() throws Exception {
