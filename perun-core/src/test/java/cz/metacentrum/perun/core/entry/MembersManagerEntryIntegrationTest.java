@@ -74,6 +74,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
@@ -2110,6 +2111,38 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void copySponsoredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "copySponsoredMembers");
+
+		//create user which can sponsor
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		//create another user which can sponsor
+		User sponsorUser2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+		AuthzResolverBlImpl.setRole(sess, sponsorUser2, createdVo, Role.SPONSOR);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser2, Role.SPONSOR, createdVo, true));
+		Member member = setUpMember(createdVo);
+
+		perun.getMembersManager().sponsorMembers(sess, List.of(member), sponsorUser, null);
+
+		List<User> sponsors = perun.getUsersManagerBl().getSponsors(sess, member);
+		assertTrue("sponsor 1 is not reported as sponsor", sponsors.contains(sponsorUser));
+
+		perun.getMembersManager().copySponsoredMembers(sess, List.of(member), sponsorUser, sponsorUser2, true, null);
+
+		sponsors = perun.getUsersManagerBl().getSponsors(sess, member);
+
+		assertTrue("sponsor 2 is not reported as sponsor", sponsors.contains(sponsorUser2));
+
+		perun.getMembersManager().removeSponsors(sess, member, List.of(sponsorUser2));
+
+		perun.getMembersManager().copySponsoredMembers(sess, List.of(member), sponsorUser, sponsorUser2, false, LocalDate.now().plusDays(3));
+
+		assertThat(perun.getMembersManagerBl().getSponsorship(sess, member, sponsorUser2).getValidityTo()).isEqualTo(LocalDate.now().plusDays(3).toString());
+	}
+
+	@Test
 	public void getSoonExpiringSponsorshipsReturnsLowerBound() throws Exception {
 		System.out.println(CLASS_NAME + "getSoonExpiringSponsorshipsReturnsLowerBound");
 
@@ -3548,7 +3581,6 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertNotNull("unable to create " + attr.getName() + " attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		return attr;
 	}
-
 
 	private Member setUpMember(Vo vo) throws Exception {
 
