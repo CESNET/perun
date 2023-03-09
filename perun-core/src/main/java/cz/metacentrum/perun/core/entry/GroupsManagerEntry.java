@@ -1255,7 +1255,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		List<Group> groups = getGroupsManagerBl().getMemberGroups(sess, member);
-		groups.removeIf(group -> !AuthzResolver.authorizedInternal(sess, "filter-getMemberGroups_Member_policy", group));
+		groups.removeIf(group -> !AuthzResolver.authorizedInternal(sess, "filter-getMemberGroups_Member_policy", member, group));
 		return groups;
 	}
 

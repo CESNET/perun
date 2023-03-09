@@ -1,22 +1,21 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.HashedGenData;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
-import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public enum ServicesManagerMethod implements ManagerMethod {
 
@@ -514,46 +513,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Generates the list of attributes per each member associated with the resource.
-	 *
-	 * @deprecated use getHashedDataWithGroups
-	 * @param service int Service <code>id</code>
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources.
-	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
-	 <pre>
-	 Facility
-	 +---Attrs
-	 +---ChildNodes
-	 +------Resource
-	 |      +---Attrs
-	 |      +---ChildNodes
-	 |             +------Member
-	 |             |        +-------Attrs
-	 |             +------Member
-	 |             |        +-------Attrs
-	 |             +...
-	 |
-	 +------Resource
-	 |      +---Attrs
-	 |      +---ChildNodes
-	 .             +------Member
-	 .             |        +-------Attrs
-	 .             +------Member
-	 |        +-------Attrs
-	 +...
-	 </pre>
-	 */
-	getHierarchicalData {
-
-		@Override
-		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getHierarchicalData(ac.getSession(),
-				ac.getServiceById(parms.readInt("service")),
-				ac.getFacilityById(parms.readInt("facility")));
-		}
-	},
-
-	/*#
 	 * Generates hashed hierarchical data structure for given service and facility.
 	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
 	 * generates only the users that granted a consent to all the service required attributes.
@@ -736,208 +695,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 				ac.getServiceById(parms.readInt("service")),
 				ac.getFacilityById(parms.readInt("facility")),
 				consentEval);
-		}
-	},
-
-	/*#
-	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
-	 *
-	 * @deprecated use getHashedDataWithGroups
-	 * @param service int Service <code>id</code>. You will get attributes required by this service
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
-	 <pre>
-	 Facility
-	 +---Attrs
-	 +---ChildNodes
-	 +------()
-	 |      +---ChildNodes
-	 |             +------Resource
-	 |             |        +-------Attrs
-	 |             +------Resource
-	 |             |        +-------Attrs
-	 |             +...
-	 |
-	 +------()
-	 +---ChildNodes
-	 +------User
-	 |        +-------Attrs (do NOT return member, member-resource attributes)
-	 +------User
-	 |        +-------Attrs (do NOT return member, member-resource attributes)
-	 +...
-	 </pre>
-	 */
-	getFlatData {
-
-		@Override
-		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getFlatData(ac.getSession(),
-				ac.getServiceById(parms.readInt("service")),
-				ac.getFacilityById(parms.readInt("facility")));
-		}
-	},
-
-	/*#
-	 * Generates the list of attributes per each member associated with the resources and groups.
-	 *
-	 * @deprecated use getHashedDataWithGroups
-	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
-	 *         Resource first child is abstract structure which children are groups.
-	 *         Resource  second child is abstract structure which children are members.
-	 *         Group first child is empty structure (services expect members to be second child, here used to be subgroups).
-	 *         Group second child is abstract structure which children are members.
-	 <pre>
-	 Facility
-	 +---Attrs                       ...................................................
-	 +---ChildNodes                  |                                                 .
-	 +------Resource                 |                                                 .
-	 |       +---Attrs               |                                                 .
-	 |       +---ChildNodes          |                                                 .
-	 |              +------()        V                                                 .
-	 |              |       +------Group                                               .
-	 |              |       |        +-------Attrs                                     .
-	 |              |       |        +-------ChildNodes                                .
-	 |              |       |                   +-------()                             .
-	 |              |       |                   +-------()
-	 |              |       |                            +---ChildNodes
-	 |              |       |                                   +------Member
-	 |              |       |                                   |        +----Attrs
-	 |              |       |                                   +------Member
-	 |              |       |                                   |        +----Attrs
-	 |              |       |                                   +...
-	 |              |       |
-	 |              |       +------Group
-	 |              |       |        +-------Attrs
-	 |              |       |        +-------ChildNodes
-	 |              |       |                   +-------()
-	 |              |       |                   +-------()
-	 |              |       |                            +---ChildNodes
-	 |              |       |                                   +------Member
-	 |              |       |                                   |        +----Attrs
-	 |              |       |                                   +------Member
-	 |              |       |                                   |        +----Attrs
-	 |              |       |                                   +...
-	 |              |       |
-	 |              |       +...
-	 |              |
-	 |              +------()
-	 |                      +------Member
-	 |                      |         +----Attrs
-	 |                      |
-	 |                      +------Member
-	 |                      |         +----Attrs
-	 |                      +...
-	 |
-	 +------Resource
-	 |       +---Attrs
-	 |       +---ChildNodes
-	 |              +------()
-	 |              |       +...
-	 |              |       +...
-	 |              |
-	 |              +------()
-	 |                      +...
-	 .                      +...
-	 .
-	 .
-	 </pre>
-	 */
-	getDataWithGroups {
-
-		@Override
-		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getDataWithGroups(ac.getSession(),
-					ac.getServiceById(parms.readInt("service")),
-					ac.getFacilityById(parms.readInt("facility")));
-		}
-	},
-
-	/*#
-	 * Generates the list of attributes per each member associated with the resources and groups in vos.
-	 *
-	 * @deprecated use getHashedDataWithGroups
-	 * @param service attributes required by this service you will get
-	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
-	 * @return attributes in special structure.
-	 *        Facility is in the root, facility children are vos.
-	 *        Vo first child is abstract structure which children are resources.
-	 *        Resource first child is abstract structure which children are groups.
-	 *        Resource  second chi is abstract structure which children are members.
-	 *        Group first child is abstract structure which children are groups.
-	 *        Group second chi is abstract structure which children are members.
-	 <pre>
-	 Facility
-	 +---Attrs
-	 +---ChildNodes
-	        +-----Vo
-	        |      +---Attrs
-	        |      +---ChildNodes
-	        |             +-------Resource
-	        |             |       +---Attrs               |-------------------------------------------------.
-	        |             |       +---ChildNodes          |                                                 .
-	        |             |              +------()        V                                                 .
-	        |             |              |       +------Group                                               .
-	        |             |              |       |        +-------Attrs                                     .
-	        |             |              |       |        +-------ChildNodes                                .
-	        |             |              |       |                   +-------()                             .
-	        |             |              |       |                   |        +---ChildNodes                .
-	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
-	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
-	        |             |              |       |                   |               +...
-	        |             |              |       |                   +-------()
-	        |             |              |       |                            +---ChildNodes
-	        |             |              |       |                                   +------Member
-	        |             |              |       |                                   |        +----Attrs
-	        |             |              |       |                                   +------Member
-	        |             |              |       |                                   |        +----Attrs
-	        |             |              |       |                                   +...
-	        |             |              |       |
-	        |             |              |       +------Group
-	        |             |              |       |        +-------Attrs
-	        |             |              |       |        +-------ChildNodes
-	        |             |              |       |                   +-------()
-	        |             |              |       |                   |        +---ChildNodes
-	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
-	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
-	        |             |              |       |                   |               +...
-	        |             |              |       |                   +-------()
-	        |             |              |       |                            +---ChildNodes
-	        |             |              |       |                                   +------Member
-	        |             |              |       |                                   |        +----Attrs
-	        |             |              |       |                                   +------Member
-	        |             |              |       |                                   |        +----Attrs
-	        |             |              |       |                                   +...
-	        |             |              |       |
-	        |             |              |       +...
-	        |             |              |
-	        |             |              +------()
-	        |             |                      +------Member
-	        |             |                      |         +----Attrs
-	        |             |                      |
-	        |             |                      +------Member
-	        |             |                      |         +----Attrs
-	        |             |                      +...
-	        |             |
-	        |             +------Resource
-	        |             |       +---Attrs
-	        |             |       +---ChildNodes
-	        |             |              +------()
-	        |             |              |       +...
-	        |             |              |       +...
-	        |             |              |
-	        |             |              +------()
-	        |             |                      +...
-	        +-----Vo ....
-	</pre>
-	 */
-	getDataWithVos {
-		@Override
-		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getDataWithVos(ac.getSession(),
-				ac.getServiceById(parms.readInt("service")),
-				ac.getFacilityById(parms.readInt("facility")));
 		}
 	},
 

@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
@@ -30,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 import java.util.List;
 
@@ -324,18 +322,6 @@ public interface ServicesManagerBl {
 	List<Resource> getAssignedResources(PerunSession sess, Service service);
 
 	/**
-	 * Generates the list of attributes per each member associated with the resource.
-	 *
-	 * @param perunSession
-	 * @param service attributes required by this service you will get
-	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @return attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
-	 *
-	 * @throws InternalErrorException
-	 */
-	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility);
-
-	/**
 	 * Generates hashed hierarchical data structure for given service and resource.
 	 * If enforcing consents is turned on on the instance and on the resource's consent hub,
 	 * generates only the users that granted a consent to all the service required attributes.
@@ -421,53 +407,6 @@ public interface ServicesManagerBl {
 	 * @return generated hashed data structure
 	 */
 	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean consentEval);
-
-	/**
-	 * Generates the list of attributes per each resource associated with the facility and filtered by service. Next it generates list of attributes
-	 * associated with the facility and service.
-	 *
-	 * @param perunSession
-	 * @param service you will get attributes required by this service
-	 * @param facility you will get attributes for this facility, resources associated with it and users assigned to the resources
-	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources.
-	 * 				Facility second child is abstract node with no attribute and it's children are all users.
-	 *
-	 * @throws InternalErrorException
-	 */
-	ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility);
-
-	/**
-	 * Generates the list of attributes per each member associated with the resources and groups.
-	 *
-	 * Generate also vo-required attributes for service. Add them to the same structure like resource-required attributes.
-	 *
-	 * @param perunSession
-	 * @param service attributes required by this service you will get
-	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @return attributes in special structure. Facility is in the root, facility children are resources.
-	 *         Resource first child is abstract structure which children are groups.
-	 *         Resource  second child is abstract structure which children are members.
-	 *         Group first child is empty structure (services expect members to be second child, here used to be subgroups).
-	 *         Group second child is abstract structure which children are members.
-	 */
-	ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility);
-
-	/**
-	 * Generates the list of attributes per each member associated with the resources and groups.
-	 *
-	 * @param perunSession
-	 * @param service attributes required by this service you will get
-	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @return attributes in special structure. Facility is in the root, facility children are resources.
-	 *         Resource first child is abstract structure which children are groups.
-	 *         Resource  second chi is abstract structure which children are members.
-	 *         Group first child is abstract structure which children are groups.
-	 *         Group second chi is abstract structure which children are members.
-	 *
-	 * @throws InternalErrorException
-	 * @throws VoNotExistsException
-	 */
-	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility) throws VoNotExistsException;
 
 	/**
 	 * List packages

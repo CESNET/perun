@@ -402,9 +402,24 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getUserRoles_int_policy:
+  getUserRoles_int_boolean_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getRoleComplementaryObjectsWithAuthorizedGroups_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getRolesObtainedFromAuthorizedGroupMemberships_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -5236,15 +5251,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getHierarchicalData_Service_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
   getHashedHierarchicalData_Service_Facility_boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -5255,33 +5261,6 @@ perun_policies:
       - default_policy
 
   getHashedDataWithGroups_Service_Facility_boolean_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getFlatData_Service_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getDataWithGroups_Service_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getDataWithVos_Service_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -7916,6 +7895,16 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
+  getConsentHubByResource_Resource_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
     include_policies:
       - default_policy
 

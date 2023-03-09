@@ -6,6 +6,8 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.ConsentsManager;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -16,12 +18,14 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.ConsentsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Consents entry logic.
@@ -104,6 +108,23 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		}
 		List<Consent> consents = consentsManagerBl.getConsentsForConsentHub(sess, id);
 		// set ConsentHub of Consent objects to the ConsentHub with filtered facilities
+		for (Consent consent : consents) {
+			consent.setConsentHub(consentHub);
+		}
+
+		return consents;
+	}
+
+	@Override
+	public List<Consent> getConsentsForConsentHubByResource(PerunSession sess, int resourceId) throws PrivilegeException, ConsentHubNotExistsException, FacilityNotExistsException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		ConsentHub consentHub = getConsentHubByResource(sess, resourceId);
+		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, resourceId);
+		List<Member> members = getPerunBl().getResourcesManagerBl().getAssignedMembers(sess, resource);
+
+		List<Consent> consents = consentsManagerBl.getConsentsForConsentHub(sess, consentHub.getId());
+		consents.removeIf(consent -> members.stream().noneMatch(member -> member.getUserId() == consent.getUserId()));
 		for (Consent consent : consents) {
 			consent.setConsentHub(consentHub);
 		}
@@ -280,6 +301,23 @@ public class ConsentsManagerEntry implements ConsentsManager {
 		}
 		ConsentHub consentHub = consentsManagerBl.getConsentHubByFacility(sess, facilityId);
 		filterConsentHubFacilities(sess, consentHub);
+
+		return consentHub;
+	}
+
+	@Override
+	public ConsentHub getConsentHubByResource(PerunSession sess, int resourceId) throws ConsentHubNotExistsException, PrivilegeException, FacilityNotExistsException, ResourceNotExistsException {
+		Utils.notNull(sess, "sess");
+
+		Resource resource = perunBl.getResourcesManagerBl().getResourceById(sess, resourceId);
+		Facility facility = perunBl.getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getConsentHubByResource_Resource_policy", resource)) {
+			throw new PrivilegeException(sess, "getConsentHubByResource");
+		}
+		ConsentHub consentHub = consentsManagerBl.getConsentHubByFacility(sess, facility.getId());
+		consentHub.getFacilities().removeIf(f -> !f.equals(facility));
 
 		return consentHub;
 	}

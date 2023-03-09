@@ -1272,12 +1272,6 @@ components:
       discriminator:
         propertyName: beanName
 
-    ServiceAttributes:
-      type: object
-      properties:
-        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-        childElements: { type: array, items: { $ref: '#/components/schemas/ServiceAttributes' } }
-
     GenDataNode:
       type: object
       properties:
@@ -2456,13 +2450,6 @@ components:
             items:
               $ref: "#/components/schemas/MemberCandidate"
 
-    ServiceAttributesResponse:
-      description: "return List<ServiceAttributes>"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ServiceAttributes"
-
     HashedGenDataResponse:
       description: "return hashed gen data"
       content:
@@ -2574,6 +2561,21 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/AuthzRoles"
+
+    ComplementaryObjectsWithAuthzGroupsResponse:
+      description: Complementary objects combined with authorized groups (connected by role)
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Group"
 
     RTMessageResponse:
       description: Confirmation with e-mail address the ticket was created for
@@ -4179,6 +4181,49 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getUserDirectRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getUserDirectRoles
+      summary: Returns all roles except for those obtained from membership in authorized groups as an AuthzRoles object for a given user.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getUserRolesObtainedFromAuthorizedGroupMemberships:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getUserRolesObtainedFromAuthorizedGroupMemberships
+      summary: Returns roles resulting from membership in authorized groups as an AuthzRoles object for a given user.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getRoleComplementaryObjectsWithAuthorizedGroups:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getRoleComplementaryObjectsWithAuthorizedGroups
+      summary: Returns map of role names with map of corresponding complementary objects (perun beans) 
+        together with list of authorized groups where user is member.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/ComplementaryObjectsWithAuthzGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -17380,21 +17425,6 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/servicesManager/getHierarchicalData:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getHierarchicalData
-      summary: Generates the list of attributes per each member associated with the resource.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
   /json/servicesManager/getHashedHierarchicalData:
     get:
       tags:
@@ -17424,51 +17454,6 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getFlatData:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getFlatData
-      summary: Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getDataWithGroups:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getDataWithGroups
-      summary: Generates the list of attributes per each member associated with the resources and groups.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getDataWithVos:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getDataWithVos
-      summary: Generates the list of attributes per each member associated with the resources and groups in vos.
-      parameters:
-        - $ref: '#/components/parameters/serviceId'
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServiceAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -18795,6 +18780,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/consentsManager/getConsentsForConsentHubByResource:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentsForConsentHubByResource
+      summary: Get consents for members assigned to the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfConsentResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/consentsManager/getConsentsForUserAndConsentHub:
     get:
       tags:
@@ -18873,6 +18872,20 @@ paths:
       summary: Returns a Consent Hub by facility id.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsentHubResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/consentsManager/getConsentHubByResource:
+    get:
+      tags:
+        - ConsentsManager
+      operationId: getConsentHubByResource
+      summary: Returns a Consent Hub for facility to which resource belongs.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
       responses:
         '200':
           $ref: '#/components/responses/ConsentHubResponse'

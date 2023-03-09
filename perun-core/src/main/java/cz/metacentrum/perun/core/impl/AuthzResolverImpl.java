@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -79,6 +78,11 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	private final static Pattern patternForExtractingPerunBean = Pattern.compile("^pb_([a-z_]+)_id$");
 
+	private final static String authzComplementaryObjectsWithAuthorizedGroups = " authz.authorized_group_id as authz_authorized_group_id, " +
+		"authz.vo_id as pb_vo_id, authz.group_id as pb_group_id, authz.facility_id as pb_facility_id, authz.member_id as pb_member_id, " +
+		"authz.resource_id as pb_resource_id, authz.service_id as pb_service_id, authz.security_team_id as pb_security_team_id, " +
+		"authz.sponsored_user_id as pb_sponsored_user_id, roles.name as role_name, groups.name as groups_name, groups.dsc as groups_description, groups.vo_id as groups_vo_id";
+
 	private final static String authzRoleMappingSelectQuery = " authz.user_id as authz_user_id, authz.role_id as authz_role_id," +
 		"authz.authorized_group_id as authz_authorized_group_id, authz.vo_id as pb_vo_id, authz.group_id as pb_group_id, " +
 		"authz.facility_id as pb_facility_id, authz.member_id as pb_member_id, authz.resource_id as pb_resource_id, " +
@@ -86,6 +90,41 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		"authz.sponsored_user_id as pb_sponsored_user_id";
 
 	private static final Pattern columnNamesPattern = Pattern.compile("^[_0-9a-zA-Z]+$");
+
+
+	private static final RowMapper<Pair<String, Map<String, Map<Integer, List<Group>>>>> AUTHZ_COMPLEMENTARY_OBJECTS_AUTH_GROUPS_MAPPER = (rs, i) -> {
+		try {
+			Map<String, Map<Integer, List<Group>>> perunBeanIdsWithAuthorizedGroups = new HashMap<>();
+
+			String role = rs.getString("role_name").toUpperCase();
+
+			// Iterate through all returned columns and try to extract PerunBean name from the labels
+			for (int j = rs.getMetaData().getColumnCount(); j > 0; j--) {
+				Matcher matcher = patternForExtractingPerunBean.matcher(rs.getMetaData().getColumnLabel(j).toLowerCase());
+				if (matcher.find()) {
+					String perunBeanName = matcher.group(1);
+					int complementaryObjectId = rs.getInt(j);
+
+					if (!rs.wasNull()) {
+						perunBeanIdsWithAuthorizedGroups.computeIfAbsent(perunBeanName, k -> new HashMap<>());
+						perunBeanIdsWithAuthorizedGroups.get(perunBeanName).computeIfAbsent(complementaryObjectId, k -> new ArrayList<>());
+
+						perunBeanIdsWithAuthorizedGroups.get(perunBeanName).get(complementaryObjectId).add(new Group(
+							rs.getInt("authz_authorized_group_id"),
+							rs.getString("groups_name"),
+							rs.getString("groups_description"),
+							rs.getInt("groups_vo_id")
+						));
+					}
+				}
+			}
+
+			return new Pair<>(role, perunBeanIdsWithAuthorizedGroups);
+
+		} catch (Exception e) {
+			throw new InternalErrorException(e);
+		}
+	};
 
 	private static final RowMapper<String> AUTHZROLE_MAPPER_FOR_ATTRIBUTES = (rs, i) -> rs.getString("name").toUpperCase();
 
@@ -146,32 +185,39 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public AuthzRoles getRoles(User user) {
+	public AuthzRoles getRoles(User user, boolean getAuthorizedGroupBasedRoles) {
 		AuthzRoles authzRoles = new AuthzRoles();
 
 		if (user != null) {
 			try {
-				// Get roles from Authz table
-				List<Pair<String, Map<String, Set<Integer>>>> authzRolesPairs = jdbc.query("select " + authzRoleMappingSelectQuery
-						+ ", roles.name as role_name from authz left join roles on authz.role_id=roles.id where authz.user_id=? or authorized_group_id in "
-						+ "(select groups.id from groups join groups_members on groups.id=groups_members.group_id and groups_members.source_group_status=? join members on "
-						+ "members.id=groups_members.member_id join users on users.id=members.user_id where users.id=? and members.status=?)", AUTHZROLE_MAPPER, user.getId(), MemberGroupStatus.VALID.getCode(), user.getId(), Status.VALID.getCode());
+				// Get directly assigned user roles from Authz table
+				List<Pair<String, Map<String, Set<Integer>>>> authzRolesPairs = jdbc.query(
+					"select " + authzRoleMappingSelectQuery + ", roles.name as role_name " +
+						"from authz left join roles on authz.role_id=roles.id " +
+						"where authz.user_id=?",
+					AUTHZROLE_MAPPER, user.getId());
 
 				for (Pair<String, Map<String, Set<Integer>>> pair : authzRolesPairs) {
 					authzRoles.putAuthzRoles(pair.getLeft(), pair.getRight());
 				}
 
+				if (getAuthorizedGroupBasedRoles) {
+					// add user roles based on membership in authorized groups
+					getRolesObtainedFromAuthorizedGroupMemberships(user)
+						.forEach(authzRoles::putAuthzRoles);
+				}
+
 				// Get service users for user
 				List<Integer> authzServiceUsers = jdbc.query("select specific_user_users.specific_user_id as id from users, " +
-						"specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status=0 and users.id=? " +
-				        "and specific_user_users.type=?", Utils.ID_MAPPER ,user.getId(), SpecificUserType.SERVICE.getSpecificUserType());
+					"specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status=0 and users.id=? " +
+					"and specific_user_users.type=?", Utils.ID_MAPPER, user.getId(), SpecificUserType.SERVICE.getSpecificUserType());
 				for (Integer serviceUserId : authzServiceUsers) {
 					authzRoles.putAuthzRole(Role.SELF, User.class, serviceUserId);
 				}
 
 				// Get members for user
 				List<Integer> authzMember = jdbc.query("select members.id as id from members where members.user_id=? and members.status=?",
-						Utils.ID_MAPPER ,user.getId(), Status.VALID.getCode());
+					Utils.ID_MAPPER, user.getId(), Status.VALID.getCode());
 				for (Integer memberId : authzMember) {
 					authzRoles.putAuthzRole(Role.SELF, Member.class, memberId);
 				}
@@ -185,6 +231,84 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
+	public AuthzRoles getRolesObtainedFromAuthorizedGroupMemberships(User user) {
+		AuthzRoles authzRoles = new AuthzRoles();
+
+		if (user == null) {
+			return authzRoles;
+		}
+
+		try {
+			// Get user roles based on membership in authorized group(s)
+			jdbc.query("select " + authzRoleMappingSelectQuery + ", roles.name as role_name " +
+						"from authz left join roles on authz.role_id=roles.id " +
+						"where authorized_group_id in " +
+						"(select groups.id " +
+						"from groups " +
+						"join groups_members on groups.id=groups_members.group_id and groups_members.source_group_status=? " +
+						"join members on members.id=groups_members.member_id " +
+						"join users on users.id=members.user_id" +
+						" where users.id=? and members.status=?)",
+					AUTHZROLE_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), Status.VALID.getCode())
+				.forEach((pair) -> authzRoles.putAuthzRoles(pair.getLeft(), pair.getRight()));
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+
+		return authzRoles;
+	}
+
+	public Map<String, Map<String, Map<Integer, List<Group>>>> getRoleComplementaryObjectsWithAuthorizedGroups(User user) {
+		Map<String, Map<String, Map<Integer, List<Group>>>> roleWithComplementaryObjectsWithAuthorizedGroups = new HashMap<>();
+
+		if (user == null) {
+			return roleWithComplementaryObjectsWithAuthorizedGroups;
+		}
+
+		try {
+			// Get user roles based on membership in authorized group(s)
+			List<Pair<String, Map<String, Map<Integer, List<Group>>>>> rolePairs = jdbc.query("select " + authzComplementaryObjectsWithAuthorizedGroups + ", roles.name as role_name " +
+					"from authz " +
+					"left join roles on authz.role_id=roles.id " +
+					"join groups on authz.authorized_group_id=groups.id " +
+					"where authorized_group_id in " +
+					"(select groups_members.group_id " +
+					"from groups_members " +
+					"join members on members.id=groups_members.member_id " +
+					"join users on users.id=members.user_id" +
+					" where groups_members.source_group_status=? and users.id=? and members.status=?)",
+				AUTHZ_COMPLEMENTARY_OBJECTS_AUTH_GROUPS_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), Status.VALID.getCode());
+
+			for (Pair<String, Map<String, Map<Integer, List<Group>>>> rolePair : rolePairs) {
+				roleWithComplementaryObjectsWithAuthorizedGroups.computeIfAbsent(rolePair.getLeft(), k -> new HashMap<>());
+
+				for (Map.Entry<String, Map<Integer, List<Group>>> perunBeanNames : rolePair.getRight().entrySet()) {
+					// if specific bean name (e.g. 'Vo') is not present, add it
+					roleWithComplementaryObjectsWithAuthorizedGroups.get(rolePair.getLeft())
+						.computeIfAbsent(perunBeanNames.getKey(), k -> new HashMap<>());
+
+					for (Map.Entry<Integer, List<Group>> perunBeanIdsWithGroups : perunBeanNames.getValue().entrySet()) {
+						// if given complementary object id (e.g. VO id for VO ADMIN) is not present, add new key-value pair
+						roleWithComplementaryObjectsWithAuthorizedGroups.get(rolePair.getLeft())
+							.get(perunBeanNames.getKey())
+							.computeIfAbsent(perunBeanIdsWithGroups.getKey(), k -> new ArrayList<>());
+
+						// add associated authzgroups
+						roleWithComplementaryObjectsWithAuthorizedGroups.get(rolePair.getLeft())
+							.get(perunBeanNames.getKey())
+							.get(perunBeanIdsWithGroups.getKey())
+							.addAll(perunBeanIdsWithGroups.getValue());
+					}
+				}
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+
+		return roleWithComplementaryObjectsWithAuthorizedGroups;
+	}
+
+	@Override
 	public AuthzRoles getRoles(Group group) {
 		AuthzRoles authzRoles = new AuthzRoles();
 
@@ -192,8 +316,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			try {
 				// Get roles from Authz table
 				List<Pair<String, Map<String, Set<Integer>>>> authzRolesPairs = jdbc.query("select " + authzRoleMappingSelectQuery
-				+ ", roles.name as role_name from authz left join roles on authz.role_id=roles.id where authz.authorized_group_id=?",
-				AUTHZROLE_MAPPER, group.getId());
+						+ ", roles.name as role_name from authz left join roles on authz.role_id=roles.id where authz.authorized_group_id=?",
+					AUTHZROLE_MAPPER, group.getId());
 
 				for (Pair<String, Map<String, Set<Integer>>> pair : authzRolesPairs) {
 					authzRoles.putAuthzRoles(pair.getLeft(), pair.getRight());
@@ -225,11 +349,11 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		String actType = actionType.getActionType().toLowerCase() + "%";
 		try {
 			List<Pair<String, ActionType>> pairs = jdbc.query("select distinct roles.name, action_types.action_type from attributes_authz " +
-							"join roles on attributes_authz.role_id=roles.id " +
-							"join action_types on attributes_authz.action_type_id=action_types.id " +
-							"where attributes_authz.attr_id=? and action_types.action_type like ?",
-					(rs, arg1) -> new Pair<>(rs.getString("name").toUpperCase(), ActionType.valueOf(rs.getString("action_type").toUpperCase())),
-					attrDef.getId(), actType);
+					"join roles on attributes_authz.role_id=roles.id " +
+					"join action_types on attributes_authz.action_type_id=action_types.id " +
+					"where attributes_authz.attr_id=? and action_types.action_type like ?",
+				(rs, arg1) -> new Pair<>(rs.getString("name").toUpperCase(), ActionType.valueOf(rs.getString("action_type").toUpperCase())),
+				attrDef.getId(), actType);
 
 			Map<String, Set<ActionType>> result = new HashMap<>();
 			for (Pair<String, ActionType> pair : pairs) {
@@ -459,7 +583,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		try {
 			// Add GROUPADMIN role + groupId and voId
 			jdbc.update("insert into authz (user_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)",
-					user.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId());
+				user.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in group " + group, e, user, group);
 		} catch (RuntimeException e) {
@@ -471,7 +595,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)",
-					authorizedGroup.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId());
+				authorizedGroup.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + authorizedGroup.getId() + " is already group admin in group " + group, e, authorizedGroup, group);
 		} catch (RuntimeException e) {
@@ -483,7 +607,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeAdmin(PerunSession sess, Group group, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and group_id=? and role_id=(select id from roles where name=?)",
-						user.getId(), group.getId(), Role.GROUPADMIN.toLowerCase())) {
+				user.getId(), group.getId(), Role.GROUPADMIN.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the group " + group);
 			}
 		} catch (RuntimeException e) {
@@ -495,7 +619,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and group_id=? and role_id=(select id from roles where name=?)",
-						authorizedGroup.getId(), group.getId(), Role.GROUPADMIN.toLowerCase())) {
+				authorizedGroup.getId(), group.getId(), Role.GROUPADMIN.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + authorizedGroup.getId() + " is not admin of the group " + group);
 			}
 		} catch (RuntimeException e) {
@@ -507,7 +631,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", user.getId(),
-					Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
+				Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in securityTeam " + securityTeam, e, user, securityTeam);
 		} catch (RuntimeException e) {
@@ -519,7 +643,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", group.getId(),
-					Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
+				Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin in securityTeam " + securityTeam, e, group, securityTeam);
 		} catch (RuntimeException e) {
@@ -637,14 +761,14 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	@Override
 	public void addVoRole(PerunSession sess, String role, Vo vo, User user) throws AlreadyAdminException {
-		if(!Arrays.asList(Role.SPONSOR,Role.TOPGROUPCREATOR,Role.VOADMIN,Role.VOOBSERVER).contains(role)) {
-			throw new IllegalArgumentException("Role "+role+" cannot be set on VO");
+		if (!Arrays.asList(Role.SPONSOR, Role.TOPGROUPCREATOR, Role.VOADMIN, Role.VOOBSERVER).contains(role)) {
+			throw new IllegalArgumentException("Role " + role + " cannot be set on VO");
 		}
 		try {
 			jdbc.update("insert into authz (user_id, role_id, vo_id) values (?, (select id from roles where name=?), ?)", user.getId(),
-					role.toLowerCase(), vo.getId());
+				role.toLowerCase(), vo.getId());
 		} catch (DataIntegrityViolationException e) {
-			throw new AlreadyAdminException("User id=" + user.getId() + " is already "+role+" in vo " + vo, e, user, vo, role);
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already " + role + " in vo " + vo, e, user, vo, role);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -652,14 +776,14 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	@Override
 	public void addVoRole(PerunSession sess, String role, Vo vo, Group group) throws AlreadyAdminException {
-		if(!Arrays.asList(Role.SPONSOR,Role.TOPGROUPCREATOR,Role.VOADMIN,Role.VOOBSERVER).contains(role)) {
-			throw new IllegalArgumentException("Role "+role+" cannot be set on VO");
+		if (!Arrays.asList(Role.SPONSOR, Role.TOPGROUPCREATOR, Role.VOADMIN, Role.VOOBSERVER).contains(role)) {
+			throw new IllegalArgumentException("Role " + role + " cannot be set on VO");
 		}
 		try {
 			jdbc.update("insert into authz (role_id, vo_id, authorized_group_id) values ((select id from roles where name=?), ?, ?)",
-					role.toLowerCase(), vo.getId(), group.getId());
+				role.toLowerCase(), vo.getId(), group.getId());
 		} catch (DataIntegrityViolationException e) {
-			throw new AlreadyAdminException("Group id=" + group.getId() + " is already "+role+" in vo " + vo, e, group, vo, role);
+			throw new AlreadyAdminException("Group id=" + group.getId() + " is already " + role + " in vo " + vo, e, group, vo, role);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -669,7 +793,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeVoRole(PerunSession sess, String role, Vo vo, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and vo_id=? and role_id=(select id from roles where name=?)", user.getId(), vo.getId(), role.toLowerCase())) {
-				throw new UserNotAdminException("User id=" + user.getId() + " is not "+role+" in the vo " + vo);
+				throw new UserNotAdminException("User id=" + user.getId() + " is not " + role + " in the vo " + vo);
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -680,7 +804,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeVoRole(PerunSession sess, String role, Vo vo, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and vo_id=? and role_id=(select id from roles where name=?)", group.getId(), vo.getId(), role.toLowerCase())) {
-				throw new GroupNotAdminException("Group id=" + group.getId() + " is not "+role+" in the vo " + vo);
+				throw new GroupNotAdminException("Group id=" + group.getId() + " is not " + role + " in the vo " + vo);
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -692,9 +816,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo) {
 		// COUNT(*) should never return NULL
 		return jdbc.queryForObject(
-				"SELECT COUNT(*) FROM authz JOIN roles ON (authz.role_id=roles.id) " +
-						"WHERE authz.user_id=? AND roles.name=? AND authz.vo_id=?",	Integer.class,
-				user.getId(), role.toLowerCase(), vo.getId()) > 0;
+			"SELECT COUNT(*) FROM authz JOIN roles ON (authz.role_id=roles.id) " +
+				"WHERE authz.user_id=? AND roles.name=? AND authz.vo_id=?", Integer.class,
+			user.getId(), role.toLowerCase(), vo.getId()) > 0;
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -702,16 +826,16 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public boolean isGroupInRoleForVo(PerunSession session, Group group, String role, Vo vo) {
 		// COUNT(*) should never return NULL
 		return jdbc.queryForObject(
-				"SELECT COUNT(*) FROM authz JOIN roles ON (authz.role_id=roles.id) " +
-						"WHERE authz.authorized_group_id=? AND roles.name=? AND authz.vo_id=?",	Integer.class,
-				group.getId(), role.toLowerCase(), vo.getId()) > 0;
+			"SELECT COUNT(*) FROM authz JOIN roles ON (authz.role_id=roles.id) " +
+				"WHERE authz.authorized_group_id=? AND roles.name=? AND authz.vo_id=?", Integer.class,
+			group.getId(), role.toLowerCase(), vo.getId()) > 0;
 	}
 
 	@Override
 	public List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, String role) {
 		try {
 			return jdbc.query("SELECT vo_id FROM authz WHERE role_id=(select id from roles where name=?) and authorized_group_id=? and vo_id is not NULL",
-					new SingleColumnRowMapper<>(Integer.class), role.toLowerCase(), group.getId());
+				new SingleColumnRowMapper<>(Integer.class), role.toLowerCase(), group.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -721,7 +845,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, String role) {
 		try {
 			return jdbc.query("SELECT vo_id FROM authz WHERE role_id=(select id from roles where name=?) and user_id=? and vo_id is not NULL",
-					new SingleColumnRowMapper<>(Integer.class), role.toLowerCase(), user.getId() );
+				new SingleColumnRowMapper<>(Integer.class), role.toLowerCase(), user.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -736,7 +860,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			jdbc.update("insert into authz (user_id, role_id, resource_id, vo_id, facility_id) values (?, (select id from roles where name=?), ?, ?, ?)", user.getId(),
 				role.toLowerCase(), resource.getId(), resource.getVoId(), resource.getFacilityId());
 		} catch (DataIntegrityViolationException e) {
-			throw new AlreadyAdminException("User id=" + user.getId() + " is already "+role+" in resource " + resource, e, user, resource, role);
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already " + role + " in resource " + resource, e, user, resource, role);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -745,13 +869,13 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addResourceRole(PerunSession sess, Group group, String role, Resource resource) throws AlreadyAdminException {
 		if (!role.equals(Role.RESOURCESELFSERVICE)) {
-			throw new IllegalArgumentException("Role "+role+" cannot be set on resource.");
+			throw new IllegalArgumentException("Role " + role + " cannot be set on resource.");
 		}
 		try {
 			jdbc.update("insert into authz (role_id, resource_id, authorized_group_id, vo_id, facility_id) values ((select id from roles where name=?), ?, ?, ?, ?)",
 				role.toLowerCase(), resource.getId(), group.getId(), resource.getVoId(), resource.getFacilityId());
 		} catch (DataIntegrityViolationException e) {
-			throw new AlreadyAdminException("Group id=" + group.getId() + " is already "+role+" in resource " + resource, e, group, resource, role);
+			throw new AlreadyAdminException("Group id=" + group.getId() + " is already " + role + " in resource " + resource, e, group, resource, role);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -762,7 +886,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeResourceRole(PerunSession sess, String role, Resource resource, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and resource_id=? and role_id=(select id from roles where name=?)", user.getId(), resource.getId(), role.toLowerCase())) {
-				throw new UserNotAdminException("User id=" + user.getId() + " is not "+role+" in the resource " + resource);
+				throw new UserNotAdminException("User id=" + user.getId() + " is not " + role + " in the resource " + resource);
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -773,7 +897,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeResourceRole(PerunSession sess, String role, Resource resource, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and resource_id=? and role_id=(select id from roles where name=?)", group.getId(), resource.getId(), role.toLowerCase())) {
-				throw new GroupNotAdminException("Group id=" + group.getId() + " is not "+role+" in the resource " + resource);
+				throw new GroupNotAdminException("Group id=" + group.getId() + " is not " + role + " in the resource " + resource);
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -898,7 +1022,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			if (!onlyDirectAdmins) {
 				// Admins through a group
 				List<Group> listOfAdminGroups = getAdminGroups(mappingOfValues);
-				for(Group authorizedGroup : listOfAdminGroups) {
+				for (Group authorizedGroup : listOfAdminGroups) {
 					admins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
 						"join groups_members on groups_members.member_id=members.id where groups_members.group_id=? and members.status=? and groups_members.source_group_status=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode()));
 				}
@@ -931,7 +1055,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 					" left outer join members on members.id=groups_members.member_id " +
 					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
 					"(select id from roles where name in (:roles))",
-					parameters, VO_MAPPER));
+				parameters, VO_MAPPER));
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -1020,7 +1144,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	/**
 	 * Create parameters for obtaining objects according to user and list of roles.
 	 *
-	 * @param user for who will be fetched id
+	 * @param user  for who will be fetched id
 	 * @param roles which will be lower cased
 	 * @return user and roles parameters
 	 */
@@ -1047,7 +1171,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		List<String> columnNames = new ArrayList<>();
 		List<String> columnValues = new ArrayList<>();
 
-		for (String columnName: mappingOfValues.keySet()) {
+		for (String columnName : mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
 				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to set role.");
@@ -1076,7 +1200,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	private String prepareQueryToUnsetRole(Map<String, Integer> mappingOfValues) {
 		List<String> listOfConditions = new ArrayList<>();
 
-		for (String columnName: mappingOfValues.keySet()) {
+		for (String columnName : mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
 				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to unset role.");
@@ -1132,7 +1256,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	private String prepareSelectQueryString(Map<String, Integer> mappingOfValues) {
 		List<String> listOfConditions = new ArrayList<>();
 
-		for (String columnName: mappingOfValues.keySet()) {
+		for (String columnName : mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
 				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to read role.");

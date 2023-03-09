@@ -24,6 +24,7 @@ import cz.metacentrum.perun.registrar.model.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class AuthzResolver {
@@ -892,24 +893,64 @@ public class AuthzResolver {
 	}
 
 	/**
-	 * Get all roles for a given user.
+	 * Returns user's direct roles, can also include roles resulting from being a VALID member of authorized groups.
 	 * Returns also sponsorship and membership roles.
 	 *
-	 * @param sess perun session
-	 * @param userId id of a user
+	 * @param sess                         perun session
+	 * @param userId                       id of a user
+	 * @param getAuthorizedGroupBasedRoles include roles based on membership in authorized groups
+	 * @return AuthzRoles object which contains all roles with perunbeans
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
-	public static AuthzRoles getUserRoles(PerunSession sess, int userId) throws UserNotExistsException, PrivilegeException {
+	public static AuthzRoles getUserRoles(PerunSession sess, int userId, boolean getAuthorizedGroupBasedRoles) throws UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		User user = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserById(sess, userId);
 
 		//Authorization
-		if (!authorizedInternal(sess, "getUserRoles_int_policy"))
+		if (!authorizedInternal(sess, "getUserRoles_int_boolean_policy", user))
 			throw new PrivilegeException("getUserRoles.");
 
-		return AuthzResolverBlImpl.getUserRoles(sess, user);
+		return AuthzResolverBlImpl.getUserRoles(sess, user, getAuthorizedGroupBasedRoles);
+	}
+
+	/**
+	 * Returns map of role name and map of corresponding role complementary objects (perun beans) distinguished by type.
+	 * 	 * together with list of authorized groups where user is member:
+	 * 	 *     Map< RoleName, Map< BeanName, Map< BeanID, List<AuthzGroup> >>>
+	 *
+	 * @param sess   perun session
+	 * @param userId id of a user
+	 * @return Map<String, Map<String, Map<Integer, List<Group>>>> roles with map of complementary objects with associated authorized groups
+	 */
+	public static Map<String, Map<String, Map<Integer, List<Group>>>> getRoleComplementaryObjectsWithAuthorizedGroups(PerunSession sess, int userId) throws UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		User user = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserById(sess, userId);
+
+		//Authorization
+		if (!authorizedInternal(sess, "getRoleComplementaryObjectsWithAuthorizedGroups_int_policy", user))
+			throw new PrivilegeException("getRoleComplementaryObjectsWithAuthorizedGroups.");
+
+		return AuthzResolverBlImpl.getRoleComplementaryObjectsWithAuthorizedGroups(sess, user);
+	}
+
+	/**
+	 * Returns user's roles resulting from being a VALID member of authorized groups.
+	 *
+	 * @param sess perun session
+	 * @param userId                       id of a user
+	 * @return AuthzRoles object which contains roles with perunbeans
+	 * @throws InternalErrorException
+	 */
+	public static AuthzRoles getRolesObtainedFromAuthorizedGroupMemberships(PerunSession sess, int userId) throws UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		User user = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserById(sess, userId);
+
+		//Authorization
+		if (!authorizedInternal(sess, "getRolesObtainedFromAuthorizedGroupMemberships_int_policy", user))
+			throw new PrivilegeException("getRolesObtainedFromAuthorizedGroupMemberships.");
+
+		return AuthzResolverBlImpl.getRolesObtainedFromAuthorizedGroupMemberships(sess, user);
 	}
 
 	/**

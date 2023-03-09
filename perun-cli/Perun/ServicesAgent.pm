@@ -120,18 +120,6 @@ sub getServices
 	return Perun::Common::callManagerMethod('getServices', '[]Service', @_);
 }
 
-#(service => $serviceId, facility => $facilityId)
-sub getHierarchicalData
-{
-	return Perun::Common::callManagerMethod('getHierarchicalData', 'ServiceAttributes', @_);
-}
-
-#(service => $serviceId, facility => $facilityId)
-sub getFlatData
-{
-	return Perun::Common::callManagerMethod('getFlatData', 'ServiceAttributes', @_);
-}
-
 #(service => $serviceId, facility => $facilityId, consentEval => true|false)
 sub getHashedHierarchicalData
 {
@@ -142,18 +130,6 @@ sub getHashedHierarchicalData
 sub getHashedDataWithGroups
 {
 	return Perun::Common::callManagerMethod('getHashedDataWithGroups', 'HashedGenData', @_);
-}
-
-#(service => $serviceId, facility => $facilityId)
-sub getDataWithGroups
-{
-	return Perun::Common::callManagerMethod('getDataWithGroups', 'ServiceAttributes', @_);
-}
-
-#(service => $serviceId, facility => $facilityId)
-sub getDataWithVos
-{
-	return Perun::Common::callManagerMethod('getDataWithVos', 'ServiceAttributes', @_);
 }
 
 #bez parametru

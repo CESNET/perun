@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidConsentStatusException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import java.util.List;
@@ -48,6 +49,19 @@ public interface ConsentsManager {
 	 * @throws ConsentHubNotExistsException
 	 */
 	List<Consent> getConsentsForConsentHub(PerunSession sess, int id) throws PrivilegeException, ConsentHubNotExistsException;
+
+	/**
+	 * Get consents for members assigned to the chosen resource.
+	 *
+	 * @param sess session
+	 * @param resourceId id of resource
+	 * @return consents for corresponding ConsentHub
+	 * @throws PrivilegeException
+	 * @throws ConsentHubNotExistsException
+	 * @throws FacilityNotExistsException
+	 * @throws ResourceNotExistsException
+	 */
+	List<Consent> getConsentsForConsentHubByResource(PerunSession sess, int resourceId) throws PrivilegeException, ConsentHubNotExistsException, FacilityNotExistsException, ResourceNotExistsException;
 
 	/**
 	 * Get all consents for chosen User with the specified status
@@ -154,6 +168,20 @@ public interface ConsentsManager {
 	 * @throws FacilityNotExistsException
 	 */
 	ConsentHub getConsentHubByFacility(PerunSession sess, int facilityId) throws ConsentHubNotExistsException, PrivilegeException, FacilityNotExistsException;
+
+	/**
+	 * Finds existing Consent Hub for facility to which resource belongs.
+	 *
+	 * @param sess perun session
+	 * @param resourceId id of resource
+	 * @return found Consent Hub
+	 * @throws ConsentHubNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws FacilityNotExistsException
+	 * @throws ResourceNotExistsException
+	 */
+	ConsentHub getConsentHubByResource(PerunSession sess, int resourceId) throws ConsentHubNotExistsException, PrivilegeException, FacilityNotExistsException, ResourceNotExistsException;
 
 	/**
 	 * Updates the consent hub. Ignores related facilities.

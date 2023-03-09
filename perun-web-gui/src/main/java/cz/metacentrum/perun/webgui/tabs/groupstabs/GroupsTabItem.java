@@ -125,6 +125,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
 		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
 		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
+		attrNames.add("urn:perun:group:attribute-def:def:blockManualMemberAdding");
 		final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
 		groups.setCheckable(false);
 

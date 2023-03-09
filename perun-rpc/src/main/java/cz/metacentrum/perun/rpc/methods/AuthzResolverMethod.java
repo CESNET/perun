@@ -3,17 +3,10 @@ package cz.metacentrum.perun.rpc.methods;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
@@ -23,12 +16,16 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public enum AuthzResolverMethod implements ManagerMethod {
 
@@ -78,7 +75,48 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	getUserRoles {
 		@Override
 		public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"));
+			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"), true);
+		}
+	},
+	/*#
+	 * Returns all roles assigned to user except for those obtained from membership in authorized groups as an AuthzRoles object.
+	 * Returns also sponsorship and membership roles.
+	 *
+	 * @param userId int Id of a user
+	 * @return AuthzRoles Object which contains all roles with perunbeans
+	 * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},"SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
+	 */
+	getUserDirectRoles {
+		@Override
+		public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"), false);
+		}
+	},
+	/*#
+	 * Returns roles resulting from membership in authorized groups as an AuthzRoles object for a given user.
+	 *
+	 * @param userId int Id of a user
+	 * @return AuthzRoles Object which contains roles with perunbeans
+	 * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},"SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
+	 */
+	getUserRolesObtainedFromAuthorizedGroupMemberships {
+		@Override
+		public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return cz.metacentrum.perun.core.api.AuthzResolver.getRolesObtainedFromAuthorizedGroupMemberships(ac.getSession(), parms.readInt("userId"));
+		}
+	},
+	/*#
+	 * Returns map of role name and map of corresponding role complementary objects (perun beans) distinguished by type.
+	 * together with list of authorized groups where user is member:
+	 *     Map< RoleName, Map< BeanName, Map< BeanID, List<AuthzGroup> >>>
+	 *
+	 * @param userId int Id of a user
+	 * @return Map<String, Map<String, Map<Integer, List<Group>>>> roles with map of complementary objects with associated authorized groups
+	 */
+	getRoleComplementaryObjectsWithAuthorizedGroups {
+		@Override
+		public Map<String, Map<String, Map<Integer, List<Group>>>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return cz.metacentrum.perun.core.api.AuthzResolver.getRoleComplementaryObjectsWithAuthorizedGroups(ac.getSession(), parms.readInt("userId"));
 		}
 	},
 	/*#

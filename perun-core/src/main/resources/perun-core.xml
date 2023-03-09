@@ -17,10 +17,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	<import resource="classpath:perun-base.xml"/>
 
 	<aop:config>
-		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHierarchicalData(..))"/>
-		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithGroups(..))"/>
-		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithVos(..))"/>
-		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getFlatData(..))"/>
 		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedHierarchicalData(..))"/>
 		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedDataWithGroups(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.entry.*.*(..))"/>

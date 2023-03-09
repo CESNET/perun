@@ -103,6 +103,16 @@ public class RichGroup extends Group {
 		return null;
 	}-*/;
 
+	public final native boolean isBlockManualMemberAdding() /*-{
+		for (var id in this.attributes) {
+			if (this.attributes[id].friendlyName === "blockManualMemberAdding") {
+				if (this.attributes[id].value === null) return false; // not blocked
+				return this.attributes[id].value;
+			}
+		}
+		return false;
+	}-*/;
+
 	/**
 	 * Compares to another object
 	 * @param o Object to compare

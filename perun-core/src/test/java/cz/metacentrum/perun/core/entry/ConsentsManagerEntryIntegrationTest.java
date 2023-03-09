@@ -198,6 +198,31 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test
+	public void getConsentsForConsentHubByResource() throws Exception {
+		System.out.println(CLASS_NAME + "getConsentsForConsentHubByResource");
+
+		User user2 = setUpUser("User2", "Test");
+		User user3 = setUpUser("User3", "Test");
+
+		Member member2 = perun.getMembersManager().createMember(sess, vo, user2);
+
+		Group testGroup = perun.getGroupsManagerBl().createGroup(sess, vo, new Group("group", "test"));
+		perun.getGroupsManagerBl().addMember(sess, testGroup, member2);
+
+		Resource resource1 = setUpResource("test", "test resource", facility, vo);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, testGroup, resource1, false, false, false);
+
+		Consent consent1 = new Consent(1111, user2.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+		Consent consent2 = new Consent(1234, user3.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+
+		perun.getConsentsManagerBl().createConsent(sess, consent1);
+		perun.getConsentsManagerBl().createConsent(sess, consent2);
+
+		assertEquals(2, consentsManagerEntry.getConsentsForConsentHub(sess, consentsManagerEntry.getConsentHubByFacility(sess, facility.getId()).getId()).size());
+		assertEquals(1, consentsManagerEntry.getConsentsForConsentHubByResource(sess, resource1.getId()).size());
+	}
+
+	@Test
 	public void getConsentsForConsentHub() throws Exception {
 		System.out.println(CLASS_NAME + "getConsentsForConsentHub");
 
@@ -259,6 +284,13 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "getConsentHubByFacility");
 
 		assertEquals(consentsManagerEntry.getConsentHubByFacility(sess, facility.getId()).getFacilities().get(0), facility);
+	}
+
+	@Test
+	public void getConsentHubByResource() throws Exception {
+		System.out.println(CLASS_NAME + "getConsentHubByResource");
+
+		assertEquals(consentsManagerEntry.getConsentHubByResource(sess, resource.getId()).getFacilities().get(0), facility);
 	}
 
 	@Test
