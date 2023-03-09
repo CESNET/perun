@@ -806,33 +806,38 @@ public interface UsersManager {
 	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException;
 
 	/**
-	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not
+	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not.
+	 * Globally banned logins are ALWAYS case-insensitive (ignoreCase value is not taken into account for them).
 	 *
-	 * @param sess
-	 * @param login login to check
+	 * @param sess       session
+	 * @param login      login to check
+	 * @param ignoreCase ignore case
 	 * @return true if login is blocked
 	 */
-	boolean isLoginBlocked(PerunSession sess, String login) throws PrivilegeException;
+	boolean isLoginBlocked(PerunSession sess, String login, boolean ignoreCase) throws PrivilegeException;
 
 	/**
-	 * Return true if login is blocked globally (for all namespaces per instance - represented by namespace = null), false if not
+	 * Return true if login is blocked globally (for all namespaces per instance - represented by namespace = null), false if not.
+	 * Globally banned logins are ALWAYS case-insensitive.
 	 *
-	 * @param sess
+	 * @param sess  session
 	 * @param login login to check
 	 * @return true if login is blocked globally
 	 */
 	boolean isLoginBlockedGlobally(PerunSession sess, String login) throws PrivilegeException;
 
 	/**
-	 * Return true if login is blocked for given namespace, false if not
-	 * When the namespace is null, then the method behaves like isLoginBlockedGlobally(), so it checks if the login is blocked globally
+	 * Return true if login is blocked for given namespace, false if not.
+	 * When the namespace is null, then the method behaves like isLoginBlockedGlobally(), so it checks if the login is blocked globally.
+	 * Globally banned logins are ALWAYS case-insensitive.
 	 *
-	 * @param sess
-	 * @param login login to check
-	 * @param namespace namespace for login
+	 * @param sess       session
+	 * @param login      login to check
+	 * @param namespace  namespace for login
+	 * @param ignoreCase ignore case
 	 * @return true if login is blocked for given namespace (or globally for null namespace)
 	 */
-	boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) throws PrivilegeException;
+	boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace, boolean ignoreCase) throws PrivilegeException;
 
 	/**
 	 * Block logins for given namespace or block logins globally (if no namespace is selected)

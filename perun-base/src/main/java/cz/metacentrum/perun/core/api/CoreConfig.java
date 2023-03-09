@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -836,5 +837,23 @@ public class CoreConfig {
 
 	public void setIdpLoginValidityExceptions(List<String> idpLoginValidityExceptions) {
 		this.idpLoginValidityExceptions = idpLoginValidityExceptions;
+	}
+
+	/**
+	 * Get all logins blocked by default (used by internal components).
+	 *
+	 * @return set of logins used by instance
+	 */
+	public Set<String> getBlockedLogins() {
+		Set<String> blockedLogins = new HashSet<>();
+
+		blockedLogins.addAll(admins);
+		blockedLogins.addAll(enginePrincipals);
+		blockedLogins.addAll(notificationPrincipals);
+		blockedLogins.addAll(registrarPrincipals);
+		blockedLogins.addAll(dontLookupUsers);
+		blockedLogins.add(rpcPrincipal);
+
+		return blockedLogins;
 	}
 }

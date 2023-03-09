@@ -1166,42 +1166,50 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	@Override
-	public boolean isLoginBlocked(PerunSession sess, String login) {
-		Utils.notNull(login, "userLogin");
+    @Override
+    public boolean isLoginBlocked(PerunSession sess, String login, boolean ignoreCase) {
+        Utils.notNull(login, "userLogin");
 
-		try {
-			return jdbc.queryForInt("select count(1) from blocked_logins where login=?", login) == 1;
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+        try {
+            if (ignoreCase) {
+                return jdbc.queryForInt("select count(1) from blocked_logins where UPPER(login)=?", login.toUpperCase()) == 1;
+            } else {
+                return jdbc.queryForInt("select count(1) from blocked_logins where login=? OR (UPPER(login)=? AND namespace IS NULL)", login, login.toUpperCase()) == 1;
+            }
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
 
-	@Override
-	public boolean isLoginBlockedGlobally(PerunSession sess, String login) {
-		Utils.notNull(login, "userLogin");
+    @Override
+    public boolean isLoginBlockedGlobally(PerunSession sess, String login) {
+        Utils.notNull(login, "userLogin");
 
-		try {
-			return jdbc.queryForInt("select count(1) from blocked_logins where login=? and namespace is null", login) == 1;
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+        try {
+            return jdbc.queryForInt("select count(1) from blocked_logins where UPPER(login)=? and namespace is null", login.toUpperCase()) == 1;
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
 
-	@Override
-	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) {
-		Utils.notNull(login, "userLogin");
+    @Override
+    public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace, boolean ignoreCase) {
+        Utils.notNull(login, "userLogin");
 
-		try {
-			if (namespace == null) {
-				return this.isLoginBlockedGlobally(sess, login);
-			} else {
-				return jdbc.queryForInt("select count(1) from blocked_logins where login=? and namespace=?", login, namespace) == 1;
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+        try {
+            if (namespace == null) {
+                return this.isLoginBlockedGlobally(sess, login);
+            } else {
+                if (ignoreCase) {
+                    return jdbc.queryForInt("select count(1) from blocked_logins where UPPER(login)=? and namespace=?", login.toUpperCase(), namespace) == 1;
+                } else {
+                    return jdbc.queryForInt("select count(1) from blocked_logins where login=? and namespace=?", login, namespace) == 1;
+                }
+            }
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
 
 	@Override
 	public void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException {

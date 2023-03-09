@@ -1159,8 +1159,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public boolean isLoginBlocked(PerunSession sess, String login) {
-		return getUsersManagerImpl().isLoginBlocked(sess, login);
+	public boolean isLoginBlocked(PerunSession sess, String login, boolean ignoreCase) {
+		return getUsersManagerImpl().isLoginBlocked(sess, login, ignoreCase);
 	}
 
 	@Override
@@ -1169,8 +1169,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) {
-		return getUsersManagerImpl().isLoginBlockedForNamespace(sess, login, namespace);
+	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace, boolean ignoreCase) {
+		return getUsersManagerImpl().isLoginBlockedForNamespace(sess, login, namespace, ignoreCase);
 	}
 
 	@Override
@@ -1230,6 +1230,25 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public void checkReservedLogins(PerunSession sess, String namespace, String login, boolean ignoreCase) throws AlreadyReservedLoginException {
 		getUsersManagerImpl().checkReservedLogins(sess, namespace, login, ignoreCase);
+	}
+
+	@Override
+	public void checkBlockedLogins(PerunSession sess, String namespace, final String userLogin, boolean ignoreCase) throws LoginIsAlreadyBlockedException {
+
+		// CoreConfig roles are case-sensitive
+		if (BeansUtils.getCoreConfig().getBlockedLogins().contains(userLogin)) {
+			throw new LoginIsAlreadyBlockedException("Login " + userLogin + " is blocked by default.");
+		}
+
+		// namespaces can have both case-sensitive and case-insensitive login check,
+		// so we use case-insensitive one for global logins to cover all possibilities (from namespaces)
+		if (isLoginBlockedGlobally(sess, userLogin)) {
+			throw new LoginIsAlreadyBlockedException("Login " + userLogin + " is blocked globally.");
+		}
+
+		if (namespace != null && !namespace.equals("") && isLoginBlockedForNamespace(sess, userLogin, namespace, ignoreCase)) {
+			throw new LoginIsAlreadyBlockedException("Login " + userLogin + " is blocked for " + namespace + " namespace.");
+		}
 	}
 
 	@Override
