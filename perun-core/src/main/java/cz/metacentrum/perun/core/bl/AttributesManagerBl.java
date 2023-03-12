@@ -4839,5 +4839,13 @@ public interface AttributesManagerBl {
 	 * @return list of attribute definitions
 	 */
 	List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess);
+
+	/**
+	 * Returns list of all possible namespaces.
+	 *
+	 * @param sess session
+	 * @return list of namespaces
+	 */
+	List<String> getAllNamespaces(PerunSession sess);
 }
 

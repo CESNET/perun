@@ -835,6 +835,25 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals(listOfBlockedLogins.get(0).getRight(), namespace);
 	}
 
+	@Test
+	public void unblockLoginsById() throws Exception {
+		System.out.println(CLASS_NAME + "unblockLoginsById");
+		String login1 = "login";
+		String login2 = "login2";
+		String namespace = "namespace";
+
+		perun.getUsersManager().blockLogins(sess, Arrays.asList(login1, login2), namespace);
+
+		assertEquals(2, perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess).size());
+
+		int id1 = perun.getUsersManagerBl().getIdOfBlockedLogin(sess, login1, namespace);
+		int id2 = perun.getUsersManagerBl().getIdOfBlockedLogin(sess, login2, namespace);
+
+		perun.getUsersManager().unblockLoginsById(sess, Arrays.asList(id1, id2));
+
+		assertEquals(0, perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess).size());
+	}
+
 	@Test (expected=LoginIsAlreadyBlockedException.class)
 	public void blockAlreadyBlockedLogin() throws Exception {
 		System.out.println(CLASS_NAME + "blockAlreadyBlockedLogin");

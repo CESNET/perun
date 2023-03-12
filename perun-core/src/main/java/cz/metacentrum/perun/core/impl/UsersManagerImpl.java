@@ -1250,6 +1250,41 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public void unblockLoginsById(PerunSession sess, List<Integer> loginIds) {
+		try {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			parameters.addValue("ids", loginIds);
+			namedParameterJdbcTemplate.update("DELETE FROM blocked_logins WHERE id in (:ids)", parameters);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
+		try {
+			return jdbc.queryForObject("SELECT login, namespace FROM blocked_logins WHERE id=?", BLOCKED_LOGINS_MAPPER, id);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new LoginIsNotBlockedException(ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
+		try {
+			if (namespace == null) {
+				return jdbc.queryForInt("select id from blocked_logins where login=? and namespace is null", login);
+			} else {
+				return jdbc.queryForInt("SELECT id FROM blocked_logins WHERE login=? and namespace=?", login, namespace);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) {
 		Utils.notNull(userExtSource, "userExtSource");
 		Utils.notNull(userExtSource.getLogin(), "userExtSource.getLogin");

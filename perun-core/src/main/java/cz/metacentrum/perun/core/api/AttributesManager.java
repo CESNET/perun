@@ -4153,4 +4153,13 @@ public interface AttributesManager {
 	 * @return list of attribute definitions
 	 */
 	List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess);
+
+	/**
+	 * Returns list of all possible namespaces.
+	 *
+	 * @param sess session
+	 * @return list of namespaces
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	List<String> getAllNamespaces(PerunSession sess) throws PrivilegeException;
 }

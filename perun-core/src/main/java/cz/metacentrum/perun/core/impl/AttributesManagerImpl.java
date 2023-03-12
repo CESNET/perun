@@ -318,6 +318,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	private static final RowMapper<String> ATTRIBUTE_NAMES_MAPPER = (rs, i) -> rs.getString("attr_name");
 
+	private static final RowMapper<String> ATTRIBUTE_FRIENDLY_NAMES_MAPPER = (rs, i) -> rs.getString("friendly_name");
+
 	static class SingleBeanAttributeRowMapper<T extends PerunBean> extends AttributeRowMapper<T, T> {
 		SingleBeanAttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, T attributeHolder) {
 			super(sess, attributesManagerImpl, attributeHolder, null);
@@ -4182,6 +4184,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+	}
+
+	@Override
+	public List<String> getAllNamespaces(PerunSession sess) {
+		return jdbc.query("SELECT friendly_name FROM attr_names WHERE friendly_name LIKE 'login-namespace:%%' AND friendly_name NOT LIKE '%%persistent%%'", ATTRIBUTE_FRIENDLY_NAMES_MAPPER);
 	}
 
 	/**

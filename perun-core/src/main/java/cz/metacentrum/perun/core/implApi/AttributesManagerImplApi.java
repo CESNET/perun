@@ -2789,4 +2789,11 @@ public interface AttributesManagerImplApi {
 	 */
 	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException;
 
+	/**
+	 * Returns list of all possible namespaces.
+	 *
+	 * @param sess session
+	 * @return list of namespaces
+	 */
+	List<String> getAllNamespaces(PerunSession sess);
 }

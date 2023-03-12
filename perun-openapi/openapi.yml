@@ -7754,6 +7754,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getAllNamespaces:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAllNamespaces
+      summary: Returns list of all possible namespaces.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # AuditMessagesManager                          #
@@ -9933,6 +9945,27 @@ paths:
       parameters:
         - { name: "logins[]", schema: { type: array, items: { type: string } }, in: query, required: false, description: "list of logins to be blocked" }
         - { name: namespace, schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/unblockLoginsById:
+    post:
+      tags:
+        - UsersManager
+      operationId: unblockLoginsById
+      summary: Unblock logins by id
+      parameters:
+        - name: logins[]
+          description: "list of login ids to be unblocked"
+          schema:
+            type: array
+            items:
+              type: integer
+          in: query
+          required: true
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

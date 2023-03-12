@@ -1190,6 +1190,19 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
+	@Override
+	public void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws LoginIsNotBlockedException {
+		for (Integer id : loginIds) {
+			getUsersManagerImpl().getBlockedLoginById(sess, id);
+		}
+		getUsersManagerImpl().unblockLoginsById(sess, loginIds);
+	}
+
+	@Override
+	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
+		return getUsersManagerImpl().getIdOfBlockedLogin(sess, login, namespace);
+	}
+
 	/**
 	 * Gets the usersManagerImpl for this instance.
 	 *
