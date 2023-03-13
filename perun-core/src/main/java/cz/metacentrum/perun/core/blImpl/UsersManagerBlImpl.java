@@ -17,6 +17,8 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -1201,6 +1203,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
 		return getUsersManagerImpl().getIdOfBlockedLogin(sess, login, namespace);
+	}
+
+	@Override
+	public Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) {
+		return getUsersManagerImpl().getBlockedLoginsPage(sess, query);
 	}
 
 	/**

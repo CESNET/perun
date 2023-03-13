@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -1199,6 +1200,21 @@ public enum UsersManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
+
+	/**
+	 * Get a page of blocked logins
+	 *
+	 * @param query BlockedLoginsPageQuery
+	 * @return page of blocked logins based on the query
+	 */
+	getBlockedLoginsPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getUsersManager().getBlockedLoginsPage(ac.getSession(),
+				params.read("query", BlockedLoginsPageQuery.class));
+		}
+	},
+
 
 	/*#
 	 * Returns users by their IDs.

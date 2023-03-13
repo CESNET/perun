@@ -7,6 +7,9 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsOrderColumn;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ConsentStatus;
@@ -888,6 +891,85 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), "dummy");
 		// shouldn't block already used login
+	}
+
+	@Test
+	public void getBlockedLoginsPage_all() throws Exception {
+		System.out.println(CLASS_NAME + "getBlockedLoginsPage_all");
+
+		String login = "login1";
+		String login2 = "login2";
+		String namespace = "namespace";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login2), null);
+
+		BlockedLoginsPageQuery query = new BlockedLoginsPageQuery(10, 0, SortingOrder.ASCENDING, BlockedLoginsOrderColumn.LOGIN);
+
+		Paginated<BlockedLogin> blockedLogins = usersManager.getBlockedLoginsPage(sess, query);
+		assertNotNull(blockedLogins);
+		assertEquals(2, blockedLogins.getData().size());
+		assertEquals(blockedLogins.getData().get(0), new BlockedLogin(login, namespace));
+		assertEquals(blockedLogins.getData().get(1), new BlockedLogin(login2, null));
+	}
+
+	@Test
+	public void getBlockedLoginPage_searchString() throws Exception {
+		System.out.println(CLASS_NAME + "getBlockedLoginPage_searchString");
+
+		String login = "login";
+		String login2 = "other";
+		String namespace = "namespace";
+
+		perun.getUsersManager().blockLogins(sess, List.of(login, login2), namespace);
+
+		BlockedLoginsPageQuery query = new BlockedLoginsPageQuery(10, 0, SortingOrder.ASCENDING, BlockedLoginsOrderColumn.LOGIN, "login");
+
+		Paginated<BlockedLogin> blockedLogins = usersManager.getBlockedLoginsPage(sess, query);
+		assertNotNull(blockedLogins);
+		assertEquals(1, blockedLogins.getData().size());
+		assertEquals(blockedLogins.getData(), Collections.singletonList(new BlockedLogin(login, namespace)));
+	}
+
+	@Test
+	public void getBlockedLoginPage_filterByNamespace() throws Exception {
+		System.out.println(CLASS_NAME + "getBlockedLoginPage_filterByNamespace");
+
+		String login = "login1";
+		String login2 = "login2";
+		String namespace = "namespace";
+		String namespace2 = "other";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login2), namespace2);
+
+		BlockedLoginsPageQuery query = new BlockedLoginsPageQuery(10, 0, SortingOrder.ASCENDING, BlockedLoginsOrderColumn.NAMESPACE, Collections.singletonList(namespace));
+
+		Paginated<BlockedLogin> blockedLogins = usersManager.getBlockedLoginsPage(sess, query);
+		assertNotNull(blockedLogins);
+		assertEquals(1, blockedLogins.getData().size());
+		assertEquals(blockedLogins.getData(), Collections.singletonList(new BlockedLogin(login, namespace)));
+	}
+
+	@Test
+	public void getBlockedLoginPage_orderByNamespace() throws Exception {
+		System.out.println(CLASS_NAME + "getBlockedLoginPage_orderByNamespace");
+
+		String login = "login";
+		String login2 = "login2";
+		String namespace = "second";
+		String namespace2 = "first";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login2), namespace2);
+
+		BlockedLoginsPageQuery query = new BlockedLoginsPageQuery(10, 0, SortingOrder.ASCENDING, BlockedLoginsOrderColumn.NAMESPACE);
+
+		Paginated<BlockedLogin> blockedLogins = usersManager.getBlockedLoginsPage(sess, query);
+		assertNotNull(blockedLogins);
+		assertEquals(2, blockedLogins.getData().size());
+		assertEquals(blockedLogins.getData().get(0), new BlockedLogin(login2, namespace2));
+		assertEquals(blockedLogins.getData().get(1), new BlockedLogin(login, namespace));
 	}
 
 	@Test (expected=UserExtSourceNotExistsException.class)

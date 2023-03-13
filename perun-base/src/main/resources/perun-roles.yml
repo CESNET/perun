@@ -6215,6 +6215,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getBlockedLoginsPage_BlockedLoginsPageQuery_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getUsersWithoutVoAssigned_policy:
     policy_roles:
       - PERUNOBSERVER:
