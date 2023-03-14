@@ -4188,7 +4188,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<String> getAllNamespaces(PerunSession sess) {
-		return jdbc.query("SELECT friendly_name FROM attr_names WHERE friendly_name LIKE 'login-namespace:%%' AND friendly_name NOT LIKE '%%persistent%%'", ATTRIBUTE_FRIENDLY_NAMES_MAPPER);
+		return jdbc.query("SELECT friendly_name FROM attr_names WHERE friendly_name LIKE 'login-namespace:%%' AND attr_name NOT LIKE '%%def:virt%%'", ATTRIBUTE_FRIENDLY_NAMES_MAPPER);
 	}
 
 	/**
