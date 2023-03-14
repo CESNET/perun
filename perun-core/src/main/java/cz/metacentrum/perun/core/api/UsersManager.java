@@ -855,6 +855,15 @@ public interface UsersManager {
 	void unblockLogins(PerunSession sess, List<String> logins, String namespace) throws PrivilegeException, LoginIsNotBlockedException;
 
 	/**
+	 * Unblock logins by id globally, or in the namespace they were initially blocked.
+	 * @param sess session
+	 * @param loginIds list of login ids
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws LoginIsNotBlockedException when login is not blocked
+	 */
+	void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws PrivilegeException, LoginIsNotBlockedException;
+
+	/**
 	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.
 	 *
 	 * @param sess

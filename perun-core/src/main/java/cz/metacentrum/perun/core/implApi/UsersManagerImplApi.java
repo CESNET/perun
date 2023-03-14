@@ -491,6 +491,34 @@ public interface UsersManagerImplApi {
 	void unblockLogin(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
 
 	/**
+	 * Unblock logins by id globally, or in the namespace they were initially blocked.
+	 *
+	 * @param sess session
+	 * @param loginIds list of login ids
+	 */
+	void unblockLoginsById(PerunSession sess, List<Integer> loginIds);
+
+	/**
+	 * Get blocked login by id
+	 *
+	 * @param sess session
+	 * @param id id of blocked login
+	 * @return blocked login - PAIR<login, namespace>
+	 * @throws LoginIsNotBlockedException when login is not blocked
+	 */
+	Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException;
+
+	/**
+	 * Return ID of blocked login
+	 *
+	 * @param sess session
+	 * @param login login
+	 * @param namespace namespace
+	 * @return id of login blocked in specified namespace
+	 */
+	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
+
+	/**
 	 * Check if login in specified namespace exists.
 	 *
 	 * @param sess

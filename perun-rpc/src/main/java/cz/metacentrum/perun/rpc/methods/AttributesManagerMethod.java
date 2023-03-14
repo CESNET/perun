@@ -4126,5 +4126,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		public List<AttributeDefinition> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getAttributesManager().getIdpAttributeDefinitions(ac.getSession());
 		}
+	},
+
+	/*#
+	* Returns list of all possible namespaces
+	*
+	* @param sess session
+	* @return list of namespaces
+	 */
+	getAllNamespaces {
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAttributesManager().getAllNamespaces(ac.getSession());
+		}
 	}
 }

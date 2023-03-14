@@ -334,6 +334,11 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllNamespaces_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
+
   #AuditMessagesManagerEntry
 
   getMessagesByIdAndCount_int_int_policy:
@@ -6202,6 +6207,11 @@ perun_policies:
 
   unblockLogins_List<String>_String_policy:
     policy_roles: []
+    include_policies:
+      - default_policy
+
+  unblockLoginsById_List<Integer>_policy:
+    policy_roles: [ ]
     include_policies:
       - default_policy
 

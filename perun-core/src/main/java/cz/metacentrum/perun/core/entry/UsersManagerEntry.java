@@ -1043,6 +1043,17 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws PrivilegeException, LoginIsNotBlockedException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "unblockLoginsById_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "unblockLoginsById");
+		}
+
+		getUsersManagerBl().unblockLoginsById(sess, loginIds);
+	}
+
+	@Override
 	public List<User> getUsersWithoutVoAssigned(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 

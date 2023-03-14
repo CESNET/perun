@@ -1273,6 +1273,24 @@ public interface UsersManagerBl {
 	 */
 	void unblockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsNotBlockedException;
 
+	/**
+	 * Unblock logins by id globally, or in the namespace they were initially blocked.
+	 * @param sess session
+	 * @param loginIds list of login ids
+	 * @throws LoginIsNotBlockedException when login is not blocked
+	 */
+	void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws LoginIsNotBlockedException;
+
+	/**
+	 * Return ID of blocked login
+	 *
+	 * @param sess session
+	 * @param login login
+	 * @param namespace namespace
+	 * @return id of login blocked in specified namespace
+	 */
+	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
+
 	void checkUserExists(PerunSession sess, User user) throws UserNotExistsException;
 
 	void checkUserExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws UserExtSourceNotExistsException;

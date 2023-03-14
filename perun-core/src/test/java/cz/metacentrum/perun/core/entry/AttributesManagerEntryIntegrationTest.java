@@ -931,6 +931,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getAllNamespaces() throws Exception {
+		System.out.println(CLASS_NAME + "getAllNamespaces");
+
+		String namespaceName = "getAllNamespacesTest";
+
+		Attribute attr = new Attribute();
+		attr.setNamespace("urn:perun:user:attribute-def:def");
+		attr.setFriendlyName("login-namespace:" + namespaceName);
+		attr.setType(String.class.getName());
+		attr.setValue("testLogin");
+		assertNotNull("unable to create attribute",attributesManager.createAttribute(sess, attr));
+
+		List<String> namespaces = perun.getAttributesManager().getAllNamespaces(sess);
+		assertThat(namespaces).contains(namespaceName);
+	}
+
+	@Test
 	public void getAttributes() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributes");
 

@@ -8812,6 +8812,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return BeansUtils.getCoreConfig().getAttributesForUpdate().get(ExtSourcesManager.EXTSOURCE_IDP).stream().distinct().toList();
 	}
 
+	@Override
+	public List<String> getAllNamespaces(PerunSession sess) {
+		return getAttributesManagerImpl().getAllNamespaces(sess).stream().map(friendlyName -> friendlyName.split(":", 2)[1]).sorted().toList();
+	}
+
 	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------
 	// These methods get one or two Perun Beans and return list of richAttributes
 	// of specific type defined by name of method which actually exists in Perun

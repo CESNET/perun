@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
@@ -1177,6 +1178,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 			ac.getUsersManager().unblockLogins(ac.getSession(),
 				parms.readList("logins", String.class),
 				parms.contains("namespace") ? parms.readString("namespace") : null);
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Unblock logins by id
+	 *
+	 * @param logins List<Integer> logins <code>id</code>
+	 * @throw LoginIsNotBlockedException When some login is not blocked
+	 */
+	unblockLoginsById {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getUsersManager().unblockLoginsById(ac.getSession(), parms.readList("logins", Integer.class));
 
 			return null;
 		}
