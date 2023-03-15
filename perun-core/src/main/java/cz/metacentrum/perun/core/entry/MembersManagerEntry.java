@@ -68,6 +68,7 @@ import cz.metacentrum.perun.core.api.SponsoredUserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -1458,6 +1459,31 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 	}
+
+	@Override
+	public void copySponsoredMembers(PerunSession session, List<Member> sponsored, User copyFrom, User copyTo, boolean copyValidity, LocalDate validityTo) throws SponsorshipDoesNotExistException, UserNotInRoleException, PrivilegeException, MemberNotSponsoredException {
+		for (Member member : sponsored) {
+			MemberWithSponsors mws = convertMemberToMemberWithSponsors(session, membersManagerBl.getRichMember(session, member));
+			if (copyValidity) {
+				Optional<Sponsor> fromSponsor = mws.getSponsors().stream().filter((sponsor1 -> sponsor1.getUser().equals(copyFrom))).findAny();
+				if (fromSponsor.isEmpty()) {
+					throw new SponsorshipDoesNotExistException(member, copyFrom);
+				}
+				try {
+					sponsorMember(session, member, copyTo, fromSponsor.get().getValidityTo());
+				} catch (AlreadySponsorException ex) {
+					// skip members already sponsored by the destination sponsor
+				}
+			} else {
+				try {
+					sponsorMember(session, member, copyTo, validityTo);
+				} catch (AlreadySponsorException ex) {
+					// skip members already sponsored by the destination sponsor
+				}
+			}
+		}
+	}
+
 
 	@Override
 	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames) throws AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {

@@ -10984,6 +10984,24 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/copySponsoredMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: copySponsoredMembers
+      summary: Copy sponsored members from one user to another. If copyValidity tag is present, set validity of new sponsorships to the copied from value
+      parameters:
+        - $ref: '#/components/parameters/memberIds'
+        - { name: copyFrom, schema: { type: integer }, in: query, description: "id of source sponsor", required: true }
+        - { name: copyTo, schema: { type: integer }, in: query, description: "id of target sponsor", required: true }
+        - { name: copyValidity, schema: { type: boolean }, in: query, description: "whether to copy validity", required: true }
+        - $ref: '#/components/parameters/optionalValidityTo'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/membersManager/moveMembership:
     post:
       tags:
