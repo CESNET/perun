@@ -934,17 +934,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void getAllNamespaces() throws Exception {
 		System.out.println(CLASS_NAME + "getAllNamespaces");
 
-		String namespaceName = "getAllNamespacesTest";
+		String namespaceDef = "namespacesTestDef";
+		String namespaceVirt = "namespacesTestVirt";
 
-		Attribute attr = new Attribute();
-		attr.setNamespace("urn:perun:user:attribute-def:def");
-		attr.setFriendlyName("login-namespace:" + namespaceName);
-		attr.setType(String.class.getName());
-		attr.setValue("testLogin");
-		assertNotNull("unable to create attribute",attributesManager.createAttribute(sess, attr));
+		Attribute attr1 = new Attribute();
+		attr1.setNamespace("urn:perun:user:attribute-def:def");
+		attr1.setFriendlyName("login-namespace:" + namespaceDef);
+		attr1.setType(String.class.getName());
+		attr1.setValue("testLogin1");
+		assertNotNull("unable to create attribute",attributesManager.createAttribute(sess, attr1));
+
+		Attribute attr2 = new Attribute();
+		attr2.setNamespace("urn:perun:user:attribute-def:virt");
+		attr2.setFriendlyName("login-namespace:" + namespaceVirt);
+		attr2.setType(String.class.getName());
+		attr2.setValue("testLogin2");
+		assertNotNull("unable to create attribute",attributesManager.createAttribute(sess, attr2));
 
 		List<String> namespaces = perun.getAttributesManager().getAllNamespaces(sess);
-		assertThat(namespaces).contains(namespaceName);
+		assertTrue(namespaces.contains(namespaceDef));
+		assertFalse(namespaces.contains(namespaceVirt));
 	}
 
 	@Test
