@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Role;
@@ -1344,8 +1345,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test
-	public void testGetHashedDataWithGroups() throws Exception {
-		System.out.println(CLASS_NAME + "testGetHashedDataWithGroups");
+	public void getHashedDataWithGroups() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedDataWithGroups");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -1457,8 +1458,91 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test
-	public void testGetHashedHierarchicalData() throws Exception {
-		System.out.println(CLASS_NAME + "testGetHashedHierarchicalData");
+	public void getHashedDataWithGroupsWithoutExpiredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedDataWithGroupsWithoutExpiredMembers");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		Member expiredMember = setUpMember();
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getGroupsManager().addMember(sess, group, expiredMember);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+
+		// expire member
+		perun.getGroupsManager().setMemberGroupStatus(sess, expiredMember, group, MemberGroupStatus.EXPIRED);
+
+		// set member's id as required attribute
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		HashedGenData data = perun.getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, false);
+		assertThat(data.getAttributes()).isNotEmpty();
+
+		Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+		String memberAttrsHash = "m-" + member.getId();
+		String expiredMemberAttrsHash = "m-" + expiredMember.getId();
+
+		// Verify that the list of all attributes contains correct attributes
+		assertThat(attributes).containsOnlyKeys(memberAttrsHash, expiredMemberAttrsHash);
+
+		// set service to not use expired members
+		service.setUseExpiredMembers(false);
+		perun.getServicesManagerBl().updateService(sess, service);
+
+		data = perun.getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, false);
+		assertThat(data.getAttributes()).isNotEmpty();
+
+		attributes = data.getAttributes();
+
+		// Verify that the list of all attributes contains correct attributes
+		assertThat(attributes).containsOnlyKeys(memberAttrsHash);
+
+		Map<String, Object> memberAttributes = attributes.get(memberAttrsHash);
+		assertThat(memberAttributes).hasSize(1);
+		assertThat(memberAttributes.get(A_M_C_ID)).isEqualTo(member.getId());
+
+		// verify hierarchy
+		GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+		assertThat(facilityNode.getMembers()).hasSize(1);
+		assertThat(facilityNode.getMembers()).containsKey(member.getId());
+		assertThat(facilityNode.getChildren()).hasSize(1);
+
+		GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+		assertThat(res1Node.getMembers()).hasSize(1);
+		assertThat(res1Node.getMembers()).containsKey(member.getId());
+		assertThat(res1Node.getChildren()).hasSize(1);
+		assertThat(((GenResourceDataNode)res1Node).getVoId()).isEqualTo(vo.getId());
+
+		GenDataNode res1GroupNode = res1Node.getChildren().get(group.getId());
+		assertThat(res1GroupNode.getChildren()).isEmpty();
+		assertThat(res1GroupNode.getMembers()).hasSize(1);
+		assertThat(res1GroupNode.getMembers()).containsKey(member.getId());
+	}
+
+	@Test(expected = FacilityNotExistsException.class)
+	public void getHashedDataWithGroupsWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedDataWithGroupsWhenFacilityNotExists");
+		perun.getServicesManager().getHashedDataWithGroups(sess, setUpService(), new Facility(), false);
+	}
+
+	@Test(expected = ServiceNotExistsException.class)
+	public void getHashedDataWithGroupsWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedDataWithGroupsWhenServiceNotExists");
+		perun.getServicesManager().getHashedDataWithGroups(sess, new Service(), setUpFacility(), false);
+	}
+
+	@Test
+	public void getHashedHierarchicalData() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedHierarchicalData");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -1554,6 +1638,77 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertThat(res2Node.getMembers()).hasSize(1);
 		assertThat(res2Node.getChildren()).isEmpty();
 		assertThat(res2Node.getMembers()).containsKey(member.getId());
+	}
+
+	@Test
+	public void getHashedHierarchicalDataWithoutExpiredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedHierarchicalDataWithoutExpiredMembers");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		Member expiredMember = setUpMember();
+
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getGroupsManager().addMember(sess, group, expiredMember);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+
+		// expire member
+		perun.getGroupsManager().setMemberGroupStatus(sess, expiredMember, group, MemberGroupStatus.EXPIRED);
+
+		// set member's id as required attribute
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		HashedGenData data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false);
+		assertThat(data.getAttributes()).isNotEmpty();
+
+		Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+		String memberAttrsHash = "m-" + member.getId();
+		String expiredMemberAttrsHash = "m-" + expiredMember.getId();
+
+		// Verify that the list of all attributes contains correct attributes
+		assertThat(attributes).containsOnlyKeys(memberAttrsHash, expiredMemberAttrsHash);
+
+		// set serivce to not use expired members
+		service.setUseExpiredMembers(false);
+		perun.getServicesManagerBl().updateService(sess, service);
+		data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false);
+
+		// verify only active member's attribute are present
+		assertThat(data.getAttributes()).containsOnlyKeys(memberAttrsHash);
+
+		// verify only active member is present
+		GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+		assertThat(facilityNode.getMembers()).hasSize(1);
+		assertThat(facilityNode.getMembers()).containsKey(member.getId());
+		assertThat(facilityNode.getChildren()).hasSize(1);
+
+		GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+		assertThat(res1Node.getMembers().keySet()).hasSize(1);
+		assertThat(res1Node.getMembers()).containsKey(member.getId());
+		assertThat(((GenResourceDataNode)res1Node).getVoId()).isEqualTo(vo.getId());
+		assertThat(res1Node.getChildren()).isEmpty();
+	}
+
+	@Test(expected = FacilityNotExistsException.class)
+	public void getHashedHierarchicalDataWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedHierarchicalDataWhenFacilityNotExists");
+		perun.getServicesManager().getHashedHierarchicalData(sess, setUpService(), new Facility(), false);
+	}
+
+	@Test(expected = ServiceNotExistsException.class)
+	public void getHashedHierarchicalDataWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getHashedHierarchicalDataWhenServiceNotExists");
+		perun.getServicesManager().getHashedHierarchicalData(sess, new Service(), setUpFacility(), false);
 	}
 
 	@Test
