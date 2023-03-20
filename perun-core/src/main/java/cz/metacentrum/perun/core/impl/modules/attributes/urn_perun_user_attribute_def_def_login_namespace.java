@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -85,9 +86,13 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		}
 
 		try {
-			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), userLogin, false);
+			String namespace = attribute.getFriendlyNameParameter();
+			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, namespace, userLogin, false);
+			sess.getPerunBl().getUsersManagerBl().checkBlockedLogins(sess, namespace, userLogin, false);
 		} catch (AlreadyReservedLoginException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null, "Login in specific namespace already reserved.", ex);
+		} catch (LoginIsAlreadyBlockedException ex) {
+			throw new WrongReferenceAttributeValueException(attribute, null, "Login is blocked.", ex);
 		}
 	}
 

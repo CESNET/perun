@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
@@ -34,20 +35,19 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.UsersOrderColumn;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
-import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
-import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -69,10 +69,10 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
@@ -89,6 +89,10 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private final static String URN_ATTR_UES_O = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_O;
 	private final static String URN_ATTR_UES_CN = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_CN;
 
+	private static final String defaultBlockedLogin = "perunEngine";
+	private static final String globallyBlockedLogin = "globalLogin";
+	private static final String namespaceBlockedLogin = "namespaceLogin";
+
 	private User user;           // our User
 	private User serviceUser1;
 	private User serviceUser2;
@@ -102,7 +106,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
 	private UsersManager usersManager;
-
 
 	@Before
 	public void setUp() throws Exception {
@@ -119,7 +122,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		setUpSpecificUser1ForUser(vo);
 		setUpSpecificUser2ForUser(vo);
 		setUpSponsoredUserForVo(vo);
-
 	}
 
 	@Test
@@ -735,13 +737,40 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		String globalLogin = "login";
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
-		boolean isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, globalLogin);
+		boolean isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, globalLogin, false);
+
+		assertTrue(isLoginBlockedGlobally);
+
+		isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, globalLogin.toUpperCase(), false);
+
+		// should be true, even if we should not ignore case because global logins are always case-insensitive
+		assertTrue(isLoginBlockedGlobally);
+
+		String namespaceLogin = "loginNamespace";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceLogin), "namespace");
+		boolean isLoginBlocked = perun.getUsersManager().isLoginBlocked(sess, namespaceLogin, false);
+
+		assertTrue(isLoginBlocked);
+
+		isLoginBlocked = perun.getUsersManager().isLoginBlocked(sess, namespaceLogin.toUpperCase(), false);
+
+		// should be false, if we do NOT ignore case
+		assertFalse(isLoginBlocked);
+	}
+
+	@Test
+	public void isLoginBlockedIgnoreCase() throws Exception {
+		System.out.println(CLASS_NAME + "isLoginBlocked");
+
+		String globalLogin = "login";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
+		boolean isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, globalLogin, false);
 
 		assertTrue(isLoginBlockedGlobally);
 
 		String namespaceLogin = "loginNamespace";
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceLogin), "namespace");
-		isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, namespaceLogin);
+		isLoginBlockedGlobally = perun.getUsersManager().isLoginBlocked(sess, namespaceLogin, false);
 
 		assertTrue(isLoginBlockedGlobally);
 	}
@@ -764,22 +793,64 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void isLoginBlockedGloballyCaseInsensitive() throws Exception {
+		System.out.println(CLASS_NAME + "isLoginBlockedGlobally");
+
+		String globalLogin = "login";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
+		boolean isLoginBlockedGlobally = perun.getUsersManager().isLoginBlockedGlobally(sess, globalLogin.toUpperCase());
+
+		assertTrue(isLoginBlockedGlobally);
+	}
+
+	@Test
 	public void isLoginBlockedForNamespace() throws Exception {
 		System.out.println(CLASS_NAME + "isLoginBlockedForNamespace");
 
 		String globalLogin = "login";
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
-		boolean isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, globalLogin, null);
+		boolean isLoginBlockedGlobally = perun.getUsersManager().isLoginBlockedForNamespace(sess, globalLogin, null, false);
+
+		assertTrue(isLoginBlockedGlobally);
+
+		isLoginBlockedGlobally = perun.getUsersManager().isLoginBlockedForNamespace(sess, globalLogin.toUpperCase(), null, false);
+
+		// should be true, since globally blocked logins are case-insensitive
+		assertTrue(isLoginBlockedGlobally);
+
+		String namespaceLogin = "loginNamespace";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceLogin), "namespace");
+		boolean isLoginBlockedForNamespace = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin, "namespace", false);
+
+		assertTrue(isLoginBlockedForNamespace);
+
+		isLoginBlockedForNamespace = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin.toUpperCase(), "namespace", false);
+
+		// should be false, if we do NOT ignore case
+		assertFalse(isLoginBlockedForNamespace);
+
+		isLoginBlockedForNamespace = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin, "namespace_test", false);
+
+		assertFalse(isLoginBlockedForNamespace);
+	}
+
+	@Test
+	public void isLoginBlockedForNamespaceIgnoreCase() throws Exception {
+		System.out.println(CLASS_NAME + "isLoginBlockedForNamespace");
+
+		String globalLogin = "login";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globalLogin), null);
+		boolean isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, globalLogin.toUpperCase(), null, true);
 
 		assertTrue(isLoginBlocked);
 
 		String namespaceLogin = "loginNamespace";
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceLogin), "namespace");
-		isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin, "namespace");
+		isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin.toUpperCase(), "namespace", true);
 
 		assertTrue(isLoginBlocked);
 
-		isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin, "namespace_test");
+		isLoginBlocked = perun.getUsersManager().isLoginBlockedForNamespace(sess, namespaceLogin.toUpperCase(), "namespace_test", true);
 
 		assertFalse(isLoginBlocked);
 	}
@@ -791,19 +862,19 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		String login = "login";
 		String namespace = "namespace";
 
-		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null));
+		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null, false));
 
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), null);
-		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null));
+		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null, false));
 
 		perun.getUsersManager().unblockLogins(sess, Collections.singletonList(login), null);
-		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null));
+		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null, false));
 
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
-		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace));
+		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace, false));
 
 		perun.getUsersManager().unblockLogins(sess, Collections.singletonList(login), namespace);
-		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace));
+		assertFalse(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace, false));
 	}
 
 	@Test
@@ -862,7 +933,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		String namespace = "namespace";
 
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
-		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace));
+		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, namespace, false));
 
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
 		// shouldn't block already blocked login twice
@@ -2706,6 +2777,56 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			.isEmpty();
 		assertThat(perun.getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, "chars,"))
 			.isEmpty();
+	}
+
+	@Test(expected = LoginIsAlreadyBlockedException.class)
+	public void testCheckBlockedLoginDefault() throws Exception {
+		System.out.println("testCheckBlockedLoginDefault");
+		perun.getUsersManagerBl().checkBlockedLogins(sess, "admin-meta", defaultBlockedLogin, false);
+	}
+
+	@Test(expected = LoginIsAlreadyBlockedException.class)
+	public void testCheckBlockedLoginGlobalCaseInsensitive() throws Exception {
+		System.out.println("testCheckBlockedLoginGlobalCaseInsensitive");
+
+		String namespace = "admin-meta";
+
+		// block login globally
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globallyBlockedLogin), null);
+
+		// check if login in specific namespace can be used (check for globally blocked logins as well)
+		perun.getUsersManagerBl().checkBlockedLogins(sess, namespace, globallyBlockedLogin.toUpperCase(), true);
+	}
+
+	@Test(expected = LoginIsAlreadyBlockedException.class)
+	public void testCheckBlockedLoginGlobal() throws Exception {
+		System.out.println("testCheckBlockedLoginGlobal");
+
+		String namespace = "admin-meta";
+
+		// block login globally
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(globallyBlockedLogin), null);
+
+		// check if login in specific namespace can be used (check for globally blocked logins as well)
+		perun.getUsersManagerBl().checkBlockedLogins(sess, namespace, globallyBlockedLogin, false);
+	}
+
+	@Test(expected = LoginIsAlreadyBlockedException.class)
+	public void testCheckBlockedLoginInNamespaceIgnoreCase() throws Exception {
+		System.out.println("testCheckBlockedLoginInNamespaceIgnoreCase");
+
+		String namespace = "admin-meta";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceBlockedLogin), namespace);
+		perun.getUsersManagerBl().checkBlockedLogins(sess, namespace, namespaceBlockedLogin.toUpperCase(), true);
+	}
+
+	@Test(expected = LoginIsAlreadyBlockedException.class)
+	public void testCheckBlockedLoginInNamespace() throws Exception {
+		System.out.println("testCheckBlockedLoginInNamespace");
+
+		String namespace = "admin-meta";
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceBlockedLogin), namespace);
+		perun.getUsersManagerBl().checkBlockedLogins(sess, namespace, namespaceBlockedLogin, false);
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

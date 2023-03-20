@@ -987,14 +987,14 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public boolean isLoginBlocked(PerunSession sess, String login) throws PrivilegeException {
+	public boolean isLoginBlocked(PerunSession sess, String login, boolean ignoreCase) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		if (!AuthzResolver.authorizedInternal(sess, "isLoginBlocked_String_policy")) {
 			throw new PrivilegeException(sess, "isLoginBlocked");
 		}
 
-		return getUsersManagerBl().isLoginBlocked(sess, login);
+		return getUsersManagerBl().isLoginBlocked(sess, login, ignoreCase);
 	}
 
 	@Override
@@ -1010,14 +1010,14 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace) throws PrivilegeException {
+	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace, boolean ignoreCase) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		if (!AuthzResolver.authorizedInternal(sess, "isLoginBlockedForNamespace_String_String_policy")) {
 			throw new PrivilegeException(sess, "isLoginBlockedForNamespace");
 		}
 
-		return getUsersManagerBl().isLoginBlockedForNamespace(sess, login, namespace);
+		return getUsersManagerBl().isLoginBlockedForNamespace(sess, login, namespace, ignoreCase);
 	}
 
 	@Override

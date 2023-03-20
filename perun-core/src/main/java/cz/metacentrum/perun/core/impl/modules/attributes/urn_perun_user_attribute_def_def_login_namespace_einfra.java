@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -48,8 +49,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfra extends urn
 	 */
 	@Override
 	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
+		String userLogin = attribute.valueAsString();
+		if (userLogin == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
 
 		boolean ignoreCase = !allowCaseIgnoreCollision(attribute.getValue().toString());
 
@@ -63,9 +64,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfra extends urn
 		}
 
 		try {
-			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), attribute.valueAsString(), ignoreCase);
+			String namespace = attribute.getFriendlyNameParameter();
+			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, namespace, userLogin, ignoreCase);
+			sess.getPerunBl().getUsersManagerBl().checkBlockedLogins(sess, namespace, userLogin, ignoreCase);
 		} catch (AlreadyReservedLoginException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null, "Login in specific namespace already reserved.", ex);
+		} catch (LoginIsAlreadyBlockedException ex) {
+			throw new WrongReferenceAttributeValueException(attribute, null, "Login is blocked.", ex);
 		}
 	}
 }
