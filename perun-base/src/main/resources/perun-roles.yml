@@ -8460,6 +8460,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - SPONSOR: Vo
     associated_read_roles: []
     assignable_to_attributes: true
     display_name: "Sponsor"
