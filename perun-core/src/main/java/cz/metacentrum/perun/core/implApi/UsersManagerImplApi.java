@@ -484,9 +484,10 @@ public interface UsersManagerImplApi {
 	 * @param sess
 	 * @param login login to be blocked
 	 * @param namespace namespace where the login should be blocked (null means block the login globally)
+	 * @param relatedUserId id of the user related to the login or null if the relatedUserId should not be stored
 	 * @throws LoginIsAlreadyBlockedException
 	 */
-	void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException;
+	void blockLogin(PerunSession sess, String login, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException;
 
 	/**
 	 * Unblock login for given namespace or unblock login globally (if no namespace is selected)
@@ -524,6 +525,16 @@ public interface UsersManagerImplApi {
 	 * @return id of login blocked in specified namespace
 	 */
 	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
+
+	/**
+	 * Get user id of the user who was related to the given login in the past
+	 *
+	 * @param sess session
+	 * @param login blocked login
+	 * @param namespace namespace where the login is blocked
+	 * @return user id or null if there is no related user id
+	 */
+	Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
 
 	/**
 	 * Get page of blocked logins.

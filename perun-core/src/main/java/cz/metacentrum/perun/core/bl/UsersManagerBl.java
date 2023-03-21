@@ -1279,10 +1279,11 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param logins list of logins to be blocked
 	 * @param namespace namespace where the logins should be blocked (null means block the logins globally)
+	 * @param relatedUserId id of the user related to the login or null if the relatedUserId should not be stored
 	 * @throws LoginIsAlreadyBlockedException
 	 * @throws LoginExistsException
 	 */
-	void blockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsAlreadyBlockedException, LoginExistsException;
+	void blockLogins(PerunSession sess, List<String> logins, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException, LoginExistsException;
 
 	/**
 	 * Get page of blocked logins.
@@ -1319,6 +1320,16 @@ public interface UsersManagerBl {
 	 * @return id of login blocked in specified namespace
 	 */
 	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
+
+	/**
+	 * Get user id of the user who was related to the given login in the past
+	 *
+	 * @param sess session
+	 * @param login blocked login
+	 * @param namespace namespace where the login is blocked
+	 * @return user id or null if there is no related user id
+	 */
+	Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
 
 	void checkUserExists(PerunSession sess, User user) throws UserNotExistsException;
 

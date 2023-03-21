@@ -1030,7 +1030,7 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "blockLogins");
 		}
 
-		getUsersManagerBl().blockLogins(sess, logins, namespace);
+		getUsersManagerBl().blockLogins(sess, logins, namespace, null);
 	}
 
 	@Override
@@ -1063,6 +1063,11 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		getUsersManagerBl().unblockLoginsById(sess, loginIds);
+	}
+
+	@Override
+	public Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		return getUsersManagerBl().getRelatedUserIdByBlockedLoginInNamespace(sess, login, namespace);
 	}
 
 	@Override

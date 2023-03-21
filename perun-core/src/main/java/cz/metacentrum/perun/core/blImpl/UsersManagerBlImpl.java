@@ -489,6 +489,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException {
+		if (BeansUtils.getCoreConfig().getUserDeletionForced() && anonymizeInstead) {
+			throw new UnsupportedOperationException("It is not allowed to anonymize users on this instance. You should use deleteUser() method instead.");
+		}
+		if (!BeansUtils.getCoreConfig().getUserDeletionForced() && !anonymizeInstead) {
+			throw new UnsupportedOperationException("It is not allowed to delete users on this instance. You should use anonymizeUser() method instead.");
+		}
+
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -599,7 +606,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					}
 				}
 			} else {
+				// Store login attributes for the further blocking of these logins
+				List<Attribute> userLoginAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user).stream().filter(attr -> Objects.equals(attr.getBaseFriendlyName(), "login-namespace")).toList();
+				// Remove all attributes
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, user);
+
+				// Block currently removed logins
+				for (Attribute loginAttr : userLoginAttributes) {
+					try {
+						blockLogins(sess, Collections.singletonList(loginAttr.valueAsString()), loginAttr.getFriendlyNameParameter(), user.getId());
+					} catch (LoginIsAlreadyBlockedException ex) {
+						throw new WrongReferenceAttributeValueException(loginAttr, null, "Login is blocked.", ex);
+					} catch (LoginExistsException ex) {
+						// this should not happen because all logins are deleted in the previous step before the blockLogin() method is called
+					}
+				}
 			}
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException ex) {
 			//All members are deleted => there are no required attributes => all attributes can be removed
@@ -1176,12 +1197,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void blockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsAlreadyBlockedException, LoginExistsException {
+	public void blockLogins(PerunSession sess, List<String> logins, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException, LoginExistsException {
 		for (String login : logins) {
 			if (getPerunBl().getAttributesManagerBl().isLoginAlreadyUsed(sess, login, namespace)) {
 				throw new LoginExistsException("Login: " + login + " is already in use.");
 			}
-			getUsersManagerImpl().blockLogin(sess, login, namespace);
+			getUsersManagerImpl().blockLogin(sess, login, namespace, relatedUserId);
 		}
 	}
 
@@ -1203,6 +1224,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
 		return getUsersManagerImpl().getIdOfBlockedLogin(sess, login, namespace);
+	}
+
+	@Override
+	public Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		return getUsersManagerImpl().getRelatedUserIdByBlockedLoginInNamespace(sess, login, namespace);
 	}
 
 	@Override

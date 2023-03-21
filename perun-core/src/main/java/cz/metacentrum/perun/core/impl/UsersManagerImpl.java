@@ -1244,13 +1244,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     }
 
 	@Override
-	public void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException {
+	public void blockLogin(PerunSession sess, String login, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException {
 		Utils.notNull(login, "userLogin");
 
 		try {
 			int newId = Utils.getNewId(jdbc, "blocked_logins_id_seq");
-			jdbc.update("insert into blocked_logins(id, login, namespace) values (?,?,?)",
-				newId, login, namespace);
+			jdbc.update("insert into blocked_logins(id, login, namespace, related_user_id) values (?,?,?,?)",
+				newId, login, namespace, relatedUserId);
 			if (namespace == null) {
 				log.info("Login {} globally blocked", login);
 			} else {
@@ -1365,6 +1365,21 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		try {
+			if (namespace == null) {
+				return jdbc.queryForObject("SELECT related_user_id FROM blocked_logins WHERE login=? AND namespace IS NULL", Integer.class, login);
+			} else {
+				return jdbc.queryForObject("SELECT related_user_id FROM blocked_logins WHERE login=? AND namespace=?", Integer.class, login, namespace);
+			}
+		} catch(EmptyResultDataAccessException ex) {
+			throw new LoginIsNotBlockedException(ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
