@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -522,6 +524,15 @@ public interface UsersManagerImplApi {
 	 * @return id of login blocked in specified namespace
 	 */
 	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
+
+	/**
+	 * Get page of blocked logins.
+	 *
+	 * @param sess session
+	 * @param query query with page information
+	 * @return page of requested blocked logins
+	 */
+	Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query);
 
 	/**
 	 * Check if login in specified namespace exists.

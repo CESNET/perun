@@ -869,6 +869,16 @@ public interface UsersManager {
 	void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws PrivilegeException, LoginIsNotBlockedException;
 
 	/**
+	 * Get page of blocked logins.
+	 *
+	 * @param sess session
+	 * @param query query with page information
+	 * @return page of requested blocked logins
+	 */
+	Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) throws PrivilegeException;
+
+
+	/**
 	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.
 	 *
 	 * @param sess

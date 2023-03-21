@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -182,12 +184,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             return result;
         };
 
-	public static final RowMapper<Pair<String, String>> BLOCKED_LOGINS_MAPPER = new RowMapper<Pair<String, String>>() {
+	public static final RowMapper<Pair<String, String>> LOGIN_NAMESPACE_PAIR_MAPPER = new RowMapper<Pair<String, String>>() {
 		@Override
 		public Pair<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
 			String login = rs.getString("login");
 			String namespace = rs.getString("namespace");
 			return new Pair<>(login, namespace);
+		}
+	};
+
+	public static final RowMapper<BlockedLogin> BLOCKED_LOGINS_MAPPER = new RowMapper<BlockedLogin>() {
+		@Override
+		public BlockedLogin mapRow(ResultSet rs, int rowNum) throws SQLException {
+			int id = rs.getInt("id");
+			String login = rs.getString("login");
+			String namespace = rs.getString("namespace");
+			return new BlockedLogin(id, login, namespace);
 		}
 	};
 
@@ -209,6 +221,26 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				row++;
 			}
 			return new Paginated<>(users, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
+
+	/**
+	 * Extractor for paginated blocked logins
+	 *
+	 * @param query for blocked logins
+	 * @return extractor to extract login, namespace pair
+	 */
+	private static ResultSetExtractor<Paginated<BlockedLogin>> getPaginatedBlockedLoginsExtractor(BlockedLoginsPageQuery query) {
+		return resultSet -> {
+			List<BlockedLogin> blockedLogins = new ArrayList<>();
+			int total_count = 0;
+			int row = 0;
+			while (resultSet.next()) {
+				total_count = resultSet.getInt("total_count");
+				blockedLogins.add(BLOCKED_LOGINS_MAPPER.mapRow(resultSet, row));
+				row++;
+			}
+			return new Paginated<>(blockedLogins, query.getOffset(), query.getPageSize(), total_count);
 		};
 	}
 
@@ -1160,7 +1192,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
 		try {
-			return jdbc.query("select login, namespace from blocked_logins", BLOCKED_LOGINS_MAPPER);
+			return jdbc.query("select login, namespace from blocked_logins", LOGIN_NAMESPACE_PAIR_MAPPER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1258,6 +1290,50 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) {
+		try {
+			MapSqlParameterSource namedParams = new MapSqlParameterSource();
+			namedParams.addValue("login", query.getSearchString());
+			namedParams.addValue("namespaces", query.getNamespaces());
+			namedParams.addValue("offset", query.getOffset());
+			namedParams.addValue("limit", query.getPageSize());
+
+			String sqlQuery = "SELECT id, login, namespace, count(*) OVER() AS total_count FROM blocked_logins";
+
+			boolean hasSearchString = query.getSearchString() != null && !query.getSearchString().isEmpty();
+			boolean hasNamespaces = query.getNamespaces() != null && !query.getNamespaces().isEmpty();
+			if (hasSearchString || hasNamespaces) {
+				sqlQuery += " WHERE";
+				if (hasSearchString) {
+					sqlQuery += " login like (:login)";
+				}
+
+				if (hasSearchString && hasNamespaces) {
+					sqlQuery += " AND";
+				}
+
+				if (hasNamespaces) {
+					sqlQuery += " (";
+					if (query.getNamespaces().contains(null)) {
+						sqlQuery += "namespace IS NULL OR";
+					}
+					sqlQuery += " namespace IN (:namespaces)";
+					sqlQuery += ")";
+				}
+			}
+
+			sqlQuery += " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +  " OFFSET (:offset) LIMIT (:limit);";
+
+			return namedParameterJdbcTemplate.query(
+				sqlQuery,
+				namedParams,
+				getPaginatedBlockedLoginsExtractor(query));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public void unblockLoginsById(PerunSession sess, List<Integer> loginIds) {
 		try {
 			MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1271,7 +1347,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
 		try {
-			return jdbc.queryForObject("SELECT login, namespace FROM blocked_logins WHERE id=?", BLOCKED_LOGINS_MAPPER, id);
+			return jdbc.queryForObject("SELECT login, namespace FROM blocked_logins WHERE id=?", LOGIN_NAMESPACE_PAIR_MAPPER, id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new LoginIsNotBlockedException(ex);
 		} catch (RuntimeException ex) {

@@ -281,6 +281,44 @@ components:
         - order
         - sortColumn
 
+    BlockedLogin:
+      description: represent a login block for namespace (or globally)
+      properties:
+        id: {type: integer }
+        login: { type: string }
+        namespace: { type: string }
+
+    PaginatedBlockedLogins:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/BlockedLogin' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    BlockedLoginsOrderColumn:
+      type: string
+      enum:
+        - LOGIN
+        - NAMESPACE
+
+    BlockedLoginsPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+        sortColumn: { $ref: '#/components/schemas/BlockedLoginsOrderColumn' }
+        namespaces: { type: array, items: { type: string } }
+        searchString: { type: string }
+      required:
+        - pageSize
+        - offset
+        - order
+        - sortColumn
 
     UserExtSource:
       description: represents specific user authentication or identification in external source of data
@@ -2654,6 +2692,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Consent"
+
+    PaginatedBlockedLoginsResponse:
+      description: "returns Paginated<BlockedLogin>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedBlockedLogins"
 
 
 
@@ -9971,6 +10016,30 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getBlockedLoginsPage:
+    post:
+      tags:
+        - UsersManager
+      operationId: getBlockedLoginsPage
+      summary: Get page of blocked logins.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedBlockedLoginsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedBlockedLogins
+              description: "input to getBlockedLoginsPage"
+              type: object
+              required:
+                - query
+              properties:
+                query: { $ref: '#/components/schemas/BlockedLoginsPageQuery' }
 
   /urlinjsonout/usersManager/reserveRandomPassword:
     post:

@@ -6,6 +6,8 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -1040,6 +1042,16 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		getUsersManagerBl().unblockLogins(sess, logins, namespace);
+	}
+    @Override
+	public Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getBlockedLoginsPage_BlockedLoginsPageQuery_policy")) {
+			throw new PrivilegeException(sess, "getBlockedLoginsPage");
+		}
+
+		return getUsersManagerBl().getBlockedLoginsPage(sess, query);
 	}
 
 	@Override

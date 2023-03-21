@@ -1,8 +1,11 @@
 package cz.metacentrum.perun.core.bl;
 
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -1280,6 +1283,15 @@ public interface UsersManagerBl {
 	 * @throws LoginExistsException
 	 */
 	void blockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsAlreadyBlockedException, LoginExistsException;
+
+	/**
+	 * Get page of blocked logins.
+	 *
+	 * @param sess session
+	 * @param query query with page information
+	 * @return page of requested blocked logins
+	 */
+	Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query);
 
 	/**
 	 * Unblock logins for given namespace or unblock logins globally (if no namespace is selected)
