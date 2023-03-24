@@ -157,7 +157,7 @@ public class Api extends HttpServlet {
 			if (proxyIdPs.contains(shibIdentityProvider)) {
 				return sourceIdpEntityId;
 			} else {
-				log.warn("sourceIdPEntityID attrribute found with value " + sourceIdpEntityId +
+				log.warn("sourceIdPEntityID attribute found with value " + sourceIdpEntityId +
 						" in request but IdP with entityID: '" + shibIdentityProvider +
 						"' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
 						". serving classical entityID instead of sourceIdPEntityID.");
