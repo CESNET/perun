@@ -1,4 +1,4 @@
--- database version 3.2.11 (don't forget to update insert statement at the end of file)
+-- database version 3.2.12 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -663,6 +663,18 @@ create table application_reserved_logins (
 											  modified_by_uid integer,
 											  constraint app_logins_pk primary key(login, namespace),
 											  constraint applogin_userid_fk foreign key(user_id) references users(id)
+);
+
+-- BLOCKED_LOGINS - logins blocked for reservation or setting
+create table blocked_logins (
+								id integer not null,
+								login varchar not null,		--login
+								namespace varchar,			--namespace where login is blocked
+								created_at timestamp default statement_timestamp() not null,
+								created_by_uid integer,
+								modified_by_uid integer,
+								constraint blocked_logins_pk primary key(id),
+								constraint blocked_logins_u unique (login, namespace)
 );
 
 -- FACILITY_SERVICE_DESTINATIONS - destinations of services assigned to the facility
@@ -1712,6 +1724,7 @@ create sequence "resources_bans_id_seq";
 create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
 create sequence "consents_id_seq";
+create sequence "blocked_logins_id_seq";
 
 
 create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(parent_group_id,'0'));
@@ -1882,7 +1895,7 @@ create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.11');
+insert into configurations values ('DATABASE VERSION','3.2.12');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

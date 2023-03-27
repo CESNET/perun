@@ -17,6 +17,8 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Consent;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -51,6 +53,9 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordChangeFailedException;
@@ -1149,6 +1154,62 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 	}
+
+	@Override
+	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+		return getUsersManagerImpl().getAllBlockedLoginsInNamespaces(sess);
+	}
+
+	@Override
+	public boolean isLoginBlocked(PerunSession sess, String login, boolean ignoreCase) {
+		return getUsersManagerImpl().isLoginBlocked(sess, login, ignoreCase);
+	}
+
+	@Override
+	public boolean isLoginBlockedGlobally(PerunSession sess, String login) {
+		return getUsersManagerImpl().isLoginBlockedGlobally(sess, login);
+	}
+
+	@Override
+	public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace, boolean ignoreCase) {
+		return getUsersManagerImpl().isLoginBlockedForNamespace(sess, login, namespace, ignoreCase);
+	}
+
+	@Override
+	public void blockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsAlreadyBlockedException, LoginExistsException {
+		for (String login : logins) {
+			if (getPerunBl().getAttributesManagerBl().isLoginAlreadyUsed(sess, login, namespace)) {
+				throw new LoginExistsException("Login: " + login + " is already in use.");
+			}
+			getUsersManagerImpl().blockLogin(sess, login, namespace);
+		}
+	}
+
+	@Override
+	public void unblockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsNotBlockedException {
+		for (String login : logins) {
+			getUsersManagerImpl().unblockLogin(sess, login, namespace);
+		}
+	}
+
+	@Override
+	public void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws LoginIsNotBlockedException {
+		for (Integer id : loginIds) {
+			getUsersManagerImpl().getBlockedLoginById(sess, id);
+		}
+		getUsersManagerImpl().unblockLoginsById(sess, loginIds);
+	}
+
+	@Override
+	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
+		return getUsersManagerImpl().getIdOfBlockedLogin(sess, login, namespace);
+	}
+
+	@Override
+	public Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) {
+		return getUsersManagerImpl().getBlockedLoginsPage(sess, query);
+	}
+
 	/**
 	 * Gets the usersManagerImpl for this instance.
 	 *
@@ -1176,6 +1237,25 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public void checkReservedLogins(PerunSession sess, String namespace, String login, boolean ignoreCase) throws AlreadyReservedLoginException {
 		getUsersManagerImpl().checkReservedLogins(sess, namespace, login, ignoreCase);
+	}
+
+	@Override
+	public void checkBlockedLogins(PerunSession sess, String namespace, final String userLogin, boolean ignoreCase) throws LoginIsAlreadyBlockedException {
+
+		// CoreConfig roles are case-sensitive
+		if (BeansUtils.getCoreConfig().getBlockedLogins().contains(userLogin)) {
+			throw new LoginIsAlreadyBlockedException("Login " + userLogin + " is blocked by default.");
+		}
+
+		// namespaces can have both case-sensitive and case-insensitive login check,
+		// so we use case-insensitive one for global logins to cover all possibilities (from namespaces)
+		if (isLoginBlockedGlobally(sess, userLogin)) {
+			throw new LoginIsAlreadyBlockedException("Login " + userLogin + " is blocked globally.");
+		}
+
+		if (namespace != null && !namespace.equals("") && isLoginBlockedForNamespace(sess, userLogin, namespace, ignoreCase)) {
+			throw new LoginIsAlreadyBlockedException("Login " + userLogin + " is blocked for " + namespace + " namespace.");
+		}
 	}
 
 	@Override

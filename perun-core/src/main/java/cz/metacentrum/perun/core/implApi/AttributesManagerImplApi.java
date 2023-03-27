@@ -487,6 +487,16 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames);
 
 	/**
+	 * Check if the login is already in use for some namespace or globally
+	 *
+	 * @param sess perun session
+	 * @param login login to be checked
+	 * @param namespace login can be checked for given namespace or globally, if namespace is null
+	 * @return true if login is already in use
+	 */
+	boolean isLoginAlreadyUsed(PerunSession sess, String login, String namespace);
+
+	/**
 	 * Get all virtual attributes associated with the user.
 	 *
 	 * @param sess perun session
@@ -2779,4 +2789,11 @@ public interface AttributesManagerImplApi {
 	 */
 	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException;
 
+	/**
+	 * Returns list of all possible namespaces.
+	 *
+	 * @param sess session
+	 * @return list of namespaces
+	 */
+	List<String> getAllNamespaces(PerunSession sess);
 }

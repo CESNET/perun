@@ -4663,6 +4663,18 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attributesManagerBl.getIdpAttributeDefinitions(sess);
 	}
 
+	@Override
+	public List<String> getAllNamespaces(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAllNamespaces_policy")) {
+			throw new PrivilegeException("getAllNamespaces");
+		}
+
+		return attributesManagerBl.getAllNamespaces(sess);
+	}
+
 	public PerunBl getPerunBl() {
 		return this.perunBl;
 	}

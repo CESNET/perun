@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -27,6 +29,8 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedExcep
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 
@@ -431,6 +435,104 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	boolean isLoginReserved(PerunSession sess, String namespace, String login, boolean ignoreCase);
+
+	/**
+	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 *
+	 * @param sess
+	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 */
+	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess);
+
+	/**
+	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not.
+	 * Globally banned logins are ALWAYS case-insensitive (ignoreCase value is not taken into account for them).
+	 *
+	 * @param sess
+	 * @param login      login to check
+	 * @param ignoreCase
+	 * @return true if login is blocked
+	 */
+	boolean isLoginBlocked(PerunSession sess, String login, boolean ignoreCase);
+
+	/**
+	 * Return true if login is blocked globally (for all namespaces per instance - represented by namespace = null), false if not.
+	 * Globally banned logins are ALWAYS case-insensitive.
+	 *
+	 * @param sess
+	 * @param login login to check
+	 * @return true if login is blocked globally
+	 */
+	boolean isLoginBlockedGlobally(PerunSession sess, String login);
+
+	/**
+	 * Return true if login is blocked for given namespace, false if not
+	 * When the namespace is null, then the method behaves like isLoginBlockedGlobally(), so it checks if the login is blocked globally.
+	 * Globally banned logins are ALWAYS case-insensitive.
+	 *
+	 * @param sess
+	 * @param login      login to check
+	 * @param namespace  namespace for login
+	 * @param ignoreCase
+	 * @return true if login is blocked for given namespace (or globally for null namespace)
+	 */
+	boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace, boolean ignoreCase);
+
+	/**
+	 * Block login for given namespace or block login globally (if no namespace is selected)
+	 *
+	 * @param sess
+	 * @param login login to be blocked
+	 * @param namespace namespace where the login should be blocked (null means block the login globally)
+	 * @throws LoginIsAlreadyBlockedException
+	 */
+	void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException;
+
+	/**
+	 * Unblock login for given namespace or unblock login globally (if no namespace is selected)
+	 * @param sess
+	 * @param login login to be unblocked
+	 * @param namespace namespace where the login should be unblocked (null means unblock the login globally)
+	 * @throws LoginIsNotBlockedException
+	 */
+	void unblockLogin(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
+
+	/**
+	 * Unblock logins by id globally, or in the namespace they were initially blocked.
+	 *
+	 * @param sess session
+	 * @param loginIds list of login ids
+	 */
+	void unblockLoginsById(PerunSession sess, List<Integer> loginIds);
+
+	/**
+	 * Get blocked login by id
+	 *
+	 * @param sess session
+	 * @param id id of blocked login
+	 * @return blocked login - PAIR<login, namespace>
+	 * @throws LoginIsNotBlockedException when login is not blocked
+	 */
+	Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException;
+
+	/**
+	 * Return ID of blocked login
+	 *
+	 * @param sess session
+	 * @param login login
+	 * @param namespace namespace
+	 * @return id of login blocked in specified namespace
+	 */
+	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
+
+	/**
+	 * Get page of blocked logins.
+	 *
+	 * @param sess session
+	 * @param query query with page information
+	 * @return page of requested blocked logins
+	 */
+	Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query);
 
 	/**
 	 * Check if login in specified namespace exists.

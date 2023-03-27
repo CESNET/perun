@@ -318,6 +318,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	private static final RowMapper<String> ATTRIBUTE_NAMES_MAPPER = (rs, i) -> rs.getString("attr_name");
 
+	private static final RowMapper<String> ATTRIBUTE_FRIENDLY_NAMES_MAPPER = (rs, i) -> rs.getString("friendly_name");
+
 	static class SingleBeanAttributeRowMapper<T extends PerunBean> extends AttributeRowMapper<T, T> {
 		SingleBeanAttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, T attributeHolder) {
 			super(sess, attributesManagerImpl, attributeHolder, null);
@@ -1243,6 +1245,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, user));
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public boolean isLoginAlreadyUsed(PerunSession sess, String login, String namespace) {
+		try {
+			String namespaceValue = (namespace == null) ? "%" : namespace;
+			return jdbc.queryForInt(String.format("select count(*) from attr_names as attr join user_attr_values attr_val on attr.id=attr_val.attr_id\n" +
+				"where attr.friendly_name like 'login-namespace:%s' \n" +
+				"    and attr.friendly_name not like '%%persistent%%' \n" +
+				"    and attr_val.attr_value like ?", namespaceValue), login) > 0;
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -4169,6 +4184,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+	}
+
+	@Override
+	public List<String> getAllNamespaces(PerunSession sess) {
+		return jdbc.query("SELECT friendly_name FROM attr_names WHERE friendly_name LIKE 'login-namespace:%%' AND attr_name NOT LIKE '%%def:virt%%'", ATTRIBUTE_FRIENDLY_NAMES_MAPPER);
 	}
 
 	/**

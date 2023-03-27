@@ -654,6 +654,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public boolean isLoginAlreadyUsed(PerunSession sess, String login, String namespace) {
+		return getAttributesManagerImpl().isLoginAlreadyUsed(sess, login, namespace);
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Host host) {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, host);
@@ -8805,6 +8810,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public List<AttributeDefinition> getIdpAttributeDefinitions(PerunSession sess) {
 		return BeansUtils.getCoreConfig().getAttributesForUpdate().get(ExtSourcesManager.EXTSOURCE_IDP).stream().distinct().toList();
+	}
+
+	@Override
+	public List<String> getAllNamespaces(PerunSession sess) {
+		return getAttributesManagerImpl().getAllNamespaces(sess).stream().map(friendlyName -> friendlyName.split(":", 2)[1]).sorted().toList();
 	}
 
 	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------

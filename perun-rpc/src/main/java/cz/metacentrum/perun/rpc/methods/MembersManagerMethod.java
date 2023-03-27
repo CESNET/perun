@@ -574,6 +574,53 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Assign new sponsor to the selected sponsored members of another sponsor with the original sponsors validity
+	 *
+	 * @param sponsored List<MemberWithSponsors>
+	 * @param copyFrom int id of the existing sponsor user
+	 * @param copyTo int id of the new user to be sponsor
+	 * @param copyValidity boolean whether to copy validity
+	 */
+	/*#
+	 * Assign new sponsor to the selected sponsored members of another sponsor and set new validity
+	 *
+	 * @param sponsored List<MemberWithSponsors>
+	 * @param copyFrom int id of the existing sponsor user
+	 * @param copyTo int id of the new user to be sponsor
+	 * @param copyValidity boolean whether to copy validity
+	 * @param validityTo String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 */
+	copySponsoredMembers {
+		@Override
+		public Void call (ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+
+			User copyFrom = ac.getUserById(params.readInt("copyFrom"));
+			User copyTo = ac.getUserById(params.readInt("copyTo"));
+
+			List<Member> sponsored = new ArrayList<>();
+			for (Integer id : params.readList("members", Integer.class)) {
+				sponsored.add(ac.getMemberById(id));
+			}
+			boolean copyValidity = false;
+			if (params.contains("copyValidity")) {
+				copyValidity = params.readBoolean("copyValidity");
+			}
+
+			if (copyValidity) {
+				ac.getMembersManager().copySponsoredMembers(ac.getSession(), sponsored, copyFrom, copyTo, true, null);
+			} else {
+				LocalDate validityTo = null;
+				if (params.contains("validityTo")) {
+					validityTo = params.readLocalDate("validityTo");
+				}
+				ac.getMembersManager().copySponsoredMembers(ac.getSession(), sponsored, copyFrom, copyTo, false, validityTo);
+			}
+			return null;
+		}
+	},
+
+	/*#
 	 * Removes sponsor of existing member.
 	 *
 	 * Can be called only by VO admin.

@@ -1361,7 +1361,7 @@ public interface MembersManager {
 	 * @param session actor
 	 * @param sponsored existing members that needs sponsoring
 	 * @param sponsor sponsoring user or null for the caller
-	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -1370,6 +1370,24 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException
 	 */
 	void sponsorMembers(PerunSession session, List<Member> sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
+
+	/**
+	 * Set another user (copyTo) as sponsor of sponsored members of user (copyFrom). If the copyValidity flag is set to true, also set the validity to the same value as the existing sponsorship.
+	 * Otherwise set validity to the value of validityTo (set to never if null).
+	 *
+	 * @param session
+	 * @param sponsored members to add new sponsor to
+	 * @param copyFrom already existing sponsor of the members
+	 * @param copyTo new user to sponsor the members
+	 * @param copyValidity whether to copy validity
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
+	 * @throws SponsorshipDoesNotExistException
+	 * @throws UserNotInRoleException
+	 * @throws PrivilegeException
+	 * @throws MemberNotSponsoredException
+	 */
+	void copySponsoredMembers(PerunSession session, List<Member> sponsored, User copyFrom, User copyTo, boolean copyValidity, LocalDate validityTo) throws SponsorshipDoesNotExistException, UserNotInRoleException, PrivilegeException, MemberNotSponsoredException;
+
 
 	/**
 	 * Get all sponsored RichMembers with attributes by list of attribute names for specific User and Vo.

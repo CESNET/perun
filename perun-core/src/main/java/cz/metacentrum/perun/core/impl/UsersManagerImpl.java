@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BlockedLogin;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.ConsentStatus;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -36,6 +38,8 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedExcep
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
+import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
@@ -180,6 +184,25 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             return result;
         };
 
+	public static final RowMapper<Pair<String, String>> LOGIN_NAMESPACE_PAIR_MAPPER = new RowMapper<Pair<String, String>>() {
+		@Override
+		public Pair<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+			String login = rs.getString("login");
+			String namespace = rs.getString("namespace");
+			return new Pair<>(login, namespace);
+		}
+	};
+
+	public static final RowMapper<BlockedLogin> BLOCKED_LOGINS_MAPPER = new RowMapper<BlockedLogin>() {
+		@Override
+		public BlockedLogin mapRow(ResultSet rs, int rowNum) throws SQLException {
+			int id = rs.getInt("id");
+			String login = rs.getString("login");
+			String namespace = rs.getString("namespace");
+			return new BlockedLogin(id, login, namespace);
+		}
+	};
+
 	/**
 	 * Returns ResultSetExtractor that can be used to extract returned paginated users
 	 * from db.
@@ -198,6 +221,26 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				row++;
 			}
 			return new Paginated<>(users, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
+
+	/**
+	 * Extractor for paginated blocked logins
+	 *
+	 * @param query for blocked logins
+	 * @return extractor to extract login, namespace pair
+	 */
+	private static ResultSetExtractor<Paginated<BlockedLogin>> getPaginatedBlockedLoginsExtractor(BlockedLoginsPageQuery query) {
+		return resultSet -> {
+			List<BlockedLogin> blockedLogins = new ArrayList<>();
+			int total_count = 0;
+			int row = 0;
+			while (resultSet.next()) {
+				total_count = resultSet.getInt("total_count");
+				blockedLogins.add(BLOCKED_LOGINS_MAPPER.mapRow(resultSet, row));
+				row++;
+			}
+			return new Paginated<>(blockedLogins, query.getOffset(), query.getPageSize(), total_count);
 		};
 	}
 
@@ -1143,6 +1186,185 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+		try {
+			return jdbc.query("select login, namespace from blocked_logins", LOGIN_NAMESPACE_PAIR_MAPPER);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+    @Override
+    public boolean isLoginBlocked(PerunSession sess, String login, boolean ignoreCase) {
+        Utils.notNull(login, "userLogin");
+
+        try {
+            if (ignoreCase) {
+                return jdbc.queryForInt("select count(1) from blocked_logins where UPPER(login)=?", login.toUpperCase()) == 1;
+            } else {
+                return jdbc.queryForInt("select count(1) from blocked_logins where login=? OR (UPPER(login)=? AND namespace IS NULL)", login, login.toUpperCase()) == 1;
+            }
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
+
+    @Override
+    public boolean isLoginBlockedGlobally(PerunSession sess, String login) {
+        Utils.notNull(login, "userLogin");
+
+        try {
+            return jdbc.queryForInt("select count(1) from blocked_logins where UPPER(login)=? and namespace is null", login.toUpperCase()) == 1;
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
+
+    @Override
+    public boolean isLoginBlockedForNamespace(PerunSession sess, String login, String namespace, boolean ignoreCase) {
+        Utils.notNull(login, "userLogin");
+
+        try {
+            if (namespace == null) {
+                return this.isLoginBlockedGlobally(sess, login);
+            } else {
+                if (ignoreCase) {
+                    return jdbc.queryForInt("select count(1) from blocked_logins where UPPER(login)=? and namespace=?", login.toUpperCase(), namespace) == 1;
+                } else {
+                    return jdbc.queryForInt("select count(1) from blocked_logins where login=? and namespace=?", login, namespace) == 1;
+                }
+            }
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(e);
+        }
+    }
+
+	@Override
+	public void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException {
+		Utils.notNull(login, "userLogin");
+
+		try {
+			int newId = Utils.getNewId(jdbc, "blocked_logins_id_seq");
+			jdbc.update("insert into blocked_logins(id, login, namespace) values (?,?,?)",
+				newId, login, namespace);
+			if (namespace == null) {
+				log.info("Login {} globally blocked", login);
+			} else {
+				log.info("Login {} blocked in namespace: {}", login, namespace);
+			}
+		} catch (DuplicateKeyException ex) {
+			String error = namespace == null ?
+				"Login: " + login + " is already blocked globally" :
+				"Login: " + login + " is already blocked in namespace: " + namespace;
+			throw new LoginIsAlreadyBlockedException(error);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void unblockLogin(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		Utils.notNull(login, "userLogin");
+
+		try {
+			if (namespace == null) {
+				int numAffected = jdbc.update("delete from blocked_logins where login=? and namespace is null", login);
+				if (numAffected == 0){
+					throw new LoginIsNotBlockedException("Login: " + login + " is not blocked globally");
+				}
+				log.info("Login {} globally unblocked", login);
+			} else {
+				int numAffected = jdbc.update("delete from blocked_logins where login=? and namespace=?", login, namespace);
+				if (numAffected == 0){
+					throw new LoginIsNotBlockedException("Login: " + login + " is not blocked in namespace: " + namespace);
+				}
+				log.info("Login {} unblocked in namespace: {}", login, namespace);
+			}
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) {
+		try {
+			MapSqlParameterSource namedParams = new MapSqlParameterSource();
+			namedParams.addValue("login", query.getSearchString());
+			namedParams.addValue("namespaces", query.getNamespaces());
+			namedParams.addValue("offset", query.getOffset());
+			namedParams.addValue("limit", query.getPageSize());
+
+			String sqlQuery = "SELECT id, login, namespace, count(*) OVER() AS total_count FROM blocked_logins";
+
+			boolean hasSearchString = query.getSearchString() != null && !query.getSearchString().isEmpty();
+			boolean hasNamespaces = query.getNamespaces() != null && !query.getNamespaces().isEmpty();
+			if (hasSearchString || hasNamespaces) {
+				sqlQuery += " WHERE";
+				if (hasSearchString) {
+					sqlQuery += " login like (:login)";
+				}
+
+				if (hasSearchString && hasNamespaces) {
+					sqlQuery += " AND";
+				}
+
+				if (hasNamespaces) {
+					sqlQuery += " (";
+					if (query.getNamespaces().contains(null)) {
+						sqlQuery += "namespace IS NULL OR";
+					}
+					sqlQuery += " namespace IN (:namespaces)";
+					sqlQuery += ")";
+				}
+			}
+
+			sqlQuery += " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +  " OFFSET (:offset) LIMIT (:limit);";
+
+			return namedParameterJdbcTemplate.query(
+				sqlQuery,
+				namedParams,
+				getPaginatedBlockedLoginsExtractor(query));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void unblockLoginsById(PerunSession sess, List<Integer> loginIds) {
+		try {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			parameters.addValue("ids", loginIds);
+			namedParameterJdbcTemplate.update("DELETE FROM blocked_logins WHERE id in (:ids)", parameters);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
+		try {
+			return jdbc.queryForObject("SELECT login, namespace FROM blocked_logins WHERE id=?", LOGIN_NAMESPACE_PAIR_MAPPER, id);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new LoginIsNotBlockedException(ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
+		try {
+			if (namespace == null) {
+				return jdbc.queryForInt("select id from blocked_logins where login=? and namespace is null", login);
+			} else {
+				return jdbc.queryForInt("SELECT id FROM blocked_logins WHERE login=? and namespace=?", login, namespace);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 

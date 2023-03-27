@@ -628,18 +628,22 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		List<EnrichedBanOnVo> enrichedBans = perun.getVosManagerBl().getEnrichedBansForUser(sess, user.getId(), attrNames);
 		assertThat(enrichedBans).hasSize(2);
-		assertThat(enrichedBans.get(0).getVo()).isEqualTo(createdVo);
-		assertThat(enrichedBans.get(1).getVo()).isEqualTo(otherVo);
-		assertThat(enrichedBans.get(0).getMember().getId()).isEqualTo(member.getId());
-		assertThat(enrichedBans.get(1).getMember().getId()).isEqualTo(otherMember.getId());
+		// get each ban from the resulting list, the order is not set so have to check
+		EnrichedBanOnVo memberBan = enrichedBans.stream().filter(enrichedBanOnVo -> enrichedBanOnVo.getMember().equals(member)).findFirst().get();
+		EnrichedBanOnVo otherMemberBan = enrichedBans.stream().filter(enrichedBanOnVo -> enrichedBanOnVo.getMember().equals(otherMember)).findFirst().get();
 
-		assertThat(enrichedBans.get(0).getBan()).isEqualTo(ban);
-		assertThat(enrichedBans.get(1).getBan()).isEqualTo(otherBan);
+		assertThat(memberBan.getVo()).isEqualTo(createdVo);
+		assertThat(otherMemberBan.getVo()).isEqualTo(otherVo);
+		assertThat(memberBan.getMember().getId()).isEqualTo(member.getId());
+		assertThat(otherMemberBan.getMember().getId()).isEqualTo(otherMember.getId());
 
-		assertThat(enrichedBans.get(0).getMember().getMemberAttributes()).hasSize(1);
-		assertThat(enrichedBans.get(0).getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
-		assertThat(enrichedBans.get(1).getMember().getMemberAttributes()).hasSize(1);
-		assertThat(enrichedBans.get(1).getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
+		assertThat(memberBan.getBan()).isEqualTo(ban);
+		assertThat(otherMemberBan.getBan()).isEqualTo(otherBan);
+
+		assertThat(memberBan.getMember().getMemberAttributes()).hasSize(1);
+		assertThat(memberBan.getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
+		assertThat(otherMemberBan.getMember().getMemberAttributes()).hasSize(1);
+		assertThat(otherMemberBan.getMember().getMemberAttributes().get(0).getFriendlyName()).isEqualTo("id");
 	}
 
 	@Test

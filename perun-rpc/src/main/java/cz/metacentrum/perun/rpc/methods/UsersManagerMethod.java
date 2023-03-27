@@ -1,11 +1,13 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
@@ -1127,6 +1129,92 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		}
 	},
+
+	/*#
+	 * Block logins for given namespace
+	 *
+	 * @param logins List<String> list of logins
+	 * @param namespace String Namespace
+	 * @throw LoginIsAlreadyBlockedException When some login is already blocked for given namespace (or globally)
+	 * @throw LoginExistsException When some login is already in use
+	 */
+	/*#
+	 * Block logins globally (for all namespaces)
+	 *
+	 * @param logins List<String> list of logins
+	 * @throw LoginIsAlreadyBlockedException When some login is already blocked for given namespace (or globally)
+	 * @throw LoginExistsException When some login is already in use
+	 */
+	blockLogins {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getUsersManager().blockLogins(ac.getSession(),
+				parms.readList("logins", String.class),
+				parms.contains("namespace") ? parms.readString("namespace") : null);
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Unblock logins for given namespace
+	 *
+	 * @param logins List<String> list of logins
+	 * @param namespace String Namespace
+	 * @throw LoginIsNotBlockedException When some login is not blocked
+	 */
+	/*#
+	 * Unblock logins globally (for all namespaces)
+	 *
+	 * @param logins List<String> list of logins
+	 * @throw LoginIsNotBlockedException When some login is not blocked
+	 */
+	unblockLogins {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getUsersManager().unblockLogins(ac.getSession(),
+				parms.readList("logins", String.class),
+				parms.contains("namespace") ? parms.readString("namespace") : null);
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Unblock logins by id
+	 *
+	 * @param logins List<Integer> logins <code>id</code>
+	 * @throw LoginIsNotBlockedException When some login is not blocked
+	 */
+	unblockLoginsById {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getUsersManager().unblockLoginsById(ac.getSession(), parms.readList("logins", Integer.class));
+
+			return null;
+		}
+	},
+
+	/**
+	 * Get a page of blocked logins
+	 *
+	 * @param query BlockedLoginsPageQuery
+	 * @return page of blocked logins based on the query
+	 */
+	getBlockedLoginsPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer params) throws PerunException {
+			return ac.getUsersManager().getBlockedLoginsPage(ac.getSession(),
+				params.read("query", BlockedLoginsPageQuery.class));
+		}
+	},
+
 
 	/*#
 	 * Returns users by their IDs.

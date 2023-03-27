@@ -334,6 +334,11 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllNamespaces_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
+
   #AuditMessagesManagerEntry
 
   getMessagesByIdAndCount_int_int_policy:
@@ -6171,6 +6176,51 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllBlockedLoginsInNamespaces_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  isLoginBlocked_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  isLoginBlockedGlobally_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  isLoginBlockedForNamespace_String_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  blockLogins_List<String>_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  unblockLogins_List<String>_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  unblockLoginsById_List<Integer>_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
+
+  getBlockedLoginsPage_BlockedLoginsPageQuery_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getUsersWithoutVoAssigned_policy:
     policy_roles:
       - PERUNOBSERVER:
@@ -8410,6 +8460,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - SPONSOR: Vo
     associated_read_roles: []
     assignable_to_attributes: true
     display_name: "Sponsor"
