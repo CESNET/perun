@@ -23,9 +23,9 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetAdminGroups;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttributes;
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
-import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -62,6 +62,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
 	// data
 	private Group group;
+	private VirtualOrganization vo;
 	private int groupId;
 	private int selectedDropDownIndex = 0;
 
@@ -83,6 +84,12 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 		JsonCallbackEvents events = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				group = jso.cast();
+				JsonCallbackEvents events = new JsonCallbackEvents(){
+					public void onFinished(JavaScriptObject jso) {
+						vo = jso.cast();
+					}
+				};
+				new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), events).retrieveData();
 			}
 		};
 		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
@@ -90,7 +97,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
 
 	public boolean isPrepared(){
-		return !(group == null);
+		return ((group != null) && (vo != null));
 	}
 
 	@Override
@@ -179,7 +186,28 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
 			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerToGroup(), new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					session.getTabManager().addTabToCurrentTab(new AddGroupManagerTabItem(group), true);
+					if (vo == null) {
+						// load VO
+						JsonCallbackEvents events = new JsonCallbackEvents(){
+							public void onFinished(JavaScriptObject jso) {
+								vo = jso.cast();
+								//FIXME - temporary hack for pithia VO
+								if ("vo.esc.pithia.eu".equals(vo.getShortName())) {
+									session.getTabManager().addTabToCurrentTab(new AddGroupManagerFromMembersTabItem(group), true);
+								} else {
+									session.getTabManager().addTabToCurrentTab(new AddGroupManagerTabItem(group), true);
+								}
+							}
+						};
+						new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), events).retrieveData();
+					} else {
+						//FIXME - temporary hack for pithia VO
+						if ("vo.esc.pithia.eu".equals(vo.getShortName())) {
+							session.getTabManager().addTabToCurrentTab(new AddGroupManagerFromMembersTabItem(group), true);
+						} else {
+							session.getTabManager().addTabToCurrentTab(new AddGroupManagerTabItem(group), true);
+						}
+					}
 				}
 			});
 			if (!session.isVoAdmin(group.getVoId()) && !session.isGroupAdmin(group.getId())) addButton.setEnabled(false);
