@@ -1293,7 +1293,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) {
 		try {
 			MapSqlParameterSource namedParams = new MapSqlParameterSource();
-			namedParams.addValue("login", query.getSearchString());
+			namedParams.addValue("login", query.getSearchString().toLowerCase());
 			namedParams.addValue("namespaces", query.getNamespaces());
 			namedParams.addValue("offset", query.getOffset());
 			namedParams.addValue("limit", query.getPageSize());
@@ -1305,7 +1305,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			if (hasSearchString || hasNamespaces) {
 				sqlQuery += " WHERE";
 				if (hasSearchString) {
-					sqlQuery += " login like (:login)";
+					sqlQuery += " LOWER(login) like ('%%' || :login || '%%')";
 				}
 
 				if (hasSearchString && hasNamespaces) {
