@@ -16,6 +16,7 @@ public class BlockedLoginsPageQuery {
 	private String searchString = "";
 	private List<String> namespaces;
 
+	public BlockedLoginsPageQuery() {}
 
 	public BlockedLoginsPageQuery(int pageSize, int offset, SortingOrder order, BlockedLoginsOrderColumn sortColumn) {
 		this.pageSize = pageSize;
