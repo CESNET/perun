@@ -8253,6 +8253,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
 			attributes.put(attr, createInitialPolicyCollections(policies));
 
+			// mfaStatus namespace
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("mfaStatus:"+namespace);
+			attr.setDisplayName("MFA status in namespace: "+namespace);
+			attr.setDescription("Contains user friendly version of MFA status in " + namespace + " namespace.");
+
+			policies = new ArrayList<>();
+			policies.add(Triple.of(Role.PERUNADMIN, READ, RoleObject.User));
+			attributes.put(attr, createInitialPolicyCollections(policies));
+
 			// pwd-reset templates
 
 			attr = new AttributeDefinition();
