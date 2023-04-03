@@ -1267,6 +1267,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - ENGINE:
     include_policies:
       - default_policy
 
