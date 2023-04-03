@@ -76,7 +76,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Integration tests of UsersManager.
@@ -393,31 +392,154 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		User updateUser = usersManager.updateUser(sess, user);
 	}
 
-	@Test (expected=UserNotExistsException.class)
+	@Test
 	public void deleteUser() throws Exception {
 		System.out.println(CLASS_NAME + "deleteUser");
 
-		usersManager.deleteUser(sess, user, true);  // force delete
-		usersManager.getUserById(sess, user.getId());
-		// should be unable to get deleted user by his id
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			usersManager.deleteUser(sess, user, true);
+			assertThatExceptionOfType(UserNotExistsException.class).isThrownBy(
+				() -> usersManager.getUserById(sess, user.getId()));
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
 
 	}
 
-	@Test (expected=UserNotExistsException.class)
+	@Test
 	public void deleteUserWhenUserNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "deleteUserWhenUserNotExists");
 
-		usersManager.deleteUser(sess, new User(), true);  // force delete
-		// shouldn't find user
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			assertThatExceptionOfType(UserNotExistsException.class).isThrownBy(
+				() -> usersManager.deleteUser(sess, new User(), true));
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
+	}
+
+	@Test
+	public void deleteUserNotSupported() throws Exception {
+		System.out.println(CLASS_NAME + "deleteUserNotSupported");
+
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Disable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(false);
+			assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(
+				() -> usersManager.deleteUser(sess, user));
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
+	}
+
+	@Test
+	public void deleteUserAndCheckBlockedLogins() throws Exception {
+		System.out.println(CLASS_NAME + "deleteUserAndCheckBlockedLogins");
+
+		// Create logins for user in 2 namespaces
+		Attribute attrLogin = new Attribute();
+		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin.setFriendlyName("login-namespace:namespace1");
+		attrLogin.setType(String.class.getName());
+		attrLogin = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin));
+		attrLogin.setValue("login1");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin);
+
+		Attribute attrLogin2 = new Attribute();
+		attrLogin2.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin2.setFriendlyName("login-namespace:namespace2");
+		attrLogin2.setType(String.class.getName());
+		attrLogin2 = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin2));
+		attrLogin2.setValue("login2");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin2);
+
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			usersManager.deleteUser(sess, user, true);
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
+
+		assertTrue(usersManager.isLoginBlockedForNamespace(sess, "login1", "namespace1", true));
+		assertFalse(usersManager.isLoginBlockedForNamespace(sess, "login1", "namespace2", true));
+		assertTrue(usersManager.isLoginBlockedForNamespace(sess, "login2", "namespace2", true));
+		assertFalse(usersManager.isLoginBlockedForNamespace(sess, "login2", "namespace1", true));
+
+		assertEquals("The number of blocked logins should be 2.", 2, usersManager.getAllBlockedLoginsInNamespaces(sess).size());
+
+		assertThatExceptionOfType(UserNotExistsException.class).isThrownBy(
+			() -> perun.getUsersManager().getUserById(sess, user.getId()));
+	}
+
+	@Test
+	public void blockedLoginsAndRelatedUserIds() throws Exception {
+		System.out.println(CLASS_NAME + "blockedLoginsAndRelatedUserIds");
+
+		String login = "login1";
+		String namespace = "namespace1";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+
+		// user id should NOT be stored with block login - method should return null
+		assertNull(usersManager.getRelatedUserIdByBlockedLoginInNamespace(sess, login, namespace));
+
+		// Create login for user in namespace1
+		Attribute attrLogin = new Attribute();
+		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin.setFriendlyName("login-namespace:namespace2");
+		attrLogin.setType(String.class.getName());
+		attrLogin = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin));
+		attrLogin.setValue("login2");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin);
+
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			usersManager.deleteUser(sess, user, true);
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
+
+		// check that user id is correctly stored with the block login
+		assertEquals(user.getId(), usersManager.getRelatedUserIdByBlockedLoginInNamespace(sess, "login2", "namespace2").intValue());
+		assertThatExceptionOfType(LoginIsNotBlockedException.class).isThrownBy(
+			() -> usersManager.getRelatedUserIdByBlockedLoginInNamespace(sess, "login3", "namespace2"));
+	}
+
+	@Test
+	public void anonymizeUserNotSupported() throws Exception {
+		System.out.println(CLASS_NAME + "anonymizeUserNotSupported");
+
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(
+				() -> usersManager.anonymizeUser(sess, user, false));
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
 	}
 
 	@Test
 	public void anonymizeUser() throws Exception {
 		System.out.println(CLASS_NAME + "anonymizeUser");
-
-		List<String> originalAttributesToKeep = BeansUtils.getCoreConfig().getAttributesToKeep();
-		// configure attributesToKeep so it contains only 1 attribute - preferredMail
-		BeansUtils.getCoreConfig().setAttributesToKeep(Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
 
 		// set preferredMail and phone attributes
 		Attribute preferredMail = perun.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
@@ -427,10 +549,15 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		phone.setValue("+420555555");
 		perun.getAttributesManagerBl().setAttribute(sess, user, phone);
 
-		usersManager.anonymizeUser(sess, user, false);
-
-		// set attributesToKeep back to the original attributes
-		BeansUtils.getCoreConfig().setAttributesToKeep(originalAttributesToKeep);
+		List<String> originalAttributesToKeep = BeansUtils.getCoreConfig().getAttributesToKeep();
+		try {
+			// configure attributesToKeep so it contains only 1 attribute - preferredMail
+			BeansUtils.getCoreConfig().setAttributesToKeep(Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+			usersManager.anonymizeUser(sess, user, false);
+		} finally {
+			// set attributesToKeep back to the original attributes
+			BeansUtils.getCoreConfig().setAttributesToKeep(originalAttributesToKeep);
+		};
 
 		User updatedUser = perun.getUsersManagerBl().getUserById(sess, user.getId());
 		String anonymizationAttrName = AttributesManager.NS_USER_ATTR_VIRT + ":anonymized";
@@ -480,10 +607,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void anonymizeUserWhenAnonymizationNotSupported() throws Exception {
 		System.out.println(CLASS_NAME + "anonymizeUserWhenAnonymizationNotSupported");
 
-		List<String> originalAttributesToAnonymize = BeansUtils.getCoreConfig().getAttributesToAnonymize();
-		// configure attributesToAnonymize so it contains only 1 attribute - dummy-test
-		BeansUtils.getCoreConfig().setAttributesToAnonymize(Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":dummy-test"));
-
 		// create dummy attribute
 		Attribute attrLogin = new Attribute();
 		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
@@ -496,12 +619,12 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		dummy.setValue("dummy");
 		perun.getAttributesManagerBl().setAttribute(sess, user, dummy);
 
+		List<String> originalAttributesToAnonymize = BeansUtils.getCoreConfig().getAttributesToAnonymize();
 		try {
-			usersManager.anonymizeUser(sess, user, false);
-			// anonymizeUser() should have thrown AnonymizationNotSupportedException
-			fail();
-		} catch (AnonymizationNotSupportedException ex) {
-			// this is expected
+			// configure attributesToAnonymize so it contains only 1 attribute - dummy-test
+			BeansUtils.getCoreConfig().setAttributesToAnonymize(Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":dummy-test"));
+			assertThatExceptionOfType(AnonymizationNotSupportedException.class).isThrownBy(
+				() -> usersManager.anonymizeUser(sess, user, false));
 		} finally {
 			// set attributesToAnonymize back to the original attributes
 			BeansUtils.getCoreConfig().setAttributesToAnonymize(originalAttributesToAnonymize);

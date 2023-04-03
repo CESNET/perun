@@ -869,6 +869,16 @@ public interface UsersManager {
 	void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws PrivilegeException, LoginIsNotBlockedException;
 
 	/**
+	 * Get user id of the user who was related to the given login in the past
+	 *
+	 * @param sess session
+	 * @param login blocked login
+	 * @param namespace namespace where the login is blocked
+	 * @return user id or null if there is no related user id
+	 */
+	Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
+
+	/**
 	 * Get page of blocked logins.
 	 *
 	 * @param sess session
