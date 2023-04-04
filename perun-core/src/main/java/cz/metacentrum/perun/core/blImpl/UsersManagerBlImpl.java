@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -474,12 +475,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		this.deleteUser(sess, user, false);
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		try {
 			this.deleteUser(sess, user, forceDelete, false);
 		} catch (AnonymizationNotSupportedException ex) {
@@ -488,12 +489,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
-	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException {
+	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException, DeletionNotSupportedException {
 		if (BeansUtils.getCoreConfig().getUserDeletionForced() && anonymizeInstead) {
-			throw new UnsupportedOperationException("It is not allowed to anonymize users on this instance. You should use deleteUser() method instead.");
+			throw new AnonymizationNotSupportedException("It is not allowed to anonymize users on this instance. You should use deleteUser() method instead.");
 		}
 		if (!BeansUtils.getCoreConfig().getUserDeletionForced() && !anonymizeInstead) {
-			throw new UnsupportedOperationException("It is not allowed to delete users on this instance. You should use anonymizeUser() method instead.");
+			throw new DeletionNotSupportedException("It is not allowed to delete users on this instance. You should use anonymizeUser() method instead.");
 		}
 
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
@@ -678,7 +679,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void anonymizeUser(PerunSession sess, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException {
 		try {
 			this.deleteUser(sess, user, force, true);
-		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException ex) {
+		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException | DeletionNotSupportedException ex) {
 			//this shouldn't happen with 'anonymizedInstead' set to true
 			throw new InternalErrorException(ex);
 		}

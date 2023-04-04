@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -340,12 +341,13 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException
-	 * @throws MemberAlreadyRemovedException
-	 * @throws UserAlreadyRemovedException
-	 * @throws SpecificUserAlreadyRemovedException
+	 * @throws RelationExistsException 				if user has some members assigned
+	 * @throws MemberAlreadyRemovedException 		if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException 			if there are no rows affected by deleting user in DB
+	 * @throws SpecificUserAlreadyRemovedException 	if there are no rows affected by deleting specific user in DB
+	 * @throws DeletionNotSupportedException 		if the deletion of users is not supported
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 *  Deletes user. If forceDelete is true, then removes also associeted members.
@@ -356,12 +358,13 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException
-	 * @throws MemberAlreadyRemovedException
-	 * @throws UserAlreadyRemovedException
-	 * @throws SpecificUserAlreadyRemovedException
+	 * @throws RelationExistsException				if forceDelete is false and the user has some members assigned
+	 * @throws MemberAlreadyRemovedException		if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException			if there are no rows affected by deleting user in DB
+	 * @throws SpecificUserAlreadyRemovedException	if there are no rows affected by deleting specific user in DBn
+	 * @throws DeletionNotSupportedException 		if the deletion of users is not supported
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Anonymizes user - according to configuration, each of user's attributes is either
@@ -376,7 +379,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException if the user doesn't exist
 	 * @throws PrivilegeException if the method isn't called by perun admin
 	 * @throws RelationExistsException if the user has some members assigned
-	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process
+	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance
 	 */
 	void anonymizeUser(PerunSession perunSession, User user, boolean force) throws UserNotExistsException, PrivilegeException, RelationExistsException, AnonymizationNotSupportedException;
 

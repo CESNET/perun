@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
@@ -388,8 +389,9 @@ public interface UsersManagerBl {
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
+	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -402,8 +404,9 @@ public interface UsersManagerBl {
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
+	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Return list of all reserved logins for specific user
@@ -425,7 +428,7 @@ public interface UsersManagerBl {
 	 * @param force
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException if the user has some members assigned
-	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process
+	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance
 	 */
 	void anonymizeUser(PerunSession perunSession, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException;
 
