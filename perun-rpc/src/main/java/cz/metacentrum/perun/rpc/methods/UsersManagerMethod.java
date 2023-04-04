@@ -1201,7 +1201,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
-	/**
+	/*#
 	 * Get a page of blocked logins
 	 *
 	 * @param query BlockedLoginsPageQuery
@@ -1215,6 +1215,17 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 *
+	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 */
+	getAllBlockedLoginsInNamespaces {
+		@Override
+		public List<Pair<String, String>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getAllBlockedLoginsInNamespaces(ac.getSession());
+		}
+	},
 
 	/*#
 	 * Returns users by their IDs.

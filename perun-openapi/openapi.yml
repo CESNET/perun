@@ -10041,6 +10041,33 @@ paths:
               properties:
                 query: { $ref: '#/components/schemas/BlockedLoginsPageQuery' }
 
+  /json/usersManager/getAllBlockedLoginsPage:
+    get:
+      tags:
+        - UsersManager
+      operationId: getAllBlockedLoginsPage
+      summary: Get all blocked logins
+      responses:
+        '200':
+          description: List of tuples (login,namespace) or (login,null) if login is blocked globally
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                    value:
+                      type: string
+              example:
+                - [ "login1", "namespace" ]
+                - [ "login2", null ]
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /urlinjsonout/usersManager/reserveRandomPassword:
     post:
       tags:
