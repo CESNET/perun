@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
@@ -434,7 +435,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		try {
 			// Disable deletion of users
 			BeansUtils.getCoreConfig().setUserDeletionForced(false);
-			assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(
+			assertThatExceptionOfType(DeletionNotSupportedException.class).isThrownBy(
 				() -> usersManager.deleteUser(sess, user));
 		} finally {
 			// set userDeletionForced back to the original value
@@ -529,7 +530,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		try {
 			// Enable deletion of users
 			BeansUtils.getCoreConfig().setUserDeletionForced(true);
-			assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(
+			assertThatExceptionOfType(AnonymizationNotSupportedException.class).isThrownBy(
 				() -> usersManager.anonymizeUser(sess, user, false));
 		} finally {
 			// set userDeletionForced back to the original value
