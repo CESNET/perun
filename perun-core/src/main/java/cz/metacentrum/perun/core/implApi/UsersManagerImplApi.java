@@ -425,10 +425,10 @@ public interface UsersManagerImplApi {
 	UserExtSource getUserExtSourceByExtLogin(PerunSession perunSession, ExtSource source, String extLogin) throws UserExtSourceNotExistsException;
 
 	/**
-	 * Return true if login in specified namespace is already reserved, false if not.
+	 * Return true if login is already reserved in specified namespace or in any namespace (if namespace is null), false if not.
 	 *
 	 * @param sess
-	 * @param namespace namespace for login
+	 * @param namespace namespace for login, null for all namespace
 	 * @param login login to check
 	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @return true if login exist, false if not exist
@@ -546,10 +546,10 @@ public interface UsersManagerImplApi {
 	Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query);
 
 	/**
-	 * Check if login in specified namespace exists.
+	 * Check if login exists in specified namespace or in any namespace (if namespace is null).
 	 *
 	 * @param sess
-	 * @param namespace namespace for login
+	 * @param namespace namespace for login, null for all namespace
 	 * @param login login to check
 	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @throws InternalErrorException

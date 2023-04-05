@@ -1211,10 +1211,10 @@ public interface UsersManagerBl {
 
 
 	/**
-	 * Check if login in specified namespace exists.
+	 * Check if login exists in specified namespace or in any namespace (if namespace is null).
 	 *
 	 * @param sess
-	 * @param namespace namespace for login
+	 * @param namespace namespace for login, null for all namespace
 	 * @param login     login to check
 	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @throws InternalErrorException

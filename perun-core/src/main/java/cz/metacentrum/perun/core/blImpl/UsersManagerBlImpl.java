@@ -1203,6 +1203,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			if (getPerunBl().getAttributesManagerBl().isLoginAlreadyUsed(sess, login, namespace)) {
 				throw new LoginExistsException("Login: " + login + " is already in use.");
 			}
+			if (getUsersManagerImpl().isLoginReserved(sess, namespace, login, false)) {
+				throw new LoginExistsException("Login: " + login + " is already reserved.");
+			}
+
 			getUsersManagerImpl().blockLogin(sess, login, namespace, relatedUserId);
 		}
 	}
