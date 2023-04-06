@@ -65,10 +65,12 @@ public class HTMLParserTest {
 		System.out.println("HTMLParserTest.checkSafeHtmlInput");
 
 		String input = """
+			<hr>
 			<p class="helo">HELLO !</p>
 			<p style="background-color:blue; color:red;">Hello 2!</p>
 			<a href="https://www.example.eu">https://www.example.eu</a>
-			<a href="mailto:contact@email.eu">contact@email.eu</a>""";
+			<a href="mailto:contact@email.eu">contact@email.eu</a>
+			""";
 
 		HTMLParser parser = new HTMLParser()
             .sanitizeHTML(input)
