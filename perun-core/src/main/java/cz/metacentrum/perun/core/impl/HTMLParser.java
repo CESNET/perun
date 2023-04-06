@@ -21,6 +21,7 @@ public class HTMLParser {
 	private static final String[] allowedTags = {"a", "article", "aside", "b", "blockquote", "br", "button", "caption", "center", "cite", "decorator", "del", "details", "div", "em", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "i", "img", "kbd", "label", "li", "ol", "p", "pre", "section", "select", "span", "strong", "sup", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "ul"};
 	private static final String[] allowedAttributes = {"align", "class", "color", "disabled", "height", "hidden", "href", "id", "label", "size", "span", "src", "srcset", "style", "width"};
 	private static final String[] allowedStyles = {"color", "background-color", "font-size", "font-family", "text-align", "margin", "padding", "border", "width", "height", "display", "position", "top", "bottom", "left", "right", "overflow", "float", "clear", "z-index"};
+	private static final String[] allowedUrlProtocols = {"https", "mailto"};
 	private static PolicyFactory policy = null;
 
 	private List<String> escapedTags = new ArrayList<>();
@@ -37,14 +38,14 @@ public class HTMLParser {
 	}
 
 	/**
-	 * Creates policy defined by the allowedTags, allowedAttributes and allowedStyles.
+	 * Creates policy defined by the allowedTags, allowedAttributes, allowedStyles and allowedUrlProtocols.
 	 * Used to sanitize HTML input.
 	 *
 	 * @return policy - PolicyFactory object
 	 */
 	private static PolicyFactory generatePolicy() {
 		HtmlPolicyBuilder p = new HtmlPolicyBuilder();
-		p.disallowUrlProtocols();
+		p.allowUrlProtocols(allowedUrlProtocols);
 		for (String tag : allowedTags) {
 			p.allowElements(tag);
 		}
