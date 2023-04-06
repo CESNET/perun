@@ -119,6 +119,8 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -5882,6 +5884,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem) {
+		return this.getGroupsManagerImpl().getGroupsForAutoRegistration(sess, vo, formItem);
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Group registrationGroup, ApplicationFormItem formItem) {
+		return this.getGroupsManagerImpl().getGroupsForAutoRegistration(sess, registrationGroup, formItem);
+	}
+
+	@Override
 	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) {
 		for (Group group : groups) {
 			this.getGroupsManagerImpl().deleteGroupFromAutoRegistration(sess, group);
@@ -5889,22 +5901,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem) {
+		for (Group group : groups) {
+			this.getGroupsManagerImpl().deleteGroupFromAutoRegistration(sess, group, formItem);
+		}
+	}
+
+	@Override
 	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotAllowedToAutoRegistrationException {
 		for (Group group : groups) {
-			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
-				throw new GroupNotAllowedToAutoRegistrationException("Members group cannot be added to auto registration.", group);
-			}
-
-			try {
-				Attribute syncEnabledAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
-				if ("true".equals(syncEnabledAttr.valueAsString()) || isGroupInStructureSynchronizationTree(sess, group)) {
-					throw new GroupNotAllowedToAutoRegistrationException("Group with synchronization cannot be added to auto registration.", group);
-				}
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-				// if attribute does not exist we can skip it
-			}
-
+			checkGroupCanBeAddedToAutoRegistration(sess, group);
 			this.getGroupsManagerImpl().addGroupToAutoRegistration(sess, group);
+		}
+	}
+
+	@Override
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem) throws GroupNotAllowedToAutoRegistrationException {
+		for (Group group : groups) {
+			checkGroupCanBeAddedToAutoRegistration(sess, group);
+			this.getGroupsManagerImpl().addGroupToAutoRegistration(sess, group, formItem);
+		}
+	}
+
+	private void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group) throws GroupNotAllowedToAutoRegistrationException {
+		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+			throw new GroupNotAllowedToAutoRegistrationException("Members group cannot be added to auto registration.", group);
+		}
+
+		try {
+			Attribute syncEnabledAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
+			if ("true".equals(syncEnabledAttr.valueAsString()) || isGroupInStructureSynchronizationTree(sess, group)) {
+				throw new GroupNotAllowedToAutoRegistrationException("Group with synchronization cannot be added to auto registration.", group);
+			}
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			// if attribute does not exist we can skip it
 		}
 	}
 
@@ -5973,6 +6003,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
 		return this.getGroupsManagerImpl().isGroupForAutoRegistration(sess, group);
+	}
+
+	@Override
+	public boolean isSubgroupForAutoRegistration(PerunSession sess, Group group, List<Integer> formItems) {
+		return this.getGroupsManagerImpl().isSubgroupForAutoRegistration(sess, group, formItems);
 	}
 
 	@Override

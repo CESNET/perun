@@ -639,9 +639,34 @@ public interface RegistrarManager {
 	 * @param sess session
 	 * @param vo vo
 	 * @return list of groups
-	 * @throws VoNotExistsException if vo does not exists
+	 * @throws VoNotExistsException if vo does not exist
 	 */
-	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException;
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo)
+		throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param formItem formItem
+	 * @return list of groups
+	 * @throws VoNotExistsException if vo does not exist
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem)
+		throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns all groups which can be registered into during group registration.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param formItem formItem
+	 * @return list of groups
+	 * @throws GroupNotExistsException if group does not exist
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem)
+		throws GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Deletes groups from a list of groups which can be registered into during vo registration.
@@ -650,7 +675,31 @@ public interface RegistrarManager {
 	 * @param groups list of groups
 	 * @throws GroupNotExistsException if some group does not exist
 	 */
-	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException;
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups)
+		throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Deletes groups from a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @param formItem formItem
+	 * @throws GroupNotExistsException if some group does not exist
+	 */
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem)
+		throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Deletes groups from a list of groups which can be registered into during group registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @param formItem formItem
+	 * @param registrationGroup group to which the embedded groups are associated
+	 * @throws GroupNotExistsException if some group does not exist
+	 */
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, Group registrationGroup, ApplicationFormItem formItem)
+		throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException, GroupIsNotASubgroupException;
 
 	/**
 	 * Adds groups to a list of groups which can be registered into during vo registration.
@@ -660,7 +709,33 @@ public interface RegistrarManager {
 	 * @throws GroupNotExistsException if some group does not exist
 	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
 	 */
-	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException;
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups)
+		throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException;
+
+	/**
+	 * Adds groups to a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @param formItem formItem
+	 * @throws GroupNotExistsException if some group does not exist
+	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
+	 */
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem)
+		throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException;
+
+	/**
+	 * Adds groups to a list of groups which can be registered into during group registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @param registrationGroup group to which the embedded groups will be associated
+	 * @param formItem formItem
+	 * @throws GroupNotExistsException if some group does not exist
+	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
+	 */
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups, Group registrationGroup, ApplicationFormItem formItem)
+		throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException, GroupIsNotASubgroupException;
 
 	/**
 	 * Invite member candidates.

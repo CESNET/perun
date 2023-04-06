@@ -45,6 +45,8 @@ import cz.metacentrum.perun.core.api.exceptions.EmbeddedGroupApplicationSubmissi
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupIsNotASubgroupException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotEmbeddedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -60,6 +62,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.SubGroupApplicationSubmissionError;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -157,6 +160,7 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.EMBE
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HEADING;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.HTML_COMMENT;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.PASSWORD;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.EMBEDDED_SUBGROUP_APPLICATION;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBMIT_BUTTON;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.USERNAME;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.VALIDATED_EMAIL;
@@ -1059,7 +1063,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			jdbc.update("insert into application_form_item_apptypes (item_id,apptype) values (?,?)",
 					itemId, appType.toString());
 		}
-
 		// set new properties back to object & return
 		item.setOrdnum(ordnum);
 		item.setId(itemId);
@@ -1839,6 +1842,40 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
+	 * Returns list of all subgroups embedded to target of application
+	 * @param sess
+	 * @param appId
+	 * @return
+	 * @throws PrivilegeException
+	 * @throws RegistrarException
+	 */
+	public List<Group> getEmbeddedSubGroupsRegistration(PerunSession sess, int appId)
+		throws PrivilegeException, RegistrarException, GroupNotExistsException
+	{
+		List<ApplicationFormItemData> appFormData = getApplicationDataById(sess, appId);
+		List<Group> embeddedGroups = new ArrayList<>();
+		String groupsPipe = null;
+		for (ApplicationFormItemData item : appFormData) {
+			if (item.getFormItem().getType() == EMBEDDED_SUBGROUP_APPLICATION) {
+				groupsPipe = item.getValue();
+			}
+		}
+
+		if (groupsPipe != null) {
+			//Format is: "Group A#124|Group B#1212|Group C#1212"
+			String[] arr = groupsPipe.split("\\|");
+			for (String el : arr) {
+				String[] subelements = el.split("#");
+				int groupId = Integer.parseInt(subelements[subelements.length - 1]);
+				embeddedGroups.add(groupsManager.getGroupById(sess, groupId));
+			}
+		}
+
+		return embeddedGroups;
+	}
+
+
+	/**
 	 * Submits applications to all embedded groups
 	 * @param sess
 	 * @param groups embedded groups
@@ -1882,22 +1919,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		for (Group group : filteredGroups) {
 			try {
-				Application groupApplication = new Application();
-				groupApplication.setUser(applicant);
-				groupApplication.setType(AppType.EMBEDDED);
-				groupApplication.setVo(app.getVo());
-				groupApplication.setGroup(group);
-				groupApplication.setFedInfo(app.getFedInfo());
-				groupApplication.setExtSourceName(app.getExtSourceName());
-				groupApplication.setExtSourceType(app.getExtSourceType());
-				groupApplication.setCreatedBy("Automatically generated");
-				try { // this was moved to addGroupsToAutoRegistration, remove this later to avoid inconsistency
-					getFormForGroup(group);
-				} catch (FormNotExistsException e) {
-					createApplicationFormInGroup(sess, group);
-				}
-
-				submitApplication(sess, groupApplication, new ArrayList<>());
+				submitEmbeddedGroupApp(sess, group, app, applicant);
 			} catch (Exception e) {
 				failedGroups.put(group.getId(), e.getMessage());
 			}
@@ -1906,6 +1928,91 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (!failedGroups.isEmpty()) {
 			throw new EmbeddedGroupApplicationSubmissionError(failedGroups);
 		}
+	}
+
+	/**
+	 * Submits applications to all subgroups selected
+	 * @param sess
+	 * @param groups embedded groups
+	 * @param app
+	 * @throws PerunException
+	 */
+	private void submitEmbeddedSubGroupApplications(PerunSession sess, List<Group> groups, Application app) throws PerunException {
+		List<Integer> notSubGroups = new ArrayList<>();
+		User applicant = app.getUser();
+		List<Group> filteredGroups = new ArrayList<>();
+		List<ApplicationFormItemData> appFormData = getApplicationDataById(sess, app.getId());
+
+		List<ApplicationFormItemData> formItems = new ArrayList<>();
+		for (ApplicationFormItemData item : appFormData) {
+			if (item.getFormItem().getType() == EMBEDDED_SUBGROUP_APPLICATION) {
+				formItems.add(item);
+			}
+		}
+
+		List<Integer> formItemIds = formItems.stream()
+			.map(ApplicationFormItemData::getFormItem).map(ApplicationFormItem::getId).collect(Collectors.toList());
+
+		for (Group group : groups) {
+			//skip if already member of group
+			if (groupsManager.isUserMemberOfGroup(sess, applicant, group)) {
+				continue;
+			}
+
+			//skip if another application to this group from user is waiting for approval
+			List<Application> groupApplications = getApplicationsForGroup(sess, group, List.of(AppState.NEW.name(), AppState.VERIFIED.name()));
+			if (groupApplications.stream()
+				.anyMatch(application -> applicant.equals(application.getUser()))) {
+				continue;
+			}
+
+			//check if group is still embedded in application form
+			if (!groupsManager.isSubgroupForAutoRegistration(sess, group, formItemIds)) {
+				notSubGroups.add(group.getId());
+				continue;
+			}
+
+			filteredGroups.add(group);
+		}
+
+		if (!notSubGroups.isEmpty()) {
+			String groupStr = app.getGroup() != null ? ", group: " + app.getGroup().getId() : "";
+			throw new GroupNotEmbeddedException("Group(s) with ID(s): " + notSubGroups + " not subgroups for app items "
+				+ formItemIds + " (app - vo: " + app.getVo().getId() + groupStr  + ")" );
+		}
+
+		Map<Integer, String> failedGroups = new HashMap<>();
+
+		for (Group group : filteredGroups) {
+			try {
+				submitEmbeddedGroupApp(sess, group, app, applicant);
+			} catch (Exception e) {
+				failedGroups.put(group.getId(), e.getMessage());
+			}
+		}
+
+		if (!failedGroups.isEmpty()) {
+			throw new SubGroupApplicationSubmissionError(failedGroups);
+		}
+	}
+
+	private void submitEmbeddedGroupApp(PerunSession sess, Group group, Application app, User applicant) throws PerunException {
+		Application groupApplication = new Application();
+		groupApplication.setUser(applicant);
+		groupApplication.setType(AppType.EMBEDDED);
+		groupApplication.setVo(app.getVo());
+		groupApplication.setGroup(group);
+		groupApplication.setFedInfo(app.getFedInfo());
+		groupApplication.setExtSourceName(app.getExtSourceName());
+		groupApplication.setExtSourceType(app.getExtSourceType());
+		groupApplication.setCreatedBy("Automatically generated");
+		try { // this was moved to addGroupsToAutoRegistration, remove this later to avoid inconsistency
+			getFormForGroup(group);
+		} catch (FormNotExistsException e) {
+			createApplicationFormInGroup(sess, group);
+		}
+
+		submitApplication(sess, groupApplication, new ArrayList<>());
 	}
 
 	/**
@@ -2188,7 +2295,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// CONTINUE FOR BOTH APP TYPES
-
 		if (module != null) {
 			module.approveApplication(sess, app);
 		}
@@ -2200,6 +2306,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (!embeddedGroups.isEmpty()) {
 				submitEmbeddedGroupApplications(sess, embeddedGroups, app);
 			}
+		}
+
+		List<Group> embeddedSubGroups = getEmbeddedSubGroupsRegistration(sess, appId);
+		if (!embeddedSubGroups.isEmpty()) {
+			submitEmbeddedSubGroupApplications(sess, embeddedSubGroups, app);
 		}
 
 		getMailManager().sendMessage(app, MailType.APP_APPROVED_USER, null, null);
@@ -2981,8 +3092,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		itemsWithValues.stream()
-				.filter(item -> item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION)
-				.forEach(item -> setGroupsToCheckBoxForGroups(sess, item, vo));
+			.filter(item -> item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION)
+			.forEach(item -> setGroupsToCheckBoxForGroups(sess, item, vo));
+
+		itemsWithValues.stream()
+			.filter(item -> item.getFormItem().getType() == EMBEDDED_SUBGROUP_APPLICATION)
+			.forEach(item -> setSubGroupsToCheckBoxForGroups(sess, item, vo, group));
 
 		// return prefilled form
 		return itemsWithValues;
@@ -3023,6 +3138,28 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				.sorted(Comparator.comparing(Group::getName))
 				.map(group -> group.getId() + "#" + group.getName())
 				.collect(Collectors.joining("|"));
+
+		if (ApplicationFormItem.CS != null) {
+			item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);
+		}
+		item.getFormItem().getI18n().get(ApplicationFormItem.EN).setOptions(groupOptions);
+	}
+
+	private void setSubGroupsToCheckBoxForGroups(PerunSession sess, ApplicationFormItemWithPrefilledValue item, Vo vo, Group registrationGroup) {
+		if (item.getFormItem().getType() != EMBEDDED_SUBGROUP_APPLICATION) {
+			throw new InternalErrorException("Group options can be set only to the SUBGROUP_APPLICATION_SELECTOR item.");
+		}
+		List<Group> groups;
+		if (registrationGroup != null) {
+			groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, registrationGroup, item.getFormItem());
+		} else {
+			groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo, item.getFormItem());
+		}
+
+		String groupOptions = groups.stream()
+			.sorted(Comparator.comparing(Group::getName))
+			.map(group -> group.getId() + "#" + group.getName())
+			.collect(Collectors.joining("|"));
 
 		if (ApplicationFormItem.CS != null) {
 			item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);
@@ -3429,9 +3566,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		for (ApplicationFormItem item : items) {
-			Integer oldId = item.getId();
+			int oldId = item.getId();
 			item.setOrdnum(null); // reset order, id is always new inside add method
 			item = addFormItem(sess, toForm, item);
+			if (item.getType() == EMBEDDED_SUBGROUP_APPLICATION) {
+				copyEmbeddedSubgroups(registrarSession, fromForm, toForm, oldId, item);
+			}
 			oldToNewIDs.put(oldId, item.getId());
 		}
 
@@ -3670,6 +3810,32 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		perun.getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsForAutoRegistration_Vo_ApplicationFormItem_policy", vo)) {
+			throw new PrivilegeException(sess, "getGroupsForAutoRegistration");
+		}
+
+		return perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo, formItem);
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		perun.getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsForAutoRegistration_Group_ApplicationFormItem_policy", group)) {
+			throw new PrivilegeException(sess, "getGroupsForAutoRegistration");
+		}
+
+		return perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, group, formItem);
+	}
+
+	@Override
 	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -3685,6 +3851,46 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		perun.getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, groups);
+	}
+
+	@Override
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		for(Group group : groups) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if(!AuthzResolver.authorizedInternal(sess, "deleteGroupsFromAutoRegistration_List<Group>_ApplicationFormItem_policy", group)) {
+				throw new PrivilegeException(sess, "deleteGroupsFromAutoRegistration");
+			}
+		}
+
+		perun.getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, groups, formItem);
+	}
+
+	@Override
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, Group registrationGroup, ApplicationFormItem formItem) throws GroupNotExistsException, PrivilegeException, GroupIsNotASubgroupException {
+		Utils.checkPerunSession(sess);
+
+		List<Group> subGroups = perun.getGroupsManagerBl().getAllSubGroups(sess, registrationGroup);
+		for (Group group : groups) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+			if (!subGroups.contains(group)) {
+				throw new GroupIsNotASubgroupException();
+			}
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if(!AuthzResolver.authorizedInternal(sess, "deleteGroupsFromAutoRegistration_List<Group>_Group_ApplicationFormItem_policy", group, registrationGroup)) {
+				throw new PrivilegeException(sess, "deleteGroupsFromAutoRegistration");
+			}
+		}
+
+		perun.getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, groups, formItem);
 	}
 
 	@Override
@@ -3712,6 +3918,65 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
+	}
+
+	@Override
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException {
+		Utils.checkPerunSession(sess);
+
+		for (Group group : groups) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if (!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_List<Group>_ApplicationFormItem_policy", group)) {
+				throw new PrivilegeException(sess, "addGroupsToAutoRegistration");
+			}
+		}
+
+		// Create application form if non exists
+		for (Group group : groups) {
+			try {
+				getFormForGroup(group);
+			} catch (FormNotExistsException e) {
+				createApplicationFormInGroup(sess, group);
+			}
+		}
+
+		perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups, formItem);
+	}
+
+	@Override
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups, Group registrationGroup, ApplicationFormItem formItem) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException, GroupIsNotASubgroupException {
+		Utils.checkPerunSession(sess);
+
+		List<Group> subGroups = perun.getGroupsManagerBl().getAllSubGroups(sess, registrationGroup);
+
+		for (Group group : groups) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+			if (!subGroups.contains(group)) {
+				throw new GroupIsNotASubgroupException();
+			}
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if (!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_List<Group>_Group_ApplicationFormItem_policy", group, registrationGroup)) {
+				throw new PrivilegeException(sess, "addGroupsToAutoRegistration");
+			}
+		}
+
+		// Create application form if non exists
+		for (Group group : groups) {
+			try {
+				getFormForGroup(group);
+			} catch (FormNotExistsException e) {
+				createApplicationFormInGroup(sess, group);
+			}
+		}
+
+		perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups, formItem);
 	}
 
 	@Override
@@ -4911,7 +5176,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private int countEmbeddedGroupFormItems(List<ApplicationFormItem> items) {
 		int counter = 0;
 		for (ApplicationFormItem item : items) {
-			if (item.getType() == EMBEDDED_GROUP_APPLICATION) {
+			if (item.getType() == EMBEDDED_GROUP_APPLICATION && !item.isForDelete()) {
 				counter++;
 			}
 		}
@@ -5016,6 +5281,37 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			return false;
 		}
 		return storedFormId == formId;
+	}
+
+	/**
+	 * Copies configured groups for item type with type EMBEDDED_SUBGROUP_APPLICATION.
+	 * Also limits the configured groups to only valid subgroups. Expects the new copied item to be already stored.
+	 */
+	private void copyEmbeddedSubgroups(PerunSession sess, ApplicationForm fromForm, ApplicationForm toForm,
+									   int oldItemId, ApplicationFormItem newItem)
+		throws PrivilegeException, GroupNotAllowedToAutoRegistrationException
+	{
+		ApplicationFormItem oldItem = getFormItemById(sess, oldItemId);
+		List<Group> configuredGroups;
+		List<Group> validGroups;
+		if (fromForm.getGroup() != null) {
+			Group group = fromForm.getGroup();
+			if (toForm.getGroup() != null) {
+				validGroups = perun.getGroupsManagerBl().getAllSubGroups(sess, toForm.getGroup());
+			} else {
+				validGroups = perun.getGroupsManagerBl().getAllGroups(sess, toForm.getVo());
+			}
+			configuredGroups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, group, oldItem);
+		} else {
+			if (toForm.getGroup() != null) {
+				validGroups = perun.getGroupsManagerBl().getAllSubGroups(sess, toForm.getGroup());
+			} else {
+				validGroups = perun.getGroupsManagerBl().getAllGroups(sess, toForm.getVo());
+			}
+			configuredGroups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, fromForm.getVo(), oldItem);
+		}
+		configuredGroups.retainAll(validGroups);
+		perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, configuredGroups, newItem);
 	}
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------

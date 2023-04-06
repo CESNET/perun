@@ -25,6 +25,8 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 
 import java.util.List;
 import java.util.Map;
@@ -880,13 +882,36 @@ public interface GroupsManagerImplApi {
 	List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group);
 
 	/**
-	 * Returns all groups which can be registered into during vo registration.
+	 * Returns all groups which can be registered into during vo registration and are representing options of the
+	 * specified application form item.
 	 *
 	 * @param sess session
 	 * @param vo vo
 	 * @return list of groups
 	 */
 	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo);
+
+	/**
+	 * Returns all groups which can be registered into during group registration and are representing options of the
+	 * specified application form item.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param formItem application form item
+	 * @return list of groups
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem);
+
+	/**
+	 * Returns all groups which can be registered into during group registration and are representing options of the
+	 * specified application form item.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param formItem application form item
+	 * @return list of groups
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem);
 
 	/**
 	 * Deletes group from list of groups which can be registered into during vo registration.
@@ -897,6 +922,15 @@ public interface GroupsManagerImplApi {
 	void deleteGroupFromAutoRegistration(PerunSession sess, Group group);
 
 	/**
+	 * Deletes group from list of groups which can be registered into during vo or group registration
+	 * and are representing options of the specified application form item.
+	 *
+	 * @param sess session
+	 * @param group group to delete
+	 */
+	void deleteGroupFromAutoRegistration(PerunSession sess, Group group, ApplicationFormItem applicationFormItem);
+
+	/**
 	 * Adds group to the list of groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
@@ -905,12 +939,30 @@ public interface GroupsManagerImplApi {
 	void addGroupToAutoRegistration(PerunSession sess, Group group);
 
 	/**
+	 * Adds group from list of groups which can be registered into during vo or group registration
+	 * and are representing options of the specified application form item.
+	 *
+	 * @param sess session
+	 * @param group group to add
+	 */
+	void addGroupToAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem);
+
+	/**
 	 * Check if group has automatic registration enabled.
 	 *
 	 * @param sess session
 	 * @param group group to check
 	*/
 	boolean isGroupForAutoRegistration(PerunSession sess, Group group);
+
+	/**
+	 * Check if group has subgroup registration enabled.
+	 *
+	 * @param sess session
+	 * @param group group to check
+	 * @param formItems form items for which the group can be configured
+	 */
+	boolean isSubgroupForAutoRegistration(PerunSession sess, Group group, List<Integer> formItems);
 
 	/**
 	 * Sets flag required for including group to parent vo in a vo hierarchy.

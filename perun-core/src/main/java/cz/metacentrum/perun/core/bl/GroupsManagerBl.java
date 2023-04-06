@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupIsNotASubgroupException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -51,6 +52,8 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 
 import java.util.List;
 import java.util.Map;
@@ -2037,12 +2040,41 @@ public interface GroupsManagerBl {
 	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo);
 
 	/**
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param formItem application form item
+	 * @return list of groups
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem);
+
+	/**
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param registrationGroup group
+	 * @param formItem application form item
+	 * @return list of groups
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Group registrationGroup, ApplicationFormItem formItem);
+
+	/**
 	 * Deletes groups from a list of groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
 	 * @param groups list of groups
 	 */
 	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups);
+
+	/**
+	 * Deletes groups from a list of groups which can be registered into during vo or group registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @param formItem application form item
+	 */
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem);
 
 	/**
 	 * Adds groups to a list of groups which can be registered into during vo registration.
@@ -2053,6 +2085,17 @@ public interface GroupsManagerBl {
 	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
 	 */
 	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotAllowedToAutoRegistrationException;
+
+	/**
+	 * Adds groups to a list of groups which can be registered into during vo or group registration.
+	 * This will NOT create empty application form for groups and will throw exception if none exists.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 * @param formItem application form item
+	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
+	 */
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem) throws GroupNotAllowedToAutoRegistrationException;
 
 	/**
 	 * Get unique paths of groups via which member is indirectly included to the group.
@@ -2072,6 +2115,15 @@ public interface GroupsManagerBl {
 	 * @param group group to check
 	 */
 	boolean isGroupForAutoRegistration(PerunSession sess, Group group);
+
+	/**
+	 *  Check if group has automatic registration enabled.
+	 *
+	 * @param sess session
+	 * @param group group to check
+	 * @param formItems form items for which the group can be configured
+	 */
+	boolean isSubgroupForAutoRegistration(PerunSession sess, Group group, List<Integer> formItems);
 
 	/**
 	 * Creates enrichedGroup from given group and load attributes with given names.
@@ -2130,4 +2182,5 @@ public interface GroupsManagerBl {
 	 * @return list of allowed groups to hierarchical VO
 	 */
 	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo);
+
 }

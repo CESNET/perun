@@ -79,6 +79,7 @@ public class CreateFormItemTabItem implements TabItem {
 		aMap.put("HEADING", "Header");
 		aMap.put("TIMEZONE", "Selection of timezone");
 		aMap.put("EMBEDDED_GROUP_APPLICATION", "Groups for embedded applications");
+		aMap.put("EMBEDDED_SUBGROUP_APPLICATION", "Selector for subgroup registration");
 		aMap.put("LIST_INPUT_BOX", "Multiple input text fields");
 		aMap.put("MAP_INPUT_BOX", "Multiple key-value input text fields");
 		inputTypes = Collections.unmodifiableMap(aMap);
@@ -222,6 +223,8 @@ public class CreateFormItemTabItem implements TabItem {
 				} else if (type.equals("TIMEZONE")) {
 					layout.setHTML(3,0,"Selection box with pre-defined values of UTC timezones.");
 				} else if (type.equals("EMBEDDED_GROUP_APPLICATION")) {
+					layout.setHTML(3,0,"Checkbox of real organization groups which the user can check and thus submit an application to these groups");
+				}  else if (type.equals("EMBEDDED_SUBGROUP_APPLICATION")) {
 					layout.setHTML(3,0,"Checkbox of real organization groups which the user can check and thus submit an application to these groups");
 				} else if (type.equals("LIST_INPUT_BOX")) {
 					layout.setHTML(3,0,"Field used to gather attribute list values.");

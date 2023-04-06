@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.14
+CREATE TABLE auto_registration_groups (group_id integer not null, application_form_item_id integer not null, constraint auto_reg_grps_group_fk foreign key (group_id) references groups(id) on delete cascade, constraint auto_reg_grps_app_forms_fk foreign key (application_form_item_id) references application_form_items(id) on delete cascade);
+UPDATE configurations set value='3.2.14' WHERE property='DATABASE VERSION';
+
 3.2.13
 ALTER TABLE blocked_logins ADD COLUMN related_user_id integer;
 UPDATE configurations set value='3.2.13' WHERE property='DATABASE VERSION';

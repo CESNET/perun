@@ -1534,12 +1534,46 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int vo <code>id</code>
 	 * @return List<Group> list of groups
+	 * @deprecated only for backwards compatibility. Use the new methods which contain the linkage to the form item.
+	 */
+	/*#
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @throw VoNotExistsException When the vo doesn't exist
+	 *
+	 * @param vo int vo <code>id</code>
+	 * @param formItem int <code>id</code> of the form item to which the options are assigned
+	 * @return List<Group> list of groups
+	 */
+	/*#
+	 * Returns all groups which can be registered into during group registration.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param group int group <code>id</code>
+	 * @param formItem int <code>id</code> of the form item to which the options are assigned
+	 * @return List<Group> list of groups
 	 */
 	getGroupsToAutoRegistration {
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getRegistrarManager().getGroupsForAutoRegistration(ac.getSession(),
-				ac.getVoById(parms.readInt("vo")));
+			PerunSession sess = ac.getSession();
+			if (parms.contains("vo")) {
+				Vo vo = ac.getVoById(parms.readInt("vo"));
+				ApplicationFormItem formItem = parms.contains("formItem") ?
+					ac.getRegistrarManager().getFormItemById(sess, parms.readInt("formItem")) :
+					null;
+				if (formItem != null) {
+					return ac.getRegistrarManager().getGroupsForAutoRegistration(sess, vo, formItem);
+				} else {
+					return ac.getRegistrarManager().getGroupsForAutoRegistration(sess, vo);
+				}
+			} else if (parms.contains("group")) {
+				Group group = ac.getGroupById(parms.readInt("group"));
+				ApplicationFormItem formItem = ac.getRegistrarManager().getFormItemById(ac.getSession(), parms.readInt("formItem"));
+				return ac.getRegistrarManager().getGroupsForAutoRegistration(sess, group, formItem);
+			}
+			return null;
 		}
 	},
 
@@ -1549,6 +1583,28 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @param ids List<Integer> list of groups IDs
+	 * @deprecated only for backwards compatibility. Use the new methods which contain the linkage to the form item.
+	 */
+	/*#
+	 * Deletes groups from a list of groups which can be registered into during vo registration  and are representing
+	 * options for a particular form item.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw ApplicationFormItem
+	 *
+	 * @param ids List<Integer> list of groups IDs
+	 * @param formItem int <code>id</code> of the form item to which the options are assigned
+	 */
+	/*#
+	 * Deletes groups from a list of groups which can be registered into during group registration and are representing
+	 * options for a particular form item..
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupIsNotASubgroup When the specified groups contain an item which is not a subgroup of the registration group
+	 *
+	 * @param ids List<Integer> list of groups IDs
+	 * @param registrationGroup id of the group to which these groups are associated for the embedded registration
+	 * @param formItem int <code>id</code> of the form item to which the options are assigned
 	 */
 	deleteGroupsFromAutoRegistration {
 		@Override
@@ -1561,8 +1617,19 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 				groups.add(ac.getGroupById(groupInt));
 			}
 
-			ac.getRegistrarManager().deleteGroupsFromAutoRegistration(ac.getSession(),
-				groups);
+			if (parms.contains("registrationGroup")) {
+				Group registrationGroup = ac.getGroupById(parms.readInt("registrationGroup"));
+				ApplicationFormItem formItem = ac.getRegistrarManager().getFormItemById(ac.getSession(), parms.readInt("formItem"));
+				ac.getRegistrarManager().deleteGroupsFromAutoRegistration(ac.getSession(), groups, registrationGroup, formItem);
+			} else {
+				ApplicationFormItem formItem = parms.contains("formItem") ?
+					ac.getRegistrarManager().getFormItemById(ac.getSession(), parms.readInt("formItem")) : null;
+				if (formItem != null) {
+					ac.getRegistrarManager().deleteGroupsFromAutoRegistration(ac.getSession(), groups, formItem);
+				} else {
+					ac.getRegistrarManager().deleteGroupsFromAutoRegistration(ac.getSession(), groups);
+				}
+			}
 
 			return null;
 		}
@@ -1575,6 +1642,29 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @throw GroupNotAllowedToAutoRegistrationException When given group cannot be added to auto registration
 	 *
 	 * @param ids List<Integer> list of groups IDs
+	 * @deprecated only for backwards compatibility. Use the new methods which contain the linkage to the form item.
+	 */
+	/*#
+	 * Adds groups to a list of groups which can be registered into during vo registration and are representing options
+	 * for a particular form item.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupNotAllowedToAutoRegistrationException When given group cannot be added to auto registration
+	 *
+	 * @param ids List<Integer> list of groups IDs
+	 * @param formItem int <code>id</code> of the form item to which the options are assigned
+	 */
+	/*#
+	 * Adds groups to a list of groups which can be registered into during group registration and are representing
+	 * options for a particular form item..
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupNotAllowedToAutoRegistrationException When given group cannot be added to auto registration
+	 * @throw GroupIsNotASubgroup When the specified groups contain an item which is not a subgroup of the registration group
+	 *
+	 * @param ids List<Integer> list of groups IDs
+	 * @param registrationGroup id of the group to which these groups will be associated for the embedded registration
+	 * @param formItem int <code>id</code> of the form item to which the options are assigned
 	 */
 	addGroupsToAutoRegistration {
 		@Override
@@ -1587,8 +1677,19 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 				groups.add(ac.getGroupById(groupInt));
 			}
 
-			ac.getRegistrarManager().addGroupsToAutoRegistration(ac.getSession(),
-				groups);
+			if (parms.contains("registrationGroup")) {
+				Group registrationGroup = ac.getGroupById(parms.readInt("registrationGroup"));
+				ApplicationFormItem formItem = ac.getRegistrarManager().getFormItemById(ac.getSession(), parms.readInt("formItem"));
+				ac.getRegistrarManager().addGroupsToAutoRegistration(ac.getSession(), groups, registrationGroup, formItem);
+			} else {
+				ApplicationFormItem formItem = parms.contains("formItem") ?
+					ac.getRegistrarManager().getFormItemById(ac.getSession(), parms.readInt("formItem")) : null;
+				if (formItem != null) {
+					ac.getRegistrarManager().addGroupsToAutoRegistration(ac.getSession(), groups, formItem);
+				} else {
+					ac.getRegistrarManager().addGroupsToAutoRegistration(ac.getSession(), groups);
+				}
+			}
 
 			return null;
 		}

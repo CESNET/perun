@@ -2465,6 +2465,22 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getGroupsForAutoRegistration_Vo_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsForAutoRegistration_Group_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+    include_policies:
+      - default_policy
+
   deleteGroupsFromAutoRegistration_List<Group>_policy:
     policy_roles:
       - GROUPADMIN: Group
@@ -2475,7 +2491,47 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  deleteGroupsFromAutoRegistration_List<Group>_ApplicationFormItem_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  deleteGroupsFromAutoRegistration_List<Group>_Group_ApplicationFormItem_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
   addGroupsToAutoRegistration_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  addGroupsToAutoRegistration_List<Group>_ApplicationFormItem_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  addGroupsToAutoRegistration_List<Group>_Group_ApplicationFormItem_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo

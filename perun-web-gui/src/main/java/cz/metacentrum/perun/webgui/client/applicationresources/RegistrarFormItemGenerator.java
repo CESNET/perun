@@ -457,6 +457,10 @@ public class RegistrarFormItemGenerator {
 			return generateCheckBox();
 		}
 
+		if(item.getType().equals("EMBEDDED_SUBGROUP_APPLICATION")){
+			return generateCheckBox();
+		}
+
 		if(item.getType().equals("LIST_INPUT_BOX")){
 			// FIXME temporary solution, define better widget
 			return generateReadonlyTextBox();
@@ -505,6 +509,7 @@ public class RegistrarFormItemGenerator {
 				!"SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
 				!"AUTO_SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
 				!"EMBEDDED_GROUP_APPLICATION".equalsIgnoreCase(item.getType()) &&
+				!"EMBEDDED_SUBGROUP_APPLICATION".equalsIgnoreCase(item.getType()) &&
 				item.isUpdatable();
 	}
 
@@ -1442,7 +1447,7 @@ public class RegistrarFormItemGenerator {
 	 * @return
 	 */
 	private String getOptions() {
-		if (item.getType().equals("EMBEDDED_GROUP_APPLICATION")) {
+		if (item.getType().equals("EMBEDDED_GROUP_APPLICATION") || item.getType().equals("EMBEDDED_SUBGROUP_APPLICATION")) {
 			return "1#example group1|2#example group2|3#example group3";
 		}
 		String options = item.getItemTexts(locale).getOptions();

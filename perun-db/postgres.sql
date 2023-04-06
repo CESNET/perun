@@ -1,4 +1,4 @@
--- database version 3.2.13 (don't forget to update insert statement at the end of file)
+-- database version 3.2.14 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1612,6 +1612,13 @@ create table authz (
 	     ((user_id is not null and authorized_group_id is null) or (user_id is null and authorized_group_id is not null))
 );
 
+create table auto_registration_groups (
+	group_id integer not null,
+	application_form_item_id integer not null,
+	constraint auto_reg_grps_group_fk foreign key (group_id) references groups(id) on delete cascade,
+	constraint auto_reg_grps_app_forms_fk foreign key (application_form_item_id) references application_form_items(id) on delete cascade
+);
+
 create table groups_to_register (
     group_id integer,
     constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
@@ -2004,7 +2011,7 @@ grant all on app_notifications_sent to perun;
 grant all on blocked_logins to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.13');
+insert into configurations values ('DATABASE VERSION','3.2.14');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

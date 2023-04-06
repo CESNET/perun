@@ -34,6 +34,8 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -45,17 +47,20 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
@@ -1302,9 +1307,36 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups where vo_id=? and id IN (select group_id from auto_registration_groups where application_form_item_id = ?)", GROUP_MAPPER, vo.getId(), formItem.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups where vo_id=? and id IN (select group_id from auto_registration_groups where application_form_item_id = ?)", GROUP_MAPPER, group.getVoId(), formItem.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public void deleteGroupFromAutoRegistration(PerunSession sess, Group group) {
 		try {
 			jdbc.update("delete from groups_to_register where group_id=?", group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void deleteGroupFromAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem) {
+		try {
+			jdbc.update("delete from auto_registration_groups where group_id=? and application_form_item_id=?", group.getId(), formItem.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -1320,9 +1352,32 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public void addGroupToAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem) {
+		try {
+			jdbc.update("insert into auto_registration_groups (group_id, application_form_item_id) values (?,?)", group.getId(), formItem.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
 	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
 		try {
 			return 0 < jdbc.queryForInt("SELECT count(1) FROM groups_to_register WHERE group_id = ?", group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public boolean isSubgroupForAutoRegistration(PerunSession sess, Group group, List<Integer> formItems) {
+		try {
+			MapSqlParameterSource params = new MapSqlParameterSource();
+			params.addValue("gid", group.getId());
+			params.addValue("ids", formItems);
+			return  0 < namedParameterJdbcTemplate.queryForObject(
+				"SELECT count(1) FROM auto_registration_groups WHERE group_id = :gid AND application_form_item_id IN (:ids)",
+				params, Integer.class);
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
