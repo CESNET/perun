@@ -184,15 +184,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             return result;
         };
 
-	public static final RowMapper<Pair<String, String>> LOGIN_NAMESPACE_PAIR_MAPPER = new RowMapper<Pair<String, String>>() {
-		@Override
-		public Pair<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
-			String login = rs.getString("login");
-			String namespace = rs.getString("namespace");
-			return new Pair<>(login, namespace);
-		}
-	};
-
 	public static final RowMapper<BlockedLogin> BLOCKED_LOGINS_MAPPER = new RowMapper<BlockedLogin>() {
 		@Override
 		public BlockedLogin mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -1190,9 +1181,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+	public List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess) {
 		try {
-			return jdbc.query("select login, namespace from blocked_logins", LOGIN_NAMESPACE_PAIR_MAPPER);
+			return jdbc.query("select id, login, namespace from blocked_logins", BLOCKED_LOGINS_MAPPER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1345,9 +1336,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
+	public BlockedLogin getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
 		try {
-			return jdbc.queryForObject("SELECT login, namespace FROM blocked_logins WHERE id=?", LOGIN_NAMESPACE_PAIR_MAPPER, id);
+			return jdbc.queryForObject("SELECT id, login, namespace FROM blocked_logins WHERE id=?", BLOCKED_LOGINS_MAPPER, id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new LoginIsNotBlockedException(ex);
 		} catch (RuntimeException ex) {

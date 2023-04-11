@@ -437,12 +437,12 @@ public interface UsersManagerImplApi {
 	boolean isLoginReserved(PerunSession sess, String namespace, String login, boolean ignoreCase);
 
 	/**
-	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 * Returns all blocked logins in namespaces (if namespace is null, then this login is blocked globally)
 	 *
 	 * @param sess
-	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 * @return list of all blocked logins in namespaces
 	 */
-	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess);
+	List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess);
 
 	/**
 	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not.
@@ -511,10 +511,10 @@ public interface UsersManagerImplApi {
 	 *
 	 * @param sess session
 	 * @param id id of blocked login
-	 * @return blocked login - PAIR<login, namespace>
+	 * @return blocked login
 	 * @throws LoginIsNotBlockedException when login is not blocked
 	 */
-	Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException;
+	BlockedLogin getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException;
 
 	/**
 	 * Return ID of blocked login
