@@ -1164,22 +1164,23 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public boolean isLoginReserved(PerunSession sess, String namespace, String login, boolean ignoreCase) {
-		Utils.notNull(namespace, "loginNamespace");
 		Utils.notNull(login, "userLogin");
 
 		try {
 			int numberOfExistences = 0;
+			String namespaceValue = (namespace == null) ? "%" : namespace;
 			if (ignoreCase) {
-				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and lower(login)=lower(?)",
-					namespace, login);
+				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace like ? and lower(login)=lower(?)",
+					namespaceValue, login);
 			} else {
-				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and login=?",
-					namespace, login);
+				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace like ? and login=?",
+					namespaceValue, login);
 			}
-			if (numberOfExistences == 1) {
+			if (numberOfExistences > 0) {
+				if (namespace != null && numberOfExistences > 1) {
+					throw new ConsistencyErrorException("Login " + login + " in namespace " + namespace + " is reserved more than once.");
+				}
 				return true;
-			} else if (numberOfExistences > 1) {
-				throw new ConsistencyErrorException("Login " + login + " in namespace " + namespace + " is reserved more than once.");
 			}
 			return false;
 		} catch(EmptyResultDataAccessException ex) {

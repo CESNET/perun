@@ -52,7 +52,10 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl;
+import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -77,6 +80,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration tests of UsersManager.
@@ -1086,6 +1096,25 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), "dummy");
 		// shouldn't block already used login
+	}
+
+	@Test (expected=LoginExistsException.class)
+	public void blockAlreadyReservedLogin() throws Exception {
+		System.out.println(CLASS_NAME + "blockAlreadyReservedLogin");
+
+		String login = "reservedLogin";
+		String namespace = "dummy";
+
+
+		UsersManagerImplApi usersManagerImplApi = mock(UsersManagerImplApi.class);
+		UsersManagerBlImpl usersManagerBlImpl = new UsersManagerBlImpl(usersManagerImplApi);
+		usersManagerBlImpl.setPerunBl(mock(PerunBl.class, RETURNS_DEEP_STUBS));
+		UsersManagerBlImpl spyUserManagerBlImpl = spy(usersManagerBlImpl);
+
+		when(spyUserManagerBlImpl.getUsersManagerImpl().isLoginReserved(any(), eq(namespace), eq(login), anyBoolean())).thenReturn(true);
+
+		spyUserManagerBlImpl.blockLogins(sess, Collections.singletonList(login), namespace, null);
+		// shouldn't block already reserved login
 	}
 
 	@Test
