@@ -17067,6 +17067,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/servicesManager/blockServicesOnFacility:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServicesOnFacility
+      summary: Bans services on a facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceIds'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/servicesManager/blockServiceOnDestination/s-d:
     post:
       tags:
@@ -17303,6 +17318,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+
+  /urlinjsonout/servicesManager/unblockServicesOnFacility:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServicesOnFacility
+      summary: Free the denial of the Service on this facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceIds'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/servicesManager/unblockServiceOnDestination/s-d:
     post:
       tags:
@@ -17392,6 +17423,21 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/forceServicePropagationBulk:
+    post:
+      tags:
+        - ServicesManager
+      operationId: forceServicePropagationBulk
+      summary: Forces services propagation on all facilities, where the services are defined, or just on the given facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceIds'
+        - $ref: '#/components/parameters/optionalFacilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

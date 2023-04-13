@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ForceServicePropagationDisabledException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -29,6 +30,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceIsNotBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
@@ -69,6 +71,16 @@ public class ServicesManagerEntry implements ServicesManager {
 			throw new PrivilegeException(sess, "blockServiceOnFacility");
 		}
 		getServicesManagerBl().blockServiceOnFacility(sess, service, facility);
+	}
+
+	@Override
+	public void blockServicesOnFacility(PerunSession sess, List<Service> services, Facility facility) throws ServiceAlreadyBannedException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		for (Service service : services) {
+			blockServiceOnFacility(sess, service, facility);
+		}
 	}
 
 	@Override
@@ -215,6 +227,19 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
+	public void unblockServicesOnFacility(PerunSession sess, List<Service> services, Facility facility) throws PrivilegeException, FacilityNotExistsException, ServiceIsNotBannedException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		for (Service service : services) {
+			if (!getServicesManagerBl().isServiceBlockedOnFacility(service, facility)) {
+				throw new ServiceIsNotBannedException(String.format("Service with id %d is not banned on the facility with id %d", service.getId(), facility.getId()));
+			}
+			unblockServiceOnFacility(sess, service, facility);
+		}
+	}
+
+	@Override
 	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException {
 		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
 		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
@@ -245,12 +270,35 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
+	public void forceServicePropagationBulk(PerunSession sess, Facility facility, List<Service> services) throws PrivilegeException, FacilityNotExistsException, ForceServicePropagationDisabledException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		for (Service service : services) {
+			if (!forceServicePropagation(sess, facility, service)) {
+				throw new ForceServicePropagationDisabledException(String.format("It is not possible to force service propagation for service with id %d", service.getId()));
+			}
+		}
+	}
+
+	@Override
 	public boolean forceServicePropagation(PerunSession sess, Service service) throws PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "forceServicePropagation_Service_policy", service)) {
 			throw new PrivilegeException(sess, "forceServicePropagation");
 		}
 		return getServicesManagerBl().forceServicePropagation(sess, service);
+	}
+
+	@Override
+	public void forceServicePropagationBulk(PerunSession sess, List<Service> services) throws PrivilegeException, ForceServicePropagationDisabledException {
+		Utils.checkPerunSession(sess);
+
+		for (Service service : services) {
+			if(!forceServicePropagation(sess, service)) {
+				throw new ForceServicePropagationDisabledException(String.format("It is not possible to force service propagation for service with id %d", service.getId()));
+			}
+		}
 	}
 
 	@Override
