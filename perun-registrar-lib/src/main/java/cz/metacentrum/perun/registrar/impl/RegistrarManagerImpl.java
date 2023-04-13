@@ -1221,8 +1221,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public int updateForm(PerunSession user, ApplicationForm form) throws PrivilegeException {
+	public int updateForm(PerunSession user, ApplicationForm form) throws PrivilegeException, VoNotExistsException, GroupNotExistsException {
 
+		form.setVo(this.vosManager.getVoById(user, form.getVo().getId()));
 		//Authorization
 		if (form.getGroup() == null) {
 			// VO application
@@ -1230,6 +1231,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				throw new PrivilegeException(user, "updateForm");
 			}
 		} else {
+			form.setGroup(this.groupsManager.getGroupById(user, form.getGroup().getId()));
 			if (!AuthzResolver.authorizedInternal(user, "group-updateForm_ApplicationForm_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException(user, "updateForm");
 			}
