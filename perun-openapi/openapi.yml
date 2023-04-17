@@ -10041,6 +10041,24 @@ paths:
               properties:
                 query: { $ref: '#/components/schemas/BlockedLoginsPageQuery' }
 
+  /json/usersManager/getAllBlockedLoginsInNamespaces:
+    get:
+      tags:
+        - UsersManager
+      operationId: getAllBlockedLoginsInNamespaces
+      summary: Returns all blocked logins in namespaces (if namespace is null, then this login is blocked globally)
+      responses:
+        '200':
+          description: "list of all blocked logins in namespaces"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlockedLogin'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/reserveRandomPassword:
     post:
       tags:

@@ -979,7 +979,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException {
+	public List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		if (!AuthzResolver.authorizedInternal(sess, "getAllBlockedLoginsInNamespaces_policy")) {

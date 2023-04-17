@@ -1235,12 +1235,12 @@ public interface UsersManagerBl {
 	void checkBlockedLogins(PerunSession sess, String namespace, String userLogin, boolean ignoreCase) throws LoginIsAlreadyBlockedException;
 
 	/**
-	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 * Returns all blocked logins in namespaces (if namespace is null, then this login is blocked globally)
 	 *
 	 * @param sess
-	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 * @return list of all blocked logins in namespaces
 	 */
-	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess);
+	List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess);
 
 	/**
 	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not.

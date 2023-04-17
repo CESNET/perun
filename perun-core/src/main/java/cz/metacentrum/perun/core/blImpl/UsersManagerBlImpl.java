@@ -1178,7 +1178,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+	public List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess) {
 		return getUsersManagerImpl().getAllBlockedLoginsInNamespaces(sess);
 	}
 

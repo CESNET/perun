@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Paginated;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
@@ -858,14 +857,15 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login2), namespace2);
 
-		List<Pair<String, String>> listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
+		List<BlockedLogin> listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
+
 		assertEquals(listOfBlockedLogins.size(), 3);
-		assertEquals(listOfBlockedLogins.get(0).getLeft(), login);
-		assertNull(listOfBlockedLogins.get(0).getRight());
-		assertEquals(listOfBlockedLogins.get(1).getLeft(), login);
-		assertEquals(listOfBlockedLogins.get(1).getRight(), namespace);
-		assertEquals(listOfBlockedLogins.get(2).getLeft(), login2);
-		assertEquals(listOfBlockedLogins.get(2).getRight(), namespace2);
+		assertEquals(listOfBlockedLogins.get(0).getLogin(), login);
+		assertNull(listOfBlockedLogins.get(0).getNamespace());
+		assertEquals(listOfBlockedLogins.get(1).getLogin(), login);
+		assertEquals(listOfBlockedLogins.get(1).getNamespace(), namespace);
+		assertEquals(listOfBlockedLogins.get(2).getLogin(), login2);
+		assertEquals(listOfBlockedLogins.get(2).getNamespace(), namespace2);
 	}
 
 	@Test
@@ -1025,22 +1025,22 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		perun.getUsersManager().blockLogins(sess, Arrays.asList(login, login2, login3), namespace);
 
-		List<Pair<String, String>> listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
+		List<BlockedLogin> listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
 		assertEquals(listOfBlockedLogins.size(), 3);
-		assertEquals(listOfBlockedLogins.get(0).getLeft(), login);
-		assertEquals(listOfBlockedLogins.get(0).getRight(), namespace);
-		assertEquals(listOfBlockedLogins.get(1).getLeft(), login2);
-		assertEquals(listOfBlockedLogins.get(1).getRight(), namespace);
-		assertEquals(listOfBlockedLogins.get(2).getLeft(), login3);
-		assertEquals(listOfBlockedLogins.get(2).getRight(), namespace);
+		assertEquals(listOfBlockedLogins.get(0).getLogin(), login);
+		assertEquals(listOfBlockedLogins.get(0).getNamespace(), namespace);
+		assertEquals(listOfBlockedLogins.get(1).getLogin(), login2);
+		assertEquals(listOfBlockedLogins.get(1).getNamespace(), namespace);
+		assertEquals(listOfBlockedLogins.get(2).getLogin(), login3);
+		assertEquals(listOfBlockedLogins.get(2).getNamespace(), namespace);
 
 		perun.getUsersManager().unblockLogins(sess, Arrays.asList(login, login2), namespace);
 
 		listOfBlockedLogins = perun.getUsersManager().getAllBlockedLoginsInNamespaces(sess);
 
 		assertEquals(listOfBlockedLogins.size(), 1);
-		assertEquals(listOfBlockedLogins.get(0).getLeft(), login3);
-		assertEquals(listOfBlockedLogins.get(0).getRight(), namespace);
+		assertEquals(listOfBlockedLogins.get(0).getLogin(), login3);
+		assertEquals(listOfBlockedLogins.get(0).getNamespace(), namespace);
 	}
 
 	@Test
