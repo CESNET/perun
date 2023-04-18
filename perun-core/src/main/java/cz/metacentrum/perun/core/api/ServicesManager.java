@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ForceServicePropagationDisabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceIsNotBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
@@ -51,6 +53,20 @@ public interface ServicesManager {
 	 * @throws ServiceAlreadyBannedException
 	 */
 	void blockServiceOnFacility(PerunSession perunSession, Service service, Facility facility) throws ServiceAlreadyBannedException, PrivilegeException;
+
+	/**
+	 * Bans services on facility.
+	 * It wouldn't be possible to execute the given services on the whole facility nor on any of their destinations.
+	 *
+	 * @param sess perun session
+	 * @param services list of services
+	 * @param facility The facility on which we want to ban services
+	 *
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws ServiceAlreadyBannedException when service was already banned
+	 * @throws FacilityNotExistsException when facility does not exist
+	 */
+	void blockServicesOnFacility(PerunSession sess, List<Service> services, Facility facility) throws ServiceAlreadyBannedException, PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Bans Service on destination.
@@ -181,6 +197,19 @@ public interface ServicesManager {
 	void unblockServiceOnFacility(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException;
 
 	/**
+	 * Free the denial of the services on this facility.
+	 *
+	 * @param sess perun session
+	 * @param services list of services
+	 * @param facility facility
+	 *
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws FacilityNotExistsException when facility does not exist
+	 * @throws ServiceIsNotBannedException when unblocking service which is not blocked
+	 */
+	void unblockServicesOnFacility(PerunSession sess, List<Service> services, Facility facility) throws PrivilegeException, FacilityNotExistsException, ServiceIsNotBannedException;
+
+	/**
 	 * Free the denial of the Service on this destination.
 	 * If the Service was banned on this destination, it will be freed.
 	 * In case the Service was not banned on this destination, nothing will happen.
@@ -215,6 +244,19 @@ public interface ServicesManager {
 	boolean forceServicePropagation(PerunSession perunSession, Facility facility, Service service) throws PrivilegeException;
 
 	/**
+	 * Forces services propagation on defined facility.
+	 *
+	 * @param sess perun session
+	 * @param services list of services
+	 * @param facility facility
+	 *
+	 * @throws FacilityNotExistsException when facility does not exist
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws ForceServicePropagationDisabledException when forcing propagation is not possible
+	 */
+	void forceServicePropagationBulk(PerunSession sess, Facility facility, List<Service> services) throws PrivilegeException, FacilityNotExistsException, ForceServicePropagationDisabledException;
+
+	/**
 	 * Forces service propagation on all facilities where the service is defined on.
 	 *
 	 * @param perunSession
@@ -223,6 +265,17 @@ public interface ServicesManager {
 	 *
 	 */
 	boolean forceServicePropagation(PerunSession perunSession, Service service) throws PrivilegeException;
+
+	/**
+	 * Forces services propagation on all facilities where the services are defined on.
+	 *
+	 * @param sess session
+	 * @param services list of services
+	 *
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws ForceServicePropagationDisabledException when forcing propagation is not possible
+	 */
+	void forceServicePropagationBulk(PerunSession sess, List<Service> services) throws PrivilegeException, ForceServicePropagationDisabledException;
 
 	/**
 	 * Plans service propagation on defined facility.

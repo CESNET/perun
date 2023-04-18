@@ -36,6 +36,27 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Bans services on a facility.
+	 *
+	 * @param services List<Integer> <code>id</code> of service
+	 * @param facility int Facility <code>id</code>
+	 *
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw FacilityNotExistsException when facility does not exist
+	 * @throw ServiceAlreadyBannedException when service is already banned on facility
+	 */
+	blockServicesOnFacility {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<Service> services = new ArrayList<>();
+			for (int id : parms.readList("services", Integer.class)) {
+				services.add(ac.getServiceById(id));
+			}
+			ac.getServicesManager().blockServicesOnFacility(ac.getSession(), services, ac.getFacilityById(parms.readInt("facility")));
+			return null;
+		}
+	},
+
+	/*#
 	 * Bans Service on a destination.
 	 *
 	 * @param service int Service <code>id</code>
@@ -227,6 +248,28 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Free the denial of the Service on this facility.
+	 *
+	 * @param services List<Integer> <code>id</code> of service
+	 * @param facility int Facility <code>id</code>
+	 *
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw FacilityNotExistsException when facility does not exist
+	 * @throw ServiceIsNotBannedException when unblocking service which is not blocked
+	 */
+	unblockServicesOnFacility {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<Service> services = new ArrayList<>();
+			for (int id : parms.readList("services", Integer.class)) {
+				services.add(ac.getServiceById(id));
+			}
+
+			ac.getServicesManager().unblockServicesOnFacility(ac.getSession(), services, ac.getFacilityById(parms.readInt("facility")));
+			return null;
+		}
+	},
+
+	/*#
 	 * Free the denial of the Service on this destination. If the Service was banned on
 	 * this destination, it will be freed. In case the Service was not banned on this
 	 * destination, nothing will happen.
@@ -296,6 +339,40 @@ public enum ServicesManagerMethod implements ManagerMethod {
 					ac.getServiceById(parms.readInt("service")))) return 1;
 				else return 0;
 			}
+		}
+	},
+
+	/*#
+	 * Forces services propagation on defined facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param services List<Integer> <code>id</code> of service
+	 *
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw ForceServicePropagationDisabledException when forcing propagation is not possible
+	 */
+	/*#
+	 * Forces services propagation on all facilities where the services are defined on.
+	 *
+	 * @param services List<Integer> <code>id</code> of service
+	 *
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw ForceServicePropagationDisabledException when forcing propagation is not possible
+	 */
+	forceServicePropagationBulk {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<Service> services = new ArrayList<>();
+			for (int id : parms.readList("services", Integer.class)) {
+				services.add(ac.getServiceById(id));
+			}
+
+			if (parms.contains("facility")) {
+				ac.getServicesManager().forceServicePropagationBulk(ac.getSession(), ac.getFacilityById(parms.readInt("facility")), services);
+			} else {
+				ac.getServicesManager().forceServicePropagationBulk(ac.getSession(), services);
+			}
+			return null;
 		}
 	},
 
