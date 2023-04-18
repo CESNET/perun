@@ -1,4 +1,4 @@
--- database version 3.2.12 (don't forget to update insert statement at the end of file)
+-- database version 3.2.13 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -670,6 +670,7 @@ create table blocked_logins (
 								id integer not null,
 								login varchar not null,		--login
 								namespace varchar,			--namespace where login is blocked
+								related_user_id integer,	--id of user who was related to this login in the past
 								created_at timestamp default statement_timestamp() not null,
 								created_by_uid integer,
 								modified_by_uid integer,
@@ -1895,7 +1896,7 @@ create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.12');
+insert into configurations values ('DATABASE VERSION','3.2.13');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BlockedLogin;
 import cz.metacentrum.perun.core.api.BlockedLoginsPageQuery;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -474,6 +475,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Deletes a user. User is not deleted, if is member of any VO or is associated with any service identity.
 	 *
 	 * @param user int User <code>id</code>
+	 * @throw RelationExistsException             if user has some members assigned
+	 * @throw MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throw UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
+	 * @throw SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
+	 * @throw DeletionNotSupportedException		  if the deletion of users is not supported at this instance
 	 */
 	/*#
 	 * Deletes a user (force).
@@ -481,6 +487,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param user int User <code>id</code>
 	 * @param force boolean If true, use force deletion.
+	 * @throw RelationExistsException             if forceDelete is false and the user has some members assigned
+	 * @throw MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throw UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
+	 * @throw SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
+	 * @throw DeletionNotSupportedException	      if the deletion of users is not supported at this instance
 	 */
 	deleteUser {
 
@@ -507,7 +518,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @throw UserNotExistsException When the User specified by <code>id</code> doesn't exist.
 	 * @throw RelationExistsException When the User has some members assigned.
-	 * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process.
+	 * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance.
 	 */
 	/*#
 	 * Anonymizes user (force) - according to configuration, each of user's attributes is either
@@ -519,7 +530,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param force boolean If true, use force anonymization
 	 * @throw UserNotExistsException When the User specified by <code>id</code> doesn't exist.
 	 * @throw RelationExistsException When the User has some members assigned.
-	 * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process.
+	 * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance.
 	 */
 	anonymizeUser {
 
@@ -1201,7 +1212,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 
-	/**
+	/*#
 	 * Get a page of blocked logins
 	 *
 	 * @param query BlockedLoginsPageQuery
@@ -1212,6 +1223,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Object call(ApiCaller ac, Deserializer params) throws PerunException {
 			return ac.getUsersManager().getBlockedLoginsPage(ac.getSession(),
 				params.read("query", BlockedLoginsPageQuery.class));
+		}
+	},
+
+	/*#
+	 * Returns all blocked logins in namespaces (if namespace is null, then this login is blocked globally)
+	 *
+	 * @return List<BlockedLogin> list of all blocked logins in namespaces
+	 */
+	getAllBlockedLoginsInNamespaces {
+		@Override
+		public List<BlockedLogin> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getAllBlockedLoginsInNamespaces(ac.getSession());
 		}
 	},
 

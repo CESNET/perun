@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.13
+ALTER TABLE blocked_logins ADD COLUMN related_user_id integer;
+UPDATE configurations set value='3.2.13' WHERE property='DATABASE VERSION';
+
 3.2.12
 create table blocked_logins (id integer not null, login varchar not null, namespace varchar, created_at timestamp default statement_timestamp() not null, created_by_uid integer, modified_by_uid integer, constraint blocked_logins_pk primary key(id), constraint blocked_logins_u unique (login, namespace));
 create sequence "blocked_logins_id_seq";

@@ -52,6 +52,7 @@ public class CoreConfig {
 	private Set<String> dontLookupUsers;
 	private Set<String> extSourcesMultipleIdentifiers;
 	private boolean lookupUserByIdentifiersAndExtSourceLogin;
+	private boolean userDeletionForced;
 	private boolean forceConsents;
 	private boolean requestUserInfoEndpoint;
 	private String alternativePasswordManagerProgram;
@@ -271,6 +272,14 @@ public class CoreConfig {
 
 	public void setLookupUserByIdentifiersAndExtSourceLogin(boolean lookupUserByIdentifiersAndExtSourceLogin) {
 		this.lookupUserByIdentifiersAndExtSourceLogin = lookupUserByIdentifiersAndExtSourceLogin;
+	}
+
+	public boolean getUserDeletionForced() {
+		return userDeletionForced;
+	}
+
+	public void setUserDeletionForced(boolean userDeletionForced) {
+		this.userDeletionForced = userDeletionForced;
 	}
 
 	public boolean getForceConsents() {

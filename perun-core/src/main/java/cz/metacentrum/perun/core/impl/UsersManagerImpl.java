@@ -184,15 +184,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             return result;
         };
 
-	public static final RowMapper<Pair<String, String>> LOGIN_NAMESPACE_PAIR_MAPPER = new RowMapper<Pair<String, String>>() {
-		@Override
-		public Pair<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
-			String login = rs.getString("login");
-			String namespace = rs.getString("namespace");
-			return new Pair<>(login, namespace);
-		}
-	};
-
 	public static final RowMapper<BlockedLogin> BLOCKED_LOGINS_MAPPER = new RowMapper<BlockedLogin>() {
 		@Override
 		public BlockedLogin mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -1164,22 +1155,23 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public boolean isLoginReserved(PerunSession sess, String namespace, String login, boolean ignoreCase) {
-		Utils.notNull(namespace, "loginNamespace");
 		Utils.notNull(login, "userLogin");
 
 		try {
 			int numberOfExistences = 0;
+			String namespaceValue = (namespace == null) ? "%" : namespace;
 			if (ignoreCase) {
-				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and lower(login)=lower(?)",
-					namespace, login);
+				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace like ? and lower(login)=lower(?)",
+					namespaceValue, login);
 			} else {
-				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and login=?",
-					namespace, login);
+				numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace like ? and login=?",
+					namespaceValue, login);
 			}
-			if (numberOfExistences == 1) {
+			if (numberOfExistences > 0) {
+				if (namespace != null && numberOfExistences > 1) {
+					throw new ConsistencyErrorException("Login " + login + " in namespace " + namespace + " is reserved more than once.");
+				}
 				return true;
-			} else if (numberOfExistences > 1) {
-				throw new ConsistencyErrorException("Login " + login + " in namespace " + namespace + " is reserved more than once.");
 			}
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
@@ -1190,9 +1182,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+	public List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess) {
 		try {
-			return jdbc.query("select login, namespace from blocked_logins", LOGIN_NAMESPACE_PAIR_MAPPER);
+			return jdbc.query("select id, login, namespace from blocked_logins", BLOCKED_LOGINS_MAPPER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1244,13 +1236,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     }
 
 	@Override
-	public void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException {
+	public void blockLogin(PerunSession sess, String login, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException {
 		Utils.notNull(login, "userLogin");
 
 		try {
 			int newId = Utils.getNewId(jdbc, "blocked_logins_id_seq");
-			jdbc.update("insert into blocked_logins(id, login, namespace) values (?,?,?)",
-				newId, login, namespace);
+			jdbc.update("insert into blocked_logins(id, login, namespace, related_user_id) values (?,?,?,?)",
+				newId, login, namespace, relatedUserId);
 			if (namespace == null) {
 				log.info("Login {} globally blocked", login);
 			} else {
@@ -1293,7 +1285,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query) {
 		try {
 			MapSqlParameterSource namedParams = new MapSqlParameterSource();
-			namedParams.addValue("login", query.getSearchString());
+			namedParams.addValue("login", query.getSearchString().toLowerCase());
 			namedParams.addValue("namespaces", query.getNamespaces());
 			namedParams.addValue("offset", query.getOffset());
 			namedParams.addValue("limit", query.getPageSize());
@@ -1305,7 +1297,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			if (hasSearchString || hasNamespaces) {
 				sqlQuery += " WHERE";
 				if (hasSearchString) {
-					sqlQuery += " login like (:login)";
+					sqlQuery += " LOWER(login) like ('%%' || :login || '%%')";
 				}
 
 				if (hasSearchString && hasNamespaces) {
@@ -1345,9 +1337,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
+	public BlockedLogin getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
 		try {
-			return jdbc.queryForObject("SELECT login, namespace FROM blocked_logins WHERE id=?", LOGIN_NAMESPACE_PAIR_MAPPER, id);
+			return jdbc.queryForObject("SELECT id, login, namespace FROM blocked_logins WHERE id=?", BLOCKED_LOGINS_MAPPER, id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new LoginIsNotBlockedException(ex);
 		} catch (RuntimeException ex) {
@@ -1365,6 +1357,21 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		try {
+			if (namespace == null) {
+				return jdbc.queryForObject("SELECT related_user_id FROM blocked_logins WHERE login=? AND namespace IS NULL", Integer.class, login);
+			} else {
+				return jdbc.queryForObject("SELECT related_user_id FROM blocked_logins WHERE login=? AND namespace=?", Integer.class, login, namespace);
+			}
+		} catch(EmptyResultDataAccessException ex) {
+			throw new LoginIsNotBlockedException(ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 

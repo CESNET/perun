@@ -425,10 +425,10 @@ public interface UsersManagerImplApi {
 	UserExtSource getUserExtSourceByExtLogin(PerunSession perunSession, ExtSource source, String extLogin) throws UserExtSourceNotExistsException;
 
 	/**
-	 * Return true if login in specified namespace is already reserved, false if not.
+	 * Return true if login is already reserved in specified namespace or in any namespace (if namespace is null), false if not.
 	 *
 	 * @param sess
-	 * @param namespace namespace for login
+	 * @param namespace namespace for login, null for all namespace
 	 * @param login login to check
 	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @return true if login exist, false if not exist
@@ -437,12 +437,12 @@ public interface UsersManagerImplApi {
 	boolean isLoginReserved(PerunSession sess, String namespace, String login, boolean ignoreCase);
 
 	/**
-	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 * Returns all blocked logins in namespaces (if namespace is null, then this login is blocked globally)
 	 *
 	 * @param sess
-	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 * @return list of all blocked logins in namespaces
 	 */
-	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess);
+	List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess);
 
 	/**
 	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not.
@@ -484,9 +484,10 @@ public interface UsersManagerImplApi {
 	 * @param sess
 	 * @param login login to be blocked
 	 * @param namespace namespace where the login should be blocked (null means block the login globally)
+	 * @param relatedUserId id of the user related to the login or null if the relatedUserId should not be stored
 	 * @throws LoginIsAlreadyBlockedException
 	 */
-	void blockLogin(PerunSession sess, String login, String namespace) throws LoginIsAlreadyBlockedException;
+	void blockLogin(PerunSession sess, String login, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException;
 
 	/**
 	 * Unblock login for given namespace or unblock login globally (if no namespace is selected)
@@ -510,10 +511,10 @@ public interface UsersManagerImplApi {
 	 *
 	 * @param sess session
 	 * @param id id of blocked login
-	 * @return blocked login - PAIR<login, namespace>
+	 * @return blocked login
 	 * @throws LoginIsNotBlockedException when login is not blocked
 	 */
-	Pair<String, String> getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException;
+	BlockedLogin getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException;
 
 	/**
 	 * Return ID of blocked login
@@ -526,6 +527,16 @@ public interface UsersManagerImplApi {
 	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
 
 	/**
+	 * Get user id of the user who was related to the given login in the past
+	 *
+	 * @param sess session
+	 * @param login blocked login
+	 * @param namespace namespace where the login is blocked
+	 * @return user id or null if there is no related user id
+	 */
+	Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
+
+	/**
 	 * Get page of blocked logins.
 	 *
 	 * @param sess session
@@ -535,10 +546,10 @@ public interface UsersManagerImplApi {
 	Paginated<BlockedLogin> getBlockedLoginsPage(PerunSession sess, BlockedLoginsPageQuery query);
 
 	/**
-	 * Check if login in specified namespace exists.
+	 * Check if login exists in specified namespace or in any namespace (if namespace is null).
 	 *
 	 * @param sess
-	 * @param namespace namespace for login
+	 * @param namespace namespace for login, null for all namespace
 	 * @param login login to check
 	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @throws InternalErrorException

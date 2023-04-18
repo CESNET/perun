@@ -148,7 +148,7 @@ public interface RegistrarManager {
 	 * @param applicationForm the form
 	 * @return number of updated rows (should be 1)
 	 */
-	int updateForm(PerunSession user, ApplicationForm applicationForm) throws PrivilegeException;
+	int updateForm(PerunSession user, ApplicationForm applicationForm) throws PerunException;
 
 	/**
 	 * Removes a form item permanently. The user data associated with it remain in the database, just they lose the foreign key

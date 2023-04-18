@@ -35,6 +35,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -416,7 +417,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -432,7 +433,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -978,7 +979,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException {
+	public List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		if (!AuthzResolver.authorizedInternal(sess, "getAllBlockedLoginsInNamespaces_policy")) {
@@ -1030,7 +1031,7 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "blockLogins");
 		}
 
-		getUsersManagerBl().blockLogins(sess, logins, namespace);
+		getUsersManagerBl().blockLogins(sess, logins, namespace, null);
 	}
 
 	@Override
@@ -1063,6 +1064,11 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		getUsersManagerBl().unblockLoginsById(sess, loginIds);
+	}
+
+	@Override
+	public Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		return getUsersManagerBl().getRelatedUserIdByBlockedLoginInNamespace(sess, login, namespace);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -340,12 +341,13 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException
-	 * @throws MemberAlreadyRemovedException
-	 * @throws UserAlreadyRemovedException
-	 * @throws SpecificUserAlreadyRemovedException
+	 * @throws RelationExistsException 				if user has some members assigned
+	 * @throws MemberAlreadyRemovedException 		if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException 			if there are no rows affected by deleting user in DB
+	 * @throws SpecificUserAlreadyRemovedException 	if there are no rows affected by deleting specific user in DB
+	 * @throws DeletionNotSupportedException 		if the deletion of users is not supported
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 *  Deletes user. If forceDelete is true, then removes also associeted members.
@@ -356,12 +358,13 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException
-	 * @throws MemberAlreadyRemovedException
-	 * @throws UserAlreadyRemovedException
-	 * @throws SpecificUserAlreadyRemovedException
+	 * @throws RelationExistsException				if forceDelete is false and the user has some members assigned
+	 * @throws MemberAlreadyRemovedException		if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException			if there are no rows affected by deleting user in DB
+	 * @throws SpecificUserAlreadyRemovedException	if there are no rows affected by deleting specific user in DBn
+	 * @throws DeletionNotSupportedException 		if the deletion of users is not supported
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Anonymizes user - according to configuration, each of user's attributes is either
@@ -376,7 +379,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException if the user doesn't exist
 	 * @throws PrivilegeException if the method isn't called by perun admin
 	 * @throws RelationExistsException if the user has some members assigned
-	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process
+	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance
 	 */
 	void anonymizeUser(PerunSession perunSession, User user, boolean force) throws UserNotExistsException, PrivilegeException, RelationExistsException, AnonymizationNotSupportedException;
 
@@ -798,12 +801,12 @@ public interface UsersManager {
 	boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InvalidLoginException;
 
 	/**
-	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 * Returns all blocked logins in namespaces (if namespace is null, then this login is blocked globally)
 	 *
 	 * @param sess
-	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 * @return list of all blocked logins in namespaces
 	 */
-	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException;
+	List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not.
@@ -867,6 +870,16 @@ public interface UsersManager {
 	 * @throws LoginIsNotBlockedException when login is not blocked
 	 */
 	void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws PrivilegeException, LoginIsNotBlockedException;
+
+	/**
+	 * Get user id of the user who was related to the given login in the past
+	 *
+	 * @param sess session
+	 * @param login blocked login
+	 * @param namespace namespace where the login is blocked
+	 * @return user id or null if there is no related user id
+	 */
+	Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
 
 	/**
 	 * Get page of blocked logins.

@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -474,12 +475,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		this.deleteUser(sess, user, false);
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		try {
 			this.deleteUser(sess, user, forceDelete, false);
 		} catch (AnonymizationNotSupportedException ex) {
@@ -488,7 +489,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
-	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException {
+	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException, DeletionNotSupportedException {
+		if (BeansUtils.getCoreConfig().getUserDeletionForced() && anonymizeInstead) {
+			throw new AnonymizationNotSupportedException("It is not allowed to anonymize users on this instance. You should use deleteUser() method instead.");
+		}
+		if (!BeansUtils.getCoreConfig().getUserDeletionForced() && !anonymizeInstead) {
+			throw new DeletionNotSupportedException("It is not allowed to delete users on this instance. You should use anonymizeUser() method instead.");
+		}
+
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -599,7 +607,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					}
 				}
 			} else {
+				// Store login attributes for the further blocking of these logins
+				List<Attribute> userLoginAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user).stream().filter(attr -> Objects.equals(attr.getBaseFriendlyName(), "login-namespace")).toList();
+				// Remove all attributes
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, user);
+
+				// Block currently removed logins
+				for (Attribute loginAttr : userLoginAttributes) {
+					try {
+						blockLogins(sess, Collections.singletonList(loginAttr.valueAsString()), loginAttr.getFriendlyNameParameter(), user.getId());
+					} catch (LoginIsAlreadyBlockedException ex) {
+						throw new WrongReferenceAttributeValueException(loginAttr, null, "Login is blocked.", ex);
+					} catch (LoginExistsException ex) {
+						// this should not happen because all logins are deleted in the previous step before the blockLogin() method is called
+					}
+				}
 			}
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException ex) {
 			//All members are deleted => there are no required attributes => all attributes can be removed
@@ -657,7 +679,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void anonymizeUser(PerunSession sess, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException {
 		try {
 			this.deleteUser(sess, user, force, true);
-		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException ex) {
+		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException | DeletionNotSupportedException ex) {
 			//this shouldn't happen with 'anonymizedInstead' set to true
 			throw new InternalErrorException(ex);
 		}
@@ -1156,7 +1178,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess) {
+	public List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess) {
 		return getUsersManagerImpl().getAllBlockedLoginsInNamespaces(sess);
 	}
 
@@ -1176,12 +1198,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void blockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsAlreadyBlockedException, LoginExistsException {
+	public void blockLogins(PerunSession sess, List<String> logins, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException, LoginExistsException {
 		for (String login : logins) {
 			if (getPerunBl().getAttributesManagerBl().isLoginAlreadyUsed(sess, login, namespace)) {
 				throw new LoginExistsException("Login: " + login + " is already in use.");
 			}
-			getUsersManagerImpl().blockLogin(sess, login, namespace);
+			if (getUsersManagerImpl().isLoginReserved(sess, namespace, login, false)) {
+				throw new LoginExistsException("Login: " + login + " is already reserved.");
+			}
+
+			getUsersManagerImpl().blockLogin(sess, login, namespace, relatedUserId);
 		}
 	}
 
@@ -1203,6 +1229,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
 		return getUsersManagerImpl().getIdOfBlockedLogin(sess, login, namespace);
+	}
+
+	@Override
+	public Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException {
+		return getUsersManagerImpl().getRelatedUserIdByBlockedLoginInNamespace(sess, login, namespace);
 	}
 
 	@Override

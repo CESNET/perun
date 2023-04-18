@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
@@ -388,8 +389,9 @@ public interface UsersManagerBl {
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
+	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -402,8 +404,9 @@ public interface UsersManagerBl {
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
+	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Return list of all reserved logins for specific user
@@ -425,7 +428,7 @@ public interface UsersManagerBl {
 	 * @param force
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException if the user has some members assigned
-	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process
+	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance
 	 */
 	void anonymizeUser(PerunSession perunSession, User user, boolean force) throws RelationExistsException, AnonymizationNotSupportedException;
 
@@ -1208,10 +1211,10 @@ public interface UsersManagerBl {
 
 
 	/**
-	 * Check if login in specified namespace exists.
+	 * Check if login exists in specified namespace or in any namespace (if namespace is null).
 	 *
 	 * @param sess
-	 * @param namespace namespace for login
+	 * @param namespace namespace for login, null for all namespace
 	 * @param login     login to check
 	 * @param ignoreCase TRUE to perform case-insensitive check
 	 * @throws InternalErrorException
@@ -1232,12 +1235,12 @@ public interface UsersManagerBl {
 	void checkBlockedLogins(PerunSession sess, String namespace, String userLogin, boolean ignoreCase) throws LoginIsAlreadyBlockedException;
 
 	/**
-	 * Returns all pairs of blocked login in namespace (if namespace is null, then this login is blocked globally)
+	 * Returns all blocked logins in namespaces (if namespace is null, then this login is blocked globally)
 	 *
 	 * @param sess
-	 * @return list of pairs login and namespace - List<Pair<login, namespace>>
+	 * @return list of all blocked logins in namespaces
 	 */
-	List<Pair<String, String>> getAllBlockedLoginsInNamespaces(PerunSession sess);
+	List<BlockedLogin> getAllBlockedLoginsInNamespaces(PerunSession sess);
 
 	/**
 	 * Return true if login is blocked (globally - for all namespaces per instance OR for some namespace), false if not.
@@ -1279,10 +1282,11 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param logins list of logins to be blocked
 	 * @param namespace namespace where the logins should be blocked (null means block the logins globally)
+	 * @param relatedUserId id of the user related to the login or null if the relatedUserId should not be stored
 	 * @throws LoginIsAlreadyBlockedException
 	 * @throws LoginExistsException
 	 */
-	void blockLogins(PerunSession sess, List<String> logins, String namespace) throws LoginIsAlreadyBlockedException, LoginExistsException;
+	void blockLogins(PerunSession sess, List<String> logins, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException, LoginExistsException;
 
 	/**
 	 * Get page of blocked logins.
@@ -1319,6 +1323,16 @@ public interface UsersManagerBl {
 	 * @return id of login blocked in specified namespace
 	 */
 	int getIdOfBlockedLogin(PerunSession sess, String login, String namespace);
+
+	/**
+	 * Get user id of the user who was related to the given login in the past
+	 *
+	 * @param sess session
+	 * @param login blocked login
+	 * @param namespace namespace where the login is blocked
+	 * @return user id or null if there is no related user id
+	 */
+	Integer getRelatedUserIdByBlockedLoginInNamespace(PerunSession sess, String login, String namespace) throws LoginIsNotBlockedException;
 
 	void checkUserExists(PerunSession sess, User user) throws UserNotExistsException;
 
