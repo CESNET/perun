@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +29,6 @@ import java.util.Set;
 public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceREMS.class);
-
-	private static PerunBlImpl perunBl;
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
-	}
 
 	@Override
 	public List<Map<String, String>> findSubjects(String searchString) throws ExtSourceUnsupportedOperationException {
@@ -84,7 +75,7 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() {
+	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
 		List<Map<String, String>> subjects = super.getUsersSubjects();
 		return filterNonExistingUsers(subjects);
 	}

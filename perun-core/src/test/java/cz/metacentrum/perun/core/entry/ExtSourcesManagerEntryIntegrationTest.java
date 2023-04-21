@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
@@ -16,6 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -43,7 +45,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	/**
-	 * Test method for {@link cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#createExtSource(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.ExtSource)}.
+	 * Test method for {@link cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#createExtSource(PerunSession, ExtSource, Map)}.
 	 */
 	@Test
 	public void testCreateExtSource() throws Exception {

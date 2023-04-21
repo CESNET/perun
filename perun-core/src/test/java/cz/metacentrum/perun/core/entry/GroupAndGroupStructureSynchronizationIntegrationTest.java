@@ -123,6 +123,8 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		MockitoAnnotations.initMocks(this);
 
 		doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class), any(String.class));
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+		when(extSourceManagerBl.getExtSourceByName(sess, extSourceForUserCreation.getName())).thenReturn(extSourceForUserCreation);
 		//noinspection ResultOfMethodCallIgnored
 		doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap)essa).getName();
 		doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));

@@ -3,12 +3,10 @@
  */
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -29,17 +27,9 @@ import java.util.Map;
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
+public class ExtSourceISMU extends ExtSourceImpl implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceISMU.class);
-
-	private static PerunBlImpl perunBl;
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
-	}
 
 	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
@@ -176,9 +166,5 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	@Override
 	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
-	}
-
-	protected Map<String,String> getAttributes() {
-		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }
