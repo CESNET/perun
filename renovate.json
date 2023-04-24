@@ -4,9 +4,19 @@
 		"config:base"
 	],
 	"packageRules": [
-    {
-      "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true
-    }
-  ]
+		{
+			"matchUpdateTypes": [
+				"major"
+			],
+			"dependencyDashboardApproval": true
+		},
+		{
+			"matchUpdateTypes": [
+				"minor",
+				"patch"
+			],
+			"matchCurrentVersion": "!/^0/",
+			"automerge": true
+		}
+	]
 }
