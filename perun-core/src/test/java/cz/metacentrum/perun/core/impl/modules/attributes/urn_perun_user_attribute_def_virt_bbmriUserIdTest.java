@@ -68,8 +68,7 @@ public class urn_perun_user_attribute_def_virt_bbmriUserIdTest {
 		assertEquals("received attribute name is wrong",
 			classInstance.getAttributeDefinition().getFriendlyName(), receivedAttr.getFriendlyName());
 
-		@SuppressWarnings("unchecked")
-		Integer actual = (Integer) receivedAttr.getValue();
+		Integer actual = receivedAttr.valueAsInteger();
 		Integer expected = Integer.parseInt(correctUes.getLogin());
 		assertEquals("received value is incorrect", expected, actual);
 	}
@@ -85,8 +84,7 @@ public class urn_perun_user_attribute_def_virt_bbmriUserIdTest {
 		assertEquals("received attribute name is wrong",
 			classInstance.getAttributeDefinition().getFriendlyName(), receivedAttr.getFriendlyName());
 
-		@SuppressWarnings("unchecked")
-		Integer actual = (Integer) receivedAttr.getValue();
+		Integer actual = receivedAttr.valueAsInteger();
 		assertNull("received value is not null", actual);
 	}
 
@@ -102,8 +100,7 @@ public class urn_perun_user_attribute_def_virt_bbmriUserIdTest {
 		assertEquals("received attribute name is wrong",
 			classInstance.getAttributeDefinition().getFriendlyName(), receivedAttr.getFriendlyName());
 
-		@SuppressWarnings("unchecked")
-		Integer actual = (Integer) receivedAttr.getValue();
+		Integer actual = receivedAttr.valueAsInteger();
 		assertNull("received value is not null", actual);
 	}
 
@@ -119,8 +116,7 @@ public class urn_perun_user_attribute_def_virt_bbmriUserIdTest {
 		assertEquals("received attribute name is wrong",
 			classInstance.getAttributeDefinition().getFriendlyName(), receivedAttr.getFriendlyName());
 
-		@SuppressWarnings("unchecked")
-		Integer actual = (Integer) receivedAttr.getValue();
+		Integer actual = receivedAttr.valueAsInteger();
 		assertNull("received value is not null", actual);
 	}
 
@@ -136,8 +132,7 @@ public class urn_perun_user_attribute_def_virt_bbmriUserIdTest {
 		assertEquals("received attribute name is wrong",
 			classInstance.getAttributeDefinition().getFriendlyName(), receivedAttr.getFriendlyName());
 
-		@SuppressWarnings("unchecked")
-		Integer actual = (Integer) receivedAttr.getValue();
+		Integer actual = receivedAttr.valueAsInteger();
 		assertNull("received value is not null", actual);
 	}
 
