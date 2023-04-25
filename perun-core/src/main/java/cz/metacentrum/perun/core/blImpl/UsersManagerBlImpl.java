@@ -515,9 +515,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new RelationExistsException("User is blacklisted by some security team. Deletion would cause loss of this information.");
 		}
 
-		// First delete all associated external sources to the user
-		removeAllUserExtSources(sess, user);
-
 		// delete all authorships of users publications
 		getUsersManagerImpl().removeAllAuthorships(sess, user);
 
@@ -588,17 +585,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						continue;
 					}
 					// Skip attributes configured to keep untouched
-					if (attributesToKeep.contains(attribute.getName()) ||
-						// Attributes like 'login-namespace:mu' are configured as 'login-namespace:*'
-						(!attribute.getFriendlyNameParameter().isEmpty() &&
-						 attributesToKeep.contains(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName() + ":*"))) {
+					if (attributeInConfig(attribute, attributesToKeep)) {
 						continue;
 					}
 					// Anonymize configured attributes
-					if (attributesToAnonymize.contains(attribute.getName()) ||
-						(!attribute.getFriendlyNameParameter().isEmpty() &&
-						 attributesToAnonymize.contains(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName() + ":*"))) {
-
+					if (attributeInConfig(attribute, attributesToAnonymize)) {
 						Attribute anonymized = getPerunBl().getAttributesManagerBl().getAnonymizedValue(sess, user, attribute);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, anonymized);
 					} else {
@@ -607,8 +598,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					}
 				}
 			} else {
-				// Store login attributes for the further blocking of these logins
+				// Store login attributes for the further blocking of these logins (just logins included in the attributesToKeep config property)
 				List<Attribute> userLoginAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user).stream().filter(attr -> Objects.equals(attr.getBaseFriendlyName(), "login-namespace")).toList();
+				List<String> attributesToKeep = BeansUtils.getCoreConfig().getAttributesToKeep();
+				userLoginAttributes = userLoginAttributes.stream()
+					.filter(attr -> attributeInConfig(attr, attributesToKeep)).collect(Collectors.toList());
+
 				// Remove all attributes
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, user);
 
@@ -627,6 +622,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			//All members are deleted => there are no required attributes => all attributes can be removed
 			throw new ConsistencyErrorException(ex);
 		}
+
+		//delete all associated external sources to the user
+		removeAllUserExtSources(sess, user);
 
 		//Remove user authz
 		AuthzResolverBlImpl.removeAllUserAuthz(sess, user);
@@ -668,6 +666,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			getUsersManagerImpl().deleteUser(sess, user);
 			getPerunBl().getAuditer().log(sess, new UserDeleted(user));
 		}
+	}
+
+	private boolean attributeInConfig (Attribute attribute, List<String> configAttributes) {
+		return configAttributes.contains(attribute.getName()) ||
+			// Attributes like 'login-namespace:mu' are configured as 'login-namespace:*'
+			(!attribute.getFriendlyNameParameter().isEmpty() &&
+				configAttributes.contains(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName() + ":*"));
 	}
 
 	@Override

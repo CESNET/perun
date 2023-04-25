@@ -421,6 +421,39 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void deleteUserWithPersistentLogin() throws Exception {
+		System.out.println(CLASS_NAME + "deleteUserWithPersistentLogin");
+
+		ExtSource extSource = new ExtSource("https://login.bbmri-eric.eu/idp/", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+		perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace("urn:perun:user:attribute-def:virt");
+		attrDef.setFriendlyName("login-namespace:bbmri-persistent");
+		attrDef.setType(String.class.getName());
+		perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+		AttributeDefinition attrDefShadow = new AttributeDefinition();
+		attrDefShadow.setNamespace("urn:perun:user:attribute-def:def");
+		attrDefShadow.setFriendlyName("login-namespace:bbmri-persistent-shadow");
+		attrDefShadow.setType(String.class.getName());
+		perun.getAttributesManagerBl().createAttribute(sess, attrDefShadow);
+
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			usersManager.deleteUser(sess, user, true);
+
+			assertThatExceptionOfType(UserNotExistsException.class).isThrownBy(
+				() -> usersManager.getUserById(sess, user.getId()));
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
+	}
+
+	@Test
 	public void deleteUserWhenUserNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "deleteUserWhenUserNotExists");
 
@@ -456,7 +489,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void deleteUserAndCheckBlockedLogins() throws Exception {
 		System.out.println(CLASS_NAME + "deleteUserAndCheckBlockedLogins");
 
-		// Create logins for user in 2 namespaces
+		// Create logins for user in 3 namespaces
 		Attribute attrLogin = new Attribute();
 		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attrLogin.setFriendlyName("login-namespace:namespace1");
@@ -473,22 +506,94 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attrLogin2.setValue("login2");
 		perun.getAttributesManager().setAttribute(sess, user, attrLogin2);
 
+		// This attribute will not be in attributesToKeep, so should NOT be blocked during deletion of user
+		Attribute attrLogin3 = new Attribute();
+		attrLogin3.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin3.setFriendlyName("login-namespace:namespace3");
+		attrLogin3.setType(String.class.getName());
+		attrLogin3 = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin3));
+		attrLogin3.setValue("login3");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin3);
+
 		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
 		try {
 			// Enable deletion of users
 			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			List<String> attrsToKeep = new ArrayList<>();
+			// Define exactly two attributes to keep
+			attrsToKeep.add(attrLogin.getName());
+			attrsToKeep.add(attrLogin2.getName());
+			BeansUtils.getCoreConfig().setAttributesToKeep(attrsToKeep);
 			usersManager.deleteUser(sess, user, true);
 		} finally {
-			// set userDeletionForced back to the original value
+			// set userDeletionForced and attributesToKeep back to the original value
 			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+			BeansUtils.getCoreConfig().setAttributesToKeep(Collections.emptyList());
 		}
 
 		assertTrue(usersManager.isLoginBlockedForNamespace(sess, "login1", "namespace1", true));
 		assertFalse(usersManager.isLoginBlockedForNamespace(sess, "login1", "namespace2", true));
 		assertTrue(usersManager.isLoginBlockedForNamespace(sess, "login2", "namespace2", true));
 		assertFalse(usersManager.isLoginBlockedForNamespace(sess, "login2", "namespace1", true));
+		// login3 in namespace3 should NOT be blocked
+		assertFalse(usersManager.isLoginBlockedForNamespace(sess, "login3", "namespace3", true));
 
 		assertEquals("The number of blocked logins should be 2.", 2, usersManager.getAllBlockedLoginsInNamespaces(sess).size());
+
+		assertThatExceptionOfType(UserNotExistsException.class).isThrownBy(
+			() -> perun.getUsersManager().getUserById(sess, user.getId()));
+	}
+
+	@Test
+	public void deleteUserAndCheckBlockedAllLogins() throws Exception {
+		System.out.println(CLASS_NAME + "deleteUserAndCheckBlockedAllLogins");
+
+		// Create logins for user in 3 namespaces
+		Attribute attrLogin = new Attribute();
+		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin.setFriendlyName("login-namespace:namespace1");
+		attrLogin.setType(String.class.getName());
+		attrLogin = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin));
+		attrLogin.setValue("login1");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin);
+
+		Attribute attrLogin2 = new Attribute();
+		attrLogin2.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin2.setFriendlyName("login-namespace:namespace2");
+		attrLogin2.setType(String.class.getName());
+		attrLogin2 = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin2));
+		attrLogin2.setValue("login2");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin2);
+
+		Attribute attrLogin3 = new Attribute();
+		attrLogin3.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin3.setFriendlyName("login-namespace:namespace3");
+		attrLogin3.setType(String.class.getName());
+		attrLogin3 = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin3));
+		attrLogin3.setValue("login3");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin3);
+
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			List<String> attrsToKeep = new ArrayList<>();
+			attrsToKeep.add("urn:perun:user:attribute-def:def:login-namespace:*");
+			BeansUtils.getCoreConfig().setAttributesToKeep(attrsToKeep);
+			usersManager.deleteUser(sess, user, true);
+		} finally {
+			// set userDeletionForced and attributesToKeep back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+			BeansUtils.getCoreConfig().setAttributesToKeep(Collections.emptyList());
+		}
+
+		assertTrue(usersManager.isLoginBlockedForNamespace(sess, "login1", "namespace1", true));
+		assertFalse(usersManager.isLoginBlockedForNamespace(sess, "login1", "namespace2", true));
+		assertTrue(usersManager.isLoginBlockedForNamespace(sess, "login2", "namespace2", true));
+		assertFalse(usersManager.isLoginBlockedForNamespace(sess, "login2", "namespace1", true));
+		assertTrue(usersManager.isLoginBlockedForNamespace(sess, "login3", "namespace3", true));
+
+		assertEquals("The number of blocked logins should be 3.", 3, usersManager.getAllBlockedLoginsInNamespaces(sess).size());
 
 		assertThatExceptionOfType(UserNotExistsException.class).isThrownBy(
 			() -> perun.getUsersManager().getUserById(sess, user.getId()));
@@ -519,10 +624,12 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		try {
 			// Enable deletion of users
 			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			BeansUtils.getCoreConfig().setAttributesToKeep(Collections.singletonList(attrLogin.getName()));
 			usersManager.deleteUser(sess, user, true);
 		} finally {
-			// set userDeletionForced back to the original value
+			// set userDeletionForced and attributesToKeep back to the original value
 			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+			BeansUtils.getCoreConfig().setAttributesToKeep(Collections.emptyList());
 		}
 
 		// check that user id is correctly stored with the block login
@@ -1074,6 +1181,19 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
 		// shouldn't block already blocked login twice
+	}
+
+	@Test (expected=LoginIsAlreadyBlockedException.class)
+	public void blockAlreadyGloballyBlockedLogin() throws Exception {
+		System.out.println(CLASS_NAME + "blockAlreadyGloballyBlockedLogin");
+
+		String login = "login";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), null);
+		assertTrue(perun.getUsersManager().isLoginBlockedForNamespace(sess, login, null, false));
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), null);
+		// shouldn't block already globally blocked login twice
 	}
 
 	@Test (expected=LoginIsNotBlockedException.class)
