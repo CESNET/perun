@@ -34,8 +34,10 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceIsNotBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
@@ -54,6 +56,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -1185,6 +1188,59 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertTrue("Service should be blocked on the richDestination1", perun.getServicesManager().isServiceBlockedOnDestination(sess, service, destination1.getId()));
 		assertTrue("Service should be blocked on the richDestination2", perun.getServicesManager().isServiceBlockedOnDestination(sess, service2, destination2.getId()));
 		assertFalse("Service should NOT be blocked on the richDestination3", perun.getServicesManager().isServiceBlockedOnDestination(sess, service2, destination3.getId()));
+	}
+
+	@Test
+	public void blockAndUnblockServicesOnFacility() throws Exception {
+		System.out.println(CLASS_NAME + "blockAndUnblockServicesOnFacility");
+
+		facility = setUpFacility();
+		service = setUpService();
+		Service service2 = new Service();
+		service2.setName("testService");
+		service2 = perun.getServicesManager().createService(sess, service2);
+
+		perun.getServicesManager().blockServicesOnFacility(sess, List.of(service, service2), facility);
+		assertTrue(perun.getServicesManager().isServiceBlockedOnFacility(sess, service, facility));
+		assertTrue(perun.getServicesManager().isServiceBlockedOnFacility(sess, service2, facility));
+
+		perun.getServicesManager().unblockServicesOnFacility(sess, List.of(service, service2), facility);
+		assertFalse(perun.getServicesManager().isServiceBlockedOnFacility(sess, service, facility));
+		assertFalse(perun.getServicesManager().isServiceBlockedOnFacility(sess, service2, facility));
+	}
+
+	@Test (expected=ServiceAlreadyBannedException.class)
+	public void blockServicesOnFacilityWhenAlreadyBlocked() throws Exception {
+		System.out.println(CLASS_NAME + "blockServicesOnFacilityWhenAlreadyBlocked");
+
+		facility = setUpFacility();
+		service = setUpService();
+		Service service2 = new Service();
+		service2.setName("testService");
+		service2 = perun.getServicesManager().createService(sess, service2);
+
+		perun.getServicesManager().blockServiceOnFacility(sess, service, facility);
+		assertTrue(perun.getServicesManager().isServiceBlockedOnFacility(sess, service, facility));
+		assertFalse(perun.getServicesManager().isServiceBlockedOnFacility(sess, service2, facility));
+
+		perun.getServicesManager().blockServicesOnFacility(sess, List.of(service, service2), facility);
+	}
+
+	@Test (expected= ServiceIsNotBannedException.class)
+	public void unblockServicesOnFacilityWhenNotBlocked() throws Exception {
+		System.out.println(CLASS_NAME + "blockServicesOnFacilityWhenAlreadyBlocked");
+
+		facility = setUpFacility();
+		service = setUpService();
+		Service service2 = new Service();
+		service2.setName("testService");
+		service2 = perun.getServicesManager().createService(sess, service2);
+
+		perun.getServicesManager().blockServiceOnFacility(sess, service, facility);
+		assertTrue(perun.getServicesManager().isServiceBlockedOnFacility(sess, service, facility));
+		assertFalse(perun.getServicesManager().isServiceBlockedOnFacility(sess, service2, facility));
+
+		perun.getServicesManager().unblockServicesOnFacility(sess, List.of(service, service2), facility);
 	}
 
 	@Test

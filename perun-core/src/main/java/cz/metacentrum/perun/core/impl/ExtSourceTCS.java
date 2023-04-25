@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Pair;
@@ -15,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidCertificateException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.openssl.PEMParser;
@@ -45,20 +43,12 @@ import java.util.regex.Pattern;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
-
-	private static PerunBlImpl perunBl;
+public class ExtSourceTCS extends ExtSourceImpl implements ExtSourceApi {
 
 	private static final String attrLoginMUName = "urn:perun:user:attribute-def:def:login-namespace:mu";
 	private static final String attrUserCertificates = "urn:perun:user:attribute-def:def:userCertificates";
 	private final static Pattern loginPattern = Pattern.compile("^.*\\s([0-9]+)$");
 	private final static Pattern wrongLoginPattern = Pattern.compile("^.*\\s[0-9]+\\s[0-9]+$");
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
-	}
 
 	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {

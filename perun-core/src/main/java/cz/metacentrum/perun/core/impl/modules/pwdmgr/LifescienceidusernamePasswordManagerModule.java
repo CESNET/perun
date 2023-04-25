@@ -13,6 +13,7 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 	import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 	import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 	import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+	import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 	import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 	import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 	import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -49,45 +50,65 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 				user = ((PerunBl) sess.getPerun()).getModulesUtilsBl().getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
 			}
 
-			if (user == null) {
-				log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+			if (!addUserToVo(sess, userLogin, user)) {
 				return;
-			}
-
-			try {
-				ExtSource extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
-				UserExtSource ues;
-				try {
-					// get userExtSource
-					ues = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserExtSourceByExtLogin(sess, extSource, userLogin + LS_DOMAIN);
-				} catch (UserExtSourceNotExistsException ex) {
-					// ues do not exist yet so we need to create it
-					ues = new UserExtSource(extSource, userLogin + LS_DOMAIN);
-					ues.setLoa(0);
-					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
-				}
-
-				// set additional identifiers
-				Attribute additionalIdentifiers = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(sess, ues, UsersManagerBl.ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
-				String newIdentifier = userLogin + LS_DOMAIN;
-				if (additionalIdentifiers.valueAsList() == null || additionalIdentifiers.valueAsList().isEmpty()) {
-					additionalIdentifiers.setValue(Lists.newArrayList(newIdentifier));
-				} else if (!additionalIdentifiers.valueContains(newIdentifier)) {
-					additionalIdentifiers.setValue(additionalIdentifiers.valueAsList().add(newIdentifier));
-				}
-				((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttribute(sess, ues, additionalIdentifiers);
-
-				// add user to specific vo
-				Vo targetVo = ((PerunBl) sess.getPerun()).getVosManagerBl().getVoByShortName(sess, VO_NAME);
-				((PerunBl) sess.getPerun()).getMembersManagerBl().createMember(sess, targetVo, user);
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException | ExtSourceNotExistsException |
-				WrongAttributeValueException | WrongReferenceAttributeValueException | VoNotExistsException | ExtendMembershipException | UserExtSourceExistsException ex) {
-				throw new InternalErrorException(ex);
-			} catch (AlreadyMemberException ignored) {
 			}
 		}
 
 		// validate password
 		super.validatePassword(sess, userLogin, user);
 	}
+
+	@Override
+	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InvalidLoginException, PasswordStrengthException {
+		User user = ((PerunBl) sess.getPerun()).getModulesUtilsBl().getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
+
+		if (!addUserToVo(sess, userLogin, user)){
+			return;
+		}
+
+		// change password
+		super.changePassword(sess, userLogin, newPassword);
+	}
+
+	private boolean addUserToVo(PerunSession sess, String userLogin, User user) {
+		if (user == null) {
+			log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+			return false;
+		}
+
+		try {
+			ExtSource extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
+			UserExtSource ues;
+			try {
+				// get userExtSource
+				ues = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserExtSourceByExtLogin(sess, extSource, userLogin + LS_DOMAIN);
+			} catch (UserExtSourceNotExistsException ex) {
+				// ues do not exist yet, so we need to create it
+				ues = new UserExtSource(extSource, userLogin + LS_DOMAIN);
+				ues.setLoa(0);
+				((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+			}
+
+			// set additional identifiers
+			Attribute additionalIdentifiers = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(sess, ues, UsersManagerBl.ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
+			String newIdentifier = userLogin + LS_DOMAIN;
+			if (additionalIdentifiers.valueAsList() == null || additionalIdentifiers.valueAsList().isEmpty()) {
+				additionalIdentifiers.setValue(Lists.newArrayList(newIdentifier));
+			} else if (!additionalIdentifiers.valueContains(newIdentifier)) {
+				additionalIdentifiers.setValue(additionalIdentifiers.valueAsList().add(newIdentifier));
+			}
+			((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttribute(sess, ues, additionalIdentifiers);
+
+			// add user to specific vo
+			Vo targetVo = ((PerunBl) sess.getPerun()).getVosManagerBl().getVoByShortName(sess, VO_NAME);
+			((PerunBl) sess.getPerun()).getMembersManagerBl().createMember(sess, targetVo, user);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException | ExtSourceNotExistsException |
+				 WrongAttributeValueException | WrongReferenceAttributeValueException | VoNotExistsException | ExtendMembershipException | UserExtSourceExistsException ex) {
+			throw new InternalErrorException(ex);
+		} catch (AlreadyMemberException ignored) {
+		}
+		return true;
+	}
+
 }

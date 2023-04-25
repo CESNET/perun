@@ -205,7 +205,8 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 
 						for (final String dest : destList) {
 
-							String show = SafeHtmlUtils.fromString(dest.substring(0, dest.indexOf("."))).asString();
+							int idx = ((!dest.contains(".")) ? dest.length() : dest.indexOf("."));
+							String show = SafeHtmlUtils.fromString(dest.substring(0, idx)).asString();
 							if (show.length() == 0) {
 								show = dest;
 								width = dest.length()*8;

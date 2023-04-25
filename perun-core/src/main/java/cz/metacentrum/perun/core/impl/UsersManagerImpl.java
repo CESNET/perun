@@ -1239,6 +1239,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public void blockLogin(PerunSession sess, String login, String namespace, Integer relatedUserId) throws LoginIsAlreadyBlockedException {
 		Utils.notNull(login, "userLogin");
 
+		if (namespace == null && isLoginBlockedGlobally(sess, login)) {
+			throw new LoginIsAlreadyBlockedException("Login: " + login + " is already blocked globally");
+		}
+
 		try {
 			int newId = Utils.getNewId(jdbc, "blocked_logins_id_seq");
 			jdbc.update("insert into blocked_logins(id, login, namespace, related_user_id) values (?,?,?,?)",
@@ -1249,10 +1253,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				log.info("Login {} blocked in namespace: {}", login, namespace);
 			}
 		} catch (DuplicateKeyException ex) {
-			String error = namespace == null ?
-				"Login: " + login + " is already blocked globally" :
-				"Login: " + login + " is already blocked in namespace: " + namespace;
-			throw new LoginIsAlreadyBlockedException(error);
+			throw new LoginIsAlreadyBlockedException("Login: " + login + " is already blocked in namespace: " + namespace);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

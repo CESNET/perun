@@ -8,8 +8,11 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +45,7 @@ public class ExtSourceREMSTest extends AbstractPerunIntegrationTest {
 		perunBl = mock(PerunBlImpl.class, RETURNS_DEEP_STUBS);
 
 		MockitoAnnotations.initMocks(this);
-		ExtSourceREMS.setPerunBlImpl(perunBl);
+		extSourceREMS.setPerunBl(perunBl);
 	}
 
 	@Test
@@ -57,14 +60,22 @@ public class ExtSourceREMSTest extends AbstractPerunIntegrationTest {
 		doReturn(mapOfAttributes).when(extSourceREMS).getAttributes();
 
 		// mock data got from database
-		doNothing().when(extSourceREMS).createConnection();
+		Connection con = mock(Connection.class);
+		DataSource dataSource = mock(DataSource.class);
+		doReturn(dataSource).when(extSourceREMS).getDataSource();
+		doReturn(con).when(dataSource).getConnection();
 		PreparedStatement preparedStatement = mock(PreparedStatement.class);
-		doReturn(preparedStatement).when(extSourceREMS).getPreparedStatement(usersQuery, null, 0);
+		doReturn(preparedStatement).when(con).prepareStatement(mapOfAttributes.get("usersQuery"));
 		ResultSet resultSet = mock(ResultSet.class, RETURNS_DEEP_STUBS);
 		doReturn(resultSet).when(preparedStatement).executeQuery();
+		ResultSetMetaData metaData = mock(ResultSetMetaData.class);
+		doReturn(2).when(metaData).getColumnCount();
+		doReturn("firstName").when(metaData).getColumnLabel(1);
+		doReturn("login").when(metaData).getColumnLabel(2);
+		doReturn(metaData).when(resultSet).getMetaData();
 		doReturn(true, false).when(resultSet).next();
-		doReturn("josef").when(resultSet).getString("firstName");
-		doReturn("xjosef").when(resultSet).getString("login");
+		doReturn("josef").when(resultSet).getString(1);
+		doReturn("xjosef").when(resultSet).getString(2);
 		User user = new User();
 		user.setFirstName("josef");
 		when(perunBl.getUsersManagerBl().getUsersByExtSourceTypeAndLogin(any(), anyString(), eq("xjosef"))).thenReturn(Collections.singletonList(user));
@@ -74,10 +85,6 @@ public class ExtSourceREMSTest extends AbstractPerunIntegrationTest {
 		Map<String, String> subject = new HashMap<>();
 		subject.put("firstName", "josef");
 		subject.put("login", "xjosef");
-		subject.put("lastName", null);
-		subject.put("titleBefore", null);
-		subject.put("titleAfter", null);
-		subject.put("middleName", null);
 		expectedSubjects.add(subject);
 
 		// test the method

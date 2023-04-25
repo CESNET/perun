@@ -123,8 +123,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>jdom</groupId>
-			<artifactId>jdom</artifactId>
+			<groupId>org.dom4j</groupId>
+			<artifactId>dom4j</artifactId>
 		</dependency>
 
 		<dependency>

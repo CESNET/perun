@@ -3,13 +3,11 @@ package cz.metacentrum.perun.core.impl;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,20 +28,12 @@ import java.util.Objects;
  * @author Sona Mastrakova
  * @author Pavel Zlámal
  */
-public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
+public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
 
     private final static Logger log = LoggerFactory.getLogger(ExtSourceCSV.class);
 
     private String file = null;
     private String query = null;
-
-    private static PerunBlImpl perunBl;
-
-    // Filled by Spring (perun-core.xml)
-    public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-        perunBl = perun;
-        return perun;
-    }
 
     @Override
     public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
@@ -330,15 +320,4 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         return attributeMapping;
 
     }
-
-    /**
-     * Get attributes of the external source (defined in perun-extSources.xml).
-     *
-     * @return map with attributes about the external source
-     * @throws InternalErrorException When implementation fails
-     */
-    protected Map<String,String> getAttributes() {
-        return perunBl.getExtSourcesManagerBl().getAttributes(this);
-    }
-
 }
