@@ -14,18 +14,33 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_username extends urn_perun_user_attribute_def_def_login_namespace{
 	private final static String elixirUsername = "urn:perun:user:attribute-def:def:login-namespace:elixir";
+	private final static String bbmriUsername = "urn:perun:user:attribute-def:def:login-namespace:bbmri";
 
 	@Override
 	public void changedAttributeHook(PerunSessionImpl sess, User user, Attribute attribute) {
-		Attribute elixirPersistentShadow;
+		trySetAttribute(sess, user, attribute, elixirUsername);
+		trySetAttribute(sess, user, attribute, bbmriUsername);
+	}
+
+	/**
+	 * Set attribute if it is not filled yet
+	 */
+	private void trySetAttribute(PerunSessionImpl sess, User user, Attribute lsAttribute, String attributeName) {
+		Attribute newAttribute;
 		try {
-			elixirPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, elixirUsername);
+			newAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 			return;
 		}
-		elixirPersistentShadow.setValue(attribute.getValue());
+
+		if (newAttribute.getValue() != null && !newAttribute.valueAsString().isBlank()) {
+			return;
+		}
+
+		newAttribute.setValue(lsAttribute.getValue());
+
 		try {
-			sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, elixirPersistentShadow);
+			sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, newAttribute);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
 		}
