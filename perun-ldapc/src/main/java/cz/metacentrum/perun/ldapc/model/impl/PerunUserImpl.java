@@ -149,6 +149,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 		if (isEppnEpuidLogin(login)) {
 
 			String[] oldEppns = entry.getStringAttributes(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames);
+			if (oldEppns == null) oldEppns = new String[0];
 			TreeSet<String> uniqueEppns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 			uniqueEppns.addAll(Stream.of(oldEppns).collect(Collectors.toSet()));
 
@@ -161,6 +162,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 		}
 
 		String[] oldIdentities = entry.getStringAttributes(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities);
+		if (oldIdentities == null) oldIdentities = new String[0];
 		TreeSet<String> uniqueIdentities = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 		uniqueIdentities.addAll(Stream.of(oldIdentities).collect(Collectors.toSet()));
 
