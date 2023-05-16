@@ -8262,7 +8262,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attr.setDescription("Contains user friendly version of MFA status in " + namespace + " namespace.");
 
 			policies = new ArrayList<>();
-			policies.add(Triple.of(Role.PERUNADMIN, READ, RoleObject.User));
 			attributes.put(attr, createInitialPolicyCollections(policies));
 
 			// pwd-reset templates
