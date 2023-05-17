@@ -31,7 +31,7 @@ public class urn_perun_user_attribute_def_virt_mfaStatus extends UserVirtualAttr
 			Attribute mfaSettings = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, mfaEnforceSettings);
 			if (mfaSettings.getValue() == null || mfaSettings.getValue() == "") {
 				attr.setValue("");
-			} else if (mfaSettings.getValue() == "{\"all\":true}") {
+			} else if (mfaSettings.getValue().equals("{\"all\":true}")) {
 				attr.setValue("ENFORCED_ALL");
 			} else {
 				attr.setValue("ENFORCED_PARTIALLY");
