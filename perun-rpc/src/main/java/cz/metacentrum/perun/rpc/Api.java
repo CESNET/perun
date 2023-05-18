@@ -3,14 +3,14 @@ package cz.metacentrum.perun.rpc;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
-
-import javax.ws.rs.core.Response;
-
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunRequest;
+import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MFAuthenticationException;
+import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -20,19 +20,19 @@ import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.PerunAppsConfig;
-import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
 import cz.metacentrum.perun.oidc.UserInfoEndpointResponse;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
-import cz.metacentrum.perun.rpc.serializer.PdfSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONLITE;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
+import cz.metacentrum.perun.rpc.serializer.PdfSerializer;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +41,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -609,7 +610,7 @@ public class Api extends HttpServlet {
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
 			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), getActor(req, des)) &&
-					!caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
+				!caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				// prevent cookie stealing (if remote user changed, rebuild session)
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
@@ -727,7 +728,7 @@ public class Api extends HttpServlet {
 			if (callbackName != null) {
 
 				perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName,
-						manager, method, des.readAll());
+					manager, method, des.readAll());
 
 				// Add perunRequest into the queue of the requests for POST only
 				if (!isGet && !isPut) {
@@ -737,10 +738,10 @@ public class Api extends HttpServlet {
 			}
 
 			PerunClient perunClient = caller.getSession().getPerunClient();
-			if(perunClient.getType() == PerunClient.Type.OAUTH) {
-				if(!perunClient.getScopes().contains(PerunClient.PERUN_API_SCOPE)) {
+			if (perunClient.getType() == PerunClient.Type.OAUTH) {
+				if (!perunClient.getScopes().contains(PerunClient.PERUN_API_SCOPE)) {
 					//user has not consented to scope perun_api for the client on the OAuth Authorization Server
-					throw new PrivilegeException("Scope "+PerunClient.PERUN_API_SCOPE+" is missing, either the client app "+perunClient.getId()+" has not asked for it, or the user has not granted it.");
+					throw new PrivilegeException("Scope " + PerunClient.PERUN_API_SCOPE + " is missing, either the client app " + perunClient.getId() + " has not asked for it, or the user has not granted it.");
 				}
 			}
 
@@ -749,7 +750,8 @@ public class Api extends HttpServlet {
 				// Process SCIM protocol
 				result = caller.getSCIMManager().process(caller.getSession(), method, des.readAll());
 				if (perunRequest != null) perunRequest.setResult(result);
-				if (!(result instanceof Response)) throw new InternalErrorException("SCIM manager returned unexpected result: " + result);
+				if (!(result instanceof Response))
+					throw new InternalErrorException("SCIM manager returned unexpected result: " + result);
 				resp.setStatus(((Response) result).getStatus());
 				String response = (String) ((Response) result).getEntity();
 				printWriter = new PrintWriter(resp.getOutputStream());
@@ -766,6 +768,18 @@ public class Api extends HttpServlet {
 				}
 				ser.write(result);
 			}
+		} catch (MFAuthenticationException mfae) {
+			if (!isJsonp) {
+				resp.setStatus(HttpStatus.SC_UNAUTHORIZED);
+			}
+			log.warn("MFA authentication exception {}: {}.", mfae.getErrorId(), mfae);
+			ser.writePerunException(mfae);
+		} catch (MfaPrivilegeException mfape) {
+			if (!isJsonp) {
+				resp.setStatus(HttpStatus.SC_UNAUTHORIZED);
+			}
+			log.warn("MFA privilege exception {}: {}.", mfape.getErrorId(), mfape);
+			ser.writePerunRuntimeException(mfape);
 		} catch (PerunException pex) {
 			// If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
 			if (!isJsonp) {
