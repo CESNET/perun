@@ -180,7 +180,12 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 
 		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerToVo(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
+				//FIXME - temporary hack for pithia
+				if ("vo.esc.pithia.eu".equals(vo.getShortName())) {
+					session.getTabManager().addTabToCurrentTab(new AddVoManagerFromMembersTabItem(vo), true);
+				} else {
+					session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
+				}
 			}
 		});
 		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);

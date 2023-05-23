@@ -208,7 +208,12 @@ public class VoOverviewTabItem implements TabItem {
 		CustomButton addManager = new CustomButton(ButtonTranslation.INSTANCE.addManagerButton()+"…", ButtonTranslation.INSTANCE.addManagerToVo(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
+				// FIXME - temporary hack for pithia
+				if ("vo.esc.pithia.eu".equals(vo.getShortName())) {
+					session.getTabManager().addTabToCurrentTab(new AddVoManagerFromMembersTabItem(vo), true);
+				} else {
+					session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
+				}
 			}
 		});
 		CustomButton createGroup = new CustomButton(ButtonTranslation.INSTANCE.createGroupButton()+"…", ButtonTranslation.INSTANCE.createGroup(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
