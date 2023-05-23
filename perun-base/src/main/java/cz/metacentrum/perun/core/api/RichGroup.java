@@ -112,12 +112,20 @@ public class RichGroup extends Group {
 			return false;
 		}
 		if (attributes == null) {
-			if (other.getAttributes() != null) {
-				return false;
-			}
-		} else if (!this.getAttributes().equals(other.getAttributes())) {
+			return other.getAttributes() == null;
+		}
+		if (this.getAttributes().size() != other.getAttributes().size()) {
 			return false;
 		}
-		return true;
+
+		List<Attribute> sortedThis = this.getAttributes().stream()
+			.sorted()
+			.toList();
+
+		List<Attribute> sortedOther = other.getAttributes().stream()
+			.sorted()
+			.toList();
+
+		return sortedThis.equals(sortedOther);
 	}
 }
