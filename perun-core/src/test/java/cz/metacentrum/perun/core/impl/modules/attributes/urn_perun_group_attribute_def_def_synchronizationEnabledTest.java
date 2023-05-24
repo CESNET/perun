@@ -56,7 +56,7 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabledTest {
 		System.out.println("testMissingGroupInAutoRegister()");
 		attributeToCheck.setValue("true");
 
-		when(sess.getPerunBl().getGroupsManagerBl().isGroupForAutoRegistration(sess, group)).thenReturn(true);
+		when(sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)).thenReturn(true);
 
 		classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
 	}

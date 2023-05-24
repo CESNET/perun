@@ -14,6 +14,7 @@ import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -35,12 +36,16 @@ import java.util.ArrayList;
  * Ajax query to get auto reg groups for vo.
  *
  */
-public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
+public class GetGroupsToAutoRegistration implements JsonCallback, JsonCallbackTable<Group>, JsonCallbackOracle<Group> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
-	// VO id
-	private int voId;
+	// entity
+	private PerunEntity perunEntity;
+	// entity id
+	private int id;
+	boolean hasFormItem = false;
+	private int formItemId;
 	// JSON URL
 	static private final String JSON_URL = "registrarManager/getGroupsToAutoRegistration";
 	// Selection model
@@ -67,20 +72,49 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 	/**
 	 * Creates a new callback
 	 *
-	 * @param id ID of VO for which we want groups for
+	 * @param id ID of the entity for which we want groups for
 	 */
-	public GetAutoRegistrationGroups(int id) {
-		this.voId = id;
+	public GetGroupsToAutoRegistration(int id) {
+		this.perunEntity = PerunEntity.VIRTUAL_ORGANIZATION;
+		this.id = id;
+		this.hasFormItem = false;
 	}
 
 	/**
 	 * Creates a new callback
 	 *
-	 * @param id ID of VO for which we want groups for
+	 * @param id ID of the entity for which we want groups for
 	 * @param events external events
 	 */
-	public GetAutoRegistrationGroups(int id, JsonCallbackEvents events) {
-		this.voId = id;
+	public GetGroupsToAutoRegistration(int id, JsonCallbackEvents events) {
+		this(id);
+		this.events = events;
+	}
+
+	/**
+	 * Creates a new callback
+	 *
+	 * @param perunEntity GROUP or VO
+	 * @param id ID of PerunEntity for which we want groups for
+	 * @param formItemId ID of the form item to which the groups are for
+	 */
+	public GetGroupsToAutoRegistration(PerunEntity perunEntity, int id, int formItemId) {
+		this.perunEntity = perunEntity;
+		this.id = id;
+		this.formItemId = formItemId;
+		this.hasFormItem = true;
+	}
+
+	/**
+	 * Creates a new callback
+	 *
+	 * @param perunEntity GROUP or VO
+	 * @param id ID of PerunEntity for which we want groups for
+	 * @param formItemId ID of the form item to which the groups are for
+	 * @param events external events
+	 */
+	public GetGroupsToAutoRegistration(PerunEntity perunEntity, int id, int formItemId, JsonCallbackEvents events) {
+		this(perunEntity, id, formItemId);
 		this.events = events;
 	}
 
@@ -133,8 +167,10 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		if (!session.isVoAdmin(voId)) {
+		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(perunEntity) && !session.isVoAdmin(id)) {
 			loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
+		} else if (PerunEntity.GROUP.equals(perunEntity) && !session.isGroupAdmin(id)) {
+			loaderImage.setEmptyResultMessage("You are not manager of this Group.");
 		} else {
 			loaderImage.setEmptyResultMessage("No groups are set for auto registration.");
 		}
@@ -165,7 +201,7 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
 			public void update(Boolean value) {
 				// sets selected to all, if value = true, unselect otherwise
-				for(Group obj : list){
+				for (Group obj : list){
 					if (!obj.isCoreGroup()) {
 						selectionModel.setSelected(obj, value);
 					}
@@ -329,7 +365,10 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 	public void filterTable(String text){
 
 		// store list only for first time
-		if (fullBackup.isEmpty() || fullBackup == null) {
+		if (fullBackup == null) {
+			fullBackup = new ArrayList<>();
+		}
+		if (fullBackup.isEmpty()) {
 			fullBackup.addAll(list);
 		}
 
@@ -352,7 +391,7 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 		if (list.isEmpty() && !text.isEmpty()) {
 			loaderImage.setEmptyResultMessage("No group matching '"+text+"' found.");
 		} else {
-			if (!session.isVoAdmin(voId)) {
+			if (!session.isVoAdmin(id)) {
 				loaderImage.setEmptyResultMessage("You are not manager of any group in this VO.");
 			} else {
 				loaderImage.setEmptyResultMessage("VO has no groups.");
@@ -369,7 +408,17 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 	}
 
 	public void retrieveData() {
-		final String param = "vo=" + this.voId;
+		String paramTemp = "vo=";
+		if (PerunEntity.GROUP.equals(perunEntity)) {
+			paramTemp = "group=";
+		} else if (PerunEntity.VIRTUAL_ORGANIZATION.equals(perunEntity)) {
+			paramTemp = "vo=";
+		}
+		paramTemp = paramTemp + this.id;
+		if (hasFormItem) {
+			paramTemp += "&formItem=" + formItemId;
+		}
+		final String param = paramTemp;
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
@@ -382,8 +431,8 @@ public class GetAutoRegistrationGroups implements JsonCallback, JsonCallbackTabl
 		this.events = events;
 	}
 
-	public void setVoId(int voId) {
-		this.voId = voId;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public MultiSelectionModel<Group> getSelectionModel() {

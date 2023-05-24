@@ -18,7 +18,7 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabled extends 
 		Attribute attribute = new Attribute(attributeDefinition);
 		Boolean value = null;
 		if (isAutoRegistrationActiveInVo(sess, group)) {
-			value = sess.getPerunBl().getGroupsManagerBl().isGroupForAutoRegistration(sess, group);
+			value = sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group);
 		}
 		attribute.setValue(value);
 		return attribute;

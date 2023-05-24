@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.registrar;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -37,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
@@ -613,15 +615,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		Group groupA = new Group("A", "test");
 		groupA = perun.getGroupsManagerBl().createGroup(session, vo, groupA);
 
-		ApplicationForm formForVo = registrarManager.getFormForVo(vo);
+		ApplicationFormItem groupCheckboxItem = setUpEmbeddedGroupApplicationItemForVoForm();
 
-		ApplicationFormItem groupCheckboxItem = new ApplicationFormItem();
-		groupCheckboxItem.setShortname("groups");
-		groupCheckboxItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
-
-		registrarManager.addFormItem(session, formForVo, groupCheckboxItem);
-
-		perun.getGroupsManagerBl().addGroupsToAutoRegistration(session, List.of(groupA));
+		perun.getGroupsManagerBl().addGroupsToAutoRegistration(session, List.of(groupA), groupCheckboxItem);
 
 		Map<String, Object> data = registrarManager.initRegistrar(session, vo.getShortName(), null);
 		var items = (List<ApplicationFormItemWithPrefilledValue>)data.get("voFormInitial");
@@ -676,16 +672,328 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
-	public void testEmbeddedGroupsSubmission() throws PerunException {
-		GroupsManager groupsManager = perun.getGroupsManager();
-		ApplicationForm form = registrarManager.getFormForVo(vo);
+	public void testIsGroupForAutoRegistration() throws PerunException {
+		System.out.println("GroupManager.isGroupsForAutoRegistration");
 
-		// create embedded groups form item
+		GroupsManagerBl groupsManagerBl = perun.getGroupsManagerBl();
+
+		Group group = new Group("Group", "Group description");
+		groupsManagerBl.createGroup(session, vo, group);
+		Group nonEmbeddedGroup = new Group("NonEmbeddedGroup", "NonEmbeddedGroup description");
+		groupsManagerBl.createGroup(session, vo, nonEmbeddedGroup);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		assertFalse(groupsManagerBl.isGroupForAnyAutoRegistration(session, group));
+		assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, group, List.of(embeddedGroupsItem.getId())));
+		assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, nonEmbeddedGroup, List.of(embeddedGroupsItem.getId())));
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
+		assertTrue(groupsManagerBl.isGroupForAnyAutoRegistration(session, group));
+		assertTrue(groupsManagerBl.isGroupForAutoRegistration(session, group, List.of(embeddedGroupsItem.getId())));
+		// this group is still not added for auto registration
+		assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, nonEmbeddedGroup, List.of(embeddedGroupsItem.getId())));
+	}
+
+	@Test
+	public void testIsGroupForAutoRegistrationGroupForm() throws PerunException {
+		System.out.println("GroupManager.testIsGroupForAutoRegistrationGroupForm");
+
+		GroupsManagerBl groupsManagerBl = perun.getGroupsManagerBl();
+
+		Group group = new Group("Group", "Group description");
+		groupsManagerBl.createGroup(session, vo, group);
+		Group group2 = new Group("Group2", "Group2 description");
+		groupsManagerBl.createGroup(session, group, group2);
+		Group nonEmbeddedSubgroup = new Group("NonEmbeddedSubgroup", "NonEmbeddedSbgroup description");
+		groupsManagerBl.createGroup(session, group, nonEmbeddedSubgroup);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForGroupForm(group);
+
+		assertFalse(groupsManagerBl.isGroupForAnyAutoRegistration(session, group2));
+		assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, group2, List.of(embeddedGroupsItem.getId())));
+		assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, nonEmbeddedSubgroup, List.of(embeddedGroupsItem.getId())));
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group2), group, embeddedGroupsItem);
+		assertTrue(groupsManagerBl.isGroupForAnyAutoRegistration(session, group2));
+		assertTrue(groupsManagerBl.isGroupForAutoRegistration(session, group2, List.of(embeddedGroupsItem.getId())));
+		// this group is still not added for auto registration
+		assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, nonEmbeddedSubgroup, List.of(embeddedGroupsItem.getId())));
+	}
+
+	@Test
+	public void addAndGetGroupsForAutoRegistration() throws Exception {
+		System.out.println("RegistrarManager.addAndGetGroupsForAutoRegistration");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
+
+		assertEquals(List.of(group), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+	}
+
+	@Test
+	public void getAllGroupsForAutoRegistration() throws Exception {
+		System.out.println("RegistrarManager.getAllGroupsForAutoRegistration");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		Group group2 = new Group("Group2", "Group 2 description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group2);
+
+		Vo vo2 = new Vo(0,"registrarTestVO2","regTestVO2");
+		vo2 = perun.getVosManagerBl().createVo(session, vo2);
+		Group group3 = new Group("Group3", "Group 3 description");
+		perun.getGroupsManagerBl().createGroup(session, vo2, group3);
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group, group2, group3));
+
+		assertEquals(2, registrarManager.getGroupsForAutoRegistration(session, vo).size());
+		assertEquals(1, registrarManager.getGroupsForAutoRegistration(session, vo2).size());
+		assertEquals(3, registrarManager.getAllGroupsForAutoRegistration(session).size());
+	}
+
+	@Test(expected = FormItemNotExistsException.class)
+	public void addAndGetGroupsForAutoRegistrationFormItemNotExists() throws Exception {
+		System.out.println("RegistrarManager.addAndGetGroupsForAutoRegistrationFormItemNotExists");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+
+		// create embedded groups form item but don't store it !!!
+		ApplicationForm form = registrarManager.getFormForVo(vo);
 		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
 		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
 		embeddedGroupsItem.setShortname("embeddedGroups");
-		embeddedGroupsItem = registrarManager.addFormItem(session, form, embeddedGroupsItem);
-		registrarManager.updateFormItems(session, form, Collections.singletonList(embeddedGroupsItem));
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
+	}
+
+	@Test
+	public void addAndGetGroupsForAutoRegistrationGroupForm() throws Exception {
+		System.out.println("RegistrarManager.addAndGetGroupsForAutoRegistrationGroupForm");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		Group group2 = new Group("Group2", "Group2 description");
+		perun.getGroupsManagerBl().createGroup(session, group, group2);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForGroupForm(group);
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group2), embeddedGroupsItem);
+
+		assertEquals(List.of(group2), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+	}
+
+	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
+	public void addMemberGroupToAutoRegistration() throws Exception {
+		System.out.println("RegistrarManager.addMemberGroupToAutoRegistration");
+
+		Group membersGroup = perun.getGroupsManagerBl().getGroupByName(session, vo, perun.getVosManager().MEMBERS_GROUP);
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(membersGroup), embeddedGroupsItem);
+	}
+
+	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
+	public void addGroupWithSyncToAutoRegistration() throws Exception {
+		System.out.println("RegistrarManager.addGroupWithSyncToAutoRegistration");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+
+		ExtSource extSource = new ExtSource(0, "testExSrc", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(session, extSource, null);
+		perun.getExtSourcesManagerBl().addExtSource(session, vo, es);
+
+		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+		synchroAttr1.setValue("5");
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr1);
+
+		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		synchroAttr2.setValue(es.getName());
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr2);
+
+		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		synchroAttr3.setValue("testVal");
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr3);
+
+		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		synchroAttr4.setValue("true");
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr4);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
+	}
+
+	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
+	public void addSubgroupOfGroupWithStructureSyncToAutoRegistration() throws Exception {
+		System.out.println("RegistrarManager.addSubgroupOfGroupWithStructureSyncToAutoRegistration");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		Group group2 = new Group("Group2", "Group2 description");
+		perun.getGroupsManagerBl().createGroup(session, group, group2);
+		ExtSource extSource = new ExtSource(0, "testExSrc", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(session, extSource, null);
+		perun.getExtSourcesManagerBl().addExtSource(session, vo, es);
+
+		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPSQUERY_ATTRNAME));
+		synchroAttr1.setValue("testVal");
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr1);
+
+		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		synchroAttr2.setValue("testVal");
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr2);
+
+		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		synchroAttr3.setValue(es.getName());
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr3);
+
+		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME));
+		synchroAttr4.setValue(true);
+		perun.getAttributesManager().setAttribute(session, group, synchroAttr4);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group2), embeddedGroupsItem);
+	}
+
+	@Test
+	public void deleteGroupsFromAutoRegistration() throws Exception {
+		System.out.println("RegistrarManager.deleteGroupsFromAutoRegistration");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
+		assertEquals(List.of(group), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+
+		registrarManager.deleteGroupsFromAutoRegistration(session, List.of(group), embeddedGroupsItem);
+		assertEquals(Collections.emptyList(), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+	}
+
+	@Test(expected = FormItemNotExistsException.class)
+	public void deleteGroupsFromAutoRegistrationFormItemNotExists() throws Exception {
+		System.out.println("RegistrarManager.deleteGroupsFromAutoRegistrationFormItemNotExists");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+
+		// create embedded groups form item but don't store it !!!
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
+		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+		embeddedGroupsItem.setShortname("embeddedGroups");
+
+		registrarManager.deleteGroupsFromAutoRegistration(session, List.of(group), embeddedGroupsItem);
+	}
+
+	@Test
+	public void deleteGroupsFromAutoRegistrationGroupForm() throws Exception {
+		System.out.println("RegistrarManager.deleteGroupsFromAutoRegistrationGroupForm");
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		Group group2 = new Group("Group2", "Group2 description");
+		perun.getGroupsManagerBl().createGroup(session, group, group2);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForGroupForm(group);
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group2), group, embeddedGroupsItem);
+		assertEquals(List.of(group2), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+
+		registrarManager.deleteGroupsFromAutoRegistration(session, List.of(group2), group, embeddedGroupsItem);
+		assertEquals(Collections.emptyList(), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+	}
+
+	@Test
+	public void moveGroupInvolvedInVoAutoRegistrationProcess() throws Exception {
+		System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
+
+		GroupsManagerBl groupsManagerBl = perun.getGroupsManagerBl();
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
+
+		assertThatExceptionOfType(GroupMoveNotAllowedException.class)
+			.isThrownBy( () -> groupsManagerBl.moveGroup(session, null, group));
+	}
+
+	@Test
+	public void moveSubgroupInvolvedInGroupAutoRegistrationProcess() throws Exception {
+		System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
+
+		GroupsManagerBl groupsManagerBl = perun.getGroupsManagerBl();
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		Group subgroup1 = new Group("Subgroup1", "Subgroup1 description");
+		perun.getGroupsManagerBl().createGroup(session, group, subgroup1);
+
+		ApplicationFormItem groupEmbeddedGroupsItem = setUpEmbeddedGroupApplicationItemForGroupForm(group);
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(subgroup1), group, groupEmbeddedGroupsItem);
+
+		assertThatExceptionOfType(GroupMoveNotAllowedException.class)
+			.isThrownBy( () -> groupsManagerBl.moveGroup(session, null, subgroup1));
+	}
+
+	@Test
+	public void moveGroupWithSubgroupInvolvedInVoAutoRegistrationProcess() throws Exception {
+		System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
+
+		GroupsManagerBl groupsManagerBl = perun.getGroupsManagerBl();
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		Group subgroup1 = new Group("Subgroup1", "Subgroup1 description");
+		perun.getGroupsManagerBl().createGroup(session, group, subgroup1);
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(subgroup1), embeddedGroupsItem);
+
+		assertThatExceptionOfType(GroupMoveNotAllowedException.class)
+			.isThrownBy( () -> groupsManagerBl.moveGroup(session, null, group));
+	}
+
+	@Test
+	public void moveSubgroupWithSubgroupInvolvedInGroupAutoRegistrationProcess() throws Exception {
+		System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
+
+		GroupsManagerBl groupsManagerBl = perun.getGroupsManagerBl();
+
+		Group group = new Group("Group", "Group description");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		Group subgroup1 = new Group("Subgroup1", "Subgroup1 description");
+		perun.getGroupsManagerBl().createGroup(session, group, subgroup1);
+		Group subgroup2 = new Group("Subgroup2", "Subgroup2 description");
+		perun.getGroupsManagerBl().createGroup(session, subgroup1, subgroup2);
+
+		ApplicationFormItem groupEmbeddedGroupsItem = setUpEmbeddedGroupApplicationItemForGroupForm(group);
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(subgroup2), group, groupEmbeddedGroupsItem);
+
+		assertThatExceptionOfType(GroupMoveNotAllowedException.class)
+			.isThrownBy( () -> groupsManagerBl.moveGroup(session, null, subgroup1));
+	}
+
+	@Test
+	public void testEmbeddedGroupsSubmission() throws PerunException {
+		GroupsManager groupsManager = perun.getGroupsManager();
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
 
 		// create groups in VO
 		Group group1 = new Group("GroupA", "Cool folks");
@@ -693,7 +1001,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		groupsManager.createGroup(session, vo, group1);
 		groupsManager.createGroup(session, vo, group2);
 
-		registrarManager.addGroupsToAutoRegistration(session, List.of(group1, group2));
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group1, group2), embeddedGroupsItem);
 
 		// create user
 		User user = new User(-1, "Jo", "Doe", "", "", "");
@@ -725,20 +1033,14 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	@Test
 	public void testEmbeddedGroupsSubmission_groupAutoApprove() throws PerunException {
 		GroupsManager groupsManager = perun.getGroupsManager();
-		ApplicationForm form = registrarManager.getFormForVo(vo);
 
 		// create embedded groups form item
-		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
-		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
-		embeddedGroupsItem.setShortname("embeddedGroups");
-		embeddedGroupsItem = registrarManager.addFormItem(session, form, embeddedGroupsItem);
-		registrarManager.updateFormItems(session, form, Collections.singletonList(embeddedGroupsItem));
-
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
 
 		// create groups in VO
 		Group group = new Group("GroupA", "Cool folks");
 		groupsManager.createGroup(session, vo, group);
-		registrarManager.addGroupsToAutoRegistration(session, List.of(group));
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
 
 		// allow auto-approve
 		ApplicationForm groupForm = registrarManager.getFormForGroup(group);
@@ -768,19 +1070,14 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	@Test
 	public void testEmbeddedGroupsSubmission_initEmbeddedConflict() throws PerunException {
 		GroupsManager groupsManager = perun.getGroupsManager();
-		ApplicationForm form = registrarManager.getFormForVo(vo);
 
 		// create embedded groups form item
-		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
-		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
-		embeddedGroupsItem.setShortname("embeddedGroups");
-		embeddedGroupsItem = registrarManager.addFormItem(session, form, embeddedGroupsItem);
-		registrarManager.updateFormItems(session, form, Collections.singletonList(embeddedGroupsItem));
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
 
 		// create group in VO, generate group application form
 		Group group1 = new Group("GroupA", "Cool folks");
 		groupsManager.createGroup(session, vo, group1);
-		registrarManager.addGroupsToAutoRegistration(session, List.of(group1));
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group1), embeddedGroupsItem);
 
 		// create user
 		User user = new User(-1, "Jo", "Doe", "", "", "");
@@ -1406,15 +1703,31 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		return voApplication;
 	}
 
+	private ApplicationFormItem setUpEmbeddedGroupApplicationItemForVoForm() throws PerunException {
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+		// create embedded groups form item
+		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
+		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+		embeddedGroupsItem.setShortname("embeddedGroups");
+		return registrarManager.addFormItem(session, form, embeddedGroupsItem);
+	}
+
+	private ApplicationFormItem setUpEmbeddedGroupApplicationItemForGroupForm(Group group) throws PerunException {
+		registrarManager.createApplicationFormInGroup(session, group);
+		ApplicationForm form = registrarManager.getFormForGroup(group);
+		// create embedded groups form item
+		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
+		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+		embeddedGroupsItem.setShortname("embeddedGroups");
+		return registrarManager.addFormItem(session, form, embeddedGroupsItem);
+	}
+
 	@Test
 	public void testAddFormItem_multipleEmbeddedGroupsItems() throws PerunException {
 		ApplicationForm form = registrarManager.getFormForVo(vo);
 
 		// create 2 embedded groups form items
-		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
-		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
-		embeddedGroupsItem.setShortname("embeddedGroups");
-		registrarManager.addFormItem(session, form, embeddedGroupsItem);
+		setUpEmbeddedGroupApplicationItemForVoForm();
 
 		ApplicationFormItem embeddedGroupsItem2 = new ApplicationFormItem();
 		embeddedGroupsItem2.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
@@ -1428,7 +1741,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	public void addGroupsToAutoRegistration_emptyFormExpectedToBeCreated() throws PerunException {
 		Group group1 = new Group("GroupA", "Cool folks");
 		perun.getGroupsManager().createGroup(session, vo, group1);
-		registrarManager.addGroupsToAutoRegistration(session, List.of(group1));
+
+		ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
+
+		registrarManager.addGroupsToAutoRegistration(session, List.of(group1), embeddedGroupsItem);
 
 		assertNotNull(registrarManager.getFormForGroup(group1));
 	}

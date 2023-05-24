@@ -68,6 +68,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.FormItemNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -87,7 +88,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunni
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
-import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -119,6 +119,8 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -678,6 +680,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// check if moving group is members group
 		if (movingGroup.getName().equals(VosManager.MEMBERS_GROUP)) {
 			throw new GroupMoveNotAllowedException("It is not possible to move Members group.", movingGroup, destinationGroup);
+		}
+
+		// check if moving group is involved in embedded group application process
+		if (isGroupForAnyAutoRegistration(sess, movingGroup)) {
+			ApplicationForm appForm = getGroupsManagerImpl().getParentApplicationFormForAutoRegistrationGroup(movingGroup);
+			if (appForm.getGroup() == null) {
+				throw new GroupMoveNotAllowedException("This group is involved in organization auto registration process.");
+			} else {
+				throw new GroupMoveNotAllowedException("This group is involved in auto registration process in the group with id=" + appForm.getGroup().getId());
+			}
+		}
+
+		// check if any subgroup of moving group is involved in embedded group application process
+		for (Group subgroup: getAllSubGroups(sess, movingGroup)) {
+			if (isGroupForAnyAutoRegistration(sess, subgroup)) {
+				ApplicationForm appForm = getGroupsManagerImpl().getParentApplicationFormForAutoRegistrationGroup(subgroup);
+				if (appForm.getGroup() == null) {
+					throw new GroupMoveNotAllowedException("Subgroup with id=" + subgroup.getId() + " is involved in organization auto registration process.");
+				} else {
+					throw new GroupMoveNotAllowedException("Subgroup with id=" + subgroup.getId() + " is involved in auto registration process in the group with id=" + appForm.getGroup().getId());
+				}
+			}
 		}
 
 		Map<Integer, Map<Integer, MemberGroupStatus>> previousStatuses = new HashMap<>();
@@ -5882,6 +5906,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Group> getAllGroupsForAutoRegistration(PerunSession sess) {
+		return this.getGroupsManagerImpl().getAllGroupsForAutoRegistration(sess);
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem) {
+		return this.getGroupsManagerImpl().getGroupsForAutoRegistration(sess, vo, formItem);
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Group registrationGroup, ApplicationFormItem formItem) {
+		return this.getGroupsManagerImpl().getGroupsForAutoRegistration(sess, registrationGroup, formItem);
+	}
+
+	@Override
 	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) {
 		for (Group group : groups) {
 			this.getGroupsManagerImpl().deleteGroupFromAutoRegistration(sess, group);
@@ -5889,22 +5928,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem) throws FormItemNotExistsException {
+		for (Group group : groups) {
+			this.getGroupsManagerImpl().deleteGroupFromAutoRegistration(sess, group, formItem);
+		}
+	}
+
+	@Override
 	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotAllowedToAutoRegistrationException {
 		for (Group group : groups) {
-			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
-				throw new GroupNotAllowedToAutoRegistrationException("Members group cannot be added to auto registration.", group);
-			}
-
-			try {
-				Attribute syncEnabledAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
-				if ("true".equals(syncEnabledAttr.valueAsString()) || isGroupInStructureSynchronizationTree(sess, group)) {
-					throw new GroupNotAllowedToAutoRegistrationException("Group with synchronization cannot be added to auto registration.", group);
-				}
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-				// if attribute does not exist we can skip it
-			}
-
+			checkGroupCanBeAddedToAutoRegistration(sess, group);
 			this.getGroupsManagerImpl().addGroupToAutoRegistration(sess, group);
+		}
+	}
+
+	@Override
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups, ApplicationFormItem formItem) throws GroupNotAllowedToAutoRegistrationException, FormItemNotExistsException {
+		for (Group group : groups) {
+			checkGroupCanBeAddedToAutoRegistration(sess, group);
+			this.getGroupsManagerImpl().addGroupToAutoRegistration(sess, group, formItem);
+		}
+	}
+
+	private void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group) throws GroupNotAllowedToAutoRegistrationException {
+		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+			throw new GroupNotAllowedToAutoRegistrationException("Members group cannot be added to auto registration.", group);
+		}
+
+		try {
+			Attribute syncEnabledAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
+			if ("true".equals(syncEnabledAttr.valueAsString()) || isGroupInStructureSynchronizationTree(sess, group)) {
+				throw new GroupNotAllowedToAutoRegistrationException("Group with synchronization cannot be added to auto registration.", group);
+			}
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			// if attribute does not exist we can skip it
 		}
 	}
 
@@ -5971,8 +6028,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
-		return this.getGroupsManagerImpl().isGroupForAutoRegistration(sess, group);
+	public boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group) {
+		return this.getGroupsManagerImpl().isGroupForAnyAutoRegistration(sess, group);
+	}
+
+	@Override
+	public boolean isGroupForAutoRegistration(PerunSession sess, Group group, List<Integer> formItems) {
+		return this.getGroupsManagerImpl().isGroupForAutoRegistration(sess, group, formItems);
 	}
 
 	@Override
