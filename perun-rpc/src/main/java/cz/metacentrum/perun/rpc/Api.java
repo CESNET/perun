@@ -50,6 +50,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,6 +68,7 @@ import java.util.regex.Pattern;
 
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ACCESS_TOKEN;
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -103,6 +105,8 @@ public class Api extends HttpServlet {
 	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
 	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
 	private static final String OIDC_CLAIM_ISS = "OIDC_CLAIM_iss";
+	private static final String OIDC_CLAIM_AUTH_TIME = "OIDC_CLAIM_auth_time";
+	private static final String OIDC_CLAIM_ACR = "OIDC_CLAIM_acr";
 	private static final String OIDC_ACCESS_TOKEN = "OIDC_access_token";
 	private static final String EXTSOURCE = "EXTSOURCE";
 	private static final String EXTSOURCETYPE = "EXTSOURCETYPE";
@@ -266,6 +270,16 @@ public class Api extends HttpServlet {
 				throw new InternalErrorException("OIDC issuer not send by Authorization Server");
 			}
 			extSourceLoaString = "-1";
+
+			// get MFA timestamp
+			String acr = req.getHeader(OIDC_CLAIM_ACR);
+			if (isNotEmpty(acr) && acr.equals(BeansUtils.getCoreConfig().getIntrospectionEndpointMfaAcrValue())) {
+				String mfaTimestamp = req.getHeader(OIDC_CLAIM_AUTH_TIME);
+				if (isNotEmpty(mfaTimestamp)) {
+					Instant mfaReadableTimestamp = Instant.ofEpochSecond(Long.parseLong(mfaTimestamp));
+					additionalInformations.put(MFA_TIMESTAMP, mfaReadableTimestamp.toString());
+				}
+			}
 
 			if (BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
 				UserInfoEndpointResponse userInfoEndpointResponse;

@@ -77,7 +77,6 @@ import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
-import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2639,13 +2638,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new MFAuthenticationException("Cannot verify MFA - issuer is missing.");
 		}
 
-		UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
-		String timestamp = userInfoEndpointCall.getUserInfoEndpointMfaData(accessToken, issuer);
-		if (timestamp != null && !timestamp.isEmpty()) {
-			sess.getPerunPrincipal().getAdditionalInformations().put(MFA_TIMESTAMP, timestamp);
-			if (isAuthorizedByMfa(sess)) {
-				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
-			}
+		if (isAuthorizedByMfa(sess)) {
+			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
 		}
 	}
 
