@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.ExtSourceLdap;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
@@ -73,7 +74,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	private Map<Integer,ExtSource> extSourcesByIdMap = new HashMap<>();
 	private Map<String,ExtSource> extSourcesByNameMap = new HashMap<>();
-	
+
 	private void cacheExtSourcesInMemory(PerunSession sess) {
 		Map<Integer,ExtSource> extSourcesByIdMap = new HashMap<>();
 		Map<String,ExtSource> extSourcesByNameMap = new HashMap<>();
@@ -112,6 +113,10 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	@Override
 	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
 		ExtSource extSource = extSourcesByIdMap.get(id);
+		if (extSource instanceof ExtSourceLdap) {
+			// FIXME - retrieve new instance for LDAP ExtSources !!
+			return getExtSourcesManagerImpl().getExtSourceById(sess, id);
+		}
 		if (extSource == null) throw new ExtSourceNotExistsException("ExtSource with ID=" + id + " not exists");
 		return extSource;
 	}
@@ -119,6 +124,10 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	@Override
 	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException {
 		ExtSource extSource = extSourcesByNameMap.get(name);
+		if (extSource instanceof ExtSourceLdap) {
+			// FIXME - retrieve new instance for LDAP ExtSources !!
+			return getExtSourcesManagerImpl().getExtSourceByName(sess, name);
+		}
 		if (extSource == null) throw new ExtSourceNotExistsException("ExtSource with name =" + name + " not exists");
 		return extSource;
 	}
@@ -126,20 +135,43 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	@Override
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
 		List<Integer> ids = getExtSourcesManagerImpl().getVoExtSourcesIds(sess, vo);
-		return ids.stream().map(id -> extSourcesByIdMap.get(id)).collect(Collectors.toList());
+		return ids.stream().map(id -> { ExtSource extSource = extSourcesByIdMap.get(id);
+			if (extSource instanceof ExtSourceLdap) {
+				// FIXME - retrieve new instance for LDAP ExtSources !!
+				try {
+					return getExtSourcesManagerImpl().getExtSourceById(sess, id);
+				} catch (ExtSourceNotExistsException e) {
+					log.error("VO ExtSource by its ID doesn't exists!");
+					throw new ConsistencyErrorException("VO ExtSource by its ID doesn't exists!", e);
+				}
+			}
+			return extSource;
+		}).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException {
 		List<Integer> ids = getExtSourcesManagerImpl().getGroupExtSourcesIds(sess, group);
-		return ids.stream().map(id -> extSourcesByIdMap.get(id)).collect(Collectors.toList());
+		return ids.stream().map(id -> { ExtSource extSource = extSourcesByIdMap.get(id);
+			if (extSource instanceof ExtSourceLdap) {
+				// FIXME - retrieve new instance for LDAP ExtSources !!
+				try {
+					return getExtSourcesManagerImpl().getExtSourceById(sess, id);
+				} catch (ExtSourceNotExistsException e) {
+					log.error("Group ExtSource by its ID doesn't exists!");
+					throw new ConsistencyErrorException("VO ExtSource by its ID doesn't exists!", e);
+				}
+			}
+			return extSource;
+		}).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
+		// FIXME - no need to retrieve new instance for LDAP ExtSources since its used only by outer API and tests.
 		return new ArrayList<>(extSourcesByIdMap.values());
 	}
-	
+
 	@Override
 	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws ExtSourceAlreadyAssignedException {
 		getExtSourcesManagerImpl().addExtSource(sess, vo, source);
