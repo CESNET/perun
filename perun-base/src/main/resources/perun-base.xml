@@ -77,11 +77,9 @@
 		<property name="userInfoEndpointExtSourceLogin" value="#{'${perun.userInfoEndpoint.extSourceLogin}'.split('\s*,\s*')}"/>
 		<property name="userInfoEndpointExtSourceName" value="${perun.userInfoEndpoint.extSourceName}"/>
 		<property name="userInfoEndpointExtSourceFriendlyName" value="#{'${perun.userInfoEndpoint.extSourceFriendlyName}'.split('\s*,\s*')}"/>
-		<property name="mfaAuthTimeout" value="${perun.userInfoEndpoint.mfaAuthTimeout}"/>
+		<property name="mfaAuthTimeout" value="${perun.introspectionEndpoint.mfaAuthTimeout}"/>
 		<property name="enforceMfa" value="${perun.enforceMfa}"/>
-		<property name="userInfoEndpointMfaAuthTimestampPropertyName" value="${perun.userInfoEndpoint.mfaAuthTimestampPropertyName}"/>
-		<property name="userInfoEndpointMfaAcrValue" value="${perun.userInfoEndpoint.mfaAcrValue}"/>
-		<property name="userInfoEndpointAcrPropertyName" value="${perun.userInfoEndpoint.acrPropertyName}"/>
+		<property name="introspectionEndpointMfaAcrValue" value="${perun.introspectionEndpoint.mfaAcrValue}"/>
 		<property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
 		<property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
 	</bean>
@@ -182,10 +180,8 @@
 				<prop key="perun.userInfoEndpoint.extSourceLogin">eduperson_unique_id, eduperson_principal_name, saml2_nameid_persistent, eduperson_targeted_id, voperson_external_id</prop>
 				<prop key="perun.userInfoEndpoint.extSourceName">target_issuer</prop>
 				<prop key="perun.userInfoEndpoint.extSourceFriendlyName">target_backend, display_name, text</prop>
-				<prop key="perun.userInfoEndpoint.mfaAuthTimestampPropertyName">authn_instant</prop>
-				<prop key="perun.userInfoEndpoint.mfaAuthTimeout">24</prop>
-				<prop key="perun.userInfoEndpoint.acrPropertyName">acr</prop>
-				<prop key="perun.userInfoEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
+				<prop key="perun.introspectionEndpoint.mfaAuthTimeout">24</prop>
+				<prop key="perun.introspectionEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
 				<prop key="perun.enforceMfa">false</prop>
 			</props>
 		</property>
