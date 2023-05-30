@@ -77,7 +77,7 @@
 		<jdom.version>1.0</jdom.version>
 		<json.version>20220924</json.version>
 		<reflections.version>0.9.11</reflections.version>
-		<testcontainers.version>1.18.1</testcontainers.version>
+		<testcontainers.version>1.18.2</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
