@@ -14,8 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StreamUtils;
 
 import javax.sql.DataSource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_DESCRIPTION;
 import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_NAME;
@@ -239,39 +242,82 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 	 * @param query to select subject groups
 	 * @return list of subjects
 	 */
-	protected List<Map<String,String>> groupQuery(String query) throws InternalErrorException {
+	protected List<Map<String,String>> groupQuery(String query) {
 		try (Connection con = getDataSource().getConnection()) {
 			try (PreparedStatement st = con.prepareStatement(query)) {
 				try (ResultSet rs = st.executeQuery()) {
 					List<Map<String, String>> subjects = new ArrayList<>();
 					log.trace("Query {}", query);
-					ResultSetMetaData metaData = rs.getMetaData();
-					List<ColumnMapping> columnMappings = new ArrayList<>(metaData.getColumnCount());
-					for (int i = 1; i <= metaData.getColumnCount(); i++) {
-						String columnName = metaData.getColumnLabel(i);
-						String baseName = matchingGroupColumnName(columnName);
-						if (baseName != null) {
-							columnMappings.add(new ColumnMapping(i, baseName, false));
-						}
-					}
 					while (rs.next()) {
 						Map<String, String> map = new HashMap<>();
-						for (ColumnMapping columnMapping : columnMappings) {
-							map.put(columnMapping.attributeName, rs.getString(columnMapping.columnIndex));
-						}
+						GROUP_SYNC_DEFAULT_DATA.forEach(
+							column -> map.put(column, readGroupSyncRequiredData(rs, column))
+						);
+						map.putAll(parseAdditionalAttributeData(rs));
 						subjects.add(map);
 					}
+
 					log.debug("Returning {} subjects from external source {}", subjects.size(), this);
 					return subjects;
+				} catch (SQLException e) {
+					log.error("SQL exception during searching for subject '{}'", query);
+					throw new InternalErrorException(e);
 				}
 			} catch (SQLException e) {
-				log.error("SQL exception during searching for subject '{}'", query);
+				log.error("SQL exception during the preparation of query statement '{}'", query);
 				throw new InternalErrorException(e);
 			}
 		} catch (SQLException e) {
 			log.error("Cannot get connection from pool", e);
 			throw new InternalErrorException(e);
 		}
+	}
+
+	/**
+	 * Decodes a full attribute name from the given value. For used mappings,
+	 * see attributeNameMapping.
+	 *
+	 * @param value which will be mapped
+	 * @return attribute full name
+	 */
+	private String mapAttributeNames(String value) {
+		String[] attributeRaw = value.split(":", 3);
+		String attributeName = null;
+		if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[0])) {
+			log.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[0], attributeRaw);
+		} else if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[1])) {
+			log.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[1], attributeRaw);
+		} else {
+			attributeName = ATTRIBUTE_NAME_MAPPING.get(attributeRaw[0]) + ATTRIBUTE_NAME_MAPPING.get(attributeRaw[1]) +
+				attributeRaw[2];
+		}
+		return attributeName;
+	}
+
+
+	/**
+	 * Parse additional data from the given result set.
+	 *
+	 * @param rs result set with attribute data
+	 * @throws SQLException SQLException
+	 */
+	private Map<String, String> parseAdditionalAttributeData(ResultSet rs) throws SQLException {
+		Map<String, String> additionalAttributes = new HashMap<>();
+		for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+			String columnName = rs.getMetaData().getColumnLabel(i);
+			if (columnName.contains(":")) {
+				String attrName = mapAttributeNames(columnName);
+				String attributeValue;
+				if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
+					attributeValue = parseBlobValue(rs.getBinaryStream(i), columnName);
+				} else {
+					// let driver convert the type to string
+					attributeValue = rs.getString(i);
+				}
+				additionalAttributes.put(attrName, attributeValue);
+			}
+		}
+		return additionalAttributes;
 	}
 
 	protected DataSource getDataSource() {
@@ -285,6 +331,49 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 			log.debug("ExtSource {} got dbpool {}", getName(), dbpool);
 		}
 		return dataSource;
+	}
+
+	/**
+	 * Parse blob value from given input stream.
+	 *
+	 * @param inputStream input stream with a blob value
+	 * @param columnName name of the column to which the blob belongs
+	 * @return parsed value
+	 */
+	private String parseBlobValue(InputStream inputStream, String columnName) {
+		if (inputStream == null) {
+			return null;
+		}
+		try {
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = inputStream.read(buffer)) != -1) {
+				result.write(buffer, 0, length);
+			}
+				byte[] bytes = Base64.encodeBase64(result.toByteArray());
+				return new String(bytes, StandardCharsets.UTF_8);
+		} catch(IOException ex) {
+			log.error("Unable to read BLOB for column {}", columnName);
+			throw new InternalErrorException("Unable to read BLOB data for column: " + columnName, ex);
+		}
+	}
+
+	/**
+	 * Read data from rs from specified column. If the column doesn't exist,
+	 * a null is returned.
+	 *
+	 * @param rs result rest
+	 * @param column column
+	 * @return column data or null if column doesn't exist
+	 */
+	private String readGroupSyncRequiredData(ResultSet rs, String column) {
+		try {
+			return rs.getString(column);
+		} catch (SQLException e) {
+			// If the column doesn't exist, ignore it
+			return null;
+		}
 	}
 
 }
