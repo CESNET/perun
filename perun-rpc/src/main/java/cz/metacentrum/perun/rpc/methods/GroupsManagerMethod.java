@@ -945,6 +945,21 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns subgroups of a group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param parentGroup int Group id
+	 * @return List<Group> Child groups
+	 */
+	getAllSubGroups {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getAllSubGroups(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
 	 * Adds an admin to a group.
 	 *
 	 * @throw GroupNotExistsException

@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.FormItemNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -34,6 +35,8 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -86,6 +89,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, " +
 		"groups_resources_automatic.auto_assign_subgroups as auto_assign_subgroups, groups_resources_state.failure_cause as groups_resources_state_failure_cause, groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id";
 
+	private static final String applicationFormMappingSelectQuery = "id,vo_id,group_id,automatic_approval,automatic_approval_extension,automatic_approval_embedded,module_name from application_form";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
@@ -1302,9 +1306,46 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Group> getAllGroupsForAutoRegistration(PerunSession sess) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups where id IN (select group_id from groups_to_register)", GROUP_MAPPER);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo, ApplicationFormItem formItem) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups where vo_id=? and id IN (select group_id from auto_registration_groups where application_form_item_id = ?)", GROUP_MAPPER, vo.getId(), formItem.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups where vo_id=? and id IN (select group_id from auto_registration_groups where application_form_item_id = ?)", GROUP_MAPPER, group.getVoId(), formItem.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public void deleteGroupFromAutoRegistration(PerunSession sess, Group group) {
 		try {
 			jdbc.update("delete from groups_to_register where group_id=?", group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void deleteGroupFromAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem) throws FormItemNotExistsException {
+		if (!checkFormItemExists(sess, formItem)) throw new FormItemNotExistsException("Form item " + formItem + " does not not exist.");
+		try {
+			jdbc.update("delete from auto_registration_groups where group_id=? and application_form_item_id=?", group.getId(), formItem.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -1320,9 +1361,61 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
+	public void addGroupToAutoRegistration(PerunSession sess, Group group, ApplicationFormItem formItem) throws FormItemNotExistsException {
+		if (!checkFormItemExists(sess, formItem)) throw new FormItemNotExistsException("Form item " + formItem + " does not not exist.");
 		try {
-			return 0 < jdbc.queryForInt("SELECT count(1) FROM groups_to_register WHERE group_id = ?", group.getId());
+			jdbc.update("insert into auto_registration_groups (group_id, application_form_item_id) values (?,?)", group.getId(), formItem.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group) {
+		try {
+			return 0 < jdbc.queryForInt("SELECT count(1) FROM auto_registration_groups WHERE group_id = ?", group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public boolean isGroupForAutoRegistration(PerunSession sess, Group group, List<Integer> formItems) {
+		try {
+			MapSqlParameterSource params = new MapSqlParameterSource();
+			params.addValue("gid", group.getId());
+			params.addValue("ids", formItems);
+			return  0 < namedParameterJdbcTemplate.queryForObject(
+				"SELECT count(1) FROM auto_registration_groups WHERE group_id = :gid AND application_form_item_id IN (:ids)",
+				params, Integer.class);
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public ApplicationForm getParentApplicationFormForAutoRegistrationGroup(Group group) {
+		try {
+			int appFormItemId = jdbc.queryForInt("SELECT application_form_item_id FROM auto_registration_groups WHERE group_id = ? LIMIT 1", group.getId());
+			int appFormId = jdbc.queryForInt("SELECT form_id FROM application_form_items WHERE id = ?", appFormItemId);
+
+			return jdbc.queryForObject("select " + applicationFormMappingSelectQuery + " where id=?", (resultSet, arg1) -> {
+				ApplicationForm form = new ApplicationForm();
+				form.setId(resultSet.getInt("id"));
+				form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
+				form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
+				form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
+				form.setModuleClassName(resultSet.getString("module_name"));
+				Vo vo = new Vo();
+				vo.setId(resultSet.getInt("vo_id"));
+				form.setVo(vo);
+				if (resultSet.getInt("group_id") > 0) {
+					Group grp = new Group();
+					grp.setId(resultSet.getInt("group_id"));
+					form.setGroup(grp);
+				}
+				return form;
+			}, appFormId);
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -1388,6 +1481,20 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return "";
 		}
 		return " WHERE " + Utils.prepareSqlWhereForGroupSearch(query.getSearchString(), namedParams, true);
+	}
+
+	private boolean checkFormItemExists(PerunSession sess, ApplicationFormItem formItem) {
+		try {
+			int numberOfExistences = jdbc.queryForInt("select count(1) from application_form_items where id=?", formItem.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			}
+			return false;
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 }

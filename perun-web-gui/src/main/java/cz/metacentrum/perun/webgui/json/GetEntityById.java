@@ -54,6 +54,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 
 	static private final String URL_ATTRIBUTE_DEFINITION = "attributesManager/getAttributeDefinitionById";
 
+	static private final String URL_APP_FORM_ITEM = "registrarManager/getFormItemById";
+
 	/**
 	 * New callback instance
 	 *
@@ -147,6 +149,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 			js.retrieveData(URL_DESTINATION, param, this);
 		} else if (PerunEntity.ATTRIBUTE_DEFINITION.equals(entity)) {
 			js.retrieveData(URL_ATTRIBUTE_DEFINITION, param, this);
+		} else if (PerunEntity.APP_FORM_ITEM.equals(entity)) {
+			js.retrieveData(URL_APP_FORM_ITEM, param, this);
 		} else {
 			// UNSUPPORTED COMBINATION
 		}

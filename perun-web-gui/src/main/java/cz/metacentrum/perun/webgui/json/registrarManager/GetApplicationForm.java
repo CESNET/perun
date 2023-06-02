@@ -41,7 +41,7 @@ public class GetApplicationForm implements JsonCallback {
 	private boolean hidden = false;
 	private Group group;
 	boolean autoRegistrationEnabled;
-	boolean voHasEmbeddedGroupApplication;
+	boolean hasEmbeddedGroupApplication;
 
 	// JSON URL
 	static private final String JSON_URL = "registrarManager/getApplicationForm";
@@ -111,10 +111,10 @@ public class GetApplicationForm implements JsonCallback {
 	public void retrieveData(Group group, Boolean autoRegistrationEnabled) {
 
 		this.group = group;
-		if(autoRegistrationEnabled == null) {
-			voHasEmbeddedGroupApplication = false;
+		if (autoRegistrationEnabled == null) {
+			hasEmbeddedGroupApplication = false;
 		} else {
-			voHasEmbeddedGroupApplication = true;
+			hasEmbeddedGroupApplication = true;
 			this.autoRegistrationEnabled = autoRegistrationEnabled;
 		}
 
@@ -144,7 +144,7 @@ public class GetApplicationForm implements JsonCallback {
 
 					ft.setHTML(0, 0, "<strong>INITIAL: </strong>");
 					ft.setHTML(1, 0, "<strong>EXTENSION: </strong>");
-					if (groupForm && voHasEmbeddedGroupApplication) {
+					if (groupForm && hasEmbeddedGroupApplication) {
 						ft.setHTML(2, 0, "<strong>EMBEDDED: </strong>");
 						ft.setHTML(3, 0, "<strong>Module name: </strong>");
 					} else {
@@ -178,7 +178,7 @@ public class GetApplicationForm implements JsonCallback {
 					ft.setWidget(0, 1, lbInit);
 					ft.setWidget(1, 1, lbExt);
 
-					if (groupForm && voHasEmbeddedGroupApplication) {
+					if (groupForm && hasEmbeddedGroupApplication) {
 						lbEmbed.addItem("Automatic", "true");
 						lbEmbed.addItem("Manual", "false");
 						if (form.getAutomaticApprovalEmbedded()==true) {
@@ -207,7 +207,7 @@ public class GetApplicationForm implements JsonCallback {
 							});
 							form.setAutomaticApproval(Boolean.parseBoolean(lbInit.getValue(lbInit.getSelectedIndex())));
 							form.setAutomaticApprovalExtension(Boolean.parseBoolean(lbExt.getValue(lbExt.getSelectedIndex())));
-							if (groupForm && voHasEmbeddedGroupApplication) {
+							if (groupForm && hasEmbeddedGroupApplication) {
 								form.setAutomaticApprovalEmbedded(Boolean.parseBoolean(lbEmbed.getValue(lbEmbed.getSelectedIndex())));
 							}
 							form.setModuleClassName(className.getText().trim());
@@ -235,7 +235,7 @@ public class GetApplicationForm implements JsonCallback {
 			} else {
 				appStyle = appStyle + " <span style=\"color:red;\">Manual</span> (EXTENSION)";
 			}
-			if (groupForm && voHasEmbeddedGroupApplication) {
+			if (groupForm && hasEmbeddedGroupApplication) {
 				if (form.getAutomaticApprovalEmbedded()==true) {
 					appStyle = appStyle + " <span style=\"color:red;\">Automatic</span> (EMBEDDED)";
 				} else {
@@ -248,7 +248,7 @@ public class GetApplicationForm implements JsonCallback {
 
 			content.setHTML(0, 0, appStyle + module);
 
-			if (groupForm && voHasEmbeddedGroupApplication) {
+			if (groupForm && hasEmbeddedGroupApplication) {
 				CheckBox checkBox = new CheckBox("Allowed for embedded applications");
 				checkBox.setValue(autoRegistrationEnabled);
 
@@ -260,11 +260,11 @@ public class GetApplicationForm implements JsonCallback {
 						ArrayList<Group> list = new ArrayList<>();
 						list.add(group);
 						if(((CheckBox) event.getSource()).getValue()) {
-							AddAutoRegGroups request = new AddAutoRegGroups(JsonCallbackEvents.disableCheckboxEvents(checkBox));
-							request.setAutoRegGroups(list);
+							AddGroupsToAutoRegistration request = new AddGroupsToAutoRegistration(JsonCallbackEvents.disableCheckboxEvents(checkBox));
+							request.setAutoRegGroups(list, null, null);
 						} else {
 							RemoveGroupsFromAutoRegistration request = new RemoveGroupsFromAutoRegistration(JsonCallbackEvents.disableCheckboxEvents(checkBox));
-							request.deleteGroups(list);
+							request.deleteGroups(list, null, null);
 						}
 					}
 				};

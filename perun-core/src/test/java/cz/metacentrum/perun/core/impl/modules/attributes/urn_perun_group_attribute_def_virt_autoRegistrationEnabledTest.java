@@ -36,7 +36,7 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabledTest {
 	@Test
 	public void testAutoRegistrationEnabledGetAttributeValue() throws Exception {
 		System.out.println("testAutoRegistrationEnabledGetAttributeValue()");
-		when(session.getPerunBl().getGroupsManagerBl().isGroupForAutoRegistration(session, groupA))
+		when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupA))
 				.thenReturn(true);
 		when(session.getPerunBl().getVosManagerBl().getVoById(session, groupA.getVoId()))
 				.thenReturn(vo);
@@ -51,7 +51,7 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabledTest {
 	@Test
 	public void testAutoRegistrationDisabledGetAttributeValue() throws Exception {
 		System.out.println("testAutoRegistrationDisabledAttributeValue()");
-		when(session.getPerunBl().getGroupsManagerBl().isGroupForAutoRegistration(session, groupB))
+		when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupB))
 				.thenReturn(false);
 		when(session.getPerunBl().getVosManagerBl().getVoById(session, groupB.getVoId()))
 				.thenReturn(vo);
@@ -66,7 +66,7 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabledTest {
 	@Test
 	public void testAutoRegistrationNotUsed() throws Exception {
 		System.out.println("testAutoRegistrationNotUsed()");
-		when(session.getPerunBl().getGroupsManagerBl().isGroupForAutoRegistration(session, groupB))
+		when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupB))
 				.thenReturn(false);
 		when(session.getPerunBl().getVosManagerBl().getVoById(session, groupB.getVoId()))
 				.thenReturn(vo);
