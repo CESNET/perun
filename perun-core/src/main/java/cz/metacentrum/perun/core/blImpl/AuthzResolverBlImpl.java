@@ -2517,15 +2517,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Utils.checkPerunSession(sess);
 		log.trace("Refreshing authz roles for session {}.", sess);
 
-		// Set empty set of roles
-		sess.getPerunPrincipal().setRoles(new AuthzRoles());
+		// Create empty variable for set of roles for further fulfillment and replacement
+		AuthzRoles roles = new AuthzRoles();
 		// Prepare service roles like engine, service, registrar, perunAdmin etc.
-		boolean serviceRole = prepareServiceRoles(sess);
+		boolean serviceRole = prepareServiceRoles(sess, roles);
 
 		// No need to search further for service principals included in 'dontlookupusers' configuration
 		if (!serviceRole || !BeansUtils.getCoreConfig().getDontLookupUsers().contains(sess.getPerunPrincipal().getActor())) {
 			User user = sess.getPerunPrincipal().getUser();
-			AuthzRoles roles = sess.getPerunPrincipal().getRoles();
 			if (user != null)  {
 				AuthzRoles userRoles = authzResolverImpl.getRoles(user, true);
 				// Add service roles, they don't have complementary objects
@@ -2545,9 +2544,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 
 			setAdditionalRoles(sess, roles, user);
-
-			sess.getPerunPrincipal().setRoles(roles);
 		}
+
+		sess.getPerunPrincipal().setRoles(roles);
 
 		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
 			//for OAuth clients, do not allow delegating roles not allowed by scopes
@@ -2950,20 +2949,20 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Prepare service roles to session AuthzRoles (PERUNADMIN, SERVICE, RPC, ENGINE etc.)
+	 * Prepare service roles (PERUNADMIN, SERVICE, RPC, ENGINE etc.)
 	 *
-	 * @param sess use session to add roles
+	 * @param sess session
+	 * @param roles add roles to this parameter
 	 * @return true if some service role was added, false otherwise
 	 */
-	private static boolean prepareServiceRoles(PerunSession sess) {
+	private static boolean prepareServiceRoles(PerunSession sess, AuthzRoles roles) {
 		// Load list of perunAdmins from the configuration, split the list by the comma
 		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
 		boolean serviceRole = false;
 
 		// Check if the PerunPrincipal is in a group of Perun Admins
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
-			sess.getPerunPrincipal().setAuthzInitialized(true);
+			roles.putAuthzRole(Role.PERUNADMIN);
 			// We can quit, because perun admin has all privileges
 			log.trace("AuthzResolver.init: Perun Admin {} loaded", sess.getPerunPrincipal().getActor());
 			return true;
@@ -2971,21 +2970,21 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		String perunRpcAdmin = BeansUtils.getCoreConfig().getRpcPrincipal();
 		if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
+			roles.putAuthzRole(Role.RPC);
 			log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
 			serviceRole = true;
 		}
 
 		List<String> perunEngineAdmins = BeansUtils.getCoreConfig().getEnginePrincipals();
 		if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
+			roles.putAuthzRole(Role.ENGINE);
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
 			serviceRole = true;
 		}
 
 		List<String> perunNotifications = BeansUtils.getCoreConfig().getNotificationPrincipals();
 		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
+			roles.putAuthzRole(Role.NOTIFICATIONS);
 			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
 			serviceRole = true;
 		}
@@ -2995,7 +2994,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			//sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
 
 			//FIXME ted pridame i roli plneho admina
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
+			roles.putAuthzRole(Role.PERUNADMIN);
 
 			log.trace("AuthzResolver.init: Perun Registrar {} loaded", perunRegistrars);
 			serviceRole = true;
