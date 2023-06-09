@@ -306,7 +306,7 @@ public class VoOverviewTabItem implements TabItem {
 		vosTable.setWidget(3, 0, new HTML(" - expired"));
 		vosTable.setWidget(3, 1, countExpiredMembers.getMembersCountLabel());
 		vosTable.setWidget(4, 0, new HTML(" - disabled"));
-		vosTable.setWidget(5, 1, countDisabledMembers.getMembersCountLabel());
+		vosTable.setWidget(4, 1, countDisabledMembers.getMembersCountLabel());
 
 		vosTable.setWidget(5, 0, new HTML("<strong>" + "Resources" + "</strong>"));
 		vosTable.setWidget(5, 1, countResources.getResourcesCountLabel());
