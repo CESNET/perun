@@ -73,6 +73,14 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-logging</artifactId>
 		</dependency>
+		<!-- logback appender for writing into systemd-journald which in turn writes into syslog
+			see https://github.com/gnieh/logback-journal
+			-->
+		<dependency>
+			<groupId>org.gnieh</groupId>
+			<artifactId>logback-journal</artifactId>
+			<version>${logback-journal.version}</version>
+		</dependency>
 
 		<!-- OTHER -->
 		<dependency>
