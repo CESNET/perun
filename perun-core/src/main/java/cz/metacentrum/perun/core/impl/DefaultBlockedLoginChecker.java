@@ -10,6 +10,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -41,12 +43,20 @@ public class DefaultBlockedLoginChecker {
 	public void checkDefaultBlockedLogins() {
 		log.debug("DefaultBlockedLoginChecker starts checking default blocked logins.");
 
+		HashMap<String, List<Integer>> usagesOfDefaultBlockedLogin = new HashMap<>();
+
 		Set<String> logins = BeansUtils.getCoreConfig().getBlockedLogins();
 		for (String login : logins) {
-			if (perunBl.getAttributesManagerBl().isLoginAlreadyUsed(sess, login, null)) {
+			List<Integer> userIds = perunBl.getAttributesManagerBl().getUserIdsByLogin(sess, login);
+			if (!userIds.isEmpty()) {
 				log.error("Login {} can not be blocked by default because it is already used.", login);
-				throw new InternalErrorException("Login " + login + " can not be blocked by default because it is already used. Please edit the core config!");
+				usagesOfDefaultBlockedLogin.put(login, userIds);
 			}
+		}
+
+		if (!usagesOfDefaultBlockedLogin.isEmpty()) {
+			throw new InternalErrorException("Default blocked logins in core config contain logins that users already use: " + usagesOfDefaultBlockedLogin);
+
 		}
 	}
 

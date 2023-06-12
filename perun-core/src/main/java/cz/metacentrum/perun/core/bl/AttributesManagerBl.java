@@ -433,6 +433,15 @@ public interface AttributesManagerBl {
 	boolean isLoginAlreadyUsed(PerunSession sess, String login, String namespace);
 
 	/**
+	 * Gets IDs of users who use the given login in any namespace.
+	 *
+	 * @param sess perun session
+	 * @param login	login
+	 * @return list of user IDs
+	 */
+	List<Integer> getUserIdsByLogin(PerunSession sess, String login);
+
+	/**
 	 * Get all attributes associated with the UserExtSource which have name in list attrNames (empty and virtual too).
 	 *
 	 * @param sess perun session

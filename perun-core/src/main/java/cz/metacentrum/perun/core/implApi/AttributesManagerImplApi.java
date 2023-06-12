@@ -497,6 +497,15 @@ public interface AttributesManagerImplApi {
 	boolean isLoginAlreadyUsed(PerunSession sess, String login, String namespace);
 
 	/**
+	 * Gets IDs of users who use the given login in any namespace.
+	 *
+	 * @param sess perun session
+	 * @param login	login
+	 * @return list of user IDs
+	 */
+	List<Integer> getUserIdsByLogin(PerunSession sess, String login);
+
+	/**
 	 * Get all virtual attributes associated with the user.
 	 *
 	 * @param sess perun session

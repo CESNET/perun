@@ -659,6 +659,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public List<Integer> getUserIdsByLogin(PerunSession sess, String login) {
+		return getAttributesManagerImpl().getUserIdsByLogin(sess, login);
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Host host) {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, host);
