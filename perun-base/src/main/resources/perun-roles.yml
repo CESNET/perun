@@ -8173,6 +8173,7 @@ perun_roles_management:
       - PERUNADMIN:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - SPREGAPPLICATION:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
@@ -8181,6 +8182,7 @@ perun_roles_management:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
+      - SPREGAPPLICATION:
     associated_read_roles:
       - GROUPOBSERVER
     assignable_to_attributes: true
