@@ -1,0 +1,170 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings FATAL => 'all';
+
+use DBI;
+use POSIX qw(:errno_h);
+use Getopt::Long qw(:config no_ignore_case);
+
+sub help {
+	return qq{
+        Adds PROXY role to attribute policies.
+        PROXY can read all facility attributes and user attributes. It can read and write ues attributes.
+        The script creates new policy collections for these attributes with single policy containing the new role.
+        If the role is not in the database, the script inserts it first.
+        --------------------------------------
+        Available options:
+
+        --user      | -u Username for Perun DB (required)
+        --password  | -w Password for Perun DB (required)
+        --overwrite | -o removes all existing COLLECTIONS including PROXY role
+        };
+}
+
+# Specific attributes besides READ for facility attributes, user login-namespace attributes and READ+WRITE for UES attributes
+my @readAttributes = (
+	"urn:perun:group:attribute-def:virt:voShortName",
+	"urn:perun:resource:attribute-def:def:capabilities",
+	"urn:perun:entityless:attribute-def:def:orgAups",
+	"urn:perun:vo:attribute-def:def:aup",
+	"urn:perun:user:attribute-def:virt:eduPersonScopedAffiliations",
+	"urn:perun:user:attribute-def:virt:sponsoredMembershipInOrganizations",
+	"urn:perun:user:attribute-def:def:preferredMail",
+	"urn:perun:user:attribute-def:def:timezone",
+	"urn:perun:user:attribute-def:def:preferredLanguage",
+	"urn:perun:user:attribute-def:def:phone",
+	"urn:perun:user:attribute-def:def:address",
+	"urn:perun:user:attribute-def:virt:eduPersonPrincipalNames",
+	"urn:perun:user:attribute-def:virt:tcsMails:mu",
+	"urn:perun:user:attribute-def:def:securityText:mu",
+	"urn:perun:user:attribute-def:def:securityImage:mu",
+	"urn:perun:user:attribute-def:core:id",
+	"urn:perun:user:attribute-def:core:commonName",
+	"urn:perun:user:attribute-def:core:displayName",
+	"urn:perun:user:attribute-def:core:firstName",
+	"urn:perun:user:attribute-def:core:middleName",
+	"urn:perun:user:attribute-def:core:lastName",
+	"urn:perun:user:attribute-def:virt:groupNames"
+);
+my @readWriteAttributes = (
+	"urn:perun:user:attribute-def:def:aups",
+	"urn:perun:user:attribute-def:def:mfaTokenTypes",
+	"urn:perun:user:attribute-def:def:isCesnetEligibleLastSeen",
+	"urn:perun:user:attribute-def:def:approvedAups",
+	"urn:perun:user:attribute-def:def:mfaEnforced:einfracz",
+	"urn:perun:user:attribute-def:def:mfaEnforcedSettings:einfracz",
+	"urn:perun:user:attribute-def:def:mfaEnforced:mu",
+	"urn:perun:user:attribute-def:def:mfaEnforceSettings:mu",
+	"urn:perun:user:attribute-def:def:approvedAups",
+	"urn:perun:facility:attribute-def:def:assertionConsumerServices",
+	"urn:perun:facility:attribute-def:def:singleLogoutServices",
+	"urn:perun:facility:attribute-def:def:signingCert",
+	"urn:perun:facility:attribute-def:def:encryptionCert",
+	"urn:perun:facility:attribute-def:def:spAdminContact",
+	"urn:perun:facility:attribute-def:def:spSupportContact"
+);
+my ($user, $pwd, $overwrite);
+
+GetOptions ("help|h" => sub { print help(); exit 0;},
+	"user|u=s" => \$user,
+	"password|w=s" => \$pwd,
+	"overwrite|o" => \$overwrite) || die help();
+
+if (!defined $user) { print "[ERROR] Username for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
+if (!defined $pwd) { print "[ERROR] Password for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
+
+my $dbh = DBI->connect('dbi:Pg:dbname=perun',$user,$pwd,{RaiseError=>1,AutoCommit=>0,pg_enable_utf8=>1}) or die EPERM," Connect";
+
+my $stGetAttributeId = q{select a.id from attr_names a where a.attr_name=?};
+
+my $sthNewCollection = $dbh->prepare(q{insert into attribute_policy_collections (id, attr_id, action) values (?,?,?);});
+
+my $sthNewPolicy = $dbh->prepare(q{insert into attribute_policies (id, role_id, object, policy_collection_id) values (?,?,'None',?);});
+
+my $sthInsertRole = $dbh->prepare(q{insert into roles (id, name) values (?,'proxy');});
+
+my $sthDelCollections = $dbh->prepare(q{delete from attribute_policy_collections where id=?;});
+
+my $sthExistingPolicies = $dbh -> prepare(q{select policy_collection_id from attribute_policies where role_id=?;});
+
+my $sthFacilityAndLoginAttrNames = $dbh -> prepare(q{select attr_name from attr_names where namespace='urn:perun:facility:attribute-def:def'
+	or namespace='urn:perun:facility:attribute-def:virt' or friendly_name like 'login-namespace:%'});
+
+my $sthUesAttrNames = $dbh -> prepare(q{select attr_name from attr_names where namespace='urn:perun:ues:attribute-def:def'});
+
+# *******************************
+# **     E X E C U T I O N     **
+# *******************************
+
+# Insert PROXY role to DB if not created yet
+my $roleId = $dbh->selectrow_array(q{select id from roles where name='proxy'});
+unless ($roleId) {
+	$roleId = $dbh->selectrow_array('select nextval(\'roles_id_seq\')');
+	$sthInsertRole->execute($roleId);
+	$dbh->commit() or die $dbh->errstr;
+	print "INFO: PROXY role created\n";
+}
+
+# Remove all collections where any policy with PROXY exists
+if ($overwrite) {
+	$sthExistingPolicies->execute($roleId);
+	while (my @row = $sthExistingPolicies->fetchrow_array()) {
+		my ($collectionId) = @row;
+		$sthDelCollections->execute($collectionId);
+	}
+	$dbh->commit() or die $dbh->errstr;
+	print "INFO: Existing policy collections successfully removed.\n";
+}
+
+# extend read attributes with facility attribute and user login-namespace attribute names
+$sthFacilityAndLoginAttrNames->execute();
+while (my @row = $sthFacilityAndLoginAttrNames->fetchrow_array()) {
+	my ($attrName) = @row;
+	push(@readAttributes, $attrName);
+}
+
+# extend write attributes with all ues attribute names
+$sthUesAttrNames->execute();
+while (my @row = $sthUesAttrNames->fetchrow_array()) {
+	my ($attrName) = @row;
+	push(@readWriteAttributes, $attrName);
+}
+
+# set WRITE policies for chosen attributes for PROXY
+foreach my $attrName (@readWriteAttributes) {
+        my $attrId = $dbh->selectrow_array($stGetAttributeId, {}, $attrName);
+
+        # If attribute does not exist on given instance, skip it
+        unless ($attrId) {
+            next;
+        }
+
+        my $nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+        my $nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+        $sthNewCollection->execute($nextCollectionId, $attrId, "WRITE");          #(id, attr_id, action)
+        $sthNewPolicy->execute($nextPolicyId, $roleId, $nextCollectionId); #(id, role_id, policy_collection_id)
+}
+
+# add READ/WRITE attributes to READ attributes array
+push(@readAttributes, @readWriteAttributes);
+
+# set policies for READ attributes for PROXY
+foreach my $attrName (@readAttributes) {
+        my $attrId = $dbh->selectrow_array($stGetAttributeId, {}, $attrName);
+
+        # If attribute does not exist on given instance, skip it
+        unless ($attrId) {
+            next;
+        }
+
+        my $nextCollectionId = $dbh->selectrow_array('select nextval(\'attribute_policy_collections_id_seq\')');
+        my $nextPolicyId = $dbh->selectrow_array('select nextval(\'attribute_policies_id_seq\')');
+        $sthNewCollection->execute($nextCollectionId, $attrId, "READ");           #(id, attr_id, action)
+        $sthNewPolicy->execute($nextPolicyId, $roleId, $nextCollectionId); #(id, role_id, policy_collection_id)
+}
+
+$dbh->commit() or die $dbh->errstr;
+
+print "INFO: PROXY role successfully set.\n";
+print "===================================================\n";
+$dbh->disconnect() or die $dbh->errstr;
