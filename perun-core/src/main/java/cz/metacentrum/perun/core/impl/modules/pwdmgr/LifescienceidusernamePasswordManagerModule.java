@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 	import com.google.common.collect.Lists;
 	import cz.metacentrum.perun.core.api.Attribute;
 	import cz.metacentrum.perun.core.api.ExtSource;
+	import cz.metacentrum.perun.core.api.Member;
 	import cz.metacentrum.perun.core.api.PerunSession;
 	import cz.metacentrum.perun.core.api.User;
 	import cz.metacentrum.perun.core.api.UserExtSource;
@@ -102,7 +103,8 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 
 			// add user to specific vo
 			Vo targetVo = ((PerunBl) sess.getPerun()).getVosManagerBl().getVoByShortName(sess, VO_NAME);
-			((PerunBl) sess.getPerun()).getMembersManagerBl().createMember(sess, targetVo, user);
+			Member member = ((PerunBl) sess.getPerun()).getMembersManagerBl().createMember(sess, targetVo, user);
+			((PerunBl) sess.getPerun()).getMembersManagerBl().validateMemberAsync(sess, member);
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException | ExtSourceNotExistsException |
 				 WrongAttributeValueException | WrongReferenceAttributeValueException | VoNotExistsException | ExtendMembershipException | UserExtSourceExistsException ex) {
 			throw new InternalErrorException(ex);
