@@ -67,8 +67,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ACCESS_TOKEN;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ACR_MFA;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.AUTH_TIME;
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
-import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -271,14 +272,17 @@ public class Api extends HttpServlet {
 			}
 			extSourceLoaString = "-1";
 
-			// get MFA timestamp
+			// store auth_time to additional information
+			String authTimestamp = req.getHeader(OIDC_CLAIM_AUTH_TIME);
+			if (isNotEmpty(authTimestamp)) {
+				Instant authReadableTimestamp = Instant.ofEpochSecond(Long.parseLong(authTimestamp));
+				additionalInformations.put(AUTH_TIME, authReadableTimestamp.toString());
+			}
+
+			// store MFA flag to additional information
 			String acr = req.getHeader(OIDC_CLAIM_ACR);
 			if (isNotEmpty(acr) && acr.equals(BeansUtils.getCoreConfig().getIntrospectionEndpointMfaAcrValue())) {
-				String mfaTimestamp = req.getHeader(OIDC_CLAIM_AUTH_TIME);
-				if (isNotEmpty(mfaTimestamp)) {
-					Instant mfaReadableTimestamp = Instant.ofEpochSecond(Long.parseLong(mfaTimestamp));
-					additionalInformations.put(MFA_TIMESTAMP, mfaReadableTimestamp.toString());
-				}
+				additionalInformations.put(ACR_MFA, "mfa");
 			}
 
 			if (BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {

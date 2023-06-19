@@ -180,7 +180,7 @@
 				<prop key="perun.userInfoEndpoint.extSourceLogin">eduperson_unique_id, eduperson_principal_name, saml2_nameid_persistent, eduperson_targeted_id, voperson_external_id</prop>
 				<prop key="perun.userInfoEndpoint.extSourceName">target_issuer</prop>
 				<prop key="perun.userInfoEndpoint.extSourceFriendlyName">target_backend, display_name, text</prop>
-				<prop key="perun.introspectionEndpoint.mfaAuthTimeout">24</prop>
+				<prop key="perun.introspectionEndpoint.mfaAuthTimeout">1440</prop>
 				<prop key="perun.introspectionEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
 				<prop key="perun.enforceMfa">false</prop>
 			</props>
