@@ -96,6 +96,7 @@ public class CoreConfig {
 	private List<String> userInfoEndpointExtSourceFriendlyName;
 	private String introspectionEndpointMfaAcrValue;
 	private int mfaAuthTimeout;
+	private int mfaAuthTimeoutPercentageForceLogIn;
 	private boolean enforceMfa;
 	private int idpLoginValidity;
 	private List<String> idpLoginValidityExceptions;
@@ -804,6 +805,14 @@ public class CoreConfig {
 
 	public void setMfaAuthTimeout(int mfaAuthTimeout) {
 		this.mfaAuthTimeout = mfaAuthTimeout;
+	}
+
+	public int getMfaAuthTimeoutPercentageForceLogIn() {
+		return mfaAuthTimeoutPercentageForceLogIn;
+	}
+
+	public void setMfaAuthTimeoutPercentageForceLogIn(int mfaAuthTimeoutPercentageForceLogIn) {
+		this.mfaAuthTimeoutPercentageForceLogIn = mfaAuthTimeoutPercentageForceLogIn;
 	}
 
 	public boolean isEnforceMfa() {
