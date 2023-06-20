@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -55,9 +56,9 @@ import java.util.Map;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class EscPithiaOrgnizations extends DefaultRegistrarModule {
+public class EscPithiaOrganizations extends DefaultRegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(EscPithiaOrgnizations.class);
+	final static Logger log = LoggerFactory.getLogger(EscPithiaOrganizations.class);
 
 	@Override
 	public Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, GroupNotExistsException, VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException, NotGroupMemberException {
@@ -82,63 +83,67 @@ public class EscPithiaOrgnizations extends DefaultRegistrarModule {
 				throw new InternalErrorException("Unable to create required group - organization!", e);
 			}
 
-			// make requestor an admin of new organization
+			Group organizationAdminsGroup = new Group(newOrganization.getId(), "admins", "Admins of "+organizationName);
+			Group organizationMembersGroup = new Group(newOrganization.getId(), "members", "Members of "+organizationName);
+
 			try {
-				AuthzResolverBlImpl.setRole(session, user, newOrganization, Role.GROUPADMIN);
-			} catch (RoleCannotBeManagedException e) {
-				throw new InternalErrorException("Unable to set group manager for group - organization!", e);
+				organizationAdminsGroup = perun.getGroupsManagerBl().createGroup(session, newOrganization, organizationAdminsGroup);
+			} catch (GroupExistsException | GroupRelationNotAllowed | GroupRelationAlreadyExists e) {
+				throw new InternalErrorException("Unable to create required group - organization:admins!", e);
 			}
 
-			// make requestor a member of new organization
-			perun.getGroupsManagerBl().addMember(session, newOrganization, member);
+			try {
+				organizationMembersGroup = perun.getGroupsManagerBl().createGroup(session, newOrganization, organizationMembersGroup);
+			} catch (GroupExistsException | GroupRelationNotAllowed | GroupRelationAlreadyExists e) {
+				throw new InternalErrorException("Unable to create required group - organization:members!", e);
+			}
+
+			// make "admins" group an admin of new organization (both subgroups)
+
+			try {
+				AuthzResolverBlImpl.setRole(session, organizationAdminsGroup, organizationAdminsGroup, Role.GROUPADMIN);
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException("Unable to set group manager for group - organization:admins!", e);
+			}
+			try {
+				AuthzResolverBlImpl.setRole(session, organizationAdminsGroup, organizationMembersGroup, Role.GROUPADMIN);
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException("Unable to set group manager for group - organization:members!", e);
+			}
+
+			// make requestor a member and admin of new organization
+			perun.getGroupsManagerBl().addMember(session, organizationMembersGroup, member);
+			perun.getGroupsManagerBl().addMember(session, organizationAdminsGroup, member);
 
 			// copy registration form and notifications from template
+			copyFormAndNotifications(session, newOrganization.getShortName(), getTemplateGroup(session, vo),organizationMembersGroup);
+			copyFormAndNotifications(session, newOrganization.getShortName(), getAdminTemplateGroup(session, vo), organizationAdminsGroup);
+
+			// set specific module for the admins group
+			ApplicationForm newForm = null;
 			try {
-				Group templateGroup = getTemplateGroup(session, vo);
-				registrar.createApplicationFormInGroup(session, newOrganization);
-				registrar.copyFormFromGroupToGroup(session, templateGroup, newOrganization);
-				registrar.getMailManager().copyMailsFromGroupToGroup(session, templateGroup, newOrganization);
-
-				ApplicationForm newForm = registrar.getFormForGroup(newOrganization);
-
-				List<ApplicationFormItem> items = registrar.getFormItems(session, newForm);
-				for (ApplicationFormItem item : items) {
-					if ("header".equals(item.getShortname())) {
-						Map<Locale, ApplicationFormItem.ItemTexts> i18n = item.getI18n();
-						for (Locale locale : i18n.keySet()) {
-							ApplicationFormItem.ItemTexts text = i18n.get(locale);
-							text.setLabel(text.getLabel().replace("{groupName}", newOrganization.getShortName()));
-						}
-						registrar.updateFormItem(session, item);
-					}
-				}
-
-				List<ApplicationMail> mails = registrar.getMailManager().getApplicationMails(session,newForm);
-				for (ApplicationMail mail : mails) {
-					Map<Locale, ApplicationMail.MailText> texts = mail.getMessage();
-					for (Locale locale : texts.keySet()) {
-						ApplicationMail.MailText text = texts.get(locale);
-						text.setSubject(text.getSubject().replace("{groupName}", newOrganization.getShortName()));
-						text.setText(text.getText().replace("{groupName}", newOrganization.getShortName()));
-					}
-					registrar.getMailManager().updateMailById(session, mail);
-				}
-
+				newForm = registrar.getFormForGroup(organizationAdminsGroup);
+				newForm.setModuleClassName("EscPithiaOrganizationAdmins");
+				registrar.updateForm(session, newForm);
 			} catch (PerunException e) {
-				throw new InternalErrorException("Unable to set registration form and notifications to group - organization!", e);
+				throw new InternalErrorException("Can't set registration module to the admins groups!", e);
 			}
 
-			// TODO - copy group settings
-			Group templateGroup = getTemplateGroup(session, vo);
+			// copy group settings from template
 
-			copySettings(perun, session, templateGroup,newOrganization,AttributesManager.NS_GROUP_ATTR_DEF+":blockManualMemberAdding");
-			// not necessary since default from VO is used
-			//copySettings(perun, session, templateGroup,newOrganization,AttributesManager.NS_GROUP_ATTR_DEF+":registrarURL");
+			Group templateGroup = getTemplateGroup(session, vo);
+			copySettings(perun, session, templateGroup, organizationMembersGroup,AttributesManager.NS_GROUP_ATTR_DEF+":blockManualMemberAdding");
 			// handle replace in attribute value
 			Attribute attribute = perun.getAttributesManagerBl().getAttribute(session, templateGroup, AttributesManager.NS_GROUP_ATTR_DEF+":applicationURL");
-			attribute.setValue(attribute.valueAsString().replace("{groupName}", URLEncoder.encode(newOrganization.getShortName(), StandardCharsets.UTF_8)));
-			perun.getAttributesManagerBl().setAttribute(session, newOrganization, attribute);
+			attribute.setValue(attribute.valueAsString().replace("{groupName}", URLEncoder.encode(organizationMembersGroup.getName(), StandardCharsets.UTF_8)));
+			perun.getAttributesManagerBl().setAttribute(session, organizationMembersGroup, attribute);
 
+			Group adminTemplateGroup = getTemplateGroup(session, vo);
+			copySettings(perun, session, adminTemplateGroup, organizationAdminsGroup,AttributesManager.NS_GROUP_ATTR_DEF+":blockManualMemberAdding");
+			// handle replace in attribute value
+			Attribute attribute2 = perun.getAttributesManagerBl().getAttribute(session, adminTemplateGroup, AttributesManager.NS_GROUP_ATTR_DEF+":applicationURL");
+			attribute2.setValue(attribute2.valueAsString().replace("{groupName}", URLEncoder.encode(organizationAdminsGroup.getName(), StandardCharsets.UTF_8)));
+			perun.getAttributesManagerBl().setAttribute(session, organizationAdminsGroup, attribute2);
 
 			// remove group member in the end, so they can ask for more organizations later
 			perun.getGroupsManagerBl().removeMember(session, group, member);
@@ -180,9 +185,55 @@ public class EscPithiaOrgnizations extends DefaultRegistrarModule {
 
 	}
 
+	private Group getAdminTemplateGroup(PerunSession session, Vo vo) throws PrivilegeException, RegistrarException, GroupNotExistsException {
+
+		PerunBl perun = (PerunBl)session.getPerun();
+		return perun.getGroupsManagerBl().getGroupByName(session, vo, "organizationTemplateAdmins");
+
+	}
+
 	private void copySettings(PerunBl perun, PerunSession session, Group templateGroup, Group newOrganization, String attributeName) throws WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		Attribute attribute = perun.getAttributesManagerBl().getAttribute(session, templateGroup, attributeName);
 		perun.getAttributesManagerBl().setAttribute(session, newOrganization, attribute);
+	}
+
+	private void copyFormAndNotifications(PerunSession session, String organizationName, Group templateGroup, Group destinationGroup) {
+
+		// copy registration form and notifications from template
+		try {
+			registrar.createApplicationFormInGroup(session, destinationGroup);
+			registrar.copyFormFromGroupToGroup(session, templateGroup, destinationGroup);
+			registrar.getMailManager().copyMailsFromGroupToGroup(session, templateGroup, destinationGroup);
+
+			ApplicationForm newForm = registrar.getFormForGroup(destinationGroup);
+
+			List<ApplicationFormItem> items = registrar.getFormItems(session, newForm);
+			for (ApplicationFormItem item : items) {
+				if ("header".equals(item.getShortname())) {
+					Map<Locale, ApplicationFormItem.ItemTexts> i18n = item.getI18n();
+					for (Locale locale : i18n.keySet()) {
+						ApplicationFormItem.ItemTexts text = i18n.get(locale);
+						text.setLabel(text.getLabel().replace("{groupName}", organizationName));
+					}
+					registrar.updateFormItem(session, item);
+				}
+			}
+
+			List<ApplicationMail> mails = registrar.getMailManager().getApplicationMails(session,newForm);
+			for (ApplicationMail mail : mails) {
+				Map<Locale, ApplicationMail.MailText> texts = mail.getMessage();
+				for (Locale locale : texts.keySet()) {
+					ApplicationMail.MailText text = texts.get(locale);
+					text.setSubject(text.getSubject().replace("{groupName}", organizationName));
+					text.setText(text.getText().replace("{groupName}", organizationName));
+				}
+				registrar.getMailManager().updateMailById(session, mail);
+			}
+
+		} catch (PerunException e) {
+			throw new InternalErrorException("Unable to set registration form and notifications to group - organization!", e);
+		}
+
 	}
 
 }
