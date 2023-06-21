@@ -3,7 +3,6 @@ package cz.metacentrum.perun.ldapc.model;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 public interface PerunAttribute<T extends PerunBean> {
 
@@ -25,6 +24,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String perunAttrClientID = "OIDCClientID";
 		public static final String perunAttrGroupNames = "groupNames";
 		public static final String perunAttrInstitutionsCountries = "institutionsCountries";
+		public static final String perunAttrUserEligibilities = "userEligibilities";
 
 		//LDAP ATTRIBUTES NAMES
 		public static final String ldapAttrAssignedToResourceId = "assignedToResourceId";
@@ -74,6 +74,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrAdminOfGroup = "adminOfGroup";
 		public static final String ldapAttrAdminOfFacility = "adminOfFacility";
 		public static final String ldapAttrUuid = "uuid";
+		public static final String ldapAttrUserEligibilities = "userEligibilities";
 
 		//LDAP OBJECT CLASSES
 		public static final String objectClassTop = "top";

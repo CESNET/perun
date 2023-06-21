@@ -7985,6 +7985,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.None));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn:perun:user:attribute-def:virt:userEligibilities
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+		attr.setFriendlyName("userEligibilities");
+		attr.setDisplayName("user Eligibilities");
+		attr.setType(LinkedHashMap.class.getName());
+		attr.setDescription("Virtual attribute, which collects all eligibilities user ext source attributes " +
+				"with keys and values (map). Only the highest value is selected for each key.");
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		//urn:perun:group:attribute-def:virt:autoRegistrationEnabled
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
@@ -8077,6 +8088,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.SELF, WRITE, RoleObject.User));
 		policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
 		policies.add(Triple.of(Role.PROXY, WRITE, RoleObject.None));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn_perun_ues_attribute_def_def_eligibilities
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		attr.setType(LinkedHashMap.class.getName());
+		attr.setFriendlyName("eligibilities");
+		attr.setDisplayName("eligibilities");
+		attr.setDescription("eligibilities");
+
+		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn_perun_ues_attribute_def_def_IdPOrganizationName
