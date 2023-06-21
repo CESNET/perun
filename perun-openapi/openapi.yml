@@ -3538,6 +3538,14 @@ components:
       in: query
       required: true
 
+    formItemId:
+      name: formItem
+      description: "id of of the form item"
+      schema:
+        type: integer
+      in: query
+      required: true
+
 
 
 #################################################
@@ -13637,6 +13645,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getAllSubGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllSubGroups
+      summary: Returns all subgroups of a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getIndirectMembershipPaths:
     get:
       tags:
@@ -16980,6 +17002,7 @@ paths:
 
   /json/registrarManager/getGroupsToAutoRegistration:
     get:
+      deprecated: true
       tags:
         - RegistrarManager
       operationId: getGroupsToAutoRegistration
@@ -16992,8 +17015,39 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/getGroupsToAutoRegistration/vo:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getVoGroupsToAutoRegistration
+      summary: Returns all groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/formItemId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getGroupsToAutoRegistration/group:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getSubgroupsToAutoRegistration
+      summary: Returns all groups which can be registered into during group registration.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/formItemId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/registrarManager/deleteGroupsFromAutoRegistration:
     post:
+      deprecated: true
       tags:
         - RegistrarManager
       operationId: deleteGroupsFromAutoRegistration
@@ -17006,14 +17060,77 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/registrarManager/deleteGroupsFromAutoRegistration/vo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteVoGroupsFromAutoRegistration
+      summary: Deletes groups from a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/formItemId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/deleteGroupsFromAutoRegistration/group:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteSubgroupsFromAutoRegistration
+      summary: Deletes groups from a list of groups which can be registered into during group registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - { name: registrationGroup, description: "id of the group to which these groups are associated for the embedded registration", schema: { type: integer },  in: query, required: true }
+        - $ref: '#/components/parameters/formItemId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/registrarManager/addGroupsToAutoRegistration:
     post:
+      deprecated: true
       tags:
         - RegistrarManager
       operationId: addGroupsToAutoRegistration
       summary: Adds groups to a list of groups which can be registered into during vo registration.
       parameters:
         - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/addGroupsToAutoRegistration/vo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: addVoGroupsToAutoRegistration
+      summary: Adds groups to a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/formItemId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/addGroupsToAutoRegistration/group:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: addSubgroupsToAutoRegistration
+      summary: Adds groups to a list of groups which can be registered into during group registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - { name: registrationGroup, description: "id of the group to which these groups are associated for the embedded registration", schema: { type: integer },  in: query, required: true }
+        - $ref: '#/components/parameters/formItemId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

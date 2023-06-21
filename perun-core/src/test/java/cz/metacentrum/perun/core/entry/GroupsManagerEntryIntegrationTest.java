@@ -54,8 +54,10 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.util.Assert;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.annotation.JsonAppend;
 
@@ -5490,99 +5492,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
-	public void addAndGetGroupsForAutoRegistration() throws Exception {
-		System.out.println(CLASS_NAME + "addAndGetGroupsForAutoRegistration");
-
-		Vo vo = setUpVo();
-		groupsManager.createGroup(sess, vo, group);
-
-		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group));
-
-		assertEquals(Arrays.asList(group), groupsManagerBl.getGroupsForAutoRegistration(sess, vo));
-	}
-
-	@Test
-	public void deleteGroupsFromAutoRegistration() throws Exception {
-		System.out.println(CLASS_NAME + "deleteGroupsFromAutoRegistration");
-
-		Vo vo = setUpVo();
-		groupsManager.createGroup(sess, vo, group);
-
-		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group));
-		assertEquals(Arrays.asList(group), groupsManagerBl.getGroupsForAutoRegistration(sess, vo));
-
-		groupsManagerBl.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
-		assertEquals(Collections.emptyList(), groupsManagerBl.getGroupsForAutoRegistration(sess, vo));
-	}
-
-	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
-	public void deleteMemberGroupFromAutoRegistration() throws Exception {
-		System.out.println(CLASS_NAME + "deleteMemberGroupFromAutoRegistration");
-
-		Vo vo = setUpVo();
-		Group membersGroup = perun.getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
-
-		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(membersGroup));
-	}
-
-	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
-	public void deleteGroupWithSyncFromAutoRegistration() throws Exception {
-		System.out.println(CLASS_NAME + "deleteGroupWithSyncFromAutoRegistration");
-
-		Vo vo = setUpVo();
-		groupsManager.createGroup(sess, vo, group);
-		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
-		perun.getExtSourcesManagerBl().addExtSource(sess, vo, es);
-
-		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
-		synchroAttr1.setValue("5");
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr1);
-
-		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
-		synchroAttr2.setValue(es.getName());
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr2);
-
-		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
-		synchroAttr3.setValue("testVal");
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
-
-		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
-		synchroAttr4.setValue("true");
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr4);
-
-		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group));
-	}
-
-	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
-	public void deleteSubgroupOfGroupWithStructureSyncFromAutoRegistration() throws Exception {
-		System.out.println(CLASS_NAME + "deleteSubgroupOfGroupWithStructureSyncFromAutoRegistration");
-
-		Vo vo = setUpVo();
-		groupsManager.createGroup(sess, vo, group);
-		groupsManager.createGroup(sess, group, group2);
-		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
-		perun.getExtSourcesManagerBl().addExtSource(sess, vo, es);
-
-		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSQUERY_ATTRNAME));
-		synchroAttr1.setValue("testVal");
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr1);
-
-		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
-		synchroAttr2.setValue("testVal");
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr2);
-
-		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
-		synchroAttr3.setValue(es.getName());
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
-
-		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME));
-		synchroAttr4.setValue(true);
-		perun.getAttributesManager().setAttribute(sess, group, synchroAttr4);
-
-		groupsManagerBl.addGroupsToAutoRegistration(sess, Arrays.asList(group2));
-	}
-
-	@Test
 	public void indirectMembershipPathSimple() throws Exception {
 		System.out.println(CLASS_NAME + "indirectMembershipPathSimple");
 
@@ -5707,18 +5616,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertEquals("Only one path expected", 1, paths2.size());
 		assertEquals("Path does not match", expectedPath2, paths2.get(0));
-	}
-
-	@Test
-	public void isGroupForAutoRegistration() throws Exception {
-		System.out.println(CLASS_NAME + "isGroupsForAutoRegistration");
-
-		Vo vo = setUpVo();
-		groupsManager.createGroup(sess, vo, group);
-		assertFalse(groupsManagerBl.isGroupForAutoRegistration(sess, group));
-
-		groupsManagerBl.addGroupsToAutoRegistration(sess, Collections.singletonList(group));
-		assertTrue(groupsManagerBl.isGroupForAutoRegistration(sess, group));
 	}
 
 	@Test

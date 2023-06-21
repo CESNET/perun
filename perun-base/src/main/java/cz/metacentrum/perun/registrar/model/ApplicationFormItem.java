@@ -248,8 +248,8 @@ public class ApplicationFormItem {
 		 */
 		TIMEZONE,
 		/**
-		 * Special type for specifying if will be allowed to register to group(s) through VO application form. This type
-		 * is represented by standard HTML checkbox.
+		 * Special type for specifying if it will be allowed to register to group(s) through single application form.
+		 * This type is represented by standard HTML checkbox.
 		 */
 		EMBEDDED_GROUP_APPLICATION,
 		/**

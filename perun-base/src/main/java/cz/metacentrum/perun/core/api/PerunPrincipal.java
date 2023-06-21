@@ -25,7 +25,8 @@ public class PerunPrincipal {
 	// Specifies if the principal has initialized authZResolver
 	private volatile boolean authzInitialized = false;
 	// Keywords of additionalInformations
-	public static final String MFA_TIMESTAMP = "mfaTimestamp";
+	public static final String AUTH_TIME = "authTime";
+	public static final String ACR_MFA = "acrMfa";
 	public static final String ISSUER = "issuer";
 	public static final String ACCESS_TOKEN = "accessToken";
 

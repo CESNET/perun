@@ -55,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MfaInvalidRolesException;
 import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.MfaTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
@@ -77,7 +78,6 @@ import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
-import cz.metacentrum.perun.oidc.UserInfoEndpointCall;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,8 +101,9 @@ import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AuthzResolver.MFA_CRITICAL_ATTR;
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ACCESS_TOKEN;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.ACR_MFA;
+import static cz.metacentrum.perun.core.api.PerunPrincipal.AUTH_TIME;
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
-import static cz.metacentrum.perun.core.api.PerunPrincipal.MFA_TIMESTAMP;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -2518,15 +2519,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Utils.checkPerunSession(sess);
 		log.trace("Refreshing authz roles for session {}.", sess);
 
-		// Set empty set of roles
-		sess.getPerunPrincipal().setRoles(new AuthzRoles());
+		// Create empty variable for set of roles for further fulfillment and replacement
+		AuthzRoles roles = new AuthzRoles();
 		// Prepare service roles like engine, service, registrar, perunAdmin etc.
-		boolean serviceRole = prepareServiceRoles(sess);
+		boolean serviceRole = prepareServiceRoles(sess, roles);
 
 		// No need to search further for service principals included in 'dontlookupusers' configuration
 		if (!serviceRole || !BeansUtils.getCoreConfig().getDontLookupUsers().contains(sess.getPerunPrincipal().getActor())) {
 			User user = sess.getPerunPrincipal().getUser();
-			AuthzRoles roles = sess.getPerunPrincipal().getRoles();
 			if (user != null)  {
 				AuthzRoles userRoles = authzResolverImpl.getRoles(user, true);
 				// Add service roles, they don't have complementary objects
@@ -2546,9 +2546,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 
 			setAdditionalRoles(sess, roles, user);
-
-			sess.getPerunPrincipal().setRoles(roles);
 		}
+
+		sess.getPerunPrincipal().setRoles(roles);
 
 		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
 			//for OAuth clients, do not allow delegating roles not allowed by scopes
@@ -2564,7 +2564,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				sess.getPerunPrincipal().getRoles().clear();
 			}
 
-			if (isAuthorizedByMfa(sess)) {
+			if (isAuthorizedByMfa(sess, false)) {
 				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
 			}
 		}
@@ -2625,10 +2625,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new MFAuthenticationException("MFA enforcement is turned off");
 		}
 
-		if (!BeansUtils.getCoreConfig().getRequestUserInfoEndpoint()) {
-			throw new MFAuthenticationException("Cannot verify MFA - UserInfo endpoint not configured.");
-		}
-
 		String accessToken = sess.getPerunPrincipal().getAdditionalInformations().get(ACCESS_TOKEN);
 		if (accessToken == null) {
 			throw new MFAuthenticationException("Cannot verify MFA - access token is missing.");
@@ -2639,13 +2635,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new MFAuthenticationException("Cannot verify MFA - issuer is missing.");
 		}
 
-		UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
-		String timestamp = userInfoEndpointCall.getUserInfoEndpointMfaData(accessToken, issuer);
-		if (timestamp != null && !timestamp.isEmpty()) {
-			sess.getPerunPrincipal().getAdditionalInformations().put(MFA_TIMESTAMP, timestamp);
-			if (isAuthorizedByMfa(sess)) {
-				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
-			}
+		if (isAuthorizedByMfa(sess, true)) {
+			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.MFA);
 		}
 	}
 
@@ -2956,20 +2947,20 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Prepare service roles to session AuthzRoles (PERUNADMIN, SERVICE, RPC, ENGINE etc.)
+	 * Prepare service roles (PERUNADMIN, SERVICE, RPC, ENGINE etc.)
 	 *
-	 * @param sess use session to add roles
+	 * @param sess session
+	 * @param roles add roles to this parameter
 	 * @return true if some service role was added, false otherwise
 	 */
-	private static boolean prepareServiceRoles(PerunSession sess) {
+	private static boolean prepareServiceRoles(PerunSession sess, AuthzRoles roles) {
 		// Load list of perunAdmins from the configuration, split the list by the comma
 		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
 		boolean serviceRole = false;
 
 		// Check if the PerunPrincipal is in a group of Perun Admins
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
-			sess.getPerunPrincipal().setAuthzInitialized(true);
+			roles.putAuthzRole(Role.PERUNADMIN);
 			// We can quit, because perun admin has all privileges
 			log.trace("AuthzResolver.init: Perun Admin {} loaded", sess.getPerunPrincipal().getActor());
 			return true;
@@ -2977,21 +2968,21 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		String perunRpcAdmin = BeansUtils.getCoreConfig().getRpcPrincipal();
 		if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
+			roles.putAuthzRole(Role.RPC);
 			log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
 			serviceRole = true;
 		}
 
 		List<String> perunEngineAdmins = BeansUtils.getCoreConfig().getEnginePrincipals();
 		if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
+			roles.putAuthzRole(Role.ENGINE);
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
 			serviceRole = true;
 		}
 
 		List<String> perunNotifications = BeansUtils.getCoreConfig().getNotificationPrincipals();
 		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
+			roles.putAuthzRole(Role.NOTIFICATIONS);
 			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
 			serviceRole = true;
 		}
@@ -3001,7 +2992,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			//sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
 
 			//FIXME ted pridame i roli plneho admina
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
+			roles.putAuthzRole(Role.PERUNADMIN);
 
 			log.trace("AuthzResolver.init: Perun Registrar {} loaded", perunRegistrars);
 			serviceRole = true;
@@ -4363,34 +4354,47 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	/**
 	 * Checks, if principal was authorized by Multi-factor authentication.
-	 * The information is resolved in UserInfoEndpointCall and stored in principal's additionalInformations.
-	 * The timestamp of MFA must not be older than mfa timeout set in config.
+	 * The information is resolved from headers (apache IntrospectionEndpoint call) and stored in principal's additionalInformations.
+	 * Check if the auth time + mfa timeout is not older than the current time
+	 * auth time = time of the first authentication
+	 * mfa timeout = amount of time defined in the config for how long the MFA should be valid (since SFA)
 	 *
 	 * @param sess session
+	 * @param throwError if this method should throw errors or just return boolean
 	 * @return true if principal authorized by MFA in allowed limit, false otherwise
 	 */
-	private static boolean isAuthorizedByMfa(PerunSession sess) {
+	private static boolean isAuthorizedByMfa(PerunSession sess, boolean throwError) {
 		if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
 			return false;
 		}
 
-		if (!sess.getPerunPrincipal().getAdditionalInformations().containsKey(MFA_TIMESTAMP)) {
-			return false;
-		}
-
-		String returnedTimestamp = sess.getPerunPrincipal().getAdditionalInformations().get(MFA_TIMESTAMP);
-		Instant parsedReturnedTimestamp;
+		String returnedAuthTime = sess.getPerunPrincipal().getAdditionalInformations().get(AUTH_TIME);
+		Instant parsedReturnedAuthTime;
 		try {
-			parsedReturnedTimestamp = Instant.parse(returnedTimestamp);
+			parsedReturnedAuthTime = Instant.parse(returnedAuthTime);
 		} catch (DateTimeParseException e) {
-			throw new InternalErrorException("MFA timestamp "  + returnedTimestamp + " could not be parsed", e);
+			throw new InternalErrorException("MFA timestamp "  + returnedAuthTime + " could not be parsed", e);
 		}
-		if (parsedReturnedTimestamp.isAfter(Instant.now())) {
-			throw new InternalErrorException("MFA auth timestamp " + returnedTimestamp + " was greater than current time");
+		if (parsedReturnedAuthTime.isAfter(Instant.now())) {
+			throw new InternalErrorException("MFA auth timestamp " + returnedAuthTime + " was greater than current time");
 		}
 
-		long mfaTimeoutInSec = Duration.ofHours(BeansUtils.getCoreConfig().getMfaAuthTimeout()).getSeconds();
-		Instant mfaValidUntil = parsedReturnedTimestamp.plusSeconds(mfaTimeoutInSec);
-		return mfaValidUntil.isAfter(Instant.now());
+		long mfaTimeoutInSec = Duration.ofMinutes(BeansUtils.getCoreConfig().getMfaAuthTimeout()).getSeconds();
+		Instant mfaValidUntil = parsedReturnedAuthTime.plusSeconds(mfaTimeoutInSec);
+
+		// check if the auth time + mfa timeout > the current time
+		if (mfaValidUntil.isAfter(Instant.now())) {
+			// if user has MFA and it is still valid
+			return sess.getPerunPrincipal().getAdditionalInformations().containsKey(ACR_MFA);
+		} else {
+			if (!throwError) return false;
+			if (sess.getPerunPrincipal().getAdditionalInformations().containsKey(ACR_MFA)) {
+				// MFA is no longer valid
+				throw new MfaTimeoutException("Your MFA timestamp " + returnedAuthTime + " is not valid anymore, you'll need to reauthenticate");
+			} else {
+				// user is authenticated by SFA but the mfa timeout would cause an error, so we need to reauthenticate this user
+				throw new MfaTimeoutException("Your single factor authentication timestamp " + returnedAuthTime + " is not valid anymore, you'll need to reauthenticate");
+			}
+		}
 	}
 }

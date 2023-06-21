@@ -94,9 +94,7 @@ public class CoreConfig {
 	private List<String> userInfoEndpointExtSourceLogin;
 	private String userInfoEndpointExtSourceName;
 	private List<String> userInfoEndpointExtSourceFriendlyName;
-	private String userInfoEndpointAcrPropertyName;
-	private String userInfoEndpointMfaAcrValue;
-	private String userInfoEndpointMfaAuthTimestampPropertyName;
+	private String introspectionEndpointMfaAcrValue;
 	private int mfaAuthTimeout;
 	private boolean enforceMfa;
 	private int idpLoginValidity;
@@ -792,28 +790,12 @@ public class CoreConfig {
 		this.userInfoEndpointExtSourceFriendlyName = userInfoEndpointExtSourceFriendlyName;
 	}
 
-	public String getUserInfoEndpointAcrPropertyName() {
-		return userInfoEndpointAcrPropertyName;
+	public String getIntrospectionEndpointMfaAcrValue() {
+		return introspectionEndpointMfaAcrValue;
 	}
 
-	public void setUserInfoEndpointAcrPropertyName(String userInfoEndpointAcrPropertyName) {
-		this.userInfoEndpointAcrPropertyName = userInfoEndpointAcrPropertyName;
-	}
-
-	public String getUserInfoEndpointMfaAuthTimestampPropertyName() {
-		return userInfoEndpointMfaAuthTimestampPropertyName;
-	}
-
-	public void setUserInfoEndpointMfaAuthTimestampPropertyName(String userInfoEndpointMfaAuthTimestampPropertyName) {
-		this.userInfoEndpointMfaAuthTimestampPropertyName = userInfoEndpointMfaAuthTimestampPropertyName;
-	}
-
-	public String getUserInfoEndpointMfaAcrValue() {
-		return userInfoEndpointMfaAcrValue;
-	}
-
-	public void setUserInfoEndpointMfaAcrValue(String userInfoEndpointAcrValue) {
-		this.userInfoEndpointMfaAcrValue = userInfoEndpointAcrValue;
+	public void setIntrospectionEndpointMfaAcrValue(String introspectionEndpointMfaAcrValue) {
+		this.introspectionEndpointMfaAcrValue = introspectionEndpointMfaAcrValue;
 	}
 
 	public int getMfaAuthTimeout() {

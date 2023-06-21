@@ -7,10 +7,12 @@ import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
+import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Ajax query to delete selected groups
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 public class RemoveGroupsFromAutoRegistration {
 
 	// Session
-	private PerunWebSession session = PerunWebSession.getInstance();
+	private final PerunWebSession session = PerunWebSession.getInstance();
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Json URL
@@ -40,7 +42,7 @@ public class RemoveGroupsFromAutoRegistration {
 		this.events = events;
 	}
 
-	public void deleteGroups(final ArrayList<? extends Group> groups) {
+	public void deleteGroups(final List<Group> groups, Integer registrationGroup, Integer formItem) {
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
@@ -51,6 +53,12 @@ public class RemoveGroupsFromAutoRegistration {
 		}
 
 		jsonQuery.put("groups", grps);
+		if (registrationGroup != null) {
+			jsonQuery.put("registrationGroup", new JSONNumber(registrationGroup));
+		}
+		if (formItem != null) {
+			jsonQuery.put("formItem", new JSONNumber(formItem));
+		}
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){

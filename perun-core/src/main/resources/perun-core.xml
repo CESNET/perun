@@ -466,6 +466,11 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	<bean id="resourceAssignmentChecker" class="cz.metacentrum.perun.core.impl.ResourceAssignmentChecker" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="perun" />
 	</bean>
+
+	<bean id="defaultBlockedLoginChecker" class="cz.metacentrum.perun.core.impl.DefaultBlockedLoginChecker" scope="singleton" init-method="checkDefaultBlockedLogins" depends-on="attributesManagerBl">
+		<constructor-arg ref="perun" />
+	</bean>
+
 	<!-- merged from perun-core-transaction-manager.xml -->
 	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
 		<property name="dataSource" ref="dataSource"/>

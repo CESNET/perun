@@ -23,6 +23,8 @@ import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.CreateFormItemTabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.EditFormItemTabItem;
+import cz.metacentrum.perun.webgui.tabs.registrartabs.FormItemAddAutoRegistrationGroupsTabItem;
+import cz.metacentrum.perun.webgui.tabs.registrartabs.FormItemAutoRegistrationGroupsTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -473,12 +475,25 @@ public class GetFormItems implements JsonCallback {
 			});
 			editTable.setWidget(0, 3, removeButton);
 
+			CustomButton configureGroupsButton = new CustomButton(ButtonTranslation.INSTANCE.addGroupToAutoReg(), ButtonTranslation.INSTANCE.addGroupToAutoReg(), SmallIcons.INSTANCE.groupIcon());
+			if ("EMBEDDED_GROUP_APPLICATION".equals(item.getType())) {
+				configureGroupsButton.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						session.getTabManager().addTab(new FormItemAutoRegistrationGroupsTabItem(entity, id, item.getId()), true);
+					}
+				});
+				editTable.setWidget(0, 4, configureGroupsButton);
+			}
+
 			if ((PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id) && !session.isVoAdmin(group.getVoId()))
 					|| (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id))) {
 				editButton.setEnabled(false);
 				upButton.setEnabled(false);
 				downButton.setEnabled(false);
 				removeButton.setEnabled(false);
+				if ("EMBEDDED_GROUP_APPLICATION".equals(item.getType())) {
+					configureGroupsButton.setEnabled(false);
+				}
 			}
 
 			// format
@@ -486,6 +501,9 @@ public class GetFormItems implements JsonCallback {
 			fcf.setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			fcf.setVerticalAlignment(i, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 			fcf.setVerticalAlignment(i, 2, HasVerticalAlignment.ALIGN_MIDDLE);
+			if ("EMBEDDED_GROUP_APPLICATION".equals(item.getType())) {
+				fcf.setVerticalAlignment(i, 3, HasVerticalAlignment.ALIGN_MIDDLE);
+			}
 
 			i++;
 

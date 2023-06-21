@@ -200,5 +200,10 @@ perun_policies:
       - PASSWORDRESETMANAGER:
     include_policies: [ ]
 
+  test_proxy_role:
+    policy_roles:
+      - PROXY:
+    include_policies: []
+
 perun_roles_management: {}
 ...

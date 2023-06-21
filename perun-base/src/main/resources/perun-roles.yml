@@ -107,6 +107,8 @@
 # MEMBERSHIP role represents principal's membership in a group, VO or association with facility. This role is not
 ## explicitly saved in DB!!
 #
+# PROXY role is dedicated to service account updating user extsources and working with facilities.
+#
 # UNKNOWN exists, but it is not used in Perun.
 #
 
@@ -139,6 +141,7 @@ perun_roles:
   - SPONSORSHIP
   - PASSWORDRESETMANAGER
   - MEMBERSHIP
+  - PROXY
   - UNKNOWN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
@@ -216,6 +219,7 @@ perun_policies:
   getEntitylessAttributes_String_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -234,6 +238,7 @@ perun_policies:
   getEntitylessKeys_AttributeDefinition_policy:
     policy_roles:
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -539,6 +544,7 @@ perun_policies:
     policy_roles:
       - RPC:
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -711,6 +717,7 @@ perun_policies:
       - FACILITYOBSERVER:
       - PERUNOBSERVER:
       - SPREGAPPLICATION:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -719,6 +726,7 @@ perun_policies:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -727,6 +735,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -825,6 +834,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -858,6 +868,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -875,6 +886,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -890,6 +902,7 @@ perun_policies:
     policy_roles:
       - FACILITYADMIN:
       - SPREGAPPLICATION:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -897,6 +910,7 @@ perun_policies:
     policy_roles:
       - FACILITYADMIN: Facility
       - SPREGAPPLICATION:
+      - PROXY:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1061,6 +1075,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -1325,6 +1340,7 @@ perun_policies:
       - GROUPADMIN: Group
       - VOADMIN: Vo
       - SPREGAPPLICATION:
+      - PROXY:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1336,6 +1352,7 @@ perun_policies:
       - GROUPADMIN: Group
       - VOADMIN: Vo
       - SPREGAPPLICATION:
+      - PROXY:
     include_policies:
       - default_policy
     mfa_rules:
@@ -1416,6 +1433,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -1431,6 +1449,7 @@ perun_policies:
       - GROUPOBSERVER: Group
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -1716,6 +1735,7 @@ perun_policies:
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -2120,6 +2140,7 @@ perun_policies:
       - GROUPOBSERVER: Vo
       - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -2132,6 +2153,7 @@ perun_policies:
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -2152,6 +2174,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -2161,6 +2184,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -2465,6 +2489,27 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllGroupsForAutoRegistration_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getGroupsForAutoRegistration_Vo_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsForAutoRegistration_Group_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+    include_policies:
+      - default_policy
+
   deleteGroupsFromAutoRegistration_List<Group>_policy:
     policy_roles:
       - GROUPADMIN: Group
@@ -2475,7 +2520,47 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  deleteGroupsFromAutoRegistration_List<Group>_ApplicationFormItem_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  deleteGroupsFromAutoRegistration_List<Group>_Group_ApplicationFormItem_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
   addGroupsToAutoRegistration_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  addGroupsToAutoRegistration_List<Group>_ApplicationFormItem_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  addGroupsToAutoRegistration_List<Group>_Group_ApplicationFormItem_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
@@ -2652,6 +2737,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+      - PROXY:
     include_policies:
       - default_policy
     mfa_rules:
@@ -2716,6 +2802,7 @@ perun_policies:
       - VOADMIN: Vo
       - SPREGAPPLICATION:
       - PASSWORDRESETMANAGER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -2723,6 +2810,7 @@ perun_policies:
     policy_roles:
       - SELF: User
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -3244,6 +3332,7 @@ perun_policies:
       - VOADMIN: Vo
       - SPONSORSHIP: Member
       - PASSWORDRESETMANAGER:
+      - PROXY:
     include_policies:
       - default_policy
     mfa_rules:
@@ -4036,6 +4125,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -4052,6 +4142,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -4094,6 +4185,7 @@ perun_policies:
         FACILITYADMIN: Facility
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYOBSERVER: Facility
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -4915,6 +5007,7 @@ perun_policies:
     policy_roles:
       - PERUNOBSERVER:
       - SPREGAPPLICATION:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -5648,6 +5741,7 @@ perun_policies:
       - SELF: User
       - PERUNOBSERVER:
       - SPREGAPPLICATION:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -5733,6 +5827,7 @@ perun_policies:
       - PERUNOBSERVER:
       - SPREGAPPLICATION:
       - PASSWORDRESETMANAGER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -5918,6 +6013,7 @@ perun_policies:
       - VOADMIN:
       - SELF: User
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -5968,6 +6064,7 @@ perun_policies:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -6012,6 +6109,7 @@ perun_policies:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -6463,7 +6561,8 @@ perun_policies:
       - default_policy
 
   updateUserExtSourceLastAccess_UserExtSource_policy:
-    policy_roles: []
+    policy_roles:
+      - PROXY:
     include_policies:
       - default_policy
     mfa_rules:
@@ -6507,6 +6606,7 @@ perun_policies:
       - FACILITYOBSERVER: Facility
       - VOADMIN: Vo
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -6525,6 +6625,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -6533,6 +6634,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -6697,6 +6799,7 @@ perun_policies:
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
       - PASSWORDRESETMANAGER:
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -6717,6 +6820,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - PROXY:
     include_policies:
       - default_policy
 
@@ -8112,6 +8216,7 @@ perun_roles_management:
       - PERUNADMIN:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - SPREGAPPLICATION:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
@@ -8120,6 +8225,7 @@ perun_roles_management:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
+      - SPREGAPPLICATION:
     associated_read_roles:
       - GROUPOBSERVER
     assignable_to_attributes: true
@@ -8599,6 +8705,23 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "MFA"
+
+  PROXY:
+    primary_object:
+    assign_to_objects: {}
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+    associated_read_roles: []
+    assignable_to_attributes: true
+    skip_mfa: true
+    display_name: "Proxy"
 
   UNKNOWN:
     primary_object:

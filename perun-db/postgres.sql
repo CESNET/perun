@@ -1,4 +1,4 @@
--- database version 3.2.13 (don't forget to update insert statement at the end of file)
+-- database version 3.2.14 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1612,6 +1612,14 @@ create table authz (
 	     ((user_id is not null and authorized_group_id is null) or (user_id is null and authorized_group_id is not null))
 );
 
+create table auto_registration_groups (
+	group_id integer not null,
+	application_form_item_id integer not null,
+	constraint auto_reg_grps_group_fk foreign key (group_id) references groups(id) on delete cascade,
+	constraint auto_reg_grps_app_forms_fk foreign key (application_form_item_id) references application_form_items(id) on delete cascade,
+	constraint auto_reg_grps_grp_app_form_u unique (group_id, application_form_item_id)
+);
+
 create table groups_to_register (
     group_id integer,
     constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
@@ -1728,6 +1736,7 @@ create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(pare
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
 create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
+create index idx_auto_reg_grps_grp_app_form on auto_registration_groups (group_id,application_form_item_id);
 create index idx_fk_cabthank_pub on cabinet_thanks(publicationid);
 create index idx_fk_conhubfac_ch on consent_hubs_facilities(consent_hub_id);
 create index idx_fk_conhubfac_fac on consent_hubs_facilities(facility_id);
@@ -2002,9 +2011,10 @@ grant all on allowed_groups_to_hierarchical_vo to perun;
 grant all on attribute_critical_actions to perun;
 grant all on app_notifications_sent to perun;
 grant all on blocked_logins to perun;
+grant all on auto_registration_groups to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.13');
+insert into configurations values ('DATABASE VERSION','3.2.14');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

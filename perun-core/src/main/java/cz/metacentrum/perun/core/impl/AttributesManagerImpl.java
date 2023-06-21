@@ -1263,7 +1263,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-
+	public List<Integer> getUserIdsByLogin(PerunSession sess, String login) {
+		try {
+			return jdbc.queryForList("select distinct attr_val.user_id from attr_names as attr join user_attr_values attr_val on attr.id=attr_val.attr_id\n" +
+				"where attr.friendly_name like 'login-namespace:%%' \n" +
+				"    and attr.friendly_name not like '%%persistent%%' \n" +
+				"    and attr_val.attr_value like ?", Integer.class, login);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) {

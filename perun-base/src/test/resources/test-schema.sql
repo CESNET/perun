@@ -1,4 +1,4 @@
--- database version 3.2.13 (don't forget to update insert statement at the end of file)
+-- database version 3.2.14 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -1616,8 +1616,16 @@ create table authz (
 );
 
 create table groups_to_register (
-						group_id integer,
-						constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
+	  group_id integer,
+	  constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
+);
+
+create table auto_registration_groups (
+	  group_id integer not null,
+	  application_form_item_id integer not null,
+	  constraint auto_reg_grps_group_fk foreign key (group_id) references groups(id) on delete cascade,
+	  constraint auto_reg_grps_app_forms_fk foreign key (application_form_item_id) references application_form_items(id) on delete cascade,
+	  constraint auto_reg_grps_grp_app_form_u unique (group_id, application_form_item_id)
 );
 
 create type consent_status as enum (
@@ -1732,6 +1740,7 @@ create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(pare
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
 create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
+create index idx_auto_reg_grps_grp_app_form on auto_registration_groups (group_id,application_form_item_id);
 create index idx_fk_cabthank_pub on cabinet_thanks(publicationid);
 create index idx_fk_conhubfac_ch on consent_hubs_facilities(consent_hub_id);
 create index idx_fk_conhubfac_fac on consent_hubs_facilities(facility_id);
@@ -1896,7 +1905,7 @@ create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.13');
+insert into configurations values ('DATABASE VERSION','3.2.14');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

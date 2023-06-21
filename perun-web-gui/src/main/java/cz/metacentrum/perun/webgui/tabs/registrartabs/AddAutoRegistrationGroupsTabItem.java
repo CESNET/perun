@@ -19,9 +19,9 @@ import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.registrarManager.AddAutoRegGroups;
+import cz.metacentrum.perun.webgui.json.registrarManager.AddGroupsToAutoRegistration;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
-import cz.metacentrum.perun.webgui.json.registrarManager.GetAutoRegistrationGroups;
+import cz.metacentrum.perun.webgui.json.registrarManager.GetGroupsToAutoRegistration;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class AddAutoRegGroupTabItem implements TabItem {
+public class AddAutoRegistrationGroupsTabItem implements TabItem {
 
 	/**
 	 * Perun web session
@@ -54,7 +54,7 @@ public class AddAutoRegGroupTabItem implements TabItem {
 	//data
 	private VirtualOrganization vo;
 
-	public AddAutoRegGroupTabItem(VirtualOrganization vo) {
+	public AddAutoRegistrationGroupsTabItem(VirtualOrganization vo) {
 		this.vo = vo;
 	}
 
@@ -77,7 +77,7 @@ public class AddAutoRegGroupTabItem implements TabItem {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				// second callback
-				final GetAutoRegistrationGroups alreadySet = new GetAutoRegistrationGroups(vo.getId(), new JsonCallbackEvents() {
+				final GetGroupsToAutoRegistration alreadySet = new GetGroupsToAutoRegistration(vo.getId(), new JsonCallbackEvents() {
 					public void onFinished(JavaScriptObject jso) {
 						JsArray<Group> esToRemove = JsonUtils.jsoAsArray(jso);
 						for (int i = 0; i < esToRemove.length(); i++) {
@@ -99,7 +99,7 @@ public class AddAutoRegGroupTabItem implements TabItem {
 		assignButton.addClickHandler(event -> {
 			final ArrayList<Group> availableGroups = groups.getTableSelectedList();
 			if (UiElements.cantSaveEmptyListDialogBox(availableGroups)) {
-				AddAutoRegGroups request = new AddAutoRegGroups(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents() {
+				AddGroupsToAutoRegistration request = new AddGroupsToAutoRegistration(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents() {
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						// clear search
@@ -107,7 +107,7 @@ public class AddAutoRegGroupTabItem implements TabItem {
 						groups.retrieveData();
 					}
 				}));
-				request.setAutoRegGroups(availableGroups);
+				request.setAutoRegGroups(availableGroups, null,null);
 			}
 		});
 
@@ -169,7 +169,7 @@ public class AddAutoRegGroupTabItem implements TabItem {
 		if (getClass() != o.getClass())
 			return false;
 
-		AddAutoRegGroupTabItem create = (AddAutoRegGroupTabItem) o;
+		AddAutoRegistrationGroupsTabItem create = (AddAutoRegistrationGroupsTabItem) o;
 		return this.vo.getId() == create.vo.getId();
 	}
 
