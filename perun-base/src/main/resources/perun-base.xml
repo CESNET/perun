@@ -21,6 +21,7 @@
 		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
+		<property name="roleUpdateInterval" value="${perun.roleUpdateInterval}"/>
 		<property name="groupSynchronizationTimeout" value="${perun.group.synchronization.timeout}"/>
 		<property name="groupStructureSynchronizationInterval" value="${perun.group.structure.synchronization.interval}"/>
 		<property name="groupStructureSynchronizationTimeout" value="${perun.group.structure.synchronization.timeout}"/>
@@ -148,6 +149,7 @@
 				<prop key="perun.instanceName">LOCAL</prop>
 				<prop key="perun.allowedCorsDomains"></prop>
 				<prop key="perun.queryTimeout">-1</prop>
+				<prop key="perun.roleUpdateInterval">5</prop>
 				<prop key="perun.defaultLoa.idp">2</prop>
 				<prop key="perun.attributesToSearchUsersAndMembersBy">urn:perun:user:attribute-def:def:preferredMail, urn:perun:member:attribute-def:def:mail</prop>
 				<prop key="perun.attributesToAnonymize"></prop>

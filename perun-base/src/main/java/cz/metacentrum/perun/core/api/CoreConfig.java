@@ -100,6 +100,7 @@ public class CoreConfig {
 	private boolean enforceMfa;
 	private int idpLoginValidity;
 	private List<String> idpLoginValidityExceptions;
+	private int roleUpdateInterval;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -855,5 +856,13 @@ public class CoreConfig {
 		blockedLogins.add(rpcPrincipal);
 
 		return blockedLogins;
+	}
+
+	public int getRoleUpdateInterval() {
+		return roleUpdateInterval;
+	}
+
+	public void setRoleUpdateInterval(int roleUpdateInterval) {
+		this.roleUpdateInterval = roleUpdateInterval;
 	}
 }
