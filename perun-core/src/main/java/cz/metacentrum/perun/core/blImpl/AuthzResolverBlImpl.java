@@ -55,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MfaInvalidRolesException;
 import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.MfaRoleTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.MfaTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -4272,7 +4273,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		if (!requireMfaRoles.isEmpty() && !sess.getPerunPrincipal().getRoles().hasRole(Role.MFA)) {
-			throw new MfaRolePrivilegeException(sess, requireMfaRoles.get(0));
+			if (checkAuthValidityForMFA(sess)) {
+				throw new MfaRolePrivilegeException(sess, requireMfaRoles.get(0));
+			} else {
+				throw new MfaRoleTimeoutException("Your MFA timestamp is not valid anymore, you'll need to reauthenticate");
+			}
 		}
 	}
 
@@ -4368,6 +4373,27 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return false;
 		}
 
+		if (checkAuthValidityForMFA(sess)) {
+			// true if user has MFA and it is still valid
+			return sessionHasMfa(sess);
+		} else {
+			if (!throwError) return false;
+			if (sessionHasMfa(sess)) {
+				// MFA is no longer valid
+				throw new MfaTimeoutException("Your MFA timestamp is not valid anymore, you'll need to reauthenticate");
+			} else {
+				// user is authenticated by SFA but the mfa timeout would cause an error, so we need to reauthenticate this user
+				throw new MfaTimeoutException("Your single factor authentication timestamp is not valid anymore, you'll need to reauthenticate");
+			}
+		}
+	}
+
+	/**
+	 * Check if the auth time + mfa timeout (reduced by percentage from config) > the current time
+	 * @param sess session
+	 * @return true if the auth timestamp is not too old to perform step-up
+	 */
+	private static boolean checkAuthValidityForMFA(PerunSession sess) {
 		String returnedAuthTime = sess.getPerunPrincipal().getAdditionalInformations().get(AUTH_TIME);
 		Instant parsedReturnedAuthTime;
 		try {
@@ -4380,21 +4406,27 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		long mfaTimeoutInSec = Duration.ofMinutes(BeansUtils.getCoreConfig().getMfaAuthTimeout()).getSeconds();
-		Instant mfaValidUntil = parsedReturnedAuthTime.plusSeconds(mfaTimeoutInSec);
-
-		// check if the auth time + mfa timeout > the current time
-		if (mfaValidUntil.isAfter(Instant.now())) {
-			// if user has MFA and it is still valid
-			return sess.getPerunPrincipal().getAdditionalInformations().containsKey(ACR_MFA);
-		} else {
-			if (!throwError) return false;
-			if (sess.getPerunPrincipal().getAdditionalInformations().containsKey(ACR_MFA)) {
-				// MFA is no longer valid
-				throw new MfaTimeoutException("Your MFA timestamp " + returnedAuthTime + " is not valid anymore, you'll need to reauthenticate");
-			} else {
-				// user is authenticated by SFA but the mfa timeout would cause an error, so we need to reauthenticate this user
-				throw new MfaTimeoutException("Your single factor authentication timestamp " + returnedAuthTime + " is not valid anymore, you'll need to reauthenticate");
+		double mfaTimeoutPercentage = 1;
+		// if the current session is SFA, we want to force log in with both factors earlier (e.g. 75% of mfaAuthTimeout) due to the first executed MFA since authentication time
+		// -> we want to avoid situation when the validity is e.g. 60 minutes, user executes MFA (just second factor) after 59 minutes and after one minute he/she would need to log in again with both factors
+		if (!sessionHasMfa(sess)) {
+			mfaTimeoutPercentage = (double) BeansUtils.getCoreConfig().getMfaAuthTimeoutPercentageForceLogIn() / 100;
+			if (mfaTimeoutPercentage < 0 || mfaTimeoutPercentage > 1) {
+				throw new InternalErrorException("MFA auth timestamp percentage force logout " + mfaTimeoutPercentage + " is not between 0 and 100");
 			}
 		}
+
+		Instant mfaValidUntil = parsedReturnedAuthTime.plusSeconds((long) (mfaTimeoutInSec * mfaTimeoutPercentage));
+
+		return mfaValidUntil.isAfter(Instant.now());
+	}
+
+	/**
+	 * Check if the perun principal contains acr_mfa. It means that user has been authenticated by MFA.
+	 * @param sess session
+	 * @return true if principal contains acr_mfa
+	 */
+	private static boolean sessionHasMfa(PerunSession sess) {
+		return sess.getPerunPrincipal().getAdditionalInformations().containsKey(ACR_MFA);
 	}
 }

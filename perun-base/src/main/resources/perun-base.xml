@@ -78,6 +78,7 @@
 		<property name="userInfoEndpointExtSourceName" value="${perun.userInfoEndpoint.extSourceName}"/>
 		<property name="userInfoEndpointExtSourceFriendlyName" value="#{'${perun.userInfoEndpoint.extSourceFriendlyName}'.split('\s*,\s*')}"/>
 		<property name="mfaAuthTimeout" value="${perun.introspectionEndpoint.mfaAuthTimeout}"/>
+		<property name="mfaAuthTimeoutPercentageForceLogIn" value="${perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn}"/>
 		<property name="enforceMfa" value="${perun.enforceMfa}"/>
 		<property name="introspectionEndpointMfaAcrValue" value="${perun.introspectionEndpoint.mfaAcrValue}"/>
 		<property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
@@ -181,6 +182,7 @@
 				<prop key="perun.userInfoEndpoint.extSourceName">target_issuer</prop>
 				<prop key="perun.userInfoEndpoint.extSourceFriendlyName">target_backend, display_name, text</prop>
 				<prop key="perun.introspectionEndpoint.mfaAuthTimeout">1440</prop>
+				<prop key="perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn">75</prop>
 				<prop key="perun.introspectionEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
 				<prop key="perun.enforceMfa">false</prop>
 			</props>

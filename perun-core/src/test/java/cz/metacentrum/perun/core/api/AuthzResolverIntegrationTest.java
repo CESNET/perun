@@ -19,6 +19,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1800,10 +1802,17 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		boolean originalForce = BeansUtils.getCoreConfig().isEnforceMfa();
 		boolean originalCriticalRole = AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).isMfaCriticalRole();
 		AuthzResolver.setRole(sess, createdUser, null, Role.PERUNADMIN);
+		int originalMfaAuthTimeout = BeansUtils.getCoreConfig().getMfaAuthTimeout();
+		int originalMfaAuthTimeoutPercentageForceLogIn = BeansUtils.getCoreConfig().getMfaAuthTimeoutPercentageForceLogIn();
+		String originalAdditionalInfoAuthTime = session.getPerunPrincipal().getAdditionalInformations().get("authTime");
 
 		try {
 			BeansUtils.getCoreConfig().setEnforceMfa(true);
 			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(true);
+			BeansUtils.getCoreConfig().setMfaAuthTimeout(60);
+			BeansUtils.getCoreConfig().setMfaAuthTimeoutPercentageForceLogIn(75);
+			// mock auth time for this test
+			session.getPerunPrincipal().getAdditionalInformations().put("authTime", Instant.now().minus(20, ChronoUnit.SECONDS).toString());
 			assertThatExceptionOfType(MfaRolePrivilegeException.class).isThrownBy(
 				() -> AuthzResolver.refreshAuthz(session)
 			);
@@ -1814,6 +1823,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		} finally {
 			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(originalCriticalRole);
 			BeansUtils.getCoreConfig().setEnforceMfa(originalForce);
+			BeansUtils.getCoreConfig().setMfaAuthTimeout(originalMfaAuthTimeout);
+			BeansUtils.getCoreConfig().setMfaAuthTimeoutPercentageForceLogIn(originalMfaAuthTimeoutPercentageForceLogIn);
+			session.getPerunPrincipal().getAdditionalInformations().put("authTime", originalAdditionalInfoAuthTime);
 		}
 	}
 
