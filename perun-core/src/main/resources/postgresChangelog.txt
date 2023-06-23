@@ -7,7 +7,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.2.14
-CREATE TABLE auto_registration_groups (group_id integer not null, application_form_item_id integer not null, constraint auto_reg_grps_group_fk foreign key (group_id) references groups(id) on delete cascade, constraint auto_reg_grps_app_forms_fk foreign key (application_form_item_id) references application_form_items(id) on delete cascade), constraint auto_reg_grps_grp_app_form_u unique (group_id, application_form_item_id);
+CREATE TABLE auto_registration_groups (group_id integer not null, application_form_item_id integer not null, constraint auto_reg_grps_group_fk foreign key (group_id) references groups(id) on delete cascade, constraint auto_reg_grps_app_forms_fk foreign key (application_form_item_id) references application_form_items(id) on delete cascade, constraint auto_reg_grps_grp_app_form_u unique (group_id, application_form_item_id));
 create index idx_auto_reg_grps_grp_app_form on auto_registration_groups (group_id,application_form_item_id);
 UPDATE configurations set value='3.2.14' WHERE property='DATABASE VERSION';
 grant all on auto_registration_groups to perun;
