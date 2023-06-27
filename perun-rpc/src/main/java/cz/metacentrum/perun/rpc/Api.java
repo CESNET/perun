@@ -102,7 +102,7 @@ public class Api extends HttpServlet {
 	private static final String SSL_CLIENT_SUBJECT_DN = "SSL_CLIENT_S_DN";
 	private static final String SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
 	private static final String SUCCESS = "SUCCESS";
-	private static final String OIDC_CLAIM_SUB = "OIDC_CLAIM_sub";
+	public static final String OIDC_CLAIM_SUB = "OIDC_CLAIM_sub";
 	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
 	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
 	private static final String OIDC_CLAIM_ISS = "OIDC_CLAIM_iss";
@@ -124,7 +124,7 @@ public class Api extends HttpServlet {
 		// we do not init anything
 	}
 
-	private static String getStringAttribute(HttpServletRequest req, String attributeName) {
+	public static String getStringAttribute(HttpServletRequest req, String attributeName) {
 		return (String) req.getAttribute(attributeName);
 	}
 
@@ -134,8 +134,8 @@ public class Api extends HttpServlet {
 		if (isNotEmpty(shibIdentityProvider)) {
 			return getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
 		} else {
-			if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-				String iss = req.getHeader(OIDC_CLAIM_ISS);
+			if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
+				String iss = getStringAttribute(req, OIDC_CLAIM_ISS);
 				if(iss!=null) {
 					String extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
 					if(extSourceName!=null) {
@@ -197,7 +197,7 @@ public class Api extends HttpServlet {
 			if (isNotEmpty(remoteUser)) {
 				actor = remoteUser;
 			}
-		} else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
+		} else if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
 			actor = remoteUser;
 		} else if (getStringAttribute(req, EXTSOURCE) != null) {
 			actor = getExtLogin(req, getStringAttribute(req, EXTSOURCE), remoteUser);
@@ -254,10 +254,10 @@ public class Api extends HttpServlet {
 			}
 		}
 
-		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
-		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-			String iss = req.getHeader(OIDC_CLAIM_ISS);
-			extLogin = req.getHeader(OIDC_CLAIM_SUB);
+		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2
+		else if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
+			String iss = getStringAttribute(req, OIDC_CLAIM_ISS);
+			extLogin = getStringAttribute(req, OIDC_CLAIM_SUB);
 			additionalInformations.put(ISSUER, iss);
 			additionalInformations.put(ACCESS_TOKEN, req.getHeader(OIDC_ACCESS_TOKEN));
 			//this is configurable, as the OIDC server has the source of sub claim also configurable
@@ -273,14 +273,14 @@ public class Api extends HttpServlet {
 			extSourceLoaString = "-1";
 
 			// store auth_time to additional information
-			String authTimestamp = req.getHeader(OIDC_CLAIM_AUTH_TIME);
+			String authTimestamp = getStringAttribute(req, OIDC_CLAIM_AUTH_TIME);
 			if (isNotEmpty(authTimestamp)) {
 				Instant authReadableTimestamp = Instant.ofEpochSecond(Long.parseLong(authTimestamp));
 				additionalInformations.put(AUTH_TIME, authReadableTimestamp.toString());
 			}
 
 			// store MFA flag to additional information
-			String acr = req.getHeader(OIDC_CLAIM_ACR);
+			String acr = getStringAttribute(req, OIDC_CLAIM_ACR);
 			if (isNotEmpty(acr) && acr.equals(BeansUtils.getCoreConfig().getIntrospectionEndpointMfaAcrValue())) {
 				additionalInformations.put(ACR_MFA, "mfa");
 			}
@@ -421,10 +421,10 @@ public class Api extends HttpServlet {
 
 	private PerunClient setupPerunClient(HttpServletRequest req) {
 
-		if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-			String clientId = req.getHeader(OIDC_CLAIM_CLIENT_ID);
-			List<String> scopes = Arrays.asList(req.getHeader(OIDC_CLAIM_SCOPE).split(" "));
-			log.debug("detected OIDC/OAuth2 client {} with scopes {} for sub {}", clientId, scopes, req.getHeader(OIDC_CLAIM_SUB));
+		if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
+			String clientId = getStringAttribute(req, OIDC_CLAIM_CLIENT_ID);
+			List<String> scopes = Arrays.asList(getStringAttribute(req, OIDC_CLAIM_SCOPE).split(" "));
+			log.debug("detected OIDC/OAuth2 client {} with scopes {} for sub {}", clientId, scopes, getStringAttribute(req, OIDC_CLAIM_SUB));
 			return new PerunClient(clientId, scopes);
 		}
 
