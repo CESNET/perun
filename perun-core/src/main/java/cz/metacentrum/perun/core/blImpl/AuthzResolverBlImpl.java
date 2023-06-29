@@ -96,6 +96,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -139,6 +140,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			refreshAuthz(sess);
 		}
 
+		periodicCheckAuthz(sess);
+
 		// If the user has no roles, deny access
 		if (sess.getPerunPrincipal().getRoles() == null) {
 			return false;
@@ -161,6 +164,20 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		return resolveAuthorization(sess, policyRoles, mapOfBeans);
+	}
+
+	/**
+	 * If the last check was earlier than the set interval then updates the roles.
+	 *
+	 * @param sess session
+	 */
+	private static void periodicCheckAuthz(PerunSession sess) {
+		if (System.currentTimeMillis() - sess.getPerunPrincipal().getRolesUpdatedAt() >= TimeUnit.MINUTES.toMillis(BeansUtils.getCoreConfig().getRoleUpdateInterval())) {
+			log.debug("Periodic update authz roles for session {}.", sess);
+
+			refreshAuthz(sess);
+			sess.getPerunPrincipal().setRolesUpdatedAt(System.currentTimeMillis());
+		}
 	}
 
 	/**
@@ -272,6 +289,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			refreshAuthz(sess);
 		}
 
+		periodicCheckAuthz(sess);
+
 		// If the user has no roles, deny access
 		if (sess.getPerunPrincipal().getRoles() == null) {
 			return false;
@@ -302,6 +321,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
 			refreshAuthz(sess);
 		}
+
+		periodicCheckAuthz(sess);
 
 		// If the user has no roles, deny access
 		if (sess.getPerunPrincipal().getRoles() == null) {
@@ -1853,6 +1874,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
 			refreshAuthz(sess);
 		}
+
+		periodicCheckAuthz(sess);
 
 		if (sess.getPerunPrincipal().getRoles() == null || sess.getPerunPrincipal().getRoles().isEmpty()) {
 			return false;
