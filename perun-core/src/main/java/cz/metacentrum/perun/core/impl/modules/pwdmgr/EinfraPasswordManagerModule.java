@@ -165,17 +165,6 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 					//this is OK
 				}
 
-				// Store E-INFRA CERT IdP UES
-				extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp-cert.e-infra.cz/idp/");
-				ues = new UserExtSource(extSource, userLogin + "@idp-cert.e-infra.cz");
-				ues.setLoa(0);
-
-				try {
-					perunBl.getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch (UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
 				// Store also Kerberos logins
 				Attribute kerberosLoginsAttr = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
 				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {

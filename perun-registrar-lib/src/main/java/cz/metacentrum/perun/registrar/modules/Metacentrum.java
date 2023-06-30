@@ -58,8 +58,7 @@ public class Metacentrum extends DefaultRegistrarModule {
 	protected final static String A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN = AttributesManager.NS_USER_ATTR_DEF+":isCesnetEligibleLastSeen";
 	private final static String A_MEMBER_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration";
 	protected final static String METACENTRUM_IDP = "https://login.ics.muni.cz/idp/shibboleth";
-	protected final static String EINFRA_IDP = "https://https://idp.e-infra.cz/idp/";
-	protected final static String EINFRA_IDP_CERT = "https://idp-cert.e-infra.cz/idp/";
+	protected final static String EINFRA_IDP = "https://idp.e-infra.cz/idp/";
 
 	/**
 	 * Add all new Metacentrum members to "storage" group.
@@ -142,7 +141,7 @@ public class Metacentrum extends DefaultRegistrarModule {
 			// user is already in e-INFRA CZ
 		} catch (ExtendMembershipException e) {
 			// can't be member of e-INFRA CZ, shouldn't happen
-			log.error("{} member can't be added to \"e-INFRA CZ\": {}", vo.getName(), e);
+			log.error("{} member can't be added to \"e-INFRA CZ\"", vo.getName(), e);
 		}
 
 		// Support statistic groups
@@ -206,8 +205,7 @@ public class Metacentrum extends DefaultRegistrarModule {
 					"NOT_ELIGIBLE_METAIDP", null, null);
 		}
 
-		if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName()) ||
-				EINFRA_IDP_CERT.equals(session.getPerunPrincipal().getExtSourceName())) {
+		if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
 			throw new CantBeSubmittedException("You are currently logged-in using e-INFRA CZ IdP." +
 					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
 					"NOT_ELIGIBLE_EINFRAIDP", null, null);

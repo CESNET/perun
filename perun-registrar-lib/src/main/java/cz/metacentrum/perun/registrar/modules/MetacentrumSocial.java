@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import static cz.metacentrum.perun.registrar.modules.Metacentrum.EINFRA_IDP;
-import static cz.metacentrum.perun.registrar.modules.Metacentrum.EINFRA_IDP_CERT;
 import static cz.metacentrum.perun.registrar.modules.Metacentrum.METACENTRUM_IDP;
 
 /**
@@ -74,8 +73,7 @@ public class MetacentrumSocial extends DefaultRegistrarModule {
 					"NOT_ELIGIBLE_METAIDP", null, null);
 		}
 
-		if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName()) ||
-				EINFRA_IDP_CERT.equals(session.getPerunPrincipal().getExtSourceName())) {
+		if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
 			throw new CantBeSubmittedException("You are currently logged-in using e-INFRA CZ IdP." +
 					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
 					"NOT_ELIGIBLE_EINFRAIDP", null, null);
