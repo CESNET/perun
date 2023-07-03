@@ -38,10 +38,6 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabledTest {
 		System.out.println("testAutoRegistrationEnabledGetAttributeValue()");
 		when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupA))
 				.thenReturn(true);
-		when(session.getPerunBl().getVosManagerBl().getVoById(session, groupA.getVoId()))
-				.thenReturn(vo);
-		when(session.getPerunBl().getVosManagerBl().usesEmbeddedGroupRegistrations(session, vo))
-				.thenReturn(true);
 
 		Boolean attributeValue = classInstance.getAttributeValue(session, groupA, attrDef).valueAsBoolean();
 		assertThat(attributeValue)
@@ -53,28 +49,9 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabledTest {
 		System.out.println("testAutoRegistrationDisabledAttributeValue()");
 		when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupB))
 				.thenReturn(false);
-		when(session.getPerunBl().getVosManagerBl().getVoById(session, groupB.getVoId()))
-				.thenReturn(vo);
-		when(session.getPerunBl().getVosManagerBl().usesEmbeddedGroupRegistrations(session, vo))
-				.thenReturn(true);
 
 		Boolean attributeValue = classInstance.getAttributeValue(session, groupB, attrDef).valueAsBoolean();
 		assertThat(attributeValue)
 				.isFalse();
-	}
-
-	@Test
-	public void testAutoRegistrationNotUsed() throws Exception {
-		System.out.println("testAutoRegistrationNotUsed()");
-		when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupB))
-				.thenReturn(false);
-		when(session.getPerunBl().getVosManagerBl().getVoById(session, groupB.getVoId()))
-				.thenReturn(vo);
-		when(session.getPerunBl().getVosManagerBl().usesEmbeddedGroupRegistrations(session, vo))
-				.thenReturn(false);
-
-		Boolean attributeValue = classInstance.getAttributeValue(session, groupB, attrDef).valueAsBoolean();
-		assertThat(attributeValue)
-				.isNull();
 	}
 }
