@@ -84,6 +84,7 @@
 		<property name="introspectionEndpointMfaAcrValue" value="${perun.introspectionEndpoint.mfaAcrValue}"/>
 		<property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
 		<property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
+		<property name="forceHTMLSanitization" value="${perun.forceHtmlSanitization}"/>
 	</bean>
 
 
@@ -187,6 +188,7 @@
 				<prop key="perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn">75</prop>
 				<prop key="perun.introspectionEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
 				<prop key="perun.enforceMfa">false</prop>
+				<prop key="perun.forceHtmlSanitization">false</prop>
 			</props>
 		</property>
 	</bean>

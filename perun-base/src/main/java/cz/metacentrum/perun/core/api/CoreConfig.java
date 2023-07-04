@@ -101,6 +101,7 @@ public class CoreConfig {
 	private int idpLoginValidity;
 	private List<String> idpLoginValidityExceptions;
 	private int roleUpdateInterval;
+	private boolean forceHTMLSanitization;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -799,6 +800,14 @@ public class CoreConfig {
 	public void setIntrospectionEndpointMfaAcrValue(String introspectionEndpointMfaAcrValue) {
 		this.introspectionEndpointMfaAcrValue = introspectionEndpointMfaAcrValue;
 	}
+
+	public boolean getForceHTMLSanitization() {
+        return forceHTMLSanitization;
+    }
+
+	public void setForceHTMLSanitization(boolean forceHTMLSanitization) {
+        this.forceHTMLSanitization = forceHTMLSanitization;
+    }
 
 	public int getMfaAuthTimeout() {
 		return mfaAuthTimeout;
