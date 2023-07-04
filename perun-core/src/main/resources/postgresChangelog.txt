@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.15
+INSERT INTO authz (user_id, role_id) VALUES ((select id from user_ext_sources where login_ext='perun' and ext_sources_id=(select id from ext_sources where name='INTERNAL' and type='cz.metacentrum.perun.core.impl.ExtSourceInternal')),(select id from roles where name='perunadmin')) ON CONFLICT DO NOTHING;
+UPDATE configurations set value='3.2.15' WHERE property='DATABASE VERSION';
+
 3.2.14
 CREATE TABLE auto_registration_groups (group_id integer not null, application_form_item_id integer not null, constraint auto_reg_grps_group_fk foreign key (group_id) references groups(id) on delete cascade, constraint auto_reg_grps_app_forms_fk foreign key (application_form_item_id) references application_form_items(id) on delete cascade, constraint auto_reg_grps_grp_app_form_u unique (group_id, application_form_item_id));
 create index idx_auto_reg_grps_grp_app_form on auto_registration_groups (group_id,application_form_item_id);

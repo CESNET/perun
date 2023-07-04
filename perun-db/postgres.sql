@@ -1,4 +1,4 @@
--- database version 3.2.14 (don't forget to update insert statement at the end of file)
+-- database version 3.2.15 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -2014,7 +2014,7 @@ grant all on blocked_logins to perun;
 grant all on auto_registration_groups to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.14');
+insert into configurations values ('DATABASE VERSION','3.2.15');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
@@ -2037,3 +2037,6 @@ insert into ext_sources (id,name,type) values (nextval('ext_sources_id_seq'),'IN
 insert into users (id, first_name, last_name) values (nextval('users_id_seq'),'Master','Perun');
 insert into user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (nextval('user_ext_sources_id_seq'), currval('users_id_seq'), 'perun', currval('ext_sources_id_seq'), 0);
 
+-- init 'perunadmin' role and give it to the 'Master Perun' user
+insert into roles (id, name) values (nextval('roles_id_seq'), 'perunadmin');
+insert into authz (user_id, role_id) values (currval('users_id_seq'), currval('roles_id_seq'));
