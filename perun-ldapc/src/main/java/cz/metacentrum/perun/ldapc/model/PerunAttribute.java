@@ -18,6 +18,8 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String perunAttrBonaFideStatus = "elixirBonaFideStatus";
 		public static final String perunAttrSchacHomeOrganizations = "schacHomeOrganizations";
 		public static final String perunAttrEduPersonScopedAffiliations = "eduPersonScopedAffiliations";
+		public static final String perunAttrVoPersonExternalAffiliation = "voPersonExternalAffiliation";
+		public static final String perunAttrForwardedVoPersonExternalAffiliation = "forwardedVoPersonExternalAffiliation";
 		public static final String perunAttrLibraryIDs = "libraryIDs";
 		public static final String perunAttrEntityID = "entityID";
 		public static final String perunAttrClientID = "OIDCClientID";
@@ -40,6 +42,8 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrBonaFideStatus = "bonaFideStatus";
 		public static final String ldapAttrSchacHomeOrganizations = perunAttrSchacHomeOrganizations;
 		public static final String ldapAttrEduPersonScopedAffiliations = perunAttrEduPersonScopedAffiliations;
+		public static final String ldapAttrVoPersonExternalAffiliation = perunAttrVoPersonExternalAffiliation;
+		public static final String ldapAttrForwardedVoPersonExternalAffiliation = perunAttrForwardedVoPersonExternalAffiliation;
 		public static final String ldapAttrLibraryIDs = perunAttrLibraryIDs;
 		public static final String ldapAttrUidNumber = "uidNumber;x-ns-";
 		public static final String ldapAttrLogin = "login;x-ns-";

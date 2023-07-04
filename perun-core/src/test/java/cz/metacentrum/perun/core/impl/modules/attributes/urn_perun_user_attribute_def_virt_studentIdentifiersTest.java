@@ -40,11 +40,11 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiersTest extends Ab
 	private final String organizationScopeAttrFriendlyName = "organizationScope";
 
 	private final String schacPersonalUniqueCodeFriendlyName = "schacPersonalUniqueCode";
-	private final String eduPersonScopedAffiliationFriendlyName = "affiliation";
+	private final String voPersonExternalAffiliationFriendlyName = "affiliation";
 	private final String schacHomeOrganizationFriendlyName = "schacHomeOrganization";
 
 	private final String schacPersonalUniqueCodeAttrName = AttributesManager.NS_UES_ATTR_DEF + ":" + schacPersonalUniqueCodeFriendlyName;
-	private final String eduPersonScopedAffiliationAttrName = AttributesManager.NS_UES_ATTR_DEF + ":" + eduPersonScopedAffiliationFriendlyName;
+	private final String voPersonExternalAffiliationAttrName = AttributesManager.NS_UES_ATTR_DEF + ":" + voPersonExternalAffiliationFriendlyName;
 	private final String schacHomeOrganizationAttrName = AttributesManager.NS_UES_ATTR_DEF + ":" + schacHomeOrganizationFriendlyName;
 
 	private User user;
@@ -60,7 +60,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiersTest extends Ab
 
 	// Expected (returned) values
 	private final String schacPersonalUniqueCodeValue = studentIdentifiersValuePrefix + organizationScopeValue + ":" + loginNamespaceAttrValue;
-	private final String eduPersonScopedAffiliationValue = "student@" + organizationScopeValue;
+	private final String voPersonExternalAffiliationValue = "student@" + organizationScopeValue;
 	private final String schacHomeOrganizationValue = organizationScopeValue;
 
 	private DirectMemberAddedToGroup memberAddedEvent;
@@ -86,11 +86,11 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiersTest extends Ab
 		UserExtSource ues = perun.getUsersManagerBl().getUserExtSourceByExtLogin(sess, extSource, loginNamespaceAttrValue);
 
 		String shoValue = perun.getAttributesManagerBl().getAttribute(sess, ues, schacHomeOrganizationAttrName).valueAsString();
-		String epsaValue = perun.getAttributesManagerBl().getAttribute(sess, ues, eduPersonScopedAffiliationAttrName).valueAsString();
+		String epsaValue = perun.getAttributesManagerBl().getAttribute(sess, ues, voPersonExternalAffiliationAttrName).valueAsString();
 		List<String> spucValue = perun.getAttributesManagerBl().getAttribute(sess, ues, schacPersonalUniqueCodeAttrName).valueAsList();
 
 		assertEquals(shoValue, schacHomeOrganizationValue);
-		assertEquals(epsaValue, eduPersonScopedAffiliationValue);
+		assertEquals(epsaValue, voPersonExternalAffiliationValue);
 		assertTrue(spucValue.contains(schacPersonalUniqueCodeValue));
 
 	}
@@ -133,7 +133,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiersTest extends Ab
 
 	private void createUserExtSourceAttributes() throws Exception {
 		setUpUserExtSourceAttribute(schacHomeOrganizationFriendlyName, String.class.getName());
-		setUpUserExtSourceAttribute(eduPersonScopedAffiliationFriendlyName, String.class.getName());
+		setUpUserExtSourceAttribute(voPersonExternalAffiliationFriendlyName, String.class.getName());
 		setUpUserExtSourceAttribute(schacPersonalUniqueCodeFriendlyName, ArrayList.class.getName());
 	}
 

@@ -50,7 +50,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 	private static final String organizationPersonalCodeScopeFriendlyName = "organizationPersonalCodeScope";
 
 	private static final String schacHomeOrganizationFriendlyName = "schacHomeOrganization";
-	private static final String eduPersonScopedAffiliationFriendlyName = "affiliation";
+	private static final String voPersonExternalAffiliationFriendlyName = "affiliation";
 	private static final String schacPersonalUniqueCodeFriendlyName = "schacPersonalUniqueCode";
 
 	private static final String A_G_D_organizationNamespaceFriendlyName = AttributesManager.NS_GROUP_ATTR_DEF + ":" + organizationNamespaceFriendlyName;
@@ -60,7 +60,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 	private static final String A_U_D_loginNamespaceFriendlyNamePrefix = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":";
 
 	private static final String A_UES_D_schacHomeOrganizationFriendlyName = AttributesManager.NS_UES_ATTR_DEF + ":" + schacHomeOrganizationFriendlyName;
-	private static final String A_UES_D_eduPersonScopedAffiliationFriendlyName = AttributesManager.NS_UES_ATTR_DEF + ":" + eduPersonScopedAffiliationFriendlyName;
+	private static final String A_UES_D_voPersonExternalAffiliationFriendlyName = AttributesManager.NS_UES_ATTR_DEF + ":" + voPersonExternalAffiliationFriendlyName;
 	private static final String A_UES_D_schacPersonalUniqueCodeFriendlyName = AttributesManager.NS_UES_ATTR_DEF + ":" + schacPersonalUniqueCodeFriendlyName;
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_studentIdentifiers.class);
@@ -133,23 +133,23 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 			try {
 				ues = sess.getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
 			} catch (UserExtSourceExistsException userExtSourceExistsException) {
-				//Should not happened
+				//Should not happen
 				throw new InternalErrorException(e);
 			}
 			Attribute schacHomeOrganization = tryGetAttribute(sess, ues, A_UES_D_schacHomeOrganizationFriendlyName);
-			Attribute eduPersonScopedAffiliation = tryGetAttribute(sess, ues, A_UES_D_eduPersonScopedAffiliationFriendlyName);
+			Attribute voPersonExternalAffiliation = tryGetAttribute(sess, ues, A_UES_D_voPersonExternalAffiliationFriendlyName);
 			Attribute schacPersonalUniqueCode = tryGetAttribute(sess, ues, A_UES_D_schacPersonalUniqueCodeFriendlyName);
 
 			schacHomeOrganization.setValue(organizationScope.valueAsString());
-			eduPersonScopedAffiliation.setValue(affiliationPrefix + organizationScope.valueAsString());
+			voPersonExternalAffiliation.setValue(affiliationPrefix + organizationScope.valueAsString());
 			List<String> spucValue = new ArrayList<>();
 			spucValue.add(studentIdentifiersValuePrefix + schacPersonalCodeScope + ":" + userLoginID.valueAsString());
 			schacPersonalUniqueCode.setValue(spucValue);
 
 			try {
-				sess.getPerunBl().getAttributesManagerBl().setAttributes(sess, ues, Arrays.asList(schacHomeOrganization, eduPersonScopedAffiliation, schacPersonalUniqueCode));
+				sess.getPerunBl().getAttributesManagerBl().setAttributes(sess, ues, Arrays.asList(schacHomeOrganization, voPersonExternalAffiliation, schacPersonalUniqueCode));
 			} catch (WrongAttributeValueException |WrongAttributeAssignmentException| WrongReferenceAttributeValueException ex) {
-				//Should not happened
+				//Should not happen
 				throw new InternalErrorException(ex);
 			}
 		}

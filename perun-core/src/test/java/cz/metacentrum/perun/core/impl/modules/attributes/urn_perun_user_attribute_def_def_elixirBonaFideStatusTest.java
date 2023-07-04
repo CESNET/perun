@@ -29,7 +29,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 	private static final String VALUE = "http://www.ga4gh.org/beacon/bonafide/ver1.0";
 
 	private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
-	private static final String USER_AFFILIATIONS_ATTR_NAME = "eduPersonScopedAffiliations";
+	private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
 	private static final String USER_PUBLICATIONS_ATTR_NAME = "publications";
 
 	private static final String A_U_D_userBonaFideStatusRems = AttributesManager.NS_USER_ATTR_DEF + ":" + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
@@ -40,7 +40,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 
 	private PerunSessionImpl session;
 	private User user;
-	private Attribute eduPersonScopedAffiliations;
+	private Attribute voPersonExternalAffiliation;
 	private Attribute publicationAttribute;
 	private Attribute elixirBonaFideStatusREMS;
 
@@ -56,8 +56,8 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 		List<String> EPSA_VAL = new ArrayList<>();
 		EPSA_VAL.add("faculty@somewhere.edu");
 		EPSA_VAL.add("member@somewhere.edu");
-		eduPersonScopedAffiliations = new Attribute();
-		eduPersonScopedAffiliations.setValue(EPSA_VAL);
+		voPersonExternalAffiliation = new Attribute();
+		voPersonExternalAffiliation.setValue(EPSA_VAL);
 
 		LinkedHashMap<String, String> PUBLICATIONS_VAL = new LinkedHashMap<>();
 		PUBLICATIONS_VAL.put(ELIXIR_KEY, "3");
@@ -93,8 +93,8 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 	public void fillAttributeWithDependenciesHavingUnsatisfyingValues() throws Exception {
 		List<String> EPSA_FAILING_VAL = new ArrayList<>();
 		EPSA_FAILING_VAL.add("member@here.edu");
-		Attribute eduPersonScopedAffiliationsNotSatisfying = new Attribute();
-		eduPersonScopedAffiliations.setValue(EPSA_FAILING_VAL);
+		Attribute voPersonExternalAffiliationNotSatisfying = new Attribute();
+		voPersonExternalAffiliation.setValue(EPSA_FAILING_VAL);
 
 		LinkedHashMap<String, String> PUBLICATIONS_FAILING_VAL = new LinkedHashMap<>();
 		PUBLICATIONS_FAILING_VAL.put(ELIXIR_KEY, "0");
@@ -112,7 +112,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 		);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				eduPersonScopedAffiliationsNotSatisfying
+			voPersonExternalAffiliationNotSatisfying
 		);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
@@ -152,7 +152,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 		);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				eduPersonScopedAffiliations
+				voPersonExternalAffiliation
 		);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
@@ -193,7 +193,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 		);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				eduPersonScopedAffiliations
+				voPersonExternalAffiliation
 		);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
