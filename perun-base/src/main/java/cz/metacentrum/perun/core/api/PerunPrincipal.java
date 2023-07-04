@@ -20,6 +20,8 @@ public class PerunPrincipal {
 	private User user;
 	// Contains principal's roles together with objects which specifies the role, e.g. VOADMIN -> list contains VO names
 	private volatile AuthzRoles authzRoles = new AuthzRoles();
+	// Time of the last update of roles
+	private long rolesUpdatedAt = System.currentTimeMillis();
 	// Map contains additional attributes, e.g. from authentication system
 	private Map<String, String> additionalInformations = new HashMap<String, String>();
 	// Specifies if the principal has initialized authZResolver
@@ -75,6 +77,7 @@ public class PerunPrincipal {
 				.append("user='").append((user != null ? user : "null")).append("', ")
 				.append("extSourceName='").append(extSourceName).append("', ")
 				.append("authzRoles='").append(authzRoles).append("', ")
+				.append("rolesUpdatedAt='").append(rolesUpdatedAt).append("' ")
 				.append("authzInitialized='").append(authzInitialized).append("']").toString();
 	}
 
@@ -140,6 +143,14 @@ public class PerunPrincipal {
 
 	public void setExtSourceLoa(int extSourceLoa) {
 		this.extSourceLoa = extSourceLoa;
+	}
+
+	public long getRolesUpdatedAt() {
+		return rolesUpdatedAt;
+	}
+
+	public void setRolesUpdatedAt(long rolesUpdatedAt) {
+		this.rolesUpdatedAt = rolesUpdatedAt;
 	}
 
 	@Override

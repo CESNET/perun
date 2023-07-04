@@ -28,6 +28,8 @@ my @readAttributes = (
 	"urn:perun:entityless:attribute-def:def:orgAups",
 	"urn:perun:vo:attribute-def:def:aup",
 	"urn:perun:user:attribute-def:virt:eduPersonScopedAffiliations",
+	"urn:perun:user:attribute-def:virt:voPersonExternalAffiliation",
+	"urn:perun:user:attribute-def:virt:forwardedVoPersonExternalAffiliation",
 	"urn:perun:user:attribute-def:virt:sponsoredMembershipInOrganizations",
 	"urn:perun:user:attribute-def:def:preferredMail",
 	"urn:perun:user:attribute-def:def:timezone",

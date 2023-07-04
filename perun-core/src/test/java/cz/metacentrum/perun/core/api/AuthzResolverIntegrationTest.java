@@ -19,6 +19,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1080,6 +1082,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.GROUPOBSERVER, group));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		when(mockedPerunPrincipal.getUser()).thenReturn(sessionUser);
 		when(mockedPerunPrincipal.getUserId()).thenReturn(sessionUser.getId());
 
@@ -1113,6 +1116,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.GROUPADMIN, group));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, AttributeAction.WRITE, attrDef, group, false));
 
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.GROUPOBSERVER, group));
@@ -1139,6 +1143,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.PERUNOBSERVER));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		when(mockedPerunPrincipal.getUser()).thenReturn(sessionUser);
 		when(mockedPerunPrincipal.getUserId()).thenReturn(sessionUser.getId());
 
@@ -1194,6 +1199,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
@@ -1213,6 +1219,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, otherVo));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
@@ -1241,6 +1248,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(testSession, testGroup, testVo, Role.VOADMIN);
@@ -1260,6 +1268,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles());
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(sess, testGroup, testVo, Role.VOADMIN);
@@ -1277,6 +1286,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(testSession, testUser, testVo, Role.VOADMIN);
@@ -1297,6 +1307,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles());
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(sess, testUser, testVo, Role.VOADMIN);
@@ -1319,6 +1330,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(testSession, testUser, testVo, Role.VOADMIN);
@@ -1800,10 +1812,17 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		boolean originalForce = BeansUtils.getCoreConfig().isEnforceMfa();
 		boolean originalCriticalRole = AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).isMfaCriticalRole();
 		AuthzResolver.setRole(sess, createdUser, null, Role.PERUNADMIN);
+		int originalMfaAuthTimeout = BeansUtils.getCoreConfig().getMfaAuthTimeout();
+		int originalMfaAuthTimeoutPercentageForceLogIn = BeansUtils.getCoreConfig().getMfaAuthTimeoutPercentageForceLogIn();
+		String originalAdditionalInfoAuthTime = session.getPerunPrincipal().getAdditionalInformations().get("authTime");
 
 		try {
 			BeansUtils.getCoreConfig().setEnforceMfa(true);
 			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(true);
+			BeansUtils.getCoreConfig().setMfaAuthTimeout(60);
+			BeansUtils.getCoreConfig().setMfaAuthTimeoutPercentageForceLogIn(75);
+			// mock auth time for this test
+			session.getPerunPrincipal().getAdditionalInformations().put("authTime", Instant.now().minus(20, ChronoUnit.SECONDS).toString());
 			assertThatExceptionOfType(MfaRolePrivilegeException.class).isThrownBy(
 				() -> AuthzResolver.refreshAuthz(session)
 			);
@@ -1814,6 +1833,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		} finally {
 			AuthzResolverImpl.getRoleManagementRules(Role.PERUNADMIN).setMfaCriticalRole(originalCriticalRole);
 			BeansUtils.getCoreConfig().setEnforceMfa(originalForce);
+			BeansUtils.getCoreConfig().setMfaAuthTimeout(originalMfaAuthTimeout);
+			BeansUtils.getCoreConfig().setMfaAuthTimeoutPercentageForceLogIn(originalMfaAuthTimeoutPercentageForceLogIn);
+			session.getPerunPrincipal().getAdditionalInformations().put("authTime", originalAdditionalInfoAuthTime);
 		}
 	}
 

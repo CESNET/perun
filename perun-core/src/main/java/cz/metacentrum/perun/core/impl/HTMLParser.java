@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import org.owasp.html.CssSchema;
 import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.HtmlPolicyBuilder;
@@ -18,19 +19,20 @@ import java.util.regex.Pattern;
  * @author: Matej Hakoš <492968@mail.muni.cz>
  */
 public class HTMLParser {
-	private static final String[] allowedTags = {"a", "article", "aside", "b", "blockquote", "br", "button", "caption", "center", "cite", "decorator", "del", "details", "div", "em", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "kbd", "label", "li", "ol", "p", "pre", "section", "select", "span", "strong", "sup", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "ul"};
-	private static final String[] allowedAttributes = {"align", "class", "color", "disabled", "height", "hidden", "href", "id", "label", "size", "span", "src", "srcset", "style", "width"};
-	private static final String[] allowedStyles = {"color", "background-color", "font-size", "font-family", "text-align", "margin", "padding", "border", "width", "height", "display", "position", "top", "bottom", "left", "right", "overflow", "float", "clear", "z-index"};
+	private static final String[] allowedTags = {"a", "article", "aside", "b", "blockquote", "br", "button", "caption", "center", "cite", "decorator", "del", "details", "div", "em", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "kbd", "label", "li", "ol", "p", "pre", "section", "select", "span", "strong", "sup", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "u", "ul"};
+	private static final String[] allowedAttributes = {"align", "class", "color", "data-lang", "disabled", "height", "hidden", "href", "id", "label", "rel", "size", "span", "src", "srcset", "style", "type", "width"};
+	private static final String[] allowedStyles = {"color", "background-color", "font-size", "font-family", "text-align", "margin", "padding", "border", "width", "max-height", "height", "display", "position", "top", "bottom", "left", "right", "overflow", "float", "clear", "z-index"};
 	private static final String[] allowedUrlProtocols = {"https", "mailto"};
 	private static PolicyFactory policy = null;
 
 	private List<String> escapedTags = new ArrayList<>();
 	private List<String> escapedAttributes = new ArrayList<>();
 	private List<String> escapedStyles = new ArrayList<>();
+	private List<String> escapedLinks = new ArrayList<>();
 
 	private String rawHTML = "";
 	private String escapedHTML = "";
-	private String[] escapedStrings = new String[]{"", "", ""};
+	private String[] escapedStrings = new String[]{"", "", "", ""};
 	private boolean isInputValid = true;
 
 	public HTMLParser() {
@@ -54,6 +56,10 @@ public class HTMLParser {
 		}
 		CssSchema cssWhitelist = CssSchema.withProperties(Arrays.stream(allowedStyles).toList());
 		p.allowStyling(cssWhitelist);
+
+		// allow 'href' and 'target' attribute on 'a' tags
+		p.allowAttributes("href").onElements("a");
+		p.allowAttributes("target").onElements("a");
 		return p.toFactory();
 	}
 
@@ -64,11 +70,11 @@ public class HTMLParser {
 	 * @param escaped - escaped input
 	 */
 	private void computeEscapedStyles(String input, String escaped) {
-		Pattern pattern = Pattern.compile("style=\"(.*?)\"");
+		Pattern pattern = Pattern.compile("style=(\"|')(.*?)(\"|')");
 		if (input == null || escaped == null) return;
 		Matcher matcher = pattern.matcher(input);
 		while (matcher.find()) {
-			String style = matcher.group(1);
+			String style = matcher.group(2);
 			String[] styles = style.split(";");
 			for (String s : styles) {
 				String[] split = s.split(":");
@@ -79,7 +85,7 @@ public class HTMLParser {
 		}
 		matcher = pattern.matcher(escaped);
 		while (matcher.find()) {
-			String style = matcher.group(1);
+			String style = matcher.group(2);
 			String[] styles = style.split(";");
 			for (String s : styles) {
 				String[] split = s.split(":");
@@ -91,6 +97,27 @@ public class HTMLParser {
 	}
 
 	/**
+     * Computes the difference between all links in the escaped and unescaped input.
+     *
+     * @param input   - unescaped input
+     * @param escaped - escaped input
+     */
+	public void computeInvalidLink(String input, String escaped) {
+		Pattern pattern = Pattern.compile("href=(\"|')(.*?)(\"|')");
+		if (input == null || escaped == null) return;
+		Matcher matcher = pattern.matcher(input);
+		while (matcher.find()) {
+			// Multiple groups, url is in group 2
+			String link = matcher.group(2).trim();
+			escapedLinks.add(link);
+		}
+
+		for(String protocol : allowedUrlProtocols) {
+			escapedLinks.removeIf(link -> link.startsWith(protocol));
+        }
+	}
+
+	/**
 	 * Clears the list of escaped tags and attributes.
 	 * Recomputes the policy and resets the escapedHTML/unescapedHTML and escapedStrings.
 	 * isInputValid is set to true.
@@ -99,9 +126,10 @@ public class HTMLParser {
 		escapedTags.clear();
 		escapedAttributes.clear();
 		escapedStyles.clear();
+		escapedLinks.clear();
 		escapedHTML = "";
 		rawHTML = "";
-		escapedStrings = new String[]{"", "", ""};
+		escapedStrings = new String[]{"", "", "", ""};
 		isInputValid = true;
 		policy = generatePolicy();
 		return this;
@@ -112,8 +140,10 @@ public class HTMLParser {
 	 * @return escapedHTML - sanitized HTML input
 	 */
 	public String getEscapedHTML() {
-		return rawHTML;
-//		return escapedHTML;
+		if (!BeansUtils.getCoreConfig().getForceHTMLSanitization()) {
+            return rawHTML;
+        }
+		return escapedHTML;
 	}
 
 	/**
@@ -129,8 +159,10 @@ public class HTMLParser {
 	* Returns validity of the last input.
 	*/
 	public boolean isInputValid() {
-		return true;
-//        return isInputValid;
+		if(!BeansUtils.getCoreConfig().getForceHTMLSanitization()){
+			return true;
+		}
+        return isInputValid;
     }
 
 	/**
@@ -150,15 +182,26 @@ public class HTMLParser {
 	 */
 	public HTMLParser sanitizeHTML(String input) {
 		rawHTML = input;
+		if (!BeansUtils.getCoreConfig().getForceHTMLSanitization()) {
+			return this;
+		}
 		HtmlChangeListener<List<List<String>>> listener = new HtmlChangeListener<>() {
 			@Override
 			public void discardedTag(@Nullable List<List<String>> output, String tag) {
+				if (tag.equals("a")) {
+					return;
+				}
 				output.get(0).add(tag);
 			}
 			
 			@Override
 			public void discardedAttributes(@Nullable List<List<String>> output, String tag, String... attributes) {
-				output.get(1).add(Arrays.toString(attributes) + " in " + tag);
+				// Remove 'href', because it gets computed in computeInvalidLink
+				List<String> attrs = Arrays.stream(attributes).filter(attr -> !attr.equals("href")).toList();
+				if (attrs.isEmpty()) {
+                    return;
+                }
+				output.get(1).add(tag + " " + attrs);
 			}
 		};
 		
@@ -167,12 +210,20 @@ public class HTMLParser {
 		output.add(new ArrayList<>());
 		output.add(new ArrayList<>());
 		String escapedOutput = policy.sanitize(input, listener, output);
+
 		escapedTags = output.get(0);
 		escapedAttributes = output.get(1);
 		computeEscapedStyles(input, escapedOutput);
+		computeInvalidLink(input, escapedOutput);
+
+		// Remove whitespaces and filter empty strings
+		escapedTags = escapedTags.stream().map(String::trim).filter(s -> !s.isEmpty()).toList();
+		escapedAttributes = escapedAttributes.stream().map(String::trim).filter(s -> !s.isEmpty()).toList();
+		escapedStyles = escapedStyles.stream().map(String::trim).filter(s -> !s.isEmpty()).toList();
+		escapedLinks = escapedLinks.stream().map(String::trim).filter(s -> !s.isEmpty()).toList();
 
 		escapedHTML = escapedOutput;
-		isInputValid = escapedTags.isEmpty() && escapedAttributes.isEmpty() && escapedStyles.isEmpty();
+		isInputValid = escapedTags.isEmpty() && escapedAttributes.isEmpty() && escapedStyles.isEmpty() && escapedLinks.isEmpty();
 		return this;
 	}
 
@@ -185,13 +236,14 @@ public class HTMLParser {
 	 */
 	public HTMLParser checkEscapedHTML(String escaped, String unescaped) {
 		if (escaped.equals(unescaped) || isInputValid){
-			escapedStrings = new String[]{"", "", ""};
+			escapedStrings = new String[]{"", "", "", ""};
 			return this;
 		}
 
 		escapedStrings[0] = String.join(", ", escapedTags);
 		escapedStrings[1] = String.join(", ", escapedAttributes);
 		escapedStrings[2] = String.join(", ", escapedStyles);
+		escapedStrings[3] = String.join(", ", escapedLinks);
 		return this;
 	}
 
@@ -208,14 +260,17 @@ public class HTMLParser {
 	public static String getMessage(String[] escaped) {
 		StringBuilder message = new StringBuilder();
 		if (escaped[0].length() > 0) {
-			message.append("The following tags are not allowed: ").append(escaped[0]).append(". ");
+			message.append("Following tags are invalid: ").append(escaped[0]).append(". ");
 		}
 		if (escaped[1].length() > 0) {
-			message.append("The following attributes are not allowed: ").append(escaped[1]).append(". ");
+			message.append("Following attributes are invalid: ").append(escaped[1]).append(". ");
 		}
 		if (escaped[2].length() > 0) {
-            message.append("The following styles are not allowed: ").append(escaped[2]).append(". ");
+            message.append("Following styles are invalid: ").append(escaped[2]).append(". ");
         }
+		if (escaped[3].length() > 0) {
+			message.append("'").append(escaped[3]).append("' links contain invalid protocol (allowed: https, mailto).");
+		}
         return message.toString();
     }
 

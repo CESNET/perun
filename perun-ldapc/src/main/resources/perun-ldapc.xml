@@ -870,6 +870,26 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="voPersonExternalAffiliation"/>
+					<property name="required" value="false"/>
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="voPersonExternalAffiliation"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:virt"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="forwardedVoPersonExternalAffiliation"/>
+					<property name="required" value="false"/>
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="forwardedVoPersonExternalAffiliation"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:virt"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="groupNames"/>
 					<property name="required" value="false"/>
 					<property name="multipleValuesExtractor">
@@ -1151,6 +1171,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="mfaEnforced;x-ns-"/>
 					<property name="required" value="false"/>
+					<property name="deleted" value="true"/>
 					<property name="singleValueExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
 							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:mfaEnforced:"/>

@@ -33,11 +33,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cz.metacentrum.perun.core.impl.PerunAppsConfig;
+import cz.metacentrum.perun.rpc.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.WebUtils;
+
+import static cz.metacentrum.perun.rpc.Api.OIDC_CLAIM_SUB;
+import static cz.metacentrum.perun.rpc.Api.getStringAttribute;
 
 /**
  * This is an implementation of CSRF protection based on Spring framework solution.
@@ -66,8 +70,6 @@ public final class CsrfFilter implements Filter {
 	private static final String CSRF_REQUEST_ATTR_NAME = CsrfToken.class.getName();
 	private static final String CSRF_ENABLED_REQUEST_ATTR_NAME = "CSRF_PROTECTION_ENABLED";
 
-	private static final String OIDC_CLAIM_SUB = "OIDC_CLAIM_sub";
-
 	public CsrfFilter() {
 	}
 
@@ -84,7 +86,7 @@ public final class CsrfFilter implements Filter {
 
 		// Perform CSRF check only if CSRF protection is enabled and its not OIDC endpoint
 		boolean isCsrfProtectionEnabled = Boolean.parseBoolean((String) request.getAttribute(CSRF_ENABLED_REQUEST_ATTR_NAME));
-		if (isCsrfProtectionEnabled && StringUtils.isEmpty(request.getHeader(OIDC_CLAIM_SUB))) {
+		if (isCsrfProtectionEnabled && StringUtils.isEmpty(getStringAttribute(request, OIDC_CLAIM_SUB))) {
 
 			log.trace("Processing CSRF filter.");
 

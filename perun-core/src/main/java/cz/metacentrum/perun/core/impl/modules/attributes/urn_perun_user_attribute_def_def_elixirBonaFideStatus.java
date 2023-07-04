@@ -21,10 +21,10 @@ import java.util.Map;
  * This module determines if user is a researcher. If so,
  * it provides URL: 'http://www.ga4gh.org/beacon/bonafide/ver1.0'.
  *
- * The decision depends on attributes 'elixirBonaFideStatusREMS', 'eduPersonScopedAffiliations'
+ * The decision depends on attributes 'elixirBonaFideStatusREMS', 'voPersonExternalAffiliation'
  * and 'user:def:publications'.
  * If 'elixirBonaFideStatusREMS' is not empty, user is a researcher.
- * If 'eduPersonScopedAffiliations' contains affiliation that starts with 'faculty@', user is a researcher.
+ * If 'voPersonExternalAffiliation' contains affiliation that starts with 'faculty@', user is a researcher.
  * If 'user:def:publications' contains key 'ELIXIR' and associated value is > 0, user is a researcher
  * Otherwise, null value is set.
  *
@@ -40,7 +40,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserA
 	private static final String URL = "http://www.ga4gh.org/beacon/bonafide/ver1.0";
 
 	private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
-	private static final String USER_AFFILIATIONS_ATTR_NAME = "eduPersonScopedAffiliations";
+	private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
 	private static final String USER_PUBLICATIONS_ATTR_NAME = "publications";
 
 	private static final String A_U_D_userBonaFideStatusRems = AttributesManager.NS_USER_ATTR_DEF + ":" + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
@@ -65,7 +65,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserA
 			log.error("Cannot read {} from user {}", USER_BONA_FIDE_STATUS_REMS_ATTR_NAME, user, e);
 		}
 
-		//try to get value from 'eduPersonScopedAffiliations': if has faculty@..., we have bona_fide
+		//try to get value from 'voPersonExternalAffiliation': if has faculty@..., we have bona_fide
 		try {
 			Attribute affiliationsAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_V_userAffiliations);
 			if (affiliationsAttr != null && affiliationsAttr.getValue() != null) {

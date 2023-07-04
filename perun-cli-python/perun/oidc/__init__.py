@@ -28,7 +28,8 @@ class PerunInstance(str, Enum):
     cesnet = "cesnet",
     idm = "idm",
     idm_test = "idm-test",
-    perun_dev = "perun-dev"
+    perun_dev = "perun-dev",
+    elixir = "elixir"
 
 
 class DeviceCodeOAuth:
@@ -83,6 +84,13 @@ class DeviceCodeOAuth:
                 'client_id': '5a730abc-6553-4fc4-af9a-21c75c46e0c2',
                 'scopes': 'openid perun_api perun_admin offline_access profile authn_details',
                 'perun_api_url': 'https://idm.ics.muni.cz/oauth/rpc',
+                'mfa': True
+            },
+            PerunInstance.elixir: {
+                'metadata_url': 'https://login.elixir-czech.org/oidc/.well-known/openid-configuration',
+                'client_id': 'da97db9f-b511-4c72-b71f-daab24b86884',
+                'scopes': 'openid perun_api perun_admin offline_access profile authn_details',
+                'perun_api_url': 'https://elixir-api.aai.lifescience-ri.eu/oauth/rpc',
                 'mfa': True
             },
             # PerunInstance.idm_satosa: {

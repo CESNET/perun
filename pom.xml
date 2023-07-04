@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.12</version>
+		<version>2.7.13</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -75,7 +75,7 @@
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
-		<json.version>20220924</json.version>
+		<json.version>20230618</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.11</reflections.version>
 		<testcontainers.version>1.18.3</testcontainers.version>

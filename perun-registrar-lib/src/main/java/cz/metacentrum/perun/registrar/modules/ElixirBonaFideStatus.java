@@ -38,12 +38,12 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 
 	private static final String USER_BONA_FIDE_STATUS_ATTR_NAME = "bonaFideStatus";
 	private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
-	private static final String USER_AFFILIATIONS_ATTR_NAME = "eduPersonScopedAffiliations";
+	private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
 	private static final String GROUP_ATESTATION_ATTR_NAME = "attestation";
 
 	private static final String A_U_D_userBonaFideStatus = AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_ATTR_NAME;
 	private static final String A_U_D_userBonaFideStatusRems = AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
-	private static final String A_U_D_userEduPersonScopedAffiliations = AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
+	private static final String A_U_D_userVoPersonExternalAffiliation = AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
 	private static final String A_G_D_groupAttestation = AttributesManager.NS_GROUP_ATTR_DEF + ':' + GROUP_ATESTATION_ATTR_NAME;
 
 	/**
@@ -112,7 +112,7 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 		}
 		AttributesManagerBl am = ((PerunBl)session.getPerun()).getAttributesManagerBl();
 
-		Attribute affiliations = am.getAttribute(session, user, A_U_D_userEduPersonScopedAffiliations);
+		Attribute affiliations = am.getAttribute(session, user, A_U_D_userVoPersonExternalAffiliation);
 
 		if (affiliations.getValue() != null) {
 			List<String> val = affiliations.valueAsList();

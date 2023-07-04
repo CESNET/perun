@@ -96,9 +96,12 @@ public class CoreConfig {
 	private List<String> userInfoEndpointExtSourceFriendlyName;
 	private String introspectionEndpointMfaAcrValue;
 	private int mfaAuthTimeout;
+	private int mfaAuthTimeoutPercentageForceLogIn;
 	private boolean enforceMfa;
 	private int idpLoginValidity;
 	private List<String> idpLoginValidityExceptions;
+	private int roleUpdateInterval;
+	private boolean forceHTMLSanitization;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -798,12 +801,28 @@ public class CoreConfig {
 		this.introspectionEndpointMfaAcrValue = introspectionEndpointMfaAcrValue;
 	}
 
+	public boolean getForceHTMLSanitization() {
+        return forceHTMLSanitization;
+    }
+
+	public void setForceHTMLSanitization(boolean forceHTMLSanitization) {
+        this.forceHTMLSanitization = forceHTMLSanitization;
+    }
+
 	public int getMfaAuthTimeout() {
 		return mfaAuthTimeout;
 	}
 
 	public void setMfaAuthTimeout(int mfaAuthTimeout) {
 		this.mfaAuthTimeout = mfaAuthTimeout;
+	}
+
+	public int getMfaAuthTimeoutPercentageForceLogIn() {
+		return mfaAuthTimeoutPercentageForceLogIn;
+	}
+
+	public void setMfaAuthTimeoutPercentageForceLogIn(int mfaAuthTimeoutPercentageForceLogIn) {
+		this.mfaAuthTimeoutPercentageForceLogIn = mfaAuthTimeoutPercentageForceLogIn;
 	}
 
 	public boolean isEnforceMfa() {
@@ -846,5 +865,13 @@ public class CoreConfig {
 		blockedLogins.add(rpcPrincipal);
 
 		return blockedLogins;
+	}
+
+	public int getRoleUpdateInterval() {
+		return roleUpdateInterval;
+	}
+
+	public void setRoleUpdateInterval(int roleUpdateInterval) {
+		this.roleUpdateInterval = roleUpdateInterval;
 	}
 }
