@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -26,6 +27,9 @@ import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Module for VO lifescience_hostel on LifeScience acceptance Perun machine
@@ -43,6 +47,7 @@ public class LifeScienceHostelRIAcc extends DefaultRegistrarModule {
 	private final static String LS_HOSTEL_SCOPE = "@" + HOSTEL_HOSTANAME;
 	private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://" + HOSTEL_HOSTANAME + "/lshostel/";
 	private final static String VO_SHORTNAME = "lifescience";
+	private final static String AUIDS_ATTRIBUTE = "urn:perun:ues:attribute-def:def:additionalIdentifiers";
 
 	/**
 	 * Create proper UserExtSource
@@ -68,6 +73,24 @@ public class LifeScienceHostelRIAcc extends DefaultRegistrarModule {
 					perun.getUsersManagerBl().addUserExtSource(session, user, ues);
 				} catch (UserExtSourceExistsException ex) {
 					// this is OK
+				}
+
+				try {
+					Attribute auidsAttr = perun.getAttributesManager().getAttribute(session, ues, AUIDS_ATTRIBUTE);
+					List<String> attrValue = new ArrayList<>();
+					if (auidsAttr.getValue() != null
+						&& auidsAttr.valueAsList() != null
+						&& !auidsAttr.valueAsList().isEmpty()
+					) {
+						attrValue = auidsAttr.valueAsList();
+					}
+					auidsAttr.valueAsList().add(login + LS_HOSTEL_SCOPE);
+					auidsAttr.setValue(attrValue);
+					perun.getAttributesManager().setAttribute(session, ues, auidsAttr);
+				} catch (UserExtSourceNotExistsException e) {
+					// should not happen
+				} catch (AttributeNotExistsException e) {
+					// ok, attribute is probably not used
 				}
 
 			}
