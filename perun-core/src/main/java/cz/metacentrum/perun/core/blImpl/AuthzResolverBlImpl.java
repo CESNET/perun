@@ -362,6 +362,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		List<String> perunAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
 		perunAdmins.addAll(BeansUtils.getCoreConfig().getRegistrarPrincipals());
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
+			log.debug("skipped MFA policy check for {}", sess.getPerunPrincipal().getActor());
 			return true;
 		}
 
@@ -2593,7 +2594,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		}
 
-		checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
+		if (!serviceRole) {
+			checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
+		} else {
+			log.debug("skipped MFA role check for {}", sess.getPerunPrincipal().getActor());
+		}
 
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
