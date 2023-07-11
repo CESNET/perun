@@ -20,6 +20,8 @@ public class PerunPrincipal {
 	private User user;
 	// Contains principal's roles together with objects which specifies the role, e.g. VOADMIN -> list contains VO names
 	private volatile AuthzRoles authzRoles = new AuthzRoles();
+	// The PERUNADMIN role is enabled and will not be manually removed
+	private String referer = "";
 	// Time of the last update of roles
 	private long rolesUpdatedAt = System.currentTimeMillis();
 	// Map contains additional attributes, e.g. from authentication system
@@ -60,6 +62,12 @@ public class PerunPrincipal {
 	public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa, Map<String, String> additionalInformations) {
 		this(actor, extSourceName, extSourceType, extSourceLoa);
 		this.additionalInformations = additionalInformations;
+	}
+
+	public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa, Map<String, String> additionalInformations, String referer) {
+		this(actor, extSourceName, extSourceType, extSourceLoa);
+		this.additionalInformations = additionalInformations;
+		this.referer = referer;
 	}
 
 	/**
@@ -151,6 +159,14 @@ public class PerunPrincipal {
 
 	public void setRolesUpdatedAt(long rolesUpdatedAt) {
 		this.rolesUpdatedAt = rolesUpdatedAt;
+	}
+
+	public String getReferer() {
+		return referer;
+	}
+
+	public void setReferer(String referer) {
+		this.referer = referer;
 	}
 
 	@Override

@@ -225,6 +225,8 @@ public class Api extends HttpServlet {
 		int extSourceLoa;
 		Map<String, String> additionalInformations = new HashMap<>();
 
+		String referer = req.getHeader("Referer");
+
 		String shibIdentityProvider = getStringAttribute(req, SHIB_IDENTITY_PROVIDER);
 		String sourceIdpEntityId = getStringAttribute(req, SOURCE_IDP_ENTITY_ID);
 		String remoteUser = req.getRemoteUser();
@@ -415,8 +417,8 @@ public class Api extends HttpServlet {
 		if (isEmpty(extLogin) || isEmpty(extSourceName)) {
 			throw new UserNotExistsException("extLogin or extSourceName is empty");
 		}
-		log.trace("creating PerunPrincipal(actor={},extSourceName={},extSourceType={},extSourceLoa={},additionalInformations={})",extLogin,extSourceName, extSourceType, extSourceLoa, additionalInformations);
-		return new PerunPrincipal(extLogin, extSourceName, extSourceType, extSourceLoa, additionalInformations);
+		log.trace("creating PerunPrincipal(actor={},extSourceName={},extSourceType={},extSourceLoa={},additionalInformations={},referer={})",extLogin,extSourceName, extSourceType, extSourceLoa, additionalInformations, referer);
+		return new PerunPrincipal(extLogin, extSourceName, extSourceType, extSourceLoa, additionalInformations, referer);
 	}
 
 	private PerunClient setupPerunClient(HttpServletRequest req) {
