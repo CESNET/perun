@@ -1,30 +1,138 @@
 {
-  "branches": [
-    "production",
-    "+([0-9])?(.{+([0-9]),x}).x",
-    { "name": "alpha", "prerelease": true },
-    { "name": "beta", "prerelease": true }
-  ],
-  "preset": "conventionalcommits",
-  "plugins": [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
-    ["@semantic-release/exec", {
-		"prepareCmd": "./update-versions.sh ${nextRelease.version} && mvn -B clean install"
-    }],
-    ["@semantic-release/git", {
-		"assets": [["**/pom.xml", "!perun-openapi/target/generated-sources/openapi/pom.xml"], "perun-openapi/openapi.yml", "perun-cli/Perun/Agent.pm"],
-		"message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
-    }],
-    ["@semantic-release/github", {
-	  "assets": [
-	    {"path": "perun-rpc/target/perun-rpc.war"},
-	    {"path": "perun-engine/target/perun-engine.jar"},
-	    {"path": "perun-ldapc/target/perun-ldapc.jar"},
-	    {"path": "perun-web-gui/target/perun-web-gui.war"},
-	    {"path": "perun-cli-java/target/perun-cli-java.jar"}
-	  ]
-	}]
-  ]
+	"branches": [
+		"production",
+		"+([0-9])?(.{+([0-9]),x}).x",
+		{
+			"name": "alpha",
+			"prerelease": true
+		},
+		{
+			"name": "beta",
+			"prerelease": true
+		}
+	],
+	"preset": "conventionalcommits",
+	"plugins": [
+		"@semantic-release/commit-analyzer",
+		[
+			"@semantic-release/release-notes-generator",
+			{
+				"preset": "conventionalcommits",
+				"presetConfig": {
+					"types": [
+						{
+							"type": "feat",
+							"section": "New features and notable changes",
+							"hidden": false
+						},
+						{
+							"type": "fix",
+							"hidden": true
+						},
+						{
+							"type": "perf",
+							"hidden": true
+						},
+						{
+							"type": "revert",
+							"hidden": true
+						},
+						{
+							"type": "docs",
+							"hidden": true
+						},
+						{
+							"type": "style",
+							"hidden": true
+						},
+						{
+							"type": "chore",
+							"hidden": true
+						},
+						{
+							"type": "refactor",
+							"hidden": true
+						},
+						{
+							"type": "test",
+							"hidden": true
+						},
+						{
+							"type": "build",
+							"hidden": true
+						},
+						{
+							"type": "ci",
+							"hidden": true
+						}
+					],
+					"issuePrefixes": [
+						"ST"
+					],
+					"issueUrlFormat": "https://perunaai.atlassian.net/browse/{{prefix}}{{id}}"
+				},
+				"parserOpts": {
+					"noteKeywords": [
+						"BREAKING CHANGE",
+						"BREAKING CHANGES",
+						"DEPLOYMENT NOTE",
+						"DEPLOYMENT NOTES",
+						"UPGRADE NOTE",
+						"UPGRADE NOTES"
+					]
+				}
+			}
+		],
+		[
+			"@semantic-release/exec",
+			{
+				"prepareCmd": "./update-versions.sh ${nextRelease.version} && mvn -B clean install"
+			}
+		],
+		[
+			"@semantic-release/git",
+			{
+				"assets": [
+					[
+						"**/pom.xml",
+						"!perun-openapi/target/generated-sources/openapi/pom.xml"
+					],
+					"perun-openapi/openapi.yml",
+					"perun-cli/Perun/Agent.pm",
+					"UPGRADE.md"
+				],
+				"message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
+			}
+		],
+		[
+			"@semantic-release/changelog",
+			{
+				"changelogFile": "UPGRADE.md",
+				"changelogTitle": "Upgrade notes"
+			}
+		],
+		[
+			"@semantic-release/github",
+			{
+				"assets": [
+					{
+						"path": "perun-rpc/target/perun-rpc.war"
+					},
+					{
+						"path": "perun-engine/target/perun-engine.jar"
+					},
+					{
+						"path": "perun-ldapc/target/perun-ldapc.jar"
+					},
+					{
+						"path": "perun-web-gui/target/perun-web-gui.war"
+					},
+					{
+						"path": "perun-cli-java/target/perun-cli-java.jar"
+					}
+				]
+			}
+		]
+	]
 }
 

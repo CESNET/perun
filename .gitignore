@@ -76,6 +76,7 @@ nb-configuration.xml
 !.gitignore
 !.gitattributes
 !.travis.yml
+!.commitlintrc.json
 *~
 
 # Window ignore #
