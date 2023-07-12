@@ -31,6 +31,7 @@ my @readAttributes = (
 	"urn:perun:user:attribute-def:virt:voPersonExternalAffiliation",
 	"urn:perun:user:attribute-def:virt:forwardedVoPersonExternalAffiliation",
 	"urn:perun:user:attribute-def:virt:sponsoredMembershipInOrganizations",
+	"urn:perun:user:attribute-def:virt:userEligibilities",
 	"urn:perun:user:attribute-def:def:preferredMail",
 	"urn:perun:user:attribute-def:def:timezone",
 	"urn:perun:user:attribute-def:def:preferredLanguage",
