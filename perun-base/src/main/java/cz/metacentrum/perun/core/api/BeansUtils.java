@@ -810,6 +810,12 @@ public class BeansUtils {
 			mailProps.setProperty("mail.smtp.starttls.enable", String.valueOf(BeansUtils.getCoreConfig().isSmtpStartTls()));
 			mailProps.setProperty("mail.debug", String.valueOf(BeansUtils.getCoreConfig().isMailDebug()));
 
+			// set 'smtpFrom' property only if it is set in perun.properties
+			String smtpFrom = BeansUtils.getCoreConfig().getSmtpFrom();
+			if (smtpFrom != null && !smtpFrom.isBlank()) {
+				mailProps.setProperty("mail.smtp.from", smtpFrom);
+			}
+
 			mailSender.setJavaMailProperties(mailProps);
 
 			if (BeansUtils.getCoreConfig().isSmtpAuth()) {
