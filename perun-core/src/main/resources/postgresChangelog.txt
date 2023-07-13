@@ -7,7 +7,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.2.15
-INSERT INTO authz (user_id, role_id) VALUES ((select id from user_ext_sources where login_ext='perun' and ext_sources_id=(select id from ext_sources where name='INTERNAL' and type='cz.metacentrum.perun.core.impl.ExtSourceInternal')),(select id from roles where name='perunadmin')) ON CONFLICT DO NOTHING;
+INSERT INTO authz (user_id, role_id) VALUES ((select user_id from user_ext_sources where login_ext='perun' and ext_sources_id=(select id from ext_sources where name='INTERNAL' and type='cz.metacentrum.perun.core.impl.ExtSourceInternal')),(select id from roles where name='perunadmin')) ON CONFLICT DO NOTHING;
 UPDATE configurations set value='3.2.15' WHERE property='DATABASE VERSION';
 
 3.2.14
