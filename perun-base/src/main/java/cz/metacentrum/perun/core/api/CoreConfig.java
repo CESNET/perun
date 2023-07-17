@@ -77,6 +77,7 @@ public class CoreConfig {
 	private String pdfFontPath;
 	private boolean notifSendMessages;
 	private String smtpHost;
+	private String smtpFrom;
 	private int smtpPort;
 	private boolean smtpAuth;
 	private boolean smtpStartTls;
@@ -624,6 +625,13 @@ public class CoreConfig {
 
 	public void setSmtpHost(String smtpHost) {
 		this.smtpHost = smtpHost;
+	}
+
+	public String getSmtpFrom() {
+		return smtpFrom;
+	}
+	public void setSmtpFrom(String smtpFrom) {
+		this.smtpFrom = smtpFrom;
 	}
 
 	public int getSmtpPort() {
