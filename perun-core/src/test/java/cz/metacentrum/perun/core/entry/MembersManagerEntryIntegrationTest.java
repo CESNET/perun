@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -21,6 +22,8 @@ import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembersOrderColumn;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.NamespaceRules;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.Paginated;
@@ -40,6 +43,7 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Validation;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
@@ -51,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
@@ -58,6 +63,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
 import org.junit.Before;
@@ -74,7 +80,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
@@ -3355,6 +3360,346 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getMemberPageBasedOnPolicy() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberPageBasedOnPolicy");
+
+		// Create a new session
+		PerunPrincipal pp = new PerunPrincipal("perunTestsPagination", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunSession sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Hacky way to mock things
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		// Create a new user, replace perun principal with it
+		User user = new User();
+		user.setFirstName("perunTestsPagination");
+		user.setLastName("perunTestsPagination");
+		user = perun.getUsersManagerBl().createUser(sess2, user);
+
+		pp.setUser(user);
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Setup user as a PERUNADMIN
+		AuthzResolver.setRole(sess2, user, null, Role.PERUNADMIN);
+
+		Vo vo = perun.getVosManager().createVo(sess2, new Vo(0, "testPagination", "tp"));
+		Group group = perun.getGroupsManager().createGroup(sess2, vo, new Group("test", "testPaginationInGroup"));
+		Group group2 = perun.getGroupsManager().createGroup(sess2, vo, new Group("test2", "testPaginationInGroup2"));
+
+		// Create 2 members, for each group
+		Member member = setupMemberInSession(sess2, vo, "Doe", "John");
+		Member member2 = setupMemberInSession(sess2, vo, "Doe", "Jane");
+		Member member3 = setupMemberInSession(sess2, vo, "Doe", "John");
+		Member member4 = setupMemberInSession(sess2, vo, "Doe", "Jane");
+
+		perun.getGroupsManager().addMember(sess2, group, member);
+		perun.getGroupsManager().addMember(sess2, group, member2);
+		perun.getGroupsManager().addMember(sess2, group2, member3);
+		perun.getGroupsManager().addMember(sess2, group2, member4);
+
+		// Create a new session, set u2 as a PERUNADMIN and GROUPADMIN
+		Member member5 = setupMemberInSession(sess2, vo, "Doe", "John");
+		User u2 = perun.getUsersManager().getUserByMember(sess2, member5);
+
+		pp = new PerunPrincipal("perunTestsPagination2", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		pp.setUser(u2);
+
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		AuthzResolver.setRole(sess2, u2, null, Role.PERUNADMIN);
+		AuthzResolver.setRole(sess2, u2, group, Role.GROUPADMIN);
+
+		// Unset PERUNADMIN for u2
+		AuthzResolver.unsetRole(sess2, u2, null, Role.PERUNADMIN);
+
+		// Call getMembersPage with to get all Members in a VO
+		MembersPageQuery query = new MembersPageQuery(10, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "", List.of(), null, List.of());
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess2, vo, query, List.of(), "test_filter-getMembersPage_policy");
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		// Check returned members
+		assertThat(returnedMemberIds.size()).isEqualTo(2);
+		assertThat(returnedMemberIds).containsExactlyInAnyOrder(member.getId(), member2.getId());
+	}
+	@Test
+	public void getMembersPageBasedOnPolicyNoDuplicities()  throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageBasedOnPolicyNoDuplicities");
+
+		// Create a new session
+		PerunPrincipal pp = new PerunPrincipal("perunTestsPagination", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunSession sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Hacky way to mock things
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		// Create a new user, replace perun principal with it
+		User user = new User();
+		user.setFirstName("perunTestsPagination");
+		user.setLastName("perunTestsPagination");
+		user = perun.getUsersManagerBl().createUser(sess2, user);
+
+		pp.setUser(user);
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Setup user as a PERUNADMIN
+		AuthzResolver.setRole(sess2, user, null, Role.PERUNADMIN);
+
+		Vo vo = perun.getVosManager().createVo(sess2, new Vo(0, "testPagination", "tp"));
+		Group group = perun.getGroupsManager().createGroup(sess2, vo, new Group("test", "testPaginationInGroup"));
+		Group group2 = perun.getGroupsManager().createGroup(sess2, vo, new Group("test2", "testPaginationInGroup2"));
+
+		// Create 2 members, for each group
+		Member member = setupMemberInSession(sess2, vo, "Doe", "John");
+		Member member2 = setupMemberInSession(sess2, vo, "Doe", "Jane");
+		Member member3 = setupMemberInSession(sess2, vo, "Perun", "Ján");
+		Member member4 = setupMemberInSession(sess2, vo, "Buck", "Mister");
+
+		perun.getGroupsManager().addMember(sess2, group, member);
+		perun.getGroupsManager().addMember(sess2, group, member2);
+		perun.getGroupsManager().addMember(sess2, group2, member3);
+		perun.getGroupsManager().addMember(sess2, group2, member4);
+
+		// Create a new session, set u2 as a PERUNADMIN and GROUPADMIN
+		Member member5 = setupMemberInSession(sess2, vo, "Doe", "John");
+		User u2 = perun.getUsersManager().getUserByMember(sess2, member5);
+
+		pp = new PerunPrincipal("perunTestsPagination2", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		pp.setUser(u2);
+
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		AuthzResolver.setRole(sess2, u2, null, Role.PERUNADMIN);
+		AuthzResolver.setRole(sess2, u2, group2, Role.GROUPADMIN);
+		AuthzResolver.setRole(sess2, u2, group2, Role.GROUPOBSERVER);
+
+		// Unset PERUNADMIN for u2
+		AuthzResolver.unsetRole(sess2, u2, null, Role.PERUNADMIN);
+
+		// Call getMembersPage with to get all Members in a VO
+		MembersPageQuery query = new MembersPageQuery(10, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "", List.of(), null, List.of());
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess2, vo, query, List.of(), "test_filter-getMembersPage_policy");
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		// Check returned members
+		assertThat(returnedMemberIds.size()).isEqualTo(2);
+		assertThat(returnedMemberIds).containsExactlyInAnyOrder(member3.getId(), member4.getId());
+	}
+
+	@Test
+	public void getMembersPageBasedOnPolicyPerunObserver() throws  Exception {
+		System.out.println(CLASS_NAME + "getMembersPageBasedOnPolicyVoAdmin");
+
+		// Create a new session
+		PerunPrincipal pp = new PerunPrincipal("perunTestsPagination", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunSession sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Hacky way to mock things
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		// Create a new user, replace perun principal with it
+		User user = new User();
+		user.setFirstName("perunTestsPagination");
+		user.setLastName("perunTestsPagination");
+		user = perun.getUsersManagerBl().createUser(sess2, user);
+
+		pp.setUser(user);
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Setup user as a PERUNADMIN
+		AuthzResolver.setRole(sess2, user, null, Role.PERUNADMIN);
+
+		Vo vo = perun.getVosManager().createVo(sess2, new Vo(0, "testPagination", "tp"));
+		Group group = perun.getGroupsManager().createGroup(sess2, vo, new Group("test", "testPaginationInGroup"));
+		Group group2 = perun.getGroupsManager().createGroup(sess2, vo, new Group("test2", "testPaginationInGroup2"));
+
+		// Create 2 members, for each group
+		Member member = setupMemberInSession(sess2, vo, "Doe", "John");
+		Member member2 = setupMemberInSession(sess2, vo, "Doe", "Jane");
+		Member member3 = setupMemberInSession(sess2, vo, "Perun", "Ján");
+		Member member4 = setupMemberInSession(sess2, vo, "Buck", "Mister");
+
+		perun.getGroupsManager().addMember(sess2, group, member);
+		perun.getGroupsManager().addMember(sess2, group, member2);
+		perun.getGroupsManager().addMember(sess2, group2, member3);
+		perun.getGroupsManager().addMember(sess2, group2, member4);
+
+		// Create a new session, set u2 as a PERUNADMIN and GROUPADMIN
+		Member member5 = setupMemberInSession(sess2, vo, "Doe", "John");
+		User u2 = perun.getUsersManager().getUserByMember(sess2, member5);
+
+		pp = new PerunPrincipal("perunTestsPagination2", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		pp.setUser(u2);
+
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		AuthzResolver.setRole(sess2, u2, null, Role.PERUNADMIN);
+		AuthzResolver.setRole(sess2, u2, null, Role.PERUNOBSERVER);
+
+		// Unset PERUNADMIN for u2
+		AuthzResolver.unsetRole(sess2, u2, null, Role.PERUNADMIN);
+
+		// Call getMembersPage with to get all Members in a VO
+		MembersPageQuery query = new MembersPageQuery(10, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "", List.of(), null, List.of());
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess2, vo, query, List.of(), "test_filter-getMembersPage_policy");
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		// Check returned members
+		assertThat(returnedMemberIds.size()).isEqualTo(5);
+		assertThat(returnedMemberIds).containsExactlyInAnyOrder(member.getId(), member2.getId(), member3.getId(), member4.getId(), member5.getId());
+	}
+
+	@Test
+	public void getMembersPageBasedOnPolicyVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageBasedOnPolicyVoAdmin");
+
+		// Create a new session
+		PerunPrincipal pp = new PerunPrincipal("perunTestsPagination", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunSession sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Hacky way to mock things
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		// Create a new user, replace perun principal with it
+		User user = new User();
+		user.setFirstName("perunTestsPagination");
+		user.setLastName("perunTestsPagination");
+		user = perun.getUsersManagerBl().createUser(sess2, user);
+
+		pp.setUser(user);
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Setup user as a PERUNADMIN
+		AuthzResolver.setRole(sess2, user, null, Role.PERUNADMIN);
+
+		Vo vo = perun.getVosManager().createVo(sess2, new Vo(0, "testPagination", "tp"));
+		Group group = perun.getGroupsManager().createGroup(sess2, vo, new Group("test", "testPaginationInGroup"));
+		Group group2 = perun.getGroupsManager().createGroup(sess2, vo, new Group("test2", "testPaginationInGroup2"));
+
+		// Create 2 members, for each group
+		Member member = setupMemberInSession(sess2, vo, "Doe", "John");
+		Member member2 = setupMemberInSession(sess2, vo, "Doe", "Jane");
+		Member member3 = setupMemberInSession(sess2, vo, "Perun", "Ján");
+		Member member4 = setupMemberInSession(sess2, vo, "Buck", "Mister");
+
+		perun.getGroupsManager().addMember(sess2, group, member);
+		perun.getGroupsManager().addMember(sess2, group, member2);
+		perun.getGroupsManager().addMember(sess2, group2, member3);
+		perun.getGroupsManager().addMember(sess2, group2, member4);
+
+		// Create a new session, set u2 as a PERUNADMIN and GROUPADMIN
+		Member member5 = setupMemberInSession(sess2, vo, "Doe", "John");
+		User u2 = perun.getUsersManager().getUserByMember(sess2, member5);
+
+		pp = new PerunPrincipal("perunTestsPagination2", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		pp.setUser(u2);
+
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		AuthzResolver.setRole(sess2, u2, null, Role.PERUNADMIN);
+		AuthzResolver.setRole(sess2, u2, group2, Role.VOADMIN);
+
+		// Unset PERUNADMIN for u2
+		AuthzResolver.unsetRole(sess2, u2, null, Role.PERUNADMIN);
+
+		// Call getMembersPage with to get all Members in a VO
+		MembersPageQuery query = new MembersPageQuery(10, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "", List.of(), null, List.of());
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess2, vo, query, List.of(), "test_filter-getMembersPage_policy-vo");
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		// Check returned members
+		assertThat(returnedMemberIds.size()).isEqualTo(5);
+		assertThat(returnedMemberIds).containsExactlyInAnyOrder(member.getId(), member2.getId(), member3.getId(), member4.getId(), member5.getId());
+	}
+
+	@Test
+	public void getMembersPageBasedOnPolicyVoObserver() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersPageBasedOnPolicyVoAdmin");
+
+		// Create a new session
+		PerunPrincipal pp = new PerunPrincipal("perunTestsPagination", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		PerunSession sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Hacky way to mock things
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		// Create a new user, replace perun principal with it
+		User user = new User();
+		user.setFirstName("perunTestsPagination");
+		user.setLastName("perunTestsPagination");
+		user = perun.getUsersManagerBl().createUser(sess2, user);
+
+		pp.setUser(user);
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+
+		// Setup user as a PERUNADMIN
+		AuthzResolver.setRole(sess2, user, null, Role.PERUNADMIN);
+
+		Vo vo = perun.getVosManager().createVo(sess2, new Vo(0, "testPagination", "tp"));
+		Group group = perun.getGroupsManager().createGroup(sess2, vo, new Group("test", "testPaginationInGroup"));
+		Group group2 = perun.getGroupsManager().createGroup(sess2, vo, new Group("test2", "testPaginationInGroup2"));
+
+		// Create 2 members, for each group
+		Member member = setupMemberInSession(sess2, vo, "Doe", "John");
+		Member member2 = setupMemberInSession(sess2, vo, "Doe", "Jane");
+		Member member3 = setupMemberInSession(sess2, vo, "Perun", "Ján");
+		Member member4 = setupMemberInSession(sess2, vo, "Buck", "Mister");
+
+		perun.getGroupsManager().addMember(sess2, group, member);
+		perun.getGroupsManager().addMember(sess2, group, member2);
+		perun.getGroupsManager().addMember(sess2, group2, member3);
+		perun.getGroupsManager().addMember(sess2, group2, member4);
+
+		// Create a new session, set u2 as a PERUNADMIN and GROUPADMIN
+		Member member5 = setupMemberInSession(sess2, vo, "Doe", "John");
+		User u2 = perun.getUsersManager().getUserByMember(sess2, member5);
+
+		pp = new PerunPrincipal("perunTestsPagination2", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		pp.setUser(u2);
+
+		sess2 = perun.getPerunSession(pp, new PerunClient());
+		sess2.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
+		sess2.getPerunPrincipal().setAuthzInitialized(true);
+
+		AuthzResolver.setRole(sess2, u2, null, Role.PERUNADMIN);
+		AuthzResolver.setRole(sess2, u2, group2, Role.VOOBSERVER);
+
+		// Unset PERUNADMIN for u2
+		AuthzResolver.unsetRole(sess2, u2, null, Role.PERUNADMIN);
+
+		// Call getMembersPage with to get all Members in a VO
+		MembersPageQuery query = new MembersPageQuery(10, 0, SortingOrder.ASCENDING, MembersOrderColumn.NAME, "", List.of(), null, List.of());
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess2, vo, query, List.of(), "test_filter-getMembersPage_policy-voobserver");
+		List<Integer> returnedMemberIds = result.getData().stream()
+			.map(PerunBean::getId)
+			.collect(toList());
+
+		// Check returned members
+		assertThat(returnedMemberIds.size()).isEqualTo(5);
+		assertThat(returnedMemberIds).containsExactlyInAnyOrder(member.getId(), member2.getId(), member3.getId(), member4.getId(), member5.getId());
+	}
+
+	@Test
 	public void getAllMembers_membersFromTwoVos() throws Exception {
 		System.out.println(CLASS_NAME + "getAllMembers_membersFromTwoVos");
 
@@ -3559,6 +3904,14 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	private Vo setUpVo(String name) throws Exception {
 		return perun.getVosManagerBl().createVo(sess, new Vo(0, name, name));
+	}
+
+	private Member setupMemberInSession(PerunSession sess, Vo vo, String lastName, String   firstName) throws Exception {
+		User user = new User();
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user = perun.getUsersManagerBl().createUser(sess, user);
+		return perun.getMembersManagerBl().createMember(sess, vo, user);
 	}
 
 	private Member setUpMember(Vo vo, String lastName, String firstName) throws Exception {

@@ -82,6 +82,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
@@ -2992,8 +2993,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) {
-		Paginated<Member> paginatedMembers = membersManagerImpl.getMembersPage(sess, vo, query);
+	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames, String policy) throws PolicyNotExistsException {
+		Paginated<Member> paginatedMembers = membersManagerImpl.getMembersPage(sess, vo, query, policy);
 		List<RichMember> richMembers = convertMembersToRichMembers(sess, paginatedMembers.getData());
 
 		List<AttributeDefinition> attrDefs = new ArrayList<>();
@@ -3017,6 +3018,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		return new Paginated<>(richMembers, paginatedMembers.getOffset(), paginatedMembers.getPageSize(),
 				paginatedMembers.getTotalCount());
+	}
+
+	@Override
+	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws PolicyNotExistsException {
+		return getMembersPage(sess, vo, query, attrNames, null);
 	}
 
 	@Override

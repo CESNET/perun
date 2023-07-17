@@ -50,6 +50,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
@@ -1630,7 +1631,12 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException {
+	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException, PolicyNotExistsException {
+		return getMembersPage(sess, vo, query, attrNames, null);
+	}
+
+	@Override
+	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames, String policy) throws VoNotExistsException, PrivilegeException, GroupNotExistsException, PolicyNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
@@ -1649,7 +1655,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new IllegalArgumentException("Group status cannot be used to sort VO members.");
 		}
 
-		Paginated<RichMember> result = membersManagerBl.getMembersPage(sess, vo, query, attrNames);
+		Paginated<RichMember> result = membersManagerBl.getMembersPage(sess, vo, query, attrNames, policy);
 
 		if (query.getGroupId() == null) {
 			result.setData(getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, result.getData()));
