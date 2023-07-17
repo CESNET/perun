@@ -6506,6 +6506,22 @@ perun_policies:
     include_policies:
       - default_policy
 
+  filter-findRichUsersWithAttributes_policy:
+    policy_roles:
+      - SECURITYADMIN:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   findRichUsersWithAttributesByExactMatch_String_List<String>_policy:
     policy_roles:
       - PERUNOBSERVER:
