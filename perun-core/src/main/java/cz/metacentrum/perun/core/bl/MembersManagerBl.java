@@ -1466,6 +1466,18 @@ public interface MembersManagerBl {
 	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, Group group, boolean useContext);
 
 	/**
+	 * Send mail to user's preferred email address with username for the given namespace.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send mail to
+	 * @param namespace Namespace for username/login (member must have login in this namespace)
+	 * @param mailAddress mail address where email will be sent
+	 * @param language language of the message
+	 * @throws InternalErrorException
+	 */
+	void sendUsernameReminderEmail(PerunSession sess, Member member, String namespace, String mailAddress, String language);
+
+	/**
 	 * Send mail to user's preferred email address with link for non-authz password reset.
 	 * Correct authz information is stored in link's URL.
 	 *

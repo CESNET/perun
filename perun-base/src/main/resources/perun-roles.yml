@@ -3332,6 +3332,18 @@ perun_policies:
     include_policies:
       - default_policy
 
+  sendUsernameReminderEmail_Member_String_String_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
+      - PASSWORDRESETMANAGER:
+      - PROXY:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+      - MFA: Member
+
   sendPasswordResetLinkEmail_Member_String_String_String_String_policy:
     policy_roles:
       - VOADMIN: Vo

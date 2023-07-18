@@ -48,7 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordResetMailNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -67,6 +67,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.api.SponsoredUserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -1194,7 +1195,21 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException {
+	public void sendUsernameReminderEmail(PerunSession sess, Member member, String namespace, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException, NotificationMemberMailNotExistsException {
+		Utils.checkPerunSession(sess);
+		getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "sendUsernameReminderEmail_Member_String_String_String_policy", member)) {
+			throw new PrivilegeException(sess, "sendUsernameReminder");
+		}
+
+		String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
+		getMembersManagerBl().sendUsernameReminderEmail(sess, member, namespace, mailAddress, language);
+	}
+
+	@Override
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException, NotificationMemberMailNotExistsException {
 
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -1204,37 +1219,12 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "sendPasswordResetLinkEmail");
 		}
 
-		//check if attribute exists, throws AttributeNotExistsException
-		Attribute mailAttribute = null;
-		AttributeDefinition ad = getPerunBl().getAttributesManager().getAttributeDefinition(sess, mailAttributeUrn);
-
-
-		try {
-			if (ad.getEntity().equals("user")) {
-				User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
-				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, mailAttributeUrn);
-			}
-			if (ad.getEntity().equals("member")) {
-				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, mailAttributeUrn);
-			}
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		if (mailAttribute == null) {
-			throw new InternalErrorException("MailAttribute should not be null.");
-		}
-		String mailAddress = mailAttribute.valueAsString();
-		if (mailAddress == null) {
-			throw new PasswordResetMailNotExistsException("Member " + member.getId() + " doesn't have the attribute " +
-				mailAttributeUrn + " set.");
-		}
-
+		String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
 		getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
 	}
 
 	@Override
-	public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException {
+	public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException, NotificationMemberMailNotExistsException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -1243,30 +1233,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "sendAccountActivationLinkEmail");
 		}
 
-		//check if attribute exists, throws AttributeNotExistsException
-		Attribute mailAttribute = null;
-		AttributeDefinition attributeDefinition = getPerunBl().getAttributesManager().getAttributeDefinition(sess, mailAttributeUrn);
-
-		try {
-			if (attributeDefinition.getEntity().equals("user")) {
-				User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
-				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, mailAttributeUrn);
-			}
-			if (attributeDefinition.getEntity().equals("member")) {
-				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, mailAttributeUrn);
-			}
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		if (mailAttribute == null) {
-			throw new InternalErrorException("MailAttribute should not be null.");
-		}
-		String mailAddress = mailAttribute.valueAsString();
-		if (mailAddress == null) {
-			throw new PasswordResetMailNotExistsException("Member " + member.getId() + " doesn't have the attribute " +
-				mailAttributeUrn + " set.");
-		}
+		String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
 
 		getMembersManagerBl().sendAccountActivationLinkEmail(sess, member, namespace, url, mailAddress, language);
 	}
@@ -1821,6 +1788,47 @@ public class MembersManagerEntry implements MembersManager {
 		memberWithSponsors.setSponsors(sponsors);
 
 		return memberWithSponsors;
+	}
+
+	/**
+	 * Extract mail address from the given attribute and given member object.
+	 * @param sess Perun session
+	 * @param member Member object
+	 * @param mailAttributeUrn URN of the attribute which should contain mail address. Assumes the attribute is of
+	 *                         type string.
+	 * @return Non-blank attribute value which is expected to be mail address
+	 * @throws AttributeNotExistsException If the attribute specified by mailAttributeUrn parameter does not exist
+	 * @throws NotificationMemberMailNotExistsException If the attribute has empty or blank value
+	 */
+	private String getMailAddressFromAttribute(PerunSession sess, Member member, String mailAttributeUrn)
+		throws AttributeNotExistsException, NotificationMemberMailNotExistsException
+	{
+		//check if attribute exists, throws AttributeNotExistsException
+		Attribute mailAttribute = null;
+		AttributeDefinition ad = getPerunBl().getAttributesManager().getAttributeDefinition(sess, mailAttributeUrn);
+
+		try {
+			if (ad.getEntity().equals("user")) {
+				User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, mailAttributeUrn);
+			}
+			if (ad.getEntity().equals("member")) {
+				mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, mailAttributeUrn);
+			}
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		if (mailAttribute == null) {
+			throw new InternalErrorException("MailAttribute should not be null.");
+		}
+		String mailAddress = mailAttribute.valueAsString();
+		if (!StringUtils.hasText(mailAddress)) {
+			throw new NotificationMemberMailNotExistsException(
+				"Member " + member.getId() + " doesn't have the attribute " + mailAttributeUrn + " set."
+			);
+		}
+		return mailAddress;
 	}
 
 	/**

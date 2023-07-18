@@ -11002,6 +11002,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/sendUsernameReminderEmail:
+    post:
+      tags:
+        - MembersManager
+      operationId: sendUsernameReminderEmail
+      summary: Send mail to user's preferred email address with a reminder of the username for the given namespace.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/namespace'
+        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail" }
+        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/membersManager/sendPasswordResetLinkEmail:
     post:
       tags:
