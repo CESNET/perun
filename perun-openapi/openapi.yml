@@ -1003,6 +1003,7 @@ components:
         blocked: { type: boolean }
         service: { $ref: '#/components/schemas/Service' }
         facility: { $ref: '#/components/schemas/Facility' }
+        lastSuccessfulPropagation: { type: string }
       discriminator:
         propertyName: beanName
 

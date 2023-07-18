@@ -42,9 +42,12 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,7 +59,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -1269,6 +1271,43 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertTrue("there is the right facility in the richDestination",richDestination.getFacility().equals(facility));
 		assertTrue("there is the right service in the richDestination",richDestination.getService().equals(service));
 		assertTrue("there is the right destination in the richDestination",richDestination.getDestination().equals(destination.getDestination()));
+	}
+
+	@Test
+	public void getAllRichDestinationsAndTheirLastSuccessfulPropagation() throws Exception {
+		System.out.println(CLASS_NAME + "getAllRichDestinationsAndTheirLastSuccessfulPropagation");
+
+		Timestamp success_at = new Timestamp(System.currentTimeMillis());
+
+		service = setUpService();
+		facility = setUpFacility();
+		destination = setUpDestination();
+		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
+
+		// Task
+		Task task = new Task();
+		task.setFacility(facility);
+		task.setService(service);
+		task.setSchedule(0L);
+		task.setStatus(Task.TaskStatus.WARNING);
+		task.setDestinations(List.of(destination));
+		task.setId(perun.getTasksManagerBl().insertTask(sess, task));
+
+		// Task result
+		TaskResult result = new TaskResult();
+		result.setDestination(destination);
+		result.setDestinationId(destination.getId());
+		result.setService(service);
+		result.setTaskId(task.getId());
+		result.setStatus(TaskResult.TaskResultStatus.DONE);
+		result.setTimestamp(success_at);
+		result.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, result));
+
+		List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, facility);
+		assertTrue("There should be one destination",richDestinations.size() == 1);
+
+		RichDestination richDestination = richDestinations.get(0);
+		assertEquals(success_at.getTime() / 1000, richDestination.getLastSuccessfulPropagation().getTime() / 1000);
 	}
 
 	@Test
