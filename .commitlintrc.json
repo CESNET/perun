@@ -1,0 +1,38 @@
+{
+	"extends": [
+		"@commitlint/config-conventional"
+	],
+	"helpUrl": "https://perunaai.atlassian.net/wiki/spaces/STRIBOG/pages/13467868/Semantic+versioning",
+	"rules": {
+		"scope-enum": [
+			2,
+			"always",
+			[
+				"core",
+				"openapi",
+				"cli",
+				"gui",
+				"engine",
+				"registrar",
+				"dispatcher",
+				"mvn"
+			]
+		]
+	},
+	"prompt": {
+		"questions": {
+			"scope": {
+				"description": "Enter the name of the module affected (e.g. core)"
+			},
+			"isIssueAffected": {
+				"description": "Are there any specifics for deployment (upgrade notes)?"
+			},
+			"issuesBody": {
+				"description": "If there are deployment/upgrade notes, the commit requires a body. Please enter a longer description of the commit itself"
+			},
+			"issues": {
+				"description": "Enter UPGRADE NOTE: description of what needs to be done"
+			}
+		}
+	}
+}
