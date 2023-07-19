@@ -15,7 +15,9 @@
 				"engine",
 				"registrar",
 				"dispatcher",
-				"mvn"
+				"mvn",
+				"deps",
+				"deps-dev"
 			]
 		]
 	},
