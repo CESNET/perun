@@ -54,7 +54,7 @@ class DeviceCodeOAuth:
             PerunInstance.einfra: {
                 'metadata_url': 'https://login.e-infra.cz/oidc/.well-known/openid-configuration',
                 'client_id': '363b656e-d139-4290-99cd-ee64eeb830d5',
-                'scopes': 'openid perun_api perun_admin offline_access authn_details',
+                'scopes': 'openid perun_api perun_admin offline_access',
                 'perun_api_url': 'https://perun-api.e-infra.cz/oauth/rpc',
                 'mfa': True
             },
@@ -75,21 +75,21 @@ class DeviceCodeOAuth:
             PerunInstance.idm_test: {
                 'metadata_url': 'https://oidc.muni.cz/oidc/.well-known/openid-configuration',
                 'client_id': '5a730abc-6553-4fc4-af9a-21c75c46e0c2',
-                'scopes': 'openid perun_api perun_admin offline_access profile authn_details',
+                'scopes': 'openid perun_api perun_admin offline_access profile',
                 'perun_api_url': 'https://idm-test.ics.muni.cz/oauth/rpc',
                 'mfa': True
             },
             PerunInstance.idm: {
                 'metadata_url': 'https://oidc.muni.cz/oidc/.well-known/openid-configuration',
                 'client_id': '5a730abc-6553-4fc4-af9a-21c75c46e0c2',
-                'scopes': 'openid perun_api perun_admin offline_access profile authn_details',
+                'scopes': 'openid perun_api perun_admin offline_access profile',
                 'perun_api_url': 'https://idm.ics.muni.cz/oauth/rpc',
                 'mfa': True
             },
             PerunInstance.elixir: {
                 'metadata_url': 'https://login.elixir-czech.org/oidc/.well-known/openid-configuration',
                 'client_id': 'da97db9f-b511-4c72-b71f-daab24b86884',
-                'scopes': 'openid perun_api perun_admin offline_access profile authn_details',
+                'scopes': 'openid perun_api perun_admin offline_access profile',
                 'perun_api_url': 'https://elixir-api.aai.lifescience-ri.eu/oauth/rpc',
                 'mfa': True
             },
@@ -229,8 +229,8 @@ class DeviceCodeOAuth:
                     print(' name:', decoded_token['name'])
                 if 'acr' in decoded_token:
                     print(' acr:', decoded_token['acr'])
-                if 'authn_instant' in decoded_token:
-                    print(' authn_instant:', isoparse(decoded_token['authn_instant']).astimezone())
+                if 'auth_time' in decoded_token:
+                    print(' auth_time:', datetime.fromtimestamp(decoded_token['auth_time']).astimezone())
             if self.mfa and token_type == 'id':
                 acr = decoded_token.get('acr')
                 if acr is None or acr != 'https://refeds.org/profile/mfa':
@@ -271,35 +271,13 @@ class DeviceCodeOAuth:
                     print('MFA not detected, id_token has acr:', acr)
                 return False
             # get time of authentication
-            authn_instant = decoded_id_token.get('authn_instant')
-            if authn_instant is not None:
-                authn_instant = isoparse(authn_instant).astimezone()
-                if self.debug:
-                    print('got authn_instant from id_token:', authn_instant)
-            else:
-                # try to get it from userInfo
-                access_token = self.tokens.get('access_token')
-                decoded_access_token = jwt.decode(access_token,
-                                                  self.pyJWKClient.get_signing_key_from_jwt(access_token).key,
-                                                  algorithms=['RS256', 'ES256'],
-                                                  audience=self.CLIENT_ID)
-                if 'authn_details' not in decoded_access_token['scope']:
-                    print('WARNING: cannot get time of MFA', file=sys.stderr)
-                    return False
-                # call userInfo endpoint to get authn_instant
-                userinfo_response = requests.get(self.USERINFO_ENDPOINT_URL,
-                                                 headers={'Authorization': 'Bearer ' + access_token})
-                if userinfo_response.status_code != 200:
-                    print('Error calling userInfo endpoint')
-                    print(userinfo_response)
-                    raise typer.Exit(code=1)
-                authn_instant = isoparse(userinfo_response.json().get('authn_instant')).astimezone()
-                if self.debug:
-                    print('got authn_instant from userInfo:', authn_instant)
+            auth_time = decoded_id_token.get('auth_time')
+            if auth_time is not None and self.debug:
+                print('got auth_time from id_token:', datetime.fromtimestamp(decoded_token['auth_time']).astimezone())
             # check that time of MFA is not older than required
-            if time.time() - authn_instant.timestamp() > self.mfa_valid_seconds:
+            if time.time() - auth_time > self.mfa_valid_seconds:
                 if self.debug:
-                    print('MFA is too old: ', authn_instant, 'max is', self.mfa_valid_seconds, 'seconds')
+                    print('MFA is too old: ', auth_time, 'max is', self.mfa_valid_seconds, 'seconds')
                 return False
             if self.debug:
                 print("MFA verified")

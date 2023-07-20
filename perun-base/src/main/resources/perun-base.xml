@@ -60,6 +60,7 @@
 		<property name="pdfFontPath" value="${perun.pdfFontPath}" />
 		<property name="notifSendMessages" value="${notif.sendMessages}" />
 		<property name="smtpHost" value="${mail.smtp.host}" />
+		<property name="smtpFrom" value="${mail.smtp.from}" />
 		<property name="smtpPort" value="${mail.smtp.port}" />
 		<property name="smtpAuth" value="${mail.smtp.auth}" />
 		<property name="smtpStartTls" value="${mail.smtp.starttls.enable}" />
@@ -170,6 +171,7 @@
 
 				<prop key="notif.sendMessages">true</prop>
 				<prop key="mail.smtp.host">localhost</prop>
+				<prop key="mail.smtp.from"></prop>
 				<prop key="mail.smtp.port">25</prop>
 				<prop key="mail.smtp.auth">false</prop>
 				<prop key="mail.smtp.starttls.enable">false</prop>
