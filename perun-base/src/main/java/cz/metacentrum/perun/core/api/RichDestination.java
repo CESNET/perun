@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Service;
-import java.util.List;
-import cz.metacentrum.perun.core.api.BeansUtils;
+import java.sql.Timestamp;
 
 /**
  * Destination where services are propagated.
@@ -12,6 +10,7 @@ public class RichDestination extends Destination implements Comparable<PerunBean
 	private Service service;
 	private Facility facility;
 	private boolean blocked;
+	private Timestamp lastSuccessfulPropagation;
 
 	public RichDestination(){
 	}
@@ -28,6 +27,17 @@ public class RichDestination extends Destination implements Comparable<PerunBean
 		this.service = service;
 		this.facility = facility;
 		this.blocked = blocked;
+	}
+
+	public RichDestination(Destination destination, Facility facility, Service service, boolean blocked, Timestamp lastSuccessfulPropagation) {
+		super(destination.getId(), destination.getDestination(), destination.getType(), destination.getCreatedAt(),
+			destination.getCreatedBy(), destination.getModifiedAt(), destination.getModifiedBy(),
+			destination.getCreatedByUid(), destination.getModifiedByUid());
+		setPropagationType(destination.getPropagationType());
+		this.service = service;
+		this.facility = facility;
+		this.blocked = blocked;
+		this.lastSuccessfulPropagation = lastSuccessfulPropagation;
 	}
 
 	/*public RichDestination(User user, Member member, List<UserExtSource> userExtSources, List<Attribute> userAttributes, List<Attribute> memberAttributes) {
@@ -58,6 +68,14 @@ public class RichDestination extends Destination implements Comparable<PerunBean
 
 	public void setBlocked(boolean blocked) {
 		this.blocked = blocked;
+	}
+
+	public Timestamp getLastSuccessfulPropagation() {
+		return lastSuccessfulPropagation;
+	}
+
+	public void setLastSuccessfulPropagation(Timestamp lastSuccessfulPropagation) {
+		this.lastSuccessfulPropagation = lastSuccessfulPropagation;
 	}
 
 	@Override
@@ -109,6 +127,7 @@ public class RichDestination extends Destination implements Comparable<PerunBean
 			", facility=<").append(getFacility() == null ? "\\0" : getFacility().serializeToString()).append(">").append(
 			", service=<").append(getService() == null ? "\\0" : getService().serializeToString()).append(">").append(
 			", blocked=<").append(isBlocked()).append(">").append(
+			", lastSuccessfulPropagation=<").append(getLastSuccessfulPropagation()).append(">").append(
 			']').toString();
 	}
 
@@ -123,6 +142,7 @@ public class RichDestination extends Destination implements Comparable<PerunBean
 			).append("', facility='").append(getFacility()
 			).append("', service='").append(getService()
 			).append("', blocked='").append(isBlocked()
+			).append("', lastSuccessfulPropagation='").append(getLastSuccessfulPropagation()
 			).append("']").toString();
 	}
 }
