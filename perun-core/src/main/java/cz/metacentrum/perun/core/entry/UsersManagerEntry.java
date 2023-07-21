@@ -1425,8 +1425,37 @@ public class UsersManagerEntry implements UsersManager {
 			}
 		}
 
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames));
+		List<RichUser> users = getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames));
+		return filterRichUsers(sess, users);
+	}
 
+	/**
+	 * Filters rich users to which the principal has access.
+	 *
+	 * @param sess session
+	 * @param users list of all rich users
+	 * @return filtered list of rich users
+	 */
+	private List<RichUser> filterRichUsers(PerunSession sess, List<RichUser> users) {
+		List<RichUser> result = new ArrayList<>();
+		String filterPolicy = "filter-findRichUsersWithAttributes_policy";
+
+		for (RichUser user : users) {
+			List<Vo> vos = perunBl.getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			List<Group> groups = perunBl.getGroupsManagerBl().getUserGroups(sess, user);
+			List<Facility> facilities = perunBl.getFacilitiesManagerBl().getAssignedFacilities(sess, user);
+			List<Resource> resources = perunBl.getUsersManagerBl().getAllowedResources(sess, user);
+
+			if (AuthzResolver.authorizedInternal(sess, filterPolicy) ||
+				vos.stream().anyMatch(vo -> AuthzResolver.authorizedInternal(sess, filterPolicy, vo)) ||
+				groups.stream().anyMatch(group -> AuthzResolver.authorizedInternal(sess, filterPolicy, group)) ||
+				facilities.stream().anyMatch(facility -> AuthzResolver.authorizedInternal(sess, filterPolicy, facility)) ||
+				resources.stream().anyMatch(resource -> AuthzResolver.authorizedInternal(sess, filterPolicy, resource))) {
+				result.add(user);
+			}
+		}
+
+		return result;
 	}
 
 	@Override
