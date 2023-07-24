@@ -74,7 +74,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrAdminOfGroup = "adminOfGroup";
 		public static final String ldapAttrAdminOfFacility = "adminOfFacility";
 		public static final String ldapAttrUuid = "uuid";
-		public static final String ldapAttrUserEligibilities = "userEligibilities";
+		public static final String ldapAttrUserEligibilities = perunAttrUserEligibilities;
 
 		//LDAP OBJECT CLASSES
 		public static final String objectClassTop = "top";

@@ -7989,7 +7989,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("userEligibilities");
-		attr.setDisplayName("user Eligibilities");
+		attr.setDisplayName("User eligibilities");
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Virtual attribute, which collects all eligibilities user ext source attributes " +
 				"with keys and values (map). Only the highest value is selected for each key.");
