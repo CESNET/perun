@@ -362,7 +362,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		List<String> perunAdmins = new ArrayList<>(BeansUtils.getCoreConfig().getAdmins());
 		perunAdmins.addAll(BeansUtils.getCoreConfig().getRegistrarPrincipals());
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
-			log.debug("skipped MFA policy check for {}", sess.getPerunPrincipal().getActor());
 			return true;
 		}
 
