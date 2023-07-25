@@ -90,6 +90,13 @@
 			}
 		],
 		[
+			"@semantic-release/changelog",
+			{
+				"changelogFile": "UPGRADE.md",
+				"changelogTitle": "Upgrade notes"
+			}
+		],
+		[
 			"@semantic-release/git",
 			{
 				"assets": [
@@ -102,13 +109,6 @@
 					"UPGRADE.md"
 				],
 				"message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
-			}
-		],
-		[
-			"@semantic-release/changelog",
-			{
-				"changelogFile": "UPGRADE.md",
-				"changelogTitle": "Upgrade notes"
 			}
 		],
 		[
