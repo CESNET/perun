@@ -2593,7 +2593,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		}
 
-		checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
+		if (!serviceRole) {
+			checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
+		} else {
+			log.debug("skipped MFA role check for {}", sess.getPerunPrincipal().getActor());
+		}
 
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
