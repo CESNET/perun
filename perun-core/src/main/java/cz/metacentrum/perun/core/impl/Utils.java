@@ -244,10 +244,9 @@ public class Utils {
 	}
 
 	/**
-	 * Returns loa of addtional ues, if not stated, returns 0. If integer cannot be parsed from input, ParserException is thrown.
+	 * Returns loa of additional ues, if not stated, returns 0. If integer cannot be parsed from input, ParserException is thrown.
 	 * Used in extractAdditionalUserExtSources to get ues LoA.
 	 *
-	 * @param login login of subject
 	 * @param userExtSourceRaw array containing LoA
 	 * @return int LoA
 	 */
@@ -627,11 +626,12 @@ public class Utils {
 
 	/**
 	 * Creates a new instance of User with names initialized from parsed rawName.
-	 * Imposes limit on leghts of fields.
-	 * @see #parseCommonName(String)
+	 * Imposes limit on lengths of fields.
+	 *
+	 * @see Utils#parseCommonName(String, boolean)
 	 * @param rawName raw name
 	 * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception otherwise
-	 * @return user
+	 * @return User
 	 */
 	public static User parseUserFromCommonName(String rawName, boolean fullNameRequired) {
 		Map<String, String> m = parseCommonName(rawName, fullNameRequired);
@@ -639,7 +639,7 @@ public class Utils {
 	}
 
 	/**
-	 * @see Utils.parseCommonName(String rawName, boolean fullNameRequired) - where fullNameRequired is false
+	 * @see Utils#parseCommonName(String, boolean)
 	 */
 	public static Map<String, String> parseCommonName(String rawName) {
 		try {
