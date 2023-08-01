@@ -1,4 +1,4 @@
--- database version 3.2.16 (don't forget to update insert statement at the end of file)
+-- database version 3.2.17 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -331,6 +331,7 @@ create table attribute_policies (
 create table attribute_critical_actions (
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
 	action attribute_action not null,  --action on attribute (READ/WRITE)
+	global boolean default false not null, --action is critical globally for all objects
 	constraint attrcritops_pk primary key (attr_id, action),
 	constraint attrcritops_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade
 );
@@ -1907,7 +1908,7 @@ create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.16');
+insert into configurations values ('DATABASE VERSION','3.2.17');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

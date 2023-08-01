@@ -4086,6 +4086,19 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throws RelationExistsException if trying to mark already critical action
 	 * @throws RelationNotExistsException if trying to unmark not critical action
 	 */
+	/*#
+	 * Marks the action on attribute as critical, which may require additional authentication of user
+	 * performing that action on attribute.
+	 *
+	 * @param sess session
+	 * @param attributeDefinition attribute definition id
+	 * @param action critical action
+	 * @param critical true if action should be set critical, false to non-critical
+	 * @param global true if action should be globally critical, false if action should be critical only for critical objects
+	 *
+	 * @throws RelationExistsException if trying to mark already critical action
+	 * @throws RelationNotExistsException if trying to unmark not critical action
+	 */
 	setAttributeActionCriticality {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -4094,7 +4107,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getSession(),
 				ac.getAttributeDefinitionById(parms.readInt("attributeDefinition")),
 				AttributeAction.valueOf(parms.readString("action").toUpperCase()),
-				parms.readBoolean("critical"));
+				parms.readBoolean("critical"),
+				parms.contains("global") ? parms.readBoolean("global") : false);
 			return null;
 		}
 	},

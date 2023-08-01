@@ -2776,6 +2776,16 @@ public interface AttributesManagerImplApi {
 	boolean isAttributeActionCritical(PerunSession sess, AttributeDefinition attr, AttributeAction action);
 
 	/**
+	 * Checks if the action is critical on given attribute for all objects.
+	 *
+	 * @param sess session
+	 * @param attrId attribute definition id
+	 * @param action critical action
+	 * @return true if action is globally critical, false otherwise
+	 */
+	boolean isAttributeActionGloballyCritical(PerunSession sess, int attrId, AttributeAction action);
+
+	/**
 	 * Returns critical actions on given attribute.
 	 *
 	 * @param sess session
@@ -2792,11 +2802,12 @@ public interface AttributesManagerImplApi {
 	 * @param attr attribute definition
 	 * @param action critical action
 	 * @param critical true if action should be set critical, false to non-critical
+	 * @param global true if action should be globally critical, false if action should be critical only for critical objects
 	 *
 	 * @throws RelationExistsException if trying to mark already critical action
 	 * @throws RelationNotExistsException if trying to unmark not critical action
 	 */
-	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException;
+	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical, boolean global) throws RelationExistsException, RelationNotExistsException;
 
 	/**
 	 * Returns list of all possible namespaces.
