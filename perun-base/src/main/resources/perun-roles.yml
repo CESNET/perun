@@ -638,6 +638,9 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - RESOURCESELFSERVICE: Facility
+      - RESOURCEADMIN: Facility
+      - RESOURCEOBSERVER: Facility
       - PERUNOBSERVER:
       - SPREGAPPLICATION:
     include_policies:
