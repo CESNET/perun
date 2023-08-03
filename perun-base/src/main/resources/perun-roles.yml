@@ -729,6 +729,7 @@ perun_policies:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - PERUNOBSERVER:
+      - SPREGAPPLICATION:
       - PROXY:
     include_policies:
       - default_policy
@@ -738,6 +739,7 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - PERUNOBSERVER:
+      - SPREGAPPLICATION:
       - PROXY:
     include_policies:
       - default_policy
