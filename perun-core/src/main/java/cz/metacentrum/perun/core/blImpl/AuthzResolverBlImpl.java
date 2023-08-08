@@ -99,6 +99,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AuthzResolver.MFA_CRITICAL_ATTR;
@@ -2572,6 +2573,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 
 			setAdditionalRoles(sess, roles, user);
+		}
+
+		// Remove roles which are not allowed
+		Map<String, List<String>> appAllowedRoles = BeansUtils.getCoreConfig().getAppAllowedRoles();
+		for (String reg : appAllowedRoles.keySet()) {
+			Pattern pattern = Pattern.compile(reg);
+			if (pattern.matcher(sess.getPerunPrincipal().getReferer()).matches()) {
+				for (String role : roles.getRolesNames()) {
+					if (!appAllowedRoles.get(reg).contains(role)) {
+						roles.remove(role);
+					}
+				}
+			}
 		}
 
 		sess.getPerunPrincipal().setRoles(roles);
