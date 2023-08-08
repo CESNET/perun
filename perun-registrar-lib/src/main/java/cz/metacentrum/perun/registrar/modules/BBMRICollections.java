@@ -40,6 +40,7 @@ import java.util.Set;
  * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
  */
+@Deprecated
 public class BBMRICollections extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
