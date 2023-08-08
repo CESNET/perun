@@ -10013,9 +10013,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Attribute attribute = setUpMemberGroupAttribute().get(0);
 
 		assertTrue("Writing to attribute should be critical by default", perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.WRITE));
-		assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()).containsExactly(AttributeAction.valueOf("WRITE"));
+		assertTrue(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions().containsKey(AttributeAction.WRITE));
 
-		perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, false);
+		perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, false, false);
 		assertFalse("Writing to attribute should not be critical", perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.WRITE));
 		assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()).isEmpty();
 	}
@@ -10029,13 +10029,37 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		member = setUpMember();
 		Attribute attribute = setUpMemberGroupAttribute().get(0);
 
-		assertThrows(RelationExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true));
-		assertThrows(RelationNotExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, false));
+		assertThrows(RelationExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true, false));
+		assertThrows(RelationNotExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, false, false));
 
 		assertFalse(perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
-		perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, true);
+		perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, true, false);
 		assertTrue("Reading attribute should be critical", perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
-		assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()).containsExactlyInAnyOrder(AttributeAction.WRITE, AttributeAction.READ);
+		assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()
+			.keySet()).containsExactlyInAnyOrder(AttributeAction.WRITE, AttributeAction.READ);
+	}
+
+	@Test
+	public void setGloballyCriticalOperations() throws Exception {
+		System.out.println(CLASS_NAME + "setGloballyCriticalOperations");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		Attribute attribute = setUpMemberGroupAttribute().get(0);
+
+		assertThrows(RelationExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true, false));
+		assertThrows(RelationNotExistsException.class, () -> perun.getAttributesManagerBl().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, false, false));
+
+		assertFalse(perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
+		perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, true, true);
+		assertTrue("This attribute should be marked as globally critical", perun.getAttributesManagerBl().isAttributeActionGloballyCritical(sess, attribute, AttributeAction.READ));
+		assertTrue("Reading attribute should be critical", perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
+
+		Map<AttributeAction, Boolean> criticalActionMap = perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions();
+		assertThat(criticalActionMap.keySet()).containsExactlyInAnyOrder(AttributeAction.WRITE, AttributeAction.READ);
+		assertTrue(criticalActionMap.containsKey(AttributeAction.WRITE) && !criticalActionMap.get(AttributeAction.WRITE));
+		assertTrue(criticalActionMap.containsKey(AttributeAction.READ) && criticalActionMap.get(AttributeAction.READ));
 	}
 
 	@Test

@@ -389,9 +389,14 @@ components:
           items:
             $ref: '#/components/schemas/AttributePolicyCollection'
         criticalActions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AttributeAction'
+          type: object
+          description: "Represents types of actions (READ, WRITE) that users can perform upon attributes and if they are critical globally or not."
+          additionalProperties:
+            type: boolean
+          example: {
+            READ: false,
+            WRITE: true,
+          }
 
     AuditEvent:
       type: object
@@ -7714,6 +7719,7 @@ paths:
         - $ref: '#/components/parameters/attributeDefinitionId'
         - {name: action, in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true}
         - {name: critical, description: "if action should be marked as critical", schema: { type: boolean }, in: query, required: true}
+        - {name: global, description: "if action should be globally critical (for all objects)", schema: { type: boolean }, in: query, required: false}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

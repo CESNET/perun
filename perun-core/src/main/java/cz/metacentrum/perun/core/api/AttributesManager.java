@@ -4140,12 +4140,13 @@ public interface AttributesManager {
 	 * @param attr attribute definition
 	 * @param action critical action
 	 * @param critical true if action should be set critical, false to non-critical
+	 * @param global true if action should be globally critical, false if action should be critical only for critical objects
 	 *
 	 * @throws RelationExistsException if trying to mark already critical action
 	 * @throws RelationNotExistsException if trying to unmark not critical action
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException, PrivilegeException;
+	void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical, boolean global) throws RelationExistsException, RelationNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns list of definitions of IdP attributes that are filled to fedInfo

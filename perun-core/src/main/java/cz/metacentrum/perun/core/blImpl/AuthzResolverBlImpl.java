@@ -1697,7 +1697,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return principalMfa || updatePrincipalMfa(sess);
 		}
 
-		return principalMfa || !isAnyObjectMfaCritical(sess, objects) || updatePrincipalMfa(sess);
+		boolean globallyCriticalAction  = ((PerunBl) sess.getPerun()).getAttributesManagerBl().isAttributeActionGloballyCritical(sess, attrDef, actionType);
+
+		return principalMfa || (!isAnyObjectMfaCritical(sess, objects) && !globallyCriticalAction) || updatePrincipalMfa(sess);
 
 	}
 

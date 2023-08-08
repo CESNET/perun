@@ -4644,7 +4644,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException, PrivilegeException {
+	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical, boolean global) throws RelationExistsException, RelationNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -4652,7 +4652,7 @@ public class AttributesManagerEntry implements AttributesManager {
 			throw new PrivilegeException("setAttributeActionCriticality");
 		}
 
-		attributesManagerBl.setAttributeActionCriticality(sess, attr, action, critical);
+		attributesManagerBl.setAttributeActionCriticality(sess, attr, action, critical, global);
 	}
 
 	@Override
