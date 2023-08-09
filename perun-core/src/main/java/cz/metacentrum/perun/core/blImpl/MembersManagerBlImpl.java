@@ -108,6 +108,7 @@ import cz.metacentrum.perun.core.api.SponsoredUserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.util.StringUtils;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -2493,54 +2494,45 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url,
+	public void sendUsernameReminderEmail(PerunSession sess, Member member, final String namespace, String mailAddress,
+										  String language) {
+
+		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+
+		String logAction = "account activation";
+
+		String login = getUserLogin(sess, user, namespace);
+		if (!StringUtils.hasText(login)) {
+			throw new InternalErrorException(user.toString() + " doesn't have login in namespace: " + namespace);
+		}
+
+		String attrNameBase = "usernameReminderMail";
+		String subjectAttrName = attrNameBase + "Subject:" + namespace;
+		String templateAttrName = attrNameBase + "Template:" + namespace;
+		String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction);
+		String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction);
+
+		Utils.sendUsernameReminderEmail(user, mailAddress, login, namespace, message, subject);
+	}
+
+	@Override
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, final String namespace, String url,
 										   String mailAddress, String language) {
 
 		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 
-		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
-		boolean found = false;
-		for (Attribute a : logins) {
-			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
-		}
-		if (!found)
+		String logAction = "account activation";
+
+		String login = getUserLogin(sess, user, namespace);
+		if (!StringUtils.hasText(login)) {
 			throw new InternalErrorException(user.toString() + " doesn't have login in namespace: " + namespace);
-
-		String subject;
-		try {
-			Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
-					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailSubject:" + namespace);
-			subject = (String) subjectTemplateAttribute.getValue();
-			if (subject == null) {
-				subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
-						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailSubject:" + namespace);
-				subject = (String) subjectTemplateAttribute.getValue();
-			}
-		} catch (AttributeNotExistsException ex) {
-			//If attribute not exists, log it and use null instead - default template for subject will be used
-			log.error("There is missing attribute with subject template for password reset in specific namespace.", ex);
-			subject = null;
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
 		}
 
-		String message;
-		try {
-			Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
-					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailTemplate:" + namespace);
-			message = (String) messageTemplateAttribute.getValue();
-			if (message == null) {
-				messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
-						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailTemplate:" + namespace);
-				message = (String) messageTemplateAttribute.getValue();
-			}
-		} catch (AttributeNotExistsException ex) {
-			//If attribute not exists, log it and use null instead - default template for message will be used
-			log.error("There is missing attribute with message template for password reset in specific namespace.", ex);
-			message = null;
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		String attrNameBase = "nonAuthzPwdResetMail";
+		String subjectAttrName = attrNameBase + "Subject:" + namespace;
+		String templateAttrName = attrNameBase + "Template:" + namespace;
+		String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction);
+		String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction);
 
 		int validationWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
 		LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
@@ -2550,61 +2542,29 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url,
-										   String mailAddress, String language) {
+	public void sendAccountActivationLinkEmail(PerunSession sess, Member member, final String namespace, String url,
+											   String mailAddress, String language) {
+
 		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+		String logAction = "account activation";
 
-		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
-		boolean found = false;
-		for (Attribute a : logins) {
-			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
-		}
-		if (!found)
+		String login = getUserLogin(sess, user, namespace);
+		if (!StringUtils.hasText(login)) {
 			throw new InternalErrorException(user.toString() + " doesn't have login in namespace: " + namespace);
-
-		String subject;
-		try {
-			Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
-				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailSubject:" + namespace);
-			subject = (String) subjectTemplateAttribute.getValue();
-			if (subject == null) {
-				subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
-					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailSubject:" + namespace);
-				subject = (String) subjectTemplateAttribute.getValue();
-			}
-		} catch (AttributeNotExistsException ex) {
-			//If attribute not exists, log it and use null instead - default template for subject will be used
-			log.error("There is missing attribute with subject template for account activation in specific namespace.", ex);
-			subject = null;
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
 		}
 
-		String message;
-		try {
-			Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
-				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailTemplate:" + namespace);
-			message = (String) messageTemplateAttribute.getValue();
-			if (message == null) {
-				messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
-					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailTemplate:" + namespace);
-				message = (String) messageTemplateAttribute.getValue();
-			}
-		} catch (AttributeNotExistsException ex) {
-			//If attribute not exists, log it and use null instead - default template for message will be used
-			log.error("There is missing attribute with message template for account activation in specific namespace.", ex);
-			message = null;
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		String attrNameBase = "nonAuthzAccActivationMail";
+		String subjectAttrName = attrNameBase + "Subject:" + namespace;
+		String templateAttrName = attrNameBase + "Template:" + namespace;
+		String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction);
+		String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction);
 
 		int validationWindow = BeansUtils.getCoreConfig().getAccountActivationValidationWindow();
 		LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
 
 		//IMPORTANT: we are using the same requests for password reset and account activation
 		UUID uuid = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
-		String userLogin = getUserLogin(sess, user, namespace);
-		Utils.sendAccountActivationEmail(user, mailAddress, userLogin, namespace, url, uuid, message, subject, validityTo);
+		Utils.sendAccountActivationEmail(user, mailAddress, login, namespace, url, uuid, message, subject, validityTo);
 	}
 
 	@Override
@@ -3728,5 +3688,47 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			log.error("Failed to get namespace login for user: {}", user, e);
 			throw new InternalErrorException("Failed to get namespace login for user: " + user, e);
 		}
+	}
+
+	/**
+	 * Resolve email template (subject/message) from an entityless attribute.
+	 * @param sess Perun session
+	 * @param attributeName friendly name of the attribute (namespace of entityless is assigned in the method)
+	 * @param language Language of the template. If fails to find, default EN template will be looked up.
+	 * @return Found template for given language. If fails, tries to find for default EN. If fails, returns null.
+	 */
+	private String getEmailMessagePartFromEntitylessAttribute(PerunSession sess,
+															  String attributeName,
+															  String language,
+															  String logAction)
+	{
+		String template = null;
+		try {
+			attributeName = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ':' + attributeName;
+			try {
+				Attribute templateAttribute = perunBl.getAttributesManagerBl().getAttribute(
+					sess, language, attributeName
+				);
+				template = templateAttribute.valueAsString();
+			} catch (AttributeNotExistsException ex) {
+				//If attribute not exists, log it and use null instead - default template for message will be used
+				log.error("There is missing attribute with message template for {} in specific namespace.", logAction, ex);
+			}
+			if (!StringUtils.hasText(template)) {
+				try {
+					Attribute templateAttribute = perunBl.getAttributesManagerBl().getAttribute(
+						sess, "en", attributeName
+					);
+					template = templateAttribute.valueAsString();
+				} catch (AttributeNotExistsException ex) {
+					//If attribute not exists, log it and use null instead - default template for message will be used
+					log.error("There is missing attribute with email message template for {} in specific namespace.",
+						logAction, ex);
+				}
+			}
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+		return template;
 	}
 }
