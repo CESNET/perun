@@ -3630,6 +3630,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  filter-getMembersPage_policy:
+    policy_roles:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
+      - PERUNOBSERVER:
+      - VOADMIN:
+      - VOOBSERVER:
+    include_policies:
+      - default_policy
+
   updateSponsorshipValidity_Member_User_LocalDate:
     policy_roles:
       - VOADMIN: Vo

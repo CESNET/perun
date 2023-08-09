@@ -2289,6 +2289,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Returns true if the perun principal inside the perun session is Perun Observer.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is top group creator.
+	 */
+	public static boolean isPerunObserver(PerunSession sess) {
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNOBSERVER);
+	}
+
+	/**
 	 * Returns true if the perun principal inside the perun session is top group creator.
 	 *
 	 * @param sess perun session
@@ -2306,6 +2316,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static boolean isPerunAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN);
+	}
+
+	/**
+	 * Returns true if perun principal is Vo admin or Vo observer of specific Vo.
+	 * @param sess - perun session
+	 * @param vo -specific vo
+	 * @return bolean
+    **/
+	public static boolean isVoAdminOrObserver(PerunSession sess, Vo vo) {
+		return authzResolverImpl.isVoAdminOrObserver(sess, vo);
 	}
 
 	/**
@@ -4471,5 +4491,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	private static boolean sessionHasMfa(PerunSession sess) {
 		return sess.getPerunPrincipal().getAdditionalInformations().containsKey(ACR_MFA);
+	}
+
+	/**
+	 * Return id of the role by its name.
+	 *
+	 * @param name - name of the role
+	 * @return - id of the role
+	 */
+	public static int getRoleIdByName(String name) {
+		return authzResolverImpl.getRoleIdByName(name);
 	}
 }

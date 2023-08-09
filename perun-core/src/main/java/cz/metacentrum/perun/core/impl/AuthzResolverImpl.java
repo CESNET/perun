@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -27,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -1285,5 +1287,40 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 
 		return StringUtils.join(listOfConditions, " and ");
+	}
+
+	/**
+	 * Returns role id based on its name
+	 *
+	 * @param name - name of the role
+	 * @return role id
+	 */
+	@Override
+	public int getRoleIdByName(String name) {
+		try {
+			return jdbc.queryForInt("SELECT id FROM roles WHERE name=?", name.toLowerCase());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Returns true if the user in session is vo admin or vo observer of specific vo
+	 *
+	 * @param sess - session
+	 * @param vo - vo
+	 * @return
+	 */
+	@Override
+	public boolean isVoAdminOrObserver(PerunSession sess, Vo vo) {
+		try {
+			var query = jdbc.query("SELECT 1 FROM authz WHERE user_id=? AND vo_id=? AND (role_id=? OR role_id=?)",
+				(rs, i) -> true,
+				sess.getPerunPrincipal().getUserId(), vo.getId(), AuthzResolverBlImpl.getRoleIdByName(Role.VOADMIN), AuthzResolverBlImpl.getRoleIdByName(Role.VOOBSERVER));
+			return !query.isEmpty();
+		} catch (InternalErrorException e) {
+			log.error("Error during checking if user is vo admin of vo {}", vo, e);
+		}
+		return false;
 	}
 }

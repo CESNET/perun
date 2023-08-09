@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -651,4 +652,20 @@ public interface AuthzResolverImplApi {
 	 */
 	Set<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(User user, List<String> roles);
 
+	/**
+	 * Get role id by its name, returns -1 if role does not exist.
+	 *
+	 * @param name - name of the role
+	 * @return - role id with the given name
+	 */
+	int getRoleIdByName(String name);
+
+	/**
+	 * Returns true if the user in session is vo admin or vo observer of specific Vo.
+	 *
+	 * @param sess - session
+	 * @param vo - vo
+	 * @return bolean
+	 */
+	boolean isVoAdminOrObserver(PerunSession sess, Vo vo);
 }

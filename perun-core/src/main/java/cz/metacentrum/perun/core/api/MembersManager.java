@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
@@ -1521,7 +1522,23 @@ public interface MembersManager {
 	 * @throws GroupNotExistsException if there is no such query group
 	 * @throws PrivilegeException insufficient permission
 	 */
-	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException;
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException, PolicyNotExistsException;
+
+	/**
+	 * Get page of members from the given vo, with the given attributes, based on policy.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 * @param policy policy to use
+	 * @return page of requested rich members
+	 * @throws VoNotExistsException if there is no such vo
+	 * @throws GroupNotExistsException if there is no such query group
+	 * @throws PrivilegeException insufficient permission
+	 */
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames, String policy) throws VoNotExistsException, PrivilegeException, GroupNotExistsException, PolicyNotExistsException;
+
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.

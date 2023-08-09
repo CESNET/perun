@@ -205,5 +205,38 @@ perun_policies:
       - PROXY:
     include_policies: []
 
+  test_filter-getMembersPage_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+      - VOADMIN:
+      - VOOBSERVER:
+    include_policies:
+      - default_policy
+
+  test_filter-getMembersPage_policy-vo:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER:
+    include_policies:
+      - default_policy
+
+  test_filter-getMembersPage_policy-voobserver:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+      - VOADMIN:
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
 perun_roles_management: {}
 ...

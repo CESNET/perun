@@ -42,6 +42,7 @@ import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -1797,7 +1798,19 @@ public interface MembersManagerBl {
 	 * @param attrNames attribute names
 	 * @return page of requested rich members
 	 */
-	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames);
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws PolicyNotExistsException;
+
+	/**
+	 * Get page of members from the given vo, with the given attributes, based on policy.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 * @param policy policy to use
+	 * @return page of requested rich members
+	 */
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames, String policy) throws PolicyNotExistsException;
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.
