@@ -147,6 +147,7 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AttributeAction.READ;
 import static cz.metacentrum.perun.core.api.AttributeAction.WRITE;
@@ -2506,7 +2507,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		// mark WRITE action on this attribute as critical
 		try {
-			setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true);
+			setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true, false);
 		} catch (RelationExistsException | RelationNotExistsException ignored) {
 		}
 
@@ -7989,7 +7990,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("userEligibilities");
-		attr.setDisplayName("user Eligibilities");
+		attr.setDisplayName("User eligibilities");
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Virtual attribute, which collects all eligibilities user ext source attributes " +
 				"with keys and values (map). Only the highest value is selected for each key.");
@@ -8733,7 +8734,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public AttributeRules getAttributeRules(PerunSession sess, int attributeId) {
 		AttributeRules attrRules = new AttributeRules(getAttributesManagerImpl().getAttributePolicyCollections(sess, attributeId));
-		attrRules.setCriticalActions(getAttributesManagerImpl().getCriticalAttributeActions(sess, attributeId));
+		Map<AttributeAction, Boolean> actionMap = getAttributesManagerImpl()
+			.getCriticalAttributeActions(sess, attributeId)
+			.stream()
+			.collect(Collectors.toMap(
+				attrAction -> attrAction,
+				attrAction -> getAttributesManagerImpl().isAttributeActionGloballyCritical(sess, attributeId, attrAction)
+			));
+		attrRules.setCriticalActions(actionMap);
 		return attrRules;
 	}
 
@@ -8861,13 +8869,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public boolean isAttributeActionGloballyCritical(PerunSession sess, AttributeDefinition attr, AttributeAction action) {
+		return getAttributesManagerImpl().isAttributeActionGloballyCritical(sess, attr.getId(), action);
+	}
+
+	@Override
 	public List<AttributeAction> getCriticalAttributeActions(PerunSession sess, int attrId) {
 		return getAttributesManagerImpl().getCriticalAttributeActions(sess, attrId);
 	}
 
 	@Override
-	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException {
-		getAttributesManagerImpl().setAttributeActionCriticality(sess, attr, action, critical);
+	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical, boolean global) throws RelationExistsException, RelationNotExistsException {
+		getAttributesManagerImpl().setAttributeActionCriticality(sess, attr, action, critical, global);
 	}
 
 	@Override

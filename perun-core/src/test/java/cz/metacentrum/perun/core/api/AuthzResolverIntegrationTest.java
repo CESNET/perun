@@ -1200,6 +1200,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
 		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
+		when(mockedPerunPrincipal.getActor()).thenReturn("test");
 
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
@@ -1249,6 +1250,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
 		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
+		when(mockedPerunPrincipal.getActor()).thenReturn("test");
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(testSession, testGroup, testVo, Role.VOADMIN);
@@ -1287,6 +1289,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
 		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
+		when(mockedPerunPrincipal.getActor()).thenReturn("test");
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(testSession, testUser, testVo, Role.VOADMIN);
@@ -1331,6 +1334,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
 		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
 		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
+		when(mockedPerunPrincipal.getActor()).thenReturn("test");
 		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 		AuthzResolver.setRole(testSession, testUser, testVo, Role.VOADMIN);

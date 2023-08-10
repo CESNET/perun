@@ -4169,6 +4169,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public boolean isAttributeActionGloballyCritical(PerunSession sess, int attrId, AttributeAction action) {
+		try {
+			return 0 < jdbc.queryForInt("select count(*) from attribute_critical_actions where attr_id=? and action=?::attribute_action and global=true",
+				attrId, action.toString());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<AttributeAction> getCriticalAttributeActions(PerunSession sess, int attrId) {
 		try {
 			return jdbc.queryForList("SELECT action FROM attribute_critical_actions WHERE attr_id=" + attrId, AttributeAction.class);
@@ -4178,13 +4188,18 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical) throws RelationExistsException, RelationNotExistsException {
+	public void setAttributeActionCriticality(PerunSession sess, AttributeDefinition attr, AttributeAction action, boolean critical, boolean global) throws RelationExistsException, RelationNotExistsException {
 		try {
 			if (critical) {
-				if (isAttributeActionCritical(sess, attr, action)) {
+				boolean globalCriticalityChanged = isAttributeActionGloballyCritical(sess, attr.getId(), action) != global;
+
+				if (isAttributeActionCritical(sess, attr, action) && !globalCriticalityChanged) {
 					throw new RelationExistsException("Attribute " + attr.getName() + " is already critical on " + action + " action.");
 				}
-				jdbc.update("insert into attribute_critical_actions (attr_id, action) values (?,?::attribute_action)", attr.getId(), action.toString());
+
+				jdbc.update("insert into attribute_critical_actions (attr_id, action, global) values (?,?::attribute_action,?) " +
+					"on conflict(attr_id, action) do update set global=?",
+					attr.getId(), action.toString(), global, global);
 			} else {
 				if (0 == jdbc.update("delete from attribute_critical_actions where attr_id=? and action=?::attribute_action", attr.getId(), action.toString())) {
 					throw new RelationNotExistsException("Attribute " + attr.getName() + " is not critical on " + action + " action.");

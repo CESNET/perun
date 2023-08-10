@@ -93,13 +93,15 @@ $objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"sh
 $objectExamples{"List&lt;RichGroup&gt;"} = $listPrepend . $objectExamples{"RichGroup"} . $listAppend;
 $objectExamples{"List<RichGroup>"} = $objectExamples{"List&lt;RichGroup&gt;"};
 
+$objectExamples{"User"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"sponsoredUser\" : false , \"specificUser\" : false , \"majorSpecificType\" : \"NORMAL\" , \"id\" : 34 , \"uuid\" : \"5e5a02dd-f991-4706-a428-69c3ea6c5ce8\" , \"beanName\" : \"User\" }";
+$objectExamples{"List&lt;User&gt;"} = $listPrepend . $objectExamples{"User"} . $listAppend;
+$objectExamples{"List<User>"} = $objectExamples{"List&lt;User&gt;"};
+
 $objectExamples{"Application"} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"autoApproveError\" : null , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"Application\" }";
 $objectExamples{"List&lt;Application&gt;"} = $listPrepend . $objectExamples{"Application"} . $listAppend;
 $objectExamples{"List<Application>"} = $objectExamples{"List&lt;Application&gt;"};
 
-$objectExamples{"RichApplication"} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"autoApproveError\" : null , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"RichApplication\", \"formData\" : " . $objectExamples{"List<ApplicationFormItemData>"} . " }";
-$objectExamples{"List&lt;RichApplication&gt;"} = $listPrepend . $objectExamples{"RichApplication"} . $listAppend;
-$objectExamples{"List<RichApplication>"} = $objectExamples{"List&lt;RichApplication&gt;"};
+$objectExamples{"ApplicationForm"} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"automaticApproval\" : true , \"automaticApprovalExtension\" : true , \"moduleClassName\" : \"cz.metacentrum.perun.core.impl.modules.attributes.VirtualAttributesModule\" , \"beanName\" : \"ApplicationForm\" }";
 
 $objectExamples{"ApplicationFormItem"} = "{ \"id\" : 12 , \"shortname\" : \"Form item name\' , \"required\" : false , \"updatable\" : true , \"type\" : \"CHECKBOX\" , \"federationAttribute\" : \"\" , \"perunSourceAttribute\" : \"PERUNPEOPLE\" , \"perunDestinationAttribute\" : \"\", \"regex\" : \"\", \"applicationTypes\" : [\"INITIAL\" , \"EXTENSION\"], \"ordnum\" : 5, \"hiddenDependencyItemId\" : 5, \"disabledDependencyItemId\" : 5, \"disabled\" : \"NEVER\", \"hidden\" : \"NEVER\",  \"beanName\" : \"ApplicationFormItem\" }";
 $objectExamples{"List&lt;ApplicationFormItem&gt;"} = $listPrepend . $objectExamples{"ApplicationFormItem"} . $listAppend;
@@ -108,6 +110,10 @@ $objectExamples{"List<ApplicationFormItem>"} = $objectExamples{"List&lt;Applicat
 $objectExamples{"ApplicationFormItemData"} = "{ \"id\" : 12 , \"forItem\" : " . $objectExamples{"ApplicationFormItem"} . " , \"shortName\" : \"form data name\" , \"value\" : \"test value\" , \"assuranceLevel\" : \"0\" , \"beanName\" : \"ApplicationFormItemData\" }";
 $objectExamples{"List&lt;ApplicationFormItemData&gt;"} = $listPrepend . $objectExamples{"ApplicationFormItemData"} . $listAppend;
 $objectExamples{"List<ApplicationFormItemData>"} = $objectExamples{"List&lt;ApplicationFormItemData&gt;"};
+
+$objectExamples{"RichApplication"} = "{ \"id\" : 12 , \"vo\" : ". $objectExamples{"Vo"} . " , \"type\" : \"INITIAL\" , \"fedInfo\" : \"\" , \"state\" : \"NEW\" , \"autoApproveError\" : null , \"extSourceName\" : \"PERUNPEOPLE\" , \"extSourceType\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"user\" : " . $objectExamples{"User"} . ", \"beanName\" : \"RichApplication\", \"formData\" : " . $objectExamples{"List<ApplicationFormItemData>"} . " }";
+$objectExamples{"List&lt;RichApplication&gt;"} = $listPrepend . $objectExamples{"RichApplication"} . $listAppend;
+$objectExamples{"List<RichApplication>"} = $objectExamples{"List&lt;RichApplication&gt;"};
 
 $objectExamples{"ApplicationsPageQuery"} = "{ \"pageSize\" : 3 , \"offset\" : 0 , \"order\" : \"ASCENDING\" , \"sortColumn\" : \"ID\" , \"includeGroupApplications\" : true , \"searchString\" : \"Doe\" , \"states\" : [\"VERIFIED\" , \"NEW\"] , \"dateFrom\" : \"2011-05-17\", \"dateTo\" : \"2011-05-17\", \"memberId\" : 10 , \"groupId\" : 10 }";
 $objectExamples{"List&lt;ApplicationsPageQuery&gt;"} = $listPrepend . $objectExamples{"ApplicationsPageQuery"} . $listAppend;
@@ -119,10 +125,6 @@ $objectExamples{"Paginated<RichApplication>"} = $objectExamples{"Paginated&lt;Ri
 $objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"sponsored\" : false , \"beanName\" : \"Member\" }";
 $objectExamples{"List&lt;Member&gt;"} = $listPrepend . $objectExamples{"Member"} . $listAppend;
 $objectExamples{"List<Member>"} = $objectExamples{"List&lt;Member&gt;"};
-
-$objectExamples{"User"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"sponsoredUser\" : false , \"specificUser\" : false , \"majorSpecificType\" : \"NORMAL\" , \"id\" : 34 , \"uuid\" : \"5e5a02dd-f991-4706-a428-69c3ea6c5ce8\" , \"beanName\" : \"User\" }";
-$objectExamples{"List&lt;User&gt;"} = $listPrepend . $objectExamples{"User"} . $listAppend;
-$objectExamples{"List<User>"} = $objectExamples{"List&lt;User&gt;"};
 
 $objectExamples{"ExtSource"} = "{ \"name\" : \"PERUNPEOPLE\" , \"type\" : \"cz.metacentrum.perun.core.impl.ExtSourceSql\" , \"attributes\" : {} , \"id\" : 2 , \"beanName\" : \"ExtSource\" }";
 $objectExamples{"List&lt;ExtSource&gt;"} = $listPrepend . $objectExamples{"ExtSource"} . $listAppend;
@@ -272,7 +274,8 @@ $objectExamples{"AttributePolicy"} = "{ \"id\" : 290 , \"role\" : \"RESOURCEADMI
 $objectExamples{"List&lt;AttributePolicy&gt;"} = $listPrepend . $objectExamples{"AttributePolicy"} . $listAppend;
 $objectExamples{"List<AttributePolicy>"} = $objectExamples{"List&lt;AttributePolicy&gt;"};
 
-$objectExamples{"AttributePolicyCollection"} = "{ \"id\" : 10 , \"attributeId\" : 2220 , \"action\" : \"READ\" , \"policies\" : " . $objectExamples{"List&lt;AttributePolicyCollection&gt;"} . " }";
+$objectExamples{"AttributePolicyCollection"} = "{ \"id\" : 10 , \"attributeId\" : 2220 , \"action\" : \"READ\" , \"policies\" : " . $objectExamples{"List&lt;AttributePolicy&gt;"} . " }";
+
 $objectExamples{"List&lt;AttributePolicyCollection&gt;"} = $listPrepend . $objectExamples{"AttributePolicyCollection"} . $listAppend;
 $objectExamples{"List<AttributePolicyCollection>"} = $objectExamples{"List&lt;AttributePolicyCollection&gt;"};
 

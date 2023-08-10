@@ -42,6 +42,7 @@ import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -1466,6 +1467,18 @@ public interface MembersManagerBl {
 	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, Group group, boolean useContext);
 
 	/**
+	 * Send mail to user's preferred email address with username for the given namespace.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send mail to
+	 * @param namespace Namespace for username/login (member must have login in this namespace)
+	 * @param mailAddress mail address where email will be sent
+	 * @param language language of the message
+	 * @throws InternalErrorException
+	 */
+	void sendUsernameReminderEmail(PerunSession sess, Member member, String namespace, String mailAddress, String language);
+
+	/**
 	 * Send mail to user's preferred email address with link for non-authz password reset.
 	 * Correct authz information is stored in link's URL.
 	 *
@@ -1785,7 +1798,19 @@ public interface MembersManagerBl {
 	 * @param attrNames attribute names
 	 * @return page of requested rich members
 	 */
-	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames);
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws PolicyNotExistsException;
+
+	/**
+	 * Get page of members from the given vo, with the given attributes, based on policy.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 * @param policy policy to use
+	 * @return page of requested rich members
+	 */
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames, String policy) throws PolicyNotExistsException;
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.

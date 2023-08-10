@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -12,7 +14,7 @@ import java.util.Objects;
 public class AttributeRules {
 
 	private List<AttributePolicyCollection> attributePolicyCollections;
-	private List<AttributeAction> criticalActions = new ArrayList<>();
+	private Map<AttributeAction, Boolean> criticalActions = new HashMap<>();
 
 	public AttributeRules() {
 	}
@@ -29,11 +31,11 @@ public class AttributeRules {
 		this.attributePolicyCollections = attributePolicyCollections;
 	}
 
-	public List<AttributeAction> getCriticalActions() {
+	public Map<AttributeAction, Boolean> getCriticalActions() {
 		return criticalActions;
 	}
 
-	public void setCriticalActions(List<AttributeAction> criticalActions) {
+	public void setCriticalActions(Map<AttributeAction, Boolean> criticalActions) {
 		this.criticalActions = criticalActions;
 	}
 

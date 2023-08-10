@@ -1,4 +1,4 @@
--- database version 3.2.15 (don't forget to update insert statement at the end of file)
+-- database version 3.2.17 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -329,6 +329,7 @@ create table attribute_policies (
 create table attribute_critical_actions (
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
 	action attribute_action not null,  --action on attribute (READ/WRITE)
+	global boolean default false not null, --action is critical globally for all objects
 	constraint attrcritops_pk primary key (attr_id, action),
 	constraint attrcritops_attr_fk foreign key (attr_id) references attr_names (id) on delete cascade
 );
@@ -1597,6 +1598,8 @@ create table authz (
 	modified_by_uid integer,
 	authorized_group_id integer, --identifier of whole authorized group
 	security_team_id integer,	--identifier of security team
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
 	constraint authz_role_fk foreign key (role_id) references roles(id),
 	constraint authz_user_fk foreign key (user_id) references users(id),
 	constraint authz_authz_group_fk foreign key (authorized_group_id) references groups(id),
@@ -2014,7 +2017,7 @@ grant all on blocked_logins to perun;
 grant all on auto_registration_groups to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.15');
+insert into configurations values ('DATABASE VERSION','3.2.17');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

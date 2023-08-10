@@ -99,6 +99,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AuthzResolver.MFA_CRITICAL_ATTR;
@@ -1697,7 +1698,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return principalMfa || updatePrincipalMfa(sess);
 		}
 
-		return principalMfa || !isAnyObjectMfaCritical(sess, objects) || updatePrincipalMfa(sess);
+		boolean globallyCriticalAction  = ((PerunBl) sess.getPerun()).getAttributesManagerBl().isAttributeActionGloballyCritical(sess, attrDef, actionType);
+
+		return principalMfa || (!isAnyObjectMfaCritical(sess, objects) && !globallyCriticalAction) || updatePrincipalMfa(sess);
 
 	}
 
@@ -2286,6 +2289,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Returns true if the perun principal inside the perun session is Perun Observer.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is top group creator.
+	 */
+	public static boolean isPerunObserver(PerunSession sess) {
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNOBSERVER);
+	}
+
+	/**
 	 * Returns true if the perun principal inside the perun session is top group creator.
 	 *
 	 * @param sess perun session
@@ -2303,6 +2316,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static boolean isPerunAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN);
+	}
+
+	/**
+	 * Returns true if perun principal is Vo admin or Vo observer of specific Vo.
+	 * @param sess - perun session
+	 * @param vo -specific vo
+	 * @return bolean
+    **/
+	public static boolean isVoAdminOrObserver(PerunSession sess, Vo vo) {
+		return authzResolverImpl.isVoAdminOrObserver(sess, vo);
 	}
 
 	/**
@@ -2572,6 +2595,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			setAdditionalRoles(sess, roles, user);
 		}
 
+		// Remove roles which are not allowed
+		Map<String, List<String>> appAllowedRoles = BeansUtils.getCoreConfig().getAppAllowedRoles();
+		for (String reg : appAllowedRoles.keySet()) {
+			Pattern pattern = Pattern.compile(reg);
+			if (pattern.matcher(sess.getPerunPrincipal().getReferer()).matches()) {
+				for (String role : roles.getRolesNames()) {
+					if (!appAllowedRoles.get(reg).contains(role)) {
+						roles.remove(role);
+					}
+				}
+			}
+		}
+
 		sess.getPerunPrincipal().setRoles(roles);
 
 		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
@@ -2593,7 +2629,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		}
 
-		checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
+		if (!serviceRole && (sess.getPerunPrincipal().getUser() == null || !sess.getPerunPrincipal().getUser().isServiceUser())) {
+			checkMfaForHavingRole(sess, sess.getPerunPrincipal().getRoles());
+		} else {
+			log.debug("skipped MFA role check for {}", serviceRole ? sess.getPerunPrincipal().getActor() : sess.getPerunPrincipal().getUser());
+		}
 
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
@@ -4451,5 +4491,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	private static boolean sessionHasMfa(PerunSession sess) {
 		return sess.getPerunPrincipal().getAdditionalInformations().containsKey(ACR_MFA);
+	}
+
+	/**
+	 * Return id of the role by its name.
+	 *
+	 * @param name - name of the role
+	 * @return - id of the role
+	 */
+	public static int getRoleIdByName(String name) {
+		return authzResolverImpl.getRoleIdByName(name);
 	}
 }

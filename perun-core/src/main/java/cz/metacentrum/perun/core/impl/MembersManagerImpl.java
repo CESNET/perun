@@ -10,7 +10,9 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
+import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -32,9 +34,11 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -730,8 +734,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		return new ArrayList<>(members);
 	}
 
+
 	@Override
-	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) {
+	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) throws PolicyNotExistsException {
+		return getMembersPage(sess, vo, query, null);
+	}
+
+	@Override
+	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, String policy) throws PolicyNotExistsException {
 		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
 		MapSqlParameterSource namedParams =
 			Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
@@ -742,17 +752,28 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		namedParams.addValue("voId", vo.getId());
 		namedParams.addValue("offset", query.getOffset());
 		namedParams.addValue("limit", query.getPageSize());
+		namedParams.addValue("userId", sess.getPerunPrincipal().getUserId());
 
 		String statusesQueryString = getVoStatusSQLConditionForMembersPage(query, namedParams);
 
 		String groupStatusesQueryString = getGroupStatusSQLConditionForMembersPage(query, namedParams);
 
+		String whereBasedOnThePolicy = getWhereConditionBasedOnThePolicy(sess, query, policy, vo);
+
+		String groupByQuery = "GROUP BY members.user_id, members.id";
+		if (query.getGroupId() == null) {
+			groupByQuery += query.getSortColumn().getSqlGroupBy();
+		} else {
+			groupByQuery += ", users.last_name, users.first_name, groups_members.group_id, groups_members.source_group_id, groups_members.membership_type, groups_members.source_group_status";
+		}
+
 		return namedParameterJdbcTemplate.query(
 			    select +
-				" WHERE members.vo_id = (:voId)" +
+				whereBasedOnThePolicy +
 				statusesQueryString +
 				groupStatusesQueryString +
 				searchQuery +
+				groupByQuery+
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
 				" LIMIT (:limit)"
@@ -855,7 +876,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			"SELECT " + memberMappingSelectQuery +
 				" ,count(*) OVER() AS total_count" +
 				query.getSortColumn().getSqlSelect() +
-				" FROM members JOIN users on members.user_id = users.id " +
+				" FROM members JOIN users ON members.user_id = users.id " +
+				getSQLBasedOnPolicy() +
 				query.getSortColumn().getSqlJoin();
 
 		String groupSelect =
@@ -880,6 +902,52 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			return "";
 		}
 		return " AND " + Utils.prepareSqlWhereForUserMemberSearch(query.getSearchString(), namedParams, false);
+	}
+
+	private String getSQLBasedOnPolicy() {
+		return "LEFT OUTER JOIN (SELECT groups_members.member_id, authz.role_id, authz.vo_id" +
+			"		FROM groups" +
+			"			JOIN authz ON groups.id = authz.group_id" +
+			"			JOIN groups_members ON groups.id = groups_members.group_id" +
+			"		 WHERE authz.user_id = (:userId))" +
+			"		AS members_group ON members.id = members_group.member_id AND members.vo_id = members_group.vo_id";
+	}
+
+	private String getWhereConditionBasedOnThePolicy(PerunSession sess, MembersPageQuery query, String otherPolicy, Vo vo) throws PolicyNotExistsException {
+		String defaultWhereCondition = " WHERE members.vo_id = (:voId)";
+		PerunPolicy policy = AuthzResolverImpl.getPerunPolicy("filter-getMembersPage_policy");
+		if (otherPolicy != null && !otherPolicy.isEmpty()) {
+			policy = AuthzResolverImpl.getPerunPolicy(otherPolicy);
+		}
+
+		// Check if user is VO admin in vo
+		boolean ignoreGroupRelation = AuthzResolverBlImpl.isPerunAdmin(sess) || AuthzResolverBlImpl.isPerunObserver(sess) || AuthzResolverBlImpl.isVoAdminOrObserver(sess, vo);
+		if (query.getGroupId() != null || ignoreGroupRelation) {
+			return defaultWhereCondition;
+		}
+
+		List<String> roles = new ArrayList<>();
+		for (Map<String,String> role : policy.getPerunRoles()) {
+			for (Map.Entry<String,String> entry : role.entrySet()) {
+				// Do nothing
+				if (entry.getValue() == null) continue;
+				if (entry.getValue().equals("Group")) {
+					int roleId = AuthzResolverBlImpl.getRoleIdByName(entry.getKey());
+					if (roleId == -1) {
+						log.error("Role {} not found in DB.", entry.getKey());
+						continue;
+					}
+					roles.add("members_group.role_id=" + roleId);
+				}
+			}
+		}
+
+		if (roles.isEmpty() ) {
+			return defaultWhereCondition;
+		}
+		return " WHERE members.vo_id = (:voId) AND (" +
+			String.join(" OR ", roles) +
+			")";
 	}
 
 	private String getVoStatusSQLConditionForMembersPage(MembersPageQuery query, MapSqlParameterSource namedParams) {
@@ -909,5 +977,4 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		}
 		return groupStatusesQueryString;
 	}
-
 }

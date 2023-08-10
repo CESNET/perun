@@ -244,10 +244,9 @@ public class Utils {
 	}
 
 	/**
-	 * Returns loa of addtional ues, if not stated, returns 0. If integer cannot be parsed from input, ParserException is thrown.
+	 * Returns loa of additional ues, if not stated, returns 0. If integer cannot be parsed from input, ParserException is thrown.
 	 * Used in extractAdditionalUserExtSources to get ues LoA.
 	 *
-	 * @param login login of subject
 	 * @param userExtSourceRaw array containing LoA
 	 * @return int LoA
 	 */
@@ -627,11 +626,12 @@ public class Utils {
 
 	/**
 	 * Creates a new instance of User with names initialized from parsed rawName.
-	 * Imposes limit on leghts of fields.
-	 * @see #parseCommonName(String)
+	 * Imposes limit on lengths of fields.
+	 *
+	 * @see Utils#parseCommonName(String, boolean)
 	 * @param rawName raw name
 	 * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception otherwise
-	 * @return user
+	 * @return User
 	 */
 	public static User parseUserFromCommonName(String rawName, boolean fullNameRequired) {
 		Map<String, String> m = parseCommonName(rawName, fullNameRequired);
@@ -639,7 +639,7 @@ public class Utils {
 	}
 
 	/**
-	 * @see Utils.parseCommonName(String rawName, boolean fullNameRequired) - where fullNameRequired is false
+	 * @see Utils#parseCommonName(String, boolean)
 	 */
 	public static Map<String, String> parseCommonName(String rawName) {
 		try {
@@ -1069,6 +1069,41 @@ public class Utils {
 		content = prepareBodyOfEmail(content, defaultBody, bodyParametersToReplace);
 
 		sendEmail(subject, content, email);
+	}
+
+	/**
+	 * Sends email with reminder of the username in the specified namespace to the user
+	 * @param user user to send notification for
+	 * @param email user's email to send notification to
+	 * @param login user's login which will be used in message, if tag {@code {login}} is used.
+	 * @param namespace namespace to reset password in
+	 * @param messageTemplate message of the email (uses default if null)
+	 * @param subject subject of the email (uses default if null)
+	 */
+	public static void sendUsernameReminderEmail(User user, String email, String login, String namespace, String messageTemplate, String subject) {
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+		String defaultSubject = "[" + instanceName + "] Username reminder for namespace: " + namespace;
+		String defaultBody = "Dear " + user.getDisplayName() + ",\n\n" +
+			"\n\nWe've received request to remind you your username for namespace \"" + namespace + "\"." +
+			"\nYour username is: " + login +
+			"\n\nMessage is automatically generated." +
+			"\n----------------------------------------------------------------" +
+			"\nPerun - Identity & Access Management System";
+
+		Map<String, String> subjectParametersToReplace = new HashMap<>();
+		subjectParametersToReplace.put("{instanceName}", instanceName);
+		subjectParametersToReplace.put("{namespace}", namespace);
+		subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+		Map<String, String> bodyParametersToReplace = new HashMap<>();
+		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+		bodyParametersToReplace.put("{namespace}", namespace);
+		bodyParametersToReplace.put("{login}", login);
+
+		messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
+
+		sendEmail(subject, messageTemplate, email);
 	}
 
 	/**

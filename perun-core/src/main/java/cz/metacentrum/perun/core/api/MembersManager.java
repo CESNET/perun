@@ -22,8 +22,9 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordResetMailNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
@@ -1138,17 +1139,32 @@ public interface MembersManager {
 	Date getNewExtendMembership(PerunSession sess, Member member) throws MemberNotExistsException;
 
 	/**
-   * Returns the date to which will be extended member's expiration time.
-   *
-   * @param sess
-   * @param vo
-   * @param loa
-   * @return date
-   * @throws InternalErrorException
-   * @throws VoNotExistsException
-   * @throws ExtendMembershipException
-   */
-  Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws VoNotExistsException, ExtendMembershipException;
+	 * Returns the date to which will be extended member's expiration time.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param loa
+	 * @return date
+	 * @throws InternalErrorException
+	 * @throws VoNotExistsException
+	 * @throws ExtendMembershipException
+	 */
+	Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws VoNotExistsException, ExtendMembershipException;
+
+	/**
+	 * Send mail to user's preferred email address with reminder of the username in the given namespace.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send link mail to
+	 * @param namespace namespace to change password in (member must have login in it)
+	 * @param mailAttributeUrn urn of the attribute with stored mail
+	 * @param language language of the message
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException If not VO admin of member
+	 * @throws MemberNotExistsException If member not exists
+	 * @throws NotificationMemberMailNotExistsException If the attribute with stored mail is not filled.
+	 */
+	void sendUsernameReminderEmail(PerunSession sess, Member member, String namespace, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, NotificationMemberMailNotExistsException;
 
 	/**
 	 * Send mail to user's preferred email address with link for non-authz password reset.
@@ -1163,9 +1179,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException If not VO admin of member
 	 * @throws MemberNotExistsException If member not exists
-	 * @throws PasswordResetMailNotExistsException If the attribute with stored mail is not filled.
+	 * @throws NotificationMemberMailNotExistsException If the attribute with stored mail is not filled.
 	 */
-	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException;
+	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, NotificationMemberMailNotExistsException;
 
 	/**
 	 * Send mail to user's preferred email address with link for non-authz account activation.
@@ -1180,9 +1196,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException If not VO admin of member
 	 * @throws MemberNotExistsException If member not exists
-	 * @throws PasswordResetMailNotExistsException If the attribute with stored mail is not filled.
+	 * @throws NotificationMemberMailNotExistsException If the attribute with stored mail is not filled.
 	 */
-	void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException;
+	void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, NotificationMemberMailNotExistsException;
 
 	/**
 	 * Creates a new sponsored Member and its User.
@@ -1506,7 +1522,23 @@ public interface MembersManager {
 	 * @throws GroupNotExistsException if there is no such query group
 	 * @throws PrivilegeException insufficient permission
 	 */
-	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException;
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException, GroupNotExistsException, PolicyNotExistsException;
+
+	/**
+	 * Get page of members from the given vo, with the given attributes, based on policy.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 * @param policy policy to use
+	 * @return page of requested rich members
+	 * @throws VoNotExistsException if there is no such vo
+	 * @throws GroupNotExistsException if there is no such query group
+	 * @throws PrivilegeException insufficient permission
+	 */
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames, String policy) throws VoNotExistsException, PrivilegeException, GroupNotExistsException, PolicyNotExistsException;
+
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.

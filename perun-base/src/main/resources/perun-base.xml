@@ -82,6 +82,7 @@
 		<property name="mfaAuthTimeout" value="${perun.introspectionEndpoint.mfaAuthTimeout}"/>
 		<property name="mfaAuthTimeoutPercentageForceLogIn" value="${perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn}"/>
 		<property name="enforceMfa" value="${perun.enforceMfa}"/>
+		<property name="appAllowedRoles" value="#{'${perun.appAllowedRoles.apps}'.split('\s*,\s*')}"/>
 		<property name="introspectionEndpointMfaAcrValue" value="${perun.introspectionEndpoint.mfaAcrValue}"/>
 		<property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
 		<property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
@@ -168,6 +169,8 @@
 				<prop key="perun.oidc.i2.iss">https://login.elixir-czech.org/oidc/</prop>
 				<prop key="perun.oidc.i2.extsource.name">https://login.elixir-czech.org/idp/</prop>
 				<prop key="perun.oidc.i2.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
+
+				<prop key="perun.appAllowedRoles.apps"></prop>
 
 				<prop key="notif.sendMessages">true</prop>
 				<prop key="mail.smtp.host">localhost</prop>

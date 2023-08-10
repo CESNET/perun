@@ -99,6 +99,7 @@ public class CoreConfig {
 	private int mfaAuthTimeout;
 	private int mfaAuthTimeoutPercentageForceLogIn;
 	private boolean enforceMfa;
+	private Map<String, List<String>> appAllowedRoles = new HashMap<>();
 	private int idpLoginValidity;
 	private List<String> idpLoginValidityExceptions;
 	private int roleUpdateInterval;
@@ -447,6 +448,35 @@ public class CoreConfig {
 		String value = properties.getProperty(p);
 		if (value == null) {
 			log.error("property {} not found, skipping OIDC issuer {}", p, issuer);
+		}
+		return value;
+	}
+
+	public Map<String, List<String>> getAppAllowedRoles() {
+		return appAllowedRoles;
+	}
+
+	public void setAppAllowedRoles(List<String> apps) {
+		for (String app : apps) {
+			String regex = getAppAllowedRolesProperty(app, "reg");
+			if (regex == null) continue;
+
+			String rolesProperty = getAppAllowedRolesProperty(app, "roles");
+			if (rolesProperty == null) continue;
+
+			List<String> roles = List.of(rolesProperty.split("\s*,\s*"));
+
+			log.debug("registering application {} by regex={} with roles={}", app, regex, roles);
+
+			this.appAllowedRoles.put(regex, roles);
+		}
+	}
+
+	private String getAppAllowedRolesProperty(String app, String suffix) {
+		String property = "perun.appAllowedRoles." + app + "." + suffix;
+		String value = properties.getProperty(property);
+		if (value == null) {
+			log.error("property {} not found, skipping allowed roles for application {}", property, app);
 		}
 		return value;
 	}

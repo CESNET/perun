@@ -3,7 +3,6 @@ package Perun::beans::Attribute;
 use strict;
 use warnings;
 use Switch;
-use Data::Dumper;
 
 use overload
 	'""' => \&toString;
@@ -269,19 +268,13 @@ sub getValueAsScalar {
 		case "SCALAR" { return $value }
 		case "ARRAY"  { return '["'.join('", "', @$value).'"]' }
 		case "HASH"   {
-			local $Data::Dumper::Terse = 1;
-			local $Data::Dumper::Indent = 0;
-			local $Data::Dumper::Useqq = 1;
-
-			{
-				no warnings 'redefine';
-				sub Data::Dumper::qquote {
-					my $s = shift;
-					return "'$s'";
-				}
+			my $str = '{';
+			foreach my $key (reverse keys %$value) {
+				$str .= '"'.$key.'" => "'.$value->{$key}.'",';
 			}
-
-			return Dumper($value);
+			$str =~ s/,$//;
+			$str .= '}';
+			return $str;
 		}
 		case "JSON::XS::Boolean" {
 			return ($value) ? 'true' : 'false';
@@ -322,11 +315,18 @@ sub setValueFromArray {
 			}
 		}
 		case /^array$/ {
-			$attribute->setValue( \@_ );
+			my @arr = @_;
+			for (my $i=0; $i<scalar @arr; $i++) {
+				utf8::decode($arr[$i]);
+			}
+			$attribute->setValue( \@arr );
 		}
 		case "hash" {
 			my %hash = @_;
-			$attribute->setValue( \%hash );
+			for my $key (keys %hash) {
+				utf8::decode($hash{$key});
+			}
+			$attribute->setValue(  \%hash );
 		}
 		else {
 			die "Unknown attribute type. Type=".$attribute->getType;

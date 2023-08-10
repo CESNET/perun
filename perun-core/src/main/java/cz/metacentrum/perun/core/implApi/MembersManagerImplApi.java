@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader;
 
@@ -408,9 +409,20 @@ public interface MembersManagerImplApi {
 	 * @param sess session
 	 * @param vo vo
 	 * @param query query with page information
+	 * @param policy policy to replace the default one (`filter_getMembersPage-policy`)
 	 * @return page of requested rich members
 	 */
-	Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query);
+	Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, String policy) throws PolicyNotExistsException;
+
+	/**
+	 * Get page of members from the given vo
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @return page of requested rich members
+	 */
+	Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) throws PolicyNotExistsException;
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.

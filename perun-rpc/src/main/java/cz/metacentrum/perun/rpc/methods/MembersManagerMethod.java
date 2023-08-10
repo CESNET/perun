@@ -1963,6 +1963,28 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Send reminder of username in the given namespace to user's preferred email address.
+	 *
+	 * @param member int Member to get user to send link mail to
+	 * @param namespace String Namespace to change password in (member must have login in it)
+	 * @param emailAttributeURN String URN of the attribute with stored mail
+	 * @param language String 2-char language code of the message
+	 */
+	sendUsernameReminderEmail {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getMembersManager().sendUsernameReminderEmail(
+				ac.getSession(),
+				ac.getMemberById(parms.readInt("member")),
+				parms.readString("namespace"),
+				parms.readString("emailAttributeURN"),
+				parms.readString("language")
+			);
+			return null;
+		}
+	},
+
+	/*#
 	 * Send mail to user's preferred email address with link for non-authz password reset.
 	 * Correct authz information is stored in link's URL.
 	 *

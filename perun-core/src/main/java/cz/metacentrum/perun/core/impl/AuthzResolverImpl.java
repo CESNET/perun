@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -27,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,6 +40,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -449,7 +452,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, Facility facility, User user) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (user_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.FACILITYADMIN.toLowerCase(), facility.getId());
+			jdbc.update("insert into authz (user_id, role_id, facility_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?, ?)", user.getId(), Role.FACILITYADMIN.toLowerCase(), facility.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin of the facility " + facility, e, user, facility);
 		} catch (RuntimeException e) {
@@ -460,7 +464,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, Facility facility, Group group) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (authorized_group_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.FACILITYADMIN.toLowerCase(), facility.getId());
+			jdbc.update("insert into authz (authorized_group_id, role_id, facility_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?, ?)", group.getId(), Role.FACILITYADMIN.toLowerCase(), facility.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin of the facility " + facility, e, group, facility);
 		} catch (RuntimeException e) {
@@ -493,7 +498,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, Resource resource, User user) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (user_id, role_id, resource_id, vo_id, facility_id) values (?, (select id from roles where name=?), ?, ?, ?)", user.getId(), Role.RESOURCEADMIN.toLowerCase(), resource.getId(), resource.getVoId(), resource.getFacilityId());
+			jdbc.update("insert into authz (user_id, role_id, resource_id, vo_id, facility_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?, ?, ?, ?)", user.getId(), Role.RESOURCEADMIN.toLowerCase(), resource.getId(), resource.getVoId(), resource.getFacilityId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin of the resource " + resource, e, user, resource);
 		} catch (RuntimeException e) {
@@ -504,7 +510,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (authorized_group_id, role_id, resource_id, vo_id, facility_id) values (?, (select id from roles where name=?), ?, ?, ?)", group.getId(), Role.RESOURCEADMIN.toLowerCase(), resource.getId(), resource.getVoId(), resource.getFacilityId());
+			jdbc.update("insert into authz (authorized_group_id, role_id, resource_id, vo_id, facility_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?, ?, ?, ?)", group.getId(), Role.RESOURCEADMIN.toLowerCase(), resource.getId(), resource.getVoId(), resource.getFacilityId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin of the resource " + resource, e, group, resource);
 		} catch (RuntimeException e) {
@@ -537,7 +544,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, User sponsoredUser, User user) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (user_id, role_id, sponsored_user_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.SPONSOR.toLowerCase(), sponsoredUser.getId());
+			jdbc.update("insert into authz (user_id, role_id, sponsored_user_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?, ?)", user.getId(), Role.SPONSOR.toLowerCase(), sponsoredUser.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already sponsor of the sponsoredUser " + sponsoredUser, e, user, sponsoredUser);
 		} catch (RuntimeException e) {
@@ -548,7 +556,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (authorized_group_id, role_id, sponsored_user_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.SPONSOR.toLowerCase(), sponsoredUser.getId());
+			jdbc.update("insert into authz (authorized_group_id, role_id, sponsored_user_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?, ?)", group.getId(), Role.SPONSOR.toLowerCase(), sponsoredUser.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + group.getId() + " is already sponsor of the sponsoredUser " + sponsoredUser, e, group, sponsoredUser);
 		} catch (RuntimeException e) {
@@ -582,8 +591,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void addAdmin(PerunSession sess, Group group, User user) throws AlreadyAdminException {
 		try {
 			// Add GROUPADMIN role + groupId and voId
-			jdbc.update("insert into authz (user_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)",
-				user.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId());
+			jdbc.update("insert into authz (user_id, role_id, group_id, vo_id, created_by, created_by_uid)" +
+					" values (?, (select id from roles where name=?), ?, ?, ?, ?)",
+				user.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in group " + group, e, user, group);
 		} catch (RuntimeException e) {
@@ -594,8 +604,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (authorized_group_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)",
-				authorizedGroup.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId());
+			jdbc.update("insert into authz (authorized_group_id, role_id, group_id, vo_id, created_by, created_by_uid)" +
+					" values (?, (select id from roles where name=?), ?, ?, ?, ?)",
+				authorizedGroup.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + authorizedGroup.getId() + " is already group admin in group " + group, e, authorizedGroup, group);
 		} catch (RuntimeException e) {
@@ -630,8 +641,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (user_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", user.getId(),
-				Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
+			jdbc.update("insert into authz (user_id, role_id, security_team_id, created_by, created_by_uid)" +
+					" values (?, (select id from roles where name=?), ?, ?, ?)", user.getId(),
+				Role.SECURITYADMIN.toLowerCase(), securityTeam.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in securityTeam " + securityTeam, e, user, securityTeam);
 		} catch (RuntimeException e) {
@@ -642,8 +654,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (authorized_group_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", group.getId(),
-				Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
+			jdbc.update("insert into authz (authorized_group_id, role_id, security_team_id, created_by, created_by_uid)" +
+					" values (?, (select id from roles where name=?), ?, ?, ?)", group.getId(),
+				Role.SECURITYADMIN.toLowerCase(), securityTeam.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin in securityTeam " + securityTeam, e, group, securityTeam);
 		} catch (RuntimeException e) {
@@ -676,7 +689,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void makeUserPerunAdmin(PerunSession sess, User user) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNADMIN.toLowerCase());
+			jdbc.update("insert into authz (user_id, role_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?)", user.getId(), Role.PERUNADMIN.toLowerCase(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already perun admin", e, user, Role.PERUNADMIN);
 		} catch (RuntimeException e) {
@@ -687,7 +701,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void makeUserPerunObserver(PerunSession sess, User user) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNOBSERVER.toLowerCase());
+			jdbc.update("insert into authz (user_id, role_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?)", user.getId(), Role.PERUNOBSERVER.toLowerCase(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already perun observer", e, user, Role.PERUNOBSERVER);
 		} catch (RuntimeException e) {
@@ -698,7 +713,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws AlreadyAdminException {
 		try {
-			jdbc.update("insert into authz (authorized_group_id, role_id) values (?, (select id from roles where name=?))", authorizedGroup.getId(), Role.PERUNOBSERVER.toLowerCase());
+			jdbc.update("insert into authz (authorized_group_id, role_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?)", authorizedGroup.getId(), Role.PERUNOBSERVER.toLowerCase(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + authorizedGroup.getId() + " is already perun observer", e, authorizedGroup, Role.PERUNOBSERVER);
 		} catch (RuntimeException e) {
@@ -742,7 +758,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	@Override
 	public void makeUserCabinetAdmin(PerunSession sess, User user) {
 		try {
-			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.CABINETADMIN.toLowerCase());
+			jdbc.update("insert into authz (user_id, role_id, created_by, created_by_uid)" +
+				" values (?, (select id from roles where name=?), ?, ?)", user.getId(), Role.CABINETADMIN.toLowerCase(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -765,8 +782,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			throw new IllegalArgumentException("Role " + role + " cannot be set on VO");
 		}
 		try {
-			jdbc.update("insert into authz (user_id, role_id, vo_id) values (?, (select id from roles where name=?), ?)", user.getId(),
-				role.toLowerCase(), vo.getId());
+			jdbc.update("insert into authz (user_id, role_id, vo_id, created_by, created_by_uid)  values (?, (select id from roles where name=?), ?, ?, ?)",
+				user.getId(), role.toLowerCase(), vo.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already " + role + " in vo " + vo, e, user, vo, role);
 		} catch (RuntimeException e) {
@@ -780,8 +797,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			throw new IllegalArgumentException("Role " + role + " cannot be set on VO");
 		}
 		try {
-			jdbc.update("insert into authz (role_id, vo_id, authorized_group_id) values ((select id from roles where name=?), ?, ?)",
-				role.toLowerCase(), vo.getId(), group.getId());
+			jdbc.update("insert into authz (role_id, vo_id, authorized_group_id, created_by, created_by_uid)" +
+					" values ((select id from roles where name=?), ?, ?, ?, ?)",
+				role.toLowerCase(), vo.getId(), group.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + group.getId() + " is already " + role + " in vo " + vo, e, group, vo, role);
 		} catch (RuntimeException e) {
@@ -857,8 +875,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			throw new InternalErrorException("Role " + role + " cannot be set on resource.");
 		}
 		try {
-			jdbc.update("insert into authz (user_id, role_id, resource_id, vo_id, facility_id) values (?, (select id from roles where name=?), ?, ?, ?)", user.getId(),
-				role.toLowerCase(), resource.getId(), resource.getVoId(), resource.getFacilityId());
+			jdbc.update("insert into authz (user_id, role_id, resource_id, vo_id, facility_id, created_by, created_by_uid) values (?, (select id from roles where name=?), ?, ?, ?, ?, ?)", user.getId(),
+				role.toLowerCase(), resource.getId(), resource.getVoId(), resource.getFacilityId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("User id=" + user.getId() + " is already " + role + " in resource " + resource, e, user, resource, role);
 		} catch (RuntimeException e) {
@@ -872,8 +890,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			throw new IllegalArgumentException("Role " + role + " cannot be set on resource.");
 		}
 		try {
-			jdbc.update("insert into authz (role_id, resource_id, authorized_group_id, vo_id, facility_id) values ((select id from roles where name=?), ?, ?, ?, ?)",
-				role.toLowerCase(), resource.getId(), group.getId(), resource.getVoId(), resource.getFacilityId());
+			jdbc.update("insert into authz (role_id, resource_id, authorized_group_id, vo_id, facility_id, created_by, created_by_uid)" +
+					" values ((select id from roles where name=?), ?, ?, ?, ?, ?, ?)",
+				role.toLowerCase(), resource.getId(), group.getId(), resource.getVoId(), resource.getFacilityId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (DataIntegrityViolationException e) {
 			throw new AlreadyAdminException("Group id=" + group.getId() + " is already " + role + " in resource " + resource, e, group, resource, role);
 		} catch (RuntimeException e) {
@@ -988,10 +1007,15 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	@Override
 	public void setRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleAlreadySetException {
-		String query = prepareQueryToSetRole(mappingOfValues);
+		Map<String, Object> genericMappingOfValues = prepareMappingToSetRole(mappingOfValues);
+		genericMappingOfValues.put("created_by", sess.getPerunPrincipal().getActor());
+		genericMappingOfValues.put("created_by_uid", sess.getPerunPrincipal().getUserId());
 
+		SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbc);
+		insert.withTableName("authz");
+		insert.usingColumns(genericMappingOfValues.keySet().toArray(new String[0]));
 		try {
-			jdbc.update(query);
+			insert.execute(genericMappingOfValues);
 		} catch (DataIntegrityViolationException e) {
 			throw new RoleAlreadySetException(role);
 		} catch (RuntimeException e) {
@@ -1165,12 +1189,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	 * @param mappingOfValues from which will be the query created
 	 * @return sql query
 	 */
-	private String prepareQueryToSetRole(Map<String, Integer> mappingOfValues) {
-		String columnsFromMapping;
-		String valuesFromMapping;
-		List<String> columnNames = new ArrayList<>();
-		List<String> columnValues = new ArrayList<>();
-
+	private Map<String, Object> prepareMappingToSetRole(Map<String, Integer> mappingOfValues) {
+		Map<String, Object> genericMappingOfValues = new HashMap<>();
 		for (String columnName : mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
@@ -1181,14 +1201,10 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			if (!matcher.matches()) {
 				throw new InternalErrorException("Cannot create a query to set role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
 			}
-			columnNames.add(columnName);
-			columnValues.add(mappingOfValues.get(columnName).toString());
+			genericMappingOfValues.put(columnName, mappingOfValues.get(columnName));
 		}
 
-		columnsFromMapping = StringUtils.join(columnNames, ",");
-		valuesFromMapping = StringUtils.join(columnValues, ",");
-
-		return "insert into authz (" + columnsFromMapping + ") values (" + valuesFromMapping + ")";
+		return genericMappingOfValues;
 	}
 
 	/**
@@ -1271,5 +1287,40 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 
 		return StringUtils.join(listOfConditions, " and ");
+	}
+
+	/**
+	 * Returns role id based on its name
+	 *
+	 * @param name - name of the role
+	 * @return role id
+	 */
+	@Override
+	public int getRoleIdByName(String name) {
+		try {
+			return jdbc.queryForInt("SELECT id FROM roles WHERE name=?", name.toLowerCase());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Returns true if the user in session is vo admin or vo observer of specific vo
+	 *
+	 * @param sess - session
+	 * @param vo - vo
+	 * @return
+	 */
+	@Override
+	public boolean isVoAdminOrObserver(PerunSession sess, Vo vo) {
+		try {
+			var query = jdbc.query("SELECT 1 FROM authz WHERE user_id=? AND vo_id=? AND (role_id=? OR role_id=?)",
+				(rs, i) -> true,
+				sess.getPerunPrincipal().getUserId(), vo.getId(), AuthzResolverBlImpl.getRoleIdByName(Role.VOADMIN), AuthzResolverBlImpl.getRoleIdByName(Role.VOOBSERVER));
+			return !query.isEmpty();
+		} catch (InternalErrorException e) {
+			log.error("Error during checking if user is vo admin of vo {}", vo, e);
+		}
+		return false;
 	}
 }

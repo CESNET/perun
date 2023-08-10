@@ -389,9 +389,14 @@ components:
           items:
             $ref: '#/components/schemas/AttributePolicyCollection'
         criticalActions:
-          type: array
-          items:
-            $ref: '#/components/schemas/AttributeAction'
+          type: object
+          description: "Represents types of actions (READ, WRITE) that users can perform upon attributes and if they are critical globally or not."
+          additionalProperties:
+            type: boolean
+          example: {
+            READ: false,
+            WRITE: true,
+          }
 
     AuditEvent:
       type: object
@@ -1003,6 +1008,7 @@ components:
         blocked: { type: boolean }
         service: { $ref: '#/components/schemas/Service' }
         facility: { $ref: '#/components/schemas/Facility' }
+        lastSuccessfulPropagation: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -7713,6 +7719,7 @@ paths:
         - $ref: '#/components/parameters/attributeDefinitionId'
         - {name: action, in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true}
         - {name: critical, description: "if action should be marked as critical", schema: { type: boolean }, in: query, required: true}
+        - {name: global, description: "if action should be globally critical (for all objects)", schema: { type: boolean }, in: query, required: false}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10992,6 +10999,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/membersManager/sendUsernameReminderEmail:
+    post:
+      tags:
+        - MembersManager
+      operationId: sendUsernameReminderEmail
+      summary: Send mail to user's preferred email address with a reminder of the username for the given namespace.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/namespace'
+        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail" }
+        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

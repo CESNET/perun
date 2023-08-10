@@ -6,6 +6,15 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.17
+ALTER TABLE attribute_critical_actions ADD COLUMN global boolean default false not null;
+UPDATE configurations SET value='3.2.17' WHERE property='DATABASE VERSION';
+
+3.2.16
+ALTER TABLE authz ADD COLUMN created_at timestamp default statement_timestamp() not null;
+ALTER TABLE authz ADD column created_by varchar default user not null;
+UPDATE configurations set value='3.2.16' WHERE property='DATABASE VERSION';
+
 3.2.15
 INSERT INTO authz (user_id, role_id) VALUES ((select user_id from user_ext_sources where login_ext='perun' and ext_sources_id=(select id from ext_sources where name='INTERNAL' and type='cz.metacentrum.perun.core.impl.ExtSourceInternal')),(select id from roles where name='perunadmin')) ON CONFLICT DO NOTHING;
 UPDATE configurations set value='3.2.15' WHERE property='DATABASE VERSION';

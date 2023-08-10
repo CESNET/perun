@@ -37,6 +37,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +93,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		serviceMappingSelectQuery + ", " +
 		serviceDenialMappingSelectQuery + ", " +
 		"facility_service_destinations.propagation_type as f_s_des_propagation_type ";
+
+	public final static String richDestinationWithLastSuccessfulPropagationMappingSelectQuery = " " + destinationMappingSelectQuery + ", " +
+		"facilities.id as facilities_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, " +
+		"facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
+		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
+		serviceMappingSelectQuery + ", " +
+		serviceDenialMappingSelectQuery + ", " +
+		"facility_service_destinations.propagation_type as f_s_des_propagation_type, " +
+		"last_success.success_at as success_at ";
 
 	public static final RowMapper<Service> SERVICE_MAPPER = (resultSet, i) -> {
 		Service service = new Service();
@@ -212,7 +222,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 		ServiceDenial serviceDenial = SERVICE_DENIAL_MAPPER.mapRow(resultSet, i);
 
-		return new RichDestination(destination, facility, service, serviceDenial != null);
+		// if success_at column is missing in results, use null value
+		Timestamp lastSuccessfulPropagation;
+		try {
+			lastSuccessfulPropagation = resultSet.getTimestamp("success_at");
+		} catch (SQLException ex) {
+			lastSuccessfulPropagation = null;
+		}
+
+		return new RichDestination(destination, facility, service, serviceDenial != null, lastSuccessfulPropagation);
 	};
 
 	@SuppressWarnings("ConstantConditions")
@@ -750,12 +768,19 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	@Override
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) {
 		try {
-			return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
+			return jdbc.query("select " + richDestinationWithLastSuccessfulPropagationMappingSelectQuery + " from facility_service_destinations " +
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
 					"join services on services.id=facility_service_destinations.service_id " +
 					"join facilities on facilities.id=facility_service_destinations.facility_id " +
 					"left join service_denials on services.id = service_denials.service_id and " +
 					"                        destinations.id = service_denials.destination_id " +
+
+					"left join (select destination_id, services.id as service_id, facilities.id as facility_id, max(timestamp) as success_at from tasks_results " +
+									"join services on services.id = (select service_id from tasks where id = tasks_results.task_id) " +
+									"join facilities on facilities.id = (select facility_id from tasks where id = tasks_results.task_id) " +
+									"where status = 'DONE' group by destination_id, services.id, facilities.id) as last_success " +
+					"			on last_success.destination_id = facility_service_destinations.destination_id and last_success.service_id = services.id and last_success.facility_id = facilities.id " +
+
 					"where facility_service_destinations.facility_id=? order by destinations.destination", RICH_DESTINATION_MAPPER, facility.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
