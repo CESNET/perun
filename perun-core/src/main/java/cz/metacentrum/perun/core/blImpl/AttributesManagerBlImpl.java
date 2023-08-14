@@ -2590,8 +2590,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Remove services' required attributes
 		//TODO
 
-		//Remove attribute and all it's values
+		// Remove all values
 		this.deleteAllAttributeAuthz(sess, attribute);
+		// Free logins for login-namespace attribute
+		if (attribute.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
+			// Free blocked logins
+			getPerunBl().getUsersManagerBl().unblockLoginsForNamespace(sess, attribute.getFriendlyNameParameter());
+			// Free reserved logins
+			getPerunBl().getUsersManagerBl().deleteReservedLoginsForNamespace(sess, attribute.getFriendlyNameParameter());
+		}
+		// Delete attribute
 		getAttributesManagerImpl().deleteAttribute(sess, attribute);
 		getPerunBl().getAuditer().log(sess, new AttributeDeleted(attribute));
 
