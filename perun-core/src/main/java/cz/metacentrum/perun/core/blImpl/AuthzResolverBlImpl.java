@@ -2599,10 +2599,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Map<String, List<String>> appAllowedRoles = BeansUtils.getCoreConfig().getAppAllowedRoles();
 		for (String reg : appAllowedRoles.keySet()) {
 			Pattern pattern = Pattern.compile(reg);
-			if (pattern.matcher(sess.getPerunPrincipal().getReferer()).matches()) {
-				for (String role : roles.getRolesNames()) {
-					if (!appAllowedRoles.get(reg).contains(role)) {
-						roles.remove(role);
+			if (!isBlank(sess.getPerunPrincipal().getReferer())) {
+				if (pattern.matcher(sess.getPerunPrincipal().getReferer()).matches()) {
+					for (String role : roles.getRolesNames()) {
+						if (!appAllowedRoles.get(reg).contains(role)) {
+							roles.remove(role);
+						}
 					}
 				}
 			}
