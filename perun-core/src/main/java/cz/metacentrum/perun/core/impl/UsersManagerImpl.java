@@ -1096,6 +1096,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isUserPerunAdmin(PerunSession sess, User user) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.toLowerCase());

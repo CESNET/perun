@@ -122,8 +122,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 	private final static String groupObjectType = "Group";
 	private final static String userObjectType = "User";
-	private final static List<String> authorizedDefaultReadRoles = List.of(Role.PERUNADMIN, Role.PERUNOBSERVER, Role.RPC, Role.ENGINE);
-	private final static List<String> authorizedDefaultWriteRoles = List.of(Role.PERUNADMIN);
+	private final static List<String> authorizedDefaultReadRoles = List.of(Role.PERUNADMIN, Role.PERUNADMINBA, Role.PERUNOBSERVER, Role.RPC, Role.ENGINE);
+	private final static List<String> authorizedDefaultWriteRoles = List.of(Role.PERUNADMIN, Role.PERUNADMINBA);
 
 	/**
 	 * Prepare necessary structures and resolve access rights for the session's principal.
@@ -446,6 +446,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return true;
 		}
 
+		// This is same as PERUNADMIN but skips MFA
+		if (sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMINBA)) {
+			return true;
+		}
+
 		// If user doesn't have requested role, deny request
 		if (!sess.getPerunPrincipal().getRoles().hasRole(role)) {
 			return false;
@@ -521,6 +526,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		// Perun admin can do anything
 		if (sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)) {
+			return true;
+		}
+
+		// This is same as PERUNADMIN but skips MFA
+		if (sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMINBA)) {
 			return true;
 		}
 
@@ -1951,7 +1961,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for setting role
-	 * @param role                role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | SECURITYADMIN | RESOURCESELFSERVICE | RESOURCEADMIN )
+	 * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | SECURITYADMIN | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, String role) throws AlreadyAdminException, RoleCannotBeManagedException {
@@ -1985,7 +1995,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param authorizedGroup     the group for setting role
-	 * @param role                role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
+	 * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, String role) throws AlreadyAdminException, RoleCannotBeManagedException {
@@ -2021,7 +2031,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for unsetting role
-	 * @param role                role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
+	 * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObject object for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, String role) throws UserNotAdminException, RoleCannotBeManagedException {
@@ -2315,7 +2325,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return true if the perun principal is perun admin.
 	 */
 	public static boolean isPerunAdmin(PerunSession sess) {
-		return sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN);
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN) || sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMINBA);
 	}
 
 	/**

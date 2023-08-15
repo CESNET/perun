@@ -1314,6 +1314,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isUserPerunAdmin(PerunSession sess, User user) {
 		return getUsersManagerImpl().isUserPerunAdmin(sess, user);
 	}

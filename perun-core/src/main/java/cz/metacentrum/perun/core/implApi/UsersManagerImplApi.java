@@ -778,6 +778,7 @@ public interface UsersManagerImplApi {
 	 * @return true if the user is PERUNADMIN, false otherwise.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	boolean isUserPerunAdmin(PerunSession sess, User user);
 
 	/**
