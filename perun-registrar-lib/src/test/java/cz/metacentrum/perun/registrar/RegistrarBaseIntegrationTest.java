@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -786,6 +787,73 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		registrarManager.addGroupsToAutoRegistration(session, List.of(group2), embeddedGroupsItem);
 
 		assertEquals(List.of(group2), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+	}
+
+	@Test (expected=RelationExistsException.class)
+	public void deleteAttributeRelatedToVoFormAsDestAttr() throws Exception {
+		System.out.println("RegistrarManager.deleteAttributeRelatedToFormAsDestAttr");
+
+		Vo vo = perun.getVosManagerBl().createVo(session, new Vo(0, "voTest", "voTest"));
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setDescription("attributesManagerTestAttrDef");
+		attrDef.setFriendlyName("attrDef");
+		attrDef.setNamespace("urn:perun:member:attribute-def:opt");
+		attrDef.setType(String.class.getName());
+		perun.getAttributesManager().createAttribute(session, attrDef);
+
+		ApplicationFormItem item = new ApplicationFormItem();
+		item.setShortname("displayName");
+		item.setPerunDestinationAttribute("urn:perun:member:attribute-def:opt:attrDef");
+		item.setType(ApplicationFormItem.Type.TEXTFIELD);
+		item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+		item.setUpdatable(false);
+		item.setRequired(true);
+		registrarManager.addFormItem(session, form, item);
+
+		perun.getAttributesManager().deleteAttribute(session, attrDef);
+	}
+
+	@Test (expected=RelationExistsException.class)
+	public void deleteAttributeRelatedToGroupFormAsSrcAttr() throws Exception {
+		System.out.println("RegistrarManager.deleteAttributeRelatedToFormAsDestAttr");
+
+		Vo vo = perun.getVosManagerBl().createVo(session, new Vo(0, "voTest", "voTest"));
+		Group group = perun.getGroupsManagerBl().createGroup(session, vo, new Group("testGroup", "testGroup description"));
+		registrarManager.createApplicationFormInGroup(session, group);
+		ApplicationForm groupForm = registrarManager.getFormForGroup(group);
+
+		Group group2 = perun.getGroupsManagerBl().createGroup(session, vo, new Group("testGroup2", "testGroup2 description"));
+		registrarManager.createApplicationFormInGroup(session, group2);
+		ApplicationForm groupForm2 = registrarManager.getFormForGroup(group2);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setDescription("attributesManagerTestAttrDef");
+		attrDef.setFriendlyName("attrDef");
+		attrDef.setNamespace("urn:perun:member:attribute-def:opt");
+		attrDef.setType(String.class.getName());
+		perun.getAttributesManager().createAttribute(session, attrDef);
+
+		ApplicationFormItem item = new ApplicationFormItem();
+		item.setShortname("displayName");
+		item.setPerunSourceAttribute("urn:perun:member:attribute-def:opt:attrDef");
+		item.setType(ApplicationFormItem.Type.TEXTFIELD);
+		item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+		item.setUpdatable(false);
+		item.setRequired(true);
+		registrarManager.addFormItem(session, groupForm, item);
+
+		ApplicationFormItem item2 = new ApplicationFormItem();
+		item2.setShortname("displayName2");
+		item2.setPerunDestinationAttribute("urn:perun:member:attribute-def:opt:attrDef");
+		item2.setType(ApplicationFormItem.Type.TEXTFIELD);
+		item2.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+		item2.setUpdatable(false);
+		item2.setRequired(true);
+		registrarManager.addFormItem(session, groupForm2, item2);
+
+		perun.getAttributesManager().deleteAttribute(session, attrDef);
 	}
 
 	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)

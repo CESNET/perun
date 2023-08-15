@@ -1450,6 +1450,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * set for any entity
 	 *
 	 * @param attribute int AttributeDefinition <code>id</code>
+	 * @throw RelationExistsException When attribute definition has any relation to some application form item or to some service as a required attribute
 	 */
 	deleteAttribute {
 

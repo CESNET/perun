@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongModuleTypeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.utils.graphs.Graph;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 
@@ -1974,9 +1975,10 @@ public interface AttributesManagerBl {
 	 *
 	 * @param sess
 	 * @param attributeDefinition
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws InternalErrorException 	if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws RelationExistsException 	if attribute definition has any relation to some application form item or to some service as a required attribute
 	 */
-	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition);
+	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition) throws RelationExistsException;
 
 	/**
 	 * Delete all authz for the attribute.
@@ -4867,5 +4869,23 @@ public interface AttributesManagerBl {
 	 * @return list of namespaces
 	 */
 	List<String> getAllNamespaces(PerunSession sess);
+
+	/**
+	 * Returns all application forms where the given attribute definition is a source or a destination attribute for any application from item
+	 * @param sess session
+	 * @param attr attribute definition
+	 * @return list of application forms where the given attribute definition has relation to any application form item
+	 */
+	List<ApplicationForm> getAppFormsWhereAttributeRelated(PerunSession sess, AttributeDefinition attr);
+
+	/**
+	 * Returns list of app form items' shortnames for which the given attribute is a source or a destination attribute in the given application form
+	 *
+	 * @param sess session
+	 * @param appFormId id of application form
+	 * @param attr attribute definition
+	 * @return list of shortnames
+	 */
+	List<String> getAppFormItemsForAppFormAndAttribute(PerunSession sess, int appFormId, AttributeDefinition attr);
 }
 
