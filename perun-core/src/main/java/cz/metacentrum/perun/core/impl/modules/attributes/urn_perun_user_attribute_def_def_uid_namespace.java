@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.impl.PerunLocksUtils;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -108,8 +109,9 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		}
 
 		SortedSet<Integer> values = new TreeSet<>();
-
-		// Get all attributes urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], then we can get the new UID
+		// lock attribute to ensure unique values
+		PerunLocksUtils.lockAttribute(attribute);
+		// Get all attributes urn:perun:user:attribute-def:def:uid-namespace:[uid-namespace], then we can get the new UID
 		List<Attribute> uidAttributes = sess.getPerunBl().getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attribute);
 		for (Attribute uidAttribute: uidAttributes) {
 			if(uidAttribute.getValue() != null) values.add((Integer) uidAttribute.getValue());
