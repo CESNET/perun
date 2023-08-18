@@ -64,7 +64,7 @@
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.5.0</commons-cli.version>
 		<commons-text.version>1.10.0</commons-text.version>
-		<docker-java.version>3.3.2</docker-java.version>
+		<docker-java.version>3.3.3</docker-java.version>
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.10</expiringmap.version>
