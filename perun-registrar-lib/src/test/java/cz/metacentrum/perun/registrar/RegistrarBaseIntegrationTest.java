@@ -564,6 +564,29 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
+	public void doNotAllowUpdateDestinationAttribute() throws Exception {
+		User user = setUpUser("User", "Test");
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationFormItem savedItem = new ApplicationFormItem();
+		savedItem.setShortname("item");
+		savedItem.setPerunDestinationAttribute("saved");
+		registrarManager.addFormItem(session, form, savedItem);
+
+		List<ApplicationFormItem> items = registrarManager.getFormItems(session, registrarManager.getFormForVo(vo));
+		assertThat(items).hasSize(1);
+
+		Application application = prepareApplicationToVo(user);
+		registrarManager.submitApplication(session, application, new ArrayList<>());
+
+		List<Application> applications = registrarManager.getApplicationsForVo(session, vo, null, true);
+		assertThat(items).hasSize(1);
+
+		savedItem.setPerunDestinationAttribute("updated");
+		assertThrows(OpenApplicationExistsException.class, () -> registrarManager.updateFormItems(session, form, List.of(savedItem)));
+	}
+
+	@Test
 	public void saveDependencyOnUnsavedItemWithTempId() throws Exception {
 		ApplicationForm form = registrarManager.getFormForVo(vo);
 

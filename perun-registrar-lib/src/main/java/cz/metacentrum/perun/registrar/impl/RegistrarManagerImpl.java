@@ -59,6 +59,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.OpenApplicationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -1109,6 +1110,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		prepareIdsMapping(items, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
 
+		List<String> openStates = List.of(AppState.NEW.toString(), AppState.VERIFIED.toString());
+		List<Application> existingOpenApplications = form.getGroup() == null ? getApplicationsForVo(sess, form.getVo(), openStates, false) : getApplicationsForGroup(sess, form.getGroup(), openStates);
+
 		int finalResult = 0;
 		for (ApplicationFormItem item : items) {
 
@@ -1149,6 +1153,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			String oldname = jdbc.queryForObject("select shortname from application_form_items where id=" + item.getId(), String.class);
 
 			// else update form item
+
+			// Check that if the destination attribute was changed then there are no open applications
+			if (!Objects.equals(getFormItemById(sess, item.getId()).getPerunDestinationAttribute(), item.getPerunDestinationAttribute()) && !existingOpenApplications.isEmpty()) {
+				throw new OpenApplicationExistsException("It is impossible to change the destination attribute of the form item while some open applications still exist. First, please resolve these applications.");
+			}
 
 			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?," +
 							"fed_attr=?,src_attr=?,dst_attr=?,regex=?,updatable=?,hidden=?::app_item_hidden,disabled=?::app_item_disabled,hidden_dependency_item_id=?," +
