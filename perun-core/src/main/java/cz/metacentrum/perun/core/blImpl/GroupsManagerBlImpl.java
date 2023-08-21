@@ -6084,4 +6084,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) {
 		return this.groupsManagerImpl.getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo);
 	}
+
+	@Override
+	public List<Group> getGroupsWhereUserIsActiveMember(PerunSession sess, User user, Vo vo) {
+		List<Group> groups = this.groupsManagerImpl.getGroupsWhereUserIsActiveMember(sess, user, vo);
+		groups.removeIf(g -> VosManager.MEMBERS_GROUP.equals(g.getName()));
+		return groups;
+	}
 }

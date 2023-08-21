@@ -2216,6 +2216,15 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getGroupsWhereUserIsActiveMember_User_Vo_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   getRichGroupsAssignedToResourceWithAttributesByNames_Resource_List<String>_policy:
     policy_roles:
       - RESOURCESELFSERVICE: Resource
