@@ -1617,7 +1617,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException {
+	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 

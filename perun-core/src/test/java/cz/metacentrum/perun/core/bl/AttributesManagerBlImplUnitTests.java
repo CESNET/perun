@@ -6,14 +6,13 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
+import cz.metacentrum.perun.core.blImpl.ServicesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_loa;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_userCertDNs;
@@ -73,6 +72,7 @@ public class AttributesManagerBlImplUnitTests {
 	 * Use when you need to mock only some methods.
 	 */
 	private final AttributesManagerBlImpl attrManagerBlImplMock = mock(AttributesManagerBlImpl.class);
+	private final ServicesManagerBlImpl serviceManagerBlImplMock = mock(ServicesManagerBlImpl.class);
 
 	private final AttributesManagerImpl attrManagerImplMock = mock(AttributesManagerImpl.class);
 	private final PerunSession sessionMock = mock(PerunSession.class);
@@ -348,6 +348,9 @@ public class AttributesManagerBlImplUnitTests {
 		Set<AttributeDefinition> allDefinitions = Collections.singleton(A);
 		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
+		// enable deletion of attribute with relation to service
+		mockEnableAttributeDeletionWithRelationToService(A);
+
 		// delete attribute
 		attrManagerBlImpl.deleteAttribute(sessionMock, A);
 
@@ -381,6 +384,9 @@ public class AttributesManagerBlImplUnitTests {
 		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
 		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
+		// enable deletion of attribute with relation to service
+		mockEnableAttributeDeletionWithRelationToService(B);
+
 		attrManagerBlImpl.deleteAttribute(sessionMock, B);
 
 		Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
@@ -404,6 +410,9 @@ public class AttributesManagerBlImplUnitTests {
 		setUpVirtualModuleMock(B, Collections.emptyList(), Collections.emptyList());
 		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
 		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		// enable deletion of attribute with relation to service
+		mockEnableAttributeDeletionWithRelationToService(B);
 
 		attrManagerBlImpl.deleteAttribute(sessionMock, B);
 
@@ -429,6 +438,9 @@ public class AttributesManagerBlImplUnitTests {
 		setUpModuleMock(A, Collections.emptyList());
 		Set<AttributeDefinition> allDefinitions = Collections.singleton(A);
 		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		// enable deletion of attribute with relation to service
+		mockEnableAttributeDeletionWithRelationToService(A);
 
 		assertThatExceptionOfType(RuntimeException.class)
 			.isThrownBy(() -> attrManagerBlImpl.deleteAttribute(sessionMock, A));
@@ -468,6 +480,9 @@ public class AttributesManagerBlImplUnitTests {
 		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
 		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
+		// enable deletion of attribute with relation to service
+		mockEnableAttributeDeletionWithRelationToService(B);
+
 		assertThatExceptionOfType(RuntimeException.class)
 			.isThrownBy(() -> attrManagerBlImpl.deleteAttribute(sessionMock, B));
 
@@ -497,6 +512,9 @@ public class AttributesManagerBlImplUnitTests {
 		setUpVirtualModuleMock(B, Collections.emptyList(), Collections.emptyList());
 		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
 		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		// enable deletion of attribute with relation to service
+		mockEnableAttributeDeletionWithRelationToService(B);
 
 		assertThatExceptionOfType(RuntimeException.class)
 			.isThrownBy(() -> attrManagerBlImpl.deleteAttribute(sessionMock, B));
@@ -693,5 +711,18 @@ public class AttributesManagerBlImplUnitTests {
 		Method method = AttributesManagerBlImpl.class.getDeclaredMethod(methodName, argClasses);
 		method.setAccessible(true);
 		return method;
+	}
+
+	/**
+	 * Mock the getServicesByAttributeDefinition method for the given attribute to return an empty list
+	 * This way we want to enable mocked deletion also for attribute which is required for any service
+	 *
+	 * @param attr attribute definition which should be deleted
+	 */
+	private void mockEnableAttributeDeletionWithRelationToService(AttributeDefinition attr) {
+		PerunBl perunBl = attrManagerBlImpl.getPerunBl();
+		when(perunBl.getServicesManagerBl()).thenReturn(serviceManagerBlImplMock);
+		when(serviceManagerBlImplMock.getServicesByAttributeDefinition(eq(sessionMock), eq(attr)))
+			.thenReturn(Collections.emptyList());
 	}
 }

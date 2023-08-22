@@ -1730,10 +1730,11 @@ public interface AttributesManager {
 	 * <p>
 	 * PRIVILEGE: Only PerunAdmin can delete existing attribute.
 	 *
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException     if privileges are not given
+	 * @throws InternalErrorException 	if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException     	if privileges are not given
+	 * @throws RelationExistsException 	if attribute definition has any relation to some application form item or to some service as a required attribute
 	 */
-	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition) throws PrivilegeException, AttributeNotExistsException;
+	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition) throws PrivilegeException, AttributeNotExistsException, RelationExistsException;
 
 	/**
 	 * Deletes the attribute.

@@ -5874,6 +5874,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test (expected=RelationExistsException.class)
+	public void deleteAttributeRequiredForService() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeRequiredForService");
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setDescription("attributesManagerTestAttrDef");
+		attrDef.setFriendlyName("attrDef");
+		attrDef.setNamespace("urn:perun:member:attribute-def:opt");
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+
+		Service service = setUpService();
+		Service service2 = setUpService2();
+		
+		perun.getServicesManager().addRequiredAttribute(sess, service, attrDef);
+		perun.getServicesManager().addRequiredAttribute(sess, service2, attrDef);
+
+		attributesManager.deleteAttribute(sess, attrDef);
+	}
+
 	@Ignore
 	@Test (expected=RelationExistsException.class)
 	public void deleteAttributeWhenRelationExists() throws Exception {

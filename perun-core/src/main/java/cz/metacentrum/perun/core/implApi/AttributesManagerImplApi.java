@@ -37,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
 
 import java.util.HashMap;
 import java.util.List;
@@ -2816,4 +2817,22 @@ public interface AttributesManagerImplApi {
 	 * @return list of namespaces
 	 */
 	List<String> getAllNamespaces(PerunSession sess);
+
+	/**
+	 * Returns all application forms where the given attribute definition is a source or a destination attribute for any application from item
+	 * @param sess session
+	 * @param attr attribute definition
+	 * @return list of application forms where the given attribute definition has relation to any application form item
+	 */
+	List<ApplicationForm> getAppFormsWhereAttributeRelated(PerunSession sess, AttributeDefinition attr);
+
+	/**
+	 * Returns list of app form items' shortnames for which the given attribute is a source or a destination attribute in the given application form
+	 *
+	 * @param sess session
+	 * @param appFormId id of application form
+	 * @param attr attribute definition
+	 * @return list of shortnames
+	 */
+	List<String> getAppFormItemsForAppFormAndAttribute(PerunSession sess, int appFormId, AttributeDefinition attr);
 }
