@@ -507,6 +507,13 @@ public interface UsersManagerImplApi {
 	void unblockLoginsById(PerunSession sess, List<Integer> loginIds);
 
 	/**
+	 * Unblock all logins for given namespace
+	 * @param sess PerunSession
+	 * @param namespace Namespace or null for globally blocked
+	 */
+	void unblockLoginsForNamespace(PerunSession sess, String namespace);
+
+	/**
 	 * Get blocked login by id
 	 *
 	 * @param sess session
@@ -808,6 +815,13 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void deleteUsersReservedLogins(User user);
+
+	/**
+	 * Deletes all reserved logins in given namespace
+	 * @param sess PerunSession
+	 * @param namespace Namespace
+	 */
+	void deleteReservedLoginsForNamespace(PerunSession sess, String namespace);
 
 	/**
 	 * Delete all applications and submitted data for specific user.

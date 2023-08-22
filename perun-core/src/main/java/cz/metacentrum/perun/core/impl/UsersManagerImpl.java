@@ -1338,6 +1338,21 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public void unblockLoginsForNamespace(PerunSession sess, String namespace) {
+		try {
+			if (namespace == null) {
+				jdbc.update("delete from blocked_logins where namespace is null");
+				log.info("All globally blocked logins were unblocked");
+			} else {
+				jdbc.update("delete from blocked_logins where namespace=?", namespace);
+				log.info("All logins for namespace {} were unblocked", namespace);
+			}
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public BlockedLogin getBlockedLoginById(PerunSession sess, int id) throws LoginIsNotBlockedException {
 		try {
 			return jdbc.queryForObject("SELECT id, login, namespace FROM blocked_logins WHERE id=?", BLOCKED_LOGINS_MAPPER, id);
@@ -1473,6 +1488,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 
+	}
+
+	@Override
+	public void deleteReservedLoginsForNamespace(PerunSession sess, String namespace) {
+		try {
+			jdbc.update("delete from application_reserved_logins where namespace=?", namespace);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override

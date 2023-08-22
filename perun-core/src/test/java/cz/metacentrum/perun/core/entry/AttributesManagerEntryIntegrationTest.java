@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BlockedLogin;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -5414,6 +5415,30 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			}
 		}
 	}
+
+	@Test
+	public void deleteLoginNamespaceAttributeFreesLogins() throws Exception {
+		System.out.println(CLASS_NAME + "deleteLoginNamespaceAttributeFreesLogins");
+
+		String deleteNamespace = "toDelete";
+		BlockedLogin del = new BlockedLogin("login1", deleteNamespace);
+		perun.getUsersManagerBl().blockLogins(sess, List.of(del.getLogin()), deleteNamespace, null);
+		String otherNamespace = "other";
+		BlockedLogin other = new BlockedLogin("login2", "other");
+		perun.getUsersManagerBl().blockLogins(sess, List.of(other.getLogin()), otherNamespace, null);
+		System.out.println(perun.getUsersManagerBl().getAllBlockedLoginsInNamespaces(sess));
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setFriendlyName("login-namespace:" + deleteNamespace);
+		attrDef.setNamespace("urn:perun:user:attribute-def:def");
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+		attributesManager.deleteAttribute(sess, attrDef);
+
+		List<BlockedLogin> blocked = perun.getUsersManagerBl().getAllBlockedLoginsInNamespaces(sess);
+		assertThat(blocked).containsOnly(other);
+	}
+
 
 	@Test
 	public void testConvertingToUniqAttribute() throws Exception {
