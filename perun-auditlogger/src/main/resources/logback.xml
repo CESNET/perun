@@ -2,18 +2,12 @@
 
 	<contextName>perun-auditlogger</contextName>
 
-	<!-- variables defining the destination for syslog messages -->
-	<variable name="SYSLOG_HOST" value="${auditlogger.syslog.host:-localhost}" />
-	<variable name="SYSLOG_FACILITY" value="${auditlogger.syslog.facility:-LOCAL0}" />
-
 	<!-- variable defining the directory where log files will be put, takes system property perun.log -->
 	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}" />
 
 	<!-- production setting for format of log lines -->
 	<variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
 
-	<!-- variables configuring syslog parameters -->
-	
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-auditlogger">
 		<file>${LOGDIR}perun-auditlogger.log</file>
 		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
@@ -28,24 +22,27 @@
 		</encoder>
 	</appender>
 
-	<appender class="ch.qos.logback.classic.net.SyslogAppender" name="syslog-appender">
-	    <syslogHost>${SYSLOG_HOST}</syslogHost>
-    	<facility>${SYSLOG_FACILITY}</facility>
-    	<suffixPattern>%msg</suffixPattern>
-    	<throwableExcluded>true</throwableExcluded>
-	</appender>
-	
 	<root level="info">
 		<appender-ref ref="perun-auditlogger"/>
 	</root>
 
 	<logger name="cz.metacentrum.perun.auditlogger" level="debug"/>
-	
-	<logger name="syslog-logger" level="debug" additivity="false">
-		<appender-ref ref="syslog-appender" />
-	</logger>
 
 	<!-- keep Spring quiet -->
 	<logger name="org.springframework" level="warn"/>
+
+	<!-- Actual audit messages logging -->
+	<appender class="org.gnieh.logback.SystemdJournalAppender" name="journal-audit">
+		<syslogIdentifier>perun_audit</syslogIdentifier>
+		<logLoggerName>true</logLoggerName>
+		<logStacktrace>false</logStacktrace>
+		<encoder>
+			<pattern>%msg</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="journal-audit" level="info" additivity="false">
+		<appender-ref ref="journal-audit" />
+	</logger>
 
 </configuration>

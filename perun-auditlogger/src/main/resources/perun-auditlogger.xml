@@ -28,8 +28,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="defaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
 			<props>
-				<prop key="auditlogger.syslog.host">localhost</prop>
-				<prop key="auditlogger.syslog.facility">LOCAL0</prop>
+				<prop key="auditlogger.consumer">auditlogger</prop>
+				<prop key="auditlogger.statefile">./perun-auditlogger-last-state</prop>
 			</props>
 		</property>
 	</bean>
