@@ -52,7 +52,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
 	@Override
 	public List<SecurityTeam> getSecurityTeams(PerunSession sess) {
-		if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
+		if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN) || AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMINBA)) {
 			return getSecurityTeamsManagerImpl().getAllSecurityTeams(sess);
 		} else if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.SECURITYADMIN)) {
 

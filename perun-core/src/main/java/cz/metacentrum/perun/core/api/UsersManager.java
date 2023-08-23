@@ -971,6 +971,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	boolean isUserPerunAdmin(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException;
 
 	/**

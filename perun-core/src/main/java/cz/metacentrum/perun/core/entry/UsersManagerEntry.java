@@ -1096,6 +1096,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isUserPerunAdmin(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 

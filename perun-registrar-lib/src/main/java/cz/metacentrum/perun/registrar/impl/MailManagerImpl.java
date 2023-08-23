@@ -579,7 +579,7 @@ public class MailManagerImpl implements MailManager {
 		if (mail == null) throw new RegistrarException("Notification template for "+mailType+" is not defined.");
 		if (!mail.getSend()) throw new RegistrarException("Sending of notification "+mailType+" is disabled.");
 
-		if (!AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
+		if (!(AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN) || AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMINBA))) {
 			if (MailType.APP_ERROR_VO_ADMIN.equals(mailType)) {
 				throw new RegistrarException("APP_ERROR_VO_ADMIN notification can't be sent this way, since it's bound to each approval process. Try to approve application once again to receive this message.");
 			}

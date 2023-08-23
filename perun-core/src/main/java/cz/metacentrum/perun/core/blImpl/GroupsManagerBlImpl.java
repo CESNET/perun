@@ -223,7 +223,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//set creator as group admin unless he already have authz right on the group (he is VO admin or this is "members" group of VO)
 		User user = sess.getPerunPrincipal().getUser();
 		if(user != null) {   //user can be null in tests
-			if(!sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)
+			if(!AuthzResolverBlImpl.isPerunAdmin(sess)
 				&& !sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, vo)
 				&& !VosManager.MEMBERS_GROUP.equals(group.getName())) {
 				try {
@@ -2832,7 +2832,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		for(RichGroup richGroup : richGroups) {
 			String key = "";
-			if (sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)) {
+			if (AuthzResolverBlImpl.isPerunAdmin(sess)) {
 				key = "VOADMINVOOBSERVERGROUPADMINFACILITYADMIN";
 			} else {
 				String voadmin = ((sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, richGroup) ? "VOADMIN" : ""));
