@@ -22,20 +22,19 @@
 					"types": [
 						{
 							"type": "feat",
-							"section": "New features and notable changes",
 							"hidden": false
 						},
 						{
 							"type": "fix",
-							"hidden": true
+							"hidden": false
 						},
 						{
 							"type": "perf",
-							"hidden": true
+							"hidden": false
 						},
 						{
 							"type": "revert",
-							"hidden": true
+							"hidden": false
 						},
 						{
 							"type": "docs",
