@@ -10,6 +10,6 @@
 		":semanticCommits",
 		":enableVulnerabilityAlertsWithLabel(security)"
 	],
-	"minimumReleaseAge": 3,
+	"minimumReleaseAge": "3 days",
 	"osvVulnerabilityAlerts": true
 }
