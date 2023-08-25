@@ -568,6 +568,7 @@ public class ApiCaller {
 	private PerunBean getBeanFromDatabase(PerunBean object) throws PerunException {
 		switch(object.getBeanName()) {
 			case "Group":
+			case "RichGroup":
 				return getGroupById(object.getId());
 			case "Vo":
 				return getVoById(object.getId());
