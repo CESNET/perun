@@ -16,7 +16,7 @@ sub help {
 	--groupId        | -g group id
 	--autApproval    | -a automatic approval (1/0)
 	--autApprovalExt | -e automatic approval extension (1/0)
-	--moduleName     | -n name of module
+	--moduleNames    | -n name of module, can be specified multiple times
 	--batch          | -b batch
 	--help           | -h prints this help
 
@@ -24,17 +24,17 @@ sub help {
 }
 
 our $batch;
-my ($voId, $groupId, $moduleName, $app, $appE);
+my ($voId, $groupId, @moduleNames, $app, $appE);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
 	},
-	"batch|b"            => \$batch,
-	"voId|g=i"           => \$voId,
-	"groupId|g=i"        => \$groupId,
-	"autApproval|a=s"    => \$app,
-	"autApprovalExt|e=s" => \$appE,
-	"moduleName|n=s"     => \$moduleName ) || die help();
+	"batch|b"              => \$batch,
+	"voId|g=i"             => \$voId,
+	"groupId|g=i"          => \$groupId,
+	"autApproval|a=s"      => \$app,
+	"autApprovalExt|e=s"   => \$appE,
+	'moduleNames|n=s@{1,}' => \@moduleNames ) || die help();
 
 # Check options
 if (not defined $groupId and not defined $voId) { die "ERROR: voId or groupId is required \n";}
@@ -56,9 +56,9 @@ if (defined $app) {
 if (defined $appE) {
 	$applicationForm->setAutomaticApprovalExtension($appE);
 }	
-if (defined $moduleName) {
-	$applicationForm->setModuleClassName($moduleName);
-}	
+if (defined \@moduleNames) {
+	$applicationForm->setModuleClassNames(\@moduleNames);
+}
 
 $registrarAgent->updateForm( form => $applicationForm );
 

@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
-import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -123,7 +122,7 @@ public class EscPithiaOrganizations extends DefaultRegistrarModule {
 			ApplicationForm newForm = null;
 			try {
 				newForm = registrar.getFormForGroup(organizationAdminsGroup);
-				newForm.setModuleClassName("EscPithiaOrganizationAdmins");
+				newForm.setModuleClassNames(List.of("EscPithiaOrganizationAdmins"));
 				registrar.updateForm(session, newForm);
 			} catch (PerunException e) {
 				throw new InternalErrorException("Can't set registration module to the admins groups!", e);

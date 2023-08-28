@@ -1021,7 +1021,10 @@ components:
         automaticApproval: { type: boolean }
         automaticApprovalExtension: { type: boolean }
         automaticApprovalEmbedded: { type: boolean }
-        moduleClassName: { type: string }
+        moduleClassNames:
+          type: array
+          items:
+            type: string
 
     Type:
       type: string
