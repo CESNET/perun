@@ -17205,6 +17205,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/isInvitationEnabled:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: isInvitationEnabled
+      summary: Checks if invitation is enabled (invitation notification exists, application form exists and application form can be submitted).
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/optionalGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ServicesManager                               #

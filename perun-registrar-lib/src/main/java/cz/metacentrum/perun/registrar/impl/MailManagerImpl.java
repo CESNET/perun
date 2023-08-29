@@ -861,6 +861,18 @@ public class MailManagerImpl implements MailManager {
 		return true;
 	}
 
+	public Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
+		// check that invitation form and invitation notification exist
+		if (!invitationFormExists(sess, vo, group)) {
+			return false;
+		}
+
+		// check that invitation form can be submitted
+		ApplicationForm form = getForm(vo, group);
+		List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(sess, form, AppType.INITIAL);
+		return applicationItems.stream().anyMatch(item -> item.getType().equals(ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON) || item.getType().equals(ApplicationFormItem.Type.SUBMIT_BUTTON));
+	}
+
 	/**
 	 * Retrieve mail definition from db by params.
 	 * Mail contains all texts.
@@ -2291,6 +2303,15 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private void sendInvitationMail(PerunSession sess, Vo vo, Group group, String email, String language,
 									MimeMessage message, Application app) throws RegistrarException {
+		try {
+			if (!isInvitationEnabled(sess, vo, group)) {
+				log.error("[MAIL MANAGER] Invite user: Application form is not setup correctly or invitation notification does not exist.");
+				throw new RegistrarException("Unable to invite user - application form is not setup correctly or invitation notification does not exist.");
+			}
+		} catch (PerunException ex) {
+			// ignore - this shouldn't happen thanks to the same authorization check earlier
+		}
+
 		try {
 			mailSender.send(message);
 			User sendingUser = sess.getPerunPrincipal().getUser();
