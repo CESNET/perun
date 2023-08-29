@@ -187,6 +187,25 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Checks if invitation is enabled (invitation notification exists, application form exists and application form can be submitted)
+	 *
+	 * @param vo Vo <code>id</code>
+	 * @param group Group <code>id</code>
+	 *
+	 * @return true if invitation notification exists, application form exists and application form can be submitted
+	 */
+	isInvitationEnabled {
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getRegistrarManager().getMailManager().isInvitationEnabled(
+				ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null
+			);
+		}
+	},
+
+	/*#
 	 * Send invitations with link to VO / Group application form from provided csv data
 	 *
 	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
