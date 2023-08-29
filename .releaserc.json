@@ -124,6 +124,9 @@
 						"path": "perun-ldapc/target/perun-ldapc.jar"
 					},
 					{
+						"path": "perun-auditlogger/target/perun-auditlogger.jar"
+					},
+					{
 						"path": "perun-web-gui/target/perun-web-gui.war"
 					},
 					{
