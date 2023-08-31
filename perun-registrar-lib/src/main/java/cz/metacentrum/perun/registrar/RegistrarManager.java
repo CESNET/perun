@@ -371,6 +371,15 @@ public interface RegistrarManager {
 	Application approveApplication(PerunSession session, int appId) throws PerunException;
 
 	/**
+	 * Manually approves multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param sess perun session
+	 * @param applicationIds list of application IDs
+	 * @throws PerunException
+	 */
+	void approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException;
+
+	/**
 	 * Approves an application in one transaction.
 	 *
 	 * @param session who approves the application

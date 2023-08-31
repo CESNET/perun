@@ -860,6 +860,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Manually approve multiple applications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	approveApplications {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getRegistrarManager().approveApplications(ac.getSession(), parms.readList("ids", Integer.class));
+			return null;
+		}
+
+	},
+
+	/*#
 	 * Check if application can be approved based on form module rules. Throws exception if not.
 	 * Expected to be called from Web UI before actual approving happens, so VO admin
 	 * can override this default behavior.
