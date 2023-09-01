@@ -2997,13 +2997,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new MissingRequiredDataException("The administrator set up this form wrongly OR you don't match any conditions OR your IDP doesn't provide data required by this application form.", itemsWithMissingData);
 		}
 
-		itemsWithValues.stream()
-			.filter(item -> item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION)
-			.forEach(item -> setGroupsToCheckBoxForGroups(sess, item, vo, group));
+		Iterator<ApplicationFormItemWithPrefilledValue> itemsIt = itemsWithValues.iterator();
+		while (itemsIt.hasNext()) {
+			ApplicationFormItemWithPrefilledValue item = itemsIt.next();
+			// Process only EMBEDDED_GROUP_APPLICATION items in this block
+			if (item.getFormItem().getType() != EMBEDDED_GROUP_APPLICATION) {
+				continue;
+			}
+			// Generate options for EMBEDDED_GROUP_APPLICATION items.
+			setGroupsToCheckBoxForGroups(sess, item, user, vo, group);
+			// If the item has no options for the user to offer (bcs user is already member in all possible options,
+			// remove it from the form completely
+			if (StringUtils.isBlank(item.getFormItem().getI18n().get(ApplicationFormItem.EN).getOptions())) {
+				it.remove();
+			}
+		}
 
 		// return prefilled form
 		return itemsWithValues;
-
 	}
 
 	private List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess) {
@@ -3022,16 +3033,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	/**
 	 * To the given EMBEDDED_GROUP_APPLICATION item, sets options of allowed groups.
-	 *
 	 * Example format:
 	 * 111#GroupA|222#GroupB
 	 *
-	 * @param sess session
-	 * @param item item, to which the group options will be set, only EMBEDDED_GROUP_APPLICATION is supported
-	 * @param vo vo, from which the groups for auto registration are taken
+	 * @param sess              session
+	 * @param item              item, to which the group options will be set, only EMBEDDED_GROUP_APPLICATION is supported
+	 * @param user
+	 * @param vo                vo, from which the groups for auto registration are taken
 	 * @param registrationGroup group, from which the subgroups for auto registration are taken - if not null, then it is a group application
 	 */
-	private void setGroupsToCheckBoxForGroups(PerunSession sess, ApplicationFormItemWithPrefilledValue item, Vo vo, Group registrationGroup) {
+	private void setGroupsToCheckBoxForGroups(PerunSession sess, ApplicationFormItemWithPrefilledValue item, User user, Vo vo, Group registrationGroup) {
 		if (item.getFormItem().getType() != EMBEDDED_GROUP_APPLICATION) {
 			throw new InternalErrorException("Group options can be set only to the EMBEDDED_GROUP_APPLICATION item.");
 		}
@@ -3042,10 +3053,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo, item.getFormItem());
 		}
 
-		String groupOptions = groups.stream()
-			.sorted(Comparator.comparing(Group::getName))
-			.map(group -> group.getId() + "#" + group.getName())
-			.collect(Collectors.joining("|"));
+		if (user != null) {
+			List<Group> userGroups = groupsManager.getGroupsWhereUserIsActiveMember(sess, user, vo);
+			groups = groups.stream().filter(g -> !userGroups.contains(g)).collect(Collectors.toList());
+		}
+
+		String groupOptions = null;
+		if (!groups.isEmpty()) {
+			groupOptions = groups.stream()
+				.sorted(Comparator.comparing(Group::getName))
+				.map(group -> group.getId() + "#" + group.getName())
+				.collect(Collectors.joining("|"));
+		}
 
 		if (ApplicationFormItem.CS != null) {
 			item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);

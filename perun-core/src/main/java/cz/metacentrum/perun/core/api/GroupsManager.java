@@ -1513,4 +1513,14 @@ public interface GroupsManager {
 	 * @throws PrivilegeException if unauthorized
 	 */
 	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns groups in which the user is active member. Groups are looked up only for the specified VO
+	 * @param session session
+	 * @param user user object
+	 * @param vo VO object
+	 * @return List of groups
+	 */
+	List<Group> getGroupsWhereUserIsActiveMember(PerunSession session, User user, Vo vo) throws VoNotExistsException, UserNotExistsException, PrivilegeException;
+
 }

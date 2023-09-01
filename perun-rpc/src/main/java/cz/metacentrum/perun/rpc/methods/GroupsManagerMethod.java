@@ -1881,6 +1881,28 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns all user's groups where user is in active state (is valid there) and are subgroups of the specified VO
+	 * Excluded members group.
+	 *
+	 * @throw UserNotExistsException When the user does not exist
+	 * @throw VoNotExistsException When the vo doesn't exist
+	 *
+	 * @param user int <code>id</code> of user
+	 * @param vo int <code>id</code> of vo in which groups are looked up
+	 * @return List<Group> Groups where user is in active state (valid), if the user is member of the given vo
+	 */
+	getGroupsWhereUserIsActiveMember {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupsWhereUserIsActiveMember(
+				ac.getSession(),
+				ac.getUserById(parms.readInt("user")),
+				ac.getVoById(parms.readInt("vo"))
+			);
+		}
+	},
+
+	/*#
 	 * Return all members of the group who are active (valid) in the group.
 	 *
 	 * Do not return expired members of the group.

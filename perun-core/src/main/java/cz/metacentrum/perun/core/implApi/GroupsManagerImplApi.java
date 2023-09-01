@@ -1025,4 +1025,15 @@ public interface GroupsManagerImplApi {
 	 * @return list of allowed groups to hierarchical VO
 	 */
 	List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo);
+
+
+	/**
+	 * Returns groups in which the user is active member. Groups are looked up only for the specified VO.
+	 *
+	 * @param sess session
+	 * @param user user object
+	 * @param vo VO object
+	 * @return List of groups
+	 */
+	List<Group> getGroupsWhereUserIsActiveMember(PerunSession sess, User user, Vo vo);
 }

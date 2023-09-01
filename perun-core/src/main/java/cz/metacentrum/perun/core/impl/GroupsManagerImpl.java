@@ -1469,6 +1469,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Group> getGroupsWhereUserIsActiveMember(PerunSession sess, User user, Vo vo) {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups WHERE groups.vo_id=? AND groups.id IN " +
+				"(SELECT groups_members.group_id FROM groups_members WHERE groups_members.source_group_status = ? AND groups_members.member_id IN " +
+					"(SELECT members.id FROM members WHERE members.user_id = ? AND members.vo_id = ?))",
+				GROUP_MAPPER, vo.getId(), MemberGroupStatus.VALID.getCode(), user.getId(), vo.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	private String getSQLWhereForGroupsPage(GroupsPageQuery query, MapSqlParameterSource namedParams) {
 		if (isEmpty(query.getSearchString())) {
 			return "";

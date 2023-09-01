@@ -1746,4 +1746,18 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		return getGroupsManagerBl().getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo);
 	}
+
+	@Override
+	public List<Group> getGroupsWhereUserIsActiveMember(PerunSession sess, User user, Vo vo)
+		throws VoNotExistsException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsWhereUserIsActiveMember_User_Vo_policy", user, vo)) {
+			throw new PrivilegeException(sess, "getGroupsWhereUserIsActiveMember");
+		}
+
+		return getGroupsManagerBl().getGroupsWhereUserIsActiveMember(sess, user, vo);
+	}
 }
