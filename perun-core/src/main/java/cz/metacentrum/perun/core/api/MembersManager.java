@@ -987,6 +987,7 @@ public interface MembersManager {
 
 	/**
 	 *  Set status of the member to specified status.
+	 *  DOES NOT reject group applications, when setting expired status.
 	 *
 	 * @param sess
 	 * @param member

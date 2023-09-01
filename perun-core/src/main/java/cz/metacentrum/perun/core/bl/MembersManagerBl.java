@@ -1225,6 +1225,7 @@ public interface MembersManagerBl {
 
 	/**
 	 *  Set status of the member to specified status.
+	 *  DOES NOT reject group applications, when setting status EXPIRED
 	 *
 	 * @param sess
 	 * @param member

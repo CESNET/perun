@@ -26,6 +26,8 @@ import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler;
+import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +37,8 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -681,6 +684,66 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		eligibleAttr.setValue("2020-02-02 17:18:28"); //year to expire
 		perun.getAttributesManagerBl().setAttribute(session, user, eligibleAttr);
 		isCesnetEligibleNotLogged();
+	}
+
+	// Test when a user is set to EXPIRED in VO, all of his group applications are rejected
+	@Test
+	public void expireMemberInVoRejectsGroupApplications() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInVoRejectsGroupApplications");
+
+		// Create VO
+		Vo vo = new Vo(0, "testVo", "testVo");
+		vo = perun.getVosManagerBl().createVo(session, vo);
+
+		// Create Group
+		Group group = new Group("testGroup", "testGroup");
+		group = perun.getGroupsManagerBl().createGroup(session, vo, group);
+
+		// Create Member
+		User user = new User();
+		user.setFirstName("testFirstName");
+		user.setLastName("testLastName");
+
+		user = perun.getUsersManagerBl().createUser(session, user);
+		Member member = perun.getMembersManagerBl().createMember(session, vo, user);
+
+		// Create Group application form
+		registrarManager.createApplicationFormInGroup(session, group);
+
+		// Create application
+		Application application = new Application();
+		application.setExtSourceName("testExtSource");
+		application.setExtSourceType("testExtSourceType");
+		application.setExtSourceLoa(0);
+		application.setType(Application.AppType.INITIAL);
+		application.setGroup(group);
+		application.setUser(user);
+		application.setVo(vo);
+		application.setCreatedBy("testUser");
+		application.setCreatedAt(LocalDateTime.now().toString());
+
+		// Create form data
+		List<ApplicationFormItemData> data = new ArrayList<>();
+		ApplicationFormItemData itemData = new ApplicationFormItemData();
+		itemData.setShortname("email");
+		itemData.setValue("test@example.com");
+
+		registrarManager.submitApplication(session, application, data);
+
+		// Approve all applications
+		List<Application> applications = registrarManager.getApplicationsForGroup(session, group, new ArrayList<>());
+		for (Application app: applications) {
+			registrarManager.approveApplication(session, app.getId());
+		}
+
+		// Expire member
+		perun.getMembersManagerBl().setStatus(session, member, Status.EXPIRED);
+
+		// Check if all applications were rejected
+		applications = registrarManager.getApplicationsForGroup(session, group, new ArrayList<>());
+		for (Application app: applications) {
+			assertEquals("Application should be rejected", Application.AppState.REJECTED, app.getState());
+		}
 	}
 
 	private void isCesnetEligibleNotLogged() {

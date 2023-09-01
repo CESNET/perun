@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -1729,6 +1730,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Set membership status of a member.
+	 * Rejects all group applications of the member if the new status is EXPIRED.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param status String VALID | INVALID | EXPIRED | DISABLED
@@ -1742,7 +1744,20 @@ public enum MembersManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 
 			Status status = Status.valueOf(parms.readString("status"));
-			return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status);
+			PerunSession sess = ac.getSession();
+			Member member = ac.getMemberById(parms.readInt("member"));
+			// Set new status
+			member = ac.getMembersManager().setStatus(sess, member, status);
+			// Reject all applications for this member if member is expired
+			if (status != Status.EXPIRED) return member;
+			List<Group> groups = sess.getPerun().getGroupsManager().getMemberGroups(sess, member);
+			for (Group g : groups) {
+				List<Application> apps = ac.getRegistrarManager().getApplicationsForMember(sess, g, member);
+				for (Application app: apps) {
+					ac.getRegistrarManager().rejectApplication(sess, app.getId(), "Application is set to status REJECTED, because the member it is assigned to is in EXPIRED state.");
+				}
+			}
+			return member;
 		}
 	},
 
