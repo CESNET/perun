@@ -4,13 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -142,11 +146,21 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
 			throw new WrongAttributeAssignmentException("Attribute " + attribute + "is incorrectly assigned.");
 		}
 
-		Attribute mfaCategories = perunSession.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(perunSession, "mfaCategories").get(0);
-		String mfaSettingsValue = mfaCategories.valueAsString();
+
+		Attribute mfaCategory = null;
+		try {
+			Map<String, Attribute> mfaCategories = perunSession.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(perunSession, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":mfaCategories", Collections.singletonList("categories"));
+			mfaCategory = mfaCategories.get("categories");
+		} catch (AttributeNotExistsException e) {
+			throw new WrongReferenceAttributeValueException("Attribute mfa categories does not exist.");
+		}
+
+		if (mfaCategory == null) throw new WrongReferenceAttributeValueException("Attribute mfa categories does not have value for key categories.");
+
+		String mfaCategoryValue = mfaCategory.valueAsString();
 		try {
 			final ObjectMapper mapper = new ObjectMapper();
-			JsonNode mfaCategoriesNode = mapper.readTree(mfaSettingsValue).get("categories");
+			JsonNode mfaCategoriesNode = mapper.readTree(mfaCategoryValue);
 
 			// Iterate through categories and check that all included categories exist
 			for (Iterator<Map.Entry<String, JsonNode>> catIt = mfaCategoriesNode.fields(); catIt.hasNext(); ) {
@@ -171,7 +185,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
 				throw new WrongReferenceAttributeValueException("Rps " + excludeRps + " do not exist inside included categories in mfaCategories attribute.");
 			}
 		} catch (JsonProcessingException e) {
-			throw new WrongAttributeAssignmentException("Attribute " + mfaCategories + "is incorrectly assigned.");
+			throw new WrongAttributeAssignmentException("Attribute " + mfaCategory + "is incorrectly assigned.");
 		}
 	}
 
