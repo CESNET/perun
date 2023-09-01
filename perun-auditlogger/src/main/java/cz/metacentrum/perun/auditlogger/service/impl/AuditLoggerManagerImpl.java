@@ -20,18 +20,18 @@ public class AuditLoggerManagerImpl implements AuditLoggerManager {
 
 	private final static String DEFAULT_CONSUMER_NAME = "auditlogger";
 	private final static String DEFAULT_STATE_FILE = "./auditlogger.state";
-	
+
 	private Thread eventProcessorThread;
 	@Autowired
 	private EventLogger eventLogger;
-	@Autowired 
+	@Autowired
 	private Properties propertiesBean;
-	
+
 	private PerunPrincipal perunPrincipal;
 	private Perun perunBl;
 	private PerunSession perunSession;
 
-	
+
 	public void startProcessingEvents() {
 		eventProcessorThread = new Thread(eventLogger);
 		eventProcessorThread.start();
