@@ -1634,7 +1634,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public Application rejectApplication(PerunSession sess, int appId, String reason) throws PerunException {
 
 		Application app = getApplicationById(appId);
-		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
+		if (app == null) throw new RegistrarException("Application with ID=" + appId + " doesn't exists.");
 
 		//Authorization
 		if (app.getGroup() == null) {
@@ -1649,15 +1649,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// only VERIFIED applications can be rejected
 		if (AppState.APPROVED.equals(app.getState())) {
-			throw new RegistrarException("Approved application can't be rejected ! Try to refresh the view to see changes.");
+			throw new RegistrarException("Approved application " + appId + " can't be rejected ! Try to refresh the view to see changes.");
 		} else if (AppState.REJECTED.equals(app.getState())) {
-			throw new RegistrarException("Application is already rejected. Try to refresh the view to see changes.");
+			throw new RegistrarException("Application " + appId + " is already rejected. Try to refresh the view to see changes.");
 		}
 
 		// lock to prevent concurrent runs
 		synchronized(runningRejectApplication) {
 			if (runningRejectApplication.contains(appId)) {
-				throw new AlreadyProcessingException("Application rejection is already processing.");
+				throw new AlreadyProcessingException("Application " + appId + " rejection is already processing.");
 			} else {
 				runningRejectApplication.add(appId);
 			}
@@ -1722,6 +1722,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		}
 
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException {
+		Collections.sort(applicationIds, Collections.reverseOrder());
+		for (Integer id : applicationIds) {
+			rejectApplication(sess, id, reason);
+		}
 	}
 
 	/**

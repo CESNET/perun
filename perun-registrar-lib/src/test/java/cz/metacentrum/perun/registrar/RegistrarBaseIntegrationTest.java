@@ -1259,6 +1259,47 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertEquals(1, group1Apps.size());
 	}
 
+	@Test
+	public void testRejectApplications() throws PerunException {
+		User user1 = new User(1, "User1", "Test1", "", "", "");
+		User user2 = new User(2, "User2", "Test2", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+
+		Application application1 = prepareApplicationToVo(user1);
+		application1 = registrarManager.submitApplication(session, application1, new ArrayList<>());
+
+		Application application2 = prepareApplicationToVo(user2);
+		application2.setCreatedBy("perunTests2");
+		application2 = registrarManager.submitApplication(session, application2, new ArrayList<>());
+
+		registrarManager.rejectApplications(session, new ArrayList<>(Arrays.asList(application1.getId(), application2.getId())), null);
+
+		List<Integer> rejectedAppIdsVO = registrarManager.getApplicationsForVo(session, vo, List.of("REJECTED"), false).stream().map(Application::getId).toList();
+		assertThat(rejectedAppIdsVO).containsOnly(application1.getId(), application2.getId());
+	}
+
+	@Test
+	public void testRejectApplicationsOrder() throws PerunException {
+		User user = new User(1, "User1", "Test1", "", "", "");
+		user = perun.getUsersManagerBl().createUser(session, user);
+
+		Group group = new Group("Test", "Test group");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		registrarManager.createApplicationFormInGroup(session, group);
+
+		Application applicationToVo = prepareApplicationToVo(user);
+		applicationToVo = registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+
+		Application applicationToGroup = prepareApplicationToGroup(user, group);
+		applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>());
+
+		registrarManager.rejectApplications(session, new ArrayList<>(Arrays.asList(applicationToVo.getId(), applicationToGroup.getId())), null);
+
+		List<Integer> rejectedAppIds = registrarManager.getApplicationsForVo(session, vo, List.of("REJECTED"), true).stream().map(Application::getId).toList();
+		assertThat(rejectedAppIds).containsOnly(applicationToVo.getId(), applicationToGroup.getId());
+	}
+
 	private Application prepareApplicationToVo(User user) {
 		Application application = new Application();
 		application.setVo(vo);

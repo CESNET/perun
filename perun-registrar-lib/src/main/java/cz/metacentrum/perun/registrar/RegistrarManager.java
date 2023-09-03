@@ -404,6 +404,16 @@ public interface RegistrarManager {
 	Application rejectApplication(PerunSession session, int appId, String reason) throws PerunException;
 
 	/**
+	 * Manually rejects multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param sess perun session
+	 * @param applicationIds list of application IDs
+	 * @param reason optional reason of rejection displayed to user
+	 * @throws PerunException
+	 */
+	void rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException;
+
+	/**
 	 * Returns data submitted by user in given application (by id)
 	 *
 	 * @param sess PerunSession
