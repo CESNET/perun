@@ -119,6 +119,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImpl
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.utils.graphs.Graph;
 import cz.metacentrum.perun.utils.graphs.GraphEdge;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
@@ -2586,12 +2587,38 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) {
-		//Remove services' required attributes
-		//TODO
+	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws RelationExistsException {
+		//Check relation to services' required attributes
+		List<Service> relatedServices = getPerunBl().getServicesManagerBl().getServicesByAttributeDefinition(sess, attribute);
+		if (!relatedServices.isEmpty()) {
+			throw new RelationExistsException("Attribute definition with id: " + attribute.getId() + " is the required attribute for these services: "
+				+ relatedServices.stream().map(service -> service.getName() + " (id: " + service.getId() + ")").toList());
+		}
 
-		//Remove attribute and all it's values
+		//Check relation to any application form as a source or destination attribute
+		List<ApplicationForm> applicationForms = getAppFormsWhereAttributeRelated(sess, attribute);
+		if (!applicationForms.isEmpty()) {
+			throw new RelationExistsException("Attribute definition with id: " + attribute.getId() + " has a relation (as a source or destination attribute) to these application form items: "
+				+ applicationForms.stream().map(appForm -> {
+					String message = "Application form items: " + getAppFormItemsForAppFormAndAttribute(sess, appForm.getId(), attribute);
+					message += appForm.getGroup() == null ?
+					" in the application form in VO with id: " + appForm.getVo().getId() :
+					" in the application form in Group with id: " + appForm.getGroup().getId() + " (under Vo with id: " + appForm.getVo().getId() + ")";
+					return message;
+				})
+				.toList());
+		}
+
+		// Remove all values
 		this.deleteAllAttributeAuthz(sess, attribute);
+		// Free logins for login-namespace attribute
+		if (attribute.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
+			// Free blocked logins
+			getPerunBl().getUsersManagerBl().unblockLoginsForNamespace(sess, attribute.getFriendlyNameParameter());
+			// Free reserved logins
+			getPerunBl().getUsersManagerBl().deleteReservedLoginsForNamespace(sess, attribute.getFriendlyNameParameter());
+		}
+		// Delete attribute
 		getAttributesManagerImpl().deleteAttribute(sess, attribute);
 		getPerunBl().getAuditer().log(sess, new AttributeDeleted(attribute));
 
@@ -8891,6 +8918,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public List<String> getAllNamespaces(PerunSession sess) {
 		return getAttributesManagerImpl().getAllNamespaces(sess).stream().map(friendlyName -> friendlyName.split(":", 2)[1]).sorted().toList();
+	}
+
+	@Override
+	public
+	List<ApplicationForm>getAppFormsWhereAttributeRelated(PerunSession sess, AttributeDefinition attr) {
+		return getAttributesManagerImpl().getAppFormsWhereAttributeRelated(sess, attr);
+	}
+
+	@Override
+	public
+	List<String>getAppFormItemsForAppFormAndAttribute(PerunSession sess, int appFormId, AttributeDefinition attr) {
+		return getAttributesManagerImpl().getAppFormItemsForAppFormAndAttribute(sess, appFormId, attr);
 	}
 
 	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------

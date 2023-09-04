@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.auditlogger.logger.impl;
 
-import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.auditlogger.logger.EventLogger;
 import cz.metacentrum.perun.auditlogger.service.AuditLoggerManager;
-import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -37,9 +35,9 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-	private static final String SYSLOG_LOGGER_NAME = "syslog-logger";
+	private static final String AUDIT_LOGGER_NAME = "journal-audit";
 
-	private static final Logger syslog = LoggerFactory.getLogger(SYSLOG_LOGGER_NAME);
+	private static final Logger journal = LoggerFactory.getLogger(AUDIT_LOGGER_NAME);
 
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 	private static final ObjectMapper mapper = new ObjectMapper();
@@ -108,7 +106,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 							log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: {} - newMessageNumber: {} = {}",
 									lastProcessedIdNumber, message.getId(), (lastProcessedIdNumber - message.getId()));
 					}
-					//IMPORTANT STEP2: send all messages to syslog
+					//IMPORTANT STEP2: send all messages to journal
 					if(this.logMessage(message) == 0) {
 						messagesIterator.remove();
 						lastProcessedIdNumber = message.getId();
@@ -149,7 +147,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 	@Override
 	public int logMessage(AuditMessage message) {
 		try {
-			syslog.info(mapper.writeValueAsString(message));
+			journal.info(mapper.writeValueAsString(message));
 		} catch (JsonProcessingException e) {
 			return -1;
 		}

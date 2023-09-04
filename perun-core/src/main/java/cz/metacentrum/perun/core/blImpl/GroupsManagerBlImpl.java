@@ -223,7 +223,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//set creator as group admin unless he already have authz right on the group (he is VO admin or this is "members" group of VO)
 		User user = sess.getPerunPrincipal().getUser();
 		if(user != null) {   //user can be null in tests
-			if(!sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)
+			if(!AuthzResolverBlImpl.isPerunAdmin(sess)
 				&& !sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, vo)
 				&& !VosManager.MEMBERS_GROUP.equals(group.getName())) {
 				try {
@@ -2832,7 +2832,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		for(RichGroup richGroup : richGroups) {
 			String key = "";
-			if (sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)) {
+			if (AuthzResolverBlImpl.isPerunAdmin(sess)) {
 				key = "VOADMINVOOBSERVERGROUPADMINFACILITYADMIN";
 			} else {
 				String voadmin = ((sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, richGroup) ? "VOADMIN" : ""));
@@ -6083,5 +6083,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo, Vo memberVo) {
 		return this.groupsManagerImpl.getAllAllowedGroupsToHierarchicalVo(sess, vo, memberVo);
+	}
+
+	@Override
+	public List<Group> getGroupsWhereUserIsActiveMember(PerunSession sess, User user, Vo vo) {
+		List<Group> groups = this.groupsManagerImpl.getGroupsWhereUserIsActiveMember(sess, user, vo);
+		groups.removeIf(g -> VosManager.MEMBERS_GROUP.equals(g.getName()));
+		return groups;
 	}
 }

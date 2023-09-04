@@ -1232,6 +1232,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	public void unblockLoginsForNamespace(PerunSession sess, String namespace) {
+		getUsersManagerImpl().unblockLoginsForNamespace(sess, namespace);
+	}
+
+	@Override
 	public int getIdOfBlockedLogin(PerunSession sess, String login, String namespace) {
 		return getUsersManagerImpl().getIdOfBlockedLogin(sess, login, namespace);
 	}
@@ -1314,6 +1319,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isUserPerunAdmin(PerunSession sess, User user) {
 		return getUsersManagerImpl().isUserPerunAdmin(sess, user);
 	}
@@ -2283,6 +2289,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
+	@Override
+	public void deleteReservedLoginsForNamespace(PerunSession sess, String namespace) {
+		getUsersManagerImpl().deleteReservedLoginsForNamespace(sess, namespace);
+	}
 
 	/**
 	 * Creates a User object from given candidate.

@@ -579,7 +579,7 @@ public class MailManagerImpl implements MailManager {
 		if (mail == null) throw new RegistrarException("Notification template for "+mailType+" is not defined.");
 		if (!mail.getSend()) throw new RegistrarException("Sending of notification "+mailType+" is disabled.");
 
-		if (!AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
+		if (!(AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN) || AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMINBA))) {
 			if (MailType.APP_ERROR_VO_ADMIN.equals(mailType)) {
 				throw new RegistrarException("APP_ERROR_VO_ADMIN notification can't be sent this way, since it's bound to each approval process. Try to approve application once again to receive this message.");
 			}
@@ -859,6 +859,18 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		return true;
+	}
+
+	public Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
+		// check that invitation form and invitation notification exist
+		if (!invitationFormExists(sess, vo, group)) {
+			return false;
+		}
+
+		// check that invitation form can be submitted
+		ApplicationForm form = getForm(vo, group);
+		List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(sess, form, AppType.INITIAL);
+		return applicationItems.stream().anyMatch(item -> item.getType().equals(ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON) || item.getType().equals(ApplicationFormItem.Type.SUBMIT_BUTTON));
 	}
 
 	/**
@@ -2291,6 +2303,15 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private void sendInvitationMail(PerunSession sess, Vo vo, Group group, String email, String language,
 									MimeMessage message, Application app) throws RegistrarException {
+		try {
+			if (!isInvitationEnabled(sess, vo, group)) {
+				log.error("[MAIL MANAGER] Invite user: Application form is not setup correctly or invitation notification does not exist.");
+				throw new RegistrarException("Unable to invite user - application form is not setup correctly or invitation notification does not exist.");
+			}
+		} catch (PerunException ex) {
+			// ignore - this shouldn't happen thanks to the same authorization check earlier
+		}
+
 		try {
 			mailSender.send(message);
 			User sendingUser = sess.getPerunPrincipal().getUser();

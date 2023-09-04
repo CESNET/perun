@@ -65,6 +65,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttribut
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -319,6 +321,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private static final RowMapper<String> ATTRIBUTE_NAMES_MAPPER = (rs, i) -> rs.getString("attr_name");
 
 	private static final RowMapper<String> ATTRIBUTE_FRIENDLY_NAMES_MAPPER = (rs, i) -> rs.getString("friendly_name");
+
+	private static final RowMapper<String> APP_FORM_ITEM_SHORTNAME_MAPPER = (rs, i) -> rs.getString("shortname");
+
+	private static final RowMapper<ApplicationForm> APPLICATION_FORM_ROW_MAPPER = (resultSet, i) -> {
+		ApplicationForm form = new ApplicationForm();
+		form.setId(resultSet.getInt("id"));
+		Vo vo = new Vo();
+		vo.setId(resultSet.getInt("vo_id"));
+		form.setVo(vo);
+		if (resultSet.getInt("group_id") > 0) {
+			Group grp = new Group();
+			grp.setId(resultSet.getInt("group_id"));
+			form.setGroup(grp);
+		}
+		return form;
+	};
 
 	static class SingleBeanAttributeRowMapper<T extends PerunBean> extends AttributeRowMapper<T, T> {
 		SingleBeanAttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, T attributeHolder) {
@@ -4213,6 +4231,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<String> getAllNamespaces(PerunSession sess) {
 		return jdbc.query("SELECT friendly_name FROM attr_names WHERE friendly_name LIKE 'login-namespace:%%' AND attr_name NOT LIKE '%%def:virt%%'", ATTRIBUTE_FRIENDLY_NAMES_MAPPER);
+	}
+
+	@Override
+	public List<ApplicationForm> getAppFormsWhereAttributeRelated(PerunSession sess, AttributeDefinition attr) {
+		try {
+			String urn = attr.getName();
+			return jdbc.query("select distinct af.id, af.vo_id, af.group_id from application_form af " +
+				"join application_form_items afi on af.id = afi.form_id " +
+				"where afi.src_attr=? or afi.dst_attr=?", APPLICATION_FORM_ROW_MAPPER , urn, urn);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<String> getAppFormItemsForAppFormAndAttribute(PerunSession sess, int appFormId, AttributeDefinition attr) {
+		try {
+			String urn = attr.getName();
+			return jdbc.query("select id, shortname from application_form_items afi where afi.form_id=? and (afi.src_attr=? or afi.dst_attr=?)",
+				APP_FORM_ITEM_SHORTNAME_MAPPER, appFormId, urn, urn);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	/**

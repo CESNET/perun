@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -564,6 +565,29 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
+	public void doNotAllowUpdateDestinationAttribute() throws Exception {
+		User user = setUpUser("User", "Test");
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationFormItem savedItem = new ApplicationFormItem();
+		savedItem.setShortname("item");
+		savedItem.setPerunDestinationAttribute("saved");
+		registrarManager.addFormItem(session, form, savedItem);
+
+		List<ApplicationFormItem> items = registrarManager.getFormItems(session, registrarManager.getFormForVo(vo));
+		assertThat(items).hasSize(1);
+
+		Application application = prepareApplicationToVo(user);
+		registrarManager.submitApplication(session, application, new ArrayList<>());
+
+		List<Application> applications = registrarManager.getApplicationsForVo(session, vo, null, true);
+		assertThat(items).hasSize(1);
+
+		savedItem.setPerunDestinationAttribute("updated");
+		assertThrows(OpenApplicationExistsException.class, () -> registrarManager.updateFormItems(session, form, List.of(savedItem)));
+	}
+
+	@Test
 	public void saveDependencyOnUnsavedItemWithTempId() throws Exception {
 		ApplicationForm form = registrarManager.getFormForVo(vo);
 
@@ -786,6 +810,73 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		registrarManager.addGroupsToAutoRegistration(session, List.of(group2), embeddedGroupsItem);
 
 		assertEquals(List.of(group2), registrarManager.getGroupsForAutoRegistration(session, vo, embeddedGroupsItem));
+	}
+
+	@Test (expected=RelationExistsException.class)
+	public void deleteAttributeRelatedToVoFormAsDestAttr() throws Exception {
+		System.out.println("RegistrarManager.deleteAttributeRelatedToFormAsDestAttr");
+
+		Vo vo = perun.getVosManagerBl().createVo(session, new Vo(0, "voTest", "voTest"));
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setDescription("attributesManagerTestAttrDef");
+		attrDef.setFriendlyName("attrDef");
+		attrDef.setNamespace("urn:perun:member:attribute-def:opt");
+		attrDef.setType(String.class.getName());
+		perun.getAttributesManager().createAttribute(session, attrDef);
+
+		ApplicationFormItem item = new ApplicationFormItem();
+		item.setShortname("displayName");
+		item.setPerunDestinationAttribute("urn:perun:member:attribute-def:opt:attrDef");
+		item.setType(ApplicationFormItem.Type.TEXTFIELD);
+		item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+		item.setUpdatable(false);
+		item.setRequired(true);
+		registrarManager.addFormItem(session, form, item);
+
+		perun.getAttributesManager().deleteAttribute(session, attrDef);
+	}
+
+	@Test (expected=RelationExistsException.class)
+	public void deleteAttributeRelatedToGroupFormAsSrcAttr() throws Exception {
+		System.out.println("RegistrarManager.deleteAttributeRelatedToFormAsDestAttr");
+
+		Vo vo = perun.getVosManagerBl().createVo(session, new Vo(0, "voTest", "voTest"));
+		Group group = perun.getGroupsManagerBl().createGroup(session, vo, new Group("testGroup", "testGroup description"));
+		registrarManager.createApplicationFormInGroup(session, group);
+		ApplicationForm groupForm = registrarManager.getFormForGroup(group);
+
+		Group group2 = perun.getGroupsManagerBl().createGroup(session, vo, new Group("testGroup2", "testGroup2 description"));
+		registrarManager.createApplicationFormInGroup(session, group2);
+		ApplicationForm groupForm2 = registrarManager.getFormForGroup(group2);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setDescription("attributesManagerTestAttrDef");
+		attrDef.setFriendlyName("attrDef");
+		attrDef.setNamespace("urn:perun:member:attribute-def:opt");
+		attrDef.setType(String.class.getName());
+		perun.getAttributesManager().createAttribute(session, attrDef);
+
+		ApplicationFormItem item = new ApplicationFormItem();
+		item.setShortname("displayName");
+		item.setPerunSourceAttribute("urn:perun:member:attribute-def:opt:attrDef");
+		item.setType(ApplicationFormItem.Type.TEXTFIELD);
+		item.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+		item.setUpdatable(false);
+		item.setRequired(true);
+		registrarManager.addFormItem(session, groupForm, item);
+
+		ApplicationFormItem item2 = new ApplicationFormItem();
+		item2.setShortname("displayName2");
+		item2.setPerunDestinationAttribute("urn:perun:member:attribute-def:opt:attrDef");
+		item2.setType(ApplicationFormItem.Type.TEXTFIELD);
+		item2.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+		item2.setUpdatable(false);
+		item2.setRequired(true);
+		registrarManager.addFormItem(session, groupForm2, item2);
+
+		perun.getAttributesManager().deleteAttribute(session, attrDef);
 	}
 
 	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
@@ -1560,6 +1651,51 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		assertTrue(mailManager.invitationFormExists(session, vo, null));
 		assertFalse(mailManager.invitationFormExists(session, voWithoutInvitation, null));
+	}
+
+	@Test
+	public void isInvitationEnabledForGroup() throws Exception {
+		Group groupWithInvitation = perun.getGroupsManagerBl().createGroup(session, vo, new Group("group1", "group with form"));
+		Group groupWithoutInvitation = perun.getGroupsManagerBl().createGroup(session, vo, new Group("group2", "group without form"));
+
+		registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
+		ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
+		ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+		mailManager.addMail(session, form, mail);
+
+		registrarManager.createApplicationFormInGroup(session, groupWithoutInvitation);
+		ApplicationForm form2 = registrarManager.getFormForGroup(groupWithoutInvitation);
+		ApplicationMail mail2 = new ApplicationMail(0, INITIAL, form2.getId(), MailType.USER_INVITE, true);
+		mailManager.addMail(session, form2, mail2);
+
+		ApplicationFormItem submitButton = new ApplicationFormItem();
+		submitButton.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+		submitButton.setShortname("submitButton");
+		registrarManager.addFormItem(session, form, submitButton);
+
+		assertTrue(mailManager.isInvitationEnabled(session, vo, groupWithInvitation));
+		assertFalse(mailManager.isInvitationEnabled(session, vo, groupWithoutInvitation));
+	}
+
+	@Test
+	public void isInvitationEnabledForVo() throws Exception {
+		Vo voWithoutInvitation = perun.getVosManager().createVo(session, new Vo(1234, "test", "test"));
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+		ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+		mailManager.addMail(session, form, mail);
+
+		ApplicationForm form2 = registrarManager.getFormForVo(voWithoutInvitation);
+		ApplicationMail mail2 = new ApplicationMail(0, INITIAL, form2.getId(), MailType.USER_INVITE, true);
+		mailManager.addMail(session, form2, mail2);
+
+		ApplicationFormItem submitButton = new ApplicationFormItem();
+		submitButton.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+		submitButton.setShortname("submitButton");
+		registrarManager.addFormItem(session, form, submitButton);
+
+		assertTrue(mailManager.isInvitationEnabled(session, vo, null));
+		assertFalse(mailManager.isInvitationEnabled(session, voWithoutInvitation, null));
 	}
 
 	@Test

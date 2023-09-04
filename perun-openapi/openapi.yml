@@ -13888,7 +13888,6 @@ paths:
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-
   /json/groupsManager/getGroupsWhereMemberIsActive:
     get:
       tags:
@@ -13897,6 +13896,20 @@ paths:
       summary: Returns list of groups where member is in active state.
       parameters:
         - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+  /json/groupsManager/getGroupsWhereUserIsActiveMember:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupsWhereUserIsActiveMember
+      summary: Returns list of groups where user is member in active state. Groups are looked up only for the specfied VO.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/voId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
@@ -17196,6 +17209,21 @@ paths:
         - RegistrarManager
       operationId: invitationFormExists
       summary: Checks if invitation form exists.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/optionalGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/isInvitationEnabled:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: isInvitationEnabled
+      summary: Checks if invitation is enabled (invitation notification exists, application form exists and application form can be submitted).
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/optionalGroupId'

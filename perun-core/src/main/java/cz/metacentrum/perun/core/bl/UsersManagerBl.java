@@ -989,6 +989,7 @@ public interface UsersManagerBl {
 	 * @return true if the user is PERUNADMIN, false otherwise.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	boolean isUserPerunAdmin(PerunSession sess, User user);
 
 	/**
@@ -1313,6 +1314,13 @@ public interface UsersManagerBl {
 	 * @throws LoginIsNotBlockedException when login is not blocked
 	 */
 	void unblockLoginsById(PerunSession sess, List<Integer> loginIds) throws LoginIsNotBlockedException;
+
+	/**
+	 * Unblock all logins for given namespace
+	 * @param sess PerunSession
+	 * @param namespace Namespace or null for globally blocked
+	 */
+	void unblockLoginsForNamespace(PerunSession sess, String namespace);
 
 	/**
 	 * Return ID of blocked login
@@ -1766,4 +1774,11 @@ public interface UsersManagerBl {
 	 * @param appId
 	 */
 	void deleteReservedLoginsOnlyByGivenApp(PerunSession sess, int appId) throws PasswordOperationTimeoutException, InvalidLoginException, PasswordDeletionFailedException;
+
+	/**
+	 * Deletes all reserved logins in given namespace
+	 * @param sess PerunSession
+	 * @param namespace Namespace
+	 */
+	void deleteReservedLoginsForNamespace(PerunSession sess, String namespace);
 }

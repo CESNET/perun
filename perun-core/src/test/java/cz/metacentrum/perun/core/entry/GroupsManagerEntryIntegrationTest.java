@@ -18,8 +18,8 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunClient;
-import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -35,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -54,12 +53,9 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.util.Assert;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.annotation.JsonAppend;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -80,7 +76,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -6532,6 +6527,63 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertEquals(1, result.size());
 		assertEquals(group2, result.get(0));
+	}
+
+	@Test
+	public void getGroupsWhereUserIsActiveMember() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereUserIsActiveMember");
+
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserById(sess, member.getUserId());
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, group2, group3);
+		groupsManager.createGroup(sess, group2, group4);
+		groupsManager.createGroup(sess, group3, group5);
+		groupsManager.createGroup(sess, group4, group6);
+
+		groupsManagerBl.addMember(sess, group, member);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.addMember(sess, group6, member);
+
+		List<Group> result = groupsManager.getGroupsWhereUserIsActiveMember(sess, user, vo);
+
+		assertEquals(4, result.size());
+		assertTrue(result.contains(group));
+		assertTrue(result.contains(group2));
+		assertTrue(result.contains(group4)); //indirect member
+		assertTrue(result.contains(group6));
+	}
+
+	@Test
+	public void getGroupsWhereUserIsActiveMemberInactiveInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereUserIsActiveMemberInactiveInGroup");
+
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserById(sess, member.getUserId());
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, group2, group3);
+		groupsManager.createGroup(sess, group2, group4);
+		groupsManager.createGroup(sess, group3, group5);
+		groupsManager.createGroup(sess, group4, group6);
+
+		groupsManagerBl.addMember(sess, group, member);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.addMember(sess, group6, member);
+		groupsManager.setMemberGroupStatus(sess, member, group6, MemberGroupStatus.EXPIRED);
+
+		List<Group> result = groupsManager.getGroupsWhereUserIsActiveMember(sess, user, vo);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group));
+		assertTrue(result.contains(group2));
+		assertFalse(result.contains(group4)); //indirect member expired
+		assertFalse(result.contains(group6)); //expired member
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

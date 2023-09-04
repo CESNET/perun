@@ -238,4 +238,15 @@ public interface MailManager {
 	 * @throws GroupNotExistsException when group is defined and does not exist
 	 */
 	Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws VoNotExistsException, GroupNotExistsException;
+
+	/**
+	 * Checks if invitation is enabled (invitation notification exists, application form exists and application form can be submitted)
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param group group (can be null for vo check)
+	 * @return true if invitation notification exists, application form exists and application form can be submitted
+	 * @throws PerunException exception
+	 */
+	Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException;
 }

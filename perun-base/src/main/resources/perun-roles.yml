@@ -4,6 +4,9 @@
 # PERUNADMIN role can perform all the actions possible in the Perun system.
 # It is the only role that is able to also set this role to other users.
 #
+# PERUNADMINBA role is identical to the PERUNADMIN role, but it skips MFA authentication.
+# This role is used only for internal purposes.
+#
 # PERUNOBSERVER role has access to all the information, but it is not able to perform any changes.
 # The role can be set only by Perun administrators.
 #
@@ -115,6 +118,7 @@
 perun_roles:
   - PERUNADMIN
   - PERUNOBSERVER
+  - PERUNADMINBA
   - VOADMIN
   - GROUPADMIN
   - GROUPOBSERVER
@@ -207,6 +211,7 @@ perun_policies:
   default_policy:
     policy_roles:
       - PERUNADMIN:
+      - PERUNADMINBA:
     include_policies: []
 
   #AttributesManagerEntry
@@ -340,7 +345,8 @@ perun_policies:
       - default_policy
 
   getAllNamespaces_policy:
-    policy_roles: [ ]
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -2203,6 +2209,15 @@ perun_policies:
       - default_policy
 
   getAllGroupsWhereMemberIsActive_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsWhereUserIsActiveMember_User_Vo_policy:
     policy_roles:
       - SELF: User
       - PERUNOBSERVER:
@@ -8181,12 +8196,33 @@ perun_roles_management:
       - PERUNADMIN:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
     associated_read_roles:
       - PERUNOBSERVER
     assignable_to_attributes: false
     mfa_critical_role: true
     display_name: "Perun admin"
+
+  PERUNADMINBA:
+    primary_object:
+    assign_to_objects: {}
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMINBA:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+    associated_read_roles:
+      - PERUNOBSERVER
+    assignable_to_attributes: false
+    mfa_critical_role: false
+    display_name: "Perun admin BA"
+    skip_mfa: true
 
   PERUNOBSERVER:
     primary_object:
@@ -8197,6 +8233,7 @@ perun_roles_management:
       User: user_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
     privileged_roles_to_read:
       - PERUNADMIN:
       - PERUNOBSERVER:
@@ -8235,6 +8272,7 @@ perun_roles_management:
       - VOADMIN: Vo
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8258,11 +8296,13 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
       - GROUPADMIN: Group
       - SPREGAPPLICATION:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8290,10 +8330,12 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
       - GROUPADMIN: Group
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8317,10 +8359,12 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
       - GROUPADMIN: Group
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8357,10 +8401,12 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - FACILITYADMIN: Facility
       - SPREGAPPLICATION:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -8381,10 +8427,12 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - FACILITYADMIN: Facility
       - SPREGAPPLICATION:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -8405,9 +8453,11 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8430,12 +8480,14 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
@@ -8465,12 +8517,14 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
@@ -8499,12 +8553,14 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
@@ -8586,8 +8642,10 @@ perun_roles_management:
       User: user_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
     associated_read_roles: []
     assignable_to_attributes: true
@@ -8605,9 +8663,11 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8627,9 +8687,11 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8648,9 +8710,11 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - VOADMIN: Vo
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -8669,9 +8733,11 @@ perun_roles_management:
       Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - SECURITYADMIN: SecurityTeam
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - SECURITYADMIN: SecurityTeam
     associated_read_roles: []
@@ -8687,9 +8753,11 @@ perun_roles_management:
       User: user_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - CABINETADMIN:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
       - CABINETADMIN:
     associated_read_roles: []
@@ -8703,8 +8771,10 @@ perun_roles_management:
       User: user_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
@@ -8759,8 +8829,10 @@ perun_roles_management:
       User: user_id
     privileged_roles_to_manage:
       - PERUNADMIN:
+      - PERUNADMINBA:
     privileged_roles_to_read:
       - PERUNADMIN:
+      - PERUNADMINBA:
       - PERUNOBSERVER:
     associated_read_roles: []
     assignable_to_attributes: true

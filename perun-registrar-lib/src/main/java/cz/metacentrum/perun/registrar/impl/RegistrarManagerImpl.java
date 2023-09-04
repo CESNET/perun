@@ -59,6 +59,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.OpenApplicationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -1109,6 +1110,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		prepareIdsMapping(items, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
 
+		List<String> openStates = List.of(AppState.NEW.toString(), AppState.VERIFIED.toString());
+		List<Application> existingOpenApplications = form.getGroup() == null ? getApplicationsForVo(sess, form.getVo(), openStates, false) : getApplicationsForGroup(sess, form.getGroup(), openStates);
+
 		int finalResult = 0;
 		for (ApplicationFormItem item : items) {
 
@@ -1149,6 +1153,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			String oldname = jdbc.queryForObject("select shortname from application_form_items where id=" + item.getId(), String.class);
 
 			// else update form item
+
+			// Check that if the destination attribute was changed then there are no open applications
+			if (!Objects.equals(getFormItemById(sess, item.getId()).getPerunDestinationAttribute(), item.getPerunDestinationAttribute()) && !existingOpenApplications.isEmpty()) {
+				throw new OpenApplicationExistsException("It is impossible to change the destination attribute of the form item while some open applications still exist. First, please resolve these applications.");
+			}
 
 			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?," +
 							"fed_attr=?,src_attr=?,dst_attr=?,regex=?,updatable=?,hidden=?::app_item_hidden,disabled=?::app_item_disabled,hidden_dependency_item_id=?," +
@@ -2988,13 +2997,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new MissingRequiredDataException("The administrator set up this form wrongly OR you don't match any conditions OR your IDP doesn't provide data required by this application form.", itemsWithMissingData);
 		}
 
-		itemsWithValues.stream()
-			.filter(item -> item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION)
-			.forEach(item -> setGroupsToCheckBoxForGroups(sess, item, vo, group));
+		Iterator<ApplicationFormItemWithPrefilledValue> itemsIt = itemsWithValues.iterator();
+		while (itemsIt.hasNext()) {
+			ApplicationFormItemWithPrefilledValue item = itemsIt.next();
+			// Process only EMBEDDED_GROUP_APPLICATION items in this block
+			if (item.getFormItem().getType() != EMBEDDED_GROUP_APPLICATION) {
+				continue;
+			}
+			// Generate options for EMBEDDED_GROUP_APPLICATION items.
+			setGroupsToCheckBoxForGroups(sess, item, user, vo, group);
+			// If the item has no options for the user to offer (bcs user is already member in all possible options,
+			// remove it from the form completely
+			if (StringUtils.isBlank(item.getFormItem().getI18n().get(ApplicationFormItem.EN).getOptions())) {
+				it.remove();
+			}
+		}
 
 		// return prefilled form
 		return itemsWithValues;
-
 	}
 
 	private List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess) {
@@ -3013,16 +3033,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	/**
 	 * To the given EMBEDDED_GROUP_APPLICATION item, sets options of allowed groups.
-	 *
 	 * Example format:
 	 * 111#GroupA|222#GroupB
 	 *
-	 * @param sess session
-	 * @param item item, to which the group options will be set, only EMBEDDED_GROUP_APPLICATION is supported
-	 * @param vo vo, from which the groups for auto registration are taken
+	 * @param sess              session
+	 * @param item              item, to which the group options will be set, only EMBEDDED_GROUP_APPLICATION is supported
+	 * @param user
+	 * @param vo                vo, from which the groups for auto registration are taken
 	 * @param registrationGroup group, from which the subgroups for auto registration are taken - if not null, then it is a group application
 	 */
-	private void setGroupsToCheckBoxForGroups(PerunSession sess, ApplicationFormItemWithPrefilledValue item, Vo vo, Group registrationGroup) {
+	private void setGroupsToCheckBoxForGroups(PerunSession sess, ApplicationFormItemWithPrefilledValue item, User user, Vo vo, Group registrationGroup) {
 		if (item.getFormItem().getType() != EMBEDDED_GROUP_APPLICATION) {
 			throw new InternalErrorException("Group options can be set only to the EMBEDDED_GROUP_APPLICATION item.");
 		}
@@ -3033,10 +3053,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo, item.getFormItem());
 		}
 
-		String groupOptions = groups.stream()
-			.sorted(Comparator.comparing(Group::getName))
-			.map(group -> group.getId() + "#" + group.getName())
-			.collect(Collectors.joining("|"));
+		if (user != null) {
+			List<Group> userGroups = groupsManager.getGroupsWhereUserIsActiveMember(sess, user, vo);
+			groups = groups.stream().filter(g -> !userGroups.contains(g)).collect(Collectors.toList());
+		}
+
+		String groupOptions = null;
+		if (!groups.isEmpty()) {
+			groupOptions = groups.stream()
+				.sorted(Comparator.comparing(Group::getName))
+				.map(group -> group.getId() + "#" + group.getName())
+				.collect(Collectors.joining("|"));
+		}
 
 		if (ApplicationFormItem.CS != null) {
 			item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);

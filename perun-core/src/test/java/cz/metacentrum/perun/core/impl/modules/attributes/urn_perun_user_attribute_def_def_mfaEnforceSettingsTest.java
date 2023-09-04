@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -24,7 +26,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
 	private static Attribute attributeToCheck;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws WrongAttributeAssignmentException, AttributeNotExistsException {
 		classInstance = new urn_perun_user_attribute_def_def_mfaEnforceSettings();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 		user = new User();
@@ -32,8 +34,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
 
 
 		Attribute mockMfaCategories = new Attribute();
-		mockMfaCategories.setValue("{\"categories\":" +
-			"  {" +
+		mockMfaCategories.setValue("{" +
 			"    \"cat1\":" +
 			"    {" +
 			"      \"label\": {\"en\": \"cat1_en_label\"}," +
@@ -50,11 +51,10 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
 			"      {" +
 			"        \"cat2_rps1\": {\"en\":\"cat2_rps1_en_label\"}" +
 			"      }" +
-			"    }" +
-			"  }" +
+			"    }" + "  " +
 			"}");
-		when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(any(), any()))
-			.thenReturn(Collections.singletonList(mockMfaCategories));
+		when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(any(), any(), any()))
+			.thenReturn(Collections.singletonMap("categories", mockMfaCategories));
 	}
 
 	@Test
