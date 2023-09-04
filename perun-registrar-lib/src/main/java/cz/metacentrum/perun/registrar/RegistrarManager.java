@@ -267,6 +267,14 @@ public interface RegistrarManager {
 	 */
 	void deleteApplication(PerunSession session, Application application) throws PerunException;
 
+	/**
+	 * Manually deletes multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param sess perun session
+	 * @param applications list of applications
+	 * @throws PerunException
+	 */
+	void deleteApplications(PerunSession sess, List<Application> applications) throws PerunException;
 
 	/**
 	 * Get page of applications for the given vo, with the given parameters
