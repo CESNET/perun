@@ -1572,7 +1572,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// lock to prevent concurrent runs
 		synchronized(runningDeleteApplication) {
 			if (runningDeleteApplication.contains(app.getId())) {
-				throw new AlreadyProcessingException("Application deletion is already processing.");
+				throw new AlreadyProcessingException("Application " + app.getId() + " deletion is already processing.");
 			} else {
 				runningDeleteApplication.add(app.getId());
 			}
@@ -1589,9 +1589,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			} else {
 				if (AppState.VERIFIED.equals(app.getState()))
-					throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
+					throw new RegistrarException("Submitted application " + app.getId() + " can't be deleted. Please reject the application first.");
 				if (AppState.APPROVED.equals(app.getState()))
-					throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
+					throw new RegistrarException("Approved application " + app.getId() + " can't be deleted. Try to refresh the view to see changes.");
 			}
 			perun.getAuditer().log(sess, new ApplicationDeleted(app));
 			log.info("Application {} deleted.", app.getId());
@@ -1602,6 +1602,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
+	}
+
+	@Override
+	public void deleteApplications(PerunSession sess, List<Application> applications) throws PerunException {
+		for (Application app : applications) {
+			deleteApplication(sess, app);
+		}
 	}
 
 	@Override

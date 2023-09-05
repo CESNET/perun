@@ -840,6 +840,30 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+
+	/*#
+	 * Manually delete multiple applications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	deleteApplications {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Application> applications = new ArrayList<>();
+			List<Integer> appIds = parms.readList("ids", Integer.class);
+			for (Integer id : appIds) {
+				applications.add(ac.getRegistrarManager().getApplicationById(ac.getSession(), id));
+			}
+			ac.getRegistrarManager().deleteApplications(ac.getSession(), applications);
+			return null;
+		}
+
+	},
+
 	/*#
 	 * Manually approves an application.
 	 * Expected to be called as a result of direct VO administrator action in the web UI.

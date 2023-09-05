@@ -1251,6 +1251,35 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
+	public void testDeleteApplications() throws PerunException {
+		User user1 = new User(-1, "User1", "Test1", "", "", "");
+		User user2 = new User(-2, "User2", "Test2", "", "", "");
+		User user3 = new User(-3, "User3", "Test3", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+		user3 = perun.getUsersManagerBl().createUser(session, user3);
+
+		Application application1 = prepareApplicationToVo(user1);
+		Application application2 = prepareApplicationToVo(user2);
+		Application application3 = prepareApplicationToVo(user3);
+		registrarManager.submitApplication(session, application1, new ArrayList<>());
+		registrarManager.submitApplication(session, application2, new ArrayList<>());
+		registrarManager.submitApplication(session, application3, new ArrayList<>());
+
+
+		application1.setState(Application.AppState.REJECTED);
+		application2.setState(Application.AppState.REJECTED);
+		application3.setState(Application.AppState.REJECTED);
+
+
+		registrarManager.deleteApplications(session, List.of(application1, application2));
+
+		List<Integer> applicationIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED", "NEW", "VERIFIED", "REJECTED"), false).stream().map(Application::getId).toList();
+		assertEquals(1, applicationIds.size());
+		assertThat(applicationIds).containsOnly(application3.getId());
+	}
+
+	@Test
 	public void testRejectApplicationsAfterMemberRemoval() throws PerunException {
 		GroupsManagerBl groupsManager = perun.getGroupsManagerBl();
 		MembersManagerBl membersManager = perun.getMembersManagerBl();

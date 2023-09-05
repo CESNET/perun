@@ -16401,6 +16401,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+
+  /urlinjsonout/registrarManager/deleteApplications:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteApplications
+      summary: Manually deletes multiple applications at once.
+      description: |
+        Expected to be called as a result of direct VO administrator action in the web UI.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/sendMessage:
     post:
       tags:
