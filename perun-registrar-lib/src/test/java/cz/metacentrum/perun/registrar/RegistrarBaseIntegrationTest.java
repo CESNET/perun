@@ -1120,6 +1120,24 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertEquals(1, registrarManager.getApplicationsForGroup(session, group2, List.of("NEW", "VERIFIED")).size());
 	}
 
+	@Test
+	public void testApproveApplications() throws PerunException {
+		User user1 = new User(-1, "User1", "Test1", "", "", "");
+		User user2 = new User(-2, "User2", "Test2", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+
+		Application application1 = prepareApplicationToVo(user1);
+		Application application2 = prepareApplicationToVo(user2);
+		registrarManager.submitApplication(session, application1, new ArrayList<>());
+		registrarManager.submitApplication(session, application2, new ArrayList<>());
+
+		registrarManager.approveApplications(session, List.of(application1.getId(), application2.getId()));
+
+		List<Integer> approvedAppIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED"), false).stream().map(Application::getId).toList();
+		assertEquals(2, approvedAppIds.size());
+		assertThat(approvedAppIds).containsOnly(application1.getId(), application2.getId());
+	}
 
 	@Test
 	public void testEmbeddedGroupsSubmission_groupAutoApprove() throws PerunException {
