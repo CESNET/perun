@@ -156,6 +156,16 @@ public interface MailManager {
 	void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
 
 	/**
+	 * Manually re-send multiple notifications at once. Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param applications application to send notification for
+	 * @param mailType MailType action which caused sending
+	 * @param reason custom text passed to mail by admin (e.g. reason of application reject)
+	 */
+	void sendMessages(PerunSession sess, List<Application> applications, MailType mailType, String reason) throws PerunException;
+
+	/**
 	 * Send invitations with link to VO / Group application form from provided csv data
 	 *
 	 * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
