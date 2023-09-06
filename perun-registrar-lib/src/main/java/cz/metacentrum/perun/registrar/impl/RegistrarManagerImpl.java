@@ -1829,7 +1829,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException {
+		Collections.sort(applicationIds);
 		for (Integer id : applicationIds) {
 			approveApplication(sess, id);
 		}

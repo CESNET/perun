@@ -1132,11 +1132,33 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		registrarManager.submitApplication(session, application1, new ArrayList<>());
 		registrarManager.submitApplication(session, application2, new ArrayList<>());
 
-		registrarManager.approveApplications(session, List.of(application1.getId(), application2.getId()));
+		registrarManager.approveApplications(session, new ArrayList<>(Arrays.asList(application1.getId(), application2.getId())));
 
 		List<Integer> approvedAppIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED"), false).stream().map(Application::getId).toList();
 		assertEquals(2, approvedAppIds.size());
 		assertThat(approvedAppIds).containsOnly(application1.getId(), application2.getId());
+	}
+
+	@Test
+	public void testApproveApplicationsOrder() throws PerunException {
+		User user = new User(1, "User1", "Test1", "", "", "");
+		user = perun.getUsersManagerBl().createUser(session, user);
+
+		Group group = new Group("Test", "Test group");
+		perun.getGroupsManagerBl().createGroup(session, vo, group);
+		registrarManager.createApplicationFormInGroup(session, group);
+
+		Application applicationToVo = prepareApplicationToVo(user);
+		applicationToVo = registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+
+		Application applicationToGroup = prepareApplicationToGroup(user, group);
+		applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>());
+
+		registrarManager.approveApplications(session, new ArrayList<>(Arrays.asList(applicationToGroup.getId(), applicationToVo.getId())));
+
+		List<Integer> approvedAppIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED"), true).stream().map(Application::getId).toList();
+		assertEquals(2, approvedAppIds.size());
+		assertThat(approvedAppIds).containsOnly(applicationToVo.getId(), applicationToGroup.getId());
 	}
 
 	@Test
