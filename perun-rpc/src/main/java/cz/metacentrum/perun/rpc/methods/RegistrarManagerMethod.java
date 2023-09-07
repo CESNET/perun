@@ -282,6 +282,40 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
+	/*#
+	 * Manually re-send multiple notifications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	sendMessages {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Application> applications = new ArrayList<>();
+			List<Integer> appIds = parms.readList("ids", Integer.class);
+			for (Integer id : appIds) {
+				applications.add(ac.getRegistrarManager().getApplicationById(ac.getSession(), id));
+			}
+			if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
+
+				ac.getRegistrarManager().getMailManager().sendMessages(ac.getSession(), applications,
+					ApplicationMail.MailType.valueOf(parms.readString("mailType")),
+					parms.readString("reason"));
+
+			} else {
+
+				ac.getRegistrarManager().getMailManager().sendMessages(ac.getSession(), applications,
+					ApplicationMail.MailType.valueOf(parms.readString("mailType")), null);
+
+			}
+			return null;
+		}
+
+	},
 	/*#
 	 * Create application form for a VO.
 	 *

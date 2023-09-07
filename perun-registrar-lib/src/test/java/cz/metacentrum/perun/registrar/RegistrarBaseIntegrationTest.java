@@ -39,12 +39,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.internet.MimeMessage;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -54,6 +56,10 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.EN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Base registrar-lib test class
@@ -264,6 +270,45 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		mail = mailManager.getMailById(session, id);
 		assertEquals("Plain text message (cs) doesn't contain correct text", mail.getMessage(new Locale("cs")).getText(), "Upravený český text mailu.");
 		assertEquals("Html message (cs) doesn't contain correct text", mail.getHtmlMessage(new Locale("cs")).getText(), "<p>Upravený český text mailu <b>v html</b>.</p>");
+	}
+
+	@Test
+	public void testResendNotifications() throws PerunException {
+		JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+        assert mailSender != null;
+        JavaMailSender spyMailSender = spy(mailSender);
+		ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+		User user1 = new User(-1, "User1", "Test1", "", "", "");
+		User user2 = new User(-2, "User2", "Test2", "", "", "");
+		User user3 = new User(-3, "User3", "Test3", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+		user3 = perun.getUsersManagerBl().createUser(session, user3);
+
+		Application application1 = prepareApplicationToVo(user1);
+		Application application2 = prepareApplicationToVo(user2);
+		Application application3 = prepareApplicationToVo(user3);
+		registrarManager.submitApplication(session, application1, new ArrayList<>());
+		registrarManager.submitApplication(session, application2, new ArrayList<>());
+		registrarManager.submitApplication(session, application3, new ArrayList<>());
+
+		application1.setState(Application.AppState.REJECTED);
+		application2.setState(Application.AppState.REJECTED);
+		application3.setState(Application.AppState.REJECTED);
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_REJECTED_USER, true);
+		MailText t = mail.getMessage(new Locale("en"));
+		t.setSubject("Test subject");
+		t.setText("Test Mail content.");
+		mailManager.addMail(session, form, mail);
+
+
+		mailManager.sendMessages(session, List.of(application1, application2, application3), MailType.APP_REJECTED_USER, null);
+
+		verify(spyMailSender, times(3)).send(any(MimeMessage.class));
 	}
 
 	@Test
