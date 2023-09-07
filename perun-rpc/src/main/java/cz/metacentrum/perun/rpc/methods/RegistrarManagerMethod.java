@@ -950,6 +950,35 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Manually rejects multiple applications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	/*#
+	 * Manually rejects multiple applications at once with a reason.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 * @param reason String Reason description
+	 */
+	rejectApplications {
+
+		@Override
+		public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			if (parms.contains("reason")) {
+				ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), parms.readString("reason"));
+			} else {
+				ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), null);
+			}
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Forcefully marks application as verified
 	 * (only when application was in NEW state)
 	 *
