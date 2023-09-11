@@ -1,5 +1,22 @@
 Upgrade notes
 
+## [29.1.0](https://github.com/CESNET/perun/compare/v29.0.0...v29.1.0) (2023-09-11)
+
+
+### Features
+
+* **core:** approve applications method ([6fdaf33](https://github.com/CESNET/perun/commit/6fdaf337f9bf1d16e1af1cf6a1b9c196457c3469))
+* **core:** delete applications method ([a873ae5](https://github.com/CESNET/perun/commit/a873ae5e5e3c81a2fd5067ec1112323790ae7a48))
+* **core:** new enabledO365MailForward virtual attribute ([fcb256f](https://github.com/CESNET/perun/commit/fcb256f5c5bf8d42bae964ace804f3f12d58c651))
+* **core:** reject applications method ([a2d270c](https://github.com/CESNET/perun/commit/a2d270c0b5b24202a854185cad072be74acc151b))
+* **core:** resend notifications method ([352d9e2](https://github.com/CESNET/perun/commit/352d9e256d3d74cc7fe871aec4eadb9003c6957a))
+
+
+### Bug Fixes
+
+* **core:** approve applications order ([019acfe](https://github.com/CESNET/perun/commit/019acfe3f7cbb5c7ffa876782be7f1535337f773))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v2.7.15 ([7d389b9](https://github.com/CESNET/perun/commit/7d389b9f3949fa480b4f4669382d0975bd3d16b9))
+
 ## [29.0.0](https://github.com/CESNET/perun/compare/v28.0.2...v29.0.0) (2023-09-04)
 
 
