@@ -282,6 +282,40 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
+	/*#
+	 * Manually re-send multiple notifications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	sendMessages {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Application> applications = new ArrayList<>();
+			List<Integer> appIds = parms.readList("ids", Integer.class);
+			for (Integer id : appIds) {
+				applications.add(ac.getRegistrarManager().getApplicationById(ac.getSession(), id));
+			}
+			if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
+
+				ac.getRegistrarManager().getMailManager().sendMessages(ac.getSession(), applications,
+					ApplicationMail.MailType.valueOf(parms.readString("mailType")),
+					parms.readString("reason"));
+
+			} else {
+
+				ac.getRegistrarManager().getMailManager().sendMessages(ac.getSession(), applications,
+					ApplicationMail.MailType.valueOf(parms.readString("mailType")), null);
+
+			}
+			return null;
+		}
+
+	},
 	/*#
 	 * Create application form for a VO.
 	 *
@@ -840,6 +874,30 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+
+	/*#
+	 * Manually delete multiple applications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	deleteApplications {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Application> applications = new ArrayList<>();
+			List<Integer> appIds = parms.readList("ids", Integer.class);
+			for (Integer id : appIds) {
+				applications.add(ac.getRegistrarManager().getApplicationById(ac.getSession(), id));
+			}
+			ac.getRegistrarManager().deleteApplications(ac.getSession(), applications);
+			return null;
+		}
+
+	},
+
 	/*#
 	 * Manually approves an application.
 	 * Expected to be called as a result of direct VO administrator action in the web UI.
@@ -855,6 +913,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			return ac.getRegistrarManager().approveApplication(ac.getSession(), parms.readInt("id"));
 
+		}
+
+	},
+
+	/*#
+	 * Manually approve multiple applications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	approveApplications {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getRegistrarManager().approveApplications(ac.getSession(), parms.readList("ids", Integer.class));
+			return null;
 		}
 
 	},
@@ -906,6 +981,35 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 
+	},
+
+	/*#
+	 * Manually rejects multiple applications at once.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 */
+	/*#
+	 * Manually rejects multiple applications at once with a reason.
+	 * Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param ids int[] List of Application IDs
+	 * @param reason String Reason description
+	 */
+	rejectApplications {
+
+		@Override
+		public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			if (parms.contains("reason")) {
+				ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), parms.readString("reason"));
+			} else {
+				ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), null);
+			}
+
+			return null;
+		}
 	},
 
 	/*#

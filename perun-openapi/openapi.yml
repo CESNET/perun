@@ -16354,6 +16354,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/registrarManager/approveApplications:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: approveApplications
+      summary: Manually approves multiple applications at once.
+      description: |
+        Expected to be called as a result of direct VO administrator action in the web UI.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/registrarManager/rejectApplication:
     post:
       tags:
@@ -16371,6 +16387,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/registrarManager/rejectApplications:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: rejectApplications
+      summary: Manually rejects multiple applications at once.
+      description: |
+        Expected to be called as a result of direct VO administrator action in the web UI.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+        - { name: reason, schema: { type: string }, in: query, description: "description of reason", required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/registrarManager/deleteApplication:
     post:
       tags:
@@ -16379,6 +16412,23 @@ paths:
       summary: Deletes an application.
       parameters:
         - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  /urlinjsonout/registrarManager/deleteApplications:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteApplications
+      summary: Manually deletes multiple applications at once.
+      description: |
+        Expected to be called as a result of direct VO administrator action in the web UI.
+      parameters:
+        - $ref: '#/components/parameters/ids'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -16415,6 +16465,39 @@ paths:
                 mailType: { $ref: '#/components/schemas/MailType' }
                 appId: { type: integer, description: "application id" }
                 reason: { type: string, description: "you can specify reason for case: mailType == APP_REJECTED_USER" }
+
+  /json/registrarManager/sendMessages:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: sendMessages
+      summary: Manually re-sends mail notifications for existing applications.
+      description: |
+        Expected to be called as a result of direct VO administrator action in the web UI.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSendMessages
+              description: "input to sendMessages"
+              type: object
+              required:
+                - mailType
+                - ids
+              properties:
+                mailType: { $ref: '#/components/schemas/MailType' }
+                reason: { type: string, description: "you can specify reason for case: mailType == APP_REJECTED_USER" }
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: "An array of integers representing the IDs of applications"
 
   /json/registrarManager/getApplicationForm/vo:
     get:

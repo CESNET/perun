@@ -1572,7 +1572,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// lock to prevent concurrent runs
 		synchronized(runningDeleteApplication) {
 			if (runningDeleteApplication.contains(app.getId())) {
-				throw new AlreadyProcessingException("Application deletion is already processing.");
+				throw new AlreadyProcessingException("Application " + app.getId() + " deletion is already processing.");
 			} else {
 				runningDeleteApplication.add(app.getId());
 			}
@@ -1589,9 +1589,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			} else {
 				if (AppState.VERIFIED.equals(app.getState()))
-					throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
+					throw new RegistrarException("Submitted application " + app.getId() + " can't be deleted. Please reject the application first.");
 				if (AppState.APPROVED.equals(app.getState()))
-					throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
+					throw new RegistrarException("Approved application " + app.getId() + " can't be deleted. Try to refresh the view to see changes.");
 			}
 			perun.getAuditer().log(sess, new ApplicationDeleted(app));
 			log.info("Application {} deleted.", app.getId());
@@ -1602,6 +1602,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
+	}
+
+	@Override
+	public void deleteApplications(PerunSession sess, List<Application> applications) throws PerunException {
+		for (Application app : applications) {
+			deleteApplication(sess, app);
+		}
 	}
 
 	@Override
@@ -1634,7 +1641,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public Application rejectApplication(PerunSession sess, int appId, String reason) throws PerunException {
 
 		Application app = getApplicationById(appId);
-		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
+		if (app == null) throw new RegistrarException("Application with ID=" + appId + " doesn't exists.");
 
 		//Authorization
 		if (app.getGroup() == null) {
@@ -1649,15 +1656,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// only VERIFIED applications can be rejected
 		if (AppState.APPROVED.equals(app.getState())) {
-			throw new RegistrarException("Approved application can't be rejected ! Try to refresh the view to see changes.");
+			throw new RegistrarException("Approved application " + appId + " can't be rejected ! Try to refresh the view to see changes.");
 		} else if (AppState.REJECTED.equals(app.getState())) {
-			throw new RegistrarException("Application is already rejected. Try to refresh the view to see changes.");
+			throw new RegistrarException("Application " + appId + " is already rejected. Try to refresh the view to see changes.");
 		}
 
 		// lock to prevent concurrent runs
 		synchronized(runningRejectApplication) {
 			if (runningRejectApplication.contains(appId)) {
-				throw new AlreadyProcessingException("Application rejection is already processing.");
+				throw new AlreadyProcessingException("Application " + appId + " rejection is already processing.");
 			} else {
 				runningRejectApplication.add(appId);
 			}
@@ -1724,6 +1731,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException {
+		Collections.sort(applicationIds, Collections.reverseOrder());
+		for (Integer id : applicationIds) {
+			rejectApplication(sess, id, reason);
+		}
+	}
+
 	/**
 	 * Deletes reserved logins which are used only by the given application.
 	 * Deletes them from both KDC and DB.
@@ -1753,7 +1769,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public Application approveApplication(PerunSession sess, int appId) throws PerunException {
 		synchronized(runningApproveApplication) {
 			if (runningApproveApplication.contains(appId)) {
-				throw new AlreadyProcessingException("Application approval is already processing.");
+				throw new AlreadyProcessingException("Application " + appId + " approval is already processing.");
 			} else {
 				runningApproveApplication.add(appId);
 			}
@@ -1764,13 +1780,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			app = registrarManager.approveApplicationInternal(sess, appId);
 		} catch (AlreadyMemberException ex) {
 			// case when user joined identity after sending initial application and former user was already member of VO
-			throw new RegistrarException("User is already member (with ID: "+ex.getMember().getId()+") of your VO/group. (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
+			throw new RegistrarException("User is already member (with ID: "+ex.getMember().getId()+") of your VO/group. (user joined his identities after sending new application). You can reject this application " + appId + " and re-validate old member to keep old data (e.g. login,email).", ex);
 		} catch (MemberNotExistsException ex) {
-			throw new RegistrarException("To approve application user must already be member of VO.", ex);
+			throw new RegistrarException("To approve application " + appId + " user must already be member of VO.", ex);
 		} catch (NotGroupMemberException ex) {
-			throw new RegistrarException("To approve application user must already be member of Group.", ex);
+			throw new RegistrarException("To approve application " + appId + " user must already be member of Group.", ex);
 		} catch (UserNotExistsException | UserExtSourceNotExistsException | ExtSourceNotExistsException ex) {
-			throw new RegistrarException("User specified by the data in application was not found. If you tried to approve application for the Group, try to check, if user already has approved application in the VO. Application to the VO must be approved first.", ex);
+			throw new RegistrarException("User specified by the data in application " + appId + " was not found. If you tried to approve application for the Group, try to check, if user already has approved application in the VO. Application to the VO must be approved first.", ex);
 		} finally {
 			synchronized (runningApproveApplication) {
 				runningApproveApplication.remove(appId);
@@ -1819,6 +1835,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		return app;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException {
+		Collections.sort(applicationIds);
+		for (Integer id : applicationIds) {
+			approveApplication(sess, id);
+		}
 	}
 
 	/**
@@ -1941,7 +1966,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public Application approveApplicationInternal(PerunSession sess, int appId) throws PerunException {
 
 		Application app = getApplicationById(appId);
-		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");
+		if (app == null) throw new RegistrarException("Application with ID " + appId + " doesn't exists.");
 		Member member;
 
 		//Authorization
@@ -1957,9 +1982,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// only VERIFIED applications can be approved
 		if (!AppState.VERIFIED.equals(app.getState())) {
-			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Application is already approved. Try to refresh the view to see changes.");
-			if (AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Rejected application cant' be approved. Try to refresh the view to see changes.");
-			throw new RegistrarException("User didn't verify his email address yet. Please wait until application will be in a 'Submitted' state. You can send mail verification notification to user again if you wish.");
+			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Application " + appId + " is already approved. Try to refresh the view to see changes.");
+			if (AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Rejected application " + appId + " cant' be approved. Try to refresh the view to see changes.");
+			throw new RegistrarException("User didn't verify his email address yet. Please wait until application " + appId + " will be in a 'Submitted' state. You can send mail verification notification to user again if you wish.");
 		}
 
 		LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
@@ -2028,7 +2053,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// and we don't want to validate expired, suspended or disabled users without VO admin owns action !!
 				// meaning, user should submit membership extension application first !!
 				if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
-					throw new CantBeApprovedException("Application of member with membership status: "+member.getStatus()+" can't be approved. Please wait until member extends/re-validate own membership in a VO.");
+					throw new CantBeApprovedException("Application " + appId + " of member with membership status: "+member.getStatus()+" can't be approved. Please wait until member extends/re-validate own membership in a VO.");
 				}
 
 				// store all attributes (but not logins)
@@ -2164,7 +2189,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// and we don't want to validate expired, suspended or disabled users without VO admin owns action !!
 				// meaning, user should submit membership extension application first !!
 				if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
-					throw new CantBeApprovedException("Application of member with membership status: "+member.getStatus()+" can't be approved. Please wait until member extends/re-validate own membership in a VO.");
+					throw new CantBeApprovedException("Application " + appId + " of member with membership status: "+member.getStatus()+" can't be approved. Please wait until member extends/re-validate own membership in a VO.");
 				}
 
 				// overwrite member with group context

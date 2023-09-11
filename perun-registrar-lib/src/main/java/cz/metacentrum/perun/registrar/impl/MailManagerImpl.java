@@ -576,12 +576,12 @@ public class MailManagerImpl implements MailManager {
 		ApplicationForm form = getForm(app);
 
 		ApplicationMail mail = getMailByParams(form.getId(), app.getType(), mailType);
-		if (mail == null) throw new RegistrarException("Notification template for "+mailType+" is not defined.");
-		if (!mail.getSend()) throw new RegistrarException("Sending of notification "+mailType+" is disabled.");
+		if (mail == null) throw new RegistrarException("Notification template for "+mailType+" for application " + app.getId() + " is not defined.");
+		if (!mail.getSend()) throw new RegistrarException("Sending of notification "+mailType+" for application " + app.getId() + " is disabled.");
 
 		if (!(AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN) || AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMINBA))) {
 			if (MailType.APP_ERROR_VO_ADMIN.equals(mailType)) {
-				throw new RegistrarException("APP_ERROR_VO_ADMIN notification can't be sent this way, since it's bound to each approval process. Try to approve application once again to receive this message.");
+				throw new RegistrarException("APP_ERROR_VO_ADMIN notification can't be sent this way, since it's bound to each approval process. Try to approve application " + app.getId() + "  once again to receive this message.");
 			}
 
 			switch (mailType) {
@@ -591,28 +591,28 @@ public class MailManagerImpl implements MailManager {
 					if (app.getState().equals(Application.AppState.NEW) || app.getState().equals(Application.AppState.VERIFIED)) {
 						sendMessage(app, mailType, null, null);
 					} else {
-						throw new RegistrarException("Application must be in state NEW or VERIFIED to allow sending of "+mailType+" notification.");
+						throw new RegistrarException("Application " + app.getId() + " must be in state NEW or VERIFIED to allow sending of "+mailType+" notification.");
 					}
 				} break;
 				case MAIL_VALIDATION: {
 					if (app.getState().equals(Application.AppState.NEW)) {
 						sendMessage(app, mailType, null, null);
 					} else {
-						throw new ApplicationNotNewException("Application must be in state NEW to allow sending of "+mailType+" notification.", app.getState().toString());
+						throw new ApplicationNotNewException("Application " + app.getId() + " must be in state NEW to allow sending of "+mailType+" notification.", app.getState().toString());
 					}
 				} break;
 				case APP_APPROVED_USER: {
 					if (Application.AppState.APPROVED.equals(app.getState())) {
 						sendMessage(app, mailType, null, null);
 					} else {
-						throw new RegistrarException("Application must be in state APPROVED to allow sending of "+mailType+" notification.");
+						throw new RegistrarException("Application " + app.getId() + " must be in state APPROVED to allow sending of "+mailType+" notification.");
 					}
 				} break;
 				case APP_REJECTED_USER: {
 					if (Application.AppState.REJECTED.equals(app.getState())) {
 						sendMessage(app, mailType, reason, null);
 					} else {
-						throw new RegistrarException("Application must be in state REJECTED to allow sending of "+mailType+" notification.");
+						throw new RegistrarException("Application " + app.getId() + " must be in state REJECTED to allow sending of "+mailType+" notification.");
 					}
 				} break;
 			}
@@ -621,6 +621,13 @@ public class MailManagerImpl implements MailManager {
 			sendMessage(app, mailType, reason, null);
 		}
 		perun.getAuditer().log(sess, new MailSentForApplication(mailType, app.getId()));
+	}
+
+	@Override
+	public void sendMessages(PerunSession sess, List<Application> applications, MailType mailType, String reason) throws PerunException {
+		for (Application application : applications) {
+			sendMessage(sess, application, mailType, reason);
+		}
 	}
 
 	@Override

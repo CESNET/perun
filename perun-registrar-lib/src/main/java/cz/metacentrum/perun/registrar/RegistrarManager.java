@@ -267,6 +267,14 @@ public interface RegistrarManager {
 	 */
 	void deleteApplication(PerunSession session, Application application) throws PerunException;
 
+	/**
+	 * Manually deletes multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param sess perun session
+	 * @param applications list of applications
+	 * @throws PerunException
+	 */
+	void deleteApplications(PerunSession sess, List<Application> applications) throws PerunException;
 
 	/**
 	 * Get page of applications for the given vo, with the given parameters
@@ -371,6 +379,15 @@ public interface RegistrarManager {
 	Application approveApplication(PerunSession session, int appId) throws PerunException;
 
 	/**
+	 * Manually approves multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param sess perun session
+	 * @param applicationIds list of application IDs
+	 * @throws PerunException
+	 */
+	void approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException;
+
+	/**
 	 * Approves an application in one transaction.
 	 *
 	 * @param session who approves the application
@@ -402,6 +419,16 @@ public interface RegistrarManager {
 	 * @throws PerunException
 	 */
 	Application rejectApplication(PerunSession session, int appId, String reason) throws PerunException;
+
+	/**
+	 * Manually rejects multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
+	 *
+	 * @param sess perun session
+	 * @param applicationIds list of application IDs
+	 * @param reason optional reason of rejection displayed to user
+	 * @throws PerunException
+	 */
+	void rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException;
 
 	/**
 	 * Returns data submitted by user in given application (by id)
