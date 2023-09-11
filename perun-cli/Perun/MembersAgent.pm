@@ -58,6 +58,11 @@ sub getRichMembers
 	return Perun::Common::callManagerMethod('getRichMembers', '[]RichMember', @_);
 }
 
+sub getRichMember
+{
+	return Perun::Common::callManagerMethod('getRichMember', 'RichMember', @_);
+}
+
 sub getRichMembersWithAttributes
 {
 	return Perun::Common::callManagerMethod('getRichMembersWithAttributes', '[]RichMember', @_);
