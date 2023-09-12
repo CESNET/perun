@@ -69,14 +69,24 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
 		log.info("[{}] Executing SEND worker for Task with Service ID: {} and Facility ID: {} and Destination: {}",
 				sendTask.getTask().getId(), sendTask.getTask().getServiceId(), sendTask.getTask().getFacilityId(),
 				sendTask.getDestination().getDestination());
-
-		ProcessBuilder pb = new ProcessBuilder(
+		ProcessBuilder pb;
+		if (service.getScript().equals("./" + service.getName())) {
+			pb = new ProcessBuilder(
 				service.getScript(),
 				task.getFacility().getName(),
 				sendTask.getDestination().getDestination(),
 				sendTask.getDestination().getType()
-		);
-
+			);
+		} else {
+			// if calling some generic script, also pass name of the service to allow correct gen folder selection
+			pb = new ProcessBuilder(
+				service.getScript(),
+				task.getFacility().getName(),
+				sendTask.getDestination().getDestination(),
+				sendTask.getDestination().getType(),
+				service.getName()
+			);
+		}
 		try {
 
 			// start the script and wait for results
