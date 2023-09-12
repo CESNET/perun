@@ -1534,17 +1534,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) {
+	public List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins, String role) {
 		if(onlyDirectAdmins) {
-			return getGroupsManagerImpl().getDirectAdmins(perunSession, group);
+			return getGroupsManagerImpl().getDirectAdmins(perunSession, group, role);
 		} else {
-			return getGroupsManagerImpl().getAdmins(perunSession, group);
+			return getGroupsManagerImpl().getAdmins(perunSession, group, role);
 		}
 	}
 
 	@Override
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException {
-		List<User> users = this.getAdmins(perunSession, group, onlyDirectAdmins);
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins, String role) throws UserNotExistsException {
+		List<User> users = this.getAdmins(perunSession, group, onlyDirectAdmins, role);
 		List<RichUser> richUsers;
 
 		if(allUserAttributes) {

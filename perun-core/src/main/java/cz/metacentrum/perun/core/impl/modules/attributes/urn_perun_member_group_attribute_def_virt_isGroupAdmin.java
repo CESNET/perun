@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -28,7 +29,7 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdmin extends Memb
         User newUser;
         Attribute attribute = new Attribute(attributeDefinition);
 
-        userAdminList = sess.getPerunBl().getGroupsManagerBl().getAdmins(sess, group, false);
+        userAdminList = sess.getPerunBl().getGroupsManagerBl().getAdmins(sess, group, false, Role.GROUPADMIN);
         newUser = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 
         if (userAdminList.contains(newUser)) {

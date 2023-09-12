@@ -847,28 +847,29 @@ public interface GroupsManagerBl {
 	List<Group> getAllSubGroups(PerunSession sess, Group parentGroup);
 
 	/**
-	 * Gets list of all administrators of this group.
+	 * Gets list of all administrators of this group with a specified role.
 	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
-	 * Supported roles: GroupAdmin
+	 * Supported roles: GroupAdmin, GroupObserver, GroupMembershipManager
 	 *
 	 * @param perunSession
 	 * @param group
 	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param role specified role
 	 *
 	 * @return list of all user administrators of the given group for supported role
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins);
+	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins, String role);
 
 	/**
-	 * Gets list of all richUser administrators of this group.
+	 * Gets list of all richUser administrators of this group with a specified role.
 	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
-	 * Supported roles: GroupAdmin
+	 * Supported roles: GroupAdmin, GroupObserver, GroupMembershipManager
 	 *
 	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
 	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -879,13 +880,14 @@ public interface GroupsManagerBl {
 	 * @param specificAttributes list of specified attributes which are needed in object richUser
 	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
 	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param role specified role
 	 *
 	 * @return list of RichUser administrators for the group and supported role with attributes
 	 *
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins, String role) throws UserNotExistsException;
 
 	/**
 	 * Gets list of all user administrators of this group.

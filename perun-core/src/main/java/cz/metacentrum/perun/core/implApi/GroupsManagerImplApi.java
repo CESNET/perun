@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -472,6 +473,20 @@ public interface GroupsManagerImplApi {
 	List<User> getAdmins(PerunSession perunSession, Group group);
 
 	/**
+	 * Gets list of all administrators of this group with a specified role.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param role
+	 *
+	 * @return list of all administrators with a specified role
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getAdmins(PerunSession perunSession, Group group, String role);
+
+	/**
 	 * Gets list of direct user administrators of this group.
 	 * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
 	 *
@@ -484,6 +499,20 @@ public interface GroupsManagerImplApi {
 	 */
 	List<User> getDirectAdmins(PerunSession perunSession, Group group);
 
+	/**
+	 * Gets list of direct user administrators of this group with a specified role.
+	 * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param role
+	 *
+	 * @throws InternalErrorException
+	 *
+	 * @return list of direct administrators with a specified role
+	 */
+	List<User> getDirectAdmins(PerunSession perunSession, Group group, String role);
+
 	/** Gets list of all group administrators of this group.
 	 *
 	 * @param perunSession
@@ -494,6 +523,18 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupAdmins(PerunSession perunSession, Group group);
+
+	/** Gets list of all group administrators of this group with a specified role
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param role
+	 *
+	 * @return list of all group administrators with a specified role
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupAdmins(PerunSession perunSession, Group group, String role);
 
 	/**
 	 * Check if group exists in underlaying data source.

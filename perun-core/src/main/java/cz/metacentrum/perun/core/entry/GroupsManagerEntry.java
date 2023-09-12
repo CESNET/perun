@@ -765,11 +765,11 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(perunSession, "getAdmins");
 		}
 
-		return getGroupsManagerBl().getAdmins(perunSession, group, onlyDirectAdmins);
+		return getGroupsManagerBl().getAdmins(perunSession, group, onlyDirectAdmins, Role.GROUPADMIN);
 	}
 
 	@Override
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws PrivilegeException, GroupNotExistsException, UserNotExistsException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins, String role) throws PrivilegeException, GroupNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		getGroupsManagerBl().checkGroupExists(perunSession, group);
 		//list of specific attributes must be not null if filtering is needed
@@ -782,7 +782,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(perunSession, "getRichAdmins");
 		}
 
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdmins(perunSession, group, specificAttributes, allUserAttributes, onlyDirectAdmins));
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdmins(perunSession, group, specificAttributes, allUserAttributes, onlyDirectAdmins, role));
 	}
 
 	@Override

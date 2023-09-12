@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -894,13 +895,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	@Override
 	public List<User> getAdmins(PerunSession sess, Group group) {
+		return getAdmins(sess, group, Role.GROUPADMIN);
+	}
+
+	@Override
+	public List<User> getAdmins(PerunSession sess, Group group, String role) {
 		try {
 			// direct admins
 			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
-				"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')", UsersManagerImpl.USER_MAPPER, group.getId()));
+				"where authz.group_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, group.getId(), role.toLowerCase()));
 
 			// admins through a group
-			List<Group> listOfGroupAdmins = getGroupAdmins(sess, group);
+			List<Group> listOfGroupAdmins = getGroupAdmins(sess, group, role);
 			for(Group authorizedGroup : listOfGroupAdmins) {
 				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
 							"join groups_members on groups_members.member_id=members.id where groups_members.group_id=? and groups_members.source_group_status=? and members.status=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId(), MemberGroupStatus.VALID.getCode(), Status.VALID.getCode()));
@@ -917,9 +923,14 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Group group) {
+		return getDirectAdmins(sess, group, Role.GROUPADMIN);
+	}
+
+	@Override
+	public List<User> getDirectAdmins(PerunSession sess, Group group, String role) {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
-					"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')", UsersManagerImpl.USER_MAPPER, group.getId());
+					"where authz.group_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, group.getId(), role.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -929,10 +940,15 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	@Override
 	public List<Group> getGroupAdmins(PerunSession sess, Group group) {
+		return getGroupAdmins(sess, group, Role.GROUPADMIN);
+	}
+
+	@Override
+	public List<Group> getGroupAdmins(PerunSession sess, Group group, String role) {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id " +
-					"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')",
-					GROUP_MAPPER, group.getId());
+					"where authz.group_id=? and authz.role_id=(select id from roles where name=?)",
+					GROUP_MAPPER, group.getId(), role.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

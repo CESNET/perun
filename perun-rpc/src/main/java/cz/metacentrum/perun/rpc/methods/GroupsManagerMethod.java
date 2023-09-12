@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -1123,6 +1124,25 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @return List<RichUser> list of RichUser administrators for the group and supported role with attributes
 	 */
 	/*#
+	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 * If some group is administrator of the given group, all VALID members are included in the list.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * Supported roles: GroupAdmin, GroupObserver, GroupMembershipManager
+	 *
+	 * If "onlyDirectAdmins" is == true, return only direct admins of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins int if == true, get only direct group administrators (if false, get both direct and indirect)
+	 * @param role specified role
+	 *
+	 * @return List<RichUser> list of RichUser administrators for the group and supported role with attributes
+	 */
+	/*#
 	 * Get all Group admins as RichUsers
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
@@ -1140,7 +1160,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 						ac.getGroupById(parms.readInt("group")),
 						parms.readList("specificAttributes", String.class),
 						parms.readBoolean("allUserAttributes"),
-						parms.readBoolean("onlyDirectAdmins"));
+						parms.readBoolean("onlyDirectAdmins"),
+						parms.contains("role") ? parms.readString("role") : Role.GROUPADMIN);
 			} else {
 				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")));

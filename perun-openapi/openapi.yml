@@ -849,6 +849,14 @@ components:
       discriminator:
         propertyName: beanName
 
+    GroupAdminRoles:
+      type: string
+      description: 'admin roles for a Group'
+      enum:
+        - "GROUPADMIN"
+        - "GROUPOBSERVER"
+        - "GROUPMEMBERSHIPMANAGER"
+
     PaginatedRichGroups:
       properties:
         offset: { type: integer }
@@ -13652,6 +13660,29 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getRichAdmins:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getRichAdminsForGroup
+      description: |
+        Gets list of all richUser administrators of this group with a specified role.
+        If some group is administrator of the given group, all VALID members are included in the list.
+        Supported roles: GROUPADMIN, GROUPOBSERVER, GROUPMEMBERSHIPMANAGER
+        If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
+        If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/specificAttributes'
+        - { name: allUserAttributes, schema: { type: boolean }, in: query, required: true, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)' }
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: 'if == true, get only direct vo administrators (if false, get both direct and indirect)' }
+        - { name: role, schema: { $ref: '#/components/schemas/GroupAdminRoles' }, in: query, required: true, description: 'role name' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

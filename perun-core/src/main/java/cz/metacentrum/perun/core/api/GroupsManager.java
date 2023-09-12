@@ -818,10 +818,10 @@ public interface GroupsManager {
 	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Gets list of all richUser administrators of this group.
+	 * Gets list of all richUser administrators of this group with a specified role.
 	 * If some group is administrator of the given group, all VALID members are included in the list.
 	 *
-	 * Supported roles: GroupAdmin
+	 * Supported roles: GroupAdmin, GroupObserver, GroupMembershipManager
 	 *
 	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
 	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -832,6 +832,7 @@ public interface GroupsManager {
 	 * @param specificAttributes list of specified attributes which are needed in object richUser
 	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
 	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param role specified role
 	 *
 	 * @return list of RichUser administrators for the group and supported role with attributes
 	 *
@@ -840,7 +841,7 @@ public interface GroupsManager {
 	 * @throws UserNotExistsException
 	 * @throws GroupNotExistsException
 	 */
-	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException, PrivilegeException, GroupNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins, String role) throws UserNotExistsException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Get list of all richGroups with selected attributes assigned to resource.

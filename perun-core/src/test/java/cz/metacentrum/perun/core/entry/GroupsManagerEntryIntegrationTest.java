@@ -23,6 +23,8 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -51,6 +53,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.Before;
@@ -3739,6 +3742,100 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getRichAdminsOnlyDirect() throws Exception {
+		System.out.println(CLASS_NAME + "getRichAdmins");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		User user1 = setUpUser("John", "Doe1");
+		User user2 = setUpUser("John", "Doe2");
+		User user3 = setUpUser("John", "Doe3");
+		User user4 = setUpUser("John", "Doe4");
+		User user5 = setUpUser("John", "Doe5");
+		User user6 = setUpUser("John", "Doe6");
+
+		AuthzResolverBlImpl.setRole(sess, user1, group, Role.GROUPADMIN);
+		AuthzResolverBlImpl.setRole(sess, user2, group, Role.GROUPADMIN);
+		AuthzResolverBlImpl.setRole(sess, user3, group, Role.GROUPOBSERVER);
+		AuthzResolverBlImpl.setRole(sess, user4, group, Role.GROUPMEMBERSHIPMANAGER);
+		AuthzResolverBlImpl.setRole(sess, user5, group, Role.GROUPMEMBERSHIPMANAGER);
+		AuthzResolverBlImpl.setRole(sess, user6, group, Role.GROUPMEMBERSHIPMANAGER);
+
+		List<RichUser> admins = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, false, Role.GROUPADMIN);
+		List<RichUser> observers = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, false, Role.GROUPOBSERVER);
+		List<RichUser> membershipManagers = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, false, Role.GROUPMEMBERSHIPMANAGER);
+
+        assertEquals("Group should have 2 GroupAdmins", 2, admins.size());
+        assertEquals("Group should have 1 GroupObserver", 1, observers.size());
+        assertEquals("Group should have 3 GroupMembershipManagers", 3, membershipManagers.size());
+	}
+
+	@Test
+	public void getRichAdminsAlsoIndirect() throws Exception {
+		System.out.println(CLASS_NAME + "getRichAdmins");
+
+		vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+
+		// Setup direct admins
+		User user1 = setUpUser("John", "Doe1");
+		User user2 = setUpUser("John", "Doe2");
+		User user3 = setUpUser("John", "Doe3");
+		User user4 = setUpUser("John", "Doe4");
+		User user5 = setUpUser("John", "Doe5");
+		User user6 = setUpUser("John", "Doe6");
+
+		AuthzResolverBlImpl.setRole(sess, user1, group, Role.GROUPADMIN);
+		AuthzResolverBlImpl.setRole(sess, user2, group, Role.GROUPADMIN);
+		AuthzResolverBlImpl.setRole(sess, user3, group, Role.GROUPOBSERVER);
+		AuthzResolverBlImpl.setRole(sess, user4, group, Role.GROUPMEMBERSHIPMANAGER);
+		AuthzResolverBlImpl.setRole(sess, user5, group, Role.GROUPMEMBERSHIPMANAGER);
+		AuthzResolverBlImpl.setRole(sess, user6, group, Role.GROUPMEMBERSHIPMANAGER);
+
+		// Setup indirect admins
+		User user11 = setUpUser("John", "Doe11");
+		User user12 = setUpUser("John", "Doe12");
+		User user13 = setUpUser("John", "Doe13");
+		User user14 = setUpUser("John", "Doe14");
+		User user15 = setUpUser("John", "Doe15");
+		User user16 = setUpUser("John", "Doe16");
+
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+		perun.getMembersManagerBl().validateMember(sess, perun.getMembersManager().createMember(sess, vo, user11, Collections.singletonList(group2)));
+		perun.getMembersManagerBl().validateMember(sess, perun.getMembersManager().createMember(sess, vo, user12, Collections.singletonList(group2)));
+		perun.getMembersManagerBl().validateMember(sess, perun.getMembersManager().createMember(sess, vo, user13, Collections.singletonList(group3)));
+		perun.getMembersManagerBl().validateMember(sess, perun.getMembersManager().createMember(sess, vo, user14, Collections.singletonList(group3)));
+		perun.getMembersManagerBl().validateMember(sess, perun.getMembersManager().createMember(sess, vo, user15, Collections.singletonList(group4)));
+		perun.getMembersManagerBl().validateMember(sess, perun.getMembersManager().createMember(sess, vo, user16, Collections.singletonList(group4)));
+
+		AuthzResolverBlImpl.setRole(sess, group2, group, Role.GROUPADMIN);
+		AuthzResolverBlImpl.setRole(sess, group3, group, Role.GROUPOBSERVER);
+		AuthzResolverBlImpl.setRole(sess, group4, group, Role.GROUPMEMBERSHIPMANAGER);
+
+		// Check only direct admins
+		List<RichUser> admins = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, true, Role.GROUPADMIN);
+		List<RichUser> observers = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, true, Role.GROUPOBSERVER);
+		List<RichUser> membershipManagers = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, true, Role.GROUPMEMBERSHIPMANAGER);
+
+		assertEquals("Group should have 2 direct GroupAdmins", 2, admins.size());
+		assertEquals("Group should have 1 direct GroupObserver", 1, observers.size());
+		assertEquals("Group should have 3 direct GroupMembershipManagers", 3, membershipManagers.size());
+
+		// Check also indirect direct admins
+		admins = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, false, Role.GROUPADMIN);
+		observers = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, false, Role.GROUPOBSERVER);
+		membershipManagers = groupsManager.getRichAdmins(sess, group, Collections.emptyList(), false, false, Role.GROUPMEMBERSHIPMANAGER);
+
+		assertEquals("Group should have 4 GroupAdmins (including indirect)", 4, admins.size());
+		assertEquals("Group should have 3 GroupObserver (including indirect)", 3, observers.size());
+		assertEquals("Group should have 5 GroupMembershipManagers (including indirect)", 5, membershipManagers.size());
+	}
+
+	@Test
 	public void getAdmins() throws Exception {
 		System.out.println(CLASS_NAME + "getAdmins");
 
@@ -6605,6 +6702,17 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		return returnedVo;
 
+	}
+
+	private User setUpUser(String firstName, String lastName) throws Exception {
+		User user = new User();
+		user.setFirstName(firstName);
+		user.setMiddleName("");
+		user.setLastName(lastName);
+		user.setTitleBefore("");
+		user.setTitleAfter("");
+		user = perun.getUsersManagerBl().createUser(sess, user);
+		return user;
 	}
 
 	private Member setUpMember(Vo vo) throws Exception {
