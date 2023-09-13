@@ -35,7 +35,6 @@
 	<appender class="org.gnieh.logback.SystemdJournalAppender" name="journal-audit">
 		<syslogIdentifier>perun_audit</syslogIdentifier>
 		<logLoggerName>true</logLoggerName>
-		<logStacktrace>false</logStacktrace>
 		<encoder>
 			<pattern>%msg</pattern>
 		</encoder>
