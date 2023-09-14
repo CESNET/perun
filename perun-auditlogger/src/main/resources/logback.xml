@@ -26,7 +26,7 @@
 		<appender-ref ref="perun-auditlogger"/>
 	</root>
 
-	<logger name="cz.metacentrum.perun.auditlogger" level="debug"/>
+	<logger name="cz.metacentrum.perun.auditlogger" level="info"/>
 
 	<!-- keep Spring quiet -->
 	<logger name="org.springframework" level="warn"/>
