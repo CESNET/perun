@@ -36,13 +36,13 @@ public class AuditLoggerManagerImpl implements AuditLoggerManager {
 		eventProcessorThread = new Thread(eventLogger);
 		eventProcessorThread.start();
 
-		log.debug("Event processor thread started.");
+		log.info("Event processor thread started.");
 		System.out.println("Event processor thread started.");
 	}
 
 	public void stopProcessingEvents() {
 		eventProcessorThread.interrupt();
-		log.debug("Event processor thread interrupted.");
+		log.info("Event processor thread interrupted.");
 		System.out.println("Event processor thread interrupted.");
 	}
 
