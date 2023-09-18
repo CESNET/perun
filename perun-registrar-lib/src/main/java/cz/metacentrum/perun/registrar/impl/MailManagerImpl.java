@@ -1,41 +1,11 @@
 package cz.metacentrum.perun.registrar.impl;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.sql.DataSource;
-
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.InvitationSentEvent;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdAdded;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdRemoved;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdUpdated;
@@ -67,45 +37,75 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.HTMLParser;
 import cz.metacentrum.perun.core.impl.PerunAppsConfig;
+import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.MailManager;
+import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationNotNewException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
-import cz.metacentrum.perun.audit.events.MailManagerEvents.InvitationSentEvent;
+import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.Application.AppType;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
+import cz.metacentrum.perun.registrar.model.ApplicationMail;
+import cz.metacentrum.perun.registrar.model.ApplicationMail.MailText;
+import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import cz.metacentrum.perun.core.bl.PerunBl;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationForm;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
-import cz.metacentrum.perun.registrar.model.ApplicationMail;
-import cz.metacentrum.perun.registrar.model.Application.AppType;
-import cz.metacentrum.perun.registrar.model.ApplicationMail.MailText;
-import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
-import cz.metacentrum.perun.registrar.MailManager;
-import cz.metacentrum.perun.registrar.RegistrarManager;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_FROM_EMAIL;
 import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_FROM_NAME_EMAIL;
@@ -124,7 +124,7 @@ import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_TO
 
 public class MailManagerImpl implements MailManager {
 
-	private final static Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
 
 	private static final String MAILS_SELECT_BY_FORM_ID = "select id,app_type,form_id,mail_type,send from application_mails where form_id=?";
 	private static final String MAILS_SELECT_BY_PARAMS = "select id,app_type,form_id,mail_type,send from application_mails where form_id=? and app_type=? and mail_type=?";
@@ -135,6 +135,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
 	private static final String URN_USER_DISPLAY_NAME = "urn:perun:user:attribute-def:core:displayName";
 	private static final String URN_USER_LAST_NAME = "urn:perun:user:attribute-def:core:lastName";
+	private static final String URN_USER_FIRST_NAME = "urn:perun:user:attribute-def:core:firstName";
 	private static final String URN_MEMBER_MAIL = "urn:perun:member:attribute-def:def:mail";
 	private static final String URN_MEMBER_EXPIRATION = "urn:perun:member:attribute-def:def:membershipExpiration";
 	private static final String URN_MEMBER_PHONE = "urn:perun:member:attribute-def:def:phone";
@@ -1185,10 +1186,7 @@ public class MailManagerImpl implements MailManager {
 			log.error("[MAIL MANAGER] Exception thrown when getting TO email from an attribute {}. Ex: {}",
 					app.getGroup() == null ? URN_VO_TO_EMAIL : URN_GROUP_TO_EMAIL, ex);
 			// set backup
-			result.clear();
-		}
-		// no recipients found for Group and Vo, use backup
-		if (result.isEmpty()) {
+			result = new HashSet<>();
 			result.add(getPropertyFromConfiguration("backupTo"));
 		}
 		return result;
@@ -1241,35 +1239,32 @@ public class MailManagerImpl implements MailManager {
 	private String substituteCommonStringsForInvite(Vo vo, Group group, User user, String name, String mailText, boolean isAlternativePlainText) {
 		// replace voName
 		if (mailText.contains(FIELD_VO_NAME)) {
-			mailText = mailText.replace(FIELD_VO_NAME, vo.getName());
+			mailText = replaceNullSafe(mailText, FIELD_VO_NAME, vo.getName());
 		}
 
 		// replace groupName
 		if (mailText.contains(FIELD_GROUP_NAME)) {
 			if (group != null) {
-				mailText = mailText.replace(FIELD_GROUP_NAME, group.getShortName());
+				mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, group.getShortName());
 			} else {
-				mailText = mailText.replace(FIELD_GROUP_NAME, EMPTY_STRING);
+				mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, EMPTY_STRING);
 			}
 		}
 
 		// replace name of user
 		if (mailText.contains(FIELD_DISPLAY_NAME)) {
 			if (user != null) {
-				mailText = mailText.replace(FIELD_DISPLAY_NAME, user.getDisplayName());
+				mailText = replaceNullSafe(mailText, FIELD_DISPLAY_NAME, user.getDisplayName());
 			} else if (name != null && !name.isEmpty()) {
-				mailText = mailText.replace(FIELD_DISPLAY_NAME, name);
+				mailText = replaceNullSafe(mailText, FIELD_DISPLAY_NAME, name);
 			} else {
-				mailText = mailText.replace(FIELD_DISPLAY_NAME, EMPTY_STRING);
+				mailText = replaceNullSafe(mailText, FIELD_DISPLAY_NAME, EMPTY_STRING);
 			}
 		}
 
 		// replace invitation link
 		if (mailText.contains(FIELD_INVITATION_LINK)) {
-			String url = getPerunUrl(vo, group);
-			if (!url.endsWith("/")) url += "/";
-			url += "registrar/";
-			mailText = mailText.replace(FIELD_INVITATION_LINK, buildInviteURL(vo, group, url));
+			mailText = replaceNullSafe(mailText, FIELD_INVITATION_LINK, buildInviteURL(vo, group));
 		}
 
 		// replace invitation link
@@ -1288,16 +1283,10 @@ public class MailManagerImpl implements MailManager {
 				while (m2.find()) {
 					// only namespace "fed", "cert",...
 					String namespace = m2.group(1);
-					String url = getPerunUrl(vo, group);
-
-					if (url != null && !url.isEmpty()) {
-						if (!url.endsWith("/")) url += "/";
-						url += namespace + "/registrar/";
-						newValue = buildInviteURL(vo, group, url);
-					}
+					newValue = buildInviteURL(vo, group, namespace);
 				}
 				// substitute {invitationLink-authz} with actual value or empty string
-				mailText = mailText.replace(toSubstitute, newValue);
+				mailText = replaceNullSafe(mailText, toSubstitute, newValue);
 			}
 		}
 
@@ -1354,7 +1343,7 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from the attribute.", ex);
 			}
 			// replace by the footer or empty
-			mailText = mailText.replace(footerTag, (footer != null) ? footer : EMPTY_STRING);
+			mailText = replaceNullSafe(mailText, footerTag, footer);
 		}
 
 		return mailText;
@@ -1365,20 +1354,24 @@ public class MailManagerImpl implements MailManager {
 	 *
 	 * @param vo vo to get invite link for
 	 * @param group group if is for group application
-	 * @param text base of URL for invitation
 	 * @return full URL to application form
 	 */
-	private String buildInviteURL(Vo vo, Group group, String text) {
-		if (text == null || text.isEmpty()) return EMPTY_STRING;
+	private String buildInviteURL(Vo vo, Group group) {
+		return buildInviteURL(vo, group,  EMPTY_STRING);
+	}
 
-		text += "?vo=" + getUrlEncodedString(vo.getShortName());
-
-		if (group != null) {
-			// application for group too
-			text += "&group="+ getUrlEncodedString(group.getName());
+	private String buildInviteURL(Vo vo, Group group, String namespace) {
+		String url = getPerunUrl(vo, group);
+		if (!StringUtils.hasText(url)) {
+			return EMPTY_STRING;
 		}
 
-		return text;
+		Map<String, String> params = new HashMap<>();
+		params.put("vo", vo.getShortName());
+		if (group != null) {
+			params.put("group", group.getName());
+		}
+		return buildUrl(url, params, namespace, "registrar");
 	}
 
 	/**
@@ -1421,351 +1414,401 @@ public class MailManagerImpl implements MailManager {
 	 * @param isAlternativePlainText if the text will be used as alternative plain text to an HTML text
 	 * @return modified text
 	 */
-	private String substituteCommonStrings(Application app, List<ApplicationFormItemData> data, String mailText, String reason, List<Exception> exceptions, boolean isAlternativePlainText) {
+	private String substituteCommonStrings(Application app,
+										   List<ApplicationFormItemData> data,
+										   String mailText,
+										   String reason,
+										   List<Exception> exceptions,
+										   boolean isAlternativePlainText)
+	{
 		LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
-		PerunPrincipal applicationPrincipal = new PerunPrincipal(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), additionalAttributes);
+		PerunPrincipal applicationPrincipal = new PerunPrincipal(app, additionalAttributes);
 
-		// replace app ID
-		if (mailText.contains(FIELD_APP_ID)) {
-			mailText = mailText.replace(FIELD_APP_ID, app.getId()+EMPTY_STRING);
+		mailText = replaceAppId(mailText, app);
+		mailText = replaceActor(mailText, app);
+		mailText = replaceExtSource(mailText, app);
+		mailText = replaceVoName(mailText, app);
+		mailText = replaceGroupName(mailText, app);
+		mailText = replaceCustomMessage(mailText, reason);
+		mailText = replaceAutoApproveErrors(mailText, exceptions);
+		mailText = replaceFromAppItems(mailText, data);
+		mailText = replaceDisplayName(mailText, app, data, applicationPrincipal);
+		mailText = replaceFirstName(mailText, app, data, applicationPrincipal);
+		mailText = replaceLastName(mailText, app, data, applicationPrincipal);
+		mailText = replaceErrors(mailText, exceptions);
+		mailText = replaceLogins(mailText, app, data);
+		mailText = replaceAppDetailUrl(mailText, app.getId(), app.getVo(), app.getGroup());
+		mailText = replaceAppGuiUrl(mailText, app.getVo(), app.getGroup());
+		mailText = replacePerunGuiUrl(mailText, app.getVo(), app.getGroup());
+		mailText = replaceExpiration(mailText, app);
+		mailText = replaceMail(mailText, app, data);
+		mailText = replacePhone(mailText, app, data);
+
+		mailText = replaceFooter(FIELD_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, true);
+		mailText = replaceFooter(FIELD_HTML_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, isAlternativePlainText);
+
+		return mailText;
+	}
+
+	private String replaceAppId(String mailText, Application app) {
+		if (!mailText.contains(FIELD_APP_ID)) {
+			return mailText;
 		}
+		return replaceInt(mailText, FIELD_APP_ID, app.getId());
+	}
 
-		// replace actor (app created by)
-		if (mailText.contains(FIELD_ACTOR)) {
-			mailText = mailText.replace(FIELD_ACTOR, app.getCreatedBy()+EMPTY_STRING);
+	private String replaceActor(String mailText, Application app) {
+		if (!mailText.contains(FIELD_ACTOR)) {
+			return mailText;
 		}
+		return replaceNullSafe(mailText, FIELD_ACTOR, app.getCreatedBy());
+	}
 
-		// replace ext source (app created by)
-		if (mailText.contains(FIELD_EXT_SOURCE)) {
-			mailText = mailText.replace(FIELD_EXT_SOURCE, app.getExtSourceName()+EMPTY_STRING);
+	private String replaceExtSource(String mailText, Application app) {
+		if (!mailText.contains(FIELD_EXT_SOURCE)) {
+			return mailText;
 		}
+		return replaceNullSafe(mailText, FIELD_EXT_SOURCE, app.getExtSourceName());
+	}
 
-		// replace voName
-		if (mailText.contains(FIELD_VO_NAME)) {
-			mailText = mailText.replace(FIELD_VO_NAME, app.getVo().getName());
+	private String replaceVoName(String mailText, Application app) {
+		if (!mailText.contains(FIELD_VO_NAME)) {
+			return mailText;
 		}
+		return replaceNullSafe(mailText, FIELD_VO_NAME, app.getVo().getName());
+	}
 
-		// replace groupName
-		if (mailText.contains(FIELD_GROUP_NAME)) {
-			if (app.getGroup() != null) {
-				mailText = mailText.replace(FIELD_GROUP_NAME, app.getGroup().getShortName());
-			} else {
-				mailText = mailText.replace(FIELD_GROUP_NAME, EMPTY_STRING);
-			}
+	private String replaceGroupName(String mailText, Application app) {
+		if (!mailText.contains(FIELD_GROUP_NAME)) {
+			return mailText;
 		}
-
-		// replace customMessage (reason)
-		if (mailText.contains(FIELD_CUSTOM_MESSAGE)) {
-			if (reason != null && !reason.isEmpty()) {
-				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, reason);
-			} else {
-				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, EMPTY_STRING);
-			}
+		String gName = EMPTY_STRING;
+		if (app.getGroup() != null) {
+			gName = app.getGroup().getShortName();
 		}
+		return replaceNullSafe(mailText, FIELD_GROUP_NAME, gName);
+	}
 
-		// replace autoApproveError
-		if (mailText.contains(FIELD_AUTO_APPROVE_ERROR)) {
-			if (exceptions != null && !exceptions.isEmpty()) {
-				mailText = mailText.replace(FIELD_AUTO_APPROVE_ERROR, exceptions.get(0).getMessage());
-			} else {
-				mailText = mailText.replace(FIELD_AUTO_APPROVE_ERROR, EMPTY_STRING);
-			}
+	private String replaceCustomMessage(String mailText, String reason) {
+		if (!mailText.contains(FIELD_CUSTOM_MESSAGE)) {
+			return mailText;
 		}
+		return replaceNullSafe(mailText, FIELD_CUSTOM_MESSAGE, reason);
+	}
 
-		// replace {fromApp-*}
+	private String replaceAutoApproveErrors(String mailText, List<Exception> exceptions) {
+		if (!mailText.contains(FIELD_AUTO_APPROVE_ERROR)) {
+			return mailText;
+		}
+		String msg = EMPTY_STRING;
+		if (exceptions != null && !exceptions.isEmpty()) {
+			msg = exceptions.stream().map(Throwable::getMessage).collect(Collectors.joining(", "));
+		}
+		return replaceNullSafe(mailText, FIELD_AUTO_APPROVE_ERROR, msg);
+	}
+
+	private String replaceFromAppItems(String mailText, List<ApplicationFormItemData> data) {
 		Matcher matcher = FROM_APP_PATTERN.matcher(mailText);
 		while (matcher.find()) {
 			String itemName = matcher.group(1);
 
 			for (ApplicationFormItemData item : data) {
 				if (itemName.equals(item.getShortname())) {
-					String newValue = item.getValue();
-					mailText = mailText.replace("{fromApp-" + itemName +"}", newValue != null ? newValue : EMPTY_STRING);
+					mailText = replaceNullSafe(mailText, "{fromApp-" + itemName +"}", item.getValue());
 					break;
 				}
 			}
 		}
-
-		// replace displayName
-		if (mailText.contains(FIELD_DISPLAY_NAME)) {
-			String nameText = EMPTY_STRING; // backup
-			for (ApplicationFormItemData d : data) {
-				// core attribute
-				if (URN_USER_DISPLAY_NAME.equals(d.getFormItem().getPerunDestinationAttribute())) {
-					if (d.getValue() != null && !d.getValue().isEmpty()) {
-						nameText = d.getValue();
-						break;
-					}
-				}
-				// federation attribute
-				if (CN.equals(d.getFormItem().getFederationAttribute()) || DISPLAY_NAME.equals(d.getFormItem().getFederationAttribute())) {
-					if (d.getValue() != null && !d.getValue().isEmpty()) {
-						nameText = d.getValue();
-						break;
-					}
-				}
-			}
-
-			if (nameText.isEmpty()) {
-				User user = null;
-				if (app.getUser() != null) {
-					user = app.getUser();
-				} else {
-					try {
-						user = usersManager.getUserByExtSourceInformation(registrarSession, applicationPrincipal);
-					} catch (Exception ex) {
-						// user not found is ok
-					}
-				}
-				if (user != null) nameText = user.getDisplayName();
-			}
-
-			mailText = mailText.replace(FIELD_DISPLAY_NAME, nameText);
-		}
-
-		// replace firstName
-		if (mailText.contains(FIELD_FIRST_NAME)) {
-			String nameText = EMPTY_STRING; // backup
-			for (ApplicationFormItemData d : data) {
-				if ("urn:perun:user:attribute-def:core:firstName".equals(d.getFormItem().getPerunDestinationAttribute())) {
-					if (d.getValue() != null && !d.getValue().isEmpty()) {
-						nameText = d.getValue();
-						break;
-					}
-				}
-			}
-
-			if (nameText.isEmpty()) {
-				User user = null;
-				if (app.getUser() != null) {
-					user = app.getUser();
-				} else {
-					try {
-						user = usersManager.getUserByExtSourceInformation(registrarSession, applicationPrincipal);
-					} catch (Exception ex) {
-						// user not found is ok
-					}
-				}
-				if (user != null) nameText = user.getFirstName();
-			}
-
-			mailText = mailText.replace(FIELD_FIRST_NAME, nameText);
-		}
-
-		// replace lastName
-		if (mailText.contains(FIELD_LAST_NAME)) {
-			String nameText = EMPTY_STRING; // backup
-			for (ApplicationFormItemData d : data) {
-				if (URN_USER_LAST_NAME.equals(d.getFormItem().getPerunDestinationAttribute())) {
-					if (d.getValue() != null && !d.getValue().isEmpty()) {
-						nameText = d.getValue();
-						break;
-					}
-				}
-			}
-
-			if (nameText.isEmpty()) {
-				User user = null;
-				if (app.getUser() != null) {
-					user = app.getUser();
-				} else {
-					try {
-						user = usersManager.getUserByExtSourceInformation(registrarSession, applicationPrincipal);
-					} catch (Exception ex) {
-						// user not found is ok
-					}
-				}
-				if (user != null) nameText = user.getLastName();
-			}
-
-			mailText = mailText.replace(FIELD_LAST_NAME, nameText);
-
-		}
-
-		// replace exceptions
-		if (mailText.contains(FIELD_ERRORS)) {
-			String errorText = EMPTY_STRING;
-			if (exceptions != null && !exceptions.isEmpty()) {
-				for (Exception ex : exceptions) {
-					errorText = errorText.concat("\n\n"+ex.toString());
-				}
-			}
-			mailText = mailText.replace(FIELD_ERRORS, errorText);
-		}
-
-		// replace logins
-		if (mailText.contains("{login-")) {
-
-			Pattern pattern = Pattern.compile("\\{login-[^}]+}");
-			Matcher m = pattern.matcher(mailText);
-			while (m.find()) {
-
-				// whole "{login-something}"
-				String toSubstitute = m.group(0);
-
-				// new login value to replace in text
-				String newValue = EMPTY_STRING;
-
-				Pattern namespacePattern = Pattern.compile("-(.*?)}");
-				Matcher m2 = namespacePattern.matcher(toSubstitute);
-				while (m2.find()) {
-					// only namespace "meta", "egi-ui",...
-					String namespace = m2.group(1);
-
-					// if user not known -> search through form items to get login
-					for (ApplicationFormItemData d : data) {
-						ApplicationFormItem item = d.getFormItem();
-						if (item != null) {
-							if (ApplicationFormItem.Type.USERNAME.equals(item.getType())) {
-								// if username match namespace
-								if (item.getPerunDestinationAttribute().contains("login-namespace:"+namespace)) {
-									if (d.getValue() != null && !d.getValue().isEmpty()) {
-										// save not null or empty value and break cycle
-										newValue = d.getValue();
-										break;
-									}
-								}
-							}
-						}
-					}
-
-					// if user exists, try to get login from attribute instead of application
-					// since we do no allow to overwrite login by application
-					try {
-						if (app.getUser() != null) {
-							List<Attribute> logins = attrManager.getLogins(registrarSession, app.getUser());
-							for (Attribute a : logins) {
-								// replace only correct namespace
-								if (a.getFriendlyNameParameter().equalsIgnoreCase(namespace)) {
-									if (a.getValue() != null) {
-										newValue = BeansUtils.attributeValueToString(a);
-										break;
-									}
-								}
-							}
-						}
-					} catch (Exception ex) {
-						log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \"{}\" for mail. {}", namespace, ex);
-					}
-
-				}
-
-				// substitute {login-namespace} with actual value or empty string
-				mailText = mailText.replace(toSubstitute, newValue != null ? newValue : EMPTY_STRING);
-
-			}
-
-		}
-
-		mailText = replaceAppDetailUrl(mailText, app.getId(), app.getVo(), app.getGroup());
-		mailText = replaceAppGuiUrl(mailText, app.getVo(), app.getGroup());
-		mailText = replacePerunGuiUrl(mailText, app.getVo(), app.getGroup());
-
-		// membership expiration
-		if (mailText.contains(FIELD_MEMBERSHIP_EXPIRATION)) {
-			String expiration = EMPTY_STRING;
-			if (app.getUser() != null) {
-				try {
-					User u = usersManager.getUserById(registrarSession, app.getUser().getId());
-					Member m = membersManager.getMemberByUser(registrarSession, app.getVo(), u);
-					Attribute a = attrManager.getAttribute(registrarSession, m, URN_MEMBER_EXPIRATION);
-					if (a != null && a.getValue() != null) {
-						// attribute value is string
-						expiration = ((String)a.getValue());
-					}
-				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting membership expiration param for mail.", ex);
-				}
-			}
-			// replace by date or empty
-			mailText = mailText.replace(FIELD_MEMBERSHIP_EXPIRATION, expiration);
-		}
-
-		// user mail
-		if (mailText.contains(FIELD_MAIL)) {
-			String mail = EMPTY_STRING;
-			if (app.getUser() != null) {
-				try {
-					User u = usersManager.getUserById(registrarSession, app.getUser().getId());
-					Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PREFERRED_MAIL);
-					if (a != null && a.getValue() != null) {
-						// attribute value is string
-						mail = ((String)a.getValue());
-					}
-				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail.", ex);
-				}
-			} else {
-
-				for (ApplicationFormItemData d : data) {
-					if (URN_MEMBER_MAIL.equals(d.getFormItem().getPerunDestinationAttribute())) {
-						if (d.getValue() != null && !d.getValue().isEmpty()) {
-							mail = d.getValue();
-							break;
-						}
-					}
-				}
-
-				for (ApplicationFormItemData d : data) {
-					if (URN_USER_PREFERRED_MAIL.equals(d.getFormItem().getPerunDestinationAttribute())) {
-						if (d.getValue() != null && !d.getValue().isEmpty()) {
-							mail = d.getValue();
-							break;
-						}
-					}
-				}
-
-
-			}
-
-			// replace by mail or empty
-			mailText = mailText.replace(FIELD_MAIL, mail);
-		}
-
-		// user phone
-		if (mailText.contains(FIELD_PHONE)) {
-			String phone = EMPTY_STRING;
-			if (app.getUser() != null) {
-				try {
-					User u = usersManager.getUserById(registrarSession, app.getUser().getId());
-					Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PHONE);
-					if (a != null && a.getValue() != null) {
-						// attribute value is string
-						phone = ((String)a.getValue());
-					}
-				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting phone param for mail.", ex);
-				}
-			} else {
-
-				for (ApplicationFormItemData d : data) {
-					if (URN_MEMBER_PHONE.equals(d.getFormItem().getPerunDestinationAttribute())) {
-						if (d.getValue() != null && !d.getValue().isEmpty()) {
-							phone = d.getValue();
-							break;
-						}
-					}
-				}
-
-				for (ApplicationFormItemData d : data) {
-					if (URN_USER_PHONE.equals(d.getFormItem().getPerunDestinationAttribute())) {
-						if (d.getValue() != null && !d.getValue().isEmpty()) {
-							phone = d.getValue();
-							break;
-						}
-					}
-				}
-
-			}
-
-			// replace by phone or empty
-			mailText = mailText.replace(FIELD_PHONE, phone);
-		}
-
-		mailText = replaceFooter(FIELD_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, true);
-		mailText = replaceFooter(FIELD_HTML_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, isAlternativePlainText);
-
 		return mailText;
+	}
+
+	private String replaceDisplayName(String mailText, Application app, List<ApplicationFormItemData> data, PerunPrincipal applicationPrincipal) {
+		if (!mailText.contains(FIELD_DISPLAY_NAME)) {
+			return mailText;
+		}
+		String nameText = EMPTY_STRING; // backup
+		ApplicationFormItemData replacementItem = data.stream()
+			.filter(d -> hasValueAndReplacement(d, List.of(URN_USER_DISPLAY_NAME), List.of(CN, DISPLAY_NAME)))
+			.findFirst()
+			.orElse(null);
+		if (replacementItem != null) {
+			nameText = replacementItem.getValue();
+		}
+
+		if (!StringUtils.hasText(nameText)) {
+			User user = getUserFromAppOrByExtSource(app, applicationPrincipal);
+			if (user != null) {
+				nameText = user.getDisplayName();
+			}
+		}
+
+		return replaceNullSafe(mailText, FIELD_DISPLAY_NAME, nameText);
+	}
+
+	private String replaceFirstName(String mailText, Application app, List<ApplicationFormItemData> data, PerunPrincipal applicationPrincipal) {
+		if (!mailText.contains(FIELD_FIRST_NAME)) {
+			return mailText;
+		}
+
+		String nameText = EMPTY_STRING; // backup
+		ApplicationFormItemData replacementItem = data.stream()
+			.filter(d -> hasValueAndReplacement(d, List.of(URN_USER_FIRST_NAME), Collections.emptyList()))
+			.findFirst()
+			.orElse(null);
+		if (replacementItem != null) {
+			nameText = replacementItem.getValue();
+		}
+
+		if (!StringUtils.hasText(nameText)) {
+			User user = getUserFromAppOrByExtSource(app, applicationPrincipal);
+			if (user != null) {
+				nameText = user.getFirstName();
+			}
+		}
+
+		return replaceNullSafe(mailText, FIELD_FIRST_NAME, nameText);
+	}
+
+	private String replaceLastName(String mailText, Application app, List<ApplicationFormItemData> data, PerunPrincipal applicationPrincipal) {
+		if (!mailText.contains(FIELD_LAST_NAME)) {
+			return mailText;
+		}
+		String nameText = EMPTY_STRING; // backup
+		ApplicationFormItemData replacementItem = data.stream()
+			.filter(d -> hasValueAndReplacement(d, List.of(URN_USER_LAST_NAME), Collections.emptyList()))
+			.findFirst()
+			.orElse(null);
+		if (replacementItem != null) {
+			nameText = replacementItem.getValue();
+		}
+
+		if (!StringUtils.hasText(nameText)) {
+			User user = getUserFromAppOrByExtSource(app, applicationPrincipal);
+			if (user != null) {
+				nameText = user.getLastName();
+			}
+		}
+		return replaceNullSafe(mailText, FIELD_LAST_NAME, nameText);
+	}
+
+	private String replaceErrors(String mailText, List<Exception> exceptions) {
+		if (!mailText.contains(FIELD_ERRORS)) {
+			return mailText;
+		}
+		String errorText = EMPTY_STRING;
+		if (exceptions != null && !exceptions.isEmpty()) {
+			errorText = exceptions.stream().map(Throwable::toString).collect(Collectors.joining("\n\n"));
+		}
+		return replaceNullSafe(mailText, FIELD_ERRORS, errorText);
+	}
+
+	private String replaceLogins(String mailText, Application app, List<ApplicationFormItemData> data) {
+		if (!mailText.contains("{login-")) {
+			return mailText;
+		}
+
+		Pattern pattern = Pattern.compile("\\{login-[^}]+}");
+		Matcher m = pattern.matcher(mailText);
+		while (m.find()) {
+			// whole "{login-something}"
+			String toSubstitute = m.group(0);
+
+			// new login value to replace in text
+			Pattern namespacePattern = Pattern.compile("-(.*?)}");
+			Matcher m2 = namespacePattern.matcher(toSubstitute);
+			while (m2.find()) {
+				// only namespace "meta", "egi-ui",...
+				String namespace = m2.group(1);
+				// if user exists, try to get login from attribute instead of application
+				// since we do not allow to overwrite login by application
+				String userLogin = getLoginFromUser(app, namespace);
+				if (!StringUtils.hasText(userLogin)) {
+					userLogin = getLoginFromApplication(data, namespace);
+				}
+				mailText = replaceNullSafe(mailText, toSubstitute, userLogin);
+			}
+		}
+		return mailText;
+	}
+
+	private String replaceExpiration(String mailText, Application app) {
+		if (!mailText.contains(FIELD_MEMBERSHIP_EXPIRATION)) {
+			return mailText;
+		}
+		String expiration = EMPTY_STRING;
+		if (app.getUser() != null) {
+			try {
+				User u = usersManager.getUserById(registrarSession, app.getUser().getId());
+				Member m = membersManager.getMemberByUser(registrarSession, app.getVo(), u);
+				Attribute a = attrManager.getAttribute(registrarSession, m, URN_MEMBER_EXPIRATION);
+				if (a != null && a.getValue() != null) {
+					expiration = a.valueAsString();
+				}
+			} catch (Exception ex) {
+				log.error("[MAIL MANAGER] Error thrown when getting membership expiration param for mail.", ex);
+			}
+		}
+		// replace by date or empty
+		return replaceNullSafe(mailText, FIELD_MEMBERSHIP_EXPIRATION, expiration);
+	}
+
+	private String replaceMail(String mailText, Application app, List<ApplicationFormItemData> data) {
+		if (!mailText.contains(FIELD_MAIL)) {
+			return mailText;
+		}
+		String mail = EMPTY_STRING;
+		if (app.getUser() != null) {
+			try {
+				mail = getValueFromStringUserAttribute(app.getUser().getId(), URN_USER_PREFERRED_MAIL);
+			} catch (Exception ex) {
+				log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail.", ex);
+			}
+		} else {
+			mail = getValueFromAppData(data, List.of(URN_MEMBER_MAIL), Collections.emptyList());
+			if (!StringUtils.hasText(mail)) {
+				mail = getValueFromAppData(data, List.of(URN_USER_PREFERRED_MAIL), Collections.emptyList());
+			}
+		}
+
+		return replaceNullSafe(mailText, FIELD_MAIL, mail);
+	}
+
+	private String replacePhone(String mailText, Application app, List<ApplicationFormItemData> data) {
+		if (!mailText.contains(FIELD_PHONE)) {
+			return mailText;
+		}
+		String phone = EMPTY_STRING;
+		if (app.getUser() != null) {
+			try {
+				phone = getValueFromStringUserAttribute(app.getUser().getId(), URN_USER_PHONE);
+			} catch (Exception ex) {
+				log.error("[MAIL MANAGER] Error thrown when getting phone param for mail.", ex);
+			}
+		} else {
+			phone = getValueFromAppData(data, List.of(URN_MEMBER_PHONE), Collections.emptyList());
+			if (!StringUtils.hasText(phone)) {
+				phone = getValueFromAppData(data, List.of(URN_USER_PHONE), Collections.emptyList());
+			}
+		}
+
+		return replaceNullSafe(mailText, FIELD_PHONE, phone);
+	}
+
+	private String getLoginFromUser(Application app, String namespace) {
+		// if user exists, try to get login from attribute instead of application
+		// since we do not allow to overwrite login by application
+		try {
+			if (app.getUser() != null) {
+				List<Attribute> logins = attrManager.getLogins(registrarSession, app.getUser());
+				Attribute a = logins.stream()
+					.filter(
+						attr -> namespace.equalsIgnoreCase(attr.getFriendlyNameParameter())
+							&& attr.getValue() != null
+					)
+					.findFirst()
+					.orElse(null);
+				if (a != null && a.getValue() != null) {
+					return a.valueAsString();
+				}
+			}
+		} catch (Exception ex) {
+			log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \"{}\" for mail. {}",
+				namespace, ex);
+		}
+		return null;
+	}
+
+	private String getLoginFromApplication(List<ApplicationFormItemData> data, String namespace) {
+		// if user not known -> search through form items to get login
+		ApplicationFormItemData itemData = data.stream()
+			.filter(d ->
+				StringUtils.hasText(d.getValue())
+					&& d.getFormItem() != null
+					&& ApplicationFormItem.Type.USERNAME == d.getFormItem().getType()
+					&& d.getFormItem().getPerunDestinationAttribute() != null
+					&& d.getFormItem().getPerunDestinationAttribute().contains("login-namespace:" + namespace)
+			)
+			.findFirst()
+			.orElse(null);
+		if (itemData != null) {
+			return itemData.getValue();
+		}
+		return null;
+	}
+
+	private User getUserFromAppOrByExtSource(Application app, PerunPrincipal applicationPrincipal) {
+		User user = app.getUser();
+		if (user == null) {
+			try {
+				user = usersManager.getUserByExtSourceInformation(registrarSession, applicationPrincipal);
+			} catch (Exception ex) {
+				// user not found is ok
+			}
+		}
+		return user;
+	}
+
+	private String getValueFromStringUserAttribute(int userId, String attrUrn)
+		throws WrongAttributeAssignmentException, AttributeNotExistsException, UserNotExistsException
+	{
+		User u = usersManager.getUserById(registrarSession, userId);
+		Attribute a = attrManager.getAttribute(registrarSession, u, attrUrn);
+		if (a != null && a.getValue() != null) {
+			return a.valueAsString();
+		}
+		return null;
+	}
+
+	private String getValueFromAppData(List<ApplicationFormItemData> data,
+									   List<String> targetAttributes,
+									   List<String> federationAttributes)
+	{
+		ApplicationFormItemData item = data.stream()
+			.filter(d -> hasValueAndReplacement(d, targetAttributes, federationAttributes))
+			.findFirst()
+			.orElse(null);
+		if (item != null) {
+			return item.getValue();
+		}
+		return null;
+	}
+
+	private boolean hasValueAndReplacement(ApplicationFormItemData d,
+										   List<String> targetAttributes,
+										   List<String> federationAttributes)
+	{
+		if (d == null || d.getFormItem() == null || !StringUtils.hasText(d.getValue())) {
+			return false;
+		}
+
+		ApplicationFormItem formItem = d.getFormItem();
+
+		if (targetAttributes == null) {
+			targetAttributes = new ArrayList<>();
+		}
+
+		String destinationAttribute = formItem.getPerunDestinationAttribute();
+		if (StringUtils.hasText(destinationAttribute) && targetAttributes.contains(destinationAttribute)) {
+			return true;
+		}
+
+		if (federationAttributes == null) {
+			federationAttributes = new ArrayList<>();
+		}
+		String federationAttribute = formItem.getFederationAttribute();
+		return StringUtils.hasText(federationAttribute) && federationAttributes.contains(federationAttribute);
+	}
+
+	private String replaceInt(String message, String key, Integer replacement) {
+		return replaceNullSafe(message, key, replacement + EMPTY_STRING);
+	}
+
+	private String replaceNullSafe(String message, String key, String replacement) {
+		if (!StringUtils.hasText(replacement)) {
+			replacement = EMPTY_STRING;
+		}
+		message = message.replace(key, replacement);
+		return message;
 	}
 
 	/**
@@ -1820,11 +1863,10 @@ public class MailManagerImpl implements MailManager {
 		// replace perun GUI links
 		if (mailText.contains(FIELD_PERUN_GUI_URL)) {
 			String text = getPerunUrl(vo, group);
-			if (text != null && !text.isEmpty()) {
-				if (!text.endsWith("/")) text += "/";
-				text += "gui/";
+			if (StringUtils.hasText(text)) {
+				text = buildUrl(text, Map.of(), "gui");
 			}
-			mailText = mailText.replace(FIELD_PERUN_GUI_URL, text != null ? text : EMPTY_STRING);
+			mailText = replaceNullSafe(mailText, FIELD_PERUN_GUI_URL, text);
 		}
 
 		// replace perun GUI app link
@@ -1849,14 +1891,13 @@ public class MailManagerImpl implements MailManager {
 						newValue = PerunAppsConfig.getBrandContainingVo(vo.getShortName()).getNewApps().getAdmin();
 					} else {
 						newValue = getPerunUrl(vo, group);
-						if (newValue != null && !newValue.isEmpty()) {
-							if (!newValue.endsWith("/")) newValue += "/";
-							newValue += namespace + "/gui/";
+						if (StringUtils.hasText(newValue)) {
+							newValue = buildUrl(newValue, Map.of(), "gui");
 						}
 					}
 				}
 				// substitute {appGuiUrl-authz} with actual value or empty string
-				mailText = mailText.replace(toSubstitute, newValue != null ? newValue : EMPTY_STRING);
+				mailText = replaceNullSafe(mailText, toSubstitute, newValue);
 			}
 		}
 
@@ -1868,15 +1909,16 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains(FIELD_APP_GUI_URL)) {
 			// new backup
 			String text = getPerunUrl(vo, group);
-			if (text != null && !text.isEmpty()) {
-				if (!text.endsWith("/")) text += "/";
-				text += "registrar/";
-				text += "?vo=" + getUrlEncodedString(vo.getShortName()) + "&page=apps";
+			if (StringUtils.hasText(text)) {
+				Map<String, String> params = new HashMap<>();
+				params.put("vo", vo.getShortName());
+				params.put("page", "apps");
+				if (group != null) {
+					params.put("group", group.getName());
+				}
+				text = buildUrl(mailText, params, "registrar");
 			}
-			if (group != null) {
-				text += "&group="+ getUrlEncodedString(group.getName());
-			}
-			mailText = mailText.replace(FIELD_APP_GUI_URL, text != null ? text : EMPTY_STRING);
+			mailText = replaceNullSafe(mailText, FIELD_APP_GUI_URL, text);
 		}
 
 		// replace registrar GUI link
@@ -1897,17 +1939,18 @@ public class MailManagerImpl implements MailManager {
 					String namespace = m2.group(1);
 
 					newValue = getPerunUrl(vo, group);
-
-					if (newValue != null && !newValue.isEmpty()) {
-						if (!newValue.endsWith("/")) newValue += "/";
-						newValue += namespace + "/registrar/";
-						newValue += "?vo="+ getUrlEncodedString(vo.getShortName());
-						newValue += ((group != null) ? "&group="+ getUrlEncodedString(group.getName()) : EMPTY_STRING);
-						newValue += "&page=apps";
+					if (StringUtils.hasText(newValue)) {
+						Map<String, String> params = new HashMap<>();
+						params.put("vo", vo.getShortName());
+						params.put("page", "apps");
+						if (group != null) {
+							params.put("group", group.getName());
+						}
+						newValue = buildUrl(mailText, params, namespace, "registrar");
 					}
 				}
 				// substitute {appGuiUrl-authz} with actual value or empty string
-				mailText = mailText.replace(toSubstitute, newValue != null ? newValue : EMPTY_STRING);
+				mailText = replaceNullSafe(mailText, toSubstitute, newValue);
 			}
 		}
 
@@ -1918,9 +1961,8 @@ public class MailManagerImpl implements MailManager {
 		// replace appDetail for VO admins
 		if (mailText.contains(FIELD_APP_DETAIL_URL)) {
 			String text = getPerunUrl(vo, group);
-			if (text != null && !text.isEmpty()) {
-				if (!text.endsWith("/")) text += "/";
-				text += "gui/?vo/appdetail?id="+appId;
+			if (StringUtils.hasText(text)) {
+				text = buildUrl(text, Map.of("id", String.valueOf(appId)), "gui/?vo/appdetail");
 				/*
 				String separator = "#";
 				for (String s : getFedAuthz()) {
@@ -1932,7 +1974,7 @@ public class MailManagerImpl implements MailManager {
 				text += separator + "vo/appdetail?id="+appId;
 				*/
 			}
-			mailText = mailText.replace(FIELD_APP_DETAIL_URL, text != null ? text : EMPTY_STRING);
+			mailText = replaceNullSafe(mailText, FIELD_APP_DETAIL_URL, text);
 		}
 
 		// replace perun app link
@@ -1955,25 +1997,29 @@ public class MailManagerImpl implements MailManager {
 
 					if (namespace.equals("newGUI")) {
 						newValue = PerunAppsConfig.getBrandContainingVo(vo.getShortName()).getNewApps().getAdmin();
-						if (newValue != null && !newValue.isEmpty()) {
-							if (!newValue.endsWith("/")) newValue += "/";
-							newValue += "organizations/" + vo.getId();
-							newValue += group == null ? "" : "/groups/" + group.getId();
-							newValue += "/applications/" + appId;
+						if (StringUtils.hasText(newValue)) {
+							List<String> pathComponents = new ArrayList<>();
+							pathComponents.add("organizations");
+							pathComponents.add(String.valueOf(vo.getId()));
+							if (group != null) {
+								pathComponents.add("groups");
+								pathComponents.add(String.valueOf(group.getId()));
+							}
+							pathComponents.add("applications");
+							pathComponents.add(String.valueOf(appId));
+							newValue = buildUrl(newValue, Map.of(), pathComponents);
 						}
 					} else {
 						newValue = getPerunUrl(vo, group);
-						if (newValue != null && !newValue.isEmpty()) {
-							if (!newValue.endsWith("/")) newValue += "/";
-							newValue += namespace + "/gui/";
-							newValue += "?vo/appdetail?id="+appId;
+						if (StringUtils.hasText(newValue)) {
+							newValue = buildUrl(newValue, Map.of("vo/appdetail?id", String.valueOf(appId)), namespace, "gui");
 							//newValue += getFedAuthz().contains(namespace) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId;
 						}
 					}
 				}
 
 				// substitute {appDetailUrl-authz} with actual value or empty string
-				mailText = mailText.replace(toSubstitute, newValue != null ? newValue : EMPTY_STRING);
+				mailText = replaceNullSafe(mailText, toSubstitute, newValue);
 			}
 		}
 
@@ -1997,6 +2043,32 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		return fedAuthz;
+	}
+
+	private static String buildUrl(String base, Map<String, String> params, List<String> pathComponents) {
+		if (pathComponents == null) {
+			return buildUrl(base, params);
+		} else {
+			return buildUrl(base, params, pathComponents.toArray(new String[0]));
+		}
+	}
+
+	private static String buildUrl(String base, Map<String, String> params, String... pathComponents) {
+		StringBuilder sb = new StringBuilder(base);
+		if (!base.endsWith("/")) {
+			sb.append("/");
+		}
+		Arrays.stream(pathComponents)
+			.map(String::trim)// remove spaces
+			.filter(StringUtils::hasText) // filter out empty strings
+			.map(s -> s.endsWith("/") ? s : s + "/") // all path components need to end with "/"
+			.forEach(sb::append); //append all path components
+
+		if (params != null) {
+			sb.append("?");
+			params.forEach((key, value) -> sb.append(key).append("=").append(getUrlEncodedString(value)));
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -2140,53 +2212,43 @@ public class MailManagerImpl implements MailManager {
 					newValue = getPerunUrl(app.getVo(), app.getGroup());
 
 					if (newValue != null && !newValue.isEmpty()) {
-						if (!newValue.endsWith("/")) newValue += "/";
-						newValue += namespace + "/registrar/";
-						newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
-						newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
-						newValue += "&i=" + getUrlEncodedString(i) + "&m=" + getUrlEncodedString(m);
+						Map<String, String> params = new HashMap<>();
+						params.put("vo", app.getVo().getShortName());
+						if (app.getGroup() != null) {
+							params.put("group", app.getGroup().getShortName());
+						}
+						params.put("i", i);
+						params.put("m", m);
+						newValue = buildUrl(newValue, params, namespace, "registrar");
 					}
 				}
 				// substitute {validationLink-authz} with actual value or empty string
-				mailText = mailText.replace(toSubstitute, newValue != null ? newValue : EMPTY_STRING);
+				mailText = replaceNullSafe(mailText, toSubstitute, newValue);
 			}
 		}
 
 		if (mailText.contains(FIELD_VALIDATION_LINK)) {
 			// new backup if validation URL is missing
 			String url = getPerunUrl(app.getVo(), app.getGroup());
-			if (url != null && !url.isEmpty()) {
-				if (!url.endsWith("/")) url += "/";
-				url += "registrar/";
-				url = url + "?vo=" + getUrlEncodedString(app.getVo().getShortName());
+			if (StringUtils.hasText(url)) {
+				Map<String, String> params = new HashMap<>();
+				params.put("vo", app.getVo().getShortName());
 				if (app.getGroup() != null) {
-					// append group name for
-					url += "&group=" + getUrlEncodedString(app.getGroup().getName());
+					params.put("group", app.getGroup().getName());
 				}
-
-				// construct whole url
-				StringBuilder url2 = new StringBuilder(url);
-
-				if (url.contains("?")) {
-					if (!url.endsWith("?")) {
-						url2.append("&");
-					}
-				} else {
-					if (!url2.toString().isEmpty()) url2.append("?");
-				}
-
-				if (!url2.toString().isEmpty())
-					url2.append("i=").append(getUrlEncodedString(i)).append("&m=").append(getUrlEncodedString(m));
+				params.put("i", i);
+				params.put("m", m);
+				url = buildUrl(url, params, "registrar");
 
 				// replace validation link
-				mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());
+				mailText = replaceNullSafe(mailText, FIELD_VALIDATION_LINK, url);
 			}
 		}
 
 		if (mailText.contains(FIELD_REDIRECT_URL)) {
 			String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
 
-			mailText = mailText.replace(FIELD_REDIRECT_URL, redirectURL != null ? "&target=" + getUrlEncodedString(redirectURL) : EMPTY_STRING);
+			mailText = replaceNullSafe(mailText, FIELD_REDIRECT_URL, redirectURL != null ? "&target=" + getUrlEncodedString(redirectURL) : EMPTY_STRING);
 		}
 
 		return mailText;
