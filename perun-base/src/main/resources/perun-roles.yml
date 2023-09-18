@@ -8310,6 +8310,9 @@ perun_roles_management:
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - SPREGAPPLICATION:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     associated_read_roles:
       - GROUPOBSERVER
     assignable_to_attributes: true
@@ -8371,6 +8374,9 @@ perun_roles_management:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     associated_read_roles: []
     assignable_to_attributes: true
     display_name: "Group membership manager"
