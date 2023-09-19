@@ -4133,8 +4133,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
-	 * Remove member from authoritative group.
-	 * If this is the last authoritative group of this member, delete him from vo, otherwise just disable him in vo.
+	 * Removes member from group which supposed to be authoritative.
+	 * Changes member's status to DISABLED if he was removed from his last authoritative group within the VO.
+	 * If member's previous status was INVALID delete him from VO instead of disabling.
 	 *
 	 * @param sess perun session
 	 * @param group authoritative group
@@ -4148,7 +4149,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		try {
 			memberAuthoritativeGroups = getAllAuthoritativeGroupsOfMember(sess, memberToRemove);
 		} catch (AttributeNotExistsException ex) {
-			//This means that no authoritative group can exists without this attribute
+			//This means that no authoritative group can exist without this attribute
 			log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
 		}
 
