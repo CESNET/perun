@@ -4133,8 +4133,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
-	 * Remove member from authoritative group.
-	 * If this is the last authoritative group of this member, delete him from vo, otherwise just disable him in vo.
+	 * Removes member from group which supposed to be authoritative.
+	 * Changes member's status to DISABLED if he was removed from his last authoritative group within the VO.
+	 * If member's previous status was INVALID delete him from VO instead of disabling.
 	 *
 	 * @param sess perun session
 	 * @param group authoritative group
@@ -4144,39 +4145,30 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws MemberAlreadyRemovedException if member was already removed
 	 */
 	private void removeMemberFromAuthoritativeGroup(PerunSession sess, Group group, RichMember memberToRemove) throws GroupNotExistsException, NotGroupMemberException, MemberAlreadyRemovedException {
-		List<Group> memberAuthoritativeGroups = null;
-		try {
-			memberAuthoritativeGroups = getAllAuthoritativeGroupsOfMember(sess, memberToRemove);
-		} catch (AttributeNotExistsException ex) {
-			//This means that no authoritative group can exists without this attribute
-			log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
-		}
 
-		//If list of member authoritativeGroups is not null, attribute exists
-		if (memberAuthoritativeGroups != null) {
-			memberAuthoritativeGroups.remove(group);
+		// Always remove member from the group
+		getPerunBl().getGroupsManagerBl().removeMember(sess, group, memberToRemove);
+		log.info("Group synchronization {}: Member id {} removed.", group, memberToRemove.getId());
+
+		// Resolve remaining authoritative group memberships
+		try {
+			List<Group> memberAuthoritativeGroups = getAllAuthoritativeGroupsOfMember(sess, memberToRemove);
 			if (memberAuthoritativeGroups.isEmpty()) {
-				//First try to disable member, if is invalid, delete him from Vo
+				// Member is not in any other authoritative group -> disable him
 				try {
 					getPerunBl().getMembersManagerBl().disableMember(sess, memberToRemove);
-					log.debug("Group synchronization {}: Member id {} disabled because synchronizer wants to remove him from last authoritativeGroup in Vo.", group, memberToRemove.getId());
-					getPerunBl().getGroupsManagerBl().removeMember(sess, group, memberToRemove);
-					log.info("Group synchronization {}: Member id {} removed.", group, memberToRemove.getId());
+					log.debug("Group synchronization {}: Member id {} disabled because synchronizer removed him from last authoritative group in Vo.", group, memberToRemove.getId());
 				} catch (MemberNotValidYetException ex) {
-					//Member is still invalid in perun. We can delete him.
+					// Member has INVALID status in VO. We can delete him from VO.
 					getPerunBl().getMembersManagerBl().deleteMember(sess, memberToRemove);
 					log.info("Group synchronization {}: Member id {} would have been disabled but he has been deleted instead because he was invalid and synchronizer wants to remove him from last authoritativeGroup in Vo.", group, memberToRemove.getId());
 				}
-			} else {
-				//If there is still some other authoritative group for this member, only remove him from group
-				getPerunBl().getGroupsManagerBl().removeMember(sess, group, memberToRemove);
-				log.info("Group synchronization {}: Member id {} removed.", group, memberToRemove.getId());
 			}
-			//If list of member authoritativeGroups is null, attribute not exists, only remove member from Group
-		} else {
-			getPerunBl().getGroupsManagerBl().removeMember(sess, group, memberToRemove);
-			log.info("Group synchronization {}: Member id {} removed.", group, memberToRemove.getId());
+		} catch (AttributeNotExistsException ex) {
+			// This means that no authoritative group can exist without this attribute
+			log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
 		}
+
 	}
 
 	/**
