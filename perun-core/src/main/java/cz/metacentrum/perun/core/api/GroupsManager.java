@@ -78,6 +78,8 @@ public interface GroupsManager {
 	String GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationInterval";
 	// Defines if we want to skip updating already existing members in group from extSource (updating attributes etc.)
 	String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
+	// Defines if members should be disabled in VO if they are removed from the last authoritative group
+	String GROUPAUTHORITATIVEGROUP_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup";
 	// Defines if we want to synchronize group structure without group hierarchy
 	String GROUP_FLAT_SYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":flatGroupStructureEnabled";
 	// Defines the times, when the group has to be synchronized.
