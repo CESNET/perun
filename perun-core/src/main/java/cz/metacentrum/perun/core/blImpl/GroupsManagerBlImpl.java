@@ -4317,6 +4317,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Attribute membersQueryAttribute = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
 		Attribute baseMemberExtsource = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME);
 		Attribute lightWeightSynchronization = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+		Attribute authoritativeGroup = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPAUTHORITATIVEGROUP_ATTRNAME);
 		Attribute synchronizationInterval = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
 		Attribute extSourceNameAttr = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
 		Attribute synchroEnabled = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
@@ -4341,7 +4342,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//replace question mark for login without prefix (strip prefix from it)
 			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", loginAttribute.valueAsString().replaceFirst(loginPrefix, "")));
 
-			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute, synchronizationTimes, extSourceNameAttr));
+			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, authoritativeGroup, synchronizationInterval, synchroEnabled, membersQueryAttribute, synchronizationTimes, extSourceNameAttr));
 		}
 
 	}
