@@ -68,7 +68,7 @@
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.10</expiringmap.version>
-		<flying-saucer-pdf.version>9.1.22</flying-saucer-pdf.version>
+		<flying-saucer-pdf.version>9.2.2</flying-saucer-pdf.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20230822-2.0.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
