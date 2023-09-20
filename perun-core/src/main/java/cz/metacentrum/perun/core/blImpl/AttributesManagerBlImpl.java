@@ -7494,6 +7494,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, WRITE, RoleObject.Group));
 		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:blockManualMemberAdding
