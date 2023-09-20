@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 21
           cache: 'maven'
       - name: Release
         id: semantic
