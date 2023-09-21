@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.18
+ALTER TABLE application_form RENAME COLUMN module_name TO module_names;
+UPDATE configurations SET value='3.2.18' WHERE property='DATABASE VERSION';
+
 3.2.17
 ALTER TABLE attribute_critical_actions ADD COLUMN global boolean default false not null;
 UPDATE configurations SET value='3.2.17' WHERE property='DATABASE VERSION';

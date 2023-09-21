@@ -1,4 +1,4 @@
--- database version 3.2.17 (don't forget to update insert statement at the end of file)
+-- database version 3.2.18 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -539,7 +539,7 @@ create table application_form (
 								   automatic_approval boolean default false not null, --approval of application is automatic
 								   automatic_approval_extension boolean default false not null, --approval of extension is automatic
 								   automatic_approval_embedded boolean default false not null, --approval of embedded application is automatic
-								   module_name varchar,  --name of module which processes application
+								   module_names varchar,      --name of modules (separated by comma) which are called when processing application
 								   group_id integer,          --identifier of group (groups.id) if application is for group
 								   created_by_uid integer,
 								   modified_by_uid integer,
@@ -1908,7 +1908,7 @@ create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.17');
+insert into configurations values ('DATABASE VERSION','3.2.18');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

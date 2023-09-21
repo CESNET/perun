@@ -474,7 +474,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	/*#
 	 * Updates the form attributes, not the form items.
 	 * - update automatic approval style
-	 * - update module_name
+	 * - update module_names
 	 *
 	 * @param form ApplicationForm Application form JSON object
 	 * @return ApplicationForm Updated application form or null when update failed
