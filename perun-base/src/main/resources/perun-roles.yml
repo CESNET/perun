@@ -6209,6 +6209,15 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAssociatedResources_Facility_User_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   findUsers_String_policy:
     policy_roles:
       - PERUNOBSERVER:

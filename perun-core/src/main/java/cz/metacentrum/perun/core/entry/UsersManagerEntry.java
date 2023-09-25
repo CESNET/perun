@@ -840,6 +840,20 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public List<Resource> getAssociatedResources(PerunSession sess, Facility facility, User user) throws UserNotExistsException, FacilityNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		if(!AuthzResolver.authorizedInternal(sess, "getAssociatedResources_Facility_User_policy", facility, user)) {
+			throw new PrivilegeException(sess, "getAssociatedResources");
+		}
+
+		getUsersManagerBl().checkUserExists(sess, user);
+		perunBl.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		return getUsersManagerBl().getAssociatedResources(sess, facility, user);
+	}
+
+	@Override
 	public List<User> findUsers(PerunSession sess, String searchString) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 

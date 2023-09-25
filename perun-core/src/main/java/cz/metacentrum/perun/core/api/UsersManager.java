@@ -717,6 +717,21 @@ public interface UsersManager {
 	List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
+	 * Return all resources of specified facility with which user is associated through all his members.
+	 * Does not require ACTIVE group-resource assignment.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param user
+	 * @return All resources with which user is associated
+	 *
+	 * @throws UserNotExistsException
+	 * @throws FacilityNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<Resource> getAssociatedResources(PerunSession sess, Facility facility, User user) throws UserNotExistsException, FacilityNotExistsException, PrivilegeException;
+
+	/**
 	 * Returns list of users who matches the searchString, searching name, id, uuid, email, logins.
 	 *
 	 * @param sess
