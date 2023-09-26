@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Status;
@@ -19,6 +20,10 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
@@ -26,7 +31,9 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
+import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +42,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,6 +79,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 	private static final String ADDITIONAL_STRING = "additionalString";
 	private static final String ADDITIONAL_LIST = "additionalList";
 	private static final String A_G_D_SYNC_RESOURCES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureResources";
+	private static final String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
 
 	private final Group baseGroup = new Group("baseGroup", "I am base group");
 	private Vo vo;
@@ -1089,6 +1098,266 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 	}
 
 	@Test
+	public void synchronizeGroupUpdateMembershipStatusToExpired() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusToExpired");
+		String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		attributes.put("status", "EXPIRED");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+		candidate.setExpectedSyncGroupStatus("EXPIRED");
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		groupsManagerBl.addMember(sess, group, member);
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
+		assertEquals(LocalDate.now().toString(), attributesManagerBl.getAttribute(sess, member, group, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+	}
+
+	@Test
+	public void synchronizeExpiredGroupStatusMemberNotInVO() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeExpiredGroupStatusMemberNotInVO");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		attributes.put("status", "EXPIRED");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+		candidate.setExpectedSyncGroupStatus("EXPIRED");
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
+	}
+
+	@Test
+	public void synchronizeGroupUpdateMembershipStatusToDefaultValid() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusToDefaultValid");
+
+		Group groupWithExpiration = new Group("GroupsManagerTestGroup2","testovaci2");
+		groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+		// status is null but default should be valid
+		candidate.setExpectedSyncGroupStatus(null);
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		groupsManagerBl.addMember(sess, groupWithExpiration, member);
+		groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
+
+		setUpGroupWithExpiration(groupWithExpiration);
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
+		assertEquals(MemberGroupStatus.VALID, groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
+		assertEquals(LocalDate.now().plusMonths(1).toString(), attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+	}
+
+	@Test
+	public void synchronizeGroupUpdateMembershipStatusFromExpiredToValid() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusFromExpiredToValid");
+
+		Group groupWithExpiration = new Group("GroupsManagerTestGroup2","testovaci2");
+		groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+		// status is null but default should be valid
+		candidate.setExpectedSyncGroupStatus(null);
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		groupsManagerBl.addMember(sess, groupWithExpiration, member);
+		groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
+
+		setUpGroupWithExpiration(groupWithExpiration);
+
+		Attribute groupMembExpirAttr = attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION);
+		groupMembExpirAttr.setValue(LocalDate.now().toString());
+		attributesManagerBl.setAttribute(sess, member, groupWithExpiration, groupMembExpirAttr);
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
+		assertEquals(MemberGroupStatus.VALID, groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
+		assertEquals(LocalDate.now().plusMonths(1).toString(), attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+	}
+
+	@Test
+	public void lightweightSynchronizationAlreadyGroupMemberExtendGroupStatus() throws Exception {
+		System.out.println(CLASS_NAME + "lightweightSynchronizationAlreadyGroupMemberExtendGroupStatus");
+
+		String synchronizedUserLogin = "metodej";
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Group groupWithExpiration = new Group("GroupsManagerTestGroup2","testovaci2");
+		groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
+
+		Attribute lightweightSynchronizationAttr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+		lightweightSynchronizationAttr.setValue(true);
+		attributesManagerBl.setAttribute(sess, groupWithExpiration, lightweightSynchronizationAttr);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", synchronizedUserLogin);
+		attributes.put("status", "VALID");
+		// add the ues to additional ueses to get the user in the lightweight synchronization
+		String uesName = "additionalUesName";
+		attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING, uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
+		subjects.add(attributes);
+
+		Candidate candidate = setUpCandidate();
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+		UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		user.setFirstName(synchronizedUserLogin);
+		perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+		groupsManagerBl.addMember(sess, groupWithExpiration, member);
+		groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
+
+		setUpGroupWithExpiration(groupWithExpiration);
+
+		when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
+		assertEquals(MemberGroupStatus.VALID, groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
+		assertEquals(LocalDate.now().plusMonths(1).toString(), attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+	}
+
+	@Test
+	public void lightweightSynchronizationAddExpiredGroupMember() throws Exception {
+		System.out.println(CLASS_NAME + "lightweightSynchronizationAddExpiredGroupMember");
+
+		String synchronizedUserLogin = "metodej";
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute lightweightSynchronizationAttr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+		lightweightSynchronizationAttr.setValue(true);
+		attributesManagerBl.setAttribute(sess, group, lightweightSynchronizationAttr);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", synchronizedUserLogin);
+		attributes.put("status", "EXPIRED");
+		// add the ues to additional ueses to get the user in the lightweight synchronization
+		String uesName = "additionalUesName";
+		attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING, uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
+		subjects.add(attributes);
+
+		Candidate candidate = setUpCandidate();
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+		UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		user.setFirstName(synchronizedUserLogin);
+		perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+
+		when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
+	}
+
+	@Test
+	public void lightweightSynchronizationMemberNotInVO() throws Exception {
+		System.out.println(CLASS_NAME + "lightweightSynchronizationMemberNotInVO");
+
+		String synchronizedUserLogin = "metodej";
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute lightweightSynchronizationAttr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+		lightweightSynchronizationAttr.setValue(true);
+		attributesManagerBl.setAttribute(sess, group, lightweightSynchronizationAttr);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", synchronizedUserLogin);
+		attributes.put("status", "VALID");
+		// add the ues to additional ueses to get the user in the lightweight synchronization
+		String uesName = "additionalUesName";
+		attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING, uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
+		subjects.add(attributes);
+
+		Candidate candidate = setUpCandidate();
+
+		Vo newVo = new Vo(1, "OtherVO", "OtherVo");
+		Vo otherVo = perun.getVosManagerBl().createVo(sess, newVo);
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, otherVo, candidate);
+
+		UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		user.setFirstName(synchronizedUserLogin);
+		perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+
+		when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+	}
+
+	@Test
 	public void synchronizeGroupUpdateMemberOrganizationsAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMemberOrganizationsAttribute");
 
@@ -1198,6 +1467,15 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		Attribute loginAttr = new Attribute(attributesManagerBl.getAttributeDefinition(sess, baseGroupAttrLoginName));
 		loginAttr.setValue(login);
 		attributesManagerBl.setAttribute(sess, groupToSetLoginFor, loginAttr);
+	}
+
+	private void setUpGroupWithExpiration(Group groupWithExpiration) throws AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		Attribute expirationRulesAttribute = new Attribute(attributesManagerBl.getAttributeDefinition(sess,
+			AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules"));
+		Map<String, String> values = new LinkedHashMap<>();
+		values.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+1m");
+		expirationRulesAttribute.setValue(values);
+		attributesManagerBl.setAttribute(sess, groupWithExpiration, expirationRulesAttribute);
 	}
 
 	private void setLoginPrefixForStructure(Group baseGroup, String prefix) throws Exception {

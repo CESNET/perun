@@ -2078,6 +2078,17 @@ public interface GroupsManagerBl {
 	void reactivateMember(PerunSession sess, Member member, Group group) throws MemberNotExistsException;
 
 	/**
+	 * Inactivates member in group and sets its status to EXPIRED.
+	 *
+	 * @param sess perun session
+	 * @param member member
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 * @throws MemberNotExistsException if given member is not direct member of given group
+	 */
+	void inactivateMember(PerunSession sess, Member member, Group group) throws MemberNotExistsException;
+
+	/**
 	 * Returns all groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
