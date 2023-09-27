@@ -103,6 +103,7 @@ import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_unixGID_namespace;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
@@ -7894,6 +7895,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("login-namespace");
 		attr.setDisplayName("Login namespace");
 		attr.setDescription("Define namespace for all user's logins on Facility.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
+		policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:facility:attribute-def:def:unixGID-namespace
+		attr = new AttributeDefinition( (new urn_perun_facility_attribute_def_def_unixGID_namespace()).getAttributeDefinition());
 		//set attribute rights (with dummy id of attribute - not known yet)
 		policies = new ArrayList<>();
 		policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
