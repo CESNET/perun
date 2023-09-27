@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import javax.naming.Name;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -115,6 +115,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 			log.debug("Getting list of users");
 			List<User> users = perun.getUsersManagerBl().getUsers(ldapcManager.getPerunSession());
+			users.sort(Comparator.comparingInt(User::getId));
 			Set<Name> presentUsers = new HashSet<Name>(users.size());
 
 			syncExecutor.setCorePoolSize(5);

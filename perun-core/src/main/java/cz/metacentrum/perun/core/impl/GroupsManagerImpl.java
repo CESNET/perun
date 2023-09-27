@@ -53,6 +53,7 @@ import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +90,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	protected final static String assignedGroupMappingSelectQuery = groupMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, " +
 		"groups_resources_automatic.auto_assign_subgroups as auto_assign_subgroups, groups_resources_state.failure_cause as groups_resources_state_failure_cause, groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id";
 
-	private static final String applicationFormMappingSelectQuery = "id,vo_id,group_id,automatic_approval,automatic_approval_extension,automatic_approval_embedded,module_name from application_form";
+	private static final String applicationFormMappingSelectQuery = "id,vo_id,group_id,automatic_approval,automatic_approval_extension,automatic_approval_embedded,module_names from application_form";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
@@ -1405,7 +1406,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
-				form.setModuleClassName(resultSet.getString("module_name"));
+				if (resultSet.getString("module_names") != null) {
+					form.setModuleClassNames(Arrays.asList(resultSet.getString("module_names").split(",")));
+				}
 				Vo vo = new Vo();
 				vo.setId(resultSet.getInt("vo_id"));
 				form.setVo(vo);

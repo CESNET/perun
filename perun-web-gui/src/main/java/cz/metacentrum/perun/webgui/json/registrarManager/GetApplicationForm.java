@@ -146,9 +146,9 @@ public class GetApplicationForm implements JsonCallback {
 					ft.setHTML(1, 0, "<strong>EXTENSION: </strong>");
 					if (groupForm && hasEmbeddedGroupApplication) {
 						ft.setHTML(2, 0, "<strong>EMBEDDED: </strong>");
-						ft.setHTML(3, 0, "<strong>Module name: </strong>");
+						ft.setHTML(3, 0, "<strong>Module names (comma separated list): </strong>");
 					} else {
-						ft.setHTML(2, 0, "<strong>Module name: </strong>");
+						ft.setHTML(2, 0, "<strong>Module names (comma separated list): </strong>");
 					}
 
 
@@ -156,7 +156,7 @@ public class GetApplicationForm implements JsonCallback {
 					final ListBox lbInit = new ListBox();
 					final ListBox lbExt = new ListBox();
 					final ListBox lbEmbed = new ListBox();
-					final TextBox className = new TextBox();
+					final TextBox classNames = new TextBox();
 
 					lbInit.addItem("Automatic", "true");
 					lbInit.addItem("Manual", "false");
@@ -173,7 +173,7 @@ public class GetApplicationForm implements JsonCallback {
 					} else {
 						lbExt.setSelectedIndex(1);
 					}
-					className.setText(form.getModuleClassName());
+					classNames.setText(form.getModuleClassNames());
 
 					ft.setWidget(0, 1, lbInit);
 					ft.setWidget(1, 1, lbExt);
@@ -188,9 +188,9 @@ public class GetApplicationForm implements JsonCallback {
 						}
 
 						ft.setWidget(2, 1, lbEmbed);
-						ft.setWidget(3, 1, className);
+						ft.setWidget(3, 1, classNames);
 					} else {
-						ft.setWidget(2, 1, className);
+						ft.setWidget(2, 1, classNames);
 					}
 
 					// click on save
@@ -210,7 +210,7 @@ public class GetApplicationForm implements JsonCallback {
 							if (groupForm && hasEmbeddedGroupApplication) {
 								form.setAutomaticApprovalEmbedded(Boolean.parseBoolean(lbEmbed.getValue(lbEmbed.getSelectedIndex())));
 							}
-							form.setModuleClassName(className.getText().trim());
+							form.setModuleClassNames(classNames.getText().trim());
 							request.updateForm(form);
 						}
 					};
@@ -223,7 +223,7 @@ public class GetApplicationForm implements JsonCallback {
 			button.addClickHandler(ch);
 
 			String appStyle = "<strong>Approval style: </strong>";
-			String module = "</br><strong>Module name: </strong>" + SafeHtmlUtils.fromString(form.getModuleClassName()).asString();
+			String module = "</br><strong>Module names: </strong>" + SafeHtmlUtils.fromString(form.getModuleClassNames()).asString();
 
 			if (form.getAutomaticApproval()==true) {
 				appStyle = appStyle + "<span style=\"color:red;\">Automatic</span> (INITIAL)";
@@ -279,7 +279,7 @@ public class GetApplicationForm implements JsonCallback {
 
 			button.setEnabled(false);
 			String appStyle = "<strong>Approval style: </strong> Form doesn't exists.";
-			String module = "</br><strong>Module name: </strong> Form doesn't exists.";
+			String module = "</br><strong>Module names: </strong> Form doesn't exists.";
 
 			content.setHTML(0, 0, appStyle + module);
 			content.setWidget(0, 1, button);

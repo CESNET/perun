@@ -45,9 +45,9 @@ public class ApplicationForm extends JavaScriptObject {
 			return this.automaticApproval;
 		}-*/;
 
-		public final native String getModuleClassName() /*-{
-			if (!this.moduleClassName) return "";
-			return this.moduleClassName;
+		public final native String getModuleClassNames() /*-{
+			if (!this.moduleClassNames) return "";
+			return this.moduleClassNames.join(",");
 		}-*/;
 
 		/**
@@ -92,8 +92,8 @@ public class ApplicationForm extends JavaScriptObject {
 			this.automaticApprovalEmbedded = automatic;
 		}-*/;
 
-		public final native void setModuleClassName(String name) /*-{
-			this.moduleClassName = name;
+		public final native void setModuleClassNames(String names) /*-{
+			this.moduleClassNames = names.split(",");
 		}-*/;
 
 		/**

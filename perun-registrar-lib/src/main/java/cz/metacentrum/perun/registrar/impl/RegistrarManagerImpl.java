@@ -140,6 +140,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -861,7 +862,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
-				form.setModuleClassName(resultSet.getString("module_name"));
+				if (resultSet.getString("module_names") != null) {
+					form.setModuleClassNames(Arrays.asList(resultSet.getString("module_names").split(",")));
+				}
 				form.setVo(vo);
 				return form;
 			}, vo.getId());
@@ -885,7 +888,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
-				form.setModuleClassName(resultSet.getString("module_name"));
+				if (resultSet.getString("module_names") != null) {
+					form.setModuleClassNames(Arrays.asList(resultSet.getString("module_names").split(",")));
+				}
 				form.setGroup(group);
 				try {
 					form.setVo(vosManager.getVoById(registrarSession, group.getVoId()));
@@ -912,7 +917,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form1.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
-				form1.setModuleClassName(resultSet.getString("module_name"));
+				if (resultSet.getString("module_names") != null) {
+					form1.setModuleClassNames(Arrays.asList(resultSet.getString("module_names").split(",")));
+				}
 				try {
 					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
 				} catch (Exception ex) {
@@ -959,7 +966,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form1.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
-				form1.setModuleClassName(resultSet.getString("module_name"));
+				if (resultSet.getString("module_names") != null) {
+					form1.setModuleClassNames(Arrays.asList(resultSet.getString("module_names").split(",")));
+				}
 				try {
 					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
 				} catch (Exception ex) {
@@ -1251,8 +1260,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		perun.getAuditer().log(user, new FormUpdated((form)));
 		return jdbc.update(
-				"update application_form set automatic_approval=?, automatic_approval_extension=?, automatic_approval_embedded=?, module_name=? where id=?",
-				form.isAutomaticApproval(), form.isAutomaticApprovalExtension(), form.isAutomaticApprovalEmbedded(), form.getModuleClassName(), form.getId());
+				"update application_form set automatic_approval=?, automatic_approval_extension=?, automatic_approval_embedded=?, module_names=? where id=?",
+				form.isAutomaticApproval(), form.isAutomaticApprovalExtension(), form.isAutomaticApprovalEmbedded(), String.join(",", form.getModuleClassNames()), form.getId());
 	}
 
 	@Transactional
@@ -1514,14 +1523,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 			// call registrar module before auto validation so createAction is trigerred first
-			RegistrarModule module;
+			Set<RegistrarModule> modules;
 			if (application.getGroup() != null) {
-				module = getRegistrarModule(getFormForGroup(application.getGroup()));
+				modules = getRegistrarModules(getFormForGroup(application.getGroup()));
 			} else {
-				module = getRegistrarModule(getFormForVo(application.getVo()));
+				modules = getRegistrarModules(getFormForVo(application.getVo()));
 			}
-			if (module != null) {
-				module.createApplication(session, application, data);
+			if (!modules.isEmpty()) {
+				for (RegistrarModule module: modules) {
+					module.createApplication(session, application, data);
+				}
 			}
 
 		} catch (ApplicationNotCreatedException ex) {
@@ -1702,14 +1713,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			perun.getAuditer().log(sess, new ApplicationRejected(app));
 
 			// call registrar module
-			RegistrarModule module;
+			Set<RegistrarModule> modules;
 			if (app.getGroup() != null) {
-				module = getRegistrarModule(getFormForGroup(app.getGroup()));
+				modules = getRegistrarModules(getFormForGroup(app.getGroup()));
 			} else {
-				module = getRegistrarModule(getFormForVo(app.getVo()));
+				modules = getRegistrarModules(getFormForVo(app.getVo()));
 			}
-			if (module != null) {
-				module.rejectApplication(sess, app, reason);
+			if (!modules.isEmpty()) {
+				for (RegistrarModule module: modules) {
+					module.rejectApplication(sess, app, reason);
+				}
 			}
 
 			// send mail
@@ -1991,16 +2004,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		PerunPrincipal applicationPrincipal = new PerunPrincipal(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), additionalAttributes);
 
 		// get registrar module
-		RegistrarModule module;
+		Set<RegistrarModule> modules;
 		if (app.getGroup() != null) {
-			module = getRegistrarModule(getFormForGroup(app.getGroup()));
+			modules = getRegistrarModules(getFormForGroup(app.getGroup()));
 		} else {
-			module = getRegistrarModule(getFormForVo(app.getVo()));
+			modules = getRegistrarModules(getFormForVo(app.getVo()));
 		}
-
-		if (module != null) {
-			// call custom logic before approving
-			module.beforeApprove(sess, app);
+		if (!modules.isEmpty()) {
+			for (RegistrarModule module: modules) {
+				module.beforeApprove(sess, app);
+			}
 		}
 
 		// mark as APPROVED
@@ -2233,8 +2246,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// CONTINUE FOR BOTH APP TYPES
-		if (module != null) {
-			module.approveApplication(sess, app);
+		if (!modules.isEmpty()) {
+			for (RegistrarModule module: modules) {
+				module.approveApplication(sess, app);
+			}
 		}
 
 
@@ -2266,16 +2281,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// get registrar module
-		RegistrarModule module;
+		Set<RegistrarModule> modules;
 		if (application.getGroup() != null) {
-			module = getRegistrarModule(getFormForGroup(application.getGroup()));
+			modules = getRegistrarModules(getFormForGroup(application.getGroup()));
 		} else {
-			module = getRegistrarModule(getFormForVo(application.getVo()));
+			modules = getRegistrarModules(getFormForVo(application.getVo()));
 		}
-
-		if (module != null) {
-			// call custom logic before approving
-			module.canBeApproved(session, application);
+		if (!modules.isEmpty()) {
+			for (RegistrarModule module: modules) {
+				module.canBeApproved(session, application);
+			}
 		}
 
 		// generally for Group applications:
@@ -2789,8 +2804,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// throws exception if user couldn't submit application - no reason to get form
 		checkDuplicateRegistrationAttempt(sess, appType, form);
 
-		RegistrarModule module = getRegistrarModule(form);
-		if (module != null) module.canBeSubmitted(sess, appType, federValues);
+		Set<RegistrarModule> modules = getRegistrarModules(form);;
+		if (!modules.isEmpty()) {
+			for (RegistrarModule module: modules) {
+				module.canBeSubmitted(sess , appType, federValues);
+			}
+		}
 
 		// PROCEED
 		Map<String, String> parsedName = extractNames(federValues);
@@ -3006,8 +3025,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
-		if (module != null) {
-			module.processFormItemsWithData(sess, appType, form, itemsWithValues);
+
+		if (!modules.isEmpty()) {
+			for (RegistrarModule module: modules) {
+				module.processFormItemsWithData(sess, appType, form, itemsWithValues);
+			}
 		}
 
 		if (!noPrefilledUneditableRequiredItems.isEmpty()) {
@@ -4236,34 +4258,34 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param form application form
 	 * @return RegistrarModule if present or null
 	 */
-	private RegistrarModule getRegistrarModule(ApplicationForm form) {
-
+	private Set<RegistrarModule> getRegistrarModules(ApplicationForm form) {
 		if (form == null) {
 			// wrong input
 			log.error("[REGISTRAR] Application form is null when getting it's registrar module.");
 			throw new NullPointerException("Application form is null when getting it's registrar module.");
 		}
 
-		if (form.getModuleClassName() != null && !form.getModuleClassName().trim().isEmpty()) {
+		Set<RegistrarModule> modules = new LinkedHashSet<>();
+		if (!form.getModuleClassNames().isEmpty()) {
 
 			RegistrarModule module = null;
 
-			try {
-				log.debug("[REGISTRAR] Attempting to instantiate class: {}", MODULE_PACKAGE_PATH + form.getModuleClassName());
-				module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + form.getModuleClassName()).newInstance();
-				module.setRegistrar(registrarManager);
-			} catch (Exception ex) {
-				log.error("[REGISTRAR] Exception when instantiating module.", ex);
-				return module;
+			for (String regModule : form.getModuleClassNames()) {
+				try {
+					log.debug("[REGISTRAR] Attempting to instantiate class: {}{}", MODULE_PACKAGE_PATH, regModule);
+					module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + regModule)
+						.getDeclaredConstructor().newInstance();
+					module.setRegistrar(registrarManager);
+				} catch (Exception ex) {
+					log.error("[REGISTRAR] Exception when instantiating module. Skipping module {}{}",
+						MODULE_PACKAGE_PATH, regModule, ex);
+					continue;
+				}
+				log.debug("[REGISTRAR] Class {}{} successfully created.", MODULE_PACKAGE_PATH, regModule);
+				modules.add(module);
 			}
-			log.debug("[REGISTRAR] Class {} successfully created.", MODULE_PACKAGE_PATH + form.getModuleClassName());
-
-			return module;
-
 		}
-
-		return null;
-
+		return modules;
 	}
 
 	/**
@@ -5295,7 +5317,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 
-	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,automatic_approval_embedded,module_name from application_form";
+	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,automatic_approval_embedded,module_names from application_form";
 
 	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex,hidden,disabled,hidden_dependency_item_id,disabled_dependency_item_id,updatable from application_form_items";
 

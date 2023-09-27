@@ -1,10 +1,21 @@
 package cz.metacentrum.perun.registrar.impl;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +43,31 @@ import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForVoIdRemoved;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForVoIdUpdated;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSending;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSentForApplication;
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleManagementRules;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
@@ -56,6 +90,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -71,10 +106,20 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 
-import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.*;
 import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_FROM_EMAIL;
 import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_FROM_NAME_EMAIL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_HTML_MAIL_FOOTER;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_LANGUAGE_EMAIL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_MAIL_FOOTER;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_REGISTRAR_URL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_TO_EMAIL;
 import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_FROM_EMAIL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_FROM_NAME_EMAIL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_HTML_MAIL_FOOTER;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_LANGUAGE_EMAIL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_MAIL_FOOTER;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_REGISTRAR_URL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_TO_EMAIL;
 
 public class MailManagerImpl implements MailManager {
 
@@ -524,22 +569,16 @@ public class MailManagerImpl implements MailManager {
 			// different behavior based on mail type
 			switch (mail.getMailType()) {
 				case APP_CREATED_USER:
-					sendUserMessage(app, mail, data, reason, exceptions, MailType.APP_CREATED_USER);
-					break;
 				case APPROVABLE_GROUP_APP_USER:
-					sendUserMessage(app, mail, data, reason, exceptions, MailType.APPROVABLE_GROUP_APP_USER);
-					break;
-				case APP_CREATED_VO_ADMIN:
-					appCreatedVoAdmin(app, mail, data, reason, exceptions);
+				case APP_APPROVED_USER:
+				case APP_REJECTED_USER:
+					sendUserMessage(app, mail, data, reason, exceptions, mail.getMailType());
 					break;
 				case MAIL_VALIDATION:
 					mailValidation(app, mail, data, reason, exceptions);
 					break;
-				case APP_APPROVED_USER:
-					sendUserMessage(app, mail, data, reason, exceptions, MailType.APP_APPROVED_USER);
-					break;
-				case APP_REJECTED_USER:
-					sendUserMessage(app, mail, data, reason, exceptions, MailType.APP_REJECTED_USER);
+				case APP_CREATED_VO_ADMIN:
+					appCreatedVoAdmin(app, mail, data, reason, exceptions);
 					break;
 				case APP_ERROR_VO_ADMIN:
 					appErrorVoAdmin(app, mail, data, reason, exceptions);
@@ -1110,67 +1149,55 @@ public class MailManagerImpl implements MailManager {
 	/**
 	 * Get proper values "TO" for mail message based on VO or GROUP attribute "toEmail".
 	 * <p>
-	 * If group attribute not set and is group application, notify all corresponding group admins (admin roles configured to receive GROUP notifications).
-	 * In case no such admins not set, use VO attribute.
-	 * If Vo attribute not set (both group or vo application), notify all corresponding vo admins (admin roles configured to receive VO notifications).
-	 * Otherwise, BACKUP_FROM address will be used.
+	 * If group attribute is not set and Application is a group application, notify all corresponding group admins
+	 * (admin roles configured to receive GROUP notifications).
+	 * In case no such admins are set, try the same procedure on parent group (if exists)
+	 * When reaches the top-level group and no recipients have been identified, repeat the same procedure on VO level (without cascading).
+	 * When no recipient is identified on the VO level or some error happens, BACKUP_TO address will be used.
 	 *
 	 * @param app application to decide if it's VO or Group application
-	 * @return list of mail addresses to send mail to
+	 * @return Set of mail addresses to send mail to
 	 */
-	private List<String> getToMailAddresses(Application app) {
-		List<String> result = new ArrayList<>();
-
-		// get proper value from attribute
+	private Set<String> getToMailAddresses(Application app) {
+		Set<String> result = new HashSet<>();
 		try {
-			Attribute attrSenderEmail;
-
-			if (app.getGroup() == null) {
-				// it is a VO application
-				return getMailsFromVo(app, URN_VO_TO_EMAIL);
-			}
-
-			attrSenderEmail = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_TO_EMAIL);
-
-			if (attrSenderEmail == null || attrSenderEmail.getValue() == null) {
-				// not specified toEmail group attribute
-
-				// try to use all group admins with specified preferred emails
-				List<String> rolesToNotify = getNotificationReceiverRoles(GROUP);
-				List<RichUser> admins = new ArrayList<>();
-				for (String role : rolesToNotify) {
-					admins.addAll(AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getGroup(), role));
-				}
-				result.addAll(getUserPreferredMails(registrarSession, admins));
-				result = result.stream().distinct().toList();
-
+			// Check group and its parent group hierarchy first
+			Group currentGroup = app.getGroup();
+			while (currentGroup != null) {
+				result = getToEmailsGroupLevel(currentGroup);
 				if (!result.isEmpty()) {
-					return result;
+					break;
 				}
-				return getMailsFromVo(app, URN_VO_TO_EMAIL);
+				currentGroup = getParentGroupForMailAddresses(currentGroup);
 			}
-
-			// specified toEmail group attribute, use valid emails
-			ArrayList<String> value = attrSenderEmail.valueAsList();
-			for (String adr : value) {
-				if (adr != null && !adr.isEmpty()) {
-					result.add(adr);
-				}
+			// VO application or fallback to VO level
+			if (app.getGroup() == null || result.isEmpty()) {
+				result = getToEmailsVoLevel(app.getVo());
 			}
-
 		} catch (Exception ex) {
 			// we don't care about exceptions here - we have backup TO/FROM address
-			if (app.getGroup() == null) {
-				log.error("[MAIL MANAGER] Exception thrown when getting TO email from an attribute {}. Ex: {}", URN_VO_TO_EMAIL, ex);
-			} else {
-				log.error("[MAIL MANAGER] Exception thrown when getting TO email from an attribute {}. Ex: {}", URN_GROUP_TO_EMAIL, ex);
-			}
+			log.error("[MAIL MANAGER] Exception thrown when getting TO email from an attribute {}. Ex: {}",
+					app.getGroup() == null ? URN_VO_TO_EMAIL : URN_GROUP_TO_EMAIL, ex);
 			// set backup
 			result.clear();
+		}
+		// no recipients found for Group and Vo, use backup
+		if (result.isEmpty()) {
 			result.add(getPropertyFromConfiguration("backupTo"));
 		}
-
 		return result;
+	}
+
+	private Group getParentGroupForMailAddresses(Group group) {
+		if (group != null && group.getParentGroupId() != null) {
+			try {
+				return groupsManager.getGroupById(registrarSession, group.getParentGroupId());
+			} catch (GroupNotExistsException e) {
+				log.error("[MAIL MANAGER] Inconsistency detected - parent (in hierarchy) group with ID '{}' of group '{}' does not exist",
+					group.getParentGroupId(), group);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -2006,7 +2033,7 @@ public class MailManagerImpl implements MailManager {
 		MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions);
 
 		// send a message to all VO or Group admins
-		List<String> toEmail = getToMailAddresses(app);
+		Set<String> toEmail = getToMailAddresses(app);
 		for (String email : toEmail) {
 			setRecipient(message, email);
 			try {
@@ -2163,7 +2190,7 @@ public class MailManagerImpl implements MailManager {
 		MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions);
 
 		// send a message to all VO or Group admins
-		List<String> toEmail = getToMailAddresses(app);
+		Set<String> toEmail = getToMailAddresses(app);
 
 		for (String email : toEmail) {
 			setRecipient(message, email);
@@ -2557,45 +2584,90 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Get notification emails for given VO. If toEmail is not specified,
+	 * Get notification emails for given VO. If toEmail (URN_VO_TO_EMAIL) has no value set,
 	 * all configured roles for receiving VO notifications are used.
 	 *
-	 * @param app  Application to get VO from
-	 * @param voEmailAttr  String name of given email attribute
-	 * @return list of emails used for sending notifications.
+	 * @param vo Virtual Organization for which the lookup is performed. If null, empty result will be returned.
+	 * @return List of emails used for sending notifications (can be empty).
 	 */
-	private List<String> getMailsFromVo(Application app, String voEmailAttr)
-		throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	private Set<String> getToEmailsVoLevel(Vo vo)
+		throws AttributeNotExistsException, WrongAttributeAssignmentException
+	{
+		if (vo == null) {
+			return new HashSet<>();
+		}
+		Attribute toEmailAttr = attrManager.getAttribute(registrarSession, vo, URN_VO_TO_EMAIL);
+		Set<String> emails = getToEmailsFromAttribute(toEmailAttr);
+		if (emails.isEmpty()) {
+			emails = getToEmailsViaRoles(VO, vo);
+		}
+		return emails;
+	}
 
-		List<String> emails = new ArrayList<>();
+	/**
+	 * Get notification emails for given Group. If toEmail (URN_GROUP_TO_EMAIL) has no value set,
+	 * all configured roles for receiving GROUP notifications are used.
+	 *
+	 * @param group Group for which the lookup is performed. If null, empty result will be returned.
+	 * @return List of emails used for sending notifications (can be empty).
+	 */
+	private Set<String> getToEmailsGroupLevel(Group group)
+		throws AttributeNotExistsException, WrongAttributeAssignmentException
+	{
+		if (group == null) {
+			return new HashSet<>();
+		}
+		Attribute toEmailAttr = attrManager.getAttribute(registrarSession, group, URN_GROUP_TO_EMAIL);
+		Set<String> emails = getToEmailsFromAttribute(toEmailAttr);
+		if (emails.isEmpty()) {
+			emails = getToEmailsViaRoles(GROUP, group);
+		}
+		return emails;
+	}
 
-		Attribute attrToEmail = attrManager.getAttribute(registrarSession, app.getVo(), voEmailAttr);
-
+	/**
+	 * Get "TO" email addresses of notification recipient(s) from the attribute
+	 * @param toEmailAttr Attribute with the recipients as value
+	 * @return Set of identified emails. Can be empty if attr has no non-blank item in array value or no value at all.
+	 */
+	private Set<String> getToEmailsFromAttribute(Attribute toEmailAttr) {
 		// if there are any pre-defined VO emailTo attributes, use them
-		if (attrToEmail != null && attrToEmail.getValue() != null) {
-			ArrayList<String> value = attrToEmail.valueAsList();
+		Set<String> emails = new HashSet<>();
+		if (toEmailAttr != null && toEmailAttr.getValue() != null) {
+			ArrayList<String> value = toEmailAttr.valueAsList();
 			for (String adr : value) {
-				if (adr != null && !adr.isEmpty()) {
+				if (StringUtils.hasText(adr)) {
 					emails.add(adr);
 				}
 			}
-			return emails;
 		}
+		return emails;
+	}
 
-		// in case no pre-defined attribute was found, use all configured roles with specified preferred email
+	/**
+	 * Get "TO" emails from notification receiver roles of the specified object.
+	 * @param object String specification of the object
+	 * @param objectInstance instance of the object
+	 * @return Set of identified emails. Can be empty if not roles or users in the role have been identified,
+	 * or they do not have email address set.
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
+	 */
+	private Set<String> getToEmailsViaRoles(String object, PerunBean objectInstance)
+		throws WrongAttributeAssignmentException, AttributeNotExistsException
+	{
+		Set<String> emails = new HashSet<>();
 		try {
-			List<String> rolesToNotify = getNotificationReceiverRoles(VO);
+			List<String> rolesToNotify = getNotificationReceiverRoles(object);
 			List<RichUser> admins = new ArrayList<>();
 			for (String role : rolesToNotify) {
-				admins.addAll(AuthzResolverBlImpl.getRichAdmins(registrarSession, app.getVo(), role));
+				admins.addAll(AuthzResolverBlImpl.getRichAdmins(registrarSession, objectInstance, role));
 			}
 			emails.addAll(getUserPreferredMails(registrarSession, admins));
-			emails = emails.stream().distinct().toList();
+			return emails;
 		} catch (RoleCannotBeManagedException e) {
 			throw new InternalErrorException(e);
 		}
-
-		return emails;
 	}
 
 	/**

@@ -2,6 +2,10 @@ package cz.metacentrum.perun.registrar.model;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Vo;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Application form of a VO. Use {@link cz.metacentrum.perun.registrar.RegistrarManager#getFormItems} for items.
@@ -16,7 +20,7 @@ public class ApplicationForm {
 	private boolean automaticApproval;
 	private boolean automaticApprovalExtension;
 	private boolean automaticApprovalEmbedded;
-	private String moduleClassName;
+	private final List<String> moduleClassNames = new ArrayList<>();
 
 	public ApplicationForm() {
 	}
@@ -69,12 +73,29 @@ public class ApplicationForm {
 		this.automaticApprovalEmbedded = automaticApprovalEmbedded;
 	}
 
-	public String getModuleClassName() {
-		return moduleClassName;
+	public List<String> getModuleClassNames() {
+		return new ArrayList<>(moduleClassNames);
 	}
 
-	public void setModuleClassName(String moduleClassName) {
-		this.moduleClassName = moduleClassName;
+	public void setModuleClassNames(List<String> moduleClassNames) {
+		this.moduleClassNames.clear();
+		for (String moduleClassName : moduleClassNames) {
+			if (StringUtils.hasText(moduleClassName)) {
+				this.moduleClassNames.add(moduleClassName);
+			}
+		}
+	}
+
+	public void addModuleClassName(String moduleClassName) {
+		if (StringUtils.hasText(moduleClassName)) {
+			this.moduleClassNames.add(moduleClassName);
+		}
+	}
+
+	public void removeModuleClassName(String moduleClassName) {
+		if (StringUtils.hasText(moduleClassName)) {
+			this.moduleClassNames.remove(moduleClassName);
+		}
 	}
 
 	/**
@@ -94,7 +115,7 @@ public class ApplicationForm {
 			", group='" + getGroup() + '\'' +
 			", automaticApproval='" + isAutomaticApproval() + '\'' +
 			", automaticApprovalExtension='" + isAutomaticApprovalExtension() + '\'' +
-			", moduleClassName='" + getModuleClassName() + '\'' +
+			", moduleClassNames='" + getModuleClassNames() + '\'' +
 			"]";
 	}
 

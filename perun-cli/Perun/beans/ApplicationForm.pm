@@ -59,14 +59,14 @@ sub TO_JSON
                 $automaticApprovalExtension = undef;
         }
 
-        my $moduleClassName;
-        if (defined($self->{_moduleClassName})) {
-                $moduleClassName = "$self->{_moduleClassName}";
+        my @moduleClassNames;
+        if (defined($self->{_moduleClassNames})) {
+                @moduleClassNames = @{$self->{_moduleClassNames}};
         } else {
-                $moduleClassName = undef;
+                @moduleClassNames = undef;
         }
 
-        return { id => $id, vo => $vo, group => $group, automaticApproval => $automaticApproval, automaticApprovalExtension => $automaticApprovalExtension, moduleClassName => $moduleClassName };
+        return { id => $id, vo => $vo, group => $group, automaticApproval => $automaticApproval, automaticApprovalExtension => $automaticApprovalExtension, moduleClassNames => \@moduleClassNames };
 }
 
 sub getId
@@ -138,17 +138,17 @@ sub setAutomaticApprovalExtension
 
 }
 
-sub getModuleClassName
+sub getModuleClassNames
 {
         my $self = shift;
 
-        return $self->{_moduleClassName};
+        return $self->{_moduleClassNames};
 }
 
-sub setModuleClassName
+sub setModuleClassNames
 {
         my $self = shift;
-        $self->{_moduleClassName} = shift;
+        $self->{_moduleClassNames} = shift;
 }
 
 1;
