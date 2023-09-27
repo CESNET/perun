@@ -1,5 +1,41 @@
 Upgrade notes
 
+## [30.0.0](https://github.com/CESNET/perun/compare/v29.1.0...v30.0.0) (2023-09-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* 🧨 ApplicationForm bean property `moduleClassName` replaced with
+`moduleClassNames`. Type has changed from String to List<String>. Includes
+database version update and column `module_name` of `application_form` table
+being renamed to `module_names`.
+* requires database update. UI version have to work with
+updated model of ApplicationForm (`moduleClassName` replaced with
+field `moduleClassNames`).
+* **core:** the groupMembershipExpiration attribute needs to have a new READ policy collection created with the SELF - USER policy
+* Changed behaviour might cause sending notifications to
+managers or configured TO recipients in parent group rather than to VO.
+
+### Features
+
+* 🎸 Allow multiple reg. modules to be configured ([b807877](https://github.com/CESNET/perun/commit/b807877de45c6bdaf6437a6791a1de72ab183909))
+* 🎸 Cascade to parent gr. when deciding gr. TO recipients ([8adea84](https://github.com/CESNET/perun/commit/8adea845a43887cbca713463aaaf55de4fff1df9))
+* **cli:** added getRichMember method to the perl client API ([1c53692](https://github.com/CESNET/perun/commit/1c536925f9bd68f93e8aeb1e476e3e76a1964895))
+* **core:** allow members to read their group expiration ([811b217](https://github.com/CESNET/perun/commit/811b2173cd7b673677c8f49b10a26126b52ed4da))
+* **core:** allow resource managers to read subgroup managers ([ba1bb15](https://github.com/CESNET/perun/commit/ba1bb156580afffc4714343c6d4c834113762219))
+* **core:** new ExtSource type for IT4I ([28d6f87](https://github.com/CESNET/perun/commit/28d6f8777365fe96b6190400b841b9c802f91310))
+* **core:** sort users by IDs when synchronizing LDAP ([cf542ed](https://github.com/CESNET/perun/commit/cf542ed0c16a652b14e58b5244ef90689d261c03))
+* **core:** support authoritative groups in group structure synchronization ([9bc9d14](https://github.com/CESNET/perun/commit/9bc9d1419b5753950531d8b2f8940b27dd561c19))
+
+
+### Bug Fixes
+
+* **core:** properly resolve members removal from authoritative groups ([26de9ab](https://github.com/CESNET/perun/commit/26de9abf70368b5fd2109cdd4ac47f1b283e1b96))
+* **deps:** update dependency com.google.apis:google-api-services-admin-directory to directory_v1-rev20230822-2.0.0 ([f3bee32](https://github.com/CESNET/perun/commit/f3bee326dd92665acf5b2af4ec85a1280549bf54))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.2.2 ([f20ec3d](https://github.com/CESNET/perun/commit/f20ec3dd4664c89eb563e1003d9ae023afd5367d))
+* fixed definition of logback in perun-auditlogger ([0f0ea39](https://github.com/CESNET/perun/commit/0f0ea390338dd58e23e2dbc34e5853ef5f9243b4))
+* minimize default logging for perun-auditlogger ([f46ba67](https://github.com/CESNET/perun/commit/f46ba67d3c3504c6f2c07b34c46aedf3a76e21fe))
+
 ## [29.1.0](https://github.com/CESNET/perun/compare/v29.0.0...v29.1.0) (2023-09-11)
 
 
