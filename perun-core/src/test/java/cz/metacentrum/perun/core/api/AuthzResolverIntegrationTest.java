@@ -1505,6 +1505,45 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	public void groupMatchesUserRolesFilter() throws Exception {
+		System.out.println(CLASS_NAME + "groupMatchesUserRolesFilter");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Group testGroup2 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup2", "testg2"));
+		final Group testGroup4 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup4", "testg4"));
+
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testGroup2, Role.GROUPADMIN);
+		AuthzResolver.setRole(sess, testGroup, testGroup4, Role.GROUPOBSERVER);
+
+		sess.getPerunPrincipal().setUser(testUser);
+
+		List<Group> directRoles = perun.getGroupsManager().getAllGroups(sess, testVo);
+		directRoles.removeIf(group -> !AuthzResolverBlImpl.groupMatchesUserRolesFilter(sess, testUser, group, List.of(Role.GROUPADMIN), List.of(RoleAssignmentType.DIRECT)));
+		assertEquals(1, directRoles.size());
+		assertTrue(directRoles.contains(testGroup2));
+
+		List<Group> indirectRoles = perun.getGroupsManager().getAllGroups(sess, testVo);
+		indirectRoles.removeIf(group -> !AuthzResolverBlImpl.groupMatchesUserRolesFilter(sess, testUser, group, List.of(Role.GROUPOBSERVER), List.of(RoleAssignmentType.INDIRECT)));
+		assertEquals(1, indirectRoles.size());
+		assertTrue(indirectRoles.contains(testGroup4));
+
+		List<Group> allIndirectGroups = perun.getGroupsManager().getAllGroups(sess, testVo);
+		allIndirectGroups.removeIf(group -> !AuthzResolverBlImpl.groupMatchesUserRolesFilter(sess, testUser, group, new ArrayList<>(), List.of(RoleAssignmentType.INDIRECT)));
+		assertEquals(1, allIndirectGroups.size());
+		assertTrue(allIndirectGroups.contains(testGroup4));
+
+		List<Group> allGroupAdmins = perun.getGroupsManager().getAllGroups(sess, testVo);
+		allGroupAdmins.removeIf(group -> !AuthzResolverBlImpl.groupMatchesUserRolesFilter(sess, testUser, group, List.of(Role.GROUPADMIN), new ArrayList<>()));
+		assertEquals(1, allGroupAdmins.size());
+		assertTrue(allGroupAdmins.contains(testGroup2));
+	}
+
+	@Test
 	public void getGroupsWherePrincipalIsInRoles() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupsWherePrincipalIsInRoles");
 

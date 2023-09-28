@@ -2265,6 +2265,21 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllRichGroupsWithAttributesByNames_Vo_List<String>_List<String>_List<RoleAssignmentType>_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
   getMemberRichGroupsWithAttributesByNames_Member_List<String>_policy:
     policy_roles:
       - GROUPADMIN: Vo
@@ -2277,6 +2292,28 @@ perun_policies:
       - default_policy
 
   filter-getMemberRichGroupsWithAttributesByNames_Member_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMemberRichGroupsWithAttributesByNames_Member_List<String>_List<String>_List<RoleAssignmentType>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getMemberRichGroupsWithAttributesByNames_Member_List<String>_List<String>_List<RoleAssignmentType>_policy:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
@@ -2303,6 +2340,20 @@ perun_policies:
       - default_policy
 
   filter-getAllRichGroupsWithAttributesByNames_Vo_List<String>_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAllRichGroupsWithAttributesByNames_Vo_List<String>_List<String>_List<RoleAssignmentType>_policy:
     policy_roles:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
@@ -2359,6 +2410,34 @@ perun_policies:
       - default_policy
 
   filter-getAllRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllRichSubGroupsWithAttributesByNames_Group_List<String>_List<String>_List<RoleAssignmentType>_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAllRichSubGroupsWithAttributesByNames_Group_List<String>_List<String>_List<RoleAssignmentType>_policy:
     policy_roles:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
