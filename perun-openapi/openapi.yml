@@ -9554,6 +9554,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getAssociatedResources:
+    get:
+      tags:
+        - UsersManager
+      operationId: getAssociatedResourcesForUser
+      summary: Get all resources associated with the user on the facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getUsersByIds:
     get:
       tags:

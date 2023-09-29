@@ -1120,6 +1120,26 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Return all resources of specified facility with which user is associated through all his members.
+	 * Does not require ACTIVE group-resource assignment.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @return List<RichResource> All resources with which user is associated
+	 */
+
+	getAssociatedResources {
+
+		@Override
+		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			Facility facility = ac.getFacilityById(parms.readInt("facility"));
+			User user = ac.getUserById(parms.readInt("user"));
+			return ac.getUsersManager().getAssociatedResources(ac.getSession(), facility, user);
+		}
+	},
+
+
+	/*#
 	 * Checks if the login is available in the namespace. Return 1 if yes, 0 if no.
 	 *
 	 * @param loginNamespace String Namespace
