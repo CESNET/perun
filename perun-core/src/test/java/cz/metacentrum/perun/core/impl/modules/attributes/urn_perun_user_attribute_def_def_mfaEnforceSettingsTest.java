@@ -31,6 +31,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 		user = new User();
 		attributeToCheck = new Attribute();
+		attributeToCheck.setFriendlyName("mfaEnforceSettings:test");
 
 
 		Attribute mockMfaCategories = new Attribute();
@@ -54,7 +55,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
 			"    }" + "  " +
 			"}");
 		when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(any(), any(), any()))
-			.thenReturn(Collections.singletonMap("categories", mockMfaCategories));
+			.thenReturn(Collections.singletonMap(attributeToCheck.getFriendlyNameParameter(), mockMfaCategories));
 	}
 
 	@Test
