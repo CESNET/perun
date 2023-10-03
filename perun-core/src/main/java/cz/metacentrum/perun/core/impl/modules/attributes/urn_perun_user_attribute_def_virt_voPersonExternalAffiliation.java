@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * All affiliations collected from:
@@ -125,8 +126,18 @@ public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliation exten
 		valuesWithoutDuplicities.addAll(getAffiliationsManuallyAssigned(sess, user));
 		valuesWithoutDuplicities.addAll(getAffiliationsFromGroups(sess, user));
 
+		// remove duplicities, by accepting only the first occurrence of each value (other occurences, case-insensitive, will be removed)
+		Set<String> valuesWithoutDuplicitiesCaseInsensitive = new HashSet<>();
+		for (String value: valuesWithoutDuplicities) {
+			boolean isDuplicity = valuesWithoutDuplicitiesCaseInsensitive.stream().anyMatch(value::equalsIgnoreCase);
+			if (isDuplicity) {
+				continue;
+			}
+			valuesWithoutDuplicitiesCaseInsensitive.add(value);
+		}
+
 		//convert set to list (values in list will be without duplicities)
-		destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicities));
+		destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicitiesCaseInsensitive));
 		return destinationAttribute;
 	}
 

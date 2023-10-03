@@ -36,6 +36,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.doubleThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -52,8 +53,10 @@ public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliationTest {
 	private User user;
 	private UserExtSource ues1;
 	private UserExtSource ues2;
+	private UserExtSource ues3;
 	private Attribute uesAtt1;
 	private Attribute uesAtt2;
+	private Attribute uesAtt3;
 	private Attribute userAtt1;
 	private final String VALUE1 = "11aff11@somewhere.edu";
 	private final String VALUE2 = "22aff22@somewhere.edu";
@@ -62,6 +65,9 @@ public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliationTest {
 	private final String VALUE5 = "55aff55@somewhere.edu";
 	private final String VALUE6 = "66aff66@somewhere.edu";
 	private final String VALUE7 = "77aff77@somewhere.edu";
+	private final String VALUE7_DUPLICITY1 = "77aff77@SOMEWHERE.edu";
+	private final String VALUE7_DUPLICITY2 = "77AFF77@somewhere.edu";
+	private final String VALUE7_DUPLICITY3 = "77AFF77@SOMEWHERE.edu";
 
 	private LocalDate valid;
 	private LocalDate invalid;
@@ -87,11 +93,15 @@ public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliationTest {
 
 		ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), "login1");
 		ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), "login2");
+		ues3 = new UserExtSource(30, new ExtSource(300, "name3", "type3"), "login3");
+
 
 		uesAtt1 = new Attribute();
 		uesAtt2 = new Attribute();
+		uesAtt3 = new Attribute();
 		uesAtt1.setValue(VALUE1);
 		uesAtt2.setValue(VALUE2+";"+VALUE3);
+		uesAtt3.setValue(VALUE7_DUPLICITY1+";"+VALUE7_DUPLICITY2+";"+VALUE7_DUPLICITY3);
 
 		userAtt1 = new Attribute();
 		Map<String, String> mapValue = new LinkedHashMap<>();
@@ -116,6 +126,31 @@ public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliationTest {
 		arrListValue.add(VALUE4);
 		arrListValue.add(VALUE5);
 		groupAtt1.setValue(arrListValue);
+	}
+
+	@Test
+	public void getAttributeValueNoDuplicities() throws Exception {
+		System.out.println("getAttributeValueNoDuplicities()");
+		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+			Collections.singletonList(ues3)
+		);
+
+		String attributeName = classInstance.getSourceAttributeName();
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues3, attributeName)).thenReturn(
+			uesAtt3
+		);
+
+		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+
+		// check that the value is a list with size 1 and only VALUE7
+		assertTrue(receivedAttr.getValue() instanceof List);
+		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
+
+		List<String> actual = receivedAttr.valueAsList();
+		assertEquals("collected values are incorrect", Collections.singletonList(VALUE7_DUPLICITY3), actual);
 	}
 
 	@Test
