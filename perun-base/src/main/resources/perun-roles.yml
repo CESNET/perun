@@ -7933,6 +7933,7 @@ perun_policies:
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
 
