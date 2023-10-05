@@ -3350,7 +3350,7 @@ components:
 
     complementaryObjectName:
       name: complementaryObjectName
-      description: "Property beanName of complementaryObject, meaning object type (Vo | Group | Facility | ... )"
+      description: "Property beanName of complementaryObject, meaning object type (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
       schema:
         type: string
       in: query
@@ -3941,7 +3941,7 @@ paths:
           application/json:
             schema:
               title: setRoleWithUserComplementaryObject
-              description: "input to setRoleWithUserComplementaryObject"
+              description: "input to setRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
               type: object
               required:
                 - role
@@ -3983,7 +3983,7 @@ paths:
                 user: { type: integer, description: "user id", nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4005,7 +4005,7 @@ paths:
           application/json:
             schema:
               title: unsetRoleWithUserComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
               type: object
               required:
                 - role
@@ -4047,7 +4047,7 @@ paths:
                 user: { type: integer, description: "user id", nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4121,7 +4121,7 @@ paths:
           application/json:
             schema:
               title: setRoleWithGroupComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
               type: object
               required:
                 - role
@@ -4163,7 +4163,7 @@ paths:
                 authorizedGroup: { type: integer, nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4185,7 +4185,7 @@ paths:
           application/json:
             schema:
               title: unsetRoleWithGroupComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
               type: object
               required:
                 - role
@@ -4227,7 +4227,7 @@ paths:
                 authorizedGroup: { type: integer, nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
