@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -50,7 +51,6 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -84,6 +84,8 @@ public class ExpirationNotifScheduler {
 
 	private PerunBl perun;
 	private JdbcPerunTemplate jdbc;
+
+	private RegistrarManagerImpl registrarManager;
 
 	private final DateTimeFormatter lastAccessFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -123,6 +125,7 @@ public class ExpirationNotifScheduler {
 		this.sess = perun.getPerunSession(
 				new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());
+		this.registrarManager = new RegistrarManagerImpl();
 	}
 
 	/**
@@ -638,11 +641,20 @@ public class ExpirationNotifScheduler {
 			if (member.getStatus().equals(Status.VALID)) {
 				try {
 					perun.getMembersManagerBl().expireMember(sess, member);
+					List<Group> groups = sess.getPerun().getGroupsManager().getMemberGroups(sess, member);
+					for (Group g : groups) {
+						List<Application> apps = registrarManager.getApplicationsForMember(sess, g, member);
+						for (Application app: apps) {
+							registrarManager.rejectApplication(sess, app.getId(), "Application is set to status REJECTED, because the member it is assigned to is in EXPIRED state.");
+						}
+					}
 					log.info("Switching {} to EXPIRED state, due to expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
 				} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 					log.error("Consistency error while trying to expire member {}, exception {}", member, e);
-				}
-			}
+				} catch (PerunException e) {
+                    log.error("Cannot reject applications for expired memeber {}, exception {}", member, e);
+                }
+            }
 		}
 	}
 
