@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.15</version>
+		<version>2.7.16</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -67,8 +67,8 @@
 		<docker-java.version>3.3.3</docker-java.version>
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
-		<expiringmap.version>0.5.10</expiringmap.version>
-		<flying-saucer-pdf.version>9.2.2</flying-saucer-pdf.version>
+		<expiringmap.version>0.5.11</expiringmap.version>
+		<flying-saucer-pdf.version>9.3.1</flying-saucer-pdf.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20230822-2.0.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
@@ -78,7 +78,7 @@
 		<json.version>20230618</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.11</reflections.version>
-		<testcontainers.version>1.19.0</testcontainers.version>
+		<testcontainers.version>1.19.1</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS

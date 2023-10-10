@@ -41,7 +41,7 @@ public class urn_perun_facility_attribute_def_def_unixGID_namespace extends Faci
 		attr.setFriendlyName("unixGID-namespace");
 		attr.setDisplayName("GID namespace");
 		attr.setType(String.class.getName());
-		attr.setDescription("Namespace of UnixGID.");
+		attr.setDescription("Define namespace for unix groups GIDs on Facility.");
 		return attr;
 	}
 }

@@ -149,8 +149,9 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
 
 		Attribute mfaCategory = null;
 		try {
-			Map<String, Attribute> mfaCategories = perunSession.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(perunSession, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":mfaCategories", Collections.singletonList("categories"));
-			mfaCategory = mfaCategories.get("categories");
+			String param = attribute.getFriendlyNameParameter();
+			Map<String, Attribute> mfaCategories = perunSession.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(perunSession, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":mfaCategories", Collections.singletonList(param));
+			mfaCategory = mfaCategories.get(param);
 		} catch (AttributeNotExistsException e) {
 			throw new WrongReferenceAttributeValueException("Attribute mfa categories does not exist.");
 		}
