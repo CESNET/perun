@@ -1,5 +1,24 @@
 Upgrade notes
 
+## [30.1.0](https://github.com/CESNET/perun/compare/v30.0.0...v30.1.0) (2023-10-10)
+
+
+### Features
+
+* **core:** add getAssociatedResources to RPC and openapi ([0c07203](https://github.com/CESNET/perun/commit/0c07203ba4a6ad89c0b1e6027e21b4708b46b354))
+* **core:** mfa categories use namespace as key ([6096bf6](https://github.com/CESNET/perun/commit/6096bf6e1860fdf76734e0a52b5316fd841d4081))
+* **core:** new scopedLogin_mu virtual attribute ([08e8eb6](https://github.com/CESNET/perun/commit/08e8eb64d415e9e1880edae53635d956776c0cc7))
+
+
+### Bug Fixes
+
+* **core:** add right for GROUPMEMBERSHIPMANAGER to invite members ([2c83cab](https://github.com/CESNET/perun/commit/2c83cab007571403669f209bec692fb2d713050b))
+* **core:** initialize missing unixGID-namespace facility attribute ([237371e](https://github.com/CESNET/perun/commit/237371e2898eb553a3f8f38232b9d02274fd2f9a))
+* **core:** user:virt:voPersonExternalAffiliation forces to lowercase ([3facb22](https://github.com/CESNET/perun/commit/3facb2248b49c387f5218c23e705758805ede3eb))
+* **deps:** update dependency net.jodah:expiringmap to v0.5.11 ([f6ca050](https://github.com/CESNET/perun/commit/f6ca05035e8e9869e36186416461d8beb5c7c620))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v2.7.16 ([cfc7adc](https://github.com/CESNET/perun/commit/cfc7adc5c1b3e1debf8dca9d10dc3c3829f94985))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.3.1 ([3c40522](https://github.com/CESNET/perun/commit/3c4052282007f27dd8351b4d1aed05c3a2155cca))
+
 ## [30.0.0](https://github.com/CESNET/perun/compare/v29.1.0...v30.0.0) (2023-09-27)
 
 
