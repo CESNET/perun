@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [30.1.1](https://github.com/CESNET/perun/compare/v30.1.0...v30.1.1) (2023-10-10)
+
+
+### Bug Fixes
+
+* **core:** authorization in removeBan() methods ([25d2f5a](https://github.com/CESNET/perun/commit/25d2f5a29495108633b2bc43be82fe58fefc37f4))
+
 ## [30.1.0](https://github.com/CESNET/perun/compare/v30.0.0...v30.1.0) (2023-10-10)
 
 
