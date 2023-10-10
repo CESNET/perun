@@ -720,7 +720,7 @@ public interface FacilitiesManager {
 	 *
 	 * @param banId the id of ban
 	 */
-	void removeBan(PerunSession sess, int banId) throws BanNotExistsException, PrivilegeException;
+	void removeBan(PerunSession sess, int banId) throws BanNotExistsException, PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Remove existing ban by id of user and facility.
@@ -728,5 +728,5 @@ public interface FacilitiesManager {
 	 * @param userId     the id of user
 	 * @param facilityId the id of facility
 	 */
-	void removeBan(PerunSession sess, int userId, int facilityId) throws BanNotExistsException, PrivilegeException;
+	void removeBan(PerunSession sess, int userId, int facilityId) throws BanNotExistsException, PrivilegeException, FacilityNotExistsException;
 }
