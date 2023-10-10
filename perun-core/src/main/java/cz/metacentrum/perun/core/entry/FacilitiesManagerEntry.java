@@ -1391,15 +1391,13 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public void removeBan(PerunSession sess, int banId) throws PrivilegeException, BanNotExistsException {
+	public void removeBan(PerunSession sess, int banId) throws PrivilegeException, BanNotExistsException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
-		BanOnFacility ban = this.getFacilitiesManagerBl().getBanById(sess, banId);
-
-		Facility facility = new Facility();
-		facility.setId(ban.getId());
+		BanOnFacility banOnFacility = this.getFacilitiesManagerBl().getBanById(sess, banId);
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, banOnFacility.getFacilityId());
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeBan_int_policy", Arrays.asList(ban, facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeBan_int_policy", Arrays.asList(banOnFacility, facility))) {
 			throw new PrivilegeException(sess, "removeBan");
 		}
 
@@ -1407,15 +1405,13 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public void removeBan(PerunSession sess, int userId, int facilityId) throws BanNotExistsException, PrivilegeException {
+	public void removeBan(PerunSession sess, int userId, int facilityId) throws BanNotExistsException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
-		BanOnFacility ban = this.getFacilitiesManagerBl().getBan(sess, userId, facilityId);
-
-		Facility facility = new Facility();
-		facility.setId(ban.getId());
+		BanOnFacility banOnFacility = this.getFacilitiesManagerBl().getBan(sess, userId, facilityId);
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, banOnFacility.getFacilityId());
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeBan_int_int_policy", Arrays.asList(ban, facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeBan_int_int_policy", Arrays.asList(banOnFacility, facility))) {
 			throw new PrivilegeException(sess, "removeBan");
 		}
 
