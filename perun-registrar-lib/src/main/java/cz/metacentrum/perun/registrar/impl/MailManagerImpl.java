@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -1095,6 +1096,11 @@ public class MailManagerImpl implements MailManager {
 		String fromName = getPropertyFromConfiguration("backupFromName");
 		String replyToMail = fromMail;
 		String replyToName = fromName;
+
+		if (!Objects.equals(getPropertyFromConfiguration("replyTo"), EMPTY_STRING)) {
+			replyToMail = getPropertyFromConfiguration("replyTo");
+			replyToName = getPropertyFromConfiguration("replyToName");
+		}
 
 		// get proper value from attribute
 		try {
