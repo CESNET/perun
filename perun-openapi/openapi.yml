@@ -876,11 +876,20 @@ components:
         sortColumn: { $ref: '#/components/schemas/GroupsOrderColumn' }
         memberId: { type: integer }
         searchString: { type: string }
+        roles: { type: array, items: { $ref: '#/components/schemas/GroupAdminRoles' } }
+        types: { type: array, items: { $ref: '#/components/schemas/RoleAssignmentType' } }
       required:
         - pageSize
         - offset
         - order
         - sortColumn
+
+    RoleAssignmentType:
+      type: string
+      description: 'type of role assignment'
+      enum:
+        - DIRECT
+        - INDIRECT
 
     ConsentStatus:
       type: string
@@ -948,6 +957,14 @@ components:
         - "VOOBSERVER"
         - "TOPGROUPCREATOR"
         - "VOADMIN"
+
+    GroupAdminRoles:
+      type: string
+      description: 'admin roles for a group'
+      enum:
+        - "GROUPOBSERVER"
+        - "GROUPMEMBERSHIPMANAGER"
+        - "GROUPADMIN"
 
     VoMemberStatuses:
       type: string
@@ -13205,6 +13222,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/attrNames'
+        - { name: "roles[]", schema: { type: array, items: { $ref: '#/components/schemas/GroupAdminRoles' } }, in: query, description: "list of roles: GROUPADMIN, GROUPOBSERVER, GROUPMEMBERSHIPMANAGER" }
+        - { name: "types[]", schema: { type: array, items: { $ref: '#/components/schemas/RoleAssignmentType' } }, in: query, description: "list of role types: DIRECT, INDIRECT" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichGroupsResponse'
@@ -13220,6 +13239,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attrNamesOptional'
+        - { name: "roles[]", schema: { type: array, items: { $ref: '#/components/schemas/GroupAdminRoles' } }, in: query, description: "list of roles: GROUPADMIN, GROUPOBSERVER, GROUPMEMBERSHIPMANAGER" }
+        - { name: "types[]", schema: { type: array, items: { $ref: '#/components/schemas/RoleAssignmentType' } }, in: query, description: "list of role types: DIRECT, INDIRECT" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichGroupsResponse'
@@ -13667,6 +13688,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/attrNames'
+        - { name: "roles[]", schema: { type: array, items: { $ref: '#/components/schemas/GroupAdminRoles' } }, in: query, description: "list of roles: GROUPADMIN, GROUPOBSERVER, GROUPMEMBERSHIPMANAGER" }
+        - { name: "types[]", schema: { type: array, items: { $ref: '#/components/schemas/RoleAssignmentType' } }, in: query, description: "list of role types: DIRECT, INDIRECT" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichGroupsResponse'

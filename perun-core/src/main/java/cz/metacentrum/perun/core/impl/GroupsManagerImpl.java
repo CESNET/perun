@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -680,6 +681,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public Paginated<Group> getGroupsPage(PerunSession sess, Vo vo, GroupsPageQuery query) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
+		boolean includeIndirectRoles = query.getTypes().contains(RoleAssignmentType.INDIRECT) || query.getTypes().isEmpty();
+		boolean includeDirectRoles = query.getTypes().contains(RoleAssignmentType.DIRECT) || query.getTypes().isEmpty();
+
 		List<Integer> authorizedGroupsIds = getGroupsIds(sess, vo);
 		authorizedGroupsIds.removeIf(groupId ->
 			!AuthzResolverBlImpl.isAuthorizedForGroup(sess, "filter-getGroupsPage_Vo_GroupsPageQuery_List<String>_policy", groupId, vo.getId()));
@@ -688,24 +692,42 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		namedParams.addValue("groupsIds", authorizedGroupsIds);
 		namedParams.addValue("offset", query.getOffset());
 		namedParams.addValue("limit", query.getPageSize());
+		namedParams.addValue("uid", sess.getPerunPrincipal().getUser() != null ? sess.getPerunPrincipal().getUser().getId() : null);
+		namedParams.addValue("roles", query.getRoles().stream().map(String::toLowerCase).toList());
 
 		if (query.getMemberId() != null) namedParams.addValue("memberId", query.getMemberId());
 
 		String selectQuery = getSQLSelectForGroupsPage(query);
 		String searchQuery = getSQLWhereForGroupsPage(query, namedParams);
 
-		Paginated<Group> groups = namedParameterJdbcTemplate.query(
-			selectQuery +
-				" WHERE groups.vo_id=(:voId)" +
-				" AND groups.id IN (:groupsIds)" +
+		if ((query.getRoles().isEmpty() && query.getTypes().isEmpty()) || sess.getPerunPrincipal().getUser() == null ) {
+			return namedParameterJdbcTemplate.query(
+				selectQuery +
+					" WHERE groups.vo_id=(:voId)" +
+					" AND groups.id IN (:groupsIds)" +
+					searchQuery +
+					" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
+					" OFFSET (:offset)" +
+					" LIMIT (:limit);",
+				namedParams,
+				getPaginatedGroupsExtractor(query));
+		}
+		return namedParameterJdbcTemplate.query(
+			"SELECT DISTINCT " + groupMappingSelectQuery +
+				", count(*) OVER() AS total_count " +
+				"FROM authz JOIN " +
+				(query.getMemberId() == null ? " groups ON authz.group_id=groups.id " :
+				"(SELECT * FROM groups WHERE groups.name!='members' OR groups.parent_group_id IS NOT NULL) AS groups ON authz.group_id=groups.id JOIN " +
+					"(SELECT * FROM groups_members WHERE member_id = (:memberId)) AS g_m ON groups.id = g_m.group_id ") +
+				(includeIndirectRoles ? " LEFT OUTER JOIN groups_members ON groups_members.group_id=authz.authorized_group_id LEFT OUTER JOIN members ON members.id=groups_members.member_id " : "") +
+				"WHERE groups.vo_id=(:voId) AND groups.id IN (:groupsIds) AND (" +
+				(includeDirectRoles ? "authz.user_id=:uid " : "false ") + (includeIndirectRoles ? "or members.user_id=:uid) ": ") ") +
+				(!query.getRoles().isEmpty() ? " AND (authz.role_id IN (SELECT id FROM roles WHERE name IN (:roles))) " : "") +
 				searchQuery +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
 				" LIMIT (:limit);",
-			namedParams,
-			getPaginatedGroupsExtractor(query));
-
-		return groups;
+			namedParams, getPaginatedGroupsExtractor(query));
 	}
 
 	@Override
