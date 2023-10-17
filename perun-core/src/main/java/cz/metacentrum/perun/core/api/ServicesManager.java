@@ -89,7 +89,7 @@ public interface ServicesManager {
 	 * @param richDestinations the list of rich destinations
 	 *
 	 */
-	void blockServicesOnDestinations(PerunSession perunSession, List<RichDestination> richDestinations) throws PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException, FacilityNotExistsException;
+	void blockServicesOnDestinations(PerunSession perunSession, List<RichDestination> richDestinations) throws PrivilegeException, DestinationNotExistsException, FacilityNotExistsException;
 
 	/**
 	 * Block all services currently assigned on this facility.
