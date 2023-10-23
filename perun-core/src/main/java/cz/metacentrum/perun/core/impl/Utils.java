@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -1977,6 +1978,10 @@ public class Utils {
 		if (secondaryRegex != null && !secondaryRegex.isEmpty()) {
 			validateGroupName(name, secondaryRegex);
 		}
+	}
+
+	public static void validateSSHPublicKey(String sshKey) throws SSHKeyNotValidException {
+		SSHValidator.validateSSH(sshKey);
 	}
 
 

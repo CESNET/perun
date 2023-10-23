@@ -70,6 +70,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
@@ -92,6 +93,7 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.SSHValidator;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModule;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
@@ -1908,6 +1910,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		getUsersManagerImpl().removeAllPreferredEmailChangeRequests(sess, user);
 
 		return email;
+	}
+
+	@Override
+	public void validateSSHKey(PerunSession sess, String sshKey) throws SSHKeyNotValidException {
+		Utils.validateSSHPublicKey(sshKey);
 	}
 
 	@Override
