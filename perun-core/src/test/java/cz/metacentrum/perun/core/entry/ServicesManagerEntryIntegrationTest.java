@@ -1193,6 +1193,31 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test
+	public void blockServiceOnDestinationsAndIgnoreAlreadyBlocked() throws Exception {
+		System.out.println(CLASS_NAME + "blockServiceOnDestinationsAndIgnoreAlreadyBlocked");
+
+		facility = setUpFacility();
+		service = setUpService();
+		List<Destination> destinations = setUpDestinations();
+
+		Destination destination1 = perun.getServicesManager().addDestination(sess, service, facility, destinations.get(0));
+		RichDestination richDestination1 = new RichDestination(destination1, facility, service);
+		Destination destination2 = perun.getServicesManager().addDestination(sess, service, facility, destinations.get(1));
+		RichDestination richDestination2 = new RichDestination(destination2, facility, service);
+
+		List<RichDestination> serviceDestinations = perun.getServicesManagerBl().getAllRichDestinations(sess, facility);
+		assertTrue(serviceDestinations.contains(richDestination1));
+		assertTrue( serviceDestinations.contains(richDestination2));
+
+		perun.getServicesManager().blockServiceOnDestination(sess, service, richDestination1.getId());
+		assertTrue(perun.getServicesManager().isServiceBlockedOnDestination(sess, service, richDestination1.getId()));
+
+		List<RichDestination> destinationsToBlock = Arrays.asList(richDestination1, richDestination2);
+		perun.getServicesManager().blockServicesOnDestinations(sess, destinationsToBlock);
+		assertTrue(perun.getServicesManager().isServiceBlockedOnDestination(sess, service, richDestination2.getId()));
+	}
+
+	@Test
 	public void blockAndUnblockServicesOnFacility() throws Exception {
 		System.out.println(CLASS_NAME + "blockAndUnblockServicesOnFacility");
 
