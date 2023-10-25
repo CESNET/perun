@@ -59,6 +59,7 @@ public class CoreConfig {
 	private String instanceId;
 	private String instanceName;
 	private String mailchangeBackupFrom;
+	private String mailchangeReplyTo;
 	private String mailchangeSecretKey;
 	private String nativeLanguage;
 	private String passwordManagerProgram;
@@ -324,6 +325,15 @@ public class CoreConfig {
 	public void setMailchangeBackupFrom(String mailchangeBackupFrom) {
 		this.mailchangeBackupFrom = mailchangeBackupFrom;
 	}
+
+	public String getMailchangeReplyTo() {
+		return mailchangeReplyTo;
+	}
+
+	public void setMailchangeReplyTo(String mailchangeReplyTo) {
+		this.mailchangeReplyTo = mailchangeReplyTo;
+	}
+
 
 	public String getMailchangeSecretKey() {
 		return mailchangeSecretKey;

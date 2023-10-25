@@ -37,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -1274,7 +1275,7 @@ public class Utils {
 		String defaultSubject = "["+instanceName+"] Account activation in namespace: "+namespace;
 		String defaultText = "Dear "+user.getDisplayName()+",\n\nyour account in namespace \""+namespace+"\" was successfully activated."+
 			"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious account activation without your knowledge.\n\n" +
-			"If you didn't request / perform account activation, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
+			"If you didn't request / perform account activation, please notify your administrators and support at "+(StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo())? BeansUtils.getCoreConfig().getMailchangeReplyTo() : BeansUtils.getCoreConfig().getMailchangeBackupFrom())+" to resolve this security issue.\n\n" +
 			"Message is automatically generated." +
 			"\n----------------------------------------------------------------" +
 			"\nPerun - Identity & Access Management System";
@@ -1310,7 +1311,7 @@ public class Utils {
 		String defaultSubject = "["+instanceName+"] Password reset in namespace: "+namespace;
 		String defaultText = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
 			"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
-			"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
+			"If you didn't request / perform password reset, please notify your administrators and support at "+ (StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo()) ? BeansUtils.getCoreConfig().getMailchangeReplyTo() : BeansUtils.getCoreConfig().getMailchangeBackupFrom())+" to resolve this security issue.\n\n" +
 			"Message is automatically generated." +
 			"\n----------------------------------------------------------------" +
 			"\nPerun - Identity & Access Management System";
@@ -1407,6 +1408,9 @@ public class Utils {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
+		if (StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo())) {
+			message.setReplyTo(BeansUtils.getCoreConfig().getMailchangeReplyTo());
+		}
 
 		// set subject and body
 		message.setSubject(subjectOfEmail);

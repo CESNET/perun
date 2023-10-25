@@ -32,6 +32,7 @@
 		<property name="instanceId" value="${perun.instanceId}"/>
 		<property name="instanceName" value="${perun.instanceName}"/>
 		<property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
+		<property name="mailchangeReplyTo" value="${perun.mailchange.replyTo}"/>
 		<property name="mailchangeSecretKey" value="${perun.mailchange.secretKey}"/>
 		<property name="mailchangeValidationWindow" value="${perun.mailchange.validationWindow}"/>
 		<property name="nativeLanguage" value="${perun.native.language}"/>
@@ -134,6 +135,7 @@
 				<prop key="perun.recaptcha.privatekey"/>
 				<prop key="perun.mailchange.secretKey"/>
 				<prop key="perun.mailchange.backupFrom"/>
+				<prop key="perun.mailchange.replyTo"/>
 				<prop key="perun.mailchange.validationWindow">6</prop>
 				<prop key="perun.pwdreset.secretKey">jda3ufK92DKs2335af</prop>
 				<prop key="perun.pwdreset.initVector">2Akd14k3o9s1d2G5</prop>
