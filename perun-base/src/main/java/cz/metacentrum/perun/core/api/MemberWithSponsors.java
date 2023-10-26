@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,6 +40,13 @@ public class MemberWithSponsors {
 
 	public void setSponsors(List<Sponsor> sponsors) {
 		this.sponsors = sponsors;
+	}
+
+	public void addSponsor(Sponsor sponsor) {
+		if (this.sponsors == null) {
+			this.sponsors = new ArrayList<>();
+		}
+		this.sponsors.add(sponsor);
 	}
 
 	@Override
