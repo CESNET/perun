@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
@@ -66,7 +67,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualA
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,6 +134,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private static final String ATTRIBUTES_MODULES_PACKAGE = "cz.metacentrum.perun.core.impl.modules.attributes";
 	private static final int MERGE_TRY_CNT = 10;
 	private static final long MERGE_RAND_SLEEP_MAX = 100;  //max sleep time between SQL merge attempt in millisecond
+	public static final int MAX_SIZE_FOR_IN_CLAUSE = 32000;
 
 	private final static Logger log = LoggerFactory.getLogger(AttributesManagerImpl.class);
 
@@ -313,6 +314,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			return new ArrayList<>(attributePolicyCollections.values());
+		};
+	}
+
+	private ResultSetExtractor<List<RichMember>> getUserDefAttributesExtractor(PerunSession sess, Map<Integer, RichMember> userIdMemberMap) {
+		return resultSet -> {
+			while (resultSet.next()) {
+				RichMember currentMember = userIdMemberMap.get(resultSet.getInt("user_id"));
+				Attribute userAttribute = new SingleBeanAttributeRowMapper<>(sess, this, currentMember.getUser())
+					.mapRow(resultSet, resultSet.getRow());
+				currentMember.addUserAttribute(userAttribute);
+			}
+			return new ArrayList<>(userIdMemberMap.values());
+		};
+	}
+
+	private ResultSetExtractor<List<RichMember>> getMemberDefAttributesExtractor(PerunSession sess, Map<Integer, RichMember> memberIdMemberMap) {
+		return resultSet -> {
+			while (resultSet.next()) {
+				RichMember currentMember = memberIdMemberMap.get(resultSet.getInt("member_id"));
+				Attribute memberAttribute = new SingleBeanAttributeRowMapper<>(sess, this, currentMember)
+					.mapRow(resultSet, resultSet.getRow());
+				currentMember.addMemberAttribute(memberAttribute);
+			}
+			return new ArrayList<>(memberIdMemberMap.values());
 		};
 	}
 
@@ -1266,6 +1291,63 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+	}
+
+	@Override
+	public List<RichMember> decorateMembersWithDefUserAttributes(PerunSession sess, List<RichMember> members, List<String> userAttrNames) {
+		List<RichMember> membersToReturn = new ArrayList<>();
+
+		// only 32000 members in one query as the temporary table created for postgres IN clause uses short
+		for (int batch = 0; batch <= members.size() / (MAX_SIZE_FOR_IN_CLAUSE + 1); batch++) {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			Map<Integer, RichMember> userIdMemberMap = new HashMap<>();
+			for (int i = batch * MAX_SIZE_FOR_IN_CLAUSE; i < Math.min((batch + 1) * MAX_SIZE_FOR_IN_CLAUSE, members.size()); i++) {
+				userIdMemberMap.put(members.get(i).getUserId(), members.get(i));
+			}
+
+			parameters.addValue("uIds", userIdMemberMap.keySet());
+			parameters.addValue("nSD", AttributesManager.NS_USER_ATTR_DEF);
+			parameters.addValue("userAttrNames", userAttrNames);
+
+			try {
+				membersToReturn.addAll(
+					namedParameterJdbcTemplate.query("select user_id, " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+						"join user_attr_values usr on id=usr.attr_id and user_id in ( :uIds ) " +
+						"where namespace in ( :nSD ) and attr_names.attr_name in ( :userAttrNames )",
+					parameters, getUserDefAttributesExtractor(sess, userIdMemberMap)));
+			} catch (RuntimeException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+		return membersToReturn;
+	}
+
+	@Override
+	public List<RichMember> decorateMembersWithDefMemberAttributes(PerunSession sess, List<RichMember> members, List<String> memberAttrNames) {
+		List<RichMember> membersToReturn = new ArrayList<>();
+
+		// only 32000 members in one query as the temporary table created for postgres IN clause uses short
+		for (int batch = 0; batch <= members.size() / (MAX_SIZE_FOR_IN_CLAUSE + 1); batch++) {
+			Map<Integer, RichMember> idMemberMap = new HashMap<>();
+			for (int i = batch * MAX_SIZE_FOR_IN_CLAUSE; i < Math.min((batch + 1) * MAX_SIZE_FOR_IN_CLAUSE, members.size()); i++) {
+				idMemberMap.put(members.get(i).getId(), members.get(i));
+			}
+
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			parameters.addValue("mIds", idMemberMap.keySet());
+			parameters.addValue("nSD", AttributesManager.NS_MEMBER_ATTR_DEF);
+			parameters.addValue("memberAttrNames", memberAttrNames);
+
+			try {
+				membersToReturn.addAll(namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+						"join member_attr_values mem on id=mem.attr_id and member_id in ( :mIds ) " +
+						"where namespace in ( :nSD ) and attr_names.attr_name in ( :memberAttrNames )",
+					parameters, getMemberDefAttributesExtractor(sess, idMemberMap)));
+			} catch (RuntimeException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+		return membersToReturn;
 	}
 
 	@Override

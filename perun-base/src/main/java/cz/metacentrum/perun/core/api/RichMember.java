@@ -57,12 +57,33 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 		this.userAttributes = userAttributes;
 	}
 
+	public void addUserAttribute(Attribute attribute) {
+		if (this.userAttributes == null) {
+			this.userAttributes = new ArrayList<>();
+		}
+		this.userAttributes.add(attribute);
+	}
+
 	public void setMemberAttributes(List<Attribute> memberAttributes) {
 		this.memberAttributes = memberAttributes;
 	}
 
+	public void addMemberAttribute(Attribute attribute) {
+		if (this.memberAttributes == null) {
+			this.memberAttributes = new ArrayList<>();
+		}
+		this.memberAttributes.add(attribute);
+	}
+
 	public void setUserExtSources(List<UserExtSource> userExtSources) {
 		this.userExtSources = userExtSources;
+	}
+
+	public void addUserExtSource(UserExtSource userExtSource) {
+		if (this.userExtSources == null) {
+			this.userExtSources = new ArrayList<>();
+		}
+		this.userExtSources.add(userExtSource);
 	}
 
 	public void setUser(User user) {

@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
@@ -951,6 +952,16 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<User> getSponsors(PerunSession sess, Member sponsoredMember);
+
+	/**
+	 * Retrieves a map, that maps the ids of the sponsored members in the given VO to
+	 * a list of their Sponsors with the corresponding Sponsorship objects.
+	 *
+	 * @param sess perun session
+	 * @param voId id of a vo for whose members to retrieve the sponsors
+	 * @return Map of memberIds in the Vo with Lists of Pairs of their Sponsor and Sponsorship objects
+	 */
+	Map<Integer, List<Pair<User, Sponsorship>>> getSponsorsForSponsoredMembersInVo(PerunSession sess, int voId);
 
 	/**
 	 * Deletes all links to sponsors, even those marked as inactive.

@@ -138,6 +138,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
@@ -1225,6 +1226,77 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		return richMembers;
+	}
+
+	@Override
+	public List<RichMember> convertMembersToRichMembersWithAttributesBatch(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef) {
+		List<AttributeDefinition> otherAttributesDefinitions = new ArrayList<>();
+		List<AttributeDefinition> defAttributesDefinitions = new ArrayList<>();
+
+		for(AttributeDefinition attrd: attrsDef) {
+			if(attrd.getName().contains("def:def")) defAttributesDefinitions.add(attrd);
+			else otherAttributesDefinitions.add(attrd);
+		}
+
+		richMembers = convertMembersToRichMembersWithAttributes(sess, richMembers, otherAttributesDefinitions);
+
+		List<AttributeDefinition> usersAttributesDef = new ArrayList<>();
+		List<AttributeDefinition> membersAttributesDef = new ArrayList<>();
+
+		for(AttributeDefinition attrd: defAttributesDefinitions) {
+			if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
+			else if(attrd.getName().startsWith(AttributesManager.NS_MEMBER_ATTR)) membersAttributesDef.add(attrd);
+		}
+
+		List<String> userAttrNames = usersAttributesDef.stream().map(AttributeDefinition::getName).collect(Collectors.toList());
+		List<String> memberAttrNames = membersAttributesDef.stream().map(AttributeDefinition::getName).collect(Collectors.toList());
+
+		if (!userAttrNames.isEmpty()) {
+			richMembers = getPerunBl().getAttributesManagerBl().decorateMembersWithDefUserAttributes(sess, richMembers, userAttrNames);
+		}
+		if (!memberAttrNames.isEmpty()) {
+			richMembers = getPerunBl().getAttributesManagerBl().decorateMembersWithDefMemberAttributes(sess, richMembers, memberAttrNames);
+		}
+
+		addMissingAttributes(richMembers, usersAttributesDef, membersAttributesDef);
+		return richMembers;
+	}
+
+	/**
+	 * For each member checks if any user or member attr from usersAttributesDef membersAttributesDef is missing.
+	 * If so adds the attribute with null value.
+	 *
+	 * @param richMembers
+	 * @param usersAttributesDef
+	 * @param membersAttributesDef
+	 */
+	private void addMissingAttributes(List<RichMember> richMembers, List<AttributeDefinition> usersAttributesDef, List<AttributeDefinition> membersAttributesDef) {
+		Set<Attribute> usersAttributesSet = usersAttributesDef
+			.stream()
+			.map(Attribute::new)
+			.collect(Collectors.toSet());
+		Set<Attribute> membersAttributesSet = membersAttributesDef
+			.stream()
+			.map(Attribute::new)
+			.collect(Collectors.toSet());
+		for (RichMember member : richMembers) {
+			Set<AttributeDefinition> mergedAttrDefsSet = member.getUserAttributes()
+				.stream()
+				.map(AttributeDefinition::new).collect(Collectors.toSet());
+			for (Attribute userAttr : usersAttributesSet) {
+				if (!mergedAttrDefsSet.contains(new AttributeDefinition(userAttr))) {
+					member.addUserAttribute(userAttr);
+				}
+			}
+			mergedAttrDefsSet = member.getMemberAttributes()
+				.stream()
+				.map(AttributeDefinition::new).collect(Collectors.toSet());
+			for (Attribute memberAttr : membersAttributesSet) {
+				if (!mergedAttrDefsSet.contains(new AttributeDefinition(memberAttr))) {
+					member.addMemberAttribute(memberAttr);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -2934,6 +3006,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo) {
 		return getMembersManagerImpl().getSponsoredMembers(sess, vo);
+	}
+
+	@Override
+	public List<RichMember> getSponsoredRichMembers(PerunSession sess, Vo vo) {
+		return getMembersManagerImpl().getSponsoredRichMembers(sess, vo);
 	}
 
 	@Override
