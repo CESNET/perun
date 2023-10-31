@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ConsentHub;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -34,6 +35,7 @@ public class PerunLocksUtils {
 	private static final ConcurrentHashMap<Group, ReadWriteLock> groupsLocks = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<Group, ConcurrentHashMap<Member, Lock>> groupsMembersLocks = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<ConsentHub, Lock> consentHubsLocks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<AttributeDefinition, Lock> attributeLocks = new ConcurrentHashMap<>();
 
 	/**
 	 * Create transaction locks for combination of group and member (from list of members)
@@ -183,6 +185,43 @@ public class PerunLocksUtils {
 				}
 			} catch (InterruptedException ex) {
 				throw new InternalErrorException("Interrupted exception has been thrown while locking consentHub " + consentHub, ex);
+			}
+		} catch (Exception ex) {
+			//if some exception has been thrown, unlock all already locked locks
+			unlockAll(returnedLocks);
+			throw ex;
+		}
+	}
+
+	/**
+	 * Create transaction lock for attribute and also bind it to the
+	 * transaction (as resource by Object uniqueKey)
+	 *
+	 * @param attribute the attribute
+	 */
+	public static void lockAttribute(AttributeDefinition attribute) {
+		if (attribute == null) throw new InternalErrorException("Attribute can't be null when creating lock for attribute");
+
+		List<Lock> returnedLocks = new ArrayList<>();
+
+		try {
+			try {
+				Lock lock = attributeLocks.computeIfAbsent(attribute, f -> new ReentrantLock(true));
+				//Lock the lock and return it
+				if (!lock.tryLock(4, TimeUnit.HOURS)) {
+					throw new InternalErrorException("Can't acquire a lock in expected time.");
+				}
+				returnedLocks.add(lock);
+
+				//bind these locks like transaction resource
+				if (TransactionSynchronizationManager.getResource(uniqueKey.get()) == null) {
+					TransactionSynchronizationManager.bindResource(uniqueKey.get(), returnedLocks);
+				} else {
+					// the returned resource can never be null because of the previous check
+					((List<Lock>) TransactionSynchronizationManager.getResource(uniqueKey.get())).addAll(returnedLocks);
+				}
+			} catch (InterruptedException ex) {
+				throw new InternalErrorException("Interrupted exception has been thrown while locking attribute " + attribute, ex);
 			}
 		} catch (Exception ex) {
 			//if some exception has been thrown, unlock all already locked locks
