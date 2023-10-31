@@ -171,7 +171,7 @@ public class JsonDeserializer extends Deserializer {
 
 	@Override
 	public boolean contains(String name) {
-		return root.get(name) != null;
+		return root.hasNonNull(name);
 	}
 
 	@Override
