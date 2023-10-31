@@ -505,6 +505,7 @@ public interface FacilitiesManager {
 	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
 	 * @return list of all user administrators of the given facility for supported role
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
@@ -521,6 +522,7 @@ public interface FacilitiesManager {
 	 * @param onlyDirectAdmins   if true, get only direct user administrators (if false, get both direct and indirect)
 	 * @return list of RichUser administrators for the facility and supported role with attributes
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Facility facility, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException, PrivilegeException, FacilityNotExistsException;
 
 	/**
@@ -544,6 +546,7 @@ public interface FacilitiesManager {
 	 *
 	 * @return list of Group that are admins in the facility.
 	 */
+	@Deprecated
 	List<Group> getAdminGroups(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**

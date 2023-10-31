@@ -32,6 +32,7 @@ import java.util.Set;
 
 import static cz.metacentrum.perun.core.api.AuthzResolver.MFA_CRITICAL_ATTR;
 import static java.util.Map.entry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.Assert.assertEquals;
@@ -1343,6 +1344,61 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		assertEquals(2, richAdmins.size());
 		assertTrue(richAdmins.containsAll(Arrays.asList(testUser, testUser2)));
+	}
+
+	@Test
+	public void getVoAdminsWithProperRights() throws Exception {
+		System.out.println(CLASS_NAME + "getVoAdminsWithProperRights");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		final Member testMember2 = createSomeMember(testVo);
+		final User testUser2 = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+
+		perun.getGroupsManager().addMember(sess, testGroup, testMember2);
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
+		when(mockedPerunPrincipal.getActor()).thenReturn("test");
+		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+		AuthzResolver.setRole(testSession, testUser, testVo, Role.VOADMIN);
+		AuthzResolver.setRole(testSession, testGroup, testVo, Role.VOADMIN);
+		List<User> admins = AuthzResolver.getAdmins(testSession, testVo, Role.VOADMIN, false);
+
+		assertEquals(2, admins.size());
+		assertTrue(admins.containsAll(Arrays.asList(testUser, testUser2)));
+	}
+
+	@Test
+	public void getDirectVoAdminsWithProperRights() throws Exception {
+		System.out.println(CLASS_NAME + "getDirectVoAdminsWithProperRights");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		final Member testMember2 = createSomeMember(testVo);
+
+		perun.getGroupsManager().addMember(sess, testGroup, testMember2);
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+		when(mockedPerunPrincipal.getRolesUpdatedAt()).thenReturn(System.currentTimeMillis());
+		when(mockedPerunPrincipal.getActor()).thenReturn("test");
+		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+		AuthzResolver.setRole(testSession, testUser, testVo, Role.VOADMIN);
+		AuthzResolver.setRole(testSession, testGroup, testVo, Role.VOADMIN);
+		List<User> admins = AuthzResolver.getAdmins(testSession, testVo, Role.VOADMIN, true);
+
+		assertEquals(1, admins.size());
+		assertThat(admins).containsExactly(testUser);
 	}
 
 	@Test (expected = RoleCannotBeManagedException.class)

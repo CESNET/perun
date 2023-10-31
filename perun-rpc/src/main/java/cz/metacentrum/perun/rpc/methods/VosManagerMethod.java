@@ -1,11 +1,27 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnVo;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedBanOnVo;
+import cz.metacentrum.perun.core.api.EnrichedVo;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.rpc.*;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
+import cz.metacentrum.perun.rpc.ApiCaller;
+import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -482,20 +498,32 @@ public enum VosManagerMethod implements ManagerMethod {
 	getAdmins {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("role")) {
-				String roleName = parms.readString("role");
-				if (roleName == null) {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
-				} else {
-					roleName = roleName.toUpperCase();
-				}
+			try {
+				if(parms.contains("role")) {
+					String roleName = parms.readString("role");
+					if (roleName == null) {
+						throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
+					} else {
+						roleName = roleName.toUpperCase();
+					}
 
-				return ac.getVosManager().getAdmins(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")),
-					roleName, parms.readBoolean("onlyDirectAdmins"));
-			} else {
-				return ac.getVosManager().getAdmins(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")));
+					if (!AuthzResolver.roleExists(roleName)) {
+						throw new RoleNotSupportedException("Role: "+ roleName +" does not exist.", roleName);
+					}
+
+					//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
+					if(!roleName.equals(Role.TOPGROUPCREATOR) &&
+						!roleName.equals(Role.VOADMIN) &&
+						!roleName.equals(Role.VOOBSERVER)) {
+						throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", roleName);
+					}
+
+					return AuthzResolver.getAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")), roleName, parms.readBoolean("onlyDirectAdmins"));
+				} else {
+					return AuthzResolver.getAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")), Role.VOADMIN,false);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	},
@@ -509,10 +537,12 @@ public enum VosManagerMethod implements ManagerMethod {
 	 */
 	getDirectAdmins {
 		@Override
-		public List<User> call(ApiCaller ac, Deserializer parms)
-				throws PerunException {
-			return ac.getVosManager().getDirectAdmins(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")));
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			try {
+				return AuthzResolver.getAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")), Role.VOADMIN, true);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -536,19 +566,33 @@ public enum VosManagerMethod implements ManagerMethod {
 	getAdminGroups {
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("role")) {
-				String roleName = parms.readString("role");
-				if (roleName == null) {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
-				} else {
-					roleName = roleName.toUpperCase();
-				}
+			try {
+				if(parms.contains("role")) {
+					String roleName = parms.readString("role");
+					if (roleName == null) {
+						throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
+					} else {
+						roleName = roleName.toUpperCase();
+					}
 
-				return ac.getVosManager().getAdminGroups(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")), roleName);
-			} else {
-				return ac.getVosManager().getAdminGroups(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")));
+					if (!AuthzResolver.roleExists(roleName)) {
+						throw new RoleNotSupportedException("Role: "+ roleName +" does not exist.", roleName);
+					}
+
+					//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
+					if(!roleName.equals(Role.TOPGROUPCREATOR) &&
+						!roleName.equals(Role.VOADMIN) &&
+						!roleName.equals(Role.SPONSOR) &&
+						!roleName.equals(Role.VOOBSERVER)) {
+						throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver, Sponsor and TopGroupCreator.", roleName);
+					}
+
+					return AuthzResolver.getAdminGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")), roleName);
+				} else {
+					return AuthzResolver.getAdminGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")), Role.VOADMIN);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	},
@@ -580,22 +624,43 @@ public enum VosManagerMethod implements ManagerMethod {
 	getRichAdmins {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("role")) {
-				String roleName = parms.readString("role");
-				if (roleName == null) {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
-				} else {
-					roleName = roleName.toUpperCase();
-				}
+			try {
+				if(parms.contains("role")) {
+					String roleName = parms.readString("role");
+					if (roleName == null) {
+						throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
+					} else {
+						roleName = roleName.toUpperCase();
+					}
 
-				return ac.getVosManager().getRichAdmins(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")),
-					roleName, parms.readList("specificAttributes", String.class),
-					parms.readBoolean("allUserAttributes"),
-					parms.readBoolean("onlyDirectAdmins"));
-			} else {
-				return ac.getVosManager().getRichAdmins(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")));
+					if (!AuthzResolver.roleExists(roleName)) {
+						throw new RoleNotSupportedException("Role: "+ roleName +" does not exist.", roleName);
+					}
+
+					//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
+					if(!roleName.equals(Role.TOPGROUPCREATOR) &&
+						!roleName.equals(Role.VOADMIN) &&
+						!roleName.equals(Role.SPONSOR) &&
+						!roleName.equals(Role.VOOBSERVER)) {
+						throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver, Sponsor and TopGroupCreator.", roleName);
+					}
+
+					return AuthzResolver.getRichAdmins(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						parms.readList("specificAttributes", String.class),
+						roleName,
+						parms.readBoolean("onlyDirectAdmins"),
+						parms.readBoolean("allUserAttributes"));
+				} else {
+					return AuthzResolver.getRichAdmins(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						new ArrayList<>(),
+						Role.VOADMIN,
+						false,
+						false);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	},
@@ -608,10 +673,17 @@ public enum VosManagerMethod implements ManagerMethod {
 	 */
 	getRichAdminsWithAttributes {
 		@Override
-		public List<RichUser> call(ApiCaller ac, Deserializer parms)
-				throws PerunException {
-			return ac.getVosManager().getRichAdminsWithAttributes(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")));
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					new ArrayList<>(),
+					Role.VOADMIN,
+					false,
+					true);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -626,10 +698,16 @@ public enum VosManagerMethod implements ManagerMethod {
 	getRichAdminsWithSpecificAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getVosManager().getRichAdminsWithSpecificAttributes(ac.getSession(),
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")),
-					parms.readList("specificAttributes", String.class));
+					parms.readList("specificAttributes", String.class),
+					Role.VOADMIN,
+					false,
+					false);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -645,10 +723,16 @@ public enum VosManagerMethod implements ManagerMethod {
 	getDirectRichAdminsWithSpecificAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getVosManager().getDirectRichAdminsWithSpecificAttributes(ac.getSession(),
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")),
-					parms.readList("specificAttributes", String.class));
+					parms.readList("specificAttributes", String.class),
+					Role.VOADMIN,
+					true,
+					false);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 

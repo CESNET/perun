@@ -1385,6 +1385,39 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Get all valid user administrators (for group-based rights, status must be VALID for both Vo and group) for complementary object and role.
+	 *
+	 * If <b>onlyDirectAdmins</b> is <b>true</b>, return only direct users of the complementary object for role.
+	 *
+	 * @param sess perun session
+	 * @param complementaryObject for which we will get administrator
+	 * @param role expected role to filter managers by
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of user administrators for complementary object and role.
+	 */
+	public static List<User> getAdmins(PerunSession sess, PerunBean complementaryObject, String role, boolean onlyDirectAdmins) throws PrivilegeException, RoleCannotBeManagedException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(role, "role");
+		Utils.notNull(complementaryObject, "complementaryObject");
+
+		if (!roleExists(role)) {
+			throw new InternalErrorException("Role: " + role + " does not exists.");
+		}
+
+		// Authorization
+		try {
+			if(!authorizedToReadRole(sess, complementaryObject, role)) {
+				throw new PrivilegeException("You are not privileged to use the method getRichAdmins.");
+			}
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Management rules not exist for the role " + role, e);
+		}
+
+		return AuthzResolverBlImpl.getAdmins(sess, complementaryObject, role, onlyDirectAdmins);
+	}
+
+	/**
 	 * Get all authorizedGroups for complementary object and role.
 	 *
 	 * @param sess perun session

@@ -4,6 +4,7 @@ package cz.metacentrum.perun.rpc.methods;
 import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AssignedResource;
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedBanOnResource;
 import cz.metacentrum.perun.core.api.EnrichedResource;
@@ -15,10 +16,13 @@ import cz.metacentrum.perun.core.api.ResourceTag;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -713,8 +717,6 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 *
 	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
 	 *
-	 * Supported roles: ResourceAdmin, VOAdmin
-	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param onlyDirectAdmins boolean if true, get only direct resource administrators (if false, get both direct and indirect)
 	 *
@@ -723,9 +725,11 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	getAdmins {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourcesManager().getAdmins(ac.getSession(),
-					ac.getResourceById(parms.readInt("resource")),
-					parms.readBoolean("onlyDirectAdmins"));
+			try {
+				return AuthzResolver.getAdmins(ac.getSession(), ac.getResourceById(parms.readInt("resource")), Role.RESOURCEADMIN, parms.readBoolean("onlyDirectAdmins"));
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -738,17 +742,17 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	getAdminGroups {
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getResourcesManager().getAdminGroups(ac.getSession(),
-					ac.getResourceById(parms.readInt("resource")));
+			try {
+				return AuthzResolver.getAdminGroups(ac.getSession(), ac.getResourceById(parms.readInt("resource")), Role.RESOURCEADMIN);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
 	/*#
 	 * Get list of all richUser administrators for the resource and supported role with specific attributes.
 	 * If some group is administrator of the given group, all VALID members are included in the list.
-	 *
-	 * Supported roles: ResourceAdmin, VOAdmin
 	 *
 	 * If "onlyDirectAdmins" is true, return only direct admins of the resource for supported role with specific attributes.
 	 * If "allUserAttributes" is true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -763,11 +767,16 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	getRichAdmins {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourcesManager().getRichAdmins(ac.getSession(),
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),
 					parms.readList("specificAttributes", String.class),
-					parms.readBoolean("allUserAttributes"),
-					parms.readBoolean("onlyDirectAdmins"));
+					Role.RESOURCEADMIN,
+					parms.readBoolean("onlyDirectAdmins"),
+					parms.readBoolean("allUserAttributes"));
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
