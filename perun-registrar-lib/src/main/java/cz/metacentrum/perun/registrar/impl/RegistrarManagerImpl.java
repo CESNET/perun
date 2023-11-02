@@ -1745,11 +1745,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
 	public void rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException {
 		Collections.sort(applicationIds, Collections.reverseOrder());
 		for (Integer id : applicationIds) {
-			rejectApplication(sess, id, reason);
+			registrarManager.rejectApplication(sess, id, reason);
 		}
 	}
 
@@ -1851,7 +1850,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
 	public void approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException {
 		Collections.sort(applicationIds);
 		for (Integer id : applicationIds) {
