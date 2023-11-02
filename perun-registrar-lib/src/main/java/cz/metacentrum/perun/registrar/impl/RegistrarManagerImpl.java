@@ -1957,6 +1957,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				submitApplication(sess, groupApplication, new ArrayList<>());
 			} catch (Exception e) {
+				log.error("Error submitting embedded application {}", e);
 				failedGroups.put(group.getId(), e.getMessage());
 			}
 		}
