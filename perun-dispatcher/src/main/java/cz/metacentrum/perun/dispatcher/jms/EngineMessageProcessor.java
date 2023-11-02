@@ -140,7 +140,7 @@ public class EngineMessageProcessor {
 		if(outputMessages == null) {
 			outputMessages = new LinkedBlockingDeque<TextMessage>();
 		}
-		
+
 		connection = null;
 		try {
 			if(restartHornetQServer) {
@@ -148,7 +148,7 @@ public class EngineMessageProcessor {
 				perunHornetQServer.stopServer();
 				perunHornetQServer.startServer();
 			}
-			
+
 			// Step 2. Instantiate the TransportConfiguration object which
 			// contains the knowledge of what transport to use,
 			// The server port etc.
@@ -289,12 +289,12 @@ public class EngineMessageProcessor {
 
 			// process expected messages
 			EngineMessageProducer engineMessageProducer;
-			
+
 			if (clientMessageSplitter[0].equalsIgnoreCase("register")) {
 
 				// Do we have this queue already?
 				engineMessageProducer = engineMessageProducerFactory.getProducer();
-				
+
 				if (engineMessageProducer != null) {
 					// ...and close all tasks that could have been running there
 					schedulingPool.closeTasksForEngine();

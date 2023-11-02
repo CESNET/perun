@@ -133,7 +133,7 @@ public class SchedulingManagerImpl {
 	private void processPerunNotifAuditMessage(PerunNotifAuditMessage perunAuditMessage, PerunSession session) throws Exception {
 
 		try {
-			logger.debug("Getting regexIds, matching received message with id: " + perunAuditMessage.getId());
+			logger.trace("Getting regexIds, matching received message with id: " + perunAuditMessage.getId());
 			Set<Integer> regexIds = perunNotifRegexManager.getIdsOfRegexesMatchingMessage(perunAuditMessage);
 			logger.debug("Received regexIds for message with id: " + perunAuditMessage.getId() + "; regexIds = " + regexIds + "; now getting templateIds.");
 			if (regexIds == null || regexIds.isEmpty()) {

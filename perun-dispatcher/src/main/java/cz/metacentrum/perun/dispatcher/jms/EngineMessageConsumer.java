@@ -106,7 +106,7 @@ public class EngineMessageConsumer extends AbstractRunner {
 		while (!shouldStop()) {
 
 			producer = producerFactory.getProducer();
-			
+
 			// Step 11. Deliver output and try to receive the message
 			TextMessage messageReceived = null;
 			try {
@@ -114,11 +114,11 @@ public class EngineMessageConsumer extends AbstractRunner {
 					producer.deliverOutputMessages();
 				}
 
-				log.debug("Gonna call messageConsumer.receive(timeout)...");
+				log.trace("Gonna call messageConsumer.receive(timeout)...");
 				messageReceived = (TextMessage) messageConsumer.receive(timeout);
 				if (messageReceived != null) {
-					if (log.isDebugEnabled()) {
-						log.debug("System message received [" + messageReceived.getText() + "]");
+					if (log.isTraceEnabled()) {
+						log.trace("System message received [" + messageReceived.getText() + "]");
 					}
 					try {
 						engineMessageProcessor.processEngineMessage(messageReceived.getText());
@@ -129,8 +129,8 @@ public class EngineMessageConsumer extends AbstractRunner {
 					}
 					messageReceived.acknowledge();
 				} else {
-					if (log.isDebugEnabled()) {
-						log.debug("No message available...");
+					if (log.isTraceEnabled()) {
+						log.trace("No message available...");
 					}
 				}
 			} catch (JMSException e) {
