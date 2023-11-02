@@ -1955,7 +1955,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				groupApplication.setExtSourceType(app.getExtSourceType());
 				groupApplication.setCreatedBy("Automatically generated");
 
-				submitApplication(sess, groupApplication, new ArrayList<>());
+				submitApplication(registrarSession, groupApplication, new ArrayList<>());
 			} catch (Exception e) {
 				failedGroups.put(group.getId(), e.getMessage());
 			}
