@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.notif.dao.jdbc;
 
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifAuditMessageDao;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
@@ -29,7 +28,7 @@ public class PerunNotifAuditMessageDaoImpl extends JdbcDaoSupport implements Per
 		int newPerunNotifAuditMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_audit_message_id_seq");
 		this.getJdbcTemplate().update("INSERT INTO pn_audit_message(id, message) values (?,?)", newPerunNotifAuditMessageId, message);
 
-		logger.debug("PerunNotifAuditMessage saved to db: id = {} message = {}", newPerunNotifAuditMessageId, message);
+		logger.trace("PerunNotifAuditMessage saved to db: id = {} message = {}", newPerunNotifAuditMessageId, message);
 		return new PerunNotifAuditMessage(newPerunNotifAuditMessageId, message);
 	}
 
@@ -37,14 +36,14 @@ public class PerunNotifAuditMessageDaoImpl extends JdbcDaoSupport implements Per
 
 		logger.debug("Removing perunNotifAuditMessage with id = {}", id);
 		this.getJdbcTemplate().update("delete from pn_audit_message where id=?", id);
-		logger.debug("PerunNotifAuditMessage with id: {} removed.", id);
+		logger.trace("PerunNotifAuditMessage with id: {} removed.", id);
 	}
 
 	public List<PerunNotifAuditMessage> getAll() {
 
 		logger.debug("Listing all perunNotifAuditMessages.");
 		List<PerunNotifAuditMessage> result = this.getJdbcTemplate().query("SELECT * FROM pn_audit_message", PerunNotifAuditMessage.PERUN_NOTIF_MESSAGE);
-		logger.debug("Result of list of PerunNotifAuditMessage: {}", result);
+		logger.trace("Result of list of PerunNotifAuditMessage: {}", result);
 		return result;
 	}
 }
