@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
@@ -1336,6 +1337,15 @@ public interface UsersManager {
 	 * @return String return new preferred email
 	 */
 	String validatePreferredEmailChange(PerunSession sess, User user, String token) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+
+	/**
+	 * Validate ssh public key, throws exception if validation fails
+	 *
+	 * @param sess sess
+	 * @param sshKey ssh public key to verify
+	 * @throws SSHKeyNotValidException when validation fails
+	 */
+	void validateSSHKey(PerunSession sess, String sshKey) throws SSHKeyNotValidException;
 
 	/**
 	 * Return list of email addresses of user, which are

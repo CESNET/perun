@@ -58,6 +58,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
@@ -1558,6 +1559,13 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		return getPerunBl().getUsersManagerBl().validatePreferredEmailChange(sess, user, token);
+	}
+
+	@Override
+	public void validateSSHKey(PerunSession sess, String sshKey) throws SSHKeyNotValidException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getUsersManagerBl().validateSSHKey(sess, sshKey);
 	}
 
 	@Override
