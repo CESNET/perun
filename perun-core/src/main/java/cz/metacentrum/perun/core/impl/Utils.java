@@ -217,7 +217,7 @@ public class Utils {
 
 				// Entry contains extSourceName|extSourceType|extLogin;uesAttribute=value1,value2[|LoA]
 				String[] userExtSourceRaw =  subjectFromExtSource.get(attrName).split("\\|");
-				log.debug("Processing additionalUserExtSource {}",  subjectFromExtSource.get(attrName));
+				log.trace("Processing additionalUserExtSource {}",  subjectFromExtSource.get(attrName));
 
 				// Check if the array has at least 3 parts, this is protection against outOfBoundException
 				if(userExtSourceRaw.length < 3) {

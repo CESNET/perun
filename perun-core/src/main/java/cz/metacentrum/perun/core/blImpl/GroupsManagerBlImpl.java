@@ -1961,7 +1961,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			long startTime = System.nanoTime();
 			getPerunBl().getAuditer().log(sess,new GroupSyncStarted(group));
-			log.debug("Group synchronization for {} has been started.", group);
+			log.info("Group synchronization for {} has been started.", group);
 
 			//Initialization of group extSource
 			source = getGroupExtSourceForSynchronization(sess, group);
@@ -1987,25 +1987,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupDirectRichMembers(sess, group);
 
 			if(lightweightSynchronization) {
+				log.debug("Group synchronization {}: categorize members for lightweight sync", group);
 				categorizeMembersForLightweightSynchronization(sess, group, source, membersSource, actualGroupMembers, candidatesToAdd, membersToRemove, skippedMembers);
 			} else {
 				//Get subjects from extSource
 				List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
 				//Convert subjects to candidates
 				List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, actualGroupMembers, skippedMembers);
-
+				log.debug("Group synchronization {}: categorize members for standard sync", group);
 				categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
 			}
 
 			// Remove members from group who are not present in synchronized ExtSource
 			boolean isAuthoritative = isAuthoritative(sess, group);
 			Collections.sort(membersToRemove);
+			log.debug("Group synchronization {}: removing {} members", group, membersToRemove.size());
 			for (RichMember memberToRemove : membersToRemove) {
 				removeFormerMemberWhileSynchronization(sess, group, memberToRemove, isAuthoritative);
 			}
 
 			List<AttributeDefinition> attrDefs = new ArrayList<>();
 			//Update members already presented in group
+			log.debug("Group synchronization {}: updating {} members", group, membersToUpdate.size());
 			for (Candidate candidate : membersToUpdate.keySet()) {
 				RichMember memberToUpdate = membersToUpdate.get(candidate);
 				//Load attrDefinitions just once for first candidate
@@ -2017,6 +2020,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			//Add not presented candidates to group
 			Collections.sort(candidatesToAdd);
+			log.debug("Group synchronization {}: adding {} members", group, candidatesToAdd.size());
 			for (Candidate candidateToAdd : candidatesToAdd) {
 				addMissingMemberWhileSynchronization(sess, group, candidateToAdd, overwriteUserAttributesList, mergeMemberAttributesList, skippedMembers);
 			}
@@ -3759,7 +3763,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
 	public void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<AttributeDefinition> attrDefs) {
-		//If member does not exists in this moment (somebody removed him before updating process), skip him and log it
+		//If member does not exist at this moment (somebody removed him before updating process), skip him and log it
 		try {
 			getPerunBl().getMembersManagerBl().checkMemberExists(sess, memberToUpdate);
 		} catch (MemberNotExistsException ex) {
