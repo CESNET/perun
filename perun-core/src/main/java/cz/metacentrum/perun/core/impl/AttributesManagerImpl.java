@@ -4331,7 +4331,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 *
 	 * @param attribute attribute for which you get the module
 	 * @return instance group attribute module
-	 * null if the module doesn't exists
+	 * null if the module doesn't exist
 	 */
 	private GroupAttributesModuleImplApi getGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
@@ -4340,7 +4340,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if (attributeModule instanceof GroupAttributesModuleImplApi) {
 			return (GroupAttributesModuleImplApi) attributeModule;
 		} else {
-			throw new WrongModuleTypeException("Required attribute module isn't FacilityAttributesModule");
+			throw new WrongModuleTypeException("Required attribute module isn't GroupAttributesModule");
 		}
 	}
 
@@ -4349,7 +4349,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 *
 	 * @param attribute attribute for which you get the module
 	 * @return instance host attribute module
-	 * null if the module doesn't exists
+	 * null if the module doesn't exist
 	 */
 	private HostAttributesModuleImplApi getHostAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
@@ -4367,7 +4367,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 *
 	 * @param attribute attribute for which you get the module
 	 * @return instance vo attribute module
-	 * null if the module doesn't exists
+	 * null if the module doesn't exist
 	 */
 	private VoAttributesModuleImplApi getVoAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
@@ -4376,7 +4376,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if (attributeModule instanceof VoAttributesModuleImplApi) {
 			return (VoAttributesModuleImplApi) attributeModule;
 		} else {
-			throw new WrongModuleTypeException("Required attribute module isn't FacilityAttributesModule");
+			throw new WrongModuleTypeException("Required attribute module isn't VoAttributesModule");
 		}
 	}
 
@@ -4385,7 +4385,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 *
 	 * @param attribute attribute for which you get the module
 	 * @return instance resource member attribute module
-	 * null if the module doesn't exists
+	 * null if the module doesn't exist
 	 */
 	private MemberResourceAttributesModuleImplApi getResourceMemberAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
@@ -4394,7 +4394,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if (attributeModule instanceof MemberResourceAttributesModuleImplApi) {
 			return (MemberResourceAttributesModuleImplApi) attributeModule;
 		} else {
-			throw new WrongModuleTypeException("Required attribute module isn't FacilityAttributesModule");
+			throw new WrongModuleTypeException("Required attribute module isn't ResourceMemberAttributesModule");
 		}
 	}
 
@@ -4403,7 +4403,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 *
 	 * @param attribute attribute for which you get the module
 	 * @return instance member group attribute module
-	 * null if the module doesn't exists
+	 * null if the module doesn't exist
 	 */
 	private MemberGroupAttributesModuleImplApi getMemberGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
@@ -4421,7 +4421,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 *
 	 * @param attribute attribute for which you get the module
 	 * @return instance facility attribute module
-	 * null if the module doesn't exists
+	 * null if the module doesn't exist
 	 */
 	private FacilityAttributesModuleImplApi getFacilityAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
@@ -4691,7 +4691,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * Get UserExtSource attribute module for the attribute.
 	 *
 	 * @param attribute attribute for which you get the module
-	 * @return instance UserExtSource attribute module, null if the module doesn't exists
+	 * @return instance UserExtSource attribute module, null if the module doesn't exist
 	 */
 	private UserExtSourceVirtualAttributesModuleImplApi getUserExtSourceVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
@@ -4747,7 +4747,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		//if specific module not exists or attribute has no parameter, find the common one
 		moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
 		Object attributeModule = attributesModulesMap.get(moduleName);
-		if (attributeModule == null) log.debug("Attribute module not found. Module name={}", moduleName);
+		if (attributeModule == null) log.trace("Attribute module not found. Module name={}", moduleName);
 		return attributeModule;
 	}
 
