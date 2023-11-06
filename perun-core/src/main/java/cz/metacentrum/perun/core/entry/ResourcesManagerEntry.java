@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -235,7 +234,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void deleteResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException {
+	public void deleteResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -249,7 +248,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void deleteAllResources(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteAllResources(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, ResourceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -418,7 +417,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -432,7 +431,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(groups, "groups");
 		getResourcesManagerBl().checkResourceExists(perunSession, resource);
@@ -451,7 +450,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(resources, "resources");
 		getPerunBl().getGroupsManagerBl().checkGroupExists(perunSession, group);

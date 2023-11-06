@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -430,9 +429,8 @@ public interface FacilitiesManagerBl {
 	 * @throws FacilityAlreadyRemovedException there are 0 rows affected by delete from DB
 	 * @throws HostAlreadyRemovedException if there is at least 1 host who was not affected by deleting from DB
 	 * @throws ResourceAlreadyRemovedException if there are at least 1 resource not affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException there are at least 1 group on resource not affected by deleting from DB
 	 */
-	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException;
 
 	/**
 	 * Updates facility.

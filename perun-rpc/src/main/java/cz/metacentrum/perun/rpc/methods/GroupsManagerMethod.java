@@ -173,8 +173,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 * @throw RelationExistsException When the relation already exists
-	 * @throw GroupAlreadyRemovedException When the group has already been removed
-	 * @throw GroupAlreadyRemovedFromResourceException When group has already been removed from the resource
 	 * @throw GroupRelationDoesNotExist When group relation does not exist
 	 * @throw GroupRelationCannotBeRemoved When group relation cannot be removed
 	 *
@@ -185,8 +183,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 * @throw RelationExistsException When the relation already exists
-	 * @throw GroupAlreadyRemovedException When the group has already been removed
-	 * @throw GroupAlreadyRemovedFromResourceException When group has already been removed from the resource
 	 * @throw GroupRelationDoesNotExist When group relation does not exist
 	 * @throw GroupRelationCannotBeRemoved When group relation cannot be removed
 	 *
@@ -212,9 +208,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Forcefully deletes a list of groups (remove all group members, remove group from resources).
 	 *
 	 * @throw GroupNotExistsException If any group not exists in perun
-	 * @throw GroupAlreadyRemovedException If any groups is already deleted
 	 * @throw RelationExistsException If group has subgroups or member (forceDelete is false)
-	 * @throw GroupAlreadyRemovedFromResourceException  If any group is already removed from resource
 	 * @throw GroupRelationDoesNotExist If the relation doesn't exist
 	 * @throw GroupRelationCannotBeRemoved When the group relation cannot be removed
 	 *
@@ -1350,8 +1344,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Delete all groups in a VO.
 	 *
 	 * @throw VoNotExistsException When the Vo doesn't exist
-	 * @throw GroupAlreadyRemovedException If there is at least 1 group not affected by deleting from DB
-	 * @throw GroupAlreadyRemovedFromResourceException If there is at least 1 group on resource affected by deleting from DB
 	 * @throw GroupRelationDoesNotExist When the group relation doesn't exist
 	 * @throw GroupRelationCannotBeRemoved When the group relation cannot be removed
 	 *

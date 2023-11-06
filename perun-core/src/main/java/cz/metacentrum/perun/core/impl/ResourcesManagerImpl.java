@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
@@ -685,21 +684,19 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws GroupAlreadyRemovedFromResourceException {
+	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) {
 		try {
-			int numAffected = jdbc.update("delete from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId());
-			if(numAffected == 0) throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
+			jdbc.update("delete from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupAlreadyRemovedFromResourceException {
+	public void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) {
 		try {
-			int numAffected = jdbc.update("delete from groups_resources_automatic where group_id=? and resource_id=? and source_group_id=?",
+			jdbc.update("delete from groups_resources_automatic where group_id=? and resource_id=? and source_group_id=?",
 				group.getId(), resource.getId(), sourceGroupId);
-			if (numAffected == 0) throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

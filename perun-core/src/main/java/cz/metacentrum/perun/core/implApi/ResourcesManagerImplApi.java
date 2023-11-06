@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
@@ -195,9 +194,8 @@ public interface ResourcesManagerImplApi {
 	 * @param resource
 
 	 * @throws InternalErrorException
-	 * @throws GroupAlreadyRemovedFromResourceException if there are 0 rows affected by removing group from resource
 	 */
-	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyRemovedFromResourceException;
+	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource);
 
 	/**
 	 * Remove automatically assigned group from resource.
@@ -207,9 +205,8 @@ public interface ResourcesManagerImplApi {
 	 * @param resource
 	 * @param sourceGroupId id of a source group through which was the group automatically assigned
 	 * @throws InternalErrorException
-	 * @throws GroupAlreadyRemovedFromResourceException if there are 0 rows affected by removing group from resource
 	 */
-	void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupAlreadyRemovedFromResourceException;
+	void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId);
 
 	/**
 	 * Check if the user is assigned as a member on the selected resource.

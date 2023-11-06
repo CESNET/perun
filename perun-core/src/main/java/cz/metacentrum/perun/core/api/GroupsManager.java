@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
@@ -143,11 +142,10 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws GroupNotExistsException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
+	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws GroupNotExistsException, PrivilegeException, RelationExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
 
 	/**
 	 * Deletes group only if has no subgroups and no members. Other way throw exception.
@@ -160,11 +158,10 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
+	void deleteGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, PrivilegeException, RelationExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
@@ -186,11 +183,10 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException if user has no right to call delete operation on any of these groups
 	 * @throws RelationExistsException raise if group has subgroups or member (forceDelete is false)
-	 * @throws GroupAlreadyRemovedFromResourceException  if any group is already removed from resource
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
+	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, PrivilegeException, RelationExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
 
 	/**
 	 * Deletes all groups under the VO except built-in groups (members, admins groups).
@@ -201,11 +197,10 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group on resource affected by deleting from DB
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteAllGroups(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteAllGroups(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Updates group by ID.
