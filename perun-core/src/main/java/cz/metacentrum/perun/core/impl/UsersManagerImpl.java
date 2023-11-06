@@ -32,7 +32,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -350,12 +349,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws SpecificUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) {
 		try {
-			int numAffected = jdbc.update("delete from specific_user_users where user_id=? and specific_user_id=? and specific_user_users.type=?",
+			jdbc.update("delete from specific_user_users where user_id=? and specific_user_id=? and specific_user_users.type=?",
 					user.getId(), specificUser.getId(),specificUser.getMajorSpecificType().getSpecificUserType());
-			if(numAffected == 0) throw new SpecificUserOwnerAlreadyRemovedException("SpecificUser-Owner: " + user + " , SpecificUser: " + specificUser);
-
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
