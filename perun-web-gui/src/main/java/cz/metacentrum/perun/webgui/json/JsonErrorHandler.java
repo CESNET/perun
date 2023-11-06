@@ -864,10 +864,6 @@ public class JsonErrorHandler {
 			// TODO - we don't support service packages yet
 			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("ServiceAlreadyRemovedFromServicePackageException".equalsIgnoreCase(errorName)) {
-
-			return "Same service was already removed from service package.";
-
 		} else if ("SpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
 			return "Operation can't be done. Expected specific type of user, but person type was provided instead.";

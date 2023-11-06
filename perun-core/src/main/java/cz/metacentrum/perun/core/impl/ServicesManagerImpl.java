@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
@@ -560,10 +559,9 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyRemovedFromServicePackageException {
+	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) {
 		try {
-			int numAffected = jdbc.update("delete from service_service_packages where package_id=? and service_id=?", servicesPackage.getId(), service.getId());
-			if(numAffected == 0) throw new ServiceAlreadyRemovedFromServicePackageException("Service: " + service + " , ServicePackage: " + servicesPackage);
+			jdbc.update("delete from service_service_packages where package_id=? and service_id=?", servicesPackage.getId(), service.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

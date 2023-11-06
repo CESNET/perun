@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceIsNotBannedException;
@@ -620,10 +619,9 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws ServicesPackageNotExistsException
-	 * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from servicePackage in DB
 	 * @throws ServiceNotExistsException
 	 */
-	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyRemovedFromServicePackageException;
+	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
 	 * List services stored in the packages
