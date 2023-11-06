@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
@@ -334,12 +333,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyRemovedException {
+	public void removeOwner(PerunSession sess, Facility facility, Owner owner) {
 		try {
-			if (0 == jdbc.update("delete from facility_owners where facility_id=? and owner_id=?", facility.getId(), owner.getId())) {
-				throw new OwnerAlreadyRemovedException("Owner: " + owner + " facility: " + facility);
-			}
-			log.info("Owner was removed from facility owners. Owner: {} facility:{}", owner, facility);
+			jdbc.update("delete from facility_owners where facility_id=? and owner_id=?", facility.getId(), owner.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

@@ -23,7 +23,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 
@@ -159,9 +158,8 @@ public interface FacilitiesManagerImplApi {
 	 * @param owner
 	 *
 	 * @throws InternalErrorException
-	 * @throws OwnerAlreadyRemovedException
 	 */
-	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyRemovedException;
+	void removeOwner(PerunSession perunSession, Facility facility, Owner owner);
 
 	/**
 	 * Return all VO which can use this facility. (VO must have the resource which belongs to this facility).

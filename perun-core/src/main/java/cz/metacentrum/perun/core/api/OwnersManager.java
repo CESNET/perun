@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -38,9 +37,8 @@ public interface OwnersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
-	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteOwner(PerunSession perunSession, Owner owner) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException;
+	void deleteOwner(PerunSession perunSession, Owner owner) throws OwnerNotExistsException, PrivilegeException, RelationExistsException;
 
 	/**
 	 * Delete owner from underlaying data source.
@@ -53,9 +51,8 @@ public interface OwnersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
-	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteOwner(PerunSession perunSession, Owner owner, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException;
+	void deleteOwner(PerunSession perunSession, Owner owner, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException;
 
 	/**
 	 * Delete owners from underlaying data source.
@@ -68,9 +65,8 @@ public interface OwnersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
-	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException;
+	void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException;
 
 	/**
 	 * Find owner by id.

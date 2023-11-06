@@ -39,7 +39,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -409,13 +408,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertEquals(0, perun.getFacilitiesManager().getOwners(sess, facility).size());
 	}
 
-	@Test (expected=OwnerAlreadyRemovedException.class)
+	@Test
 	public void removeOwnerWhenOwnerAlreadyRemoved() throws Exception {
 		System.out.println(CLASS_NAME + "removeOwnerWhenOwnerAlreadyRemoved");
 
 		perun.getFacilitiesManager().removeOwner(sess, facility, owner);
 		perun.getFacilitiesManager().removeOwner(sess, facility, owner);
-		// shouldn't be able to remove owner twice
+		// shouldn't fail when removing already removed owner
 
 	}
 

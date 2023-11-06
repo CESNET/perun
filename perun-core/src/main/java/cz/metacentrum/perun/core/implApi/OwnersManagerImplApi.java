@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 
 import java.util.List;
@@ -55,9 +54,8 @@ public interface OwnersManagerImplApi {
 	 * @param owner
 	 *
 	 * @throws InternalErrorException
-	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteOwner(PerunSession perunSession, Owner owner) throws OwnerAlreadyRemovedException;
+	void deleteOwner(PerunSession perunSession, Owner owner);
 
 	/**
 	 * Find owner by id.

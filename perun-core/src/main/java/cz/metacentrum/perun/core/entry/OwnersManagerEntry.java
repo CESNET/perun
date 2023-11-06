@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -16,7 +15,6 @@ import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,7 +59,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, PrivilegeException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -74,7 +72,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -87,7 +85,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+	public void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 
 		for (Owner owner : owners) {
