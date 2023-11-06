@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -30,7 +29,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -122,13 +120,12 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	}
 
 	@Override
-	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws ExtSourceAlreadyRemovedException {
+	public void deleteExtSource(PerunSession sess, ExtSource extSource) {
 		try {
 			// Delete associated attributes
 			jdbc.update("DELETE FROM ext_sources_attributes WHERE ext_sources_id=?", extSource.getId());
 			// Delete the external source
-			int numAffected = jdbc.update("DELETE FROM ext_sources WHERE id=?", extSource.getId());
-			if (numAffected == 0) throw new ExtSourceAlreadyRemovedException("ExtSource: " + extSource);
+			jdbc.update("DELETE FROM ext_sources WHERE id=?", extSource.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -266,31 +263,28 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	}
 
 	@Override
-	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws ExtSourceNotAssignedException {
 		try {
 			if (jdbc.queryForInt("select count('x') from vo_ext_sources where ext_sources_id=? and vo_id=?", source.getId(), vo.getId()) == 0) {
 				// Source isn't assigned
 				throw new ExtSourceNotAssignedException("ExtSource id='" + source.getId() + "'");
 			}
 
-			int numAffected = jdbc.update("DELETE FROM vo_ext_sources WHERE ext_sources_id=? AND vo_id=?", source.getId(), vo.getId());
-			if (numAffected != 1) throw new ExtSourceAlreadyRemovedException("ExtSource: " + source + " , Vo: " + vo);
+			jdbc.update("DELETE FROM vo_ext_sources WHERE ext_sources_id=? AND vo_id=?", source.getId(), vo.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException {
 		try {
 			if (jdbc.queryForInt("select count('x') from group_ext_sources where ext_source_id=? and group_id=?", source.getId(), group.getId()) == 0) {
 				// Source isn't assigned
 				throw new ExtSourceNotAssignedException("ExtSource id='" + source.getId() + "'");
 			}
 
-			int numAffected = jdbc.update("DELETE FROM group_ext_sources WHERE ext_source_id=? AND group_id=?", source.getId(), group.getId());
-			if (numAffected != 1)
-				throw new ExtSourceAlreadyRemovedException("ExtSource: " + source + " , Group: " + group);
+			jdbc.update("DELETE FROM group_ext_sources WHERE ext_source_id=? AND group_id=?", source.getId(), group.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

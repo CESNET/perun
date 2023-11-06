@@ -3,7 +3,6 @@
  */
 package cz.metacentrum.perun.core.bl;
 
-import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
 import cz.metacentrum.perun.core.api.CandidateSync;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -13,7 +12,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -62,9 +60,8 @@ public interface ExtSourcesManagerBl {
 	 * @param extSource
 	 *
 	 * @throws InternalErrorException
-	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete in DB
 	 */
-	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws ExtSourceAlreadyRemovedException;
+	void deleteExtSource(PerunSession perunSession, ExtSource extSource);
 
 	/**
 	 * Searches for the external source with specified id.
@@ -179,9 +176,8 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotAssignedException
-	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete from DB
 	 */
-	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceNotAssignedException;
 
 	/**
 	 * Remove associations of external sources from the VO.
@@ -191,10 +187,9 @@ public interface ExtSourcesManagerBl {
 	 * @param sources
 	 *
 	 * @throws InternalErrorException
-	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 * @throws ExtSourceNotAssignedException
 	 */
-	void removeExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources) throws ExtSourceNotAssignedException;
 
 	/**
 	 * Remove association of the external source from the GROUP.
@@ -204,10 +199,9 @@ public interface ExtSourcesManagerBl {
 	 * @param source
 	 *
 	 * @throws InternalErrorException
-	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 * @throws ExtSourceNotAssignedException
 	 */
-	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException;
 
 	/**
 	 * Remove associations of external sources from the GROUP.
@@ -217,10 +211,9 @@ public interface ExtSourcesManagerBl {
 	 * @param sources
 	 *
 	 * @throws InternalErrorException
-	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 * @throws ExtSourceNotAssignedException
 	 */
-	void removeExtSources(PerunSession perunSession, Group group, List<ExtSource> sources) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSources(PerunSession perunSession, Group group, List<ExtSource> sources) throws ExtSourceNotAssignedException;
 
 	/**
 	 * Checks whether the ExtSource exists, if not, then the ExtSource is created.
