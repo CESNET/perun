@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
@@ -337,9 +336,8 @@ public interface ServicesManager {
 	 * @throws ServiceNotExistsException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
-	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
+	void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException;
 
 	/**
 	 * Deletes given services.
@@ -351,9 +349,8 @@ public interface ServicesManager {
 	 * @throws ServiceNotExistsException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
-	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteServices(PerunSession perunSession, List<Service> services, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
+	void deleteServices(PerunSession perunSession, List<Service> services, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException;
 
 	/** Updates the service.
 	 *

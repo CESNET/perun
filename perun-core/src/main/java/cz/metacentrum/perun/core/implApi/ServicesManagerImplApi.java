@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
@@ -149,10 +148,8 @@ public interface ServicesManagerImplApi {
 	 *
 	 * @param perunSession
 	 * @param service
-	 *
-	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteService(PerunSession perunSession, Service service) throws ServiceAlreadyRemovedException;
+	void deleteService(PerunSession perunSession, Service service);
 
 	/** Updates the service.
 	 *
