@@ -47,7 +47,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -162,9 +161,8 @@ public interface UsersManagerBl {
 	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
 	 * @throws RelationNotExistsException if there is no such user (the user) to remove
-	 * @throws SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationNotExistsException;
 
 	/**
 	 * Remove specificUser owner (the user).
@@ -177,9 +175,8 @@ public interface UsersManagerBl {
 	 * @param forceDelete if true, remove from database, if false, only disable this ownership
 	 * @throws InternalErrorException
 	 * @throws RelationNotExistsException if there is no such user (the user) to remove
-	 * @throws SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws RelationNotExistsException;
 
 	/**
 	 * Add specificUser owner (the user)

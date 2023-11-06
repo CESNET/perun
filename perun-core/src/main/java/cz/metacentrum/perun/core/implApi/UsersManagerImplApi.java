@@ -23,7 +23,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -108,9 +107,8 @@ public interface UsersManagerImplApi {
 	 * @param user the user
 	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
-	 * @throws cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser);
 
 	/**
 	 * Add specificUser owner (the user).

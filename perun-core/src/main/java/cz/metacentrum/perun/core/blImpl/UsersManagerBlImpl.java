@@ -72,7 +72,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -93,7 +92,6 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.impl.SSHValidator;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModule;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
@@ -183,12 +181,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationNotExistsException {
 		this.removeSpecificUserOwner(sess, user, specificUser, false);
 	}
 
 	@Override
-	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws RelationNotExistsException {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		if (user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
@@ -295,7 +293,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		for(User owner: owners) {
 			try {
 				this.removeSpecificUserOwner(sess, owner, specificUser, true);
-			} catch(RelationNotExistsException | SpecificUserOwnerAlreadyRemovedException ex) {
+			} catch(RelationNotExistsException ex) {
 				throw new InternalErrorException("Can't remove ownership of user " + specificUser, ex);
 			}
 		}

@@ -884,10 +884,6 @@ public class JsonErrorHandler {
 
 			return "Same specific user was already removed from user.";
 
-		} else if ("SpecificUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Same user was already removed from owners of specific user.";
-
 		} else if ("SpecificUserMustHaveOwnerException".equalsIgnoreCase(errorName)) {
 
 			return "Specific type user must have at least 1 person type user assigned, which is responsible for it.";
