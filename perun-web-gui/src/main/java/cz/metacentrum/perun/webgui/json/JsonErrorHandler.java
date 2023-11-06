@@ -855,10 +855,6 @@ public class JsonErrorHandler {
 				return "Service is not assigned to resource.";
 			}
 
-		} else if ("ServiceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Same service was already deleted.";
-
 		} else if ("ServiceNotExistsException".equalsIgnoreCase(errorName)) {
 
 			return "Requested service (by id or name) doesn't exists.";
@@ -867,14 +863,6 @@ public class JsonErrorHandler {
 
 			// TODO - we don't support service packages yet
 			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
-
-		} else if ("ServiceAlreadyRemovedFromServicePackageException".equalsIgnoreCase(errorName)) {
-
-			return "Same service was already removed from service package.";
-
-		} else if ("ServiceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Same service was already deleted.";
 
 		} else if ("SpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 

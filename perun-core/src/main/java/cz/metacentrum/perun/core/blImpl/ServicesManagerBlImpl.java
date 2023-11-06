@@ -57,8 +57,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
@@ -265,7 +263,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	 *   - authz
 	 */
 	@Override
-	public void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException {
+	public void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws RelationExistsException {
 
 		List<Resource> assignedResources = this.getAssignedResources(perunSession, service);
 
@@ -419,7 +417,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyRemovedFromServicePackageException {
+	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) {
 		getServicesManagerImpl().removeServiceFromServicesPackage(sess, servicesPackage, service);
 		getPerunBl().getAuditer().log(sess, new ServiceRemovedFromServicesPackage(service, servicesPackage));
 	}

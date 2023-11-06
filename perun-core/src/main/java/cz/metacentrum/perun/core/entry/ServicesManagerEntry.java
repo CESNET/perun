@@ -26,8 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceIsNotBannedException;
@@ -350,7 +348,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void deleteService(PerunSession sess, Service service, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
+	public void deleteService(PerunSession sess, Service service, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -364,7 +362,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void deleteServices(PerunSession sess, List<Service> services, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
+	public void deleteServices(PerunSession sess, List<Service> services, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException {
 		for (Service service : services) {
 			deleteService(sess, service, forceFlag);
 		}
@@ -576,7 +574,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyRemovedFromServicePackageException {
+	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
