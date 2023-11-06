@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 
 import java.util.List;
@@ -291,10 +290,9 @@ public interface SecurityTeamsManagerBl {
 	 * @param sess
 	 * @param securityTeam
 	 * @param user
-	 * @throws UserAlreadyRemovedException
 	 * @throws InternalErrorException
 	 */
-	void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyRemovedException;
+	boolean checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user);
 
 	/**
 	 * control if user is blacklisted by given security team

@@ -48,7 +48,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -388,11 +387,10 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException             if user has some members assigned
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
 	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
+	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, MemberAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -403,11 +401,10 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException             if forceDelete is false and the user has some members assigned
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
 	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Return list of all reserved logins for specific user

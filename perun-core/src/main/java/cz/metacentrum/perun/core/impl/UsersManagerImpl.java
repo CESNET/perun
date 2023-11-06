@@ -33,7 +33,6 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -424,14 +423,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user) throws UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws SpecificUserAlreadyRemovedException {
 		try {
 			// delete all relations like  user -> sponsor -> service
 			jdbc.update("delete from specific_user_users where specific_user_id=? or user_id=?", user.getId(), user.getId());
 			int numAffected = jdbc.update("delete from users where id=?", user.getId());
 			if(numAffected == 0) {
 				if (user.isSpecificUser()) throw new SpecificUserAlreadyRemovedException("SpecificUser: " + user);
-				throw new UserAlreadyRemovedException("User: " + user);
 			}
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);

@@ -936,11 +936,6 @@ public class JsonErrorHandler {
 			// TODO - get user from exception
 			return "Requested user (by id or external identity) doesn't exists.";
 
-		} else if ("UserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			// TODO - shoud contain user objects
-			return "Same user was already deleted.";
-
 		} else if ("VoExistsException".equalsIgnoreCase(errorName)) {
 
 			return "VO with same name already exists. Please choose different name.";

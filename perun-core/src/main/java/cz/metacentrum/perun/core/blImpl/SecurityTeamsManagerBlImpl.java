@@ -24,7 +24,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
@@ -266,10 +265,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyRemovedException {
-		if (!isUserBlacklisted(sess, securityTeam, user)) {
-			throw new UserAlreadyRemovedException("User "+user+" is not in blacklist of security team "+securityTeam);
-		}
+	public boolean checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) {
+		return isUserBlacklisted(sess, securityTeam, user);
 	}
 
 	@Override

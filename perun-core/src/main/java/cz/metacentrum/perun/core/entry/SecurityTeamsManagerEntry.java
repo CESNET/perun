@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -14,24 +13,19 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
-import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -294,11 +288,13 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 	}
 
 	@Override
-	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyRemovedException {
+	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-		getSecurityTeamsManagerBl().checkUserIsInBlacklist(sess, securityTeam, user);
+		if (!getSecurityTeamsManagerBl().checkUserIsInBlacklist(sess, securityTeam, user)) {
+			return;
+		}
 
 		//Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "removeUserFromBlacklist_SecurityTeam_User_policy", Arrays.asList(securityTeam, user))) {

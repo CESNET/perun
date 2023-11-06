@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -63,7 +62,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -418,7 +416,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
+	public void deleteUser(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -434,7 +432,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

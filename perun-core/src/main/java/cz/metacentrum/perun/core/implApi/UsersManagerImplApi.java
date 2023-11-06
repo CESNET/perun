@@ -24,7 +24,6 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -235,10 +234,9 @@ public interface UsersManagerImplApi {
 	 * @param perunSession Session for authz
 	 * @param user User to delete
 	 * @throws InternalErrorException
-	 * @throws UserAlreadyRemovedException  When user is already deleted
 	 * @throws SpecificUserAlreadyRemovedException When specific user is already deleted
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Updates users data in DB.
