@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedExceptio
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -725,11 +724,9 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyRemovedException {
+	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) {
 		try {
-			if (0 == jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=? and destination_id=?", service.getId(), facility.getId(), destination.getId())) {
-				throw new DestinationAlreadyRemovedException(destination);
-			}
+			jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=? and destination_id=?", service.getId(), facility.getId(), destination.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -937,11 +934,9 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException {
+	public void deleteDestination(PerunSession sess, Destination destination) throws RelationExistsException {
 		try {
-			if (0 == jdbc.update("delete from destinations where id = ?", destination.getId())) {
-				throw new DestinationAlreadyRemovedException("Destination: " + destination);
-			}
+			jdbc.update("delete from destinations where id = ?", destination.getId());
 		} catch (DataIntegrityViolationException ex) {
 			throw new RelationExistsException("Destination: " + destination + " has existing relations.", ex);
 		} catch (RuntimeException ex) {

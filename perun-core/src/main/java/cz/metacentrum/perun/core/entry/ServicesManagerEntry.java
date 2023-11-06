@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedExceptio
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ForceServicePropagationDisabledException;
@@ -788,7 +787,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException {
+	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
@@ -806,7 +805,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void removeDestinationsByRichDestinations(PerunSession sess, List<RichDestination> richDestinations) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException {
+	public void removeDestinationsByRichDestinations(PerunSession sess, List<RichDestination> richDestinations) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
 		for (RichDestination richDestination : richDestinations) {
 			removeDestination(sess, richDestination.getService(), richDestination.getFacility(), richDestination);
 		}

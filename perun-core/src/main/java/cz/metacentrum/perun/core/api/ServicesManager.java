@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedExceptio
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ForceServicePropagationDisabledException;
@@ -805,9 +804,8 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
-	 * @throws DestinationAlreadyRemovedException
 	 */
-	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException;
+	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException;
 
 	/**
 	 * Removes destinations defined by list of rich destinations.
@@ -819,9 +817,8 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
-	 * @throws DestinationAlreadyRemovedException
 	 */
-	void removeDestinationsByRichDestinations(PerunSession perunSession, List<RichDestination> richDestinations) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException;
+	void removeDestinationsByRichDestinations(PerunSession perunSession, List<RichDestination> richDestinations) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException;
 
 	/**
 	 * Get destination by id

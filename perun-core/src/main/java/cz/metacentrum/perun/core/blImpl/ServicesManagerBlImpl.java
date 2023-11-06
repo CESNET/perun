@@ -47,7 +47,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -553,13 +552,13 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyRemovedException {
+	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) {
 		if(!getServicesManagerImpl().destinationExists(sess, destination)) {
 			try {
 				//Try to get the destination without id
 				destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
 			} catch(DestinationNotExistsException ex) {
-				throw new DestinationAlreadyRemovedException(destination);
+				// ignore
 			}
 		}
 
@@ -623,7 +622,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		for (Destination destination : destinations) {
 			try {
 				this.deleteDestination(sess, destination);
-			} catch (RelationExistsException | DestinationAlreadyRemovedException ex) {
+			} catch (RelationExistsException ex) {
 				// destination is used by some services and facilities or it is already removed, skip the destination
 			}
 		}
@@ -640,7 +639,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		for (Destination destination : destinations) {
 			try {
 				this.deleteDestination(perunSession, destination);
-			} catch (RelationExistsException | DestinationAlreadyRemovedException ex) {
+			} catch (RelationExistsException ex) {
 				// destination is used by some services and facilities or it is already removed, skip the destination
 			}
 		}
@@ -781,7 +780,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException {
+	public void deleteDestination(PerunSession sess, Destination destination) throws RelationExistsException {
 		List<Service> services = getServicesManagerImpl().getServicesFromDestination(destination.getId());
 		if (!services.isEmpty()) {
 			throw new RelationExistsException("Destination is used by some services and facilities.");
