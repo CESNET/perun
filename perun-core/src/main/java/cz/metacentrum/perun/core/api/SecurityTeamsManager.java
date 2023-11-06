@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 
@@ -224,7 +223,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 */
-	void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyRemovedException;
+	void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException;
 
 	/**
 	 * get list of blacklisted users by security team

@@ -11,14 +11,9 @@ import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -30,14 +25,8 @@ import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedExcep
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import org.junit.Before;
 import org.junit.Test;
@@ -770,7 +759,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		securityTeamsManagerEntry.removeUserFromBlacklist(sess, st0, user);
 	}
 
-	@Test(expected = UserAlreadyRemovedException.class)
+	@Test
 	public void testRemoveUserFromBlacklistUserNotInBlacklist() throws Exception {
 		System.out.println(CLASS_NAME + "testRemoveUserFromBlacklistUserNotInBlacklist");
 
@@ -779,6 +768,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpFacilities();
 		setUpBlacklists();
 		securityTeamsManagerEntry.removeUserFromBlacklist(sess, st0, u0);
+		//should not fail
 	}
 
 
