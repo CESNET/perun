@@ -74,7 +74,6 @@ import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -93,7 +92,6 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.impl.SSHValidator;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModule;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
@@ -892,7 +890,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserExtSourceAlreadyRemovedException {
+	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) {
 		//FIXME zkontrolovat zda na userExtSource neni navazan nejaky member
 		//First remove all user extSource attributes before removing userExtSource
 		try {
@@ -917,13 +915,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		//remove userExtSource
-		try {
-			this.removeUserExtSource(sess, sourceUser, userExtSource);
-		} catch (UserExtSourceAlreadyRemovedException ex) {
-			//this is little weird, will be better to report exception
-			throw new InternalErrorException("UserExtSource was unexpectedly removed while moving " + userExtSource +
-					" from " + sourceUser + " to " + targetUser);
-		}
+		this.removeUserExtSource(sess, sourceUser, userExtSource);
 
 		//change userId for userExtSource
 		userExtSource.setUserId(targetUser.getId());
@@ -2091,11 +2083,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public void removeAllUserExtSources(PerunSession sess, User user) {
 		for(UserExtSource userExtSource : getUserExtSources(sess, user)) {
-			try {
-				removeUserExtSource(sess, user, userExtSource);
-			} catch (UserExtSourceAlreadyRemovedException ex) {
-				throw new InternalErrorException(ex);
-			}
+			removeUserExtSource(sess, user, userExtSource);
 		}
 	}
 

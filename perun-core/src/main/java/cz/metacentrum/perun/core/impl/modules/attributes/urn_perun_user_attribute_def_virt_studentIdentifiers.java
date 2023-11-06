@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -183,9 +182,6 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
 			sess.getPerunBl().getUsersManagerBl().removeUserExtSource(sess, user, ues);
 		} catch (UserExtSourceNotExistsException e) {
 			//Means that the ues was already removed, which is ok
-		} catch (UserExtSourceAlreadyRemovedException e) {
-			//Should not happened
-			throw new InternalErrorException(e);
 		}
 	}
 

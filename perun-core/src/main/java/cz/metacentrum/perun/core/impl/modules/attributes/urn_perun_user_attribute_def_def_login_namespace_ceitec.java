@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -196,11 +195,6 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 			throw new InternalErrorException(
 					"Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
 							" require extSource with name (entityId): "+entityId+". User: "+user, e);
-		} catch (UserExtSourceAlreadyRemovedException e) {
-			throw new InternalErrorException(
-					"Inconsistency. Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
-							" tries to delete extSource but it does not exists. " +
-							"extSource with name (entityId): "+entityId+". User: "+user, e);
 		} catch (UserExtSourceExistsException e) {
 			throw new InternalErrorException(
 					"Login: '" + newLogin + "' of user: " + user + " is already taken by another user in namespace ceitec. Cannot add UserExtSource to the user. Different login must be used", e);

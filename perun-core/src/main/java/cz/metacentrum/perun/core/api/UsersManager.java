@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedExcept
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -556,9 +555,8 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserExtSourceNotExistsException
 	 * @throws UserNotExistsException
-	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
+	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Removes user's external source.
@@ -571,9 +569,8 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserExtSourceNotExistsException
 	 * @throws UserNotExistsException
-	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
+	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Removes user's external sources.
@@ -586,9 +583,8 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserExtSourceNotExistsException
 	 * @throws UserNotExistsException
-	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeUserExtSources(PerunSession perunSession, User user, List<UserExtSource> userExtSources, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
+	void removeUserExtSources(PerunSession perunSession, User user, List<UserExtSource> userExtSources, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Take UserExtSource from sourceUser and move it to the targetUser.

@@ -49,7 +49,6 @@ import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -659,9 +658,8 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @param userExtSource
 	 * @throws InternalErrorException
-	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws UserExtSourceAlreadyRemovedException;
+	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource);
 
 	/**
 	 * Take UserExtSource from sourceUser and move it to the targetUser.
