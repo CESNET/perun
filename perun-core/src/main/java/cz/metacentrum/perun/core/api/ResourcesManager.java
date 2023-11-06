@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
@@ -171,11 +170,10 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
-	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group which is not affected by removing from DB
 	 * @throws FacilityNotExistsException if facility of this resource not exists
 	 */
-	void deleteResource(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException;
+	void deleteResource(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, PrivilegeException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException;
 
 	/**
 	 *  Deletes all resources for the VO.
@@ -186,10 +184,9 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
-	 * @throws ResourceAlreadyRemovedException if there are at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group which is not affected by removing from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.

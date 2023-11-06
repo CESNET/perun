@@ -57,7 +57,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
@@ -230,7 +229,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteResource(PerunSession sess, Resource resource) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteResource(PerunSession sess, Resource resource) throws GroupAlreadyRemovedFromResourceException {
 		//Get facility for audit messages
 		Facility facility = this.getFacility(sess, resource);
 
@@ -317,7 +316,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteAllResources(PerunSession sess, Vo vo) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteAllResources(PerunSession sess, Vo vo) throws GroupAlreadyRemovedFromResourceException {
 		for(Resource r: this.getResources(sess, vo)) {
 			deleteResource(sess, r);
 		}

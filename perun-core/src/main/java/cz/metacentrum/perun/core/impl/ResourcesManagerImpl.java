@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -332,13 +331,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public void deleteResource(PerunSession sess, Vo vo, Resource resource) throws ResourceAlreadyRemovedException {
+	public void deleteResource(PerunSession sess, Vo vo, Resource resource) {
 		try {
 			// Delete authz entries for this resource
 			AuthzResolverBlImpl.removeAllAuthzForResource(sess, resource);
 
-			int numAffected = jdbc.update("delete from resources where id=?", resource.getId());
-			if(numAffected == 0) throw new ResourceAlreadyRemovedException("Resource: " + resource + " , Vo: " + vo);
+			jdbc.update("delete from resources where id=?", resource.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

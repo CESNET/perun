@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -125,9 +124,8 @@ public interface ResourcesManagerImplApi {
 	 * @param vo
 	 * @param resource
 	 * @throws InternalErrorException
-	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteResource(PerunSession perunSession, Vo vo, Resource resource) throws ResourceAlreadyRemovedException;
+	void deleteResource(PerunSession perunSession, Vo vo, Resource resource);
 
 	/**
 	 * Get facility id which belongs to the concrete resource.

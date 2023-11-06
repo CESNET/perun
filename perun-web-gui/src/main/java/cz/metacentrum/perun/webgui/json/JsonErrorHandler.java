@@ -786,10 +786,6 @@ public class JsonErrorHandler {
 			// FIXME - better text on core side
 			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("ResourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Same resource was already removed from facility (deleted).";
-
 		} else if ("ResourceExistsException".equalsIgnoreCase(errorName)) {
 
 			return "Resource with same name \"" + SafeHtmlUtils.fromString(error.getResource().getName()).asString() + "\" already exists with id="+SafeHtmlUtils.fromString(error.getResource().getId()+"").asString()+".";
