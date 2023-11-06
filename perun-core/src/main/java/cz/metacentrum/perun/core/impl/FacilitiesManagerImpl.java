@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
@@ -156,7 +155,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void deleteFacility(PerunSession sess, Facility facility) throws FacilityAlreadyRemovedException {
+	public void deleteFacility(PerunSession sess, Facility facility) {
 		try {
 			// Delete authz entries for this facility
 			AuthzResolverBlImpl.removeAllAuthzForFacility(sess, facility);
@@ -166,8 +165,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 			// Finally remove facility
 			int numAffected = jdbc.update("delete from facilities where id=?", facility.getId());
-			if(numAffected != 1) throw new FacilityAlreadyRemovedException("Facility: " + facility);
-			log.info("Facility {} deleted", facility);
+			if (numAffected == 0) {
+				log.debug("No facility removed for ID {}, already has been removed", facility.getId());
+			} else if (numAffected == 1){
+				log.info("Facility {} deleted", facility);
+			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
@@ -335,9 +334,8 @@ public interface FacilitiesManagerImplApi {
 	 * @param facility
 	 *
 	 * @throws InternalErrorException
-	 * @throws FacilityAlreadyRemovedException if there are 0 rows affected by delete from DB
 	 */
-	void deleteFacility(PerunSession perunSession, Facility facility) throws FacilityAlreadyRemovedException;
+	void deleteFacility(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Updates facility in DB.

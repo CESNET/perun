@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -303,12 +302,11 @@ public interface FacilitiesManager {
 	/**
 	 * Delete the facility by id.
 	 *
-	 * @throws FacilityAlreadyRemovedException          if 0 rows affected by delete from DB
 	 * @throws HostAlreadyRemovedException              if there is at least 1 hosts not affected by deleting from DB
 	 * @throws ResourceAlreadyRemovedException          if there is at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group on any resource affected by removing from DB
 	 */
-	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws RelationExistsException, FacilityNotExistsException, PrivilegeException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws RelationExistsException, FacilityNotExistsException, PrivilegeException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Updates facility.

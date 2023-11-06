@@ -44,7 +44,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedExceptio
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -340,7 +339,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public void deleteFacility(PerunSession sess, Facility facility, Boolean force) throws RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteFacility(PerunSession sess, Facility facility, Boolean force) throws RelationExistsException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 
 		if (force) {
 			List<Resource> resources = this.getAssignedResources(sess, facility);
