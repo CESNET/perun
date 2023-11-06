@@ -33,7 +33,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordChangeFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
@@ -387,12 +386,11 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException             if user has some members assigned
-	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
 	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
+	void deleteUser(PerunSession perunSession, User user) throws RelationExistsException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -402,12 +400,11 @@ public interface UsersManagerBl {
 	 * @param forceDelete  if true, deletes also all members if they are assigned to the user
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException             if forceDelete is false and the user has some members assigned
-	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
 	 * @throws DeletionNotSupportedException	   if the deletion of users is not supported at this instance
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
 	/**
 	 * Return list of all reserved logins for specific user

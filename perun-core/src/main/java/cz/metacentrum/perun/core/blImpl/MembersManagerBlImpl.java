@@ -70,7 +70,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -191,7 +190,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public void deleteMember(PerunSession sess, Member member) throws MemberAlreadyRemovedException {
+	public void deleteMember(PerunSession sess, Member member) {
 		Vo vo = this.getMemberVo(sess, member);
 
 		// Remove member from all groups
@@ -250,7 +249,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public void deleteMembers(PerunSession sess, List<Member> members) throws MemberAlreadyRemovedException {
+	public void deleteMembers(PerunSession sess, List<Member> members) {
 		Collections.sort(members);
 
 		for (Member member : members) {
@@ -259,7 +258,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws MemberAlreadyRemovedException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) {
 		for (Member m: this.getMembers(sess, vo)) {
 			this.deleteMember(sess, m);
 		}
@@ -3115,11 +3114,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		moveMembersBans(sess, sourceMember, targetMember);
 
-		try {
-			this.deleteMember(sess, sourceMember);
-		} catch (MemberAlreadyRemovedException e) {
-			log.warn("Trying to delete already deleted member {}. Exception: {}", sourceMember, e);
-		}
+		this.deleteMember(sess, sourceMember);
 	}
 
 	/**

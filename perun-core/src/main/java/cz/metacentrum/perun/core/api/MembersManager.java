@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
@@ -69,10 +68,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 * @throws PrivilegeException
-	 * @throws MemberAlreadyRemovedException
 	 * @throws MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
-	void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException;
+	void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberLifecycleAlteringForbiddenException;
 
 	/**
 	 * Delete given members. It is possible to delete members from multiple vos.
@@ -82,10 +80,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException internal error
 	 * @throws MemberNotExistsException if any member doesn't exist
 	 * @throws PrivilegeException insufficient permissions
-	 * @throws MemberAlreadyRemovedException if already removed
 	 * @throws MemberLifecycleAlteringForbiddenException if some member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
-	void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException;
+	void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberLifecycleAlteringForbiddenException;
 
 	/**
 	 *  Deletes all VO members.
@@ -95,10 +92,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
-	 * @throws MemberAlreadyRemovedException
 	 * @throws MemberLifecycleAlteringForbiddenException if some member comes from hierarchical member vo and cannot be altered in parent vo
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException;
+	void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberLifecycleAlteringForbiddenException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating specific User

@@ -32,7 +32,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
@@ -76,9 +75,8 @@ public interface MembersManagerBl {
 	 * @param sess
 	 * @param member
 	 * @throws InternalErrorException
-	 * @throws MemberAlreadyRemovedException
 	 */
-	void deleteMember(PerunSession sess, Member member) throws MemberAlreadyRemovedException;
+	void deleteMember(PerunSession sess, Member member);
 
 	/**
 	 * Delete given members. It is possible to delete members from multiple vos.
@@ -86,9 +84,8 @@ public interface MembersManagerBl {
 	 * @param sess session
 	 * @param members members that will be deleted
 	 * @throws InternalErrorException internal error
-	 * @throws MemberAlreadyRemovedException if already removed
 	 */
-	void deleteMembers(PerunSession sess, List<Member> members) throws MemberAlreadyRemovedException;
+	void deleteMembers(PerunSession sess, List<Member> members);
 
 	/**
 	 *  Deletes all VO members.
@@ -96,9 +93,8 @@ public interface MembersManagerBl {
 	 * @param sess
 	 * @param vo
 	 * @throws InternalErrorException
-	 * @throws MemberAlreadyRemovedException
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws MemberAlreadyRemovedException;
+	void deleteAllMembers(PerunSession sess, Vo vo);
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating service user.
