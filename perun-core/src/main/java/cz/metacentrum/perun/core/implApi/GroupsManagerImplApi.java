@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.FormItemNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
@@ -83,9 +82,8 @@ public interface GroupsManagerImplApi {
 	 * @param group group to delete
 	 *
 	 * @throws InternalErrorException
-	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteGroup(PerunSession perunSession, Vo vo, Group group) throws GroupAlreadyRemovedException;
+	void deleteGroup(PerunSession perunSession, Vo vo, Group group);
 
 	/**
 	 * Updates group by ID.
