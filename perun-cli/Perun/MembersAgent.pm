@@ -43,6 +43,11 @@ sub getMemberByUser
 	return Perun::Common::callManagerMethod('getMemberByUser', 'Member', @_);
 }
 
+sub getMemberByUserId
+{
+	return Perun::Common::callManagerMethod('getMemberByUserId', 'Member', @_);
+}
+
 sub getMembers
 {
 	return Perun::Common::callManagerMethod('getMembers', '[]Member', @_);

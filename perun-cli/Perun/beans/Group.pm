@@ -54,7 +54,14 @@ sub TO_JSON
 		$parentGroupId = undef;
 	}
 
-	return { id => $id, name => $name, description => $description, voId => $voId, parentGroupId => $parentGroupId, beanName => "Group" };
+	my $uuid;
+	if (defined($self->{_uuid})) {
+		$uuid = "$self->{_uuid}";
+	} else {
+		$uuid = undef;
+	}
+
+	return { id => $id, name => $name, description => $description, voId => $voId, parentGroupId => $parentGroupId, beanName => "Group", uuid => $uuid };
 }
 
 sub getId
@@ -132,5 +139,9 @@ sub getCommonArrayRepresentation {
 
 sub getCommonArrayRepresentationHeading {
 	return ('ID', 'VO ID', 'Name', 'Description', 'Parent Group ID');
+}
+sub getUuid {
+	my $self = shift;
+	return $self->{_uuid};
 }
 1;

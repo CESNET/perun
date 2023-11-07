@@ -5,6 +5,9 @@ use warnings;
 
 use Perun::Common;
 
+use overload
+	'""' => \&toString;
+
 sub new
 {
 	bless({});
@@ -40,7 +43,32 @@ sub TO_JSON
 		$shortName = undef;
 	}
 
-	return { id => $id, name => $name, shortName => $shortName, beanName => "Vo" };
+	my $uuid;
+	if (defined($self->{_uuid})) {
+		$uuid = "$self->{_uuid}";
+	} else {
+		$uuid = undef;
+	}
+
+	return { id => $id, name => $name, shortName => $shortName, beanName => "Vo", uuid => $uuid };
+}
+
+sub toString {
+	my $self = shift;
+
+	my $id = $self->{_id};
+	my $name = $self->{_name};
+	my $shortName = $self->{_shortName};
+	my $uuid = $self->{_uuid};
+
+	my $str = 'Vo (';
+	$str .= "id: $id, " if ($id);
+	$str .= "name: $name, " if ($name);
+	$str .= "shortName: $shortName, " if ($shortName);
+	$str .= "uuid: $uuid, " if ($uuid);
+	$str .= ')';
+
+	return $str;
 }
 
 sub getId
@@ -96,6 +124,9 @@ sub getCommonArrayRepresentation {
 sub getCommonArrayRepresentationHeading {
 	return ('VO id', 'VO short name', 'VO name');
 }
-
+sub getUuid {
+	my $self = shift;
+	return $self->{_uuid};
+}
 
 1;
