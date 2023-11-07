@@ -687,10 +687,6 @@ public class JsonErrorHandler {
 			// has meaningfull message
 			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("MemberAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Member was already removed from group/VO.";
-
 		} else if ("MemberNotAdminException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - will be removed in favor of UserNotAdminException

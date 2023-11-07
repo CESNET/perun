@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -29,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
@@ -350,10 +348,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void deleteMember(final PerunSession sess, final Member member) throws MemberAlreadyRemovedException {
+	public void deleteMember(final PerunSession sess, final Member member) {
 		try {
-			int numAffected = jdbc.update("DELETE FROM members WHERE id=?", member.getId());
-			if (numAffected == 0) throw new MemberAlreadyRemovedException("Member: " + member);
+			jdbc.update("DELETE FROM members WHERE id=?", member.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}

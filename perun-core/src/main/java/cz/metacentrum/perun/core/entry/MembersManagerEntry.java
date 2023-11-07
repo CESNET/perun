@@ -39,7 +39,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberLifecycleAlteringForbiddenException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
@@ -103,7 +102,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException {
+	public void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberLifecycleAlteringForbiddenException {
 		Utils.checkPerunSession(sess);
 
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -121,7 +120,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException {
+	public void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberLifecycleAlteringForbiddenException {
 		Utils.checkPerunSession(sess);
 
 		for (Member member : members) {
@@ -141,7 +140,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, MemberLifecycleAlteringForbiddenException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberLifecycleAlteringForbiddenException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);

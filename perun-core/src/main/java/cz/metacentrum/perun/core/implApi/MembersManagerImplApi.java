@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
@@ -43,9 +42,8 @@ public interface MembersManagerImplApi {
 	 * @param perunSession
 	 * @param member
 	 * @throws InternalErrorException
-	 * @throws MemberAlreadyRemovedException if there are 0 rows affected by removing from DB
 	 */
-	void deleteMember(PerunSession perunSession, Member member) throws MemberAlreadyRemovedException;
+	void deleteMember(PerunSession perunSession, Member member);
 
 	/**
 	 * Creates member entry in the database.

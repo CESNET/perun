@@ -89,7 +89,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunni
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
@@ -4151,9 +4150,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		} catch (NotGroupMemberException e) {
 			throw new ConsistencyErrorException("Trying to remove non-existing user");
-		} catch (MemberAlreadyRemovedException ex) {
-			//Member was probably removed before starting of synchronization removing process, log it and skip this member
-			log.debug("Member {} was removed from group {} before removing process. Skip this member.", memberToRemove, group);
 		}
 	}
 
@@ -4189,9 +4185,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param memberToRemove member to remove
 	 * @throws GroupNotExistsException if group does not exist
 	 * @throws NotGroupMemberException if member does not exist
-	 * @throws MemberAlreadyRemovedException if member was already removed
 	 */
-	private void removeMemberFromAuthoritativeGroup(PerunSession sess, Group group, RichMember memberToRemove) throws GroupNotExistsException, NotGroupMemberException, MemberAlreadyRemovedException {
+	private void removeMemberFromAuthoritativeGroup(PerunSession sess, Group group, RichMember memberToRemove) throws GroupNotExistsException, NotGroupMemberException {
 
 		// Always remove member from the group
 		getPerunBl().getGroupsManagerBl().removeMember(sess, group, memberToRemove);
@@ -4225,9 +4220,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess perun session
 	 * @param group members group
 	 * @param memberToRemove member to remove
-	 * @throws MemberAlreadyRemovedException
 	 */
-	private void removeMemberFromMembersGroup(PerunSession sess, Group group, RichMember memberToRemove) throws MemberAlreadyRemovedException {
+	private void removeMemberFromMembersGroup(PerunSession sess, Group group, RichMember memberToRemove) {
 		try {
 			getPerunBl().getMembersManagerBl().disableMember(sess, memberToRemove);
 			log.info("Group synchronization {}: Member id {} disabled.", group, memberToRemove.getId());
