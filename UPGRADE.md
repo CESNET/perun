@@ -1,5 +1,41 @@
 Upgrade notes
 
+## [31.0.0](https://github.com/CESNET/perun/compare/v30.1.1...v31.0.0) (2023-11-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** the `ssh-keygen` tool has to be available on instance machines
+* **core:** edit new config property perun.mailchange.replyTo and existing perun.mailchange.backupFrom to customize the respective fields of sent emails (from core API).
+ `replyTo` (and `replyToName`) can be defined in `perun-registrar-lib.properties` to achieve the same for registrar
+* **core:** Method blockServicesOnDestinations does not throw
+ServiceAlreadyBannedException anymore.
+
+### Features
+
+* **core:** allow customization of replyTo field of emails ([1f20e82](https://github.com/CESNET/perun/commit/1f20e82eed7f7a537422ca812866065e09a441b2))
+* **core:** bulk-up public ssh key validation ([64aaa86](https://github.com/CESNET/perun/commit/64aaa86972902405a73f771bdd13dd93d7e9723d))
+* **core:** filter by role ([84e0ccd](https://github.com/CESNET/perun/commit/84e0ccd9e7a2587ef12daa6c89dc3d00aa398782))
+* **engine:** pass service name to send/gen script when using generic scripts ([7c74749](https://github.com/CESNET/perun/commit/7c747498b042b938dadb8b58d3ee411faad99879))
+
+
+### Bug Fixes
+
+* 🐛 Fix BBMRIResources registration module possible NullPExc ([bfb3e6a](https://github.com/CESNET/perun/commit/bfb3e6ac49bb2a2f5b990dc04da11cd19934ce58))
+* 🐛 Use getAllSubgGroups in BBMRIResources reg.module ([3fdcffc](https://github.com/CESNET/perun/commit/3fdcffcc86f2343ba14f7634bd803dc3a9dde320))
+* **core:** group admin/membership manager should not have rights for verifying users' mail address ([53dbe02](https://github.com/CESNET/perun/commit/53dbe026b106e0b6dca95b88bba739449e1b4b2f))
+* **core:** ignore already blocked destination ([ad1774d](https://github.com/CESNET/perun/commit/ad1774d04b990249ee6c4438fa0bfa56b863bbac))
+* correct attribute references in enabledO365MailForward ([c52f15c](https://github.com/CESNET/perun/commit/c52f15c5f5cb02064dd90cd2e349dbb7a4d7ea6c)), closes [ST-1168](https://perunaai.atlassian.net/browse/ST-1168)
+* **deps:** update dependency com.google.apis:google-api-services-admin-directory to directory_v1-rev20231005-2.0.0 ([bb691b0](https://github.com/CESNET/perun/commit/bb691b02e4273c9b1ab1777bc4c1d89ea01e5876))
+* **deps:** update dependency commons-cli:commons-cli to v1.6.0 ([11c038b](https://github.com/CESNET/perun/commit/11c038be066786ff57ce5148a1cba3b578d4b487))
+* **deps:** update dependency io.swagger:swagger-annotations to v1.6.12 ([605aa63](https://github.com/CESNET/perun/commit/605aa6334ca9fb21ac09ded84ee0419815411bf8))
+* **deps:** update dependency org.json:json to v20231013 [security] ([c207e8b](https://github.com/CESNET/perun/commit/c207e8b61a25e269d18439671d0841a3e3a9dffe))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v2.7.17 ([6d6b4e5](https://github.com/CESNET/perun/commit/6d6b4e5214b5da74c66fe8567a76d04cd9412d9c))
+* **gui:** typo in candidate title after param ([ae6f8a7](https://github.com/CESNET/perun/commit/ae6f8a7172bb90c08fe3f0110a667782e96221d7))
+* **registrar:** log error on submitted embedded aplications ([6587daf](https://github.com/CESNET/perun/commit/6587dafbb4e5b57b5d480b25a83c337eda42695b))
+* **registrar:** pass registrar session when submitting embedded applications ([ce6bb52](https://github.com/CESNET/perun/commit/ce6bb52dc1a202fcc57705fce4cc5436920d7dd9))
+* **registrar:** transaction for approving multiple applications ([369fcd3](https://github.com/CESNET/perun/commit/369fcd33db8f1b8f24af1f00668edc3477861847))
+
 ## [30.1.1](https://github.com/CESNET/perun/compare/v30.1.0...v30.1.1) (2023-10-10)
 
 
