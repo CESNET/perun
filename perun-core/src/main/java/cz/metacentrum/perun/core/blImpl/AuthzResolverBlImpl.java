@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -2951,6 +2952,20 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		return new ArrayList<>(authzResolverImpl.getResourcesWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Check if the given group passes the user's roles filter.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param group group
+	 * @param roles list of selected roles (if empty, then return groups by all roles)
+	 * @param types list of selected types of roles (if empty, then return by roles of all types)
+	 * @return list of groups
+	 */
+	public static boolean groupMatchesUserRolesFilter(PerunSession sess, User user, Group group, List<String> roles, List<RoleAssignmentType> types) {
+		return authzResolverImpl.groupMatchesUserRolesFilter(sess, user, group, roles, types);
 	}
 
 	/**

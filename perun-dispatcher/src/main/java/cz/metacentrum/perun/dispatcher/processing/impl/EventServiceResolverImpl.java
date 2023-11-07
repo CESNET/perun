@@ -85,14 +85,14 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 	@Override
 	public Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, PrivilegeException {
 
-		log.info("Event - I am going to process event: {}", event);
-
 		Map<Facility, Set<Service>> result = new HashMap<Facility, Set<Service>>();
 
 		if (event instanceof EngineIgnoreEvent) {
-			log.info("Event ignored {} facilities will be returned", result.size());
+			log.debug("Event {} ignored 0 facilities will be returned", event.getName());
 			return result;
 		}
+
+		log.info("Event - I am going to process event: {}", event);
 
 		// GET All Beans (only PerunBeans) from message
 		List<PerunBean> listOfBeans = new ArrayList<PerunBean>();
@@ -282,7 +282,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 			}
 		}
 
-		log.info("{} facilities will be returned", result.size());
+		log.debug("{} facilities will be returned", result.size());
 		return result;
 
 	}

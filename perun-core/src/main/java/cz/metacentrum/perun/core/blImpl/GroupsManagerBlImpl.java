@@ -50,6 +50,7 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -1960,7 +1961,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			long startTime = System.nanoTime();
 			getPerunBl().getAuditer().log(sess,new GroupSyncStarted(group));
-			log.debug("Group synchronization for {} has been started.", group);
+			log.info("Group synchronization for {} has been started.", group);
 
 			//Initialization of group extSource
 			source = getGroupExtSourceForSynchronization(sess, group);
@@ -1986,25 +1987,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupDirectRichMembers(sess, group);
 
 			if(lightweightSynchronization) {
+				log.debug("Group synchronization {}: categorize members for lightweight sync", group);
 				categorizeMembersForLightweightSynchronization(sess, group, source, membersSource, actualGroupMembers, candidatesToAdd, membersToRemove, skippedMembers);
 			} else {
 				//Get subjects from extSource
 				List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
 				//Convert subjects to candidates
 				List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, actualGroupMembers, skippedMembers);
-
+				log.debug("Group synchronization {}: categorize members for standard sync", group);
 				categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
 			}
 
 			// Remove members from group who are not present in synchronized ExtSource
 			boolean isAuthoritative = isAuthoritative(sess, group);
 			Collections.sort(membersToRemove);
+			log.debug("Group synchronization {}: removing {} members", group, membersToRemove.size());
 			for (RichMember memberToRemove : membersToRemove) {
 				removeFormerMemberWhileSynchronization(sess, group, memberToRemove, isAuthoritative);
 			}
 
 			List<AttributeDefinition> attrDefs = new ArrayList<>();
 			//Update members already presented in group
+			log.debug("Group synchronization {}: updating {} members", group, membersToUpdate.size());
 			for (Candidate candidate : membersToUpdate.keySet()) {
 				RichMember memberToUpdate = membersToUpdate.get(candidate);
 				//Load attrDefinitions just once for first candidate
@@ -2016,6 +2020,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			//Add not presented candidates to group
 			Collections.sort(candidatesToAdd);
+			log.debug("Group synchronization {}: adding {} members", group, candidatesToAdd.size());
 			for (Candidate candidateToAdd : candidatesToAdd) {
 				addMissingMemberWhileSynchronization(sess, group, candidateToAdd, overwriteUserAttributesList, mergeMemberAttributesList, skippedMembers);
 			}
@@ -3042,18 +3047,51 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) {
 		return convertGroupsToRichGroupsWithAttributes(sess, this.getAllGroups(sess, vo), attrNames);
 	}
 
 	@Override
+	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames, List<String> roles, List<RoleAssignmentType> types) {
+		List<Group> groups = this.getAllGroups(sess, vo);
+		if ((!roles.isEmpty() || !types.isEmpty()) && sess.getPerunPrincipal().getUser() != null) {
+			groups.removeIf(group -> !AuthzResolverBlImpl.groupMatchesUserRolesFilter(sess, sess.getPerunPrincipal().getUser(), group, roles, types));
+		}
+		return convertGroupsToRichGroupsWithAttributes(sess, groups, attrNames);
+	}
+
+	@Override
+	@Deprecated
 	public List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames) {
 		List<Group> memberGroups = this.getMemberGroups(sess, member);
+		return convertGroupsToMemberRichGroups(sess, member, memberGroups, attrNames);
+	}
+
+	@Override
+	public List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames, List<String> roles, List<RoleAssignmentType> types) {
+		List<Group> memberGroups = this.getMemberGroups(sess, member);
+		if ((!roles.isEmpty() || !types.isEmpty()) && sess.getPerunPrincipal().getUser() != null) {
+			memberGroups.removeIf(group -> !AuthzResolverBlImpl.groupMatchesUserRolesFilter(sess, sess.getPerunPrincipal().getUser(), group, roles, types));
+		}
+		return convertGroupsToMemberRichGroups(sess, member, memberGroups, attrNames);
+	}
+
+	/**
+	 * Converts the list of Groups to RichGroup, adding group and member-group attributes.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param groups list of groups
+	 * @param attrNames list of attribute names
+	 * @return list of rich groups
+	 */
+	private List<RichGroup> convertGroupsToMemberRichGroups(PerunSession sess, Member member, List<Group> groups, List<String> attrNames) {
 		List<RichGroup> richGroups = new ArrayList<>();
 
 		if(attrNames == null) {
 			//if attrNames is null, it means all possible group and member-group attributes
-			for(Group group: memberGroups) {
+			for(Group group: groups) {
 				List<Attribute> allGroupAndMemberGroupAttributes = new ArrayList<>();
 				allGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group));
 				try {
@@ -3065,7 +3103,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		} else {
 			//if attrNames is not null, it means only selected group and member-group attributes
-			for (Group group : memberGroups) {
+			for (Group group : groups) {
 				List<Attribute> selectedGroupAndMemberGroupAttributes = new ArrayList<>();
 				selectedGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames));
 				try {
@@ -3076,7 +3114,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				richGroups.add(new RichGroup(group, selectedGroupAndMemberGroupAttributes));
 			}
 		}
-
 		return richGroups;
 	}
 
@@ -3086,8 +3123,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	@Deprecated
 	public List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) {
 		return convertGroupsToRichGroupsWithAttributes(sess, this.getAllSubGroups(sess, parentGroup), attrNames);
+	}
+
+	@Override
+	public List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames, List<String> roles, List<RoleAssignmentType> types) {
+		List<Group> subGroups = this.getAllSubGroups(sess, parentGroup);
+		if ((!roles.isEmpty() || !types.isEmpty()) && sess.getPerunPrincipal().getUser() != null) {
+			subGroups.removeIf(group -> !AuthzResolverBlImpl.groupMatchesUserRolesFilter(sess, sess.getPerunPrincipal().getUser(), group, roles, types));
+		}
+		return convertGroupsToRichGroupsWithAttributes(sess, subGroups, attrNames);
 	}
 
 	@Override
@@ -3716,7 +3763,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
 	public void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<AttributeDefinition> attrDefs) {
-		//If member does not exists in this moment (somebody removed him before updating process), skip him and log it
+		//If member does not exist at this moment (somebody removed him before updating process), skip him and log it
 		try {
 			getPerunBl().getMembersManagerBl().checkMemberExists(sess, memberToUpdate);
 		} catch (MemberNotExistsException ex) {

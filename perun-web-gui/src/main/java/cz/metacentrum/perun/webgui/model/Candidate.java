@@ -93,7 +93,7 @@ public class Candidate extends JavaScriptObject {
 	 * @return title after name of candidate
 	 */
 	public final native String getTitleAfter() /*-{
-		return this.TitleAfter;
+		return this.titleAfter;
 	}-*/;
 
 	/**

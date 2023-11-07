@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -659,6 +660,24 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		Host host = new Host();
 		host.setHostname("invalid");
 		Utils.checkHostname(host);
+	}
+
+	@Test
+	public void validateSSHPublicKey() {
+		System.out.println("Utils.validateSShKeyInvalid");
+		String invalid1 = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCYZTcdI8iZFJ2c63iN0kMhpcEGuE054DCJh8gCBhyOKQn6LH3wBX/U6RERh+1UmWkblEnQM3B2vEnSGRgNfG7KQgi2xSMHlb4KO1wNB6mOwNV4a+rX115ncWxHwR+7UZPYEmafXX5WZWzT3mzvHWRLZvw87uD7FLWqFGAbEwdvinHIB4tLvCcnLSc+O9xmdZVMKbiuCIO/odhqmfUM4RD7htaBL/ZSFZn5fen5wo9xhTd2Z7fTOALPbRkG5uIWMo7TiiLNWlo9f1sao1zNmNxZrUpgbL7mUJwWz1Wor8hlOCIbjHYySFK8vz6ziqbOHh2/8DVEqAh/dEJMhVhY9rHUDjbfjOrCMswF9NWRO4Gmsn9ARHRwXN2Gq3bu6cJ6L7h5YuBH93+QtZZhYm34JfNNsZnCsaz4g0aTUwD4UtZ7kxqMMf0xE7ndc7y4wCI7+kHn/nPamtSCFT8Pgg8WfDF22S4ouZcRVS9eU1O8a/fn0dpL77wmY8rvCDyzX3VhUAHfp9YHYPB1rVRN/9tLR2wpwHHhDz758750bin/tkp7QHCJ+27vqLU3RX/ZTFjUeNX2HeHpfQEy5jyptSZgfmbnmljqOfVpDgyQ2Wvc+prN6iTjDmsaTZrY0AIQq9EUVYFLFXhqo2x3tYcC7bmlFfRE8Dl5klpfniRNOWLnMdvXcw";
+		String invalid2 = "ssh-rsa 2048 10:e7:0a:ff:be:c3:c9:fb:2b:06:f3:07:ac:68:43:02";
+		String validECDSA = "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBGgt1/rkRvQJp92tP8uxLJfy340lJGSSxsPp3+W1JdMbk+S2qIPwM5o/oblTjGhVRzKcas4pLrBz7L/Mxn6D6qw= martin@martin-ThinkPad-T480";
+		String validED25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJhGU1cLG0UldPhYxbEjKcZmFSZsGznmAYvra2QPls7a martin@martin-ThinkPad-T480";
+		String validRSA = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC7FPq20sXf+83P/mvfEBntaGUkVJu36X2gLIi5TioYPSqGVIPV+ztnhNUuJHQZ3HYRDhGw/5c32mIYKQvsAB0T/WT6hgs9zVHU1s5ieJSduxx9DqbEkHaZUirmukd8uF97QJm6Ve/cvS3YUb3yxWXcRiJX5jy1aRazoJgm/Vocgz/1PHInq46IQUN6I62ge7u5YrpSxym6Ehw8ZGCr7QyIyg5TdNVbK4flkf6LM/uKh0JuODfm+/R/3TjzbR/7oDzfkQR4TZE3sCHXpSEwaHbb4SM6if1di2PKefhlx9m7w0oMwaE6Epoq/US1FHxR0up+PQYqqwE+/fi9C88byT1Kjz7xpC3IV0bOdeP6nDcLDYsKssgotqU0YIrBCTes/an1efe1jrYZQvr54XvKNFWUnJsMJLosT2ZCWkNCyyrnL9V+KEJ07Qb4NAXfgcrVakP/6647FAXCgyY8Len9c/0aTn7SVd1aC3aTGRvLtvPNPzhbDJGKzjPs90So0GZ+q7s= martin@martin-ThinkPad-T480";
+
+		assertThatExceptionOfType(SSHKeyNotValidException.class).isThrownBy(() -> Utils.validateSSHPublicKey(invalid1));
+
+		assertThatExceptionOfType(SSHKeyNotValidException.class).isThrownBy(() -> Utils.validateSSHPublicKey(invalid2));
+
+		assertThatNoException().isThrownBy(() -> Utils.validateSSHPublicKey(validECDSA));
+		assertThatNoException().isThrownBy(() -> Utils.validateSSHPublicKey(validED25519));
+		assertThatNoException().isThrownBy(() -> Utils.validateSSHPublicKey(validRSA));
 	}
 
 	private Vo setUpVo() throws Exception {

@@ -134,17 +134,17 @@ public class EventProcessor extends AbstractRunner {
 			try {
 				Event event = eventQueue.take();
 				createTaskFromEvent(event);
-				log.debug("Remaining events in a Queue = {}", eventQueue.size());
+				log.trace("Remaining events in a Queue = {}", eventQueue.size());
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
 		}
-		log.debug("EventProcessor has stopped.");
+		log.warn("EventProcessor has stopped.");
 	}
 
 	/**
 	 * Creates Task from Event data. Tries to resolve Service and Facility pairs from Event.
-	 * Events for non existing entities are discarded.
+	 * Events for non-existing entities are discarded.
 	 *
 	 * @param event Event to parse
 	 * @throws ServiceNotExistsException When Service from Event doesn't exists anymore
@@ -160,12 +160,20 @@ public class EventProcessor extends AbstractRunner {
 			Facility facility = map.getKey();
 			for (Service service : map.getValue()) {
 				if (!service.isEnabled()) {
-					log.debug("Service not enabled: {}.", service);
+					if (log.isDebugEnabled()) {
+						log.debug("Service disabled: {}.", service);
+					} else {
+						log.info("Service disabled: {}.", service.getId() + " / " + service.getName());
+					}
 					continue;
 				}
 
 				if (((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(service, facility)) {
-					log.debug("Service blocked on Facility: {} , {}.", service, facility);
+					if (log.isDebugEnabled()) {
+						log.debug("Service blocked on Facility: {} , {}.", service, facility);
+					} else {
+						log.info("Service blocked on Facility: {} , {}.", service.getId() + " / " + service.getName(), facility.getId() + " / " + facility.getName());
+					}
 					continue;
 				}
 
@@ -198,7 +206,12 @@ public class EventProcessor extends AbstractRunner {
 						if (destinations.isEmpty()) {
 							// All service destinations were blocked -> Task is denied to be sent to engine just like
 							// when service is blocked globally in Perun or on facility as a whole.
-							log.debug("{} blocked on all destinations on {}.", service, facility);
+
+							if (log.isDebugEnabled()) {
+								log.debug("{} blocked on all destinations on {}.", service, facility);
+							} else {
+								log.info("Service: {} blocked on all destinations on Facility: {}.", service.getId() + " / " + service.getName(), facility.getId() + " / " + facility.getName());
+							}
 							continue;
 						}
 					}
@@ -227,7 +240,7 @@ public class EventProcessor extends AbstractRunner {
 					task.setSourceUpdated(true);
 					if (isForced) task.setPropagationForced(true);
 					task.setRecurrence(0);
-					log.debug("[{}] Task is already in pool. Re-setting source updated and forced flags, {}.", task.getId(), task);
+					log.info("[{}] Task is already in pool. Re-setting source updated and forced flags, {}.", task.getId(), task);
 				} else {
 					// no such task yet, create one
 					task = new Task();
@@ -241,7 +254,7 @@ public class EventProcessor extends AbstractRunner {
 					task.setPropagationForced(isForced);
 					try {
 						schedulingPool.addToPool(task);
-						log.debug("[{}] New Task added to pool. {}.", task.getId(), task);
+						log.info("[{}] New Task added to pool. {}.", task.getId(), task);
 					} catch (TaskStoreException e) {
 						log.error("[{}] Could not add Task to pool. Task {} will be lost: {}", task.getId(), task, e);
 					}

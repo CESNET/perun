@@ -22,8 +22,8 @@ import java.util.List;
  */
 public class urn_perun_user_facility_attribute_def_virt_enabledO365MailForward extends UserFacilityVirtualAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
-	private final static String A_U_F_DISABLE0365MAILFORWARD = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":disableO365MailForward";
-	private final static String A_U_F_O365MAILFORWARD = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":o365MailForward";
+	private final static String A_U_F_DISABLE0365MAILFORWARD = AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":disableO365MailForward";
+	private final static String A_U_F_O365MAILFORWARD = AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":o365MailForward";
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) {

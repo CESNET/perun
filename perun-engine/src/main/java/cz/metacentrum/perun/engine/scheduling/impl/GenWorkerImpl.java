@@ -46,8 +46,13 @@ public class GenWorkerImpl extends AbstractWorker<Task> implements GenWorker {
 
 		log.info("[{}] Executing GEN worker for Task with Service ID: {} and Facility ID: {}.",
 				getTask().getId(), getTask().getServiceId(), getTask().getFacilityId());
-
-		ProcessBuilder pb = new ProcessBuilder(service.getScript(), "-c", "-f", String.valueOf(getTask().getFacilityId()));
+		ProcessBuilder pb;
+		if (service.getScript().equals("./" + service.getName())) {
+			pb = new ProcessBuilder(service.getScript(), "-c", "-f", String.valueOf(getTask().getFacilityId()));
+		} else {
+			// if calling some generic script, also pass name of the service to avoid gen folder collision
+			pb = new ProcessBuilder(service.getScript(), "-c", "-f", String.valueOf(getTask().getFacilityId()), "-s", service.getName());
+		}
 
 		try {
 

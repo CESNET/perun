@@ -52,7 +52,7 @@ import java.util.Set;
  */
 public class BBMRIResources extends DefaultRegistrarModule {
 
-	private final static Logger log = LoggerFactory.getLogger(BBMRIResources.class);
+	private static final Logger log = LoggerFactory.getLogger(BBMRIResources.class);
 
 	// field names
 	private static final String RESOURCE_IDS = "resourceIds";
@@ -70,7 +70,6 @@ public class BBMRIResources extends DefaultRegistrarModule {
 	 * @param session who approves the application
 	 * @param app application
 	 * @return unchanged application
-	 * @throws PerunException in case of internal error in Perun
 	 */
 	@Override
 	public Application approveApplication(PerunSession session, Application app)
@@ -157,8 +156,8 @@ public class BBMRIResources extends DefaultRegistrarModule {
 	 * @return Map of String to Group, where key is the ID of the resource and Group is the representation
 	 */
 	private Map<String, Group> getPerunResourceIdToGroupMap(PerunSession session, Application app, PerunBl perun)
-		throws PrivilegeException, RegistrarException, VoNotExistsException, WrongAttributeAssignmentException,
-		AttributeNotExistsException, GroupNotExistsException
+		throws PrivilegeException, RegistrarException, WrongAttributeAssignmentException,
+		AttributeNotExistsException
 	{
 		// get root group for resources hierarchy
 		Group resourceOriginGroup = getResourceOriginGroup(session, app, perun);
@@ -189,13 +188,13 @@ public class BBMRIResources extends DefaultRegistrarModule {
 	 * @return resource IDs set
 	 */
 	private Group getResourceOriginGroup(PerunSession session, Application app, PerunBl perun)
-		throws PrivilegeException, RegistrarException, VoNotExistsException
+		throws PrivilegeException, RegistrarException
 	{
 		try {
-			if (perun.getAttributesManagerBl()
+			Boolean resourceOriginEnabled = perun.getAttributesManagerBl()
 				.getAttribute(session, app.getGroup(), RESOURCE_ORIGIN_ENABLED_ATTR_NAME)
-				.valueAsBoolean()
-			) {
+				.valueAsBoolean();
+			if (resourceOriginEnabled != null && resourceOriginEnabled) {
 				try {
 					String resourceOriginGroupName = getResourceOriginGroupNameFromApplication(session, app);
 					return perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), resourceOriginGroupName);
@@ -290,7 +289,7 @@ public class BBMRIResources extends DefaultRegistrarModule {
 	{
 		Map<String, Group> resourceIDsToGroupMap = new HashMap<>();
 
-		List<Group> resourceGroups = perun.getGroupsManagerBl().getSubGroups(session, resourceOriginGroup);
+		List<Group> resourceGroups = perun.getGroupsManagerBl().getAllSubGroups(session, resourceOriginGroup);
 		if (resourceGroups == null || resourceGroups.isEmpty()) {
 			log.debug("No resource groups found, returning empty map.");
 			return resourceIDsToGroupMap;

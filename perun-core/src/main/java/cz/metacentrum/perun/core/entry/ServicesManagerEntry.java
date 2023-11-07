@@ -98,9 +98,12 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void blockServicesOnDestinations(PerunSession sess, List<RichDestination> richDestinations) throws PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException, FacilityNotExistsException {
+	public void blockServicesOnDestinations(PerunSession sess, List<RichDestination> richDestinations) throws PrivilegeException, DestinationNotExistsException, FacilityNotExistsException {
 		for (RichDestination richDestination : richDestinations) {
-			blockServiceOnDestination(sess, richDestination.getService(), richDestination.getId());
+			try {
+				blockServiceOnDestination(sess, richDestination.getService(), richDestination.getId());
+			} catch (ServiceAlreadyBannedException ignored) {
+			}
 		}
 	}
 

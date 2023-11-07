@@ -8,11 +8,11 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
@@ -1128,6 +1128,28 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
 					"(select id from roles where name in (:roles))",
 				parameters, GROUP_MAPPER));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public boolean groupMatchesUserRolesFilter(PerunSession sess, User user, Group group, List<String> roles, List<RoleAssignmentType> types) {
+		MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
+		parameters.addValue("groupId", group.getId());
+
+		boolean includeIndirectRoles = types.contains(RoleAssignmentType.INDIRECT) || types.isEmpty();
+		boolean includeDirectRoles = types.contains(RoleAssignmentType.DIRECT) || types.isEmpty();
+
+		try {
+			List<Group> directRelations = namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + " from authz join groups on authz.group_id=groups.id " +
+				" where groups.id=:groupId and authz.user_id=:uid" + (!roles.isEmpty() ? " and (authz.role_id in (select id from roles where name in (:roles)))" : ""), parameters, GROUP_MAPPER);
+
+			List<Group> indirectRelations = namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + " from authz join groups on authz.group_id=groups.id " +
+				" left outer join groups_members on groups_members.group_id=authz.authorized_group_id left outer join members on members.id=groups_members.member_id " +
+				" where groups.id=:groupId and members.user_id=:uid" + (!roles.isEmpty() ? " and (authz.role_id in (select id from roles where name in (:roles)))" : ""), parameters, GROUP_MAPPER);
+
+			return (includeDirectRoles && !directRelations.isEmpty()) || (includeIndirectRoles && !indirectRelations.isEmpty());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

@@ -83,19 +83,19 @@ public class EngineMessageProducer {
 
 	/**
 	 * Try to deliver all pending messages.
-	 * @throws JMSException 
-	 * 
+	 * @throws JMSException
+	 *
 	 */
 	public void deliverOutputMessages() throws JMSException {
 		while(!outputMessages.isEmpty()) {
 			TextMessage message = outputMessages.poll();
 			producer.send(message);
 			if (log.isDebugEnabled()) {
-				log.debug("Sent message (queue:" + queueName + "): " + message.getText());
+				log.debug("Sent message (queue name:" + queueName + "): " + message.getText());
 			}
 		}
 	}
-	
+
 	/**
 	 * Get name of the queue for engine.
 	 *
@@ -105,14 +105,13 @@ public class EngineMessageProducer {
 		return queueName;
 	}
 
-	/** 
+	/**
 	 * Shutdown before destroying the producer.
-	 * 
 	 */
 	public void shutdown() {
 		try {
 			producer.close();
-			// session is not not ours to close
+			// session is not ours to close
 			// session.close();
 		} catch (JMSException e) {
 			log.error(e.toString(), e);

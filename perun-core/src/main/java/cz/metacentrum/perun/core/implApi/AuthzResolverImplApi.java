@@ -3,9 +3,9 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -631,6 +631,18 @@ public interface AuthzResolverImplApi {
 	 * @return Set of Groups
 	 */
 	Set<Group> getGroupsWhereUserIsInRoles(User user, List<String> roles);
+
+	/**
+	 * Check if the given group passes the user's roles filter.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param group group
+	 * @param roles list of selected roles (if empty, then return groups by all roles)
+	 * @param types list of selected types of roles (if empty, then return by roles of all types)
+	 * @return list of groups
+	 */
+	boolean groupMatchesUserRolesFilter(PerunSession sess, User user, Group group, List<String> roles, List<RoleAssignmentType> types);
 
 	/**
 	 * Get all Members where the given user has set one of the given roles

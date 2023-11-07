@@ -1642,6 +1642,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Validate ssh public key, throws exception if validation fails
+	 *
+	 *
+	 * @param sshKey String public ssh key to validate
+	 *
+	 * @throw SSHKeyNotValidException when validation fails
+	 */
+	validateSSHKey {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getUsersManager().validateSSHKey(ac.getSession(), parms.readString("sshKey"));
+			return null;
+		}
+	},
+
+	/*#
 	 * Return list of email addresses of user, which are
 	 * awaiting validation and are inside time window
 	 * for validation.
