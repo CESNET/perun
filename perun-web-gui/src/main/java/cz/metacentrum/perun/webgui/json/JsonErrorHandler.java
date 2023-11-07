@@ -487,14 +487,6 @@ public class JsonErrorHandler {
 				return "Same destination already exists for facility/service combination.";
 			}
 
-		} else if ("DestinationAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			if (error.getDestination() != null) {
-				return "Destination <i>" + SafeHtmlUtils.fromString(error.getDestination().getDestination()).asString() + "</i> already removed for facility/service.";
-			} else {
-				return "Destination is already removed from facility/service combination.";
-			}
-
 		} else if ("DestinationExistsException".equalsIgnoreCase(errorName)) {
 
 			return "Same destination already exists.";

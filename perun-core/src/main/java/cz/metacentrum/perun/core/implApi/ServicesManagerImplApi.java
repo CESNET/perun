@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -451,9 +450,8 @@ public interface ServicesManagerImplApi {
 	 * @param facility
 	 * @param destination string contains destination address (mail, url, hostname, ...)
 	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyRemovedException
 	 */
-	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyRemovedException;
+	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination);
 
 	/**
 	 * Get destination by id
@@ -630,10 +628,9 @@ public interface ServicesManagerImplApi {
 	 * @param sess
 	 * @param destination destination to be deleted
 	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 * @throws RelationExistsException if the destination has some existing relations in DB
 	 */
-	void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException;
+	void deleteDestination(PerunSession sess, Destination destination) throws RelationExistsException;
 
 	/**
 	 * Checks whether given service is assigned to given facility (through some resource).

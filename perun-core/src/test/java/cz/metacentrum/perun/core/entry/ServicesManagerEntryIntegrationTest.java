@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedExceptio
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1044,7 +1043,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
-	@Test (expected=DestinationAlreadyRemovedException.class)
+	@Test
 	public void removeDestinationWhenDestinationAlreadyRemoved() throws Exception {
 		System.out.println(CLASS_NAME + "removeDestinationWhenDestinationAlreadyRemoved");
 
@@ -1053,8 +1052,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		destination = setUpDestination();
 
 		perun.getServicesManager().removeDestination(sess, service, facility, destination);
-		// shouldn't remove not added destination
-
+		// shouldn't fail when removing already removed destination
+		perun.getServicesManager().removeDestination(sess, service, facility, destination);
 	}
 
 	@Test
