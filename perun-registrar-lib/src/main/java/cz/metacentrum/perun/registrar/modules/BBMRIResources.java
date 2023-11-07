@@ -189,13 +189,13 @@ public class BBMRIResources extends DefaultRegistrarModule {
 	 * @return resource IDs set
 	 */
 	private Group getResourceOriginGroup(PerunSession session, Application app, PerunBl perun)
-		throws PrivilegeException, RegistrarException, VoNotExistsException
+		throws PrivilegeException, RegistrarException
 	{
 		try {
-			if (perun.getAttributesManagerBl()
+			Boolean resourceOriginEnabled = perun.getAttributesManagerBl()
 				.getAttribute(session, app.getGroup(), RESOURCE_ORIGIN_ENABLED_ATTR_NAME)
-				.valueAsBoolean()
-			) {
+				.valueAsBoolean();
+			if (resourceOriginEnabled != null && resourceOriginEnabled) {
 				try {
 					String resourceOriginGroupName = getResourceOriginGroupNameFromApplication(session, app);
 					return perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), resourceOriginGroupName);
