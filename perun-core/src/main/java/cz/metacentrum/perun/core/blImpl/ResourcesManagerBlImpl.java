@@ -49,7 +49,6 @@ import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -230,7 +229,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteResource(PerunSession sess, Resource resource) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteResource(PerunSession sess, Resource resource) throws ResourceAlreadyRemovedException {
 		//Get facility for audit messages
 		Facility facility = this.getFacility(sess, resource);
 
@@ -276,7 +275,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				try {
 					removeGroupFromResource(sess, assignedGroup.getEnrichedGroup().getGroup(), resource);
 				} catch (GroupNotDefinedOnResourceException ex) {
-					throw new GroupAlreadyRemovedFromResourceException(ex);
+					// ignore silently
 				}
 			}
 		}
@@ -317,7 +316,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteAllResources(PerunSession sess, Vo vo) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteAllResources(PerunSession sess, Vo vo) throws ResourceAlreadyRemovedException {
 		for(Resource r: this.getResources(sess, vo)) {
 			deleteResource(sess, r);
 		}
@@ -523,19 +522,19 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException {
 		removeGroupFromResource(sess, group, resource, null);
 	}
 
 	@Override
-	public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws GroupNotDefinedOnResourceException {
 		for(Group g: groups) {
 			this.removeGroupFromResource(perunSession, g, resource);
 		}
 	}
 
 	@Override
-	public void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws GroupNotDefinedOnResourceException {
 		for(Resource r: resources) {
 			this.removeGroupFromResource(perunSession, group, r);
 		}
@@ -550,9 +549,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	 * @param resource
 	 * @param sourceGroupId id of a source group if an automatic assignment should be deleted, null otherwise
 	 * @throws GroupNotDefinedOnResourceException when there is no such group-resource assignment
-	 * @throws GroupAlreadyRemovedFromResourceException when the assignment was already removed
 	 */
-	private void removeGroupFromResource(PerunSession sess, Group group, Resource resource, Integer sourceGroupId) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	private void removeGroupFromResource(PerunSession sess, Group group, Resource resource, Integer sourceGroupId) throws GroupNotDefinedOnResourceException {
 		Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 
 		// Check if the group and resource belongs to the same VO
@@ -583,11 +581,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				.collect(Collectors.toList());
 
 			for (AssignedGroup assignedSubgroup : subgroupsAssignments) {
-				try {
-					removeAutomaticGroupFromResource(sess, assignedSubgroup.getEnrichedGroup().getGroup(), resource, group.getId());
-				} catch (GroupAlreadyRemovedFromResourceException e) {
-					// skip silently
-				}
+				removeAutomaticGroupFromResource(sess, assignedSubgroup.getEnrichedGroup().getGroup(), resource, group.getId());
 			}
 		}
 
@@ -613,7 +607,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void removeAutomaticGroupFromResource(PerunSession sess, Group group, Resource resource, int sourceGroupId) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeAutomaticGroupFromResource(PerunSession sess, Group group, Resource resource, int sourceGroupId) throws GroupNotDefinedOnResourceException {
 		removeGroupFromResource(sess, group, resource, sourceGroupId);
 	}
 

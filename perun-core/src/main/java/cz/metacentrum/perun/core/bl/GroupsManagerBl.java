@@ -26,8 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.FormItemNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
@@ -125,13 +123,11 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException
-	 * @throws GroupAlreadyRemovedException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws RelationExistsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
@@ -150,14 +146,12 @@ public interface GroupsManagerBl {
 	 * @param forceDelete if forceDelete is false, delete groups only if all of them have no subgroups and no members, if is true, delete anyway with all connections
 	 *
 	 * @throws InternalErrorException
-	 * @throws GroupAlreadyRemovedException
 	 * @throws RelationExistsException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws RelationExistsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Deletes built-in members group.
@@ -165,13 +159,11 @@ public interface GroupsManagerBl {
 	 * @param sess
 	 * @param vo
 	 * @throws InternalErrorException
-	 * @throws GroupAlreadyRemovedException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteMembersGroup(PerunSession sess, Vo vo) throws GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteMembersGroup(PerunSession sess, Vo vo) throws GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Deletes all groups under the VO except built-in groups (members, admins groups).
@@ -180,12 +172,10 @@ public interface GroupsManagerBl {
 	 * @param vo VO
 	 *
 	 * @throws InternalErrorException
-	 * @throws GroupAlreadyRemovedException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteAllGroups(PerunSession perunSession, Vo vo) throws GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteAllGroups(PerunSession perunSession, Vo vo) throws GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Updates group by ID.

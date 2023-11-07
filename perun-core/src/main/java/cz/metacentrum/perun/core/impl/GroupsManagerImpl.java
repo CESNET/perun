@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FormItemNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
@@ -260,7 +259,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public void deleteGroup(PerunSession sess, Vo vo, Group group) throws GroupAlreadyRemovedException {
+	public void deleteGroup(PerunSession sess, Vo vo, Group group) {
 		Utils.notNull(group.getName(), "group.getName()");
 
 		try {
@@ -270,8 +269,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			// Delete authz entries for this group
 			AuthzResolverBlImpl.removeAllAuthzForGroup(sess, group);
 
-			int rowAffected = jdbc.update("delete from groups where id=?", group.getId());
-			if(rowAffected == 0) throw new GroupAlreadyRemovedException("Group: " + group + " , Vo: " + vo);
+			jdbc.update("delete from groups where id=?", group.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}

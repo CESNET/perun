@@ -603,14 +603,6 @@ public class JsonErrorHandler {
 
 			return "Group with same name already exists in your VO. Group names must be unique in VO.";
 
-		} else if ("GroupAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Same group was already removed from your VO/Group.";
-
-		} else if ("GroupAlreadyRemovedFromResourceException".equalsIgnoreCase(errorName)) {
-
-			return "Same group was already removed from resource.";
-
 		} else if ("GroupNotDefinedOnResourceException".equalsIgnoreCase(errorName)) {
 
 			return "Group is not assigned to Resource and therefore can't be removed from it.";

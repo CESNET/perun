@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -174,9 +173,8 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteResource(PerunSession perunSession, Resource resource) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteResource(PerunSession perunSession, Resource resource) throws ResourceAlreadyRemovedException;
 
 	/**
 	 *  Deletes all resources for the VO.
@@ -186,9 +184,8 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws ResourceAlreadyRemovedException if there is at least 1 resource not affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws ResourceAlreadyRemovedException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.
@@ -442,9 +439,8 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException Raise when group and resource not belong to the same VO or cant properly fix attributes of group's members after removing group from resource.
 	 * @throws ResourceNotExistsException
 	 * @throws GroupNotDefinedOnResourceException Group was never assigned to this resource
-	 * @throws GroupAlreadyRemovedFromResourceException there are 0 rows affected by deleting from DB
 	 */
-	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws GroupNotDefinedOnResourceException;
 
 	/**
 	 * Remove groups from a resource.
@@ -456,9 +452,8 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotDefinedOnResourceException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 */
-	void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+	void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws GroupNotDefinedOnResourceException;
 
 	/**
 	 * Remove group from resources.
@@ -470,9 +465,8 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotDefinedOnResourceException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 */
-	void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+	void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws GroupNotDefinedOnResourceException;
 
 	/**
 	 * Remove automatically assigned group from resource.
@@ -485,9 +479,8 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotDefinedOnResourceException when there is no such automatic group-resource assignment
-	 * @throws GroupAlreadyRemovedFromResourceException when the group was already removed
 	 */
-	void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+	void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupNotDefinedOnResourceException;
 
 	/**
 	 * Returns all users assigned to the resource.

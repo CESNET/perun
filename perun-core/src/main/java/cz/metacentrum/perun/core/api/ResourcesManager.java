@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -172,10 +171,9 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group which is not affected by removing from DB
 	 * @throws FacilityNotExistsException if facility of this resource not exists
 	 */
-	void deleteResource(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException;
+	void deleteResource(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, FacilityNotExistsException;
 
 	/**
 	 *  Deletes all resources for the VO.
@@ -187,9 +185,8 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 * @throws ResourceAlreadyRemovedException if there are at least 1 resource not affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group which is not affected by removing from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws VoNotExistsException, PrivilegeException, ResourceAlreadyRemovedException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.
@@ -322,9 +319,8 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 * @throws GroupNotDefinedOnResourceException Group was never assigned to this resource
-	 * @throws GroupAlreadyRemovedFromResourceException if there are 0 rows affected by deleting from DB
 	 */
-	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException;
 
 	/**
 	 * Remove groups from a resource.
@@ -339,9 +335,8 @@ public interface ResourcesManager {
 	 * @throws GroupNotExistsException
 	 * @throws ResourceNotExistsException
 	 * @throws GroupNotDefinedOnResourceException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 */
-	void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+	void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException;
 
 	/**
 	 * Remove group from the resources.
@@ -356,9 +351,8 @@ public interface ResourcesManager {
 	 * @throws GroupNotExistsException
 	 * @throws ResourceNotExistsException
 	 * @throws GroupNotDefinedOnResourceException
-	 * @throws GroupAlreadyRemovedFromResourceException
 	 */
-	void removeGroupFromResources(PerunSession perunSession, Group groups, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+	void removeGroupFromResources(PerunSession perunSession, Group groups, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupNotDefinedOnResourceException;
 
 	/**
 	 * List all groups associated with the resource.

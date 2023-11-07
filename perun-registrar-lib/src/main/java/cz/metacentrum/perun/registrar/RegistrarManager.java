@@ -713,7 +713,7 @@ public interface RegistrarManager {
 	 * @deprecated Use deleteGroupsFromAutoRegistration method with additional formItem parameter instead
 	 */
 	@Deprecated
-	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException;
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Deletes groups from a list of groups which can be registered into during vo registration.
@@ -734,7 +734,7 @@ public interface RegistrarManager {
 	 * @param registrationGroup group to which the embedded groups are associated
 	 * @throws GroupNotExistsException if some group does not exist
 	 */
-	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, Group registrationGroup, ApplicationFormItem formItem) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException, GroupIsNotASubgroupException, FormItemNotExistsException;
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups, Group registrationGroup, ApplicationFormItem formItem) throws GroupNotExistsException, PrivilegeException, GroupIsNotASubgroupException, FormItemNotExistsException;
 
 	/**
 	 * Adds groups to a list of groups which can be registered into during vo registration.

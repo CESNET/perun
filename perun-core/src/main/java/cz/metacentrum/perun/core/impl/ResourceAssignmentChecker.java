@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -136,7 +135,7 @@ public class ResourceAssignmentChecker {
 		if (!sourceIsAssigned) {
 			try {
 				perunBl.getResourcesManagerBl().removeAutomaticGroupFromResource(sess, assignedSubgroup.getEnrichedGroup().getGroup(), resource, assignedSubgroup.getSourceGroupId());
-			} catch (GroupNotDefinedOnResourceException | GroupAlreadyRemovedFromResourceException e) {
+			} catch (GroupNotDefinedOnResourceException e) {
 				// skip silently, already removed
 			}
 		}
