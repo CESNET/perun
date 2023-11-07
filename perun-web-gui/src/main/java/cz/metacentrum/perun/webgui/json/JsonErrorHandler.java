@@ -574,10 +574,6 @@ public class JsonErrorHandler {
 			// TODO - probably is never thrown to GUI ??
 			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("FacilityAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Facility of the same name and type was already deleted.";
-
 		} else if ("FacilityExistsException".equalsIgnoreCase(errorName)) {
 
 			return "Facility of the same name and type already exists.";
