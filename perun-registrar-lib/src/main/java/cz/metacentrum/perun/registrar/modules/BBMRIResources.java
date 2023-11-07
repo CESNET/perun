@@ -290,7 +290,7 @@ public class BBMRIResources extends DefaultRegistrarModule {
 	{
 		Map<String, Group> resourceIDsToGroupMap = new HashMap<>();
 
-		List<Group> resourceGroups = perun.getGroupsManagerBl().getSubGroups(session, resourceOriginGroup);
+		List<Group> resourceGroups = perun.getGroupsManagerBl().getAllSubGroups(session, resourceOriginGroup);
 		if (resourceGroups == null || resourceGroups.isEmpty()) {
 			log.debug("No resource groups found, returning empty map.");
 			return resourceIDsToGroupMap;
