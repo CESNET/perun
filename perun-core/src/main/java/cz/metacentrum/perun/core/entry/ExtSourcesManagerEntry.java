@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -28,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +69,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException {
+	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws ExtSourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
@@ -217,7 +215,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -231,7 +229,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void removeExtSources(PerunSession sess, Vo vo, List<ExtSource> sources) throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSources(PerunSession sess, Vo vo, List<ExtSource> sources) throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -247,7 +245,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -261,7 +259,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void removeExtSources(PerunSession sess, Group group, List<ExtSource> sources) throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSources(PerunSession sess, Group group, List<ExtSource> sources) throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);

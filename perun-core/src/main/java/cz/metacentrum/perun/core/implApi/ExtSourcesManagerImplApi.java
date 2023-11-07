@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -51,11 +50,9 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @param perunSession
 	 * @param extSource
-	 *
-	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete in DB
 	 * @throws InternalErrorException
 	 */
-	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws ExtSourceAlreadyRemovedException;
+	void deleteExtSource(PerunSession perunSession, ExtSource extSource);
 
 	/**
 	 * Updates extSource definition. It should be called only internally, because extSources are defined in the external XML file.
@@ -161,9 +158,8 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotAssignedException
-	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by remove in DB
 	 */
-	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceNotAssignedException;
 
 	/**
 	 * Remove association of the external source from the GROUP.
@@ -173,10 +169,9 @@ public interface ExtSourcesManagerImplApi {
 	 * @param source
 	 *
 	 * @throws InternalErrorException
-	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 * @throws ExtSourceNotAssignedException
 	 */
-	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException;
 
 	/**
 	 * Get all users' id associate with the provided ExtSource

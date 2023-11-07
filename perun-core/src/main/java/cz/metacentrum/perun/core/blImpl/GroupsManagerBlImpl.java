@@ -64,7 +64,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
@@ -379,7 +378,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for(ExtSource source: assignedSources) {
 			try {
 				getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
-			} catch (ExtSourceNotAssignedException | ExtSourceAlreadyRemovedException ex) {
+			} catch (ExtSourceNotAssignedException ex) {
 				//Just log this, because if method can't remove it, it is probably not assigned now
 				log.warn("Try to remove not existing extSource {} from group {} when deleting group.", source, group);
 			}

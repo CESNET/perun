@@ -534,16 +534,6 @@ public class JsonErrorHandler {
 				return "Same external source is already assigned to your VO.";
 			}
 
-		} else if ("ExtSourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			if (error.getExtSource() != null) {
-				return "Same external source was already removed from your VO." +
-						"<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() + "</br>" +
-						"<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
-			} else {
-				return "Same external source was already removed from your VO.";
-			}
-
 		} else if ("ExtSourceExistsException".equalsIgnoreCase(errorName)) {
 
 			if (error.getExtSource() != null) {
