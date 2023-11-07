@@ -1953,7 +1953,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				groupApplication.setExtSourceType(app.getExtSourceType());
 				groupApplication.setCreatedBy("Automatically generated");
 
-				submitApplication(sess, groupApplication, new ArrayList<>());
+				submitApplication(registrarSession, groupApplication, new ArrayList<>());
 			} catch (Exception e) {
 				log.error("Error submitting embedded application {}", e);
 				failedGroups.put(group.getId(), e.getMessage());
@@ -3055,7 +3055,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// If the item has no options for the user to offer (bcs user is already member in all possible options,
 			// remove it from the form completely
 			if (StringUtils.isBlank(item.getFormItem().getI18n().get(ApplicationFormItem.EN).getOptions())) {
-				it.remove();
+				itemsIt.remove();
 			}
 		}
 
@@ -3311,8 +3311,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					// pass not member and have only approved or rejected apps
 				}
 			}
-			// if false, throws exception with reason for GUI
-			membersManager.canBeMemberWithReason(sess, vo, user, String.valueOf(extSourceLoa));
+			// check for embedded applications was already done in original app, this would always fail because of registrar session
+			if (!AppType.EMBEDDED.equals(appType)) {
+				// if false, throws exception with reason for GUI
+				membersManager.canBeMemberWithReason(sess, vo, user, String.valueOf(extSourceLoa));
+			}
 		}
 		// if extension, user != null !!
 		if (AppType.EXTENSION.equals(appType)) {
