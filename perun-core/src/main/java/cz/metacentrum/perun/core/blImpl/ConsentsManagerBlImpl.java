@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentNotExistsException;
@@ -214,7 +213,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	}
 
 	@Override
-	public void deleteConsentHub(PerunSession sess, ConsentHub consentHub) throws ConsentHubAlreadyRemovedException {
+	public void deleteConsentHub(PerunSession sess, ConsentHub consentHub) {
 
 		// Remove all consents for this ConsentHub
 		for (Consent consent : getConsentsForConsentHub(sess, consentHub.getId())) {
@@ -254,7 +253,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
 	}
 
 	@Override
-	public void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException, ConsentHubAlreadyRemovedException {
+	public void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException {
 		getConsentsManagerImpl().removeFacility(sess, consentHub, facility);
 		if (getConsentsManagerImpl().getFacilitiesForConsentHub(consentHub).size() == 0) {
 			getConsentsManagerImpl().deleteConsentHub(sess, consentHub);

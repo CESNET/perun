@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 
 import java.util.List;
@@ -209,9 +208,8 @@ public interface ConsentsManagerBl {
 	 * Deletes consent hub.
 	 * @param perunSession session
 	 * @param consentHub consent hub
-	 * @throws ConsentHubAlreadyRemovedException if no such consent hub stored in db
 	 */
-	void deleteConsentHub(PerunSession perunSession, ConsentHub consentHub) throws ConsentHubAlreadyRemovedException;
+	void deleteConsentHub(PerunSession perunSession, ConsentHub consentHub);
 
 	/**
 	 * Returns true, if consent hub exists, false otherwise.
@@ -255,9 +253,8 @@ public interface ConsentsManagerBl {
 	 * @param consentHub consent hub
 	 * @param facility facility to be removed
 	 * @throws RelationNotExistsException if facility is not assigned to consent hub
-	 * @throws ConsentHubAlreadyRemovedException if the last facility was removed and deletion of consent hub failed
 	 */
-	void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException, ConsentHubAlreadyRemovedException;
+	void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility) throws RelationNotExistsException;
 
 	/**
 	 * Set consent status

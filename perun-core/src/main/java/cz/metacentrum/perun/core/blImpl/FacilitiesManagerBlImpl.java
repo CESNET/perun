@@ -40,7 +40,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -390,8 +389,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			getPerunBl().getConsentsManagerBl().removeFacility(sess, hub, facility);
 		} catch (ConsentHubNotExistsException e) {
 			log.warn("When removing facility {} no related consent hub was found", facility);
-		} catch (ConsentHubAlreadyRemovedException e) {
-			log.warn("When removing facility {} consent hub could not be removed", facility);
 		} catch (RelationNotExistsException e) {
 			log.warn("Facility {} is not assigned to the consent hub.", facility);
 		}

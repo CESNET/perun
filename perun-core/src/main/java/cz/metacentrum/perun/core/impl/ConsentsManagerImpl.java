@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.ConsentsManagerImplApi;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -443,13 +442,13 @@ public class ConsentsManagerImpl implements ConsentsManagerImplApi {
 	}
 
 	@Override
-	public void deleteConsentHub(PerunSession perunSession, ConsentHub consentHub) throws ConsentHubAlreadyRemovedException {
+	public void deleteConsentHub(PerunSession perunSession, ConsentHub consentHub) {
 		try {
 			jdbc.update("delete from consent_hubs_facilities where consent_hub_id=?", consentHub.getId());
 
 			int numAffected = jdbc.update("delete from consent_hubs where id=?", consentHub.getId());
 			if (numAffected == 0){
-				throw new ConsentHubAlreadyRemovedException("ConsentHub: " + consentHub);
+				log.info("No consent found for id {}, no rows removed", consentHub.getId());
 			}
 			log.info("ConsentHub deleted: {}", consentHub);
 		} catch (RuntimeException e) {

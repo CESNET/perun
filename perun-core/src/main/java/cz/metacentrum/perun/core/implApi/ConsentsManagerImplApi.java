@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyAssigned;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsentHubNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsentHubAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 import java.util.List;
@@ -210,7 +209,7 @@ public interface ConsentsManagerImplApi {
 	 * @param perunSession session
 	 * @param consentHub consent hub
 	 */
-	void deleteConsentHub(PerunSession perunSession, ConsentHub consentHub) throws ConsentHubAlreadyRemovedException;
+	void deleteConsentHub(PerunSession perunSession, ConsentHub consentHub);
 
 	/**
 	 * Returns true, if consent hub exists, false otherwise.
