@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
  */
 public class UrlDeserializer extends Deserializer {
 
-	private HttpServletRequest req;
+	private final HttpServletRequest req;
 
 	/**
 	 * Create deserializer for URL data format.
@@ -58,8 +58,7 @@ public class UrlDeserializer extends Deserializer {
 			// if yes, conform JsonDeserializer implementation
 			// => only 0 is considered FALSE, other numbers are TRUE
 			int number = Integer.parseInt(req.getParameter(name));
-			if (number == 0) return false;
-			return true;
+			return number != 0;
 		} catch (NumberFormatException ex) {
 			// parameter is passed in URL as a String
 			return Boolean.parseBoolean(req.getParameter(name));
@@ -88,7 +87,7 @@ public class UrlDeserializer extends Deserializer {
 
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
-		List<T> list = new ArrayList<T>();
+		List<T> list = new ArrayList<>();
 
 		String[] stringParams = req.getParameterValues(name + "[]");
 		if (stringParams == null) {
@@ -111,13 +110,14 @@ public class UrlDeserializer extends Deserializer {
 		return list;
 	}
 
+	@Override
 	public String readAll() {
-		StringBuffer stringParams = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements() ;) {
-			String paramName = (String) parameters.nextElement();
-			stringParams.append(paramName + "=" + req.getParameter(paramName) + ",");
+			String paramName = parameters.nextElement();
+			sb.append(paramName).append("=").append(req.getParameter(paramName)).append(",");
 		}
-		return stringParams.toString();
+		return sb.toString();
 	}
 
 	@Override
