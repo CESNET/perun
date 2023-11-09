@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -1036,4 +1037,50 @@ public interface GroupsManagerImplApi {
 	 * @return List of groups
 	 */
 	List<Group> getGroupsWhereUserIsActiveMember(PerunSession sess, User user, Vo vo);
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attributeDefinition attribute definition
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attrValue);
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attributeDefinition attribute definition
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Integer attrValue);
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attributeDefinition attribute definition
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Boolean attrValue);
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attributeDefinition attribute definition
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, List<String> attrValue);
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attributeDefinition attribute definition
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Map<String, String> attrValue);
+
 }

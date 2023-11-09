@@ -2226,6 +2226,90 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getGroupsByAttributeValue_String_String_policy:
+    policy_roles:
+      # Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPMEMBERSHIPMANAGER:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - TRUSTEDFACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getGroupsByAttributeValue_String_int_policy:
+    policy_roles:
+      # Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPMEMBERSHIPMANAGER:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - TRUSTEDFACILITYADMIN:
+    include_policies:
+      - default_policy
+  getGroupsByAttributeValue_String_boolean_policy:
+    policy_roles:
+      # Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPMEMBERSHIPMANAGER:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - TRUSTEDFACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getGroupsByAttributeValue_String_List<String>_policy:
+    policy_roles:
+      # Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPMEMBERSHIPMANAGER:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - TRUSTEDFACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getGroupsByAttributeValue_String_Map<String,String>_policy:
+    policy_roles:
+      # Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPMEMBERSHIPMANAGER:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - TRUSTEDFACILITYADMIN:
+    include_policies:
+      - default_policy
+
   getRichGroupsAssignedToResourceWithAttributesByNames_Resource_List<String>_policy:
     policy_roles:
       - RESOURCESELFSERVICE: Resource

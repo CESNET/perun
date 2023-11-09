@@ -3,6 +3,7 @@ package cz.metacentrum.perun.rpc.deserializer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -392,6 +393,46 @@ public class JsonDeserializer extends Deserializer {
 	@Override
 	public <T> List<T> readList(Class<T> valueType) {
 		return readList(null, valueType);
+	}
+
+	@Override
+	public Map<String, String> readMap(String name) {
+		JsonNode node;
+
+		if (name == null) {
+			// The object is not under root, but directly in the response
+			node = root;
+			name = "root";
+		} else {
+			node = root.get(name);
+		}
+
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		} else if (node.isNull()) {
+			return null;
+		} else if (!node.isObject()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as Map<String, String> - not an object");
+		}
+
+		Map<String, String> map = new HashMap<>();
+		Iterator<String> fields = node.fieldNames();
+		while (fields.hasNext()) {
+			String key = fields.next();
+			JsonNode valueNode = node.get(key);
+			String value;
+			if (valueNode.isNull()) {
+				value = null;
+			} else if (valueNode.isTextual()) {
+				value = valueNode.textValue();
+			} else {
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+					"Cannot deserialize value for key " + key + "as text");
+			}
+			map.put(key, value);
+		}
+		return map;
 	}
 
 	public String readAll() {

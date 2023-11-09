@@ -1576,4 +1576,54 @@ public interface GroupsManager {
 	 */
 	List<Group> getGroupsWhereUserIsActiveMember(PerunSession session, User user, Vo vo) throws VoNotExistsException, UserNotExistsException, PrivilegeException;
 
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attrName name of the attribute (full URN)
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, String attrValue)
+		throws PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attrName name of the attribute (full URN)
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, Integer attrValue)
+		throws PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attrName name of the attribute (full URN)
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, Boolean attrValue)
+		throws PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attrName name of the attribute (full URN)
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, List<String> attrValue)
+		throws PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Returns groups with the specified attribute having the specified value.
+	 * @param sess session
+	 * @param attrName name of the attribute (full URN)
+	 * @param attrValue expected value
+	 * @return List of groups
+	 */
+	List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, Map<String, String> attrValue)
+		throws PrivilegeException, AttributeNotExistsException;
+
 }

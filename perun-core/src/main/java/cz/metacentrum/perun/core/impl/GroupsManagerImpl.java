@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.api.AssignedGroup;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -49,6 +50,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Array;
@@ -61,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
@@ -1502,6 +1505,103 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					"(SELECT members.id FROM members WHERE members.user_id = ? AND members.vo_id = ?))",
 				GROUP_MAPPER, vo.getId(), MemberGroupStatus.VALID.getCode(), user.getId(), vo.getId());
 		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attrValue) {
+		if (!StringUtils.hasText(attrValue)) {
+			return getGroupsByAttributeValueNullValue(attributeDefinition);
+		} else {
+			return getGroupsByAttributeValueSimple(attributeDefinition, attrValue);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Integer attrValue) {
+		if (attrValue == null) {
+			return getGroupsByAttributeValueNullValue(attributeDefinition);
+		} else {
+			return getGroupsByAttributeValueSimple(attributeDefinition, attrValue.toString());
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Boolean attrValue) {
+		if (attrValue == null || !attrValue) {
+			return getGroupsByAttributeValueNullValue(attributeDefinition);
+		} else {
+			return getGroupsByAttributeValueSimple(attributeDefinition, attrValue.toString());
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, List<String> attrValue) {
+		if (attrValue == null || attrValue.isEmpty()) {
+			return getGroupsByAttributeValueNullValue(attributeDefinition);
+		} else {
+			attrValue = attrValue.stream()
+				.filter(StringUtils::hasText)
+				.map(e -> e.replace(",", "\\\\,"))
+				.toList();
+			String attrValueQuery = " AND gav.attr_value LIKE ?".repeat(attrValue.size());
+			List<Object> params = new ArrayList<>();
+			params.add(attributeDefinition.getName());
+			params.addAll(attrValue.stream().map(val -> '%' + val + '%').toList());
+			return getGroupsByAttributeValue(attrValueQuery, params.toArray());
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Map<String, String> attrValue) {
+		if (attrValue == null || attrValue.entrySet().isEmpty()) {
+			return getGroupsByAttributeValueNullValue(attributeDefinition);
+		} else {
+			Set<Map.Entry<String, String>> valueEntries = attrValue.entrySet()
+				.stream()
+				.filter(e -> StringUtils.hasText(e.getKey()) && StringUtils.hasText(e.getValue()))
+				.map(entry -> Map.entry(
+					entry.getKey().replace(":", "\\\\:").replace(",", "\\\\,"),
+					entry.getValue().replace(":", "\\\\:").replace(",", "\\\\,")))
+				.collect(Collectors.toSet());
+			String attrValueQuery = " AND gav.attr_value LIKE ?".repeat(attrValue.entrySet().size());
+			List<Object> params = new ArrayList<>();
+			params.add(attributeDefinition.getName());
+			for (Map.Entry<String, String> entry : valueEntries) {
+				params.add('%' + entry.getKey() + ":" + entry.getValue() + '%');
+			}
+			return getGroupsByAttributeValue(attrValueQuery, params.toArray());
+		}
+	}
+
+	private List<Group> getGroupsByAttributeValueSimple(AttributeDefinition attributeDefinition, String attrValue) {
+		String attrValueQuery = " AND gav.attr_value = ?";
+		List<Object> params = new ArrayList<>();
+		params.add(attributeDefinition.getName());
+		params.add(attrValue);
+		return getGroupsByAttributeValue(attrValueQuery, params.toArray());
+	}
+
+	private List<Group> getGroupsByAttributeValueNullValue(AttributeDefinition attributeDefinition) {
+		try {
+			return jdbc.query(
+				"SELECT " + groupMappingSelectQuery + " FROM groups WHERE id NOT IN " +
+					"(SELECT group_id FROM group_attr_values gav JOIN attr_names an on gav.attr_id = an.id" +
+					" WHERE attr_name = ?);",
+				GROUP_MAPPER, attributeDefinition.getName());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	private List<Group> getGroupsByAttributeValue(String attrValueQuery, Object[] queryParams) {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups " +
+				"LEFT OUTER JOIN group_attr_values gav ON groups.id = gav.group_id " +
+				"LEFT OUTER JOIN attr_names an ON gav.attr_id = an.id " +
+				"WHERE an.attr_name = ?" + attrValueQuery, GROUP_MAPPER, queryParams);
+		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}

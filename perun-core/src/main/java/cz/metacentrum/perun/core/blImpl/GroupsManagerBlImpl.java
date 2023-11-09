@@ -6131,4 +6131,30 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		groups.removeIf(g -> VosManager.MEMBERS_GROUP.equals(g.getName()));
 		return groups;
 	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attrValue) {
+		return this.groupsManagerImpl.getGroupsByAttributeValue(sess, attributeDefinition, attrValue);
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Integer attrValue) {
+		return this.groupsManagerImpl.getGroupsByAttributeValue(sess, attributeDefinition, attrValue);
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Boolean attrValue) {
+		return this.groupsManagerImpl.getGroupsByAttributeValue(sess, attributeDefinition, attrValue);
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, List<String> attrValue) {
+		return this.groupsManagerImpl.getGroupsByAttributeValue(sess, attributeDefinition, attrValue);
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, Map<String, String> attrValue) {
+		return this.groupsManagerImpl.getGroupsByAttributeValue(sess, attributeDefinition, attrValue);
+	}
+
 }
