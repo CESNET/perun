@@ -2,11 +2,14 @@ package cz.metacentrum.perun.rpc.deserializer;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import org.springframework.util.StringUtils;
 
 /**
  * Deserializer for URL data format.
@@ -109,6 +112,36 @@ public class UrlDeserializer extends Deserializer {
 		}
 
 		return list;
+	}
+
+	@Override
+	public Map<String, String> readMap(String name) {
+		if (!contains(name)) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+
+		String[] stringParams = req.getParameterValues(name + "[]");
+
+		if (stringParams == null) {
+			// submitter probably forgot to add list decoration to param name ("[]").
+			stringParams = req.getParameterValues(name);
+		}
+
+		Map<String, String> map = new HashMap<>();
+		for (String param: stringParams) {
+			String[] parts = param.split(":", 2);
+			if (parts.length != 2) {
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+					"Could not decode parameter " + name + " as key and value pair");
+			}
+			String key = parts[0];
+			String value = parts[1];
+			if (!StringUtils.hasText(value) || "null".equalsIgnoreCase(value)) {
+				value = null;
+			}
+			map.put(key, value);
+		}
+		return map;
 	}
 
 	public String readAll() {

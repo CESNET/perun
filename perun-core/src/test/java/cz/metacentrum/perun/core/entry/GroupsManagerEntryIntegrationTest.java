@@ -6796,6 +6796,565 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(group2.getId(), allGroupAdmins.getData().get(0).getId());
 	}
 
+	@Test
+	public void getGroupsByAttributeStringNullAndEmptyValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeStringNullAndEmptyValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+		var definition = setUpGroupAttribute("someAttribute", String.class.getName());
+
+		String expectedValue1 = null;
+		String expectedValue2 = "";
+		String nonExpectedValue1 = "bla";
+		String nonExpectedValue2 = "blabla";
+
+		var g1attr = new Attribute(definition, expectedValue1);
+		var g2attr = new Attribute(definition, expectedValue2);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue1);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of expectedValue2
+		assertTrue(result.contains(group2)); // has "expectedValue2" value - equivalent of expectedValue1
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value
+
+		result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue2);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of expectedValue2
+		assertTrue(result.contains(group2)); // has "expectedValue2" value - equivalent of expectedValue1
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value
+	}
+
+	@Test
+	public void getGroupsByAttributeStringValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeStringValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, vo, group5);
+
+		var definition = setUpGroupAttribute("someAttribute", String.class.getName());
+
+		String expectedValue = "testValue";
+		String nonExpectedValue1 = "blablabla";
+		String nonExpectedValue2 = "";
+		String nonExpectedValue3 = null;
+
+		var gattr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		var g5attr = new Attribute(definition, nonExpectedValue3);
+		attributesManager.setAttribute(sess, group, gattr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+		attributesManager.setAttribute(sess, group5, g5attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue3"
+		assertFalse(result.contains(group5)); // has "nonExpectedValue3" value - equivalent of "nonExpectedValue2"
+	}
+
+	@Test
+	public void getGroupsByAttributeBooleanTrueValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeBooleanTrueValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+		var definition = setUpGroupAttribute("someAttribute", Boolean.class.getName());
+
+		Boolean expectedValue = true;
+		Boolean nonExpectedValue1 = false;
+		Boolean nonExpectedValue2 = null;
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value - equivalent of "nonExpectedValue2"
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue1"
+	}
+
+	@Test
+	public void getGroupsByAttributeBooleanNullAndFalseValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeBooleanNullAndFalseValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+		var definition = setUpGroupAttribute("someAttribute", Boolean.class.getName());
+
+		Boolean expectedValue1 = false;
+		Boolean expectedValue2 = null;
+
+		var g1attr = new Attribute(definition, expectedValue1);
+		var g2attr = new Attribute(definition, expectedValue2);
+		var g3attr = new Attribute(definition, !expectedValue1);
+		var g4attr = new Attribute(definition, !expectedValue1);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue1);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of expectedValue2
+		assertTrue(result.contains(group2)); // has "expectedValue2" value - equivalent of expectedValue1
+		assertFalse(result.contains(group3)); // has "nonExpectedValue" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue" value
+
+		result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue2);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of expectedValue2
+		assertTrue(result.contains(group2)); // has "expectedValue2" value - equivalent of expectedValue1
+		assertFalse(result.contains(group3)); // has "nonExpectedValue" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue" value
+	}
+
+	@Test
+	public void getGroupsByAttributeIntegerValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeIntegerValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+		var definition = setUpGroupAttribute("someAttribute", Integer.class.getName());
+
+		Integer expectedValue = 1;
+		Integer nonExpectedValue1 = 2;
+		Integer nonExpectedValue2 = null;
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value
+	}
+
+	@Test
+	public void getGroupsByAttributeIntegerNullValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeIntegerValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+
+		var definition = setUpGroupAttribute("someAttribute", Integer.class.getName());
+
+		Integer expectedValue = null;
+		Integer nonExpectedValue = 2;
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue);
+		var g4attr = new Attribute(definition, nonExpectedValue);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g4attr);
+		attributesManager.setAttribute(sess, group4, g3attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue1" value
+	}
+
+	@Test
+	public void getGroupsByAttributeListNullAndEmptyValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeListNullAndEmptyValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+		var definition = setUpGroupAttribute("someAttribute", ArrayList.class.getName());
+
+		List<String> expectedValue1 = null;
+		List<String> expectedValue2 = new ArrayList<>();
+		List<String> nonExpectedValue1 = new ArrayList<>(List.of("item1"));
+		List<String> nonExpectedValue2 = new ArrayList<>(List.of("item1", "item2", "item3"));
+
+		var g1attr = new Attribute(definition, expectedValue1);
+		var g2attr = new Attribute(definition, expectedValue2);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue1);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertTrue(result.contains(group2)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value
+
+		result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue2);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertTrue(result.contains(group2)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value
+	}
+
+	@Test
+	public void getGroupsByAttributeListEscapedValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeListSingleValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, vo, group5);
+
+		var definition = setUpGroupAttribute("someAttribute", ArrayList.class.getName());
+
+		List<String> expectedValue = new ArrayList<>(List.of("item1,"));
+		List<String> nonExpectedValue1 = null;
+		List<String> nonExpectedValue2 = new ArrayList<>();
+		List<String> nonExpectedValue3 = new ArrayList<>(List.of("item1", "item2", "item3"));
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		var g5attr = new Attribute(definition, nonExpectedValue3);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+		attributesManager.setAttribute(sess, group5, g5attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value - equivalent of "nonExpectedValue2"
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue1"
+		assertFalse(result.contains(group5)); // has "nonExpectedValue3" value, but expected is a subset of this one
+	}
+
+	@Test
+	public void getGroupsByAttributeListSingleValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeListSingleValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, vo, group5);
+
+		var definition = setUpGroupAttribute("someAttribute", ArrayList.class.getName());
+
+		List<String> expectedValue = new ArrayList<>(List.of("item1"));
+		List<String> nonExpectedValue1 = null;
+		List<String> nonExpectedValue2 = new ArrayList<>();
+		List<String> nonExpectedValue3 = new ArrayList<>(List.of("item1", "item2", "item3"));
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		var g5attr = new Attribute(definition, nonExpectedValue3);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+		attributesManager.setAttribute(sess, group5, g5attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(3, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value - equivalent of "nonExpectedValue2"
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue1"
+		assertTrue(result.contains(group5)); // has "nonExpectedValue3" value, but expected is a subset of this one
+	}
+
+	@Test
+	public void getGroupsByAttributeListMultiValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeListMultiValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, vo, group5);
+
+		var definition = setUpGroupAttribute("someAttribute", ArrayList.class.getName());
+
+		List<String> expectedValue = new ArrayList<>(List.of("item1", "item2", "item3"));
+		List<String> nonExpectedValue1 = null;
+		List<String> nonExpectedValue2 = new ArrayList<>();
+		List<String> nonExpectedValue3 = new ArrayList<>(List.of("item1"));
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		var g5attr = new Attribute(definition, nonExpectedValue3);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+		attributesManager.setAttribute(sess, group5, g5attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value - equivalent of "nonExpectedValue2"
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue1"
+		assertFalse(result.contains(group5)); // has "nonExpectedValue3" value
+	}
+
+	@Test
+	public void getGroupsByAttributeMapNullAndEmptyValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeListNullAndEmptyValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+
+		var definition = setUpGroupAttribute("someAttribute", LinkedHashMap.class.getName());
+
+		Map<String, String> expectedValue1 = null;
+		Map<String, String> expectedValue2 = new LinkedHashMap<>();
+		Map<String, String> nonExpectedValue1 = new LinkedHashMap<>(Map.of("key1", "item1"));
+		Map<String, String> nonExpectedValue2 = new LinkedHashMap<>(Map.of("key1", "item1", "key2", "item2", "key3", "item3"));
+
+		var g1attr = new Attribute(definition, expectedValue1);
+		var g2attr = new Attribute(definition, expectedValue2);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue1);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertTrue(result.contains(group2)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value
+
+		result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue2);
+
+		assertEquals(2, result.size() - 1); // - 1 because of members group of VO
+		assertTrue(result.contains(group)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertTrue(result.contains(group2)); // has "expectedValue1" value - equivalent of "expectedValue2"
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value
+	}
+
+	@Test
+	public void getGroupsByAttributeMapEscapedKeyAndValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeMapEscapedKeySingleEntryValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, vo, group5);
+
+		var definition = setUpGroupAttribute("someAttribute", LinkedHashMap.class.getName());
+
+		Map<String, String> expectedValue = new LinkedHashMap<>(Map.of("key1:,", "item1:,"));
+		Map<String, String> nonExpectedValue1 = null;
+		Map<String, String> nonExpectedValue2 = new LinkedHashMap<>();
+		Map<String, String> nonExpectedValue3 = new LinkedHashMap<>(Map.of("key1", "item1", "key2", "item2", "key3", "item3:,"));
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		var g5attr = new Attribute(definition, nonExpectedValue3);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+		attributesManager.setAttribute(sess, group5, g5attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value - equivalent of "nonExpectedValue2"
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue1"
+		assertFalse(result.contains(group5)); // has "nonExpectedValue3" value
+	}
+
+	@Test
+	public void getGroupsByAttributeMapSingleEntryValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeMapSingleEntryValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, vo, group5);
+
+		var definition = setUpGroupAttribute("someAttribute", LinkedHashMap.class.getName());
+
+		Map<String, String> expectedValue = new LinkedHashMap<>(Map.of("key1", "item1"));
+		Map<String, String> nonExpectedValue1 = null;
+		Map<String, String> nonExpectedValue2 = new LinkedHashMap<>();
+		Map<String, String> nonExpectedValue3 = new LinkedHashMap<>(Map.of("key1", "item1", "key2", "item2", "key3", "item3:,"));
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		var g5attr = new Attribute(definition, nonExpectedValue3);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+		attributesManager.setAttribute(sess, group5, g5attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(3, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value - equivalent of "nonExpectedValue2"
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue1"
+		assertTrue(result.contains(group5)); // has "nonExpectedValue3" value, but expected is a subset of this
+	}
+
+	@Test
+	public void getGroupsByAttributeMapMultiEntryValue() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByAttributeMapMultiEntryValue");
+
+		Vo vo = setUpVo();
+
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, vo, group5);
+
+		var definition = setUpGroupAttribute("someAttribute", LinkedHashMap.class.getName());
+
+		Map<String, String> expectedValue = new LinkedHashMap<>(Map.of("key1", "item1", "key2", "item2", "key3", "item3"));
+		Map<String, String> nonExpectedValue1 = null;
+		Map<String, String> nonExpectedValue2 = new LinkedHashMap<>();
+		Map<String, String> nonExpectedValue3 = new LinkedHashMap<>(Map.of("key1", "item1"));
+
+		var g1attr = new Attribute(definition, expectedValue);
+		var g2attr = new Attribute(definition, expectedValue);
+		var g3attr = new Attribute(definition, nonExpectedValue1);
+		var g4attr = new Attribute(definition, nonExpectedValue2);
+		var g5attr = new Attribute(definition, nonExpectedValue3);
+		attributesManager.setAttribute(sess, group, g1attr);
+		attributesManager.setAttribute(sess, group2, g2attr);
+		attributesManager.setAttribute(sess, group3, g3attr);
+		attributesManager.setAttribute(sess, group4, g4attr);
+		attributesManager.setAttribute(sess, group5, g5attr);
+
+		List<Group> result = groupsManager.getGroupsByAttributeValue(sess, definition.getName(), expectedValue);
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(group)); // has "expectedValue" value
+		assertTrue(result.contains(group2)); // has "expectedValue" value
+		assertFalse(result.contains(group3)); // has "nonExpectedValue1" value - equivalent of "nonExpectedValue2"
+		assertFalse(result.contains(group4)); // has "nonExpectedValue2" value - equivalent of "nonExpectedValue1"
+		assertFalse(result.contains(group5)); // has "nonExpectedValue3" value
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
@@ -7057,6 +7616,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		var attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
+		attr.setFriendlyName(friendlyName);
+		return perun.getAttributesManagerBl().createAttribute(sess, attr);
+	}
+
+	private AttributeDefinition setUpGroupAttribute(String friendlyName, String type) throws Exception {
+		var attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(type);
 		attr.setFriendlyName(friendlyName);
 		return perun.getAttributesManagerBl().createAttribute(sess, attr);
 	}

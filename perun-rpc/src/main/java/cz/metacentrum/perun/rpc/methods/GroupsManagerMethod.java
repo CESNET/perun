@@ -24,6 +24,9 @@ import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+import org.springframework.util.StringUtils;
+
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR;
 
 public enum GroupsManagerMethod implements ManagerMethod {
 
@@ -373,6 +376,60 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGroupsManager().getGroupsByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
+	 * Returns groups with specified attribute value for the specified attribute
+	 *
+	 * @param attributeName String attribute name (full URN, has to start with the group namespace prefix)
+	 * @param attributeValue String | Boolean | Integer | List<String | Map<String, String> attribute value
+	 * (can be null). Note: In case of List and Map, the search is performed in a SQL `LIKE` manner.
+	 *  Thus, you might get more results than expected. E.g. if looking for value `a`, the attribute with value `abc`
+	 *  would match as well.
+	 *
+	 * @return List<Group> groups having the specified attribute set to the provided value
+	 */
+	getGroupsByAttributeValue {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			String attributeName = parms.readString("attributeName");
+			if (!attributeName.startsWith(NS_GROUP_ATTR)) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Invalid group attribute name: " + attributeName);
+			}
+			final String attributeValueParamKey = "attributeValue";
+			try {
+				Boolean boolValue = parms.readBoolean(attributeValueParamKey);
+				return ac.getGroupsManager().getGroupsByAttributeValue(ac.getSession(), attributeName, boolValue);
+			} catch(RpcException e) {
+				// ok, probably not boolean
+			}
+			try {
+				Integer intValue = parms.readInt(attributeValueParamKey);
+				return ac.getGroupsManager().getGroupsByAttributeValue(ac.getSession(), attributeName, intValue);
+			} catch(RpcException e) {
+				// ok, probably not int
+			}
+			try {
+				List<String> listValue = parms.readList(attributeValueParamKey, String.class);
+				return ac.getGroupsManager().getGroupsByAttributeValue(ac.getSession(), attributeName, listValue);
+			} catch(RpcException e) {
+				// ok, probably not list
+			}
+			try {
+				Map<String, String> mapValue = parms.readMap(attributeValueParamKey);
+				return ac.getGroupsManager().getGroupsByAttributeValue(ac.getSession(), attributeName, mapValue);
+			} catch(RpcException e) {
+				// ok, probably not map
+			}
+			try {
+				String stringValue = parms.readString(attributeValueParamKey);
+				return ac.getGroupsManager().getGroupsByAttributeValue(ac.getSession(), attributeName, stringValue);
+			} catch(RpcException e) {
+				// ok, probably not string
+			}
+			throw new RpcException(RpcException.Type.WRONG_PARAMETER,
+				"Invalid attribute value - not parseable as any of STRING|INT|BOOL|LIST<String>|MAP<String, String>");
 		}
 	},
 

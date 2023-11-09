@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Subclasses of {@code Deserializer} class provide methods to deserialize values supplied as name/value pairs in some
@@ -122,6 +123,19 @@ public abstract class Deserializer {
 	 */
 	public <T> List<T> readList(Class<T> valueType) {
 		throw new UnsupportedOperationException("readList(Class<T> valueType)");
+	}
+
+	/**
+	 * Reads object with the specified name as {@code Map<String, String>}.
+	 *
+	 * @param name name of the array to read
+	 * @return the value as {@code Map<String, String>}
+	 *
+	 * @throws UnsupportedOperationException if this deserializer does not implement this method
+	 * @throws RpcException if the specified value cannot be parsed as {@code Map<String, String>} or if it is not supplied
+	 */
+	public Map<String, String> readMap(String name) {
+		throw new UnsupportedOperationException("readMap(String name)");
 	}
 
 	/**

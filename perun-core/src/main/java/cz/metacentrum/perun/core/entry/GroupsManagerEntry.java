@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.GroupsPageQuery;
@@ -65,6 +66,7 @@ import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -1836,4 +1838,135 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		return getGroupsManagerBl().getGroupsWhereUserIsActiveMember(sess, user, vo);
 	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, String attrValue)
+		throws PrivilegeException, AttributeNotExistsException
+	{
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsByAttributeValue_String_String_policy")) {
+			throw new PrivilegeException(sess, "getGroupsByAttributeValue");
+		}
+
+		// Get attribute definition and throw exception if the attribute does not exist
+		AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+
+		// Fetch groups
+		List<Group> groups = getGroupsManagerBl().getGroupsByAttributeValue(sess, attributeDef, attrValue);
+
+		// Filter out groups, for which the user cannot read the attribute
+		groups.removeIf(
+			group -> !AuthzResolver.isAuthorizedForAttribute(
+				sess, AttributeAction.READ, attributeDef, group, true
+			)
+		);
+
+		return groups;
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, Integer attrValue)
+		throws PrivilegeException, AttributeNotExistsException
+	{
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsByAttributeValue_String_int_policy")) {
+			throw new PrivilegeException(sess, "getGroupsByAttributeValue");
+		}
+
+		// Get attribute definition and throw exception if the attribute does not exist
+		AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+
+		// Fetch groups
+		List<Group> groups = getGroupsManagerBl().getGroupsByAttributeValue(sess, attributeDef, attrValue);
+
+		// Filter out groups, for which the user cannot read the attribute
+		groups.removeIf(
+			group -> !AuthzResolver.isAuthorizedForAttribute(
+				sess, AttributeAction.READ, attributeDef, group, true
+			)
+		);
+
+		return groups;
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, Boolean attrValue)
+		throws PrivilegeException, AttributeNotExistsException
+	{
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsByAttributeValue_String_boolean_policy")) {
+			throw new PrivilegeException(sess, "getGroupsByAttributeValue");
+		}
+
+		// Get attribute definition and throw exception if the attribute does not exist
+		AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+
+		// Fetch groups
+		List<Group> groups = getGroupsManagerBl().getGroupsByAttributeValue(sess, attributeDef, attrValue);
+
+		// Filter out groups, for which the user cannot read the attribute
+		groups.removeIf(
+			group -> !AuthzResolver.isAuthorizedForAttribute(
+				sess, AttributeAction.READ, attributeDef, group, true
+			)
+		);
+
+		return groups;
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, List<String> attrValue)
+		throws PrivilegeException, AttributeNotExistsException
+	{
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsByAttributeValue_String_List<String>_policy")) {
+			throw new PrivilegeException(sess, "getGroupsByAttributeValue");
+		}
+
+		// Get attribute definition and throw exception if the attribute does not exist
+		AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+
+		// Fetch groups
+		List<Group> groups = getGroupsManagerBl().getGroupsByAttributeValue(sess, attributeDef, attrValue);
+
+		// Filter out groups, for which the user cannot read the attribute
+		groups.removeIf(
+			group -> !AuthzResolver.isAuthorizedForAttribute(
+				sess, AttributeAction.READ, attributeDef, group, true
+			)
+		);
+
+		return groups;
+	}
+
+	@Override
+	public List<Group> getGroupsByAttributeValue(PerunSession sess, String attrName, Map<String, String> attrValue)
+		throws PrivilegeException, AttributeNotExistsException
+	{
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsByAttributeValue_String_Map<String,String>_policy")) {
+			throw new PrivilegeException(sess, "getGroupsByAttributeValue");
+		}
+
+		// Get attribute definition and throw exception if the attribute does not exist
+		AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+
+		// Fetch groups
+		List<Group> groups = getGroupsManagerBl().getGroupsByAttributeValue(sess, attributeDef, attrValue);
+
+		// Filter out groups, for which the user cannot read the attribute
+		groups.removeIf(
+			group -> !AuthzResolver.isAuthorizedForAttribute(
+				sess, AttributeAction.READ, attributeDef, group, true
+			)
+		);
+
+		return groups;
+	}
+
 }
