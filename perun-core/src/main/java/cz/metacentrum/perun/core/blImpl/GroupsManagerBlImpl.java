@@ -3380,12 +3380,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 									log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
 								}
 							}
+							// also synchronize the group status
+							synchronizeGroupStatus(sess, richMember, subjectFromLoginSource.get("status"), group);
 							idsOfUsersInGroup.remove(user.getId());
 						} else {
 							//he is not yet in group, so we need to create a candidate
 							Candidate candidate = new Candidate(user, source);
 							//for lightweight synchronization we want to skip all update of attributes
 							candidate.setAttributes(new HashMap<>());
+							candidate.setExpectedSyncGroupStatus(subjectFromLoginSource.get("status"));
 							candidatesToAdd.add(candidate);
 						}
 						break;
@@ -3809,8 +3812,53 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//Synchronize userExtSources (add not existing)
 		addUserExtSources(sess, candidate, memberToUpdate);
 
+		if (isDirectGroupMember(sess, group, memberToUpdate)) {
+			synchronizeGroupStatus(sess, memberToUpdate, candidate.getExpectedSyncGroupStatus(), group);
+		}
+
 		//Set correct member Status
 		updateMemberStatus(sess, memberToUpdate);
+	}
+
+	/**
+	 * Update a group member status based on the status in candidate object.
+	 * The member-group expiration attribute is set to now when expiring a member
+	 * and updated based on the group policy if validating a member.
+	 *
+	 * @param sess perun session
+	 * @param memberToSynchronize member being synchronized
+	 * @param newStatusString the group status from the extSource
+	 * @param group the group being synchronized
+	 */
+	private void synchronizeGroupStatus(PerunSession sess, Member memberToSynchronize, String newStatusString, Group group) {
+		MemberGroupStatus previousStatus = getDirectMemberGroupStatus(sess, memberToSynchronize, group);
+		MemberGroupStatus newStatus;
+		if (newStatusString == null) {
+			// default policy is VALID
+			newStatus = MemberGroupStatus.VALID;
+		}
+		else if (newStatusString.equals("VALID")) {
+			newStatus = MemberGroupStatus.VALID;
+		} else if (newStatusString.equals("EXPIRED")) {
+			newStatus = MemberGroupStatus.EXPIRED;
+		} else {
+			// unknown status value default policy VALID
+			log.warn("Unknown value {} of status while synchronizing group {} for user {}.", newStatusString, group.getName(), memberToSynchronize.getUserId());
+			newStatus = MemberGroupStatus.VALID;
+		}
+		if (newStatus.equals(MemberGroupStatus.EXPIRED) && !MemberGroupStatus.EXPIRED.equals(previousStatus)) {
+			try {
+				inactivateMember(sess, memberToSynchronize, group);
+			} catch (MemberNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		} else if (newStatus.equals(MemberGroupStatus.VALID) && !MemberGroupStatus.VALID.equals(previousStatus)) {
+			try {
+				reactivateMember(sess, memberToSynchronize, group);
+			} catch (MemberNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		}
 	}
 
 	/**
@@ -4101,6 +4149,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					// Shouldn't happen, group should always exist
 					throw new ConsistencyErrorException(ex);
 				}
+				synchronizeGroupStatus(sess, member, candidate.getExpectedSyncGroupStatus(), group);
 			}
 			log.info("Group synchronization {}: New member id {} added.", group, member.getId());
 		} catch (AlreadyMemberException e) {
@@ -5937,6 +5986,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} catch (ExtendMembershipException ex) {
 			// This exception should not be thrown for null membershipExpiration attribute
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void inactivateMember(PerunSession sess, Member member, Group group) throws MemberNotExistsException {
+		if (!isDirectGroupMember(sess, group, member)) {
+			throw new MemberNotExistsException("Member does not belong to this group");
+		}
+
+		expireMemberInGroup(sess, member, group);
+		// set member expiration to now
+		Attribute memberExpirationAttr = getMemberExpiration(sess, member, group);
+		memberExpirationAttr.setValue(LocalDate.now().toString());
+		try {
+			getPerunBl().getAttributesManagerBl().setAttribute(sess, member, group, memberExpirationAttr);
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException | MemberGroupMismatchException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 

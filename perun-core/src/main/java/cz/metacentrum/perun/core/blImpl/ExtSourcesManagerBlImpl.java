@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -357,6 +356,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		candidateSync.setMiddleName(subjectData.get("middleName"));
 		candidateSync.setTitleAfter(subjectData.get("titleAfter"));
 		candidateSync.setTitleBefore(subjectData.get("titleBefore"));
+		candidateSync.setExpectedSyncGroupStatus(subjectData.get("status"));
 
 		// Set service user
 		if(subjectData.get("isServiceUser") == null) {
