@@ -962,6 +962,7 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException
 	 * @throws ResourceNotExistsException
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins) throws PrivilegeException, ResourceNotExistsException;
 
 	/**
@@ -987,6 +988,7 @@ public interface ResourcesManager {
 	 * @throws UserNotExistsException
 	 * @throws ResourceNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Resource resource, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException, PrivilegeException, ResourceNotExistsException;
 
 	/**
@@ -1062,6 +1064,7 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
+	@Deprecated
 	List<Group> getAdminGroups(PerunSession sess, Resource resource) throws PrivilegeException, ResourceNotExistsException;
 
 	/**

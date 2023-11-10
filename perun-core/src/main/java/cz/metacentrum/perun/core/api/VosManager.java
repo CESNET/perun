@@ -311,6 +311,7 @@ public interface VosManager {
 	 * @throws RoleNotSupportedException
 	 * @throws VoNotExistsException
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws PrivilegeException, VoNotExistsException, RoleNotSupportedException;
 
 	/**
@@ -337,6 +338,7 @@ public interface VosManager {
 	 * @throws RoleNotSupportedException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws PrivilegeException, VoNotExistsException, RoleNotSupportedException, UserNotExistsException;
 
 	/**
@@ -355,6 +357,7 @@ public interface VosManager {
 	 * @throws PrivilegeException
 	 * @throws RoleNotSupportedException
 	 */
+	@Deprecated
 	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) throws PrivilegeException, VoNotExistsException, RoleNotSupportedException;
 
 	/**

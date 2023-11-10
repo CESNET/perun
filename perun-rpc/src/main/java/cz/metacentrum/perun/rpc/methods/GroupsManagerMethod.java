@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
@@ -14,12 +15,15 @@ import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -1059,13 +1063,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("onlyDirectAdmins")) {
-				return ac.getGroupsManager().getAdmins(ac.getSession(),
-						ac.getGroupById(parms.readInt("group")),
-						parms.readBoolean("onlyDirectAdmins"));
-			} else {
-				return ac.getGroupsManager().getAdmins(ac.getSession(),
-						ac.getGroupById(parms.readInt("group")));
+			try {
+				if(parms.contains("onlyDirectAdmins")) {
+					return AuthzResolver.getAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")), Role.GROUPADMIN, parms.readBoolean("onlyDirectAdmins"));
+				} else {
+					return AuthzResolver.getAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")), Role.GROUPADMIN, false);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	},
@@ -1083,8 +1088,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getDirectAdmins(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")));
+			try {
+				return AuthzResolver.getAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")), Role.GROUPADMIN, true);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1100,8 +1108,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getAdminGroups(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")));
+			try {
+				return AuthzResolver.getAdminGroups(ac.getSession(), ac.getGroupById(parms.readInt("group")), Role.GROUPADMIN);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1136,15 +1147,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("onlyDirectAdmins")) {
-				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
+			try {
+				if(parms.contains("onlyDirectAdmins")) {
+					return AuthzResolver.getRichAdmins(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")),
 						parms.readList("specificAttributes", String.class),
-						parms.readBoolean("allUserAttributes"),
-						parms.readBoolean("onlyDirectAdmins"));
-			} else {
-				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
-						ac.getGroupById(parms.readInt("group")));
+						Role.GROUPADMIN,
+						parms.readBoolean("onlyDirectAdmins"),
+						parms.readBoolean("allUserAttributes"));
+				} else {
+					return AuthzResolver.getRichAdmins(ac.getSession(),
+						ac.getGroupById(parms.readInt("group")),
+						new ArrayList<>(),
+						Role.GROUPADMIN,
+						false,
+						false);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	},
@@ -1163,8 +1183,16 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getRichAdminsWithAttributes(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")));
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					new ArrayList<>(),
+					Role.GROUPADMIN,
+					false,
+					true);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1259,9 +1287,16 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getGroupsManager().getRichAdminsWithSpecificAttributes(ac.getSession(),
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
-					parms.readList("specificAttributes", String.class));
+					parms.readList("specificAttributes", String.class),
+					Role.GROUPADMIN,
+					false,
+					false);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1281,9 +1316,16 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getGroupsManager().getDirectRichAdminsWithSpecificAttributes(ac.getSession(),
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
-					parms.readList("specificAttributes", String.class));
+					parms.readList("specificAttributes", String.class),
+					Role.GROUPADMIN,
+					true,
+					false);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 

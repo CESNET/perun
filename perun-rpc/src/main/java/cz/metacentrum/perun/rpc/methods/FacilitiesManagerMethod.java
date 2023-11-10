@@ -6,7 +6,9 @@ import cz.metacentrum.perun.core.api.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -1119,14 +1121,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			if(parms.contains("onlyDirectAdmins")) {
-				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-						getFacility(ac, parms),
-						parms.readBoolean("onlyDirectAdmins"));
-			} else {
-				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-						getFacility(ac, parms));
+			try {
+				if(parms.contains("onlyDirectAdmins")) {
+					return AuthzResolver.getAdmins(ac.getSession(), getFacility(ac, parms), Role.FACILITYADMIN, parms.readBoolean("onlyDirectAdmins"));
+				} else {
+					return AuthzResolver.getAdmins(ac.getSession(), getFacility(ac, parms), Role.FACILITYADMIN, false);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	},
@@ -1142,9 +1144,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getFacilitiesManager().getDirectAdmins(ac.getSession(),
-					getFacility(ac, parms));
+			try {
+				return AuthzResolver.getAdmins(ac.getSession(), getFacility(ac, parms), Role.FACILITYADMIN, true);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1164,9 +1168,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getFacilitiesManager().getAdminGroups(ac.getSession(),
-					getFacility(ac, parms));
+			try {
+				return AuthzResolver.getAdminGroups(ac.getSession(), getFacility(ac, parms), Role.FACILITYADMIN);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1220,16 +1226,24 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			if(parms.contains("onlyDirectAdmins")) {
-				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
+			try {
+				if(parms.contains("onlyDirectAdmins")) {
+					return AuthzResolver.getRichAdmins(ac.getSession(),
 						getFacility(ac, parms),
 						parms.readList("specificAttributes", String.class),
-						parms.readBoolean("allUserAttributes"),
-						parms.readBoolean("onlyDirectAdmins"));
-			} else {
-				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
-						getFacility(ac, parms));
+						Role.FACILITYADMIN,
+						parms.readBoolean("onlyDirectAdmins"),
+						parms.readBoolean("allUserAttributes"));
+				} else {
+					return AuthzResolver.getRichAdmins(ac.getSession(),
+						getFacility(ac, parms),
+						new ArrayList<>(),
+						Role.FACILITYADMIN,
+						false,
+						false);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	},
@@ -1252,9 +1266,16 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getFacilitiesManager().getRichAdminsWithAttributes(ac.getSession(),
-					getFacility(ac, parms));
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
+					getFacility(ac, parms),
+					new ArrayList<>(),
+					Role.FACILITYADMIN,
+					false,
+					true);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1278,10 +1299,16 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getFacilitiesManager().getRichAdminsWithSpecificAttributes(ac.getSession(),
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
 					getFacility(ac, parms),
-					parms.readList("specificAttributes", String.class));
+					parms.readList("specificAttributes", String.class),
+					Role.FACILITYADMIN,
+					false,
+					false);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
@@ -1307,10 +1334,16 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getFacilitiesManager().getDirectRichAdminsWithSpecificAttributes(ac.getSession(),
+			try {
+				return AuthzResolver.getRichAdmins(ac.getSession(),
 					getFacility(ac, parms),
-					parms.readList("specificAttributes", String.class));
+					parms.readList("specificAttributes", String.class),
+					Role.FACILITYADMIN,
+					true,
+					false);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 
