@@ -103,6 +103,11 @@ sub getVosWhereUserIsMember
 	return Perun::Common::callManagerMethod('getVosWhereUserIsMember', '[]Vo', @_);
 }
 
+sub getGroupsWhereUserIsActive
+{
+	return Perun::Common::callManagerMethod('getGroupsWhereUserIsActive', '[]Group', @_);
+}
+
 sub getGroupsWhereUserIsAdmin
 {
 	return Perun::Common::callManagerMethod('getGroupsWhereUserIsAdmin', '[]Group', @_);

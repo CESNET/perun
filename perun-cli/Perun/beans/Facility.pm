@@ -14,11 +14,13 @@ sub toString {
 	my $id = $self->{_id};
 	my $name = $self->{_name};
 	my $description = $self->{_description};
+	my $uuid = $self->{_uuid};
 
 	my $str = 'Facility (';
 	$str .= "id: $id, " if ($id);
 	$str .= "name: $name, " if ($name);
 	$str .= "description: $description, " if ($description);
+	$str .= "uuid: $uuid, " if ($uuid);
 	$str .= ')';
 
 	return $str;
@@ -59,7 +61,14 @@ sub TO_JSON
 		$description = undef;
 	}
 
-	return { id => $id, name => $name, description => $description, beanName => "Facility" };
+	my $uuid;
+	if (defined($self->{_uuid})) {
+		$uuid = "$self->{_uuid}";
+	} else {
+		$uuid = undef;
+	}
+
+	return { id => $id, name => $name, description => $description, beanName => "Facility", uuid => $uuid };
 }
 
 sub getId
@@ -112,6 +121,10 @@ sub getCommonArrayRepresentation {
 
 sub getCommonArrayRepresentationHeading {
 	return ('ID', 'Name', 'Description');
+}
+sub getUuid {
+	my $self = shift;
+	return $self->{_uuid};
 }
 
 1;
