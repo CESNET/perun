@@ -32,7 +32,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
@@ -200,9 +199,8 @@ public interface FacilitiesManagerBl {
 	 * @param owner
 	 *
 	 * @throws InternalErrorException
-	 * @throws OwnerAlreadyRemovedException
 	 */
-	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyRemovedException;
+	void removeOwner(PerunSession perunSession, Facility facility, Owner owner);
 
 	/**
 	 * Copy all owners of the source facility to the destination facility.

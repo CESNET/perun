@@ -736,10 +736,6 @@ public class JsonErrorHandler {
 
 			return "Can't add owner to Facility. Owner is already assigned.";
 
-		} else if ("OwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Can't remove owner from Facility. Owner is already removed.";
-
 		} else if ("OwnerNotExistsException".equalsIgnoreCase(errorName)) {
 
 			return "Requested Owner (by id) doesn't exists.";

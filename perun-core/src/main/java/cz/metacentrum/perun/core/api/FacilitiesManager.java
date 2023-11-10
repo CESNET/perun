@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -179,7 +178,7 @@ public interface FacilitiesManager {
 	/**
 	 * Remove owner of the facility
 	 */
-	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
+	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException;
 
 	/**
 	 * Remove owners of the facility
@@ -191,9 +190,8 @@ public interface FacilitiesManager {
 	 * @throws PrivilegeException when the principal does not have sufficient rights
 	 * @throws OwnerNotExistsException when owner does not exist
 	 * @throws FacilityNotExistsException when facility does not exist
-	 * @throws OwnerAlreadyRemovedException when owner was already removed from the facility
 	 */
-	void removeOwners(PerunSession sess, Facility facility, List<Owner> owners) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
+	void removeOwners(PerunSession sess, Facility facility, List<Owner> owners) throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException;
 
 	/**
 	 * Copy all owners of the source facility to the destination facility.

@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.bl.OwnersManagerBl;
@@ -40,12 +39,12 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 	}
 
 	@Override
-	public void deleteOwner(PerunSession sess, Owner owner) throws RelationExistsException, OwnerAlreadyRemovedException {
+	public void deleteOwner(PerunSession sess, Owner owner) throws RelationExistsException {
 		this.deleteOwner(sess, owner, false);
 	}
 
 	@Override
-	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws RelationExistsException, OwnerAlreadyRemovedException {
+	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws RelationExistsException {
 		// Check if the owner is assigned to some facility
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getOwnerFacilities(sess, owner);
 
@@ -54,11 +53,7 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 				throw new RelationExistsException("Owner own " + facilities.size() + " facilities");
 			} else {
 				for (Facility facility: facilities) {
-					try {
-						getPerunBl().getFacilitiesManagerBl().removeOwner(sess, facility, owner);
-					} catch (OwnerAlreadyRemovedException e) {
-						throw new InternalErrorException(e);
-					}
+					getPerunBl().getFacilitiesManagerBl().removeOwner(sess, facility, owner);
 				}
 			}
 		}
