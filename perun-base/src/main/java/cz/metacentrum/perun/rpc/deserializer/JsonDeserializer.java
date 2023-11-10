@@ -132,7 +132,7 @@ public class JsonDeserializer extends Deserializer {
 
 	}
 
-	private JsonNode root;
+	private final JsonNode root;
 	private HttpServletRequest req;
 
 	/**
@@ -185,7 +185,7 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isValueNode()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as String");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as String");
 		}
 
 		return node.asText();
@@ -202,7 +202,7 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isValueNode()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as Boolean");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as Boolean");
 		}
 
 		return node.asBoolean();
@@ -217,12 +217,12 @@ public class JsonDeserializer extends Deserializer {
 		}
 		if (!node.isInt()) {
 			if (!node.isTextual()) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
 			} else {
 				try {
 					return Integer.parseInt(node.textValue());
 				} catch (NumberFormatException ex) {
-					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int", ex);
+					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int", ex);
 				}
 			}
 		}
@@ -241,7 +241,7 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isArray()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int[] - not an array");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int[] - not an array");
 		}
 
 		int[] array = new int[node.size()];
@@ -249,7 +249,7 @@ public class JsonDeserializer extends Deserializer {
 		for (int i = 0; i < node.size(); ++i) {
 			JsonNode value = node.get(i);
 			if (!value.isInt()) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
 			}
 			array[i] = node.get(i).intValue();
 		}
@@ -280,13 +280,18 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isObject()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName());
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as " + valueType.getSimpleName()
+			);
 		}
 
 		try {
 			return mapper.readValue(node.traverse(), valueType);
 		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as " + valueType.getSimpleName(), ex);
 		}
 	}
 
@@ -309,7 +314,10 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isArray()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + "> - not an array");
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as List<" + valueType.getSimpleName() + "> - not an array"
+			);
 		}
 
 		try {
@@ -319,7 +327,10 @@ public class JsonDeserializer extends Deserializer {
 			}
 			return list;
 		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + ">", ex);
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as List<" + valueType.getSimpleName() + ">", ex
+			);
 		}
 	}
 
@@ -334,19 +345,28 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isObject()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as PerunBean.");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as PerunBean.");
 		}
 
 		try {
 			String beanName = node.get("beanName").textValue();
 			if(beanName == null) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
+				throw new RpcException(
+					RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+					node + " as List<PerunBean> - missing beanName info"
+				);
 			}
-			return (PerunBean) mapper.readValue(node.traverse(), Class.forName("cz.metacentrum.perun.core.api." + beanName));
+			return (PerunBean) mapper.readValue(
+				node.traverse(),
+				Class.forName("cz.metacentrum.perun.core.api." + beanName)
+			);
 		} catch (ClassNotFoundException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - class not found");
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as List<PerunBean> - class not found"
+			);
 		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as PerunBean");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as PerunBean");
 		}
 	}
 
@@ -368,7 +388,10 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isArray()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - not an array");
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as List<PerunBean> - not an array"
+			);
 		}
 
 		try {
@@ -377,15 +400,29 @@ public class JsonDeserializer extends Deserializer {
 				String beanName = e.get("beanName").textValue();
 
 				if(beanName == null) {
-					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
+					throw new RpcException(
+						RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+						node + " as List<PerunBean> - missing beanName info"
+					);
 				}
-				list.add((PerunBean) mapper.readValue(e.traverse(), Class.forName("cz.metacentrum.perun.core.api." + beanName)));
+				list.add(
+					(PerunBean) mapper.readValue(
+						e.traverse(),
+						Class.forName("cz.metacentrum.perun.core.api." + beanName)
+					)
+				);
 			}
 			return list;
 		} catch (ClassNotFoundException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - class not found");
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as List<PerunBean> - class not found"
+			);
 		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean>", ex);
+			throw new RpcException(
+				RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+				node + " as List<PerunBean>", ex
+			);
 		}
 	}
 
