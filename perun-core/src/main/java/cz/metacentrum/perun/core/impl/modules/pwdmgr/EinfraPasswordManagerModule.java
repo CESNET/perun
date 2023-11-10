@@ -144,16 +144,6 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 					//this is OK
 				}
 
-				extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.ics.muni.cz/idp/shibboleth");
-				ues = new UserExtSource(extSource, userLogin + "@meta.cesnet.cz");
-				ues.setLoa(0);
-
-				try {
-					perunBl.getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch (UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
 				// Store E-INFRA IdP UES
 				extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp.e-infra.cz/idp/");
 				ues = new UserExtSource(extSource, userLogin + "@idp.e-infra.cz");
