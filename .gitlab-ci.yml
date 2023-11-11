@@ -1,0 +1,3 @@
+include:
+  - project: perun/common
+    file: /templates/.gitlab-ci-template.yml
