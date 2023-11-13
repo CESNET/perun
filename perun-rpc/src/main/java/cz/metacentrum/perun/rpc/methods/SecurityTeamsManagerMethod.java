@@ -1,10 +1,14 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -151,15 +155,16 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	getAdmins {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("onlyDirectAdmins")) {                       
-				return ac.getSecurityTeamsManager().getAdmins(ac.getSession(), 
-					ac.getSecurityTeamById(parms.readInt("securityTeam")),
-					 parms.readBoolean("onlyDirectAdmins"));
-			} else {
-				return ac.getSecurityTeamsManager().getAdmins(ac.getSession(),
-				ac.getSecurityTeamById(parms.readInt("securityTeam")),false);
+			try {
+				if(parms.contains("onlyDirectAdmins")) {
+					return AuthzResolver.getAdmins(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")), Role.SECURITYADMIN, parms.readBoolean("onlyDirectAdmins"));
+				} else {
+					return AuthzResolver.getAdmins(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")), Role.SECURITYADMIN, false);
+				}
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
 			}
-        	}             
+		}
 	},
 
 	/*#
@@ -172,9 +177,11 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getSecurityTeamsManager().getAdminGroups(ac.getSession(),
-			ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			try {
+				return AuthzResolver.getAdminGroups(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")), Role.SECURITYADMIN);
+			} catch (RoleCannotBeManagedException ex) {
+				throw new InternalErrorException(ex);
+			}
 		}
 	},
 

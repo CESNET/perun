@@ -1318,6 +1318,7 @@ components:
         userExtSource: { $ref: '#/components/schemas/UserExtSource' }
         additionalUserExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
         attributes: { type: object, additionalProperties: { type: string } }
+        expectedSyncGroupStatus: { type: string }
       discriminator:
         propertyName: beanName
 

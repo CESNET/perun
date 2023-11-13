@@ -12,6 +12,7 @@
 		}
 	],
 	"preset": "conventionalcommits",
+	"extends": "@semantic-release/gitlab-config",
 	"plugins": [
 		"@semantic-release/commit-analyzer",
 		[
@@ -114,11 +115,11 @@
 					"perun-cli/Perun/Agent.pm",
 					"UPGRADE.md"
 				],
-				"message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
+				"message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
 			}
 		],
 		[
-			"@semantic-release/github",
+			"@semantic-release/gitlab",
 			{
 				"assets": [
 					{

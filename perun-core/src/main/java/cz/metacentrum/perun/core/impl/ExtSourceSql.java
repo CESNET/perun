@@ -129,7 +129,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 	}
 
 	// database columns for base attributes
-	private static final String[] BASE_COLUMNS = new String[]{"login", "firstName", "lastName", "middleName", "titleBefore", "titleAfter"};
+	private static final String[] BASE_COLUMNS = new String[]{"login", "firstName", "lastName", "middleName", "titleBefore", "titleAfter", "status"};
 	private final static String[] GROUP_COLUMNS = new String[]{GroupsManagerBlImpl.GROUP_LOGIN, GroupsManagerBlImpl.GROUP_NAME, GroupsManagerBlImpl.PARENT_GROUP_LOGIN, GroupsManagerBlImpl.GROUP_DESCRIPTION};
 	// column name should be matched case-insensitively
 	private static String matchingBaseColumnName(String s) {

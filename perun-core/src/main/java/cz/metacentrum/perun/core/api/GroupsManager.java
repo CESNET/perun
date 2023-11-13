@@ -817,6 +817,7 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws PrivilegeException, GroupNotExistsException;
 
 	/**
@@ -842,6 +843,7 @@ public interface GroupsManager {
 	 * @throws UserNotExistsException
 	 * @throws GroupNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException, PrivilegeException, GroupNotExistsException;
 
 	/**
@@ -925,6 +927,7 @@ public interface GroupsManager {
 	 *
 	 * @return list of all group administrators of the given group
 	 */
+	@Deprecated
 	List<Group> getAdminGroups(PerunSession perunSession, Group group) throws PrivilegeException, GroupNotExistsException;
 
 	/**

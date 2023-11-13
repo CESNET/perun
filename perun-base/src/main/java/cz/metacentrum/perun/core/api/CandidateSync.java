@@ -15,6 +15,7 @@ public class CandidateSync extends User {
 	private RichUserExtSource richUserExtSource;
 	private List<RichUserExtSource> additionalRichUserExtSources;
 	private Map<String, String> attributes;
+	private String expectedSyncGroupStatus;
 
 	public CandidateSync() {
 	}
@@ -27,6 +28,7 @@ public class CandidateSync extends User {
 		this.setTitleBefore(candidate.getTitleBefore());
 		this.setServiceUser(candidate.isServiceUser());
 		this.setSponsoredUser(candidate.isSponsoredUser());
+		this.setExpectedSyncGroupStatus(candidate.getExpectedSyncGroupStatus());
 		setAttributes(candidate.getAttributes());
 		setRichUserExtSource(new RichUserExtSource(candidate.getUserExtSource(), new ArrayList<>()));
 		if (candidate.getAdditionalUserExtSources() != null) {
@@ -57,6 +59,14 @@ public class CandidateSync extends User {
 
 	public void setAdditionalRichUserExtSources(List<RichUserExtSource> additionalRichUserExtSources) {
 		this.additionalRichUserExtSources = additionalRichUserExtSources;
+	}
+
+	public String getExpectedSyncGroupStatus() {
+		return expectedSyncGroupStatus;
+	}
+
+	public void setExpectedSyncGroupStatus(String expectedSyncGroupStatus) {
+		this.expectedSyncGroupStatus = expectedSyncGroupStatus;
 	}
 
 	public List<RichUserExtSource> getUserExtSources() {

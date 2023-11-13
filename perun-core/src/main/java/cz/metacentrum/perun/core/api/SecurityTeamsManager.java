@@ -129,17 +129,19 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws SecurityTeamNotExistsException
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * Gets list of all group administrators of the SecurityTeam.
 	 *
 	 * @param sess
-	 * @param SecurityTeam
+	 * @param securityTeam
 	 * @return list of Group that are admins in the SecurityTeam.
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
+	@Deprecated
 	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
