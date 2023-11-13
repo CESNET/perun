@@ -1,3 +1,10 @@
 include:
   - project: perun/common
     file: /templates/.gitlab-ci-template.yml
+
+# build and run tests
+maven-build:
+  image: $CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX/maven:3-openjdk-17
+  stage: build
+  script:
+    - mvn -B -Dmaven.repo.local=.m2/repository clean install
