@@ -922,10 +922,6 @@ public class JsonErrorHandler {
 
 			return "Requested user external identity doesn't exists.";
 
-		} else if ("UserExtSourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Same user's external identity was already removed from him/her.";
-
 		} else if ("UserNotAdminException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - add vo, group or facility !!

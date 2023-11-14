@@ -34,7 +34,6 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidExcepti
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -790,10 +789,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserExtSourceAlreadyRemovedException {
+	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) {
 		try {
-			int numAffected = jdbc.update("delete from user_ext_sources where id=?", userExtSource.getId());
-			if(numAffected == 0) throw new UserExtSourceAlreadyRemovedException("User: " + user + " , UserExtSource: " + userExtSource);
+			jdbc.update("delete from user_ext_sources where id=?", userExtSource.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
