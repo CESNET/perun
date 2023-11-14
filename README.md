@@ -1,5 +1,5 @@
+[![Perun](https://webcentrum.muni.cz/media/3153530/perun.svg)](https://perun-aai.org)
 
-<a href="https://perun-aai.org"><img style="float: left; position: relative;" src="https://raw.githubusercontent.com/CESNET/perun/master/perun-web-gui/src/main/webapp/img/logo.png"></a>
 ## Identity & Access Management System
 
 Perun is an identity and access management system primary targeting academia environment. Perun is well suited for managing users within organizations and projects and managing access rights to the services.
