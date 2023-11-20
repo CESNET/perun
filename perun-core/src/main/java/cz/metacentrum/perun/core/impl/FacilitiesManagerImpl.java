@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  *
@@ -65,7 +66,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	private static JdbcPerunTemplate jdbc;
 
 	// Part of the SQL script used for getting the Facility object
-	public final static String facilityMappingSelectQuery = " facilities.id as facilities_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, "
+	public final static String facilityMappingSelectQuery = " facilities.id as facilities_id, facilities.uu_id as facilities_uu_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, "
 		+ "facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
 		"facilities.created_by_uid as facilities_created_by_uid, facilities.modified_by_uid as facilities_modified_by_uid";
 
@@ -82,6 +83,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		Facility facility = new Facility();
 
 		facility.setId(resultSet.getInt("facilities_id"));
+		facility.setUuid(resultSet.getObject("facilities_uu_id", UUID.class));
 		facility.setName(resultSet.getString("facilities_name"));
 		facility.setDescription(resultSet.getString("facilities_dsc"));
 		facility.setCreatedAt(resultSet.getString("facilities_created_at"));
@@ -138,19 +140,26 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public Facility createFacility(PerunSession sess, Facility facility) {
 		Utils.notNull(facility.getName(), "facility.getName()");
 
+		int newId;
 		try {
-			int newId = Utils.getNewId(jdbc, "facilities_id_seq");
+			newId = Utils.getNewId(jdbc, "facilities_id_seq");
 
 			jdbc.update("insert into facilities(id, name, dsc, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId,
 					facility.getName(), facility.getDescription(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			facility.setId(newId);
-
 			log.info("Facility {} created", facility);
-
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+
+		Facility newFacility;
+		try {
+			newFacility = getFacilityById(sess, newId);
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to read newly created facility with id: " + newId, e);
+		}
+		facility.setId(newId);
+		facility.setUuid(newFacility.getUuid());
 
 		return facility;
 	}

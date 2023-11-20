@@ -6862,6 +6862,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//Facility.uuid
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("uuid");
+		attr.setDisplayName("Facility uuid");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		//Facility.name
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
@@ -7123,6 +7133,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("id");
 		attr.setDisplayName("Vo id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//Vo.uuid
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("uuid");
+		attr.setDisplayName("Vo uuid");
 		//set attribute rights (with dummy id of attribute - not known yet)
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));

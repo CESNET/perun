@@ -87,7 +87,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	public final static String facilityDestinationMappingSelectQuery = destinationMappingSelectQuery + ", facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
 	public final static String richDestinationMappingSelectQuery = " " + destinationMappingSelectQuery + ", " +
-		"facilities.id as facilities_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, " +
+		"facilities.id as facilities_id, facilities.uu_id as facilities_uu_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, " +
 		"facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
 		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
 		serviceMappingSelectQuery + ", " +
@@ -95,7 +95,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
 	public final static String richDestinationWithLastSuccessfulPropagationMappingSelectQuery = " " + destinationMappingSelectQuery + ", " +
-		"facilities.id as facilities_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, " +
+		"facilities.id as facilities_id, facilities.uu_id as facilities_uu_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, " +
 		"facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
 		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
 		serviceMappingSelectQuery + ", " +

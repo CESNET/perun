@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * VosManager implementation.
@@ -55,7 +56,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private final JdbcPerunTemplate jdbc;
 
-	protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, " +
+	protected final static String voMappingSelectQuery = "vos.id as vos_id, vos.uu_id as vos_uu_id, vos.name as vos_name, vos.short_name as vos_short_name, " +
 		"vos.created_at as vos_created_at, vos.created_by as vos_created_by, vos.modified_by as vos_modified_by, vos.modified_at as vos_modified_at, " +
 		"vos.created_by_uid as vos_created_by_uid, vos.modified_by_uid as vos_modified_by_uid";
 
@@ -69,7 +70,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	 * Converts s ResultSet's row to a Vo instance.
 	 */
 	protected static final RowMapper<Vo> VO_MAPPER = (resultSet, i) ->
-		new Vo(resultSet.getInt("vos_id"), resultSet.getString("vos_name"), resultSet.getString("vos_short_name"), resultSet.getString("vos_created_at"),
+		new Vo(resultSet.getInt("vos_id"), resultSet.getObject("vos_uu_id", UUID.class), resultSet.getString("vos_name"), resultSet.getString("vos_short_name"), resultSet.getString("vos_created_at"),
 			resultSet.getString("vos_created_by"), resultSet.getString("vos_modified_at"), resultSet.getString("vos_modified_by"),
 			resultSet.getInt("vos_created_by_uid") == 0 ? null : resultSet.getInt("vos_created_by_uid"),
 			resultSet.getInt("vos_modified_by_uid") == 0 ? null : resultSet.getInt("vos_modified_by_uid"));
