@@ -22,7 +22,7 @@ public class SCIMDefaults {
 	public static final String URN_SCHEMA = "urn:ietf:params:scim:schemas:core:2.0:Schema";
 	public static final String URN_LIST_RESPONSE = "urn:ietf:params:scim:api:messages:2.0:ListResponseDto";
 
-	public static final String AUTH_DOCUMENTATION = "https://github.com/CESNET/perun/tree/master/perun-scim";
+	public static final String AUTH_DOCUMENTATION = "https://gitlab.ics.muni.cz/perun/perun-idm/perun/-/tree/main/perun-scim";
 	public static final String AUTH_HTTP_NAME = "HTTP Basic";
 	public static final String AUTH_HTTP_DESC = "HTTP Basic Standard";
 	public static final String AUTH_OAUTH2_NAME = "OAuth 2.0";

@@ -61,7 +61,7 @@
 								<artifactId>perun_openapi</artifactId>
 								<artifactVersion>${project.parent.version}</artifactVersion>
 								<artifactDescription>Perun RPC API in Java</artifactDescription>
-								<scmUrl>https://github.com/CESNET/perun</scmUrl>
+								<scmUrl>https://gitlab.ics.muni.cz/perun/perun-idm/perun</scmUrl>
 							</configOptions>
 						</configuration>
 					</execution>

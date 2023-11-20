@@ -971,7 +971,7 @@ public class UiElements {
 		Anchor lnk = new Anchor("Online help", "https://wiki.metacentrum.cz/wiki/Perun");
 		lnk.setTarget("_blank");
 
-		Anchor a2 = new Anchor("BSD 2", "https://github.com/CESNET/perun/blob/master/LICENSE");
+		Anchor a2 = new Anchor("BSD 2", "https://gitlab.ics.muni.cz/perun/perun-idm/perun/-/blob/main/LICENSE");
 		a2.setTarget("_blank");
 
 		String link = PerunWebSession.getInstance().getConfiguration().getCustomProperty("privacyPolicyLink");
