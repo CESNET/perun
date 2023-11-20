@@ -8,3 +8,5 @@ maven-build:
   stage: build
   script:
     - mvn -B -Dmaven.repo.local=.m2/repository clean install
+  rules:
+    - if: "$CI_PIPELINE_SOURCE != 'schedule'"
