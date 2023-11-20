@@ -7,7 +7,7 @@ format and a Maven pom.xml file for generating a Java client for the API.
 
 The OpenAPI description can be opened in the on-line Swagger Editor, just click on this link:
 
-https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2FCESNET%2Fperun%2Fmaster%2Fperun-openapi%2Fopenapi.yml
+https://editor.swagger.io/?url=https%3A%2F%2Fgitlab.ics.muni.cz%2Fperun%2Fperun-idm%2Fperun%2F-%2Fraw%2Fmain%2Fperun-openapi%2Fopenapi.yml
 
 In the right part of the editor, select the desired Perun server and authentication method in the “Server variables” form.
 Then click on the name of the method that you want to call. Click on "Try it out", fill up needed parameters,
@@ -62,7 +62,7 @@ fi
 Client library can be then generated with the command
 ```bash
 java -jar openapi-generator-cli-$GENERATOR_VERSION.jar generate \
-  --input-spec https://raw.githubusercontent.com/CESNET/perun/master/perun-openapi/openapi.yml \ 
+  --input-spec https://gitlab.ics.muni.cz/perun/perun-idm/perun/-/raw/main/perun-openapi/openapi.yml \
   --generator-name python 
  ```
 where the value of the --generator-name option should be the name of the language from the generators list.

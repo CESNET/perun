@@ -4,7 +4,14 @@ include:
 
 # build and run tests
 maven-build:
-  image: $CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX/maven:3-openjdk-17
+  image: $CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX/ubuntu:latest
   stage: build
+  tags: # do not run on k8s
+    - docker
+  before_script:
+    - apt update -y
+    - apt install -yqq openjdk-17-jdk-headless maven docker
   script:
     - mvn -B -Dmaven.repo.local=.m2/repository clean install
+  rules:
+    - if: "$CI_PIPELINE_SOURCE != 'schedule'"

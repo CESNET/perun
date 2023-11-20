@@ -1089,12 +1089,12 @@ GetOptions ("help|h" => sub {print help(); exit 0;},
 # clean and checkout perun sources
 unless (-d $SOURCE_DIR) {
 	print "Checking out latest perun...\n";
-	`git clone http://github.com/CESNET/perun.git perun`;
+	`git clone https://gitlab.ics.muni.cz/perun/perun-idm/perun.git perun`;
 } else {
 	print "Wiping-out previously checkouted perun sources...\n";
 	`rm -rf ./perun/`;
 	print "Checking out latest perun...\n";
-	`git clone http://github.com/CESNET/perun.git perun`;
+	`git clone https://gitlab.ics.muni.cz/perun/perun-idm/perun.git perun`;
 }
 
 # determine all possible versions
