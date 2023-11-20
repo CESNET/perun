@@ -10,7 +10,7 @@ maven-build:
     - docker
   before_script:
     - apt update -y
-    - apt install -yqq openjdk-17-jdk-headless maven docker
+    - apt install -yqq openjdk-17-jdk-headless maven docker openssh-client
   script:
     - mvn -B -Dmaven.repo.local=.m2/repository clean install
   rules:
