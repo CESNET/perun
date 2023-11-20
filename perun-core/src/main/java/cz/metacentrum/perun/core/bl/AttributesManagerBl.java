@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -422,6 +423,32 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames);
+
+	/**
+	 * Appends each member with the user attributes named in the userAttrNames list if the value of
+	 * the attribute for the given member(user) is found in the database.
+	 *
+	 * @param sess perun session
+	 * @param members to decorate with the given user attributes
+	 * @param userAttrNames list of the user attribute names
+	 * @return the original list of RichMembers with added user attributes
+	 *
+	 * @throws InternalErrorException if RuntimeErrorException has been thrown
+	 */
+	List<RichMember> decorateMembersWithDefUserAttributes(PerunSession sess, List<RichMember> members, List<String> userAttrNames);
+
+	/**
+	 * Appends each member with the member attributes named in the memberAttrNames list if the value of
+	 * the attribute for the given member is found in the database.
+	 *
+	 * @param sess perun session
+	 * @param members to decorate with the given member attributes
+	 * @param memberAttrNames list of the member attribute names
+	 * @return the original list of RichMembers with added member attributes
+	 *
+	 * @throws InternalErrorException if RuntimeErrorException has been thrown
+	 */
+	List<RichMember> decorateMembersWithDefMemberAttributes(PerunSession sess, List<RichMember> members, List<String> memberAttrNames);
 
 	/**
 	 * Check if the login is already in use for some namespace or globally

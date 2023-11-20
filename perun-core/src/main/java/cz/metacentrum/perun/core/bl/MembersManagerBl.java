@@ -964,6 +964,21 @@ public interface MembersManagerBl {
 	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers);
 
 	/**
+	 * Optimized variant of {@link #convertMembersToRichMembersWithAttributes(PerunSession, List<RichMember>, List<AttributeDefinition>) convertMembersToRichMembersWithAttribute}.
+	 * Fetches the def user and member attributes in batch methods.
+	 * Any missing attributes for each member are added with null values (meaning their value was not present in the db).
+	 * For other (virt, core, core-managed) attributes the usual convertMembersToRichMembersWithAttribute method is called.
+	 * The method is supposed to be used when a large amount of def attributes needs to be retrieved efficiently.
+	 *
+	 * @param sess
+	 * @param richMembers
+	 * @param attDefs
+	 * @return list of rich members with userAttributes and memberAttributes filled
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> convertMembersToRichMembersWithAttributesBatch(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attDefs);
+
+	/**
 	 * Fill the RichMember object with data from Member, corresponding User object and member attributes.
 	 *
 	 * @param sess
@@ -1720,6 +1735,15 @@ public interface MembersManagerBl {
 	 * @return list of members from given vo who are sponsored
 	 */
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo);
+
+	/**
+	 * Get list of rich members that are sponsored in the VO.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return list of rich members which are sponsored in the given VO
+	 */
+    List<RichMember> getSponsoredRichMembers(PerunSession sess, Vo vo);
 
 	/**
 	 * Removes a sponsor.

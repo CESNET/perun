@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -1563,7 +1565,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getAllSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
+		if(!AuthzResolver.authorizedInternal(sess,"getAllSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getAllSponsoredMembersAndTheirSponsors");
 		}
 
@@ -1571,15 +1573,11 @@ public class MembersManagerEntry implements MembersManager {
 		for (String attrName : attrNames) {
 			attrsDef.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
 		}
-
-		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess,
-			membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo)),
-			attrsDef);
+		List<RichMember> richMembers = membersManagerBl.getSponsoredRichMembers(sess, vo);
+		richMembers = membersManagerBl.convertMembersToRichMembersWithAttributesBatch(sess, richMembers, attrsDef);
 		richMembers = membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers, null, true);
 
-		return richMembers.stream()
-			.map(member -> convertMemberToMemberWithSponsors(sess, member))
-			.collect(Collectors.toList());
+        return convertMembersToMembersWithSponsors(sess, richMembers, vo.getId());
 	}
 
 	@Override
@@ -1794,6 +1792,34 @@ public class MembersManagerEntry implements MembersManager {
 		memberWithSponsors.setSponsors(sponsors);
 
 		return memberWithSponsors;
+	}
+
+	/**
+	 * Converts members to members with sponsors and sets all corresponding sponsors.
+	 *
+	 * @param sess perun session
+	 * @param members sponsored members
+	 * @param voId id of the VO
+	 * @return members with sponsors
+	 */
+	private List<MemberWithSponsors> convertMembersToMembersWithSponsors(PerunSession sess, List<RichMember> members, int voId) {
+		Map<Integer, List<Pair<User, Sponsorship>>> memberIdSponsorsMap = getPerunBl().getUsersManagerBl()
+			.getSponsorsForSponsoredMembersInVo(sess, voId);
+		List<MemberWithSponsors> membersWithSponsors = new ArrayList<>();
+
+		for (RichMember member : members) {
+			MemberWithSponsors memberWithSponsors = new MemberWithSponsors(member);
+			List<Pair<User, Sponsorship>> memberSponsorPairs = memberIdSponsorsMap.get(member.getId());
+			for (Pair<User, Sponsorship> sponsorPair : memberSponsorPairs) {
+				Sponsor sponsor = new Sponsor(sponsorPair.getLeft());
+				Sponsorship sponsorship = sponsorPair.getRight();
+				sponsor.setActive(sponsorship.isActive());
+				sponsor.setValidityTo(sponsorship.getValidityTo());
+				memberWithSponsors.addSponsor(sponsor);
+			}
+			membersWithSponsors.add(memberWithSponsors);
+		}
+		return membersWithSponsors;
 	}
 
 	/**
