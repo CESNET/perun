@@ -87,10 +87,9 @@ public class urn_perun_user_attribute_def_virt_userEligibilities extends UserVir
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName(USER_ELIGIBILITIES_FRIENDLY_NAME);
-		attr.setDisplayName("user eligibilities");
+		attr.setDisplayName("Eligibilities");
 		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Virtual attribute, which collects all eligibilities user ext source attributes " +
-				"with keys and values (map). Only the highest value is selected for each key.");
+		attr.setDescription("Eligibilities collected from all identities of the user with the most recent timestamp for each eligibility.");
 		return attr;
 	}
 }
