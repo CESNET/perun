@@ -8,6 +8,7 @@ maven-build:
   stage: build
   tags: # do not run on k8s
     - docker
+    - privileged
   before_script:
     - apt update -y
     - apt install -yqq openjdk-17-jdk-headless maven docker openssh-client
