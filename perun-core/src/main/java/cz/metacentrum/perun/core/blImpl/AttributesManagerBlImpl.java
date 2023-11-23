@@ -71,6 +71,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
@@ -654,6 +655,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 
 		return getAttributesManagerImpl().getAttributes(sess, user, attrNames);
+	}
+
+	@Override
+	public List<RichMember> decorateMembersWithDefOptUserAttributes(PerunSession sess, List<RichMember> members, List<String> userAttrNames) {
+		return getAttributesManagerImpl().decorateMembersWithDefOptUserAttributes(sess, members, userAttrNames);
+	}
+
+	@Override
+	public List<RichMember> decorateMembersWithDefOptMemberAttributes(PerunSession sess, List<RichMember> members, List<String> memberAttrNames) {
+		return getAttributesManagerImpl().decorateMembersWithDefOptMemberAttributes(sess, members, memberAttrNames);
 	}
 
 	@Override
