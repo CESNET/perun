@@ -93,7 +93,7 @@
 		[
 			"@semantic-release/exec",
 			{
-				"prepareCmd": "./update-versions.sh ${nextRelease.version} && mvn -B -Dmaven.test.skip=true clean install"
+				"prepareCmd": "./update-versions.sh ${nextRelease.version} && mvn -B -DskipTests clean install"
 			}
 		],
 		[
