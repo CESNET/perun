@@ -1,5 +1,29 @@
 Upgrade notes
 
+## [32.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v31.0.0...v32.0.0) (2023-11-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** Methods for obtaining admins return only users with valid
+status in the authorized group and the corresponding VO.
+* **core:** possibility to synchronize group status.
+Expects "status" column in SQLExtSource with values "EXPIRED" or "VALID".
+Candidate object extended with expectedSyncGroupStatus property.
+
+### Features
+
+* **core:** add attribute modules for m365 ([a88c5da](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a88c5dabf437ed9c986a36dae56195bfa51a6ad0))
+* **core:** optimize getAllSponsoredMembersWithSponsors method ([e1f1064](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e1f10645a52b1fbd0c21435cde9fc082c0ba3279))
+* **core:** synchronize group membership status ([e64478a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e64478a76c232290bcf8e104ba17ee880295b58d))
+
+
+### Bug Fixes
+
+* change references from GitHub to GitLab ([9cd1816](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9cd181692134d80dd7fda6b7c6e1629327106e23))
+* **core:** admins-related methods ([d364007](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d3640079c40d072ed9a578dcfb849ca354bc07f3))
+* empty commit to trigger first GitLab release ([fbcfc98](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fbcfc98fb99021036a926316d6b75ac06c2ed456))
+
 ## [31.0.0](https://github.com/CESNET/perun/compare/v30.1.1...v31.0.0) (2023-11-07)
 
 
