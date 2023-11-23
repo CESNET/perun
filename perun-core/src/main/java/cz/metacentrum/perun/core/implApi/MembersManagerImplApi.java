@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -319,6 +320,15 @@ public interface MembersManagerImplApi {
 	 * @throws SponsorshipDoesNotExistException if there is no sponsorship relation between the given member and user
 	 */
 	Sponsorship getSponsorship(PerunSession sess, Member sponsoredMember, User sponsor) throws SponsorshipDoesNotExistException;
+
+	/**
+	 * Get list of rich members that are sponsored in the VO.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return list of rich members which are sponsored in the given VO
+	 */
+	List<RichMember> getSponsoredRichMembers(PerunSession sess, Vo vo);
 
 	/**
 	 * Gets members sponsored by the given user.

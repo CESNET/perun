@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.AssignedMember;
+import cz.metacentrum.perun.core.api.AttributeAction;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
@@ -60,6 +63,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -69,6 +73,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPER;
+import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USEREXTSOURCE_MAPPER;
+import static cz.metacentrum.perun.core.impl.UsersManagerImpl.userExtSourceMappingSelectQuery;
+import static cz.metacentrum.perun.core.impl.UsersManagerImpl.userMappingSelectQuery;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
@@ -157,6 +165,33 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				row++;
 			}
 			return new Paginated<>(members, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
+
+	/**
+	 * Returns ResultSetExtractor that can be used to extract member, user and corresponding
+	 * user external sources and create corresponding rich members.
+	 *
+	 * @return extractor, that can be used to extract returned rich members from db
+	 */
+	private static ResultSetExtractor<List<RichMember>> getRichMemberExtractor() {
+		return resultSet -> {
+			Map<Integer, RichMember> richMemberMap = new HashMap<>();
+			while (resultSet.next()) {
+				Member member = MEMBER_MAPPER.mapRow(resultSet, resultSet.getRow());
+				UserExtSource ues = USEREXTSOURCE_MAPPER.mapRow(resultSet, resultSet.getRow());
+				if (!richMemberMap.containsKey(member.getId())) {
+					User user = USER_MAPPER.mapRow(resultSet, resultSet.getRow());
+					if (user == null) {
+						throw new ConsistencyErrorException("Member " + member + " has non-existin user.");
+					}
+					richMemberMap.put(member.getId(), new RichMember(user, member,
+						ues != null ? new ArrayList<>(List.of(ues)) : new ArrayList<>()));
+					continue;
+				}
+				richMemberMap.get(member.getId()).addUserExtSource(ues);
+			}
+			return new ArrayList<>(richMemberMap.values());
 		};
 	}
 
@@ -622,6 +657,19 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		try {
 			return jdbc.query("SELECT DISTINCT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
 			        "WHERE members.vo_id=? AND ms.active=?", MEMBER_MAPPER, vo.getId(), true);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<RichMember> getSponsoredRichMembers(PerunSession sess, Vo vo) {
+		try {
+			return jdbc.query("SELECT DISTINCT " + memberMappingSelectQuery + ", " + userMappingSelectQuery + ", " +
+				userExtSourceMappingSelectQuery + ", " + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+				" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id)" +
+				" JOIN users ON (users.id=members.user_id) LEFT JOIN user_ext_sources ON (user_ext_sources.user_id = users.id)" +
+				" LEFT JOIN ext_sources on user_ext_sources.ext_sources_id=ext_sources.id" +
+				" WHERE members.vo_id=? AND ms.active=?", getRichMemberExtractor(), vo.getId(), true);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

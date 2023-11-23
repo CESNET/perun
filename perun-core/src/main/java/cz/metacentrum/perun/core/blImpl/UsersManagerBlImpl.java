@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -2068,6 +2069,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new IllegalArgumentException("member "+sponsoredMember.getId()+" is not marked as sponsored");
 		}
 		return getUsersManagerImpl().getSponsors(sess, sponsoredMember);
+	}
+
+	@Override
+	public Map<Integer, List<Pair<User, Sponsorship>>> getSponsorsForSponsoredMembersInVo(PerunSession sess, int voId) {
+		return getUsersManagerImpl().getSponsorsForSponsoredMembersInVo(sess, voId);
 	}
 
 	@Override

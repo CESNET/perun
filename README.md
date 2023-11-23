@@ -1,11 +1,6 @@
+[![Perun](https://webcentrum.muni.cz/media/3153530/perun.svg)](https://perun-aai.org)
 
-<a href="https://perun-aai.org"><img style="float: left; position: relative;" src="https://raw.githubusercontent.com/CESNET/perun/master/perun-web-gui/src/main/webapp/img/logo.png"></a>
 ## Identity & Access Management System
-
-[![conventional commits](https://img.shields.io/badge/semantic--release-conventional-e10079?logo=semantic-release)](https://www.conventionalcommits.org/)
-[![commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](https://commitizen.github.io/cz-cli/)
-[![CI status](https://github.com/CESNET/perun/workflows/test%20build/badge.svg)](https://github.com/cesnet/perun/actions/workflows/maven.yml)
-[![latest release](https://img.shields.io/github/v/release/cesnet/perun)](https://github.com/CESNET/perun/releases)
 
 Perun is an identity and access management system primary targeting academia environment. Perun is well suited for managing users within organizations and projects and managing access rights to the services.
 
@@ -25,9 +20,9 @@ Perun is an identity and access management system primary targeting academia env
 ### Related projects
 
 -	[Perun ansible](https://github.com/CESNET/perun-ansible) - Perun installation automation using Ansible
--	[Perun services](https://github.com/CESNET/perun-services) - connectors Perun uses to manage services
--	[Perun Web Apps](https://github.com/CESNET/perun-web-apps) - new web user interface for Perun using Angular
--	[Perun WUI](https://github.com/CESNET/perun-wui) - current web user interface for Perun
+-	[Perun services](https://gitlab.ics.muni.cz/perun/perun-idm/perun-services) - connectors Perun uses to manage services
+-	[Perun Web Apps](https://gitlab.ics.muni.cz/perun/perun-idm/perun-web-apps) - new web user interface for Perun using Angular
+-	[Perun WUI](https://gitlab.ics.muni.cz/perun/perun-idm/perun-wui) - current web user interface for Perun
 -	[Google Group connector](https://github.com/CESNET/google-group-connector) - allow provisioning of Google groups on your domain
 
 ### License

@@ -17,9 +17,11 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -75,6 +77,9 @@ import java.util.regex.Pattern;
 
 import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.KEY_VALUE_DELIMITER;
 import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.LIST_DELIMITER;
+import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.MAX_SIZE_FOR_IN_CLAUSE;
+import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_SPONSORSHIP_MAPPER;
+import static cz.metacentrum.perun.core.impl.MembersManagerImpl.memberSponsorshipSelectQuery;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPER;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceMappingSelectQuery;
@@ -138,7 +143,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			resultSet.getBoolean("users_sponsored_acc"),
 			resultSet.getInt("users_created_by_uid") == 0 ? null : resultSet.getInt("users_created_by_uid"), resultSet.getInt("users_modified_by_uid") == 0 ? null : resultSet.getInt("users_modified_by_uid"));
 
-	private static final RowMapper<UserExtSource> USEREXTSOURCE_MAPPER = new RowMapper<UserExtSource>() {
+	protected static final RowMapper<UserExtSource> USEREXTSOURCE_MAPPER = new RowMapper<UserExtSource>() {
 		@Override
 		public UserExtSource mapRow(ResultSet rs, int i) throws SQLException {
 			ExtSource extSource = new ExtSource();
@@ -212,6 +217,28 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				row++;
 			}
 			return new Paginated<>(users, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
+
+	/**
+	 * Returns ResultSetExtractor that can be used to extract Sponsors and Sponsorships for the
+	 * given members.
+	 *
+	 * @return extractor, that can be used to extract Sponsors and Sponsorships for the memberIds
+	 */
+	private static ResultSetExtractor<Map<Integer, List<Pair<User, Sponsorship>>>> getSponsorsExtractor() {
+		return resultSet -> {
+			Map<Integer, List<Pair<User, Sponsorship>>> memberIdSponsorsMap = new HashMap<>();
+			while (resultSet.next()) {
+				int memberId = resultSet.getInt("member_id");
+				User sponsor = USER_MAPPER.mapRow(resultSet, resultSet.getRow());
+				Sponsorship sponsorship = MEMBER_SPONSORSHIP_MAPPER.mapRow(resultSet, resultSet.getRow());
+				if (!memberIdSponsorsMap.containsKey(memberId)) {
+					memberIdSponsorsMap.put(memberId, new ArrayList<>());
+				}
+				memberIdSponsorsMap.get(memberId).add(new Pair<>(sponsor, sponsorship));
+			}
+			return memberIdSponsorsMap;
 		};
 	}
 
@@ -1648,6 +1675,20 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+
+	@Override
+	public Map<Integer, List<Pair<User, Sponsorship>>> getSponsorsForSponsoredMembersInVo(PerunSession sess, int voId) {
+		try {
+			return jdbc.query("SELECT members.id as member_id, "
+					+ memberSponsorshipSelectQuery + ", " + userMappingSelectQuery +
+				" FROM members JOIN members_sponsored ON (members.id=members_sponsored.sponsored_id)" +
+				" JOIN users ON (users.id=members_sponsored.sponsor_id)" +
+				" WHERE members.vo_id=? AND members_sponsored.active=?", getSponsorsExtractor(), voId, true);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 
 	@Override
 	public void deleteSponsorLinks(PerunSession sess, User sponsor) {

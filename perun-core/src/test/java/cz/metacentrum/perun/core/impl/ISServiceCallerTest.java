@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISResponseData;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import static cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISServiceCaller.IS_ERROR_STATUS;
 import static cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISServiceCaller.IS_OK_STATUS;
@@ -38,10 +40,10 @@ public class ISServiceCallerTest {
 	private final ISServiceCallerImpl isServiceCaller = ISServiceCallerImpl.getInstance();
 
 	@Test
-	public void testParseOkResponse() {
+	public void testParseOkResponse() throws UnsupportedEncodingException {
 		int reqId = 1;
 		ISResponseData data = isServiceCaller
-				.parseResponse(new ByteArrayInputStream(TEST_OK_RESPONSE.getBytes()), reqId);
+				.parseResponse(new ByteArrayInputStream(TEST_OK_RESPONSE.getBytes(StandardCharsets.UTF_8)), reqId);
 
 		assertThat(data.getStatus()).isEqualTo(IS_OK_STATUS);
 		assertThat(data.getError()).isNull();
@@ -49,10 +51,10 @@ public class ISServiceCallerTest {
 	}
 
 	@Test
-	public void testParseErrResponse() {
+	public void testParseErrResponse() throws UnsupportedEncodingException {
 		int reqId = 1;
 		ISResponseData data = isServiceCaller
-				.parseResponse(new ByteArrayInputStream(TEST_ERR_RESPONSE.getBytes()), reqId);
+				.parseResponse(new ByteArrayInputStream(TEST_ERR_RESPONSE.getBytes(StandardCharsets.UTF_8)), reqId);
 
 		assertThat(data.getStatus()).isEqualTo(IS_ERROR_STATUS);
 		assertThat(data.getError()).isEqualTo(TEST_ERR_RESPONSE_ERROR);

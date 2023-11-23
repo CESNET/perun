@@ -376,9 +376,9 @@
 	<url>https://perun.cesnet.cz/web/</url>
 
 	<scm>
-		<connection>scm:git:https://github.com/CESNET/perun.git</connection>
-		<url>https://github.com/CESNET/perun</url>
-		<developerConnection>scm:git:https://github.com/CESNET/perun.git</developerConnection>
+		<connection>scm:git:https://gitlab.ics.muni.cz/perun/perun-idm/perun.git</connection>
+		<url>https://gitlab.ics.muni.cz/perun/perun-idm/perun</url>
+		<developerConnection>scm:git:https://gitlab.ics.muni.cz/perun/perun-idm/perun.git</developerConnection>
 	</scm>
 
 </project>

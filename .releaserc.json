@@ -123,22 +123,28 @@
 			{
 				"assets": [
 					{
-						"path": "perun-rpc/target/perun-rpc.war"
+						"path": "perun-rpc/target/perun-rpc.war",
+						"filepath": "perun-rpc.war"
 					},
 					{
-						"path": "perun-engine/target/perun-engine.jar"
+						"path": "perun-engine/target/perun-engine.jar",
+						"filepath": "perun-engine.jar"
 					},
 					{
-						"path": "perun-ldapc/target/perun-ldapc.jar"
+						"path": "perun-ldapc/target/perun-ldapc.jar",
+						"filepath": "perun-ldapc.jar"
 					},
 					{
-						"path": "perun-auditlogger/target/perun-auditlogger.jar"
+						"path": "perun-auditlogger/target/perun-auditlogger.jar",
+						"filepath": "perun-auditlogger.jar"
 					},
 					{
-						"path": "perun-web-gui/target/perun-web-gui.war"
+						"path": "perun-web-gui/target/perun-web-gui.war",
+						"filepath": "perun-web-gui.war"
 					},
 					{
-						"path": "perun-cli-java/target/perun-cli-java.jar"
+						"path": "perun-cli-java/target/perun-cli-java.jar",
+						"filepath": "perun-cli-java.jar"
 					}
 				]
 			}

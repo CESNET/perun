@@ -43,7 +43,6 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Validation;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
@@ -55,7 +54,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
@@ -212,6 +210,42 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getSponsoredRichMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getSponsoredRichMembers");
+
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors", "users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess, createdVo, sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess, sponsors, sponsorMember);
+
+		//no sponsored member has been created yet
+		assertTrue(perun.getMembersManagerBl().getSponsoredRichMembers(sess, createdVo).isEmpty());
+
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Petr Draxler");
+		Member sponsoredMember1 = createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", "testmail@mail.com", sponsorUser);
+
+		//should contain one sponsored member
+		List<RichMember> sponsoredMembers = perun.getMembersManagerBl().getSponsoredRichMembers(sess, createdVo);
+
+		assertEquals(1, sponsoredMembers.size());
+		assertTrue(sponsoredMembers.contains(perun.getMembersManager().getRichMemberById(sess, sponsoredMember1.getId())));
+
+		Map<String, String> nameOfUser2 = new HashMap<>();
+		nameOfUser2.put("guestName", "Miloš Zeman");
+		Member sponsoredMember2 = createSponsoredMember(sess, createdVo, "dummy", nameOfUser2, "password", "testmail@mail.com", sponsorUser);
+
+		sponsoredMembers = perun.getMembersManagerBl().getSponsoredRichMembers(sess, createdVo);
+
+		//now should contain two sponsored members
+		assertEquals(2, sponsoredMembers.size());
+		assertTrue(sponsoredMembers.contains(perun.getMembersManager().getRichMemberById(sess, sponsoredMember1.getId())));
+		assertTrue(sponsoredMembers.contains(perun.getMembersManager().getRichMemberById(sess, sponsoredMember2.getId())));
+	}
+
+	@Test
 	public void getSponsoredMembersAndTheirSponsors() throws Exception {
 		System.out.println(CLASS_NAME + "getSponsoredMembersAndTheirSponsors");
 
@@ -241,24 +275,40 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		System.out.println(CLASS_NAME + "getAllSponsoredMembersAndTheirSponsors");
 
 		Member sponsorMember = setUpSponsor(createdVo);
+		Member sponsorMember2 = setUpSponsor2(createdVo);
+		setUpNotSponsor(createdVo);
 		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		User sponsorUser2 = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember2);
 		Group sponsors = new Group("sponsors","users able to sponsor");
 		sponsors = perun.getGroupsManagerBl().createGroup(sess, createdVo, sponsors);
 		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
 		perun.getGroupsManagerBl().addMember(sess, sponsors, sponsorMember);
+		perun.getGroupsManagerBl().addMember(sess, sponsors, sponsorMember2);
 
 		Map<String, String> userName = new HashMap<>();
 		userName.put("guestName", "Ing. Jan Novák");
-		Member sponsoredMember = createSponsoredMember(sess, createdVo, "dummy", userName, "secret", null, sponsorUser);
+		Member sponsoredMember = createSponsoredMember(sess, createdVo, "dummy", userName, "secret", "testMail1@mail.com", sponsorUser);
+		perun.getMembersManagerBl().sponsorMember(sess, sponsoredMember, sponsorUser2);
+		Map<String, String> userName2 = new HashMap<>();
+		userName.put("guestName", "Ing. Ivan Novák");
+		Member sponsoredMember2 = createSponsoredMember(sess, createdVo, "dummy", userName, "secret", "testMail2@mail.com", sponsorUser2);
 
 		ArrayList<String> attrNames = new ArrayList<>();
 		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
 
-		List<MemberWithSponsors> memberWithSponsors = perun.getMembersManager().getAllSponsoredMembersAndTheirSponsors(sess, createdVo, attrNames);
+		List<MemberWithSponsors> membersWithSponsors = perun.getMembersManager().getAllSponsoredMembersAndTheirSponsors(sess, createdVo, attrNames);
 
-		assertEquals(memberWithSponsors.get(0).getMember(), sponsoredMember);
-		assertEquals(memberWithSponsors.get(0).getSponsors().get(0).getUser(), sponsorUser);
-		assertEquals(1, memberWithSponsors.get(0).getSponsors().size());
+		MemberWithSponsors memberWithSponsors1 = membersWithSponsors.stream().filter(member -> member.getMember().getId() == sponsoredMember.getId()).toList().get(0);
+		MemberWithSponsors memberWithSponsors2 = membersWithSponsors.stream().filter(member -> member.getMember().getId() == sponsoredMember2.getId()).toList().get(0);
+
+		assertEquals(2, membersWithSponsors.size());
+		assertEquals(perun.getMembersManagerBl().getRichMember(sess, sponsoredMember), memberWithSponsors1.getMember());
+		assertEquals(2, memberWithSponsors1.getSponsors().size());
+		assertTrue(memberWithSponsors1.getSponsors().stream().map(Sponsor::getUser).toList().contains(sponsorUser));
+		assertTrue(memberWithSponsors1.getSponsors().stream().map(Sponsor::getUser).toList().contains(sponsorUser2));
+		assertEquals(perun.getMembersManagerBl().getRichMember(sess, sponsoredMember2), memberWithSponsors2.getMember());
+		assertEquals(1, memberWithSponsors2.getSponsors().size());
+		assertTrue(memberWithSponsors2.getSponsors().stream().map(Sponsor::getUser).toList().contains(sponsorUser2));
 	}
 
 	@Test
@@ -478,6 +528,50 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue(memberAttributes.contains(memberAttribute1));
 		assertTrue(memberAttributes.contains(memberResourceAttribute1));
 		assertTrue(memberAttributes.contains(memberGroupAttribute1));
+	}
+
+	@Test
+	public void convertMembersToRichMembersWithAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "convertMembersToRichMembersWithAttributes");
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		Member member2 = setUpMember(createdVo);
+
+		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE1");
+		Attribute userAttribute2 = setUpAttribute(String.class.getName(), "testUserAttribute2", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE2");
+		perun.getAttributesManagerBl().setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute2)));
+		Attribute memberAttribute1 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		Attribute memberAttribute2 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_OPT, 0);
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Collections.singletonList(memberAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Collections.singletonList(memberAttribute2)));
+
+		List<AttributeDefinition> attDefs = Arrays.stream(new Attribute[]{userAttribute1, userAttribute2, memberAttribute1, memberAttribute2})
+                .map(AttributeDefinition::new).toList();
+
+		List<RichMember> richMembers = perun.getMembersManager().getRichMembers(sess, createdVo);
+		richMembers = perun.getMembersManagerBl().convertMembersToRichMembersWithAttributesBatch(sess, richMembers, attDefs);
+
+		RichMember richMember1 = richMembers.stream().filter(member -> member.getId() == createdMember.getId()).toList().get(0);
+		RichMember richMember2 = richMembers.stream().filter(member -> member.getId() == member2.getId()).toList().get(0);
+		List<Attribute> userAttributes1 = richMember1.getUserAttributes();
+		List<Attribute> memberAttributes1 = richMember1.getMemberAttributes();
+		List<Attribute> userAttributes2 = richMember2.getUserAttributes();
+		List<Attribute> memberAttributes2 = richMember2.getMemberAttributes();
+
+        assertEquals(2, richMembers.size());
+        assertEquals(2, userAttributes1.size());
+        assertEquals(2, memberAttributes1.size());
+		assertTrue(userAttributes1.contains(userAttribute1));
+		assertTrue(userAttributes1.contains(userAttribute2));
+		assertTrue(memberAttributes1.contains(memberAttribute1));
+		assertTrue(memberAttributes1.contains(memberAttribute2));
+		assertEquals(2, userAttributes2.size());
+		assertEquals(2, memberAttributes2.size());
+		assertNull(userAttributes2.get(0).getValue());
+		assertNull(userAttributes2.get(1).getValue());
+		assertNull(memberAttributes2.get(0).getValue());
+		assertNull(memberAttributes2.get(1).getValue());
 	}
 
 	@Test
