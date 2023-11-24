@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [32.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.0...v32.0.1) (2023-11-24)
+
+
+### Bug Fixes
+
+* empty commit to trigger release ([87ff041](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/87ff041e10d183fbda23cbeed493e361918a5596))
+
 ## [32.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v31.0.0...v32.0.0) (2023-11-23)
 
 
