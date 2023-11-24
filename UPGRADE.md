@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [32.0.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.1...v32.0.2) (2023-11-24)
+
+
+### Bug Fixes
+
+* upload assets as generic package instead ([1462574](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/14625749263e7174fe7012f0162d828286ba8989))
+
 ## [32.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.0...v32.0.1) (2023-11-24)
 
 
