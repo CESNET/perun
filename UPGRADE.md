@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [32.0.3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.2...v32.0.3) (2023-11-24)
+
+
+### Bug Fixes
+
+* label for release assets ([d80bacf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d80bacf95da75c769aa88c9245a16cdc0bff9d93))
+
 ## [32.0.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.1...v32.0.2) (2023-11-24)
 
 
