@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [32.0.4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.3...v32.0.4) (2023-11-24)
+
+
+### Bug Fixes
+
+* remove filepath from .releaserc.json ([413c569](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/413c569ecc12c63748ae000c76124b0b23f9184e))
+
 ## [32.0.3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.2...v32.0.3) (2023-11-24)
 
 
