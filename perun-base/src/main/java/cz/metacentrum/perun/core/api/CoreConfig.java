@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Core configuration values. Bean initialized by Spring.
@@ -105,6 +106,7 @@ public class CoreConfig {
 	private List<String> idpLoginValidityExceptions;
 	private int roleUpdateInterval;
 	private boolean forceHTMLSanitization;
+	private List<String> externalProgramsDependencies;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -921,5 +923,17 @@ public class CoreConfig {
 
 	public void setRoleUpdateInterval(int roleUpdateInterval) {
 		this.roleUpdateInterval = roleUpdateInterval;
+	}
+
+	public List<String> getExternalProgramsDependencies() {
+		return externalProgramsDependencies;
+	}
+
+	public void setExternalProgramsDependencies(List<String> externalProgramsDependencies) {
+		externalProgramsDependencies = externalProgramsDependencies
+			.stream()
+			.filter(programName -> !programName.isEmpty())
+			.collect(Collectors.toList());
+		this.externalProgramsDependencies = externalProgramsDependencies;
 	}
 }
