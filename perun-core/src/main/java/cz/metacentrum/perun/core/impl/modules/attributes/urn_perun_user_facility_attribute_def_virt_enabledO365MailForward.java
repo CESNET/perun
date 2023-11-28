@@ -30,7 +30,7 @@ public class urn_perun_user_facility_attribute_def_virt_enabledO365MailForward e
 		Attribute attr = new Attribute(attributeDefinition);
 		try {
 			Attribute disableForwardAtrr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, A_U_F_DISABLE0365MAILFORWARD);
-			if (disableForwardAtrr.getValue() != null && !disableForwardAtrr.valueAsBoolean()) {
+			if (disableForwardAtrr.getValue() == null || !disableForwardAtrr.valueAsBoolean()) {
 				Attribute o365MailForwardAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, A_U_F_O365MAILFORWARD);
 				String o365MailForward = o365MailForwardAttr.valueAsString();
 				attr.setValue(o365MailForward == null ? "" : o365MailForward);
