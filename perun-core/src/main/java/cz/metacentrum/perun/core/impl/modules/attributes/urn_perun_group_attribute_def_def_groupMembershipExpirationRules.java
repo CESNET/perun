@@ -4,11 +4,18 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
@@ -33,6 +40,28 @@ public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules ex
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) {
 
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		if (attribute.getValue() == null) return;
+		try {
+			if (!attribute.valueAsMap().isEmpty()) {
+				Attribute conflictingAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
+				if (conflictingAttribute.getValue() != null && conflictingAttribute.valueAsString().equals("true")) {
+					throw new WrongReferenceAttributeValueException(attribute, conflictingAttribute, group, null, group, null, conflictingAttribute.toString() + " can not be enabled in order to create group membership expiration rules.");
+				}
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
+		return dependencies;
 	}
 
 	@Override
