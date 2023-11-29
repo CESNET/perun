@@ -16150,6 +16150,20 @@ paths:
   #                                               #
   #################################################
 
+  /json/registrarManager/checkCheckboxHtml:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: checkCheckboxHtml
+      summary: Check whether input html is safe for our application form item checkbox labels
+      parameters:
+        - { name: html, schema: { type: string }, in: query, required: true, description: "string containing the html to check for" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/consolidateIdentityUsingToken:
     get:
       tags:

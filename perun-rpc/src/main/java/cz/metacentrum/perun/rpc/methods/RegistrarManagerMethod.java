@@ -316,6 +316,22 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 
 	},
+
+	/*#
+	 * Checks whether input is valid html for application form item checkbox labels
+	 *
+	 * @param html String input html to check
+	 * @throw InvalidHtmlInputException when the input is not valid
+	 */
+	checkCheckboxHtml {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getRegistrarManager().checkCheckboxHtml(ac.getSession(), parms.readString("html"));
+			return null;
+		}
+	},
+
+
 	/*#
 	 * Create application form for a VO.
 	 *

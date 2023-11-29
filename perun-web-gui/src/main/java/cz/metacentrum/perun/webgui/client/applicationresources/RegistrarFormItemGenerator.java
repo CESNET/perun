@@ -915,7 +915,7 @@ public class RegistrarFormItemGenerator {
 
 		for(String key : keyList){
 
-			final CheckBox checkbox = new CheckBox(boxContents.get(key));
+			final CheckBox checkbox = new CheckBox(boxContents.get(key), true);
 			// pre-fill
 			for (String s : prefilledValue.split("\\|")) {
 				if (key.trim().equals(s.trim())) {

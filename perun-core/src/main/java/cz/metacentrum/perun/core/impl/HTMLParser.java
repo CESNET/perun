@@ -175,6 +175,45 @@ public class HTMLParser {
 	}
 
 	/**
+	 * Sanitizes input checkbox label. Only <a> elements with `href` and `target` attributes are allowed.
+	 * @param input checkbox label to sanitize
+	 * @return true if safe, false otherwise
+	 */
+	public boolean isCheckboxLabelSafe(String input) {
+		if(!BeansUtils.getCoreConfig().getForceHTMLSanitization()){
+			return true;
+		}
+		// keep track of removed attr/elements, don't care which is which, just to know something was removed.
+		List<String> removed = new ArrayList<>();
+
+		HtmlChangeListener<List<String>> listener = new HtmlChangeListener<>() {
+			@Override
+			public void discardedTag(@Nullable List<String> output, String tag) {
+				output.add(tag);
+			}
+
+
+			@Override
+			public void discardedAttributes(@Nullable List<String> output, String tag, String... attributes) {
+				if (tag.equals("a")) {
+					output.addAll(List.of(attributes));
+				}
+			}
+		};
+		HtmlPolicyBuilder p = new HtmlPolicyBuilder();
+		p.allowUrlProtocols(allowedUrlProtocols);
+		p.allowElements("a");
+		p.allowAttributes("href", "target").onElements("a");
+		CssSchema cssWhitelist = CssSchema.withProperties(Arrays.stream(allowedStyles).toList());
+		p.allowStyling(cssWhitelist);
+
+		String sanitized = p.toFactory().sanitize(input, listener, removed);
+
+		// cannot just simply compare strings, order of attributes can differ
+		return removed.isEmpty();
+	}
+
+	/**
 	 * Sanitizes the given input using the predefined policy.
 	 *
 	 * @param input - input to sanitize
