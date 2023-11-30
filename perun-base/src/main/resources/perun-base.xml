@@ -31,6 +31,7 @@
 		<property name="groupFullNameSecondaryRegex" value="${perun.group.fullNameSecondaryRegex}"/>
 		<property name="instanceId" value="${perun.instanceId}"/>
 		<property name="instanceName" value="${perun.instanceName}"/>
+		<property name="externalProgramsDependencies" value="#{'${perun.externalProgramsDependencies}'.split('\s*,\s*')}"/>
 		<property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
 		<property name="mailchangeReplyTo" value="${perun.mailchange.replyTo}"/>
 		<property name="mailchangeSecretKey" value="${perun.mailchange.secretKey}"/>
@@ -152,6 +153,7 @@
 				<prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
+				<prop key="perun.externalProgramsDependencies">ssh-keygen, openssl</prop>
 				<prop key="perun.allowedCorsDomains"></prop>
 				<prop key="perun.queryTimeout">-1</prop>
 				<prop key="perun.roleUpdateInterval">5</prop>

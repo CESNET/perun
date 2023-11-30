@@ -65,6 +65,7 @@ import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 
 import java.util.List;
 import java.util.Map;
@@ -615,8 +616,27 @@ public class PerunBlImpl implements PerunBl {
 	 * Call managers' initialization methods
 	 */
 	public void initialize() {
+		checkExternalProgramDependencies();
 		this.extSourcesManagerBl.initialize(this.getPerunSession());
 		this.auditer.initialize();
+	}
+
+	private void checkExternalProgramDependencies() {
+		List<String> programNames = coreConfig.getExternalProgramsDependencies();
+		for (String programName : programNames) {
+			int exitCode;
+			try {
+				Process process = new ProcessBuilder("which", programName).start();
+				exitCode = process.waitFor();
+			} catch (Exception e) {
+				exitCode = 1;
+			}
+			if (exitCode != 0) {
+				log.error("Required external program {} was not found. Abandoning perun initialization.", programName);
+				throw new BeanInitializationException("Required external program " + programName +
+					" was not found.");
+			}
+		}
 	}
 
 	/**
