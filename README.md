@@ -17,6 +17,10 @@ Perun is an identity and access management system primary targeting academia env
 -	Can handle and join multiple user identities a manage them across your services
 -	All actions are audited
 
+### Repository information
+
+-   All development takes place in [public repository](https://gitlab.ics.muni.cz/perun/perun-idm/perun) on our self-hosted GitLab instance. This repository is mirrored on [GitHub](https://github.com/CESNET/perun) for visibility.
+
 ### Related projects
 
 -	[Perun ansible](https://github.com/CESNET/perun-ansible) - Perun installation automation using Ansible
