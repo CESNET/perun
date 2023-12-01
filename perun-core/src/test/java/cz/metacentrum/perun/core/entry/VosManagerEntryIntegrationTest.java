@@ -114,6 +114,15 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test
+	public void createVoSetsUUID() throws Exception {
+		System.out.println(CLASS_NAME + "createVoSetsUUID");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		assertThat(createdVo.getUuid()).isNotNull();
+		assertThat(createdVo.getUuid().version()).isEqualTo(4);
+	}
+
+	@Test
 	public void getVoById() throws Exception {
 		System.out.println(CLASS_NAME + "getVoById");
 
@@ -128,6 +137,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertEquals(createdVo.getId(), returnedVo.getId());
 		assertEquals("name is not the same", createdVo.getName(), returnedVo.getName());
 		assertEquals("shortName is not the same", createdVo.getShortName(), returnedVo.getShortName());
+		assertThat(returnedVo.getUuid()).isNotNull();
+		assertThat(returnedVo.getUuid().version()).isEqualTo(4);
 	}
 
 	@Test

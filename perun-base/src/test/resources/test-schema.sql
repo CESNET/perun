@@ -1,10 +1,11 @@
--- database version 3.2.18 (don't forget to update insert statement at the end of file)
+-- database version 3.2.19 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- VOS - virtual organizations
 create table vos (
 					  id integer not null,
+					  uu_id uuid not null default gen_random_uuid(),
 					  name varchar not null,   -- full name of VO
 					  short_name varchar not null, -- commonly used name
 					  created_at timestamp default statement_timestamp() not null,
@@ -132,6 +133,7 @@ create table cabinet_thanks (
 -- FACILITIES - sources, devices - includes clusters,hosts,storages...
 create table facilities (
 							 id integer not null,
+							 uu_id uuid not null default gen_random_uuid(),
 							 name varchar not null, --unique name of facility
 							 dsc varchar,
 							 created_at timestamp default statement_timestamp() not null,
@@ -1908,7 +1910,7 @@ create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.18');
+insert into configurations values ('DATABASE VERSION','3.2.19');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
