@@ -1,5 +1,25 @@
 Upgrade notes
 
+## [33.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.4...v33.0.0) (2023-12-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** added uuid column to facilities and vo tables
+* **core:** new config property externalProgramsDependencies
+with value a list of program names required by perun
+
+### Features
+
+* **core:** added uuids to VO and Facility ([023e592](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/023e59288d0cbaa51a10e11acca5750b5710500a))
+* **core:** generic JSON service fixes ([ba1d93e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ba1d93e8ccb1c46e3c789c22b90563e0d8cb28b2))
+* **core:** required external dependencies check when starting perun ([4fdb698](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4fdb69877f9ab3b3f02b8e207748fa66117b6a2c))
+
+
+### Bug Fixes
+
+* 🐛 Fix possible NullPointerException when replacing in tpls ([056d8c7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/056d8c70d1350285b743bc6c8a5a319fed508e98))
+
 ## [32.0.4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.3...v32.0.4) (2023-11-24)
 
 
