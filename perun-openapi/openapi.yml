@@ -529,6 +529,7 @@ components:
       properties:
         name: { type: string }
         description: { type: string, nullable: true }
+        uuid: { type: string, format: uuid }
       discriminator:
         propertyName: beanName
 
@@ -947,6 +948,7 @@ components:
       properties:
         name: { type: string }
         shortName: { type: string }
+        uuid: { type: string, format: uuid }
       discriminator:
         propertyName: beanName
 

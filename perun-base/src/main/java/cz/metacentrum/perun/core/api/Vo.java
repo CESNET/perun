@@ -2,12 +2,15 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
+import java.util.UUID;
+
 /**
  * Vo entity.
  */
-public class Vo extends Auditable implements Comparable<PerunBean> {
+public class Vo extends Auditable implements Comparable<PerunBean>, HasUUID {
 	private String name;
 	private String shortName;
+	private UUID uuid;
 
 	public Vo() {
 	}
@@ -38,6 +41,24 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 		this.shortName = shortName;
 	}
 
+	public Vo(int id, UUID uuid, String name, String shortName, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
+		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
+		if (name == null)  throw new InternalErrorException(new NullPointerException("name is null"));
+		if (shortName == null)  throw new InternalErrorException(new NullPointerException("shortName is null"));
+		this.name = name;
+		this.shortName = shortName;
+		this.uuid = uuid;
+	}
+
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -62,6 +83,7 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
+			", uuid=<").append(getUuid()).append(">").append(
 			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
 			", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">").append(
 			']').toString();
@@ -73,6 +95,7 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id='").append(this.getId()).append('\'').append(
+			", uuid='").append(uuid).append('\'').append(
 			", name='").append(name).append('\'').append(
 			", shortName='").append(shortName).append('\'').append(
 			']').toString();

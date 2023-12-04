@@ -2,8 +2,10 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import cz.metacentrum.perun.registrar.model.Application;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -68,6 +70,16 @@ public class PerunPrincipal {
 		this(actor, extSourceName, extSourceType, extSourceLoa);
 		this.additionalInformations = additionalInformations;
 		this.referer = referer;
+	}
+
+	public PerunPrincipal(Application app, Map<String, String> additionalAttributes) {
+		this(
+			app.getCreatedBy(),
+			app.getExtSourceName(),
+			app.getExtSourceType(),
+			app.getExtSourceLoa(),
+			additionalAttributes
+		);
 	}
 
 	/**

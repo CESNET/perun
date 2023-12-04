@@ -1,14 +1,17 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.UUID;
+
 /**
  * Class represents facility.
  *
  * @author Michal Prochazka
  */
-public class Facility extends Auditable implements Comparable<PerunBean> {
+public class Facility extends Auditable implements Comparable<PerunBean>, HasUUID {
 
 	private String name;
 	private String description;
+	private UUID uuid;
 
 	public Facility() {
 	}
@@ -28,6 +31,15 @@ public class Facility extends Auditable implements Comparable<PerunBean> {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.name = name;
 		this.description = description;
+	}
+
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
 	}
 
 	public String getName() {
@@ -52,6 +64,7 @@ public class Facility extends Auditable implements Comparable<PerunBean> {
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
+			", uuid=<").append(getUuid()).append(">").append(
 			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
 			", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(
 			']').toString();
@@ -61,7 +74,7 @@ public class Facility extends Auditable implements Comparable<PerunBean> {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append(getClass().getSimpleName()).append( ":[id='").append(getId()).append("', name='").append(name).append(
+		return str.append(getClass().getSimpleName()).append( ":[id='").append(getId()).append("', uuid='").append(uuid).append("', name='").append(name).append(
 				"', description='").append(description).append("']").toString();
 	}
 

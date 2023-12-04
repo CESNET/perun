@@ -126,6 +126,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Facility returnedFacility = perun.getFacilitiesManager().getFacilityById(sess, facility.getId());
 		assertNotNull("unable to get Facility by ID",returnedFacility);
 		assertEquals("created and returned facility should be the same", returnedFacility, facility);
+		assertThat(returnedFacility.getUuid()).isNotNull();
+		assertThat(returnedFacility.getUuid().version()).isEqualTo(4);
 
 	}
 
@@ -765,6 +767,18 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("unable to create Facility", returnedFacility);
 		assertEquals("created and returned facility should be the same", returnedFacility, facility);
 
+	}
+
+	@Test
+	public void createFacilitySetsUUID() throws Exception {
+		System.out.println(CLASS_NAME + "createFacilitySetsUUID");
+
+		Facility facility = new Facility();
+		facility.setName("FacilitiesManagerTestSecondFacility");
+		facility.setDescription("TestSecondFacilityDescriptionText");
+		Facility createdFacility = facilitiesManagerEntry.createFacility(sess, facility);
+		assertThat(createdFacility.getUuid()).isNotNull();
+		assertThat(createdFacility.getUuid().version()).isEqualTo(4);
 	}
 
 	@Test
