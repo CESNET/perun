@@ -1,33 +1,43 @@
-[![Perun](https://webcentrum.muni.cz/media/3153530/perun.svg)](https://perun-aai.org)
+# [![Perun](https://webcentrum.muni.cz/media/3153530/perun.svg)](https://perun-aai.org)
 
-## Identity & Access Management System
+## Perun IdM (Identity & Access Management System)
 
 Perun is an identity and access management system primary targeting academia environment. Perun is well suited for managing users within organizations and projects and managing access rights to the services.
 
 ### Features
 
--	Simplify and automate all identity management related workflows 
--	Perform access management by provisioning and de-provisioning users to your services 
--	Support delegation of user/service management responsibilities
--	Unified GUI as a single place for managing everything from personal profile to groups and services settings
--	Organize users within groups and virtual organizations
--	Handle whole user lifecycle from registration to membership expiration / extension
--	Allow users to self register using invitations
--	Support import/export and synchronization between your existing user databases
--	Can handle and join multiple user identities a manage them across your services
--	All actions are audited
+- Simplify and automate all identity management related workflows
+- Perform access management by provisioning and de-provisioning users to your services
+- Support delegation of user/service management responsibilities
+- Unified GUI as a single place for managing everything from personal profile to groups and services settings
+- Organize users within groups and virtual organizations
+- Handle whole user lifecycle from registration to membership expiration / extension
+- Allow users to self register using invitations
+- Support import/export and synchronization between your existing user databases
+- Can handle and join multiple user identities a manage them across your services
+- All actions are audited
 
 ### Repository information
 
--   All development takes place in [public repository](https://gitlab.ics.muni.cz/perun/perun-idm/perun) on our self-hosted GitLab instance. This repository is mirrored on [GitHub](https://github.com/CESNET/perun) for visibility.
+All development takes place in [public repository](https://gitlab.ics.muni.cz/perun/perun-idm/perun) on our self-hosted GitLab instance. This repository is mirrored on [GitHub](https://github.com/CESNET/perun) for visibility.
 
 ### Related projects
 
--	[Perun ansible](https://github.com/CESNET/perun-ansible) - Perun installation automation using Ansible
--	[Perun services](https://gitlab.ics.muni.cz/perun/perun-idm/perun-services) - connectors Perun uses to manage services
--	[Perun Web Apps](https://gitlab.ics.muni.cz/perun/perun-idm/perun-web-apps) - new web user interface for Perun using Angular
--	[Perun WUI](https://gitlab.ics.muni.cz/perun/perun-idm/perun-wui) - current web user interface for Perun
--	[Google Group connector](https://github.com/CESNET/google-group-connector) - allow provisioning of Google groups on your domain
+- [Perun ansible](https://github.com/CESNET/perun-ansible) - Perun installation automation using Ansible
+- [Perun services](https://gitlab.ics.muni.cz/perun/perun-idm/perun-services) - connectors Perun uses to manage services
+- [Perun Web Apps](https://gitlab.ics.muni.cz/perun/perun-idm/perun-web-apps) - new web user interface for Perun using Angular
+- [Perun WUI](https://gitlab.ics.muni.cz/perun/perun-idm/perun-wui) - current web user interface for Perun
+- [Google Group connector](https://github.com/CESNET/google-group-connector) - allow provisioning of Google groups on your domain
+
+### Contributing
+
+This repository uses [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). To construct a proper commit message, run:
+
+```sh
+npx cz
+```
+
+instead of `git commit`.
 
 ### License
 
@@ -35,8 +45,8 @@ Perun is an identity and access management system primary targeting academia env
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
--	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
--	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+- Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
 CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
