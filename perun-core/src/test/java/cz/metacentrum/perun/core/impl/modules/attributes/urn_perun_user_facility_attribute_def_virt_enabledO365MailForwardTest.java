@@ -23,6 +23,7 @@ public class urn_perun_user_facility_attribute_def_virt_enabledO365MailForwardTe
 	private static PerunSessionImpl session;
 	private static Attribute enabledMailFwdAttr;
 	private static Attribute disabledMailFwdAttr;
+	private static Attribute nullMailFwdAttr;
 	private static Attribute o365MailAttr;
 	private static User user;
 	private static Facility facility;
@@ -41,9 +42,11 @@ public class urn_perun_user_facility_attribute_def_virt_enabledO365MailForwardTe
 
 		enabledMailFwdAttr = new Attribute();
 		disabledMailFwdAttr = new Attribute();
+		nullMailFwdAttr = new Attribute();
 		o365MailAttr = new Attribute();
 		enabledMailFwdAttr.setValue(false);
 		disabledMailFwdAttr.setValue(true);
+		nullMailFwdAttr.setValue(null);
 		o365MailAttr.setValue(exampleMail);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":o365MailForward"))).thenReturn(o365MailAttr);
@@ -53,6 +56,15 @@ public class urn_perun_user_facility_attribute_def_virt_enabledO365MailForwardTe
 	public void getAttributeValueWithEnabledFwdTest() throws Exception {
 		System.out.println("urn_perun_user_facility_attribute_def_virt_enabledO365MailForward.GetAttributeValue()");
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":disableO365MailForward"))).thenReturn(enabledMailFwdAttr);
+
+		Attribute testAttr = classInstance.getAttributeValue(session, user, facility, session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "enabledO365MailForward"));
+		assertEquals(exampleMail, testAttr.getValue());
+	}
+
+	@Test
+	public void getAttributeValueWithNullFwdTest() throws Exception {
+		System.out.println("urn_perun_user_facility_attribute_def_virt_enabledO365MailForward.GetAttributeValue()");
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":disableO365MailForward"))).thenReturn(nullMailFwdAttr);
 
 		Attribute testAttr = classInstance.getAttributeValue(session, user, facility, session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "enabledO365MailForward"));
 		assertEquals(exampleMail, testAttr.getValue());
