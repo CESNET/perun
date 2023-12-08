@@ -21,13 +21,7 @@ Perun is an identity and access management system primary targeting academia env
 
 All development takes place in [public repository](https://gitlab.ics.muni.cz/perun/perun-idm/perun) on our self-hosted GitLab instance. This repository is mirrored on [GitHub](https://github.com/CESNET/perun) for visibility.
 
-### Related projects
-
-- [Perun ansible](https://github.com/CESNET/perun-ansible) - Perun installation automation using Ansible
-- [Perun services](https://gitlab.ics.muni.cz/perun/perun-idm/perun-services) - connectors Perun uses to manage services
-- [Perun Web Apps](https://gitlab.ics.muni.cz/perun/perun-idm/perun-web-apps) - new web user interface for Perun using Angular
-- [Perun WUI](https://gitlab.ics.muni.cz/perun/perun-idm/perun-wui) - current web user interface for Perun
-- [Google Group connector](https://github.com/CESNET/google-group-connector) - allow provisioning of Google groups on your domain
+See also other related repositories in the [Perun IdM](https://gitlab.ics.muni.cz/perun/perun-idm) group.
 
 ### Contributing
 
