@@ -1,15 +1,7 @@
 {
 	"branches": [
 		"production",
-		"+([0-9])?(.{+([0-9]),x}).x",
-		{
-			"name": "alpha",
-			"prerelease": true
-		},
-		{
-			"name": "beta",
-			"prerelease": true
-		}
+		"+([0-9])?(.{+([0-9]),x}).x"
 	],
 	"preset": "conventionalcommits",
 	"extends": "@semantic-release/gitlab-config",
