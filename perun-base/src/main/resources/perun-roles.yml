@@ -1048,6 +1048,24 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getHosts_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  getEnrichedHosts_Facility_List<String>_policy:
+        policy_roles:
+          - FACILITYADMIN: Facility
+          - FACILITYOBSERVER: Facility
+          - PERUNOBSERVER:
+          - ENGINE:
+        include_policies:
+          - default_policy
+
   getHostsCount_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -8363,6 +8381,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - ENGINE:
     associated_read_roles:
       - VOOBSERVER
     assignable_to_attributes: true
@@ -8504,6 +8523,7 @@ perun_roles_management:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - SPREGAPPLICATION:
+      - PROXY:
     associated_read_roles:
       - FACILITYOBSERVER
     assignable_to_attributes: true
@@ -8590,6 +8610,7 @@ perun_roles_management:
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYOBSERVER: Facility
       - VOOBSERVER: Vo
+      - RESOURCESELFSERVICE: Resource
     associated_read_roles:
       - RESOURCEOBSERVER
     assignable_to_attributes: true
@@ -8765,6 +8786,7 @@ perun_roles_management:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - SPONSOR: Vo
+      - ENGINE:
     associated_read_roles: []
     assignable_to_attributes: true
     display_name: "Sponsor"
@@ -8788,6 +8810,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - ENGINE:
     associated_read_roles: []
     assignable_to_attributes: false
     display_name: "Organization observer"
@@ -8811,6 +8834,7 @@ perun_roles_management:
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - ENGINE:
     associated_read_roles: []
     assignable_to_attributes: true
     display_name: "Topgroup creator"
