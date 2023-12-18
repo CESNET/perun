@@ -713,8 +713,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				getPaginatedGroupsExtractor(query));
 		}
 		return namedParameterJdbcTemplate.query(
-			"SELECT DISTINCT " + groupMappingSelectQuery +
-				", count(*) OVER() AS total_count " +
+
+			"WITH cte as (SELECT DISTINCT " + groupMappingSelectQuery +
 				"FROM authz JOIN " +
 				(query.getMemberId() == null ? " groups ON authz.group_id=groups.id " :
 				"(SELECT * FROM groups WHERE groups.name!='members' OR groups.parent_group_id IS NOT NULL) AS groups ON authz.group_id=groups.id JOIN " +
@@ -723,10 +723,13 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				"WHERE groups.vo_id=(:voId) AND groups.id IN (:groupsIds) AND (" +
 				(includeDirectRoles ? "authz.user_id=:uid " : "false ") + (includeIndirectRoles ? "or members.user_id=:uid) ": ") ") +
 				(!query.getRoles().isEmpty() ? " AND (authz.role_id IN (SELECT id FROM roles WHERE name IN (:roles))) " : "") +
-				searchQuery +
+				searchQuery + ")" +
+				"SELECT *" +
+				"FROM (" +
+				"TABLE cte" +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
-				" LIMIT (:limit);",
+				" LIMIT (:limit)) sub RIGHT JOIN (SELECT count(*) FROM cte) c(total_count) on true;",
 			namedParams, getPaginatedGroupsExtractor(query));
 	}
 
