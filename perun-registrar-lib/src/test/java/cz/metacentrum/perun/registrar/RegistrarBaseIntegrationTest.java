@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -31,6 +32,7 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailText;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 
+import cz.metacentrum.perun.registrar.model.ApplicationOperationResult;
 import cz.metacentrum.perun.registrar.model.RichApplication;
 import cz.metacentrum.perun.registrar.model.ApplicationsOrderColumn;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
@@ -44,6 +46,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.internet.MimeMessage;
@@ -1207,6 +1210,65 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
+	public void testApproveNormalAndAlreadyApprovedApplication() throws PerunException {
+		User user1 = new User(-1, "User1", "Test1", "", "", "");
+		User user2 = new User(-2, "User2", "Test2", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+
+		Application application1 = prepareApplicationToVo(user1);
+		Application application2 = prepareApplicationToVo(user2);
+		registrarManager.submitApplication(session, application1, new ArrayList<>());
+		registrarManager.submitApplication(session, application2, new ArrayList<>());
+
+		registrarManager.approveApplications(session, new ArrayList<>(List.of(application2.getId())));
+		List<ApplicationOperationResult> approveResultList = registrarManager.approveApplications(session, new ArrayList<>(Arrays.asList(application1.getId(), application2.getId())));
+
+		List<Integer> approvedAppIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED"), false).stream().map(Application::getId).toList();
+		Map<Integer, Exception> approveResult =
+			approveResultList.stream().collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);;
+		assertEquals(approveResult.keySet(), new HashSet<>(approvedAppIds));
+		assertNull(approveResult.get(application1.getId()));
+		assertTrue(approveResult.get(application2.getId()) instanceof RegistrarException);
+		assertEquals(2, approvedAppIds.size());
+		assertThat(approvedAppIds).containsOnly(application1.getId(), application2.getId());
+	}
+
+	@Test
+	public void testApproveDeletedApplicationAndNormalApplications() throws PerunException {
+		User user1 = new User(1, "User1", "Test1", "", "", "");
+		User user2 = new User(2, "User2", "Test2", "", "", "");
+		User user3 = new User(3, "User3", "Test3", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+		user3 = perun.getUsersManagerBl().createUser(session, user3);
+
+		Application application1 = prepareApplicationToVo(user1);
+		Application application2 = prepareApplicationToVo(user2);
+		application2.setCreatedBy("perunTests2");
+		Application application3 = prepareApplicationToVo(user3);
+		application3.setCreatedBy("perunTests3");
+		registrarManager.submitApplication(session, application1, new ArrayList<>());
+		registrarManager.submitApplication(session, application2, new ArrayList<>());
+		registrarManager.submitApplication(session, application3, new ArrayList<>());
+
+		registrarManager.rejectApplications(session, new ArrayList<>(List.of(application3.getId())), "");
+
+		registrarManager.deleteApplications(session, new ArrayList<>(List.of(application3.getId())));
+
+		List<ApplicationOperationResult> approveResultList = registrarManager.approveApplications(session, new ArrayList<>(List.of(application1.getId(), application2.getId(), application3.getId())));
+
+		List<Integer> approvedAppIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED"), false).stream().map(Application::getId).toList();
+		Map<Integer, Exception> approveResult =
+			approveResultList.stream().collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);;
+		assertNull(approveResult.get(application1.getId()));
+		assertNull(approveResult.get(application2.getId()));
+		assertTrue(approveResult.get(application3.getId()) instanceof RegistrarException);
+		assertEquals(2, approvedAppIds.size());
+		assertThat(approvedAppIds).containsOnly(application1.getId(), application2.getId());
+	}
+
+	@Test
 	public void testEmbeddedGroupsSubmission_groupAutoApprove() throws PerunException {
 		GroupsManager groupsManager = perun.getGroupsManager();
 
@@ -1333,17 +1395,45 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		registrarManager.submitApplication(session, application2, new ArrayList<>());
 		registrarManager.submitApplication(session, application3, new ArrayList<>());
 
+		registrarManager.rejectApplications(session, Arrays.asList(application1.getId(), application2.getId(), application3.getId()), "");
 
-		application1.setState(Application.AppState.REJECTED);
-		application2.setState(Application.AppState.REJECTED);
-		application3.setState(Application.AppState.REJECTED);
-
-
-		registrarManager.deleteApplications(session, List.of(application1, application2));
+		registrarManager.deleteApplications(session, List.of(application1.getId(), application2.getId(), application3.getId()));
 
 		List<Integer> applicationIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED", "NEW", "VERIFIED", "REJECTED"), false).stream().map(Application::getId).toList();
+		assertEquals(0, applicationIds.size());
+	}
+
+	@Test
+	public void testDeleteApprovedApplicationAndRejectedApplications() throws PerunException {
+		User user1 = new User(-1, "User1", "Test1", "", "", "");
+		User user2 = new User(-2, "User2", "Test2", "", "", "");
+		User user3 = new User(-3, "User3", "Test3", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+		user3 = perun.getUsersManagerBl().createUser(session, user3);
+
+		Application application1 = prepareApplicationToVo(user1);
+		Application application2 = prepareApplicationToVo(user2);
+		Application application3 = prepareApplicationToVo(user3);
+		registrarManager.submitApplication(session, application1, new ArrayList<>());
+		registrarManager.submitApplication(session, application2, new ArrayList<>());
+		registrarManager.submitApplication(session, application3, new ArrayList<>());
+
+		registrarManager.approveApplication(session, application2.getId());
+		registrarManager.rejectApplications(session, Arrays.asList(application1.getId(), application3.getId()), "");
+
+
+		List<ApplicationOperationResult> deleteResultList = registrarManager.deleteApplications(session, List.of(application1.getId(), application2.getId(), application3.getId()));
+
+		List<Integer> applicationIds = registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED", "NEW", "VERIFIED", "REJECTED"), false).stream().map(Application::getId).toList();
+		Map<Integer, Exception> deleteResult =
+			deleteResultList.stream().collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);;
 		assertEquals(1, applicationIds.size());
-		assertThat(applicationIds).containsOnly(application3.getId());
+		assertThat(applicationIds).containsOnly(application2.getId());
+		assertEquals(new HashSet<>(List.of(application1.getId(), application2.getId(), application3.getId())), deleteResult.keySet());
+		assertNull(deleteResult.get(application1.getId()));
+		assertNull(deleteResult.get(application3.getId()));
+		assertTrue(deleteResult.get(application2.getId()) instanceof RegistrarException);
 	}
 
 	@Test
@@ -1412,6 +1502,32 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 		List<Integer> rejectedAppIds = registrarManager.getApplicationsForVo(session, vo, List.of("REJECTED"), true).stream().map(Application::getId).toList();
 		assertThat(rejectedAppIds).containsOnly(applicationToVo.getId(), applicationToGroup.getId());
+	}
+
+	@Test
+	public void testRejectNormalAndAlreadyRejectedApplications() throws PerunException {
+		User user1 = new User(1, "User1", "Test1", "", "", "");
+		User user2 = new User(2, "User2", "Test2", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(session, user1);
+		user2 = perun.getUsersManagerBl().createUser(session, user2);
+
+		Application application1 = prepareApplicationToVo(user1);
+		application1 = registrarManager.submitApplication(session, application1, new ArrayList<>());
+
+		Application application2 = prepareApplicationToVo(user2);
+		application2.setCreatedBy("perunTests2");
+		application2 = registrarManager.submitApplication(session, application2, new ArrayList<>());
+
+		registrarManager.rejectApplications(session, new ArrayList<>(List.of(application2.getId())), null);
+		List<ApplicationOperationResult> rejectResultList = registrarManager.rejectApplications(session, new ArrayList<>(Arrays.asList(application1.getId(), application2.getId())), null);
+
+		List<Integer> rejectedAppIdsVO = registrarManager.getApplicationsForVo(session, vo, List.of("REJECTED"), false).stream().map(Application::getId).toList();
+		Map<Integer, Exception> rejectResult =
+			rejectResultList.stream().collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);;
+		assertEquals(rejectResult.keySet(), new HashSet<>(rejectedAppIdsVO));
+		assertNull(rejectResult.get(application1.getId()));
+		assertTrue(rejectResult.get(application2.getId()) instanceof RegistrarException);
+		assertThat(rejectedAppIdsVO).containsOnly(application1.getId(), application2.getId());
 	}
 
 	private Application prepareApplicationToVo(User user) {

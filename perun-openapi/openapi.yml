@@ -1602,6 +1602,12 @@ components:
         email: { type: string }
         identities: { type: array, items: { $ref: '#/components/schemas/EnrichedExtSource' } }
 
+    ApplicationOperationResult:
+      type: object
+      properties:
+        applicationId: { type: integer }
+        error: { $ref: "#/components/schemas/PerunException" }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2735,6 +2741,15 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/PaginatedBlockedLogins"
+
+    applicationsOperationResultsResponse:
+      description: "returns List<ApplicationOperationResult>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ApplicationOperationResult"
 
 
 
@@ -16502,7 +16517,7 @@ paths:
         - $ref: '#/components/parameters/ids'
       responses:
         '200':
-          $ref: '#/components/responses/VoidResponse'
+          $ref: '#/components/responses/applicationsOperationResultsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -16536,7 +16551,7 @@ paths:
         - { name: reason, schema: { type: string }, in: query, description: "description of reason", required: false }
       responses:
         '200':
-          $ref: '#/components/responses/VoidResponse'
+          $ref: '#/components/responses/applicationsOperationResultsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -16567,7 +16582,7 @@ paths:
         - $ref: '#/components/parameters/ids'
       responses:
         '200':
-          $ref: '#/components/responses/VoidResponse'
+          $ref: '#/components/responses/applicationsOperationResultsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
