@@ -103,6 +103,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -2066,7 +2067,13 @@ public class MailManagerImpl implements MailManager {
 
 		if (params != null) {
 			sb.append("?");
-			params.forEach((key, value) -> sb.append(key).append("=").append(getUrlEncodedString(value)));
+			final StringJoiner sj = new StringJoiner("&");
+			params.forEach(
+				(key, value) -> sj.add(
+					new StringBuilder().append(key).append("=").append(getUrlEncodedString(value))
+				)
+			);
+			sb.append(sj);
 		}
 		return sb.toString();
 	}
