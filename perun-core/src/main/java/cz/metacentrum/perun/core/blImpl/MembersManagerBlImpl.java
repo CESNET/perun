@@ -1230,6 +1230,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> convertMembersToRichMembersWithAttributesBatch(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef) {
+		if (richMembers == null || richMembers.isEmpty()) {
+			return new ArrayList<>();
+		}
+
 		List<AttributeDefinition> otherAttributesDefinitions = new ArrayList<>();
 		List<AttributeDefinition> defOptAttributesDefinitions = new ArrayList<>();
 

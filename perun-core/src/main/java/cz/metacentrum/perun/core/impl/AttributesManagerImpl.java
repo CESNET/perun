@@ -1296,6 +1296,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<RichMember> decorateMembersWithDefOptUserAttributes(PerunSession sess, List<RichMember> members, List<String> userAttrNames) {
 		List<RichMember> membersToReturn = new ArrayList<>();
+		if (members.isEmpty()) {
+			return members;
+		}
 
 		// only 32000 members in one query as the temporary table created for postgres IN clause uses short
 		for (int batch = 0; batch <= members.size() / (MAX_SIZE_FOR_IN_CLAUSE + 1); batch++) {
@@ -1326,6 +1329,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<RichMember> decorateMembersWithDefOptMemberAttributes(PerunSession sess, List<RichMember> members, List<String> memberAttrNames) {
 		List<RichMember> membersToReturn = new ArrayList<>();
+		if (members.isEmpty()) {
+			return members;
+		}
 
 		// only 32000 members in one query as the temporary table created for postgres IN clause uses short
 		for (int batch = 0; batch <= members.size() / (MAX_SIZE_FOR_IN_CLAUSE + 1); batch++) {
