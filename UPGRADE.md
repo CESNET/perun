@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [33.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.0.0...v33.0.1) (2024-01-02)
+
+
+### Bug Fixes
+
+* 🐛 URL building in Registrar lib ([8617623](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8617623211dd2cdbb3ea070c76726aac87e782d3))
+
 ## [33.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v32.0.4...v33.0.0) (2023-12-04)
 
 
