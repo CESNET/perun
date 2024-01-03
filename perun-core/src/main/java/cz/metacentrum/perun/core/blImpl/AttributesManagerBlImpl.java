@@ -114,6 +114,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attrib
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_userEligibilities;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
@@ -8028,13 +8029,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:virt:userEligibilities
-		attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("userEligibilities");
-		attr.setDisplayName("User eligibilities");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Virtual attribute, which collects all eligibilities user ext source attributes " +
-				"with keys and values (map). Only the highest value is selected for each key.");
+		attr = new AttributeDefinition((new urn_perun_user_attribute_def_virt_userEligibilities()).getAttributeDefinition());
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8137,8 +8132,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setFriendlyName("eligibilities");
-		attr.setDisplayName("eligibilities");
-		attr.setDescription("eligibilities");
+		attr.setDisplayName("Eligibilities (source)");
+		attr.setDescription("Eligibilities calculatedy by proxy with timestamps when they were considered valid for the last time.");
 
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
