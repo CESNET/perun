@@ -411,68 +411,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		// remove admin roles of group
-		List<Facility> facilitiesWhereGroupIsAdmin = getGroupsManagerImpl().getFacilitiesWhereGroupIsAdmin(sess, group);
-		for (Facility facility : facilitiesWhereGroupIsAdmin) {
-			try {
-				AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
-			} catch (GroupNotAdminException e) {
-				log.warn("Can't unset group {} as admin of facility {} due to group not admin exception {}.", group, facility, e);
-			} catch (RoleCannotBeManagedException e) {
-				throw new InternalErrorException(e);
-			}
-		}
-
-		List<Group> groupsWhereGroupIsAdmin = getGroupsManagerImpl().getGroupsWhereGroupIsAdmin(sess, group);
-		for (Group group1 : groupsWhereGroupIsAdmin) {
-			try {
-				AuthzResolverBlImpl.unsetRole(sess, group, group1, Role.GROUPADMIN);
-			} catch (GroupNotAdminException e) {
-				log.warn("Can't unset group {} as admin of group {} due to group not admin exception {}.", group, group1, e);
-			} catch (RoleCannotBeManagedException e) {
-				throw new InternalErrorException(e);
-			}
-		}
-
-		List<Resource> resourcesWhereGroupIsAdmin = getGroupsManagerImpl().getResourcesWhereGroupIsAdmin(sess, group);
-		for (Resource resource : resourcesWhereGroupIsAdmin) {
-			try {
-				AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
-			} catch (GroupNotAdminException e) {
-				log.warn("Can't unset group {} as admin of resource {} due to group not admin exception {}.", group, resource, e);
-			} catch (RoleCannotBeManagedException e) {
-				throw new InternalErrorException(e);
-			}
-		}
-
-		List<Resource> resourcesWhereGroupIsResourceSelfService = getGroupsManagerImpl().getResourcesWhereGroupIsResourceSelfService(sess, group);
-		for (Resource resource : resourcesWhereGroupIsResourceSelfService) {
-			try {
-				perunBl.getResourcesManagerBl().removeResourceSelfServiceGroup(sess, resource, group);
-			} catch (GroupNotAdminException e) {
-				log.warn("Can't unset group {} as admin of resource {} due to group not admin exception {}.", group, resource, e);
-			}
-		}
-
-		List<SecurityTeam> securityTeamsWhereGroupIsAdmin = getGroupsManagerImpl().getSecurityTeamsWhereGroupIsAdmin(sess, group);
-		for (SecurityTeam securityTeam : securityTeamsWhereGroupIsAdmin) {
-			try {
-				AuthzResolverBlImpl.unsetRole(sess, group, securityTeam, Role.SECURITYADMIN);
-			} catch (GroupNotAdminException e) {
-				log.warn("Can't unset group {} as admin of security team {} due to group not admin exception {}.", group, securityTeam, e);
-			} catch (RoleCannotBeManagedException e) {
-				throw new InternalErrorException(e);
-			}
-		}
-
-		List<Vo> vosWhereGroupIsAdmin = getGroupsManagerImpl().getVosWhereGroupIsAdmin(sess, group);
-		for (Vo vo1 : vosWhereGroupIsAdmin) {
-			try {
-				AuthzResolverBlImpl.unsetRole(sess, group, vo1, Role.VOADMIN);
-			} catch (GroupNotAdminException e) {
-				log.warn("Can't unset group {} as admin of facility {} due to group not admin exception {}.", group, vo1, e);
-			} catch (RoleCannotBeManagedException e) {
-				throw new InternalErrorException(e);
+		// remove all manager roles of group
+		if (getGroupsManagerImpl().hasGroupAnyManagerRole(sess, group)) {
+			if (!forceDelete) {
+				throw new RelationExistsException("Group group="+group+" has some manager roles.");
+			} else {
+				getGroupsManagerImpl().removeAllManagerRolesOfGroup(sess, group);
 			}
 		}
 

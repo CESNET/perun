@@ -2275,6 +2275,33 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 1);
 	}
 
+	@Test(expected=RelationExistsException.class)
+	public void deleteGroupWithManagerRole() throws Exception {
+		System.out.println("GroupsManager.deleteGroupWithManagerRole");
+
+		vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+
+		AuthzResolver.setRole(sess, group, group2, Role.GROUPOBSERVER);
+
+		groupsManager.deleteGroup(sess, group, false);
+	}
+
+	@Test(expected=GroupNotExistsException.class)
+	public void forceDeleteGroupWithManagerRole() throws Exception {
+		System.out.println("GroupsManager.forceDeleteGroupWithManagerRole");
+
+		vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+
+		AuthzResolver.setRole(sess, group, group2, Role.GROUPOBSERVER);
+
+		groupsManager.deleteGroup(sess, group, true);
+		groupsManager.getGroupById(sess, group.getId());
+	}
+
 	@Test
 	public void addAndRemoveMemberInGroupWithUnion() throws Exception {
 		System.out.println("GroupsManager.addAndRemoveMemberInGroupWithUnion");
