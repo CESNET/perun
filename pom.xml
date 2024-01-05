@@ -69,7 +69,8 @@
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
-		<flying-saucer-pdf.version>9.3.1</flying-saucer-pdf.version>
+		<flying-saucer-pdf.version>9.4.0</flying-saucer-pdf.version>
+		<bouncycastle.version>1.77</bouncycastle.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20231113-2.0.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
@@ -312,13 +313,12 @@
 				<groupId>org.xhtmlrenderer</groupId>
 				<artifactId>flying-saucer-pdf</artifactId>
 				<version>${flying-saucer-pdf.version}</version>
-				<exclusions>
-					<exclusion>
-						<!-- problem with double-dependency on bcmail-jdk14 versions 1.46 and 1.60 in the same time -->
-						<artifactId>bctsp-jdk14</artifactId>
-						<groupId>org.bouncycastle</groupId>
-					</exclusion>
-				</exclusions>
+			</dependency>
+			<!-- Include bouncycastle lib since it was removed from flying-saucer-pdf -->
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcmail-jdk18on</artifactId>
+				<version>${bouncycastle.version}</version>
 			</dependency>
 
 			<dependency>
