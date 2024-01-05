@@ -35,7 +35,7 @@ instead of `git commit`.
 
 ### License
 
-&copy; 2010-2023 [CESNET](https://www.cesnet.cz/?lang=en), [CERIT-SC](https://www.cerit-sc.cz/en/index.html) and [Masaryk University](https://www.muni.cz/en), all rights reserved.
+&copy; 2010-2024 [CESNET](https://www.cesnet.cz/?lang=en), [CERIT-SC](https://www.cerit-sc.cz/en/index.html) and [Masaryk University](https://www.muni.cz/en), all rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
