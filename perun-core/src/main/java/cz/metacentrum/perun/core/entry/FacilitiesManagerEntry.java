@@ -646,9 +646,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) &&
-			!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getHosts_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getHosts");
 		}
 
@@ -657,7 +655,15 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	@Override
 	public List<EnrichedHost> getEnrichedHosts(PerunSession sess, Facility facility, List<String> attrNames) throws AttributeNotExistsException, FacilityNotExistsException, PrivilegeException {
-		List<Host> hosts = getHosts(sess, facility);
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedHosts_Facility_List<String>_policy", facility)) {
+			throw new PrivilegeException(sess, "getEnrichedHosts");
+		}
+
+		List<Host> hosts = getFacilitiesManagerBl().getHosts(sess, facility);
 		List<EnrichedHost> enrichedHosts = new ArrayList<>();
 
 		if (hosts.isEmpty()) return enrichedHosts;
