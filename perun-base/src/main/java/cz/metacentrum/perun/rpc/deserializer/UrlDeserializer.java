@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
  */
 public class UrlDeserializer extends Deserializer {
 
-	private HttpServletRequest req;
+	private final HttpServletRequest req;
 
 	/**
 	 * Create deserializer for URL data format.
@@ -112,10 +112,10 @@ public class UrlDeserializer extends Deserializer {
 	}
 
 	public String readAll() {
-		StringBuffer stringParams = new StringBuffer();
+		StringBuilder stringParams = new StringBuilder();
 		for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements() ;) {
-			String paramName = (String) parameters.nextElement();
-			stringParams.append(paramName + "=" + req.getParameter(paramName) + ",");
+			String paramName = parameters.nextElement();
+			stringParams.append(paramName).append("=").append(req.getParameter(paramName)).append(",");
 		}
 		return stringParams.toString();
 	}
