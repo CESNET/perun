@@ -6746,6 +6746,38 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getGroupsPageCorrectTotal() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPageCorrectTotal");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		perun.getGroupsManager().addMember(sess, group, member);
+
+		AuthzResolver.setRole(sess, user, group2, Role.GROUPADMIN);
+		AuthzResolver.setRole(sess, group, group3, Role.GROUPOBSERVER);
+		AuthzResolver.setRole(sess, user, group3, Role.GROUPOBSERVER);
+
+		sess.getPerunPrincipal().setUser(user);
+
+		GroupsPageQuery query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, List.of(Role.GROUPADMIN, Role.GROUPOBSERVER), new ArrayList<>());
+		Paginated<RichGroup> result = groupsManager.getGroupsPage(sess, vo, query, List.of());
+		assertEquals(result.getData().size(), result.getTotalCount());
+
+		query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.ID, List.of(Role.GROUPADMIN), new ArrayList<>());
+		result = groupsManager.getGroupsPage(sess, vo, query, List.of());
+		assertEquals(result.getData().size(), result.getTotalCount());
+
+		query = new GroupsPageQuery(10, 0, SortingOrder.ASCENDING, GroupsOrderColumn.NAME, List.of(Role.GROUPADMIN, Role.GROUPOBSERVER, Role.GROUPMEMBERSHIPMANAGER), new ArrayList<>());
+		result = groupsManager.getGroupsPage(sess, vo, query, List.of());
+		assertEquals(result.getData().size(), result.getTotalCount());
+	}
+
+	@Test
 	public void getGroupsPageByRolesWithMemberId() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupsPageByRoles");
 
