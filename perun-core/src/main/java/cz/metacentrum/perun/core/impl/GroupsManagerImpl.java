@@ -505,6 +505,21 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getServiceGroupMembers(PerunSession sess, Group group) {
+		try {
+			return jdbc.query(
+				"SELECT DISTINCT " + MembersManagerImpl.memberMappingSelectQuery + ", " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+					" FROM members JOIN users ON (users.id=members.user_id)" +
+					" JOIN groups_members ON (groups_members.member_id=members.id)" +
+					" WHERE groups_members.group_id=? AND users.service_acc=true",
+				MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP, group.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+
+	@Override
 	public List<Group> getGroups(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("select  " + groupMappingSelectQuery + " from groups where vo_id=? order by " +

@@ -1307,6 +1307,21 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get RichMembers from a VO who are service users.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return List of RichMembers from the VO, who are service users
+	 */
+	getServiceUserRichMembers {
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getServiceUserRichMembers(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
  	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
  	 *
  	 * @param vo int Vo <code>id</code>

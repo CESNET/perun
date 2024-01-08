@@ -621,6 +621,15 @@ public interface MembersManagerBl {
 	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws AttributeNotExistsException;
 
 	/**
+	 * Get RichMembers from a VO who are service users.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return List of RichMembers from the VO, who are service users
+	 */
+	List<RichMember> getServiceUserRichMembers(PerunSession sess, Vo vo);
+
+	/**
 	 * Get all RichMembers with attributes specific for list of attrsNames from the vo.
 	 * If attrsNames is empty or null return all attributes for specific richMembers.
 	 *

@@ -393,6 +393,43 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getServiceUserRichMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getServiceUserRichMembers");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(123, "test", "test"));
+
+		User serviceUser = new User();
+		serviceUser.setFirstName("Test");
+		serviceUser.setLastName("Lastest");
+		serviceUser.setServiceUser(true);
+		serviceUser = perun.getUsersManagerBl().createUser(sess, serviceUser);
+
+		User user2 = new User();
+		user2.setFirstName("Test2");
+		user2.setLastName("Test2");
+		user2 = perun.getUsersManagerBl().createUser(sess, user2);
+
+		User user3 = new User();
+		user3.setFirstName("Test3");
+		user3.setLastName("Test3");
+		user3 = perun.getUsersManagerBl().createUser(sess, user3);
+
+		Member serviceMember = perun.getMembersManager().createMember(sess, vo, serviceUser);
+		MembershipType type = MembershipType.DIRECT;
+		serviceMember.setMembershipType(type);
+
+		perun.getMembersManager().createMember(sess, vo, user2);
+		perun.getMembersManager().createMember(sess, vo, user3);
+
+		List<RichMember> serviceUserRichMembers = membersManagerEntry.getServiceUserRichMembers(sess, vo);
+
+		assertTrue(serviceUserRichMembers.size() == 1);
+		assertTrue(serviceUserRichMembers.get(0).getUser().equals(serviceUser));
+		assertTrue(serviceUserRichMembers.get(0).getMembershipType().equals(type));
+	}
+
+
+	@Test
 	public void getCompleteRichMembers() throws Exception {
 		System.out.println(CLASS_NAME + "getCompleteRichMembers");
 
