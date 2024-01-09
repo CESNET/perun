@@ -1917,7 +1917,7 @@ public class MailManagerImpl implements MailManager {
 				if (group != null) {
 					params.put("group", group.getName());
 				}
-				text = buildUrl(mailText, params, "registrar");
+				text = buildUrl(text, params, "registrar");
 			}
 			mailText = replaceNullSafe(mailText, FIELD_APP_GUI_URL, text);
 		}
@@ -1947,7 +1947,7 @@ public class MailManagerImpl implements MailManager {
 						if (group != null) {
 							params.put("group", group.getName());
 						}
-						newValue = buildUrl(mailText, params, namespace, "registrar");
+						newValue = buildUrl(newValue, params, namespace, "registrar");
 					}
 				}
 				// substitute {appGuiUrl-authz} with actual value or empty string
