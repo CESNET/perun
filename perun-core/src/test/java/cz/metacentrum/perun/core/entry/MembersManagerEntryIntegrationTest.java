@@ -3100,6 +3100,82 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getGroupsMembersPageSortsByOrganization() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsMembersPageSortsByOrganization");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Group group = new Group("testPaginationGroup", "Group for testing pagination of members");
+		group = groupsManagerEntry.createGroup(sess, vo, group);
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		Member member2 = setUpMember(vo, "Stinson", "John");
+
+		groupsManagerEntry.addMember(sess, group, member1);
+		groupsManagerEntry.addMember(sess, group, member2);
+
+		AttributeDefinition memberOrgDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF + ":organization");
+		Attribute memberOrg = new Attribute(memberOrgDef);
+		memberOrg.setValue("ZOrg");
+		perun.getAttributesManagerBl().setAttribute(sess, member1, memberOrg);
+		memberOrg.setValue("AOrg");
+		perun.getAttributesManagerBl().setAttribute(sess, member2, memberOrg);
+
+		MembersPageQuery query = new MembersPageQuery(5, 0, SortingOrder.ASCENDING, MembersOrderColumn.ORGANIZATION, "John", List.of(Status.VALID, Status.INVALID, Status.EXPIRED, Status.DISABLED), group.getId(), List.of(MemberGroupStatus.VALID, MemberGroupStatus.EXPIRED));
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of(AttributesManager.NS_MEMBER_ATTR_DEF + ":organization"));
+
+		assertThat(result.getData())
+			.hasSize(2);
+		assertThat(result.getData().get(0))
+			.isEqualTo(member2);
+	}
+
+	@Test
+	public void getGroupsMembersPageSortsByEmail() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsMembersPageSortsByEmail");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		Group group = new Group("testPaginationGroup", "Group for testing pagination of members");
+		group = groupsManagerEntry.createGroup(sess, vo, group);
+
+		Member member1 = setUpMember(vo, "Doe", "John");
+		Member member2 = setUpMember(vo, "Stinson", "John");
+
+		groupsManagerEntry.addMember(sess, group, member1);
+		groupsManagerEntry.addMember(sess, group, member2);
+
+		AttributeDefinition memberMailDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF + ":mail");
+		Attribute memberMail = new Attribute(memberMailDef);
+		memberMail.setValue("zmail@test.com");
+		perun.getAttributesManagerBl().setAttribute(sess, member1, memberMail);
+		memberMail.setValue("amail@test.com");
+		perun.getAttributesManagerBl().setAttribute(sess, member2, memberMail);
+
+		MembersPageQuery query = new MembersPageQuery(5, 0, SortingOrder.ASCENDING, MembersOrderColumn.EMAIL, "John", List.of(Status.VALID, Status.INVALID, Status.EXPIRED, Status.DISABLED), group.getId(), List.of(MemberGroupStatus.VALID, MemberGroupStatus.EXPIRED));
+		Paginated<RichMember> result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of(AttributesManager.NS_MEMBER_ATTR_DEF + ":mail"));
+
+		assertThat(result.getData())
+			.hasSize(2);
+		assertThat(result.getData().get(0))
+			.isEqualTo(member2);
+
+		AttributeDefinition userPreferredMailDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+		Attribute userPreferredMail = new Attribute(userPreferredMailDef);
+		userPreferredMail.setValue("apreferredmail@test.com");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManager().getUserByMember(sess, member1), userPreferredMail);
+		userPreferredMail.setValue("zpreferredmail@test.com");
+		perun.getAttributesManagerBl().setAttribute(sess, perun.getUsersManager().getUserByMember(sess, member2), userPreferredMail);
+
+		result = perun.getMembersManager().getMembersPage(sess, vo, query, List.of(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+
+		assertThat(result.getData())
+			.hasSize(2);
+		assertThat(result.getData().get(0))
+			.isEqualTo(member1);
+	}
+
+	@Test
 	public void getMembersPageSortsByStatus() throws Exception {
 		System.out.println(CLASS_NAME + "getMembersPageSortsByStatus");
 
