@@ -823,17 +823,17 @@ public interface GroupsManagerImplApi {
 	Map<Integer, MemberGroupStatus> getTotalGroupStatusForMembers(PerunSession session, Group group, List<Member> members);
 
 	/**
-	 * Returns all facilities where given group si FACILITYADMIN.
+	 * Returns all facilities where given group is FACILITYADMIN.
 	 *
 	 * @param session session
 	 * @param group group
-	 * @return list of all facilities where given group si FACILITYADMIN
+	 * @return list of all facilities where given group is FACILITYADMIN
 	 * @throws InternalErrorException
 	 */
 	List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession session, Group group);
 
 	/**
-	 * Returns all groups where given group si GROUPADMIN.
+	 * Returns all groups where given group is GROUPADMIN.
 	 *
 	 * @param session session
 	 * @param group group
@@ -841,36 +841,6 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupsWhereGroupIsAdmin(PerunSession session, Group group);
-
-	/**
-	 * Returns all resources where given group si RESOURCEADMIN.
-	 *
-	 * @param session session
-	 * @param group group
-	 * @return list of all resources where given group is RESOURCEADMIN
-	 * @throws InternalErrorException
-	 */
-	List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group);
-
-	/**
-	 * Returns all resources where given group si RESOURCESELFSERVICE.
-	 *
-	 * @param session session
-	 * @param group group
-	 * @return list of all resources where given group is RESOURCESELFSERVICE
-	 * @throws InternalErrorException
-	 */
-	List<Resource> getResourcesWhereGroupIsResourceSelfService(PerunSession session, Group group);
-
-	/**
-	 * Returns all security teams where given group si SECURITYADMIN.
-	 *
-	 * @param session session
-	 * @param group group
-	 * @return list of all security teams where given group is SECURITYADMIN
-	 * @throws InternalErrorException
-	 */
-	List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group);
 
 	/**
 	 * Returns all vos where given group si VOADMIN.
@@ -881,6 +851,24 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group);
+
+	/**
+	 * Checks if the given group has any related manager roles
+	 *
+	 * @param session session
+	 * @param group group
+	 * @throws InternalErrorException for the SQL error
+	 */
+	boolean hasGroupAnyManagerRole(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 * Removes all manager roles related to the given group
+	 *
+	 * @param session session
+	 * @param group group
+	 * @throws InternalErrorException for the SQL error
+	 */
+	void removeAllManagerRolesOfGroup(PerunSession session, Group group) throws InternalErrorException;
 
 	/**
 	 * Returns all groups which can be registered into during vo registration and are representing options of the

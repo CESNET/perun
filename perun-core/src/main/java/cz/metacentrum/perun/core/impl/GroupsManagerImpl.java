@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RoleAssignmentType;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -1280,44 +1279,29 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group) {
-		try {
-			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from authz join resources " +
-					"on authz.resource_id=resources.id where authorized_group_id=? and authz.role_id=(select id from roles where name='resourceadmin')",
-					ResourcesManagerImpl.RESOURCE_MAPPER, group.getId());
-		}  catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesWhereGroupIsResourceSelfService(PerunSession session, Group group) {
-		try {
-			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from authz join resources " +
-					"on authz.resource_id=resources.id where authorized_group_id=? and authz.role_id=(select id from roles where name='resourceselfservice')",
-				ResourcesManagerImpl.RESOURCE_MAPPER, group.getId());
-		}  catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group) {
-		try {
-			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery + " from authz join security_teams " +
-					"on authz.security_team_id=security_teams.id where authorized_group_id=? and authz.role_id=(select id from roles where name='securityadmin')",
-					SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, group.getId());
-		}  catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
 	public List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group) {
 		try {
 			return jdbc.query("select " + VosManagerImpl.voMappingSelectQuery + " from authz join vos on authz.vo_id=vos.id " +
 					"where authorized_group_id=? and authz.role_id=(select id from roles where name='voadmin')", VosManagerImpl.VO_MAPPER, group.getId());
 		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean hasGroupAnyManagerRole(PerunSession session, Group group) {
+		try {
+			return 0 < jdbc.queryForInt("select count(1) from authz where authorized_group_id=?", group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void removeAllManagerRolesOfGroup(PerunSession session, Group group) {
+		try {
+			jdbc.update("delete from authz where authorized_group_id=?", group.getId());
+		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
