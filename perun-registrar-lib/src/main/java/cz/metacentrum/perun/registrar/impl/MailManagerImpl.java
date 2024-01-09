@@ -1963,17 +1963,12 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains(FIELD_APP_DETAIL_URL)) {
 			String text = getPerunUrl(vo, group);
 			if (StringUtils.hasText(text)) {
-				text = buildUrl(text, Map.of("id", String.valueOf(appId)), "gui/?vo/appdetail");
-				/*
-				String separator = "#";
-				for (String s : getFedAuthz()) {
-					if (text.endsWith(s+"/gui/")) {
-						separator = "?";
-						break;
-					}
+				if (!text.endsWith("/")) {
+					text += "/";
 				}
-				text += separator + "vo/appdetail?id="+appId;
-				*/
+				text += "gui/?vo/appdetail?id="+appId;
+				// FIXME - buildUrl() handles only valid URL and not our fake "anchor" url for navigating in OLD GUI
+				//text = buildUrl(text, Map.of("id", String.valueOf(appId)), "gui/?vo/appdetail");
 			}
 			mailText = replaceNullSafe(mailText, FIELD_APP_DETAIL_URL, text);
 		}
@@ -2013,8 +2008,11 @@ public class MailManagerImpl implements MailManager {
 					} else {
 						newValue = getPerunUrl(vo, group);
 						if (StringUtils.hasText(newValue)) {
-							newValue = buildUrl(newValue, Map.of("vo/appdetail?id", String.valueOf(appId)), namespace, "gui");
-							//newValue += getFedAuthz().contains(namespace) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId;
+							if (!newValue.endsWith("/")) newValue += "/";
+							newValue += namespace + "/gui/";
+							newValue += "?vo/appdetail?id="+appId;
+							// FIXME - buildUrl() handles only valid URL and not our fake "anchor" url for navigating in OLD GUI
+							//newValue = buildUrl(newValue, Map.of("vo/appdetail?id", String.valueOf(appId)), namespace, "gui");
 						}
 					}
 				}
