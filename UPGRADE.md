@@ -1,5 +1,14 @@
 Upgrade notes
 
+## [33.0.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.0.1...v33.0.2) (2024-01-10)
+
+
+### Bug Fixes
+
+* **core:** update roles policies to match previous admin method privileges ([c374e3c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c374e3c04115689173dee65411c4f2b4bddcf840))
+* **registrar:** correctly replace {appDetailUrl} ([9d6ed79](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9d6ed79a8404b794f7d28c0e3877eab2d338c72d))
+* **registrar:** correctly replace {appGuiUrl} ([8ab97ba](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8ab97ba6a36dd405c9730e2a6d1705df7e5d8417))
+
 ## [33.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.0.0...v33.0.1) (2024-01-02)
 
 
