@@ -811,9 +811,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		String whereBasedOnThePolicy = getWhereConditionBasedOnThePolicy(sess, query, policy, vo);
 
 		String groupByQuery = "GROUP BY members.user_id, members.id";
-		if (query.getGroupId() == null) {
-			groupByQuery += query.getSortColumn().getSqlGroupBy();
-		} else {
+		groupByQuery += query.getSortColumn().getSqlGroupBy();
+		if (query.getGroupId() != null) {
 			groupByQuery += ", users.last_name, users.first_name, groups_members.group_id, groups_members.source_group_id, groups_members.membership_type, groups_members.source_group_status";
 		}
 
