@@ -782,4 +782,13 @@ public interface RegistrarManager {
 	 * @throws PerunException unable to invite some candidate
 	 */
 	void inviteMemberCandidates(PerunSession sess, Vo vo, Group group, String lang, List<MemberCandidate> candidates) throws PerunException;
+
+	/**
+	 * Checks whether input is valid html for application form item checkbox labels
+	 *
+	 * @param sess sess
+	 * @param html the input html
+	 * @throws InvalidHtmlInputException when not valid for our checkbox policy
+	 */
+	void checkCheckboxHtml(PerunSession sess, String html) throws InvalidHtmlInputException;
 }
