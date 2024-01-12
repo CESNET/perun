@@ -498,6 +498,15 @@ public interface GroupsManagerBl {
 	List<Member> getGroupMembers(PerunSession perunSession, Group group);
 
 	/**
+	 * Return a list of all group members, who are service users
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @return list of Members from given group who are service users
+	 */
+	List<Member> getServiceGroupMembers(PerunSession perunSession, Group group);
+
+	/**
 	 * Get group member by member ID.
 	 *
 	 * @param sess

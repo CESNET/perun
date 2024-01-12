@@ -556,6 +556,15 @@ public interface MembersManager {
 	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException;
 
 	/**
+	 * Get RichMembers from a VO who are service users.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return List of RichMembers from the VO, who are service users
+	 */
+    List<RichMember> getServiceUserRichMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException;
+
+    /**
 	 * Get all RichMembers with attrs specific for list of attrsNames from the vo.
 	 * If attrsNames is empty or null return all attributes for specific richMembers.
 	 *

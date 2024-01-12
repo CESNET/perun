@@ -1324,6 +1324,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Member> getServiceGroupMembers(PerunSession sess, Group group) {
+		return groupsManagerImpl.getServiceGroupMembers(sess, group);
+	}
+
+	@Override
 	public Member getGroupMemberById(PerunSession sess, Group group, int memberId) throws NotGroupMemberException {
 		List<Member> members = getGroupsManagerImpl().getGroupMembersById(sess, group, memberId);
 		if (members.isEmpty()) throw new NotGroupMemberException("Member with ID="+memberId+" is not member of "+group+" or doesn't exists at all.");

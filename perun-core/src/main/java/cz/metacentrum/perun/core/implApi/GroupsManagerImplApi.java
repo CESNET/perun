@@ -394,6 +394,14 @@ public interface GroupsManagerImplApi {
 	List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType);
 
 	/**
+	 * Gets a list of Members, who are also service users, from a given group.
+	 * @param sess perun session
+	 * @param group group from which are the service users chosen
+	 * @return list of Members from given group who are service users
+	 */
+	List<Member> getServiceGroupMembers(PerunSession sess, Group group);
+
+	/**
 	 * Get all groups from all vos.
 	 *
 	 * @param sess session

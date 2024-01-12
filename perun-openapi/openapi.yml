@@ -11020,6 +11020,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getServiceUserRichMembers:
+    get:
+      tags:
+        - MembersManager
+      operationId: getServiceUserRichMembers
+      summary: Retrieve service user RichMembers from a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/membersManager/setStatus:
     post:
       tags:
