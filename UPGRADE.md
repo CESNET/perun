@@ -1,5 +1,37 @@
 Upgrade notes
 
+## [33.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.0.2...v33.1.0) (2024-01-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** HTML is now allowed for checkbox labels, check existing form items for potential HTML. Config property forceHTMLSanitization needs to be true for sanitization
+
+### Features
+
+* **core:** create method that retrieves RichMembers for all members from vo who are service users ([9c329c0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9c329c06efcd42e5e6a8d4dbe1a939a0acabb63d))
+* **registrar:** allow and sanitize html in checkbox labels ([f21a51e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f21a51ec07239af25fce69dcb44dc8fe74470386))
+
+
+### Bug Fixes
+
+* 🐛 URL building in Registrar lib ([554d467](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/554d467f8541baa807c394e042c8d1d778cdf6c3))
+* **core:** concurrency modification exception on reading authz roles keys ([3a9be37](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3a9be37fe1e9b60db727bca42f2f26d4fb179799))
+* **core:** disallow combination of sync and expiration rules ([8e102cd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8e102cd220f00eb8eceeb44c7631bf42d747735a))
+* **core:** getting sponsored members throwing exception when none present ([bbe9069](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bbe9069e73987fb46804aa739ad14d6fed29fecf))
+* **core:** group with any manager roles is now correctly deleted only with force delete ([f33c6d5](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f33c6d509c2ac09c170a40152841fa870adaf2eb))
+* **core:** reinitialize dependencies on attribute creation ([273db18](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/273db1877f6ec399c9486764e9e02d54451f7ac8))
+* **core:** return correct total count of groups ([e2837a5](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e2837a511652e4fca4c6b134e1584f124327d936))
+* **core:** sorting by organization and email for paginated group members ([37fecb8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/37fecb837dcea622aef673ed43d888f882e5d9ce))
+* **core:** update roles policies to match previous admin method privileges ([1f15398](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1f15398411df1dc6b4b5079345c932cc1cff5e6a))
+* **core:** use correct attribute in m365LicenseGroup check ([25d3b37](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/25d3b37c827ff97c5f8e1ceaa05f99b7bcf33828))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.4.1 ([171aa38](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/171aa387c5b019114a228970713c4b0d314436d3))
+* **deps:** updated flying-saucer-pdf to v9.4.0 ([fe7437f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fe7437f4a1ac460c07ed3d836760b337d0623832))
+* **deps:** updated spring and other dependencies ([a107b72](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a107b722279caa94d7bf2ebd3b9e9cacf69bd3b4))
+* hande null correctly in enabledO365MailForward ([fa27a22](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fa27a2268097d3c6c82ec24b1d655421f03af848))
+* **registrar:** correctly replace {appDetailUrl} ([fd3870b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fd3870b6024c80f61569367c889ccc7d937b936e))
+* **registrar:** correctly replace {appGuiUrl} ([91c4af2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/91c4af2d09aba6825b4f6ab22a4b1263db90858c))
+
 ## [33.0.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.0.1...v33.0.2) (2024-01-10)
 
 
