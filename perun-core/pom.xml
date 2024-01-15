@@ -179,6 +179,12 @@
 			<artifactId>reflections</artifactId>
 		</dependency>
 
+		<!-- Include bouncycastle lib since it was removed from flying-saucer-pdf -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcmail-jdk18on</artifactId>
+		</dependency>
+
 		<!-- PostgreSQL driver -->
 		<dependency>
 			<groupId>org.postgresql</groupId>

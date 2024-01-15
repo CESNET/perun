@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -49,7 +50,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

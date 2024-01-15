@@ -95,13 +95,12 @@ public class AuthzRoles extends HashMap<String, Map<String, Set<Integer>>> {
 	}
 
 	public List<String> getRolesNames() {
-		List<String> roles = new ArrayList<String>();
-
-		for (String role: this.keySet()) {
-			roles.add(role);
+		try {
+			return new ArrayList<>(this.keySet());
+		} catch (ConcurrentModificationException e) {
+			// concurrency problem try again
+			return new ArrayList<>(this.keySet());
 		}
-
-		return roles;
 	}
 
 	protected void putComplementaryObject(String role, PerunBean perunBean) {

@@ -124,7 +124,7 @@ public class JsonDeserializer extends Deserializer {
 		mapper.setMixIns(mixinMap);
 	}
 
-	private JsonNode root;
+	private final JsonNode root;
 
 	/**
 	 * @param in {@code InputStream} to read JSON data from
@@ -137,12 +137,6 @@ public class JsonDeserializer extends Deserializer {
 		} catch (JsonProcessingException ex) {
 			throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
 		}
-
-		/*
-			 if (!root.isObject()) {
-			 throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not a JSON Object");
-			 }
-			 */
 	}
 
 	@Override
@@ -165,7 +159,7 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isValueNode()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as String");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as String");
 		}
 
 		return node.asText();
@@ -194,12 +188,12 @@ public class JsonDeserializer extends Deserializer {
 
 		if (!node.isInt()) {
 			if (!node.isTextual()) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
 			} else {
 				try {
 					return Integer.parseInt(node.textValue());
 				} catch (NumberFormatException ex) {
-					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int", ex);
+					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int", ex);
 				}
 			}
 		}
@@ -228,7 +222,7 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isArray()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int[] - not an array");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int[] - not an array");
 		}
 
 		int[] array = new int[node.size()];
@@ -236,7 +230,7 @@ public class JsonDeserializer extends Deserializer {
 		for (int i = 0; i < node.size(); ++i) {
 			JsonNode value = node.get(i);
 			if (!value.isInt()) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
+				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
 			}
 			array[i] = node.get(i).intValue();
 		}
@@ -267,13 +261,13 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isObject()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName());
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName());
 		}
 
 		try {
 			return mapper.readValue(node.traverse(), valueType);
 		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName(), ex);
 		}
 	}
 
@@ -301,7 +295,7 @@ public class JsonDeserializer extends Deserializer {
 			return null;
 		}
 		if (!node.isArray()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + "> - not an array");
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as List<" + valueType.getSimpleName() + "> - not an array");
 		}
 
 		try {
@@ -311,7 +305,7 @@ public class JsonDeserializer extends Deserializer {
 			}
 			return list;
 		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<" + valueType.getSimpleName() + ">", ex);
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as List<" + valueType.getSimpleName() + ">", ex);
 		}
 	}
 

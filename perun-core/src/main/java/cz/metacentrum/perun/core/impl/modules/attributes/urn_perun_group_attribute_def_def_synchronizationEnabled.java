@@ -7,13 +7,15 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Synchronization enabled
@@ -47,6 +49,11 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
 					throw new WrongReferenceAttributeValueException(attribute, "Synchronization cannot be enabled for groups in auto registration.");
 				}
 
+				Attribute conflictingAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
+				if (conflictingAttribute.getValue() != null && !conflictingAttribute.valueAsMap().isEmpty()) {
+					throw new WrongReferenceAttributeValueException(attribute, conflictingAttribute, group, null, group, null, conflictingAttribute.toString() + " can not be set in order to enable synchronization.");
+				}
+
 				Attribute requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 				if (requiredAttribute.getValue() == null) {
 					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, group, null, group, null, requiredAttribute.toString() + " must be set in order to enable synchronization.");
@@ -60,6 +67,15 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException(e);
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
+		dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		return dependencies;
 	}
 
 	@Override

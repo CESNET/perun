@@ -1129,17 +1129,25 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (item.getId() <= 0 && !item.isForDelete()) {
 				int temporaryId = item.getId();
 				// Check if newly created item contains allowed tags (in case of Header and HTML Comment
-				if (item.getType() == HTML_COMMENT || item.getType() == HEADING) {
+				if (item.getType() == HTML_COMMENT || item.getType() == HEADING || item.getType() == CHECKBOX) {
 					Map<Locale, ItemTexts> i18n = item.getI18n();
 					for (Locale locale : item.getI18n().keySet()) {
-                    	ItemTexts itemTexts = item.getTexts(locale);
-                        HTMLParser parser = new HTMLParser()
-                            .sanitizeHTML(itemTexts.getLabel())
-                            .checkEscapedHTML();
-                        if (!parser.isInputValid()) {
-                            throw new InvalidHtmlInputException("HTML content in '"+item.getShortname()+"' contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
-                        }
-						itemTexts.setLabel(parser.getEscapedHTML());
+						ItemTexts itemTexts = item.getTexts(locale);
+						if (item.getType() == CHECKBOX) {
+							// Labels for each checkbox option are stored in options, but allow html for classic labels as well
+							boolean isSafe = new HTMLParser().isCheckboxLabelSafe(itemTexts.getOptions()) && new HTMLParser().isCheckboxLabelSafe(itemTexts.getLabel());
+							if (!isSafe) {
+								throw new InvalidHtmlInputException("HTML content in '"+item.getShortname()+"' checkbox label contains unsafe HTML tags or styles. Remove them and try again. Only <a> elements with 'href' and 'target' attributes are allowed");
+							}
+						} else {
+							HTMLParser parser = new HTMLParser()
+								.sanitizeHTML(itemTexts.getLabel())
+								.checkEscapedHTML();
+							if (!parser.isInputValid()) {
+								throw new InvalidHtmlInputException("HTML content in '"+item.getShortname()+"' contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+							}
+							itemTexts.setLabel(parser.getEscapedHTML());
+						}
 						i18n.put(locale, itemTexts);
                     }
 					item.setI18n(i18n);
@@ -1212,6 +1220,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					}
 					itemTexts.setLabel(parser.getEscapedHTML());
                 }
+				if (item.getType() == CHECKBOX) {
+					// Labels for each checkbox option are stored in options, but allow html for classic labels as well
+					boolean isSafe = new HTMLParser().isCheckboxLabelSafe(itemTexts.getOptions()) && new HTMLParser().isCheckboxLabelSafe(itemTexts.getLabel());
+					if (!isSafe) {
+						throw new InvalidHtmlInputException("HTML content in '" + item.getShortname() + "' checkbox label contains unsafe HTML tags or styles. Remove them and try again. Only <a> elements with 'href' and 'target' attributes are allowed");
+					}
+				}
 
 				jdbc.update("insert into application_form_item_texts(item_id,locale,label,options,help,error_message) values (?,?,?,?,?,?)",
 						item.getId(), locale.getLanguage(), itemTexts.getLabel(),
@@ -3951,6 +3966,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			} else if (candidate.getCandidate() != null) {
 				mailManager.sendInvitation(sess, vo, group, null, getCandidateEmail(candidate.getCandidate()), lang);
 			}
+		}
+	}
+
+	@Override
+	public void checkCheckboxHtml(PerunSession sess, String html) throws InvalidHtmlInputException {
+		Utils.checkPerunSession(sess);
+
+		boolean isSafe = new HTMLParser().isCheckboxLabelSafe(html);
+		if (!isSafe) {
+			throw new InvalidHtmlInputException("Input contains unsafe elements. Remove them and try again. Only <a> elements with 'href' and 'target' attributes are allowed");
 		}
 	}
 

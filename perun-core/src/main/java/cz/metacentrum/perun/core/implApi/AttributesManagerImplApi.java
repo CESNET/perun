@@ -1743,7 +1743,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if value of this group attribute has valid semantics.

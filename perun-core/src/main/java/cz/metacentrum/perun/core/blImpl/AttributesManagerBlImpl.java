@@ -114,6 +114,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attrib
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_userEligibilities;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
@@ -2544,48 +2545,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			AttributesModuleImplApi module = (AttributesModuleImplApi) getAttributesManagerImpl().getAttributesModule(sess, attributeDef);
 
 			if (module == null) {
+				// no module - just add attribute between "known".
 				dependencies.put(attributeDef, new HashSet<>());
 				strongDependencies.put(attributeDef, new HashSet<>());
 				inverseDependencies.put(attributeDef, new HashSet<>());
 				inverseStrongDependencies.put(attributeDef, new HashSet<>());
 				allDependencies.put(attributeDef, new HashSet<>());
-				return;
+			} else {
+				// has module - reinitialize all dependencies based on module relations
+				Set<AttributeDefinition> allAttributesDef = new HashSet<>(this.getAttributesDefinition(sess));
+				initializeModuleDependencies(sess,allAttributesDef);
 			}
-
-			// we need to create deep copies to prevent a creation of inconsistency state of dependencies if anything goes wrong
-			Map<AttributeDefinition, Set<AttributeDefinition>> dependenciesCopy = Utils.createDeepCopyOfMapWithSets(dependencies);
-			Map<AttributeDefinition, Set<AttributeDefinition>> strongDependenciesCopy = Utils.createDeepCopyOfMapWithSets(strongDependencies);
-			Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependenciesCopy = Utils.createDeepCopyOfMapWithSets(inverseDependencies);
-			Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependenciesCopy = Utils.createDeepCopyOfMapWithSets(inverseStrongDependencies);
-			Map<AttributeDefinition, Set<AttributeDefinition>> allDependenciesCopy = Utils.createDeepCopyOfMapWithSets(allDependencies);
-
-			Set<AttributeDefinition> moduleDependencies = getDependenciesForModule(sess, module);
-			Set<AttributeDefinition> moduleStrongDependencies = new HashSet<>();
-
-			if (module instanceof VirtualAttributesModuleImplApi) {
-				moduleStrongDependencies = getStrongDependenciesForModule(sess, (VirtualAttributesModuleImplApi) module);
-			}
-
-			dependenciesCopy.put(attributeDef, moduleDependencies);
-			strongDependenciesCopy.put(attributeDef, moduleStrongDependencies);
-
-			updateInverseDependenciesForAttribute(inverseDependenciesCopy, attributeDef, dependenciesCopy);
-			updateInverseDependenciesForAttribute(inverseStrongDependenciesCopy, attributeDef, strongDependenciesCopy);
-
-			if (isMapOfAttributesDefCyclic(inverseStrongDependenciesCopy)) {
-				throw new InternalErrorException("There is a cycle in strong dependencies after adding new attribute definition: " + attributeDef.getNamespace());
-			}
-
-			Set<AttributeDefinition> allAttributeDependencies =
-					findAllAttributeDependencies(attributeDef, inverseDependenciesCopy, inverseStrongDependenciesCopy);
-			allDependenciesCopy.put(attributeDef, allAttributeDependencies);
-
-			// if all went well, switch dependencies maps
-			dependencies = dependenciesCopy;
-			strongDependencies = strongDependenciesCopy;
-			inverseDependencies = inverseDependenciesCopy;
-			inverseStrongDependencies = inverseStrongDependenciesCopy;
-			allDependencies = allDependenciesCopy;
 		}
 	}
 
@@ -8059,13 +8029,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:user:attribute-def:virt:userEligibilities
-		attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("userEligibilities");
-		attr.setDisplayName("User eligibilities");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Virtual attribute, which collects all eligibilities user ext source attributes " +
-				"with keys and values (map). Only the highest value is selected for each key.");
+		attr = new AttributeDefinition((new urn_perun_user_attribute_def_virt_userEligibilities()).getAttributeDefinition());
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8168,8 +8132,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setFriendlyName("eligibilities");
-		attr.setDisplayName("eligibilities");
-		attr.setDescription("eligibilities");
+		attr.setDisplayName("Eligibilities (source)");
+		attr.setDescription("Eligibilities calculatedy by proxy with timestamps when they were considered valid for the last time.");
 
 		policies = new ArrayList<>();
 		attributes.put(attr, createInitialPolicyCollections(policies));
@@ -8505,71 +8469,89 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	private void initializeModuleDependencies(PerunSession sess, Set<AttributeDefinition> definitions) {
+		synchronized (dependenciesMonitor) {
 
-		//Basic state of all maps (record for every existing attributeDefinitions)
-		for (AttributeDefinition ad : definitions) {
-			dependencies.put(ad, new HashSet<>());
-			strongDependencies.put(ad, new HashSet<>());
-			inverseDependencies.put(ad, new HashSet<>());
-			inverseStrongDependencies.put(ad, new HashSet<>());
-			allDependencies.put(ad, new HashSet<>());
-		}
+			// local mapping
+			Map<AttributeDefinition, Set<AttributeDefinition>> localDependencies = new HashMap<>();
+			Map<AttributeDefinition, Set<AttributeDefinition>> localStrongDependencies = new HashMap<>();
+			Map<AttributeDefinition, Set<AttributeDefinition>> localInverseDependencies = new HashMap<>();
+			Map<AttributeDefinition, Set<AttributeDefinition>> localInverseStrongDependencies = new HashMap<>();
+			Map<AttributeDefinition, Set<AttributeDefinition>> localAllDependencies = new HashMap<>();
 
-		log.debug("Dependencies and StrongDependencies filling started.");
+			//Basic state of all maps (record for every existing attributeDefinitions)
+			for (AttributeDefinition ad : definitions) {
+				localDependencies.put(ad, new HashSet<>());
+				localStrongDependencies.put(ad, new HashSet<>());
+				localInverseDependencies.put(ad, new HashSet<>());
+				localInverseStrongDependencies.put(ad, new HashSet<>());
+				localAllDependencies.put(ad, new HashSet<>());
+			}
 
-		//Fill dep and strongDep maps
-		for (AttributeDefinition ad : definitions) {
-			AttributesModuleImplApi module;
-			Set<AttributeDefinition> depSet = new HashSet<>();
-			Set<AttributeDefinition> strongDepSet = new HashSet<>();
+			log.debug("Dependencies and StrongDependencies filling started.");
 
-			//Return null to object if module not exist
-			Object attributeModule = getAttributesManagerImpl().getAttributesModule(sess, ad);
+			//Fill dep and strongDep maps
+			for (AttributeDefinition ad : definitions) {
+				AttributesModuleImplApi module;
+				Set<AttributeDefinition> depSet = new HashSet<>();
+				Set<AttributeDefinition> strongDepSet = new HashSet<>();
 
-			//If there is any existing module
-			if (attributeModule != null) {
-				module = (AttributesModuleImplApi) attributeModule;
+				//Return null to object if module not exist
+				Object attributeModule = getAttributesManagerImpl().getAttributesModule(sess, ad);
 
-				depSet = getDependenciesForModule(sess, module);
+				//If there is any existing module
+				if (attributeModule != null) {
+					module = (AttributesModuleImplApi) attributeModule;
 
-				if(module instanceof VirtualAttributesModuleImplApi) {
-					strongDepSet = getStrongDependenciesForModule(sess, (VirtualAttributesModuleImplApi) module);
+					depSet = getDependenciesForModule(sess, module);
+
+					if (module instanceof VirtualAttributesModuleImplApi) {
+						strongDepSet = getStrongDependenciesForModule(sess, (VirtualAttributesModuleImplApi) module);
+					}
 				}
-			}
-			dependencies.put(ad, depSet);
-			strongDependencies.put(ad, strongDepSet);
-		}
-
-		log.debug("Dependencies and StrongDependencies was filled successfully.");
-
-		log.debug("InverseDependencies and InverseStrongDependencies filling started.");
-
-		//First create inversion map for simple dependencies
-		inverseDependencies = generateInverseDependencies(dependencies);
-
-		//Second create inversion map for strong dependencies
-		inverseStrongDependencies = generateInverseDependencies(strongDependencies);
-
-		log.debug("InverseDependencies and InverseStrongDependencies was filled successfully.");
-
-		log.debug("Cycle test of InverseStrongDependencies started.");
-		//Test StrDepInveMap on cycles
-
-		if (isMapOfAttributesDefCyclic(inverseStrongDependencies)) {
-			log.error("There is cycle in inverseStrongDependencies so map of All attribute will be not created!");
-		} else {
-			log.debug("Cycle test of InverseStrongDependencies was successfull.");
-			log.debug("Filling map of allDependencies started.");
-
-			for (AttributeDefinition key : allDependencies.keySet()) {
-				Set<AttributeDefinition> dependenciesOfAttribute = findAllAttributeDependencies(key,
-						inverseDependencies, inverseStrongDependencies);
-
-				allDependencies.put(key, dependenciesOfAttribute);
+				localDependencies.put(ad, depSet);
+				localStrongDependencies.put(ad, strongDepSet);
 			}
 
-			log.debug("Map of allDependencies was filled successfully.");
+			log.debug("Dependencies and StrongDependencies was filled successfully.");
+
+			log.debug("InverseDependencies and InverseStrongDependencies filling started.");
+
+			//First create inversion map for simple dependencies
+			localInverseDependencies = generateInverseDependencies(localDependencies);
+
+			//Second create inversion map for strong dependencies
+			localInverseStrongDependencies = generateInverseDependencies(localStrongDependencies);
+
+			log.debug("InverseDependencies and InverseStrongDependencies was filled successfully.");
+
+			log.debug("Cycle test of InverseStrongDependencies started.");
+			//Test StrDepInveMap on cycles
+
+			if (isMapOfAttributesDefCyclic(localInverseStrongDependencies)) {
+				log.error("There is cycle in inverseStrongDependencies so map of All attribute will be not created!");
+			} else {
+				log.debug("Cycle test of InverseStrongDependencies was successfull.");
+				log.debug("Filling map of allDependencies started.");
+
+				for (AttributeDefinition key : localAllDependencies.keySet()) {
+					Set<AttributeDefinition> dependenciesOfAttribute = findAllAttributeDependencies(key,
+							localInverseDependencies, localInverseStrongDependencies);
+
+					localAllDependencies.put(key, dependenciesOfAttribute);
+				}
+
+				log.debug("Map of allDependencies was filled successfully.");
+			}
+
+			// fill real shared maps
+			dependencies = localDependencies;
+			strongDependencies = localStrongDependencies;
+			inverseDependencies = localInverseDependencies;
+			inverseStrongDependencies = localInverseStrongDependencies;
+			allDependencies = localAllDependencies;
+
 		}
+
 	}
 
 	/**

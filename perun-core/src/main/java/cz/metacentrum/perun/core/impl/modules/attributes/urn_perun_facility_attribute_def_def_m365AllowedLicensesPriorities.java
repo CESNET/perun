@@ -29,6 +29,7 @@ import java.util.List;
 public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPriorities extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	private static final String A_FAC_m365AllowedLicensesPriorities = AttributesManager.NS_FACILITY_ATTR_DEF + ":m365AllowedLicensesPriorities";
+	private static final String A_RES_m365LicenseGroup = AttributesManager.NS_RESOURCE_ATTR_DEF + ":m365LicenseGroup";
 
 	@Override
 	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
@@ -72,7 +73,7 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPriorities 
 
 	private String fetchResourceLicense(PerunSessionImpl perunSession, Resource res) throws WrongReferenceAttributeValueException {
 		try {
-			return perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, res, A_FAC_m365AllowedLicensesPriorities).valueAsString();
+			return perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, res, A_RES_m365LicenseGroup).valueAsString();
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 			throw new WrongReferenceAttributeValueException("Couldn't retrieve m365LicenseGroup from resource " + res.getName(), e);
 		}

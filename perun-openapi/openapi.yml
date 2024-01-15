@@ -11020,6 +11020,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getServiceUserRichMembers:
+    get:
+      tags:
+        - MembersManager
+      operationId: getServiceUserRichMembers
+      summary: Retrieve service user RichMembers from a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/membersManager/setStatus:
     post:
       tags:
@@ -16149,6 +16163,20 @@ paths:
   # RegistrarManager                              #
   #                                               #
   #################################################
+
+  /json/registrarManager/checkCheckboxHtml:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: checkCheckboxHtml
+      summary: Check whether input html is safe for our application form item checkbox labels
+      parameters:
+        - { name: html, schema: { type: string }, in: query, required: true, description: "string containing the html to check for" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/registrarManager/consolidateIdentityUsingToken:
     get:

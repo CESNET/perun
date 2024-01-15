@@ -47,7 +47,7 @@ public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends Use
 		attr.setFriendlyName("kerberosAdminPrincipal");
 		attr.setDisplayName("KERBEROS admin principal");
 		attr.setType(String.class.getName());
-		attr.setDescription("Kerberos pricipal used for root access.");
+		attr.setDescription("Kerberos principal used for root access.");
 		return attr;
 	}
 

@@ -809,6 +809,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public List<RichMember> getServiceUserRichMembers(PerunSession sess, Vo vo) {
+		try {
+			Group voMembersGroup = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+			List<Member> serviceMembers = getPerunBl().getGroupsManagerBl().getServiceGroupMembers(sess, voMembersGroup);
+			return convertMembersToRichMembers(sess, serviceMembers);
+		}	catch(GroupNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws AttributeNotExistsException {
 		if(attrsNames == null || attrsNames.isEmpty()) {
 			return this.getRichMembersWithAttributes(sess, vo);
@@ -1230,6 +1241,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> convertMembersToRichMembersWithAttributesBatch(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef) {
+		if (richMembers == null || richMembers.isEmpty()) {
+			return new ArrayList<>();
+		}
+
 		List<AttributeDefinition> otherAttributesDefinitions = new ArrayList<>();
 		List<AttributeDefinition> defOptAttributesDefinitions = new ArrayList<>();
 

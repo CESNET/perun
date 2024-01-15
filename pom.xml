@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.17</version>
+		<version>2.7.18</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -63,13 +63,15 @@
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.6.0</commons-cli.version>
-		<commons-text.version>1.10.0</commons-text.version>
-		<docker-java.version>3.3.3</docker-java.version>
+		<commons-text.version>1.11.0</commons-text.version>
+		<commons-lang3.version>3.14.0</commons-lang3.version> <!-- newer commons-text requires also newer commons-lang3 than provided by current spring-boot-parent -->
+		<docker-java.version>3.3.4</docker-java.version>
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
-		<flying-saucer-pdf.version>9.3.1</flying-saucer-pdf.version>
-		<google-api-services-admin-directory.version>directory_v1-rev20231005-2.0.0</google-api-services-admin-directory.version>
+		<flying-saucer-pdf.version>9.4.1</flying-saucer-pdf.version>
+		<bouncycastle.version>1.77</bouncycastle.version>
+		<google-api-services-admin-directory.version>directory_v1-rev20231113-2.0.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
@@ -78,7 +80,7 @@
 		<json.version>20231013</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.11</reflections.version>
-		<testcontainers.version>1.19.1</testcontainers.version>
+		<testcontainers.version>1.19.3</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
@@ -311,13 +313,12 @@
 				<groupId>org.xhtmlrenderer</groupId>
 				<artifactId>flying-saucer-pdf</artifactId>
 				<version>${flying-saucer-pdf.version}</version>
-				<exclusions>
-					<exclusion>
-						<!-- problem with double-dependency on bcmail-jdk14 versions 1.46 and 1.60 in the same time -->
-						<artifactId>bctsp-jdk14</artifactId>
-						<groupId>org.bouncycastle</groupId>
-					</exclusion>
-				</exclusions>
+			</dependency>
+			<!-- Include bouncycastle lib since it was removed from flying-saucer-pdf -->
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcmail-jdk18on</artifactId>
+				<version>${bouncycastle.version}</version>
 			</dependency>
 
 			<dependency>

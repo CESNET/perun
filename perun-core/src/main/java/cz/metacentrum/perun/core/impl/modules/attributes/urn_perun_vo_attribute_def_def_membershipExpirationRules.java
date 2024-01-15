@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
@@ -42,7 +43,7 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Ab
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo entity, Attribute attribute) throws WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo entity, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		super.checkAttributeSemantics(perunSession, entity, attribute);
 	}
 

@@ -608,6 +608,20 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public List<RichMember> getServiceUserRichMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getServiceUserRichMembers_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getServiceUserRichMembers");
+		}
+
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getServiceUserRichMembers(sess, vo), null, true);
+	}
+
+	@Override
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 

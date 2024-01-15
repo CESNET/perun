@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RoleAssignmentType;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -506,6 +505,21 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getServiceGroupMembers(PerunSession sess, Group group) {
+		try {
+			return jdbc.query(
+				"SELECT DISTINCT " + MembersManagerImpl.memberMappingSelectQuery + ", " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+					" FROM members JOIN users ON (users.id=members.user_id)" +
+					" JOIN groups_members ON (groups_members.member_id=members.id)" +
+					" WHERE groups_members.group_id=? AND users.service_acc=true",
+				MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP, group.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+
+	@Override
 	public List<Group> getGroups(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("select  " + groupMappingSelectQuery + " from groups where vo_id=? order by " +
@@ -713,8 +727,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				getPaginatedGroupsExtractor(query));
 		}
 		return namedParameterJdbcTemplate.query(
-			"SELECT DISTINCT " + groupMappingSelectQuery +
-				", count(*) OVER() AS total_count " +
+
+			"WITH cte as (SELECT DISTINCT " + groupMappingSelectQuery +
 				"FROM authz JOIN " +
 				(query.getMemberId() == null ? " groups ON authz.group_id=groups.id " :
 				"(SELECT * FROM groups WHERE groups.name!='members' OR groups.parent_group_id IS NOT NULL) AS groups ON authz.group_id=groups.id JOIN " +
@@ -723,10 +737,13 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				"WHERE groups.vo_id=(:voId) AND groups.id IN (:groupsIds) AND (" +
 				(includeDirectRoles ? "authz.user_id=:uid " : "false ") + (includeIndirectRoles ? "or members.user_id=:uid) ": ") ") +
 				(!query.getRoles().isEmpty() ? " AND (authz.role_id IN (SELECT id FROM roles WHERE name IN (:roles))) " : "") +
-				searchQuery +
+				searchQuery + ")" +
+				"SELECT *" +
+				"FROM (" +
+				"TABLE cte" +
 				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
 				" OFFSET (:offset)" +
-				" LIMIT (:limit);",
+				" LIMIT (:limit)) sub RIGHT JOIN (SELECT count(*) FROM cte) c(total_count) on true;",
 			namedParams, getPaginatedGroupsExtractor(query));
 	}
 
@@ -1277,44 +1294,29 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group) {
-		try {
-			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from authz join resources " +
-					"on authz.resource_id=resources.id where authorized_group_id=? and authz.role_id=(select id from roles where name='resourceadmin')",
-					ResourcesManagerImpl.RESOURCE_MAPPER, group.getId());
-		}  catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesWhereGroupIsResourceSelfService(PerunSession session, Group group) {
-		try {
-			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from authz join resources " +
-					"on authz.resource_id=resources.id where authorized_group_id=? and authz.role_id=(select id from roles where name='resourceselfservice')",
-				ResourcesManagerImpl.RESOURCE_MAPPER, group.getId());
-		}  catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group) {
-		try {
-			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery + " from authz join security_teams " +
-					"on authz.security_team_id=security_teams.id where authorized_group_id=? and authz.role_id=(select id from roles where name='securityadmin')",
-					SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, group.getId());
-		}  catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
 	public List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group) {
 		try {
 			return jdbc.query("select " + VosManagerImpl.voMappingSelectQuery + " from authz join vos on authz.vo_id=vos.id " +
 					"where authorized_group_id=? and authz.role_id=(select id from roles where name='voadmin')", VosManagerImpl.VO_MAPPER, group.getId());
 		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean hasGroupAnyManagerRole(PerunSession session, Group group) {
+		try {
+			return 0 < jdbc.queryForInt("select count(1) from authz where authorized_group_id=?", group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void removeAllManagerRolesOfGroup(PerunSession session, Group group) {
+		try {
+			jdbc.update("delete from authz where authorized_group_id=?", group.getId());
+		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
