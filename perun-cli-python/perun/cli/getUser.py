@@ -6,7 +6,7 @@ import perun.cli
 
 
 def get_user(
-    user_id: int = typer.Option(..., "-u", "--user_id", help="user ID")
+    user_id: int = typer.Option(..., "-u", "--user_id", help="user ID"),
 ) -> None:
     """prints user for a given id"""
     try:
