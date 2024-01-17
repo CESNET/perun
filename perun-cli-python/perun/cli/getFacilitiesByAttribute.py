@@ -1,4 +1,3 @@
-from typing import Optional
 from typer import Option
 from perun_openapi import ApiException
 from rich import print

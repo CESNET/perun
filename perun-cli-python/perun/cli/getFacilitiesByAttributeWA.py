@@ -1,4 +1,3 @@
-from typing import Optional
 from typer import Option
 from perun_openapi import ApiException
 from rich import print
@@ -9,7 +8,6 @@ import perun.cli
 import typer
 
 from perun_openapi.model.attribute import Attribute
-from perun_openapi.model.facility import Facility
 from perun_openapi.model.facility_with_attributes import FacilityWithAttributes
 
 

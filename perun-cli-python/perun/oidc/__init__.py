@@ -3,7 +3,6 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from dateutil.parser import isoparse
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -312,7 +311,7 @@ class DeviceCodeOAuth:
             if auth_time is not None and self.debug:
                 print(
                     "got auth_time from id_token:",
-                    datetime.fromtimestamp(decoded_token["auth_time"]).astimezone(),
+                    datetime.fromtimestamp(decoded_id_token["auth_time"]).astimezone(),
                 )
             # check that time of MFA is not older than required
             if time.time() - auth_time > self.mfa_valid_seconds:
