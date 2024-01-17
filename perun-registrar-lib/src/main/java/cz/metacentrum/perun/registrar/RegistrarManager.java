@@ -661,6 +661,15 @@ public interface RegistrarManager {
 	void updateApplicationType(PerunSession session, Application application);
 
 	/**
+	 * Sets error that occurred during automatic approval of application.
+	 *
+	 * @param application application
+	 * @param error error
+	 */
+	void setAutoApproveErrorToApplication(Application application, String error);
+
+
+	/**
 	 * Returns all groups which can be registered into during vo registration.
 	 *
 	 * @param sess session

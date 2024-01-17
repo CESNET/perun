@@ -5127,6 +5127,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 	}
 
+	@Override
+	public void setAutoApproveErrorToApplication(Application application, String error) {
+		jdbc.update("UPDATE application SET auto_approve_error=? WHERE id=?", error, application.getId());
+	}
+
 	/**
 	 * Prepare map tempId -> savedId, save tempId -> hiddenDependencyId and tempId -> disabledDependencyId
 	 * and reset the dependencyId attributes for unsaved items
@@ -5169,16 +5174,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				idsTranslation.get(toHidden.get(tempId)),
 				idsTranslation.get(tempId));
 		}
-	}
-
-	/**
-	 * Sets error that occurred during automatic approval of application.
-	 *
-	 * @param application application
-	 * @param error error
-	 */
-	private void setAutoApproveErrorToApplication(Application application, String error) {
-		jdbc.update("UPDATE application SET auto_approve_error=? WHERE id=?", error, application.getId());
 	}
 
 	/**
