@@ -8,14 +8,11 @@ variables:
 
 # build and run tests
 maven-build:
-  image: $CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX/ubuntu:latest@sha256:6042500cf4b44023ea1894effe7890666b0c5c7871ed83a97c36c76ae560bb9b
+  image: registry.gitlab.ics.muni.cz:443/perun-proxy-aai/containers/ci-tools/perun-idm-builder:latest
   stage: build
   tags: # do not run on k8s
     - docker
     - privileged
-  before_script:
-    - apt update -y
-    - apt install -yqq openjdk-17-jdk-headless maven docker openssh-client
   script:
     - mvn -B -Dmaven.repo.local=.m2/repository clean install
   rules:
