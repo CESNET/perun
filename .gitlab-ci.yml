@@ -2,11 +2,9 @@ include:
   - project: perun/common
     file: /templates/.gitlab-ci-template.yml
 
-# use same rules as in .releaserc.json
-semantic-release:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "production" && $CI_PIPELINE_SOURCE != "schedule"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^[0-9]+(\.([0-9]+|x))?\.x$/ && $CI_PIPELINE_SOURCE != "schedule"'
+variables:
+  # release from production branch instead of main
+  RELEASE_FROM_PRODUCTION: 1
 
 # build and run tests
 maven-build:
