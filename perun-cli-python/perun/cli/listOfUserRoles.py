@@ -7,12 +7,12 @@ import perun.cli
 import typer
 
 
-def main(user_id: int = typer.Option(..., '-u', '--user_id', help='user ID')) -> None:
-    """ prints list of user's roles"""
+def main(user_id: int = typer.Option(..., "-u", "--user_id", help="user ID")) -> None:
+    """prints list of user's roles"""
     try:
         role_names = perun.cli.rpc.authz_resolver.get_user_role_names(user=user_id)
         if not role_names:
-            print('no role found')
+            print("no role found")
             return
         # print table
         table = Table(title="roles of user " + str(user_id))
@@ -22,5 +22,5 @@ def main(user_id: int = typer.Option(..., '-u', '--user_id', help='user ID')) ->
         console = Console()
         console.print(table)
     except ApiException as ex:
-        print('error:', PerunException(ex).name)
+        print("error:", PerunException(ex).name)
         raise typer.Exit(code=1)

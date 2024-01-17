@@ -13,15 +13,19 @@ from perun_openapi.model.user import User
 from perun_openapi.model.vo import Vo
 
 
-def get_rich_member(user_id: int = typer.Option(3197, '-u', '--user_id', help='user ID'),
-                    vo_name: str = typer.Option("meta", '-v', '--voShortName', help='short name of VO')) -> None:
-    """ tests getting complex object of RichMember """
+def get_rich_member(
+    user_id: int = typer.Option(3197, "-u", "--user_id", help="user ID"),
+    vo_name: str = typer.Option("meta", "-v", "--voShortName", help="short name of VO"),
+) -> None:
+    """tests getting complex object of RichMember"""
     rpc = perun.cli.rpc
     try:
         user: User = rpc.users_manager.get_user_by_id(user_id)
         vo: Vo = rpc.vos_manager.get_vo_by_short_name(vo_name)
         member: Member = rpc.members_manager.get_member_by_user(vo=vo.id, user=user.id)
-        rich_member: RichMember = rpc.members_manager.get_rich_member_with_attributes(member.id)
+        rich_member: RichMember = rpc.members_manager.get_rich_member_with_attributes(
+            member.id
+        )
         user_attributes: list[Attribute] = rich_member.user_attributes
         member_attributes: list[Attribute] = rich_member.member_attributes
         console = Console()
@@ -31,8 +35,12 @@ def get_rich_member(user_id: int = typer.Option(3197, '-u', '--user_id', help='u
         table.add_column("first_name")
         table.add_column("last_name")
         table.add_column("createdAt")
-        table.add_row(str(rich_member.user.id), rich_member.user.first_name, rich_member.user.last_name,
-                      str(rich_member.user.createdAt))
+        table.add_row(
+            str(rich_member.user.id),
+            rich_member.user.first_name,
+            rich_member.user.last_name,
+            str(rich_member.user.createdAt),
+        )
         console.print(table)
         # print member
         table = Table(title="member")
@@ -40,7 +48,9 @@ def get_rich_member(user_id: int = typer.Option(3197, '-u', '--user_id', help='u
         table.add_column("VO")
         table.add_column("status")
         table.add_column("createdAt")
-        table.add_row(str(rich_member.id), vo.name, rich_member.status, str(rich_member.createdAt))
+        table.add_row(
+            str(rich_member.id), vo.name, rich_member.status, str(rich_member.createdAt)
+        )
         console.print(table)
         # print table of ues
         table = Table(title="userExtSources")
@@ -59,7 +69,9 @@ def get_rich_member(user_id: int = typer.Option(3197, '-u', '--user_id', help='u
             table.add_column("value")
             table.add_column("type")
             for a in member_attributes:
-                table.add_row(a['namespace'], a['friendlyName'], str(a['value']), a['type'])
+                table.add_row(
+                    a["namespace"], a["friendlyName"], str(a["value"]), a["type"]
+                )
             console.print(table)
         # print user attributes
         if user_attributes:
@@ -69,9 +81,11 @@ def get_rich_member(user_id: int = typer.Option(3197, '-u', '--user_id', help='u
             table.add_column("value")
             table.add_column("type")
             for a in user_attributes:
-                table.add_row(a['namespace'], a['friendlyName'], str(a['value']), a['type'])
+                table.add_row(
+                    a["namespace"], a["friendlyName"], str(a["value"]), a["type"]
+                )
             console.print(table)
     except ApiException as ex:
-        print('error name:', PerunException(ex).name)
-        print('error message:', PerunException(ex).message)
+        print("error name:", PerunException(ex).name)
+        print("error message:", PerunException(ex).message)
     raise typer.Exit(code=1)
