@@ -7,14 +7,17 @@ import typer
 import perun.cli
 
 
-def main(sort_by_id: bool = typer.Option(False, '-i', '--orderById', help='order by id'),
-         sort_by_name: bool = typer.Option(False, '-n', '--orderByName', help='order by short name')
-         ) -> None:
-    """ prints list of my VOs """
+def main(
+    sort_by_id: bool = typer.Option(False, "-i", "--orderById", help="order by id"),
+    sort_by_name: bool = typer.Option(
+        False, "-n", "--orderByName", help="order by short name"
+    ),
+) -> None:
+    """prints list of my VOs"""
     try:
         vos: list = perun.cli.rpc.vos_manager.get_my_vos()
         if not vos:
-            print('no vos found')
+            print("no vos found")
             return
         if sort_by_id:
             vos.sort(key=lambda x: x.id)
@@ -30,5 +33,5 @@ def main(sort_by_id: bool = typer.Option(False, '-i', '--orderById', help='order
         console = Console()
         console.print(table)
     except ApiException as ex:
-        print('error:', PerunException(ex).message)
+        print("error:", PerunException(ex).message)
         raise typer.Exit(code=1)

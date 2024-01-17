@@ -11,15 +11,25 @@ import typer
 from perun_openapi.model.facility import Facility
 
 
-def main(attr_name: str = Option(..., '-a', '--attributeName', help='attribute name (namespace + : + friendlyName)'),
-         attr_value: str = Option(..., '-v', '--attributeValue', help='short name of VO'),
-         sort_by_id: bool = typer.Option(False, '-i', '--orderById', help='order by id'),
-         sort_by_name: bool = typer.Option(False, '-n', '--orderByName', help='order by short name')
-         ) -> None:
-    """ search for facilities by attributeName and attributeValue """
+def main(
+    attr_name: str = Option(
+        ...,
+        "-a",
+        "--attributeName",
+        help="attribute name (namespace + : + friendlyName)",
+    ),
+    attr_value: str = Option(..., "-v", "--attributeValue", help="short name of VO"),
+    sort_by_id: bool = typer.Option(False, "-i", "--orderById", help="order by id"),
+    sort_by_name: bool = typer.Option(
+        False, "-n", "--orderByName", help="order by short name"
+    ),
+) -> None:
+    """search for facilities by attributeName and attributeValue"""
     rpc = perun.cli.rpc
     try:
-        facilities: list[Facility] = rpc.facilities_manager.get_facilities_by_attribute(attr_name, attr_value)
+        facilities: list[Facility] = rpc.facilities_manager.get_facilities_by_attribute(
+            attr_name, attr_value
+        )
         if sort_by_id:
             facilities.sort(key=lambda x: x.id)
         if sort_by_name:
@@ -31,10 +41,12 @@ def main(attr_name: str = Option(..., '-a', '--attributeName', help='attribute n
         table.add_column("name")
         table.add_column("description")
         for facility in facilities:
-            table.add_row(str(facility.id), str(facility.name), str(facility.description))
+            table.add_row(
+                str(facility.id), str(facility.name), str(facility.description)
+            )
         console.print(table)
 
     except ApiException as ex:
-        print('error name:', PerunException(ex).name)
-        print('error message:', PerunException(ex).message)
+        print("error name:", PerunException(ex).name)
+        print("error message:", PerunException(ex).message)
     raise typer.Exit(code=1)

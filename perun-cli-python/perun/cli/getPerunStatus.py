@@ -6,11 +6,11 @@ import typer
 
 
 def main() -> None:
-    """ prints perun status"""
+    """prints perun status"""
     rpc = perun.cli.rpc
-    print('Status from', rpc.config.host)
+    print("Status from", rpc.config.host)
     try:
         print(rpc.utils.get_perun_status())
     except ApiException as ex:
-        print('error:', PerunException(ex))
+        print("error:", PerunException(ex))
         raise typer.Exit(code=1)

@@ -7,9 +7,11 @@ import typer
 import perun.cli
 
 
-def get_group_members(vo_name: str = typer.Option(..., '-v', '--voShortName', help='short name of VO'),
-                      group_name: str = typer.Option(..., '-g', '--groupName', help='name of group')) -> None:
-    """ prints members of a group """
+def get_group_members(
+    vo_name: str = typer.Option(..., "-v", "--voShortName", help="short name of VO"),
+    group_name: str = typer.Option(..., "-g", "--groupName", help="name of group"),
+) -> None:
+    """prints members of a group"""
     rpc = perun.cli.rpc
     try:
         vo = rpc.vos_manager.get_vo_by_short_name(vo_name)
@@ -19,9 +21,12 @@ def get_group_members(vo_name: str = typer.Option(..., '-v', '--voShortName', he
         group_members = rpc.groups_manager.get_group_members(group.id)
         # get users for members
         users = rpc.users_manager.get_users_by_ids(
-            [member.user_id for member in group_members if member.status == 'VALID'])
+            [member.user_id for member in group_members if member.status == "VALID"]
+        )
         # print table
-        table = Table(title="group " + vo.short_name + ":" + group.short_name + " members")
+        table = Table(
+            title="group " + vo.short_name + ":" + group.short_name + " members"
+        )
         table.add_column("user id", justify="right")
         table.add_column("first name")
         table.add_column("last name")
@@ -30,5 +35,5 @@ def get_group_members(vo_name: str = typer.Option(..., '-v', '--voShortName', he
         console = Console()
         console.print(table)
     except ApiException as ex:
-        print('error:', PerunException(ex).name)
+        print("error:", PerunException(ex).name)
         raise typer.Exit(code=1)

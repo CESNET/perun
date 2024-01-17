@@ -10,8 +10,8 @@ from perun_openapi.model.rich_user import RichUser
 from perun_openapi.model.user import User
 
 
-def main(user_id: int = typer.Option(3197, '-u', '--user_id', help='user ID')) -> None:
-    """ prints user for a given id"""
+def main(user_id: int = typer.Option(3197, "-u", "--user_id", help="user ID")) -> None:
+    """prints user for a given id"""
     try:
         console: Console = Console()
         # print user
@@ -21,10 +21,14 @@ def main(user_id: int = typer.Option(3197, '-u', '--user_id', help='user ID')) -
         table.add_column("first_name")
         table.add_column("last_name")
         table.add_column("createdAt")
-        table.add_row(str(user.id), user.first_name, user.last_name, str(user.createdAt))
+        table.add_row(
+            str(user.id), user.first_name, user.last_name, str(user.createdAt)
+        )
         console.print(table)
         # print user attributes
-        user_attributes: list[Attribute] = perun.cli.rpc.attributes_manager.get_user_attributes(user_id)
+        user_attributes: list[
+            Attribute
+        ] = perun.cli.rpc.attributes_manager.get_user_attributes(user_id)
         if user_attributes:
             table = Table(title="user attributes")
             table.add_column("namespace")
@@ -32,9 +36,11 @@ def main(user_id: int = typer.Option(3197, '-u', '--user_id', help='user ID')) -
             table.add_column("value")
             table.add_column("type")
             for a in user_attributes:
-                table.add_row(a['namespace'], a['friendlyName'], str(a['value']), a['type'])
+                table.add_row(
+                    a["namespace"], a["friendlyName"], str(a["value"]), a["type"]
+                )
             console.print(table)
 
     except ApiException as ex:
-        print('error:', PerunException(ex).name)
+        print("error:", PerunException(ex).name)
         raise typer.Exit(code=1)
