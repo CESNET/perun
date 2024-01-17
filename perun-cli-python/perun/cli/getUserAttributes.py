@@ -6,7 +6,6 @@ from perun.rpc import PerunException
 import typer
 import perun.cli
 from perun_openapi.model.attribute import Attribute
-from perun_openapi.model.rich_user import RichUser
 from perun_openapi.model.user import User
 
 
