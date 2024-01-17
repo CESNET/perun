@@ -16293,6 +16293,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/buildInviteURL:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: buildInviteURL
+      summary: Creates an invitation link for the given vo/group and namespace (type of authentication)
+      parameters:
+        - { name: voId, schema: { type: number }, in: query, required: true, description: "id of vo for which the invitation link should be created, parent vo of the group if it should be a group invitation" }
+        - { name: groupId, schema: { type: number }, in: query, required: false, description: "id of group for which the invitation link should be created" }
+      responses:
+        '200':
+          $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getApplicationsForVo:
     get:
       tags:
@@ -17363,7 +17378,7 @@ paths:
       tags:
         - RegistrarManager
       operationId: invitationFormExists
-      summary: Checks if invitation form exists.
+      summary: Checks if invitation form and invitation notification exist.
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/optionalGroupId'
@@ -17378,7 +17393,22 @@ paths:
       tags:
         - RegistrarManager
       operationId: isInvitationEnabled
-      summary: Checks if invitation is enabled (invitation notification exists, application form exists and application form can be submitted).
+      summary: Checks if invitation via notification is enabled (invitation notification exists, application form exists and application form can be submitted).
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/optionalGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/isLinkInvitationEnabled:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: isLinkInvitationEnabled
+      summary: Checks if invitation via link is enabled (application form exists and application form can be submitted).
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/optionalGroupId'

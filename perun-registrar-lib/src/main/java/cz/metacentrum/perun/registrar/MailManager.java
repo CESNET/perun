@@ -223,6 +223,16 @@ public interface MailManager {
 	void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException;
 
 	/**
+	 * Creates an invitation link for the given vo/group with the default authType (if defined in the vo/group attribute)
+	 *
+	 * @param vo Vo for which the invitation link should be created, parent Vo of the group if it should be a group invitation
+	 * @param group Group for which the invitation link should be created, null if it is not a group invitation
+	 *
+	 * @return the full invitation URL for Vo or Group
+	 */
+	String buildInviteURL(Vo vo, Group group);
+
+	/**
 	 * Creates a MAC with a hard-compiled secret key encoded to printable characters.
 	 *
 	 * @param input any string
@@ -239,18 +249,17 @@ public interface MailManager {
 	String getPropertyFromConfiguration(String input);
 
 	/**
-	 * Checks if invitation form exists
+	 * Checks if invitation form and invitation notification exist
 	 *
 	 * @param vo vo
 	 * @param group group
-	 * @return true if invitation form exists, false otherwise
-	 * @throws VoNotExistsException when vo does not exist
-	 * @throws GroupNotExistsException when group is defined and does not exist
+	 * @return true if invitation form and invitation notification exist, false otherwise
+	 * @throws PerunException exception
 	 */
-	Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws VoNotExistsException, GroupNotExistsException;
+	Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws PerunException;
 
 	/**
-	 * Checks if invitation is enabled (invitation notification exists, application form exists and application form can be submitted)
+	 * Checks if invitation via notification is enabled (invitation notification exists, application form exists and application form can be submitted)
 	 *
 	 * @param sess session
 	 * @param vo vo
@@ -259,4 +268,16 @@ public interface MailManager {
 	 * @throws PerunException exception
 	 */
 	Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException;
+
+	/**
+	 * Checks if invitation via link is enabled (application form exists and application form can be submitted)
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param group group (can be null for vo check)
+	 *
+	 * @return true if application form exists and application form can be submitted
+	 * @throws PerunException exception
+	 */
+	Boolean isLinkInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException;
 }

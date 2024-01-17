@@ -7889,6 +7889,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn:perun:group:attribute-def:def:authType
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("authType");
+		attr.setDisplayName("Authentication type");
+		attr.setDescription("Authentication type used in links for Group (e.g. fed, krb).");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		//urn:perun:facility:attribute-def:def:login-namespace
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
@@ -7964,6 +7979,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
 		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:vo:attribute-def:def:authType
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("authType");
+		attr.setDisplayName("Authentication type");
+		attr.setDescription("Authentication type used in links for Vo (e.g. fed, krb).");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:vo:attribute-def:def:applicationAutoRejectMessages

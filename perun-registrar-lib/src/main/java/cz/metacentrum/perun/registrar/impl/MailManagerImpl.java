@@ -15,6 +15,7 @@ import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForVoIdUpdated;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSending;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSentForApplication;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -892,7 +893,34 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
-	public Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws VoNotExistsException, GroupNotExistsException {
+	public Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws PerunException {
+		return isInvitationEnabled(sess, vo, group, true, false);
+	}
+
+	@Override
+	public Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
+		return isInvitationEnabled(sess, vo, group, true, true);
+	}
+
+	@Override
+	public Boolean isLinkInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
+		return isInvitationEnabled(sess, vo, group, false, true);
+	}
+
+	/**
+	 * Checks if invitation is enabled - if application form exists and according to the params if:
+	 * 	- invitation notification exists
+	 * 	- application form can be submitted
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param group group (can be null for vo check)
+	 * @param viaNotification if check only invitation form or also an invitation notification
+	 * @param checkCanBeSubmitted check also if the invitation form can be submitted
+	 * @return true if invitation notification exists, application form exists and application form can be submitted
+	 * @throws PerunException exception
+	 */
+	private Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group, boolean viaNotification, boolean checkCanBeSubmitted) throws PerunException {
 		Utils.checkPerunSession(sess);
 
 		perun.getVosManagerBl().checkVoExists(sess, vo);
@@ -900,26 +928,31 @@ public class MailManagerImpl implements MailManager {
 			perun.getGroupsManagerBl().checkGroupExists(sess, group);
 		}
 
+		// check that invitation form exist
+		ApplicationForm form;
 		try {
-			ApplicationForm form = getForm(vo, group);
-			getMail(form, AppType.INITIAL, MailType.USER_INVITE);
-		} catch (FormNotExistsException | RegistrarException e) {
+			form = getForm(vo, group);
+		} catch (FormNotExistsException e) {
 			return false;
 		}
 
-		return true;
-	}
-
-	public Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
-		// check that invitation form and invitation notification exist
-		if (!invitationFormExists(sess, vo, group)) {
-			return false;
+		// check that invitation notification exist
+		if (viaNotification) {
+			try {
+				getMail(form, AppType.INITIAL, MailType.USER_INVITE);
+			} catch (RegistrarException e) {
+				return false;
+			}
 		}
 
-		// check that invitation form can be submitted
-		ApplicationForm form = getForm(vo, group);
-		List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(sess, form, AppType.INITIAL);
-		return applicationItems.stream().anyMatch(item -> item.getType().equals(ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON) || item.getType().equals(ApplicationFormItem.Type.SUBMIT_BUTTON));
+		if (checkCanBeSubmitted) {
+			// check that invitation form can be submitted
+			List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(sess, form, AppType.INITIAL);
+			return applicationItems.stream().anyMatch(item -> item.getType().equals(ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON) || item.getType().equals(ApplicationFormItem.Type.SUBMIT_BUTTON));
+		} else {
+			return true;
+		}
+
 	}
 
 	/**
@@ -1350,15 +1383,8 @@ public class MailManagerImpl implements MailManager {
 		return mailText;
 	}
 
-	/**
-	 * Replace the link for mail invitation not concerning authz type
-	 *
-	 * @param vo vo to get invite link for
-	 * @param group group if is for group application
-	 * @return full URL to application form
-	 */
-	private String buildInviteURL(Vo vo, Group group) {
-		return buildInviteURL(vo, group,  EMPTY_STRING);
+	public String buildInviteURL(Vo vo, Group group) {
+		return buildInviteURL(vo, group, getAuthTypeFromAttribute(vo, group));
 	}
 
 	private String buildInviteURL(Vo vo, Group group, String namespace) {
@@ -1813,8 +1839,8 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Return base URL of Perun instance taken from VO/Group attribute. If not set,
-	 * value of branded, old gui domain is used. Otherwise, value of config property "perunUrl" is used.
+	 * Return base URL of Perun instance taken from VO/Group attribute "registrarUrl".
+	 * If not set, value of branded (or default), old gui domain is used.
 	 * If can't determine, then empty string is returned.
 	 *
 	 * e.g. https://perun.cesnet.cz
@@ -1824,12 +1850,9 @@ public class MailManagerImpl implements MailManager {
 	 * @return Base url or empty string.
 	 */
 	private String getPerunUrl(Vo vo, Group group) {
-		String result = getPropertyFromConfiguration("perunUrl");
-
 		PerunAppsConfig.Brand voBrand = PerunAppsConfig.getBrandContainingVo(vo.getShortName());
-		if (voBrand != null && !voBrand.getName().equals("default")) {
-			result = voBrand.getOldGuiDomain();
-		}
+		String result = voBrand != null ? voBrand.getOldGuiDomain() : EMPTY_STRING;
+
 		try {
 			if (group != null) {
 				Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_REGISTRAR_URL);
@@ -1865,7 +1888,8 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains(FIELD_PERUN_GUI_URL)) {
 			String text = getPerunUrl(vo, group);
 			if (StringUtils.hasText(text)) {
-				text = buildUrl(text, Map.of(), "gui");
+				// use authType from vo/group attribute if exists
+				text = buildUrl(text, Map.of(), getAuthTypeFromAttribute(vo, group), "gui");
 			}
 			mailText = replaceNullSafe(mailText, FIELD_PERUN_GUI_URL, text);
 		}
@@ -1893,7 +1917,7 @@ public class MailManagerImpl implements MailManager {
 					} else {
 						newValue = getPerunUrl(vo, group);
 						if (StringUtils.hasText(newValue)) {
-							newValue = buildUrl(newValue, Map.of(), "gui");
+							newValue = buildUrl(newValue, Map.of(), namespace, "gui");
 						}
 					}
 				}
@@ -1917,7 +1941,8 @@ public class MailManagerImpl implements MailManager {
 				if (group != null) {
 					params.put("group", group.getName());
 				}
-				text = buildUrl(text, params, "registrar");
+				// use authType from vo/group attribute if exists
+				text = buildUrl(text, params, getAuthTypeFromAttribute(vo, group), "registrar");
 			}
 			mailText = replaceNullSafe(mailText, FIELD_APP_GUI_URL, text);
 		}
@@ -1966,7 +1991,10 @@ public class MailManagerImpl implements MailManager {
 				if (!text.endsWith("/")) {
 					text += "/";
 				}
-				text += "gui/?vo/appdetail?id="+appId;
+				// use authType from vo/group attribute and join with "/" if exists
+				String authType = getAuthTypeFromAttribute(vo, group);
+				authType = Objects.equals(authType, EMPTY_STRING) ? EMPTY_STRING : authType + "/";
+				text += authType + "gui/?vo/appdetail?id=" + appId;
 				// FIXME - buildUrl() handles only valid URL and not our fake "anchor" url for navigating in OLD GUI
 				//text = buildUrl(text, Map.of("id", String.valueOf(appId)), "gui/?vo/appdetail");
 			}
@@ -2074,6 +2102,34 @@ public class MailManagerImpl implements MailManager {
 			sb.append(sj);
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Gets value of the authType attribute for the given Vo or Group
+	 * If the Group attribute doesn't exist, return value of the Vo attribute
+	 * If no attribute exists, return empty string
+	 *
+	 * @param vo
+	 * @param group
+	 * @return authType from the attribute or empty string
+	 */
+	private String getAuthTypeFromAttribute(Vo vo, Group group) {
+		String authType = EMPTY_STRING;
+		try {
+			Attribute voAttr = attrManager.getAttribute(registrarSession, vo, AttributesManager.NS_VO_ATTR_DEF + ":authType");
+			if (voAttr != null && voAttr.getValue() != null && !((String) voAttr.getValue()).isEmpty()) {
+				authType = (String) voAttr.getValue();
+			}
+			if (group != null) {
+				Attribute groupAttr = attrManager.getAttribute(registrarSession, group, AttributesManager.NS_GROUP_ATTR_DEF + ":authType");
+				if (groupAttr != null && groupAttr.getValue() != null && !((String) groupAttr.getValue()).isEmpty()) {
+					authType = (String) groupAttr.getValue();
+				}
+			}
+		}  catch (Exception ex) {
+			// ignore it - it is not a required attributes
+		}
+		return authType;
 	}
 
 	/**
@@ -2243,7 +2299,9 @@ public class MailManagerImpl implements MailManager {
 				}
 				params.put("i", i);
 				params.put("m", m);
-				url = buildUrl(url, params, "registrar");
+
+				// use authType from vo/group attribute if exists
+				url = buildUrl(url, params, getAuthTypeFromAttribute(app.getVo(), app.getGroup()), "registrar");
 
 				// replace validation link
 				mailText = replaceNullSafe(mailText, FIELD_VALIDATION_LINK, url);
