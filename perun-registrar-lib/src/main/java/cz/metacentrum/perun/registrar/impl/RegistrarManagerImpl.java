@@ -4145,8 +4145,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		AppType type = app.getType();
 
-		if ((AppType.INITIAL.equals(type) && !form.isAutomaticApproval()) || (AppType.EXTENSION.equals(type) && !form.isAutomaticApprovalExtension()) || (AppType.EMBEDDED.equals(type) && !form.isAutomaticApprovalEmbedded())) {
-			return;
+		if (!forceAutoApprove(sess, app)) {
+			if (AppType.INITIAL.equals(type) && !form.isAutomaticApproval()) return;
+			if (AppType.EXTENSION.equals(type) && !form.isAutomaticApprovalExtension()) return;
+			if (AppType.EMBEDDED.equals(type) && !form.isAutomaticApprovalEmbedded()) return;
 		}
 
 		// do not auto-approve Group applications, if user is not member of VO
@@ -4206,6 +4208,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			getMailManager().sendMessage(app, MailType.APP_ERROR_VO_ADMIN, null, List.of(ex));
 			throw ex;
 		}
+	}
+
+	/**
+	 * Check if application meets some condition for forced auto approval.
+	 *
+	 * @param sess perun session
+	 * @param app application
+	 * @return true if some condition for forced auto approval is met
+	 * @throws PerunException
+	 */
+	private boolean forceAutoApprove(PerunSession sess, Application app) throws PerunException {
+		Set<RegistrarModule> modules = app.getGroup() != null ? getRegistrarModules(getFormForGroup(app.getGroup())) : getRegistrarModules(getFormForVo(app.getVo()));
+		if (!modules.isEmpty()) {
+			for (RegistrarModule module: modules) {
+				if (module.autoApproveShouldBeForce(sess, app)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -4659,9 +4681,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (application.getState().equals(AppState.NEW)) return;
 
 		// approve applications only for auto-approve forms
-		if (!getFormForGroup(application.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(application.getType())) return;
-		if (!getFormForGroup(application.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(application.getType())) return;
-		if (!getFormForGroup(application.getGroup()).isAutomaticApprovalEmbedded() && AppType.EMBEDDED.equals(application.getType())) return;
+		if (!forceAutoApprove(sess, application)) {
+			if (!getFormForGroup(application.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(application.getType())) return;
+			if (!getFormForGroup(application.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(application.getType())) return;
+			if (!getFormForGroup(application.getGroup()).isAutomaticApprovalEmbedded() && AppType.EMBEDDED.equals(application.getType())) return;
+		}
 
 		try {
 			registrarManager.approveApplicationInternal(sess, application.getId());
