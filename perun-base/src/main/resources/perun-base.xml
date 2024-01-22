@@ -101,14 +101,14 @@
 	<bean id="defaultCoreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
 			<props>
-				<prop key="perun.admins">perunTests, perunController, perunEngine, perunDispatcher, perunRegistrar,
+				<prop key="perun.admins">perunTests, perunEngine, perunDispatcher, perunRegistrar,
 					perunSynchronizer, perunCabinet
 				</prop>
 				<prop key="perun.engine.principals">perunEngine</prop>
 				<prop key="perun.registrar.principals"/>
 				<prop key="perun.notification.principals">perunNotifications</prop>
 				<prop key="perun.rpc.principal">perunRpc</prop>
-				<prop key="perun.dont.lookup.users">perunTests, perunController, perunEngine, perunDispatcher,
+				<prop key="perun.dont.lookup.users">perunTests, perunEngine, perunDispatcher,
 					perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc, perunLdapc
 				</prop>
 				<prop key="perun.lookup.user.by.identifiers.and.extSourceLogin">false</prop>
