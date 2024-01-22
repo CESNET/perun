@@ -8,7 +8,7 @@ variables:
 
 # build and run tests
 maven-build:
-  image: registry.gitlab.ics.muni.cz:443/perun-proxy-aai/containers/ci-tools/perun-idm-builder:latest@sha256:cfe489638b536eb4dede6011a7fc0280f39f7fb0d0dc7c6d5722e466993337b4
+  image: registry.gitlab.ics.muni.cz:443/perun-proxy-aai/containers/ci-tools/perun-idm-builder:latest@sha256:a55590e95d5d9d3a90054a6f8649d801567c52ffaa226fe4c26b9429fb4ff3cd
   stage: build
   tags: # do not run on k8s
     - docker
