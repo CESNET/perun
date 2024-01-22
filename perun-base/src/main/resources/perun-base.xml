@@ -149,7 +149,7 @@
 				<prop key="perun.DBInitializatorEnabled">false</prop>
 				<prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
 				<prop key="perun.proxyIdPs"/>
-				<prop key="perun.attributesForUpdate.idp">mail,cn,sn,givenName,o,ou,eppn,affiliation,displayName,uid,epuid,schacHomeOrganization,voPersonExternalAffiliation,alternativeLoginName,isCesnetEligibleLastSeen,IdPOrganizationName,sourceIdPName,entitlement,assurance,eduPersonOrcid,organizationURL,eIDASPersonIdentifier,europeanStudentID</prop>
+				<prop key="perun.attributesForUpdate.idp">mail,cn,sn,givenName,o,ou,eppn,affiliation,displayName,uid,epuid,schacHomeOrganization,voPersonExternalAffiliation,alternativeLoginName,isCesnetEligibleLastSeen,IdPOrganizationName,sourceIdPName,entitlement,assurance,eduPersonOrcid,organizationURL,eIDASPersonIdentifier,europeanStudentID,internalEligibilities</prop>
 				<prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
