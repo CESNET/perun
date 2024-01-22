@@ -1149,6 +1149,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="securityImage;x-ns-"/>
 					<property name="required" value="false"/>
+					<property name="deleted" value="true"/>
 					<property name="singleValueExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
 							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:securityImage:"/>
