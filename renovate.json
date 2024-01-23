@@ -1,15 +1,7 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": [
-		"config:best-practices",
-		":automergeStableNonMajor",
-		":automergeRequireAllStatusChecks",
-		":approveMajorUpdates",
-		":maintainLockFilesMonthly",
-		":pinOnlyDevDependencies",
-		":semanticCommits",
-		":enableVulnerabilityAlertsWithLabel(security)"
-	],
-	"minimumReleaseAge": "3 days",
-	"osvVulnerabilityAlerts": true
+		"local>perun/renovate-config:lib-maintained",
+		":automergeStableNonMajor"
+	]
 }
