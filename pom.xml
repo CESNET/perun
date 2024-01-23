@@ -79,7 +79,7 @@
 		<jdom.version>1.0</jdom.version>
 		<json.version>20231013</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
-		<reflections.version>0.9.11</reflections.version>
+		<reflections.version>0.9.12</reflections.version>
 		<testcontainers.version>1.19.3</testcontainers.version>
 	</properties>
 
