@@ -25,13 +25,7 @@ See also other related repositories in the [Perun IdM](https://gitlab.ics.muni.c
 
 ### Contributing
 
-This repository uses [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). To construct a proper commit message, run:
-
-```sh
-npx cz
-```
-
-instead of `git commit`.
+If you want to contribute, you can check [CONTRIBUTING.md](https://gitlab.ics.muni.cz/perun/perun-idm/perun/-/blob/main/CONTRIBUTING.md) for more details.
 
 ### License
 
