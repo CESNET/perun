@@ -331,6 +331,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Checks whether input is valid html according to the rules in our custom html parser
+	 *
+	 * @param html String input html to check
+	 * @throw InvalidHtmlInputException when html is not valid
+	 */
+	checkHtmlInput {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getRegistrarManager().checkHtmlInput(ac.getSession(), parms.readString("html"));
+			return null;
+		}
+	},
+
 
 	/*#
 	 * Create application form for a VO.

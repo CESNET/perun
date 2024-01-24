@@ -791,4 +791,13 @@ public interface RegistrarManager {
 	 * @throws InvalidHtmlInputException when not valid for our checkbox policy
 	 */
 	void checkCheckboxHtml(PerunSession sess, String html) throws InvalidHtmlInputException;
+
+	/**
+	 * Checks whether input is valid html according to the rules in our custom html parser
+	 *
+	 * @param sess sess
+	 * @param html the input html
+	 * @throws InvalidHtmlInputException when html is not valid
+	 */
+	void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException;
 }

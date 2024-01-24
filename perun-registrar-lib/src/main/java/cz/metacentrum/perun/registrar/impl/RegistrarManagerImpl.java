@@ -3980,6 +3980,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException {
+		Utils.checkPerunSession(sess);
+
+		HTMLParser parser = new HTMLParser()
+			.sanitizeHTML(html)
+			.checkEscapedHTML();
+		if (!parser.isInputValid()) {
+			throw new InvalidHtmlInputException("HTML input contains unsafe HTML tags, attributes, styles or links. Remove them and try again.", parser.getEscaped());
+		}
+	}
+
+	@Override
 	public void handleUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
 		// get group apps based on the vo
 		List<Application> apps = jdbc.query(
