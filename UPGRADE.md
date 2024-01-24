@@ -1,5 +1,24 @@
 Upgrade notes
 
+## [33.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.1.0...v33.2.0) (2024-01-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** registrar config property perunUrl isn't used anymore as url replacement fallback in notifications (default brand is used instead)
+
+(cherry picked from commit 0bedde487c007c9f40f516d4d2f72cb33ecd0b52)
+
+### Features
+
+* **core:** new envri id login module ([d03573a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d03573ac5edb87d9ecdc7e0601e5beccfaebb079))
+* **registrar:** make the method for creating an invitation URL available in RPC/openapi ([9596e4a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9596e4af4201db404afc41701584e76cefd51740))
+
+
+### Bug Fixes
+
+* correct print in Python CLI ([5e4291b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5e4291bf6b1f996dd46fd4aa84b884028742d285))
+
 ## [33.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.0.2...v33.1.0) (2024-01-15)
 
 
