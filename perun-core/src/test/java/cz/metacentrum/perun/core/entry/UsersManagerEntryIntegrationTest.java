@@ -827,6 +827,25 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
+	@Test
+	public void addUserExtSourceWithAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "addUserExtSourceWithAttributes");
+
+		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
+		Attribute attribute = createUserExtSourceAttribute("testAttribute", String.class.getName(), "testValue", true);
+		List<Attribute> uesAttributes = List.of(attribute);
+
+		UserExtSource userExtSource2 = new UserExtSource();
+		userExtSource2.setLogin(extLogin2);
+		userExtSource2.setExtSource(externalSource);
+
+		RichUserExtSource returnedRichUserExtSource = usersManager.addUserExtSourceWithAttributes(sess, user, userExtSource2, uesAttributes);
+		assertNotNull(returnedRichUserExtSource);
+		assertTrue(returnedRichUserExtSource.asUserExtSource().getId() > 0);
+		assertEquals("Both User Ext Sources should be the same",userExtSource2, returnedRichUserExtSource.asUserExtSource());
+		assertEquals(1, returnedRichUserExtSource.getAttributes().size());
+	}
+
 	@Test (expected=UserExtSourceExistsException.class)
 	public void addUserExtSourceWhenUserExtSourceAlreadyExists() throws Exception {
 		System.out.println(CLASS_NAME + "addUserExtSourceWhenUserExtSourceAlreadyExists");

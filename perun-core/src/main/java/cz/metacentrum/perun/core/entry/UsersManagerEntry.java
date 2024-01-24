@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.UsersPageQuery;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -706,7 +705,15 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
-		@Override
+	@Override
+	public RichUserExtSource addUserExtSourceWithAttributes(PerunSession sess, User user, UserExtSource userExtSource, List<Attribute> uesAttributes) throws UserNotExistsException, UserExtSourceExistsException, PrivilegeException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException {
+		UserExtSource ues = this.addUserExtSource(sess, user, userExtSource);
+		this.perunBl.getAttributesManager().setAttributes(sess, ues, uesAttributes);
+		List<Attribute> createdUesAttributes = this.perunBl.getAttributesManager().getAttributes(sess, ues);
+		return new RichUserExtSource(ues, createdUesAttributes);
+	}
+
+	@Override
 	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
