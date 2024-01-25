@@ -2658,6 +2658,13 @@ components:
           schema:
             $ref: "#/components/schemas/UserExtSource"
 
+    RichUserExtSourceResponse:
+      description: "returns richUserExtSource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RichUserExtSource"
+
     PerunAppsConfigResponse:
       description: "returns configuration of perun apps brandings and apps' domains"
       content:
@@ -9530,6 +9537,34 @@ paths:
               properties:
                 user: { type: integer }
                 userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+
+  /json/usersManager/addUserExtSourceWithAttributes:
+    post:
+      tags:
+        - UsersManager
+      operationId: addUserExtSourceWithAttributes
+      summary: Adds user's external source along with the given attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/RichUserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: AddUserExtSourceWithAttributesInput
+              description: "input to addUserExtSourceWithAttributes"
+              type: object
+              required:
+                - user
+                - userExtSource
+                - attributes
+              properties:
+                user: { type: integer }
+                userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+                attributes: { type: array, items: { $ref: "#/components/schemas/Attribute" } }
 
   /urlinjsonout/usersManager/validatePreferredEmailChange:
     post:
