@@ -83,4 +83,8 @@ public class DefaultRegistrarModule implements RegistrarModule {
 
 	}
 
+	@Override
+	public boolean autoApproveShouldBeForce(PerunSession sess, Application app) throws PerunException {
+		return false;
+	}
 }

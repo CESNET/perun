@@ -114,4 +114,12 @@ public interface RegistrarModule {
 	void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
 	                              List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException;
 
+	/**
+	 * Check if application auto approval should be forced.
+	 *
+	 * @param sess perun session
+	 * @param app application
+	 * @return true, if auto approval should be forced, otherwise false
+	 */
+	boolean autoApproveShouldBeForce(PerunSession sess, Application app) throws PerunException;
 }
