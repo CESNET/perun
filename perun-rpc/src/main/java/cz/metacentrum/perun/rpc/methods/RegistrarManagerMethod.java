@@ -379,13 +379,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Checks whether input is valid html according to the rules in our custom html parser
 	 *
 	 * @param html String input html to check
+	 *
+	 * @return warning if the input will be autocompleted/changed during the sanitization, empty string otherwise
 	 * @throw InvalidHtmlInputException when html is not valid
 	 */
 	checkHtmlInput {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getRegistrarManager().checkHtmlInput(ac.getSession(), parms.readString("html"));
-			return null;
+		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getRegistrarManager().checkHtmlInput(ac.getSession(), parms.readString("html"));
 		}
 	},
 

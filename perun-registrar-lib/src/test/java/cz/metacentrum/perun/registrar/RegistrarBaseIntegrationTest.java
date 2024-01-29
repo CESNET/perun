@@ -2,6 +2,7 @@ package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -196,6 +197,136 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertTrue("Our mail was not returned", mails.contains(mail));
 		assertNull("Plain text message doesn't contain correct text", mails.get(0).getMessage(new Locale("cs")).getText());
 		assertEquals("Html message doesn't contain correct text", mails.get(0).getHtmlMessage(new Locale("cs")).getText(), "<p>Český text mailu <b>v html</b>.</p>");
+	}
+
+	@Test (expected = InvalidHtmlInputException.class)
+	public void createAppMailWithInvalidHtmlSubject() throws PerunException {
+		System.out.println("createAppMailWithInvalidHtmlSubject()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText html = mail.getHtmlMessage(new Locale("en"));
+		html.setSubject("<script>alert(\"I AM UNSAFE!\");</script>");
+		html.setText("English <b>html</b> text");
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
+		try {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
+			mailManager.addMail(session, form, mail);
+		} finally {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
+		}
+	}
+
+	@Test (expected = InvalidHtmlInputException.class)
+	public void createAppMailWithInvalidHtmlText() throws PerunException {
+		System.out.println("createAppMailWithInvalidHtmlText()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText html = mail.getHtmlMessage(new Locale("en"));
+		html.setSubject("English <b>html</b> subject");
+		html.setText("<script>alert(\"I AM UNSAFE!\");</script>");
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
+		try {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
+			mailManager.addMail(session, form, mail);
+		} finally {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
+		}
+	}
+
+	@Test
+	public void createAppMailWithSanitizedHtmlSubject() throws PerunException {
+		System.out.println("createAppMailWithSanitizedHtmlSubject()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText html = mail.getHtmlMessage(new Locale("en"));
+		html.setSubject("<b>subject< script>");
+		html.setText("English <b>html</b> text");
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
+		try {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
+			String warning = registrarManager.checkHtmlInput(session, html.getSubject());
+			assertNotEquals("", warning);
+
+			mailManager.addMail(session, form, mail);
+			List<ApplicationMail> mails = mailManager.getApplicationMails(session, form);
+			assertEquals("Html input should be sanitized", mails.get(0).getHtmlMessage(new Locale("en")).getSubject(), "<b>subject&lt; script&gt;</b>");
+		} finally {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
+		}
+	}
+
+	@Test
+	public void createAppMailWithSanitizedHtmlText() throws PerunException {
+		System.out.println("createAppMailWithSanitizedHtmlText()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText html = mail.getHtmlMessage(new Locale("en"));
+		html.setSubject("English <b>html</b> subject");
+		html.setText("<b>text< script>");
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
+		try {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
+			String warning = registrarManager.checkHtmlInput(session, html.getText());
+			assertNotEquals("", warning);
+
+			mailManager.addMail(session, form, mail);
+			List<ApplicationMail> mails = mailManager.getApplicationMails(session, form);
+			assertEquals("Html input should be sanitized", mails.get(0).getHtmlMessage(new Locale("en")).getText(), "<b>text&lt; script&gt;</b>");
+		} finally {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
+		}
+	}
+
+	@Test (expected = InvalidHtmlInputException.class)
+	public void createAppMailWithSanitizedHtmlSubjectError() throws PerunException {
+		System.out.println("createAppMailWithSanitizedHtmlSubjectError()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText html = mail.getHtmlMessage(new Locale("en"));
+		html.setSubject("<a href>< script>");
+		html.setText("English <b>html</b> text");
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
+		try {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
+			registrarManager.checkHtmlInput(session, html.getSubject());
+		} finally {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
+		}
+	}
+
+	@Test (expected = InvalidHtmlInputException.class)
+	public void createAppMailWithSanitizedHtmlTextError() throws PerunException {
+		System.out.println("createAppMailWithSanitizedHtmlTextError()");
+
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationMail mail = new ApplicationMail(0,AppType.INITIAL, form.getId(), MailType.APP_CREATED_USER, true);
+		MailText html = mail.getHtmlMessage(new Locale("en"));
+		html.setSubject("English <b>html</b> subject");
+		html.setText("<a href>< script>");
+
+		boolean originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
+		try {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
+			registrarManager.checkHtmlInput(session, html.getText());
+		} finally {
+			BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
+		}
 	}
 
 	@Test

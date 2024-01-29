@@ -3980,7 +3980,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException {
+	public String checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException {
 		Utils.checkPerunSession(sess);
 
 		HTMLParser parser = new HTMLParser()
@@ -3989,6 +3989,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (!parser.isInputValid()) {
 			throw new InvalidHtmlInputException("HTML input contains unsafe HTML tags, attributes, styles or links. Remove them and try again.", parser.getEscaped());
 		}
+
+		// check if after sanitization is the output still valid
+		parser = new HTMLParser()
+			.sanitizeHTML(parser.getEscapedHTML())
+			.checkEscapedHTML();
+		if (!parser.isInputValid()) {
+			throw new InvalidHtmlInputException("HTML will be autocompleted during the sanitization and the result will be an invalid HTML (e.g. incorrect link in the href attribute). Fix the HTML input and try again.", parser.getEscaped());
+		}
+
+
+		// check if the sanitization will change the HTML input
+		String responseMessage = "";
+		if (!parser.getEscapedHTML().equals(html)) {
+			responseMessage = "HTML will be autocompleted/changed during the sanitization so the result will be different than the input HTML.";
+		}
+
+		return responseMessage;
 	}
 
 	@Override

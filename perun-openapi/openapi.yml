@@ -16218,12 +16218,12 @@ paths:
       tags:
         - RegistrarManager
       operationId: checkHtmlInput
-      summary: Checks whether input is valid html according to the rules in our custom html parser
+      summary: Checks whether input is valid html according to the rules in our custom html parser (returns warning message if the input will be autocompleted/changed during the sanitization)
       parameters:
         - { name: html, schema: { type: string }, in: query, required: true, description: "input html to check" }
       responses:
         '200':
-          $ref: '#/components/responses/VoidResponse'
+          $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
