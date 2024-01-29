@@ -16213,6 +16213,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/checkHtmlInput:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: checkHtmlInput
+      summary: Checks whether input is valid html according to the rules in our custom html parser
+      parameters:
+        - { name: html, schema: { type: string }, in: query, required: true, description: "input html to check" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/consolidateIdentityUsingToken:
     get:
       tags:
