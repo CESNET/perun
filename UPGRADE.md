@@ -1,5 +1,37 @@
 Upgrade notes
 
+## [33.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.2.0...v33.3.0) (2024-01-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** registrar config property perunUrl isn't used anymore as url replacement fallback in notifications (default brand is used instead)
+* **core:** Principal `perunController` removed from default perun admins.
+
+### Features
+
+* **core:** auto approve registrar module ([6a71961](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6a71961b042af8c1b1f986ccc74dce9c27c6eef8))
+* **core:** methods for creating ues and uesAttributes in one call ([d2cc0b1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d2cc0b1c9c4d7e028df7573bb800f41f55895ad6))
+* **core:** new envri id login module ([2362e48](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2362e4867c4619b585d7f877b2ea4b15c30a71eb))
+* **registrar:** make the method for creating an invitation URL available in RPC/openapi ([0bedde4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0bedde487c007c9f40f516d4d2f72cb33ecd0b52))
+* **registrar:** module to approve based on affiliation ([f02437f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f02437f8194c8898b8e56eafdb434da3ce973e25))
+* **registrar:** publish method for async html input check from GUI ([0d414d0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0d414d0aad0c7374f026d0fcd14225a0c6117a28))
+
+
+### Bug Fixes
+
+* correct print in Python CLI ([aeaa624](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/aeaa6248374a5a4d422644aa258840054f8b42c2))
+* **deps:** update dependency google-api-services-admin-directory to directory_v1-rev20240102-2.0.0 ([63b3bb0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/63b3bb0a3030e7fc16597ed10547f17ee2489102))
+* **deps:** update dependency org.jboss.javaee:jboss-jms-api to v1.1.0.20070913080910 ([634f2d6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/634f2d67cf95fe1c6aff8ed676c0bcb1b4df1de9))
+* **deps:** update dependency org.reflections:reflections to v0.9.12 ([7abd1fd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7abd1fdfdc6e0bc7be95bd7e1b440bfdcca4da28))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.5.1 ([fae8f4c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fae8f4c2a74f9a98c55e17398586d1cc6a7e9e5a))
+* mark securityImage as deleted in LDAP ([41f5fdd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/41f5fddfd304b1efb1c37ce5e9954b9e25538b14))
+
+
+### Others
+
+* **core:** removed perunController principal from default perun admins ([35f330c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/35f330ce9656ee9baabd05e57c7b86a65e4c777a))
+
 ## [33.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.1.0...v33.2.0) (2024-01-24)
 
 
