@@ -69,9 +69,9 @@
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
-		<flying-saucer-pdf.version>9.4.1</flying-saucer-pdf.version>
+		<flying-saucer-pdf.version>9.5.1</flying-saucer-pdf.version>
 		<bouncycastle.version>1.77</bouncycastle.version>
-		<google-api-services-admin-directory.version>directory_v1-rev20231113-2.0.0</google-api-services-admin-directory.version>
+		<google-api-services-admin-directory.version>directory_v1-rev20240102-2.0.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
@@ -79,8 +79,8 @@
 		<jdom.version>1.0</jdom.version>
 		<json.version>20231013</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
-		<reflections.version>0.9.11</reflections.version>
-		<testcontainers.version>1.19.3</testcontainers.version>
+		<reflections.version>0.9.12</reflections.version>
+		<testcontainers.version>1.19.4</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS

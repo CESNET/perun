@@ -40,7 +40,6 @@ my @readAttributes = (
 	"urn:perun:user:attribute-def:virt:eduPersonPrincipalNames",
 	"urn:perun:user:attribute-def:virt:tcsMails:mu",
 	"urn:perun:user:attribute-def:def:securityText:mu",
-	"urn:perun:user:attribute-def:def:securityImage:mu",
 	"urn:perun:user:attribute-def:core:id",
 	"urn:perun:user:attribute-def:core:commonName",
 	"urn:perun:user:attribute-def:core:displayName",

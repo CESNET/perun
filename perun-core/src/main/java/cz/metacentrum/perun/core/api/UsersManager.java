@@ -591,6 +591,25 @@ public interface UsersManager {
 	void removeUserExtSources(PerunSession perunSession, User user, List<UserExtSource> userExtSources, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
 
 	/**
+	 * Adds userExternalSource to the user along with the ues attributes.
+	 *
+	 * @param  sess
+	 * @param  user          user to assign the userExtSource to
+	 * @param  userExtSource the UserExtSource to be created
+	 * @param  uesAttributes the Attributes to be set to the userExtSource
+	 * @return the newly created ues along with its attributes as RichUserExtSource
+	 * @throws UserNotExistsException
+	 * @throws UserExtSourceExistsException
+	 * @throws PrivilegeException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws UserExtSourceNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException
+	 */
+	RichUserExtSource addUserExtSourceWithAttributes(PerunSession sess, User user, UserExtSource userExtSource, List<Attribute> uesAttributes) throws UserNotExistsException, UserExtSourceExistsException, PrivilegeException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException;
+
+	/**
 	 * Take UserExtSource from sourceUser and move it to the targetUser.
 	 *
 	 * It removes old UserExtSource with all it's attributes from sourceUser and creates and assigns the new one with

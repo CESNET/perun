@@ -616,6 +616,11 @@ public class CoreConfig {
 					attr.setType(ArrayList.class.getName());
 					attr.setUnique(true);
 					break;
+				case "internalEligibilities":
+					attr.setDisplayName("Eligibilities (internal)");
+					attr.setDescription("Eligibilities calculated by proxy (from Perun and IdP data) stored last time user used this identity to access Perun.");
+					attr.setType(ArrayList.class.getName());
+					break;
 				default:
 					attr.setDisplayName(attrName);
 					attr.setDescription(attrName);

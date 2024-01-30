@@ -106,6 +106,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_at
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_unixGID_namespace;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAffiliationRegex;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
@@ -116,6 +117,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_userEligibilities;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAffiliationRegex;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
@@ -7838,6 +7840,36 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn:perun:group:attribute-def:def:autoApproveByGroupMembership
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(ArrayList.class.getName());
+		attr.setFriendlyName("autoApproveByGroupMembership");
+		attr.setDisplayName("Auto approve by group membership");
+		attr.setDescription("List of group IDs in which user is already valid member, his application will be automatically approved.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, WRITE, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:vo:attribute-def:def:autoApproveByGroupMembership
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setType(ArrayList.class.getName());
+		attr.setFriendlyName("autoApproveByGroupMembership");
+		attr.setDisplayName("Auto approve by group membership");
+		attr.setDescription("List of group IDs in which user is already valid member, his application to any group in Vo will be automatically approved.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
 		//urn:perun:group:attribute-def:def:applicationViewPreferences
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
@@ -7887,6 +7919,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
 		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
 		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:group:attribute-def:def:applicationAffiliationRegex
+		attr = new urn_perun_group_attribute_def_def_applicationAffiliationRegex().getAttributeDefinition();
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:vo:attribute-def:def:applicationAffiliationRegex
+		attr = new urn_perun_vo_attribute_def_def_applicationAffiliationRegex().getAttributeDefinition();
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
 		//urn:perun:group:attribute-def:def:authType

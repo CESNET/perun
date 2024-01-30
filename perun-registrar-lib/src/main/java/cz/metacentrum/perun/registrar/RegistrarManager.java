@@ -661,6 +661,15 @@ public interface RegistrarManager {
 	void updateApplicationType(PerunSession session, Application application);
 
 	/**
+	 * Sets error that occurred during automatic approval of application.
+	 *
+	 * @param application application
+	 * @param error error
+	 */
+	void setAutoApproveErrorToApplication(Application application, String error);
+
+
+	/**
 	 * Returns all groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
@@ -791,4 +800,13 @@ public interface RegistrarManager {
 	 * @throws InvalidHtmlInputException when not valid for our checkbox policy
 	 */
 	void checkCheckboxHtml(PerunSession sess, String html) throws InvalidHtmlInputException;
+
+	/**
+	 * Checks whether input is valid html according to the rules in our custom html parser
+	 *
+	 * @param sess sess
+	 * @param html the input html
+	 * @throws InvalidHtmlInputException when html is not valid
+	 */
+	void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException;
 }

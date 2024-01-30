@@ -2658,6 +2658,13 @@ components:
           schema:
             $ref: "#/components/schemas/UserExtSource"
 
+    RichUserExtSourceResponse:
+      description: "returns richUserExtSource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RichUserExtSource"
+
     PerunAppsConfigResponse:
       description: "returns configuration of perun apps brandings and apps' domains"
       content:
@@ -9531,6 +9538,34 @@ paths:
                 user: { type: integer }
                 userExtSource: { $ref: '#/components/schemas/UserExtSource' }
 
+  /json/usersManager/addUserExtSourceWithAttributes:
+    post:
+      tags:
+        - UsersManager
+      operationId: addUserExtSourceWithAttributes
+      summary: Adds user's external source along with the given attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/RichUserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: AddUserExtSourceWithAttributesInput
+              description: "input to addUserExtSourceWithAttributes"
+              type: object
+              required:
+                - user
+                - userExtSource
+                - attributes
+              properties:
+                user: { type: integer }
+                userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+                attributes: { type: array, items: { $ref: "#/components/schemas/Attribute" } }
+
   /urlinjsonout/usersManager/validatePreferredEmailChange:
     post:
       tags:
@@ -16172,6 +16207,20 @@ paths:
       summary: Check whether input html is safe for our application form item checkbox labels
       parameters:
         - { name: html, schema: { type: string }, in: query, required: true, description: "string containing the html to check for" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/checkHtmlInput:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: checkHtmlInput
+      summary: Checks whether input is valid html according to the rules in our custom html parser
+      parameters:
+        - { name: html, schema: { type: string }, in: query, required: true, description: "input html to check" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

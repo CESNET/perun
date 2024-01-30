@@ -665,6 +665,25 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Adds user's external source and its attributes.
+	 * @param user int User <code>id</code>
+	 * @param userExtSource UserExtSource JSON object
+	 * @param attributes List<Attribute> list of Attribute
+	 * @return RichUserExtSource Newly added RichUserExtSource
+	 */
+	addUserExtSourceWithAttributes{
+		@Override
+		public RichUserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getUsersManager().addUserExtSourceWithAttributes(ac.getSession(),
+				ac.getUserById(parms.readInt("user")),
+				parms.read("userExtSource", UserExtSource.class),
+				parms.readList("attributes", Attribute.class));
+		}
+	},
+
+	/*#
 	 * Remove user's external source.
 	 * Persistent UserExtSources are not removed unless <code>force</code> param is present and set to <code>true</code>.
 	 * @param user int User <code>id</code>

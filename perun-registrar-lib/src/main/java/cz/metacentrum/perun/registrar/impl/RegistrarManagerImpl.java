@@ -3980,6 +3980,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException {
+		Utils.checkPerunSession(sess);
+
+		HTMLParser parser = new HTMLParser()
+			.sanitizeHTML(html)
+			.checkEscapedHTML();
+		if (!parser.isInputValid()) {
+			throw new InvalidHtmlInputException("HTML input contains unsafe HTML tags, attributes, styles or links. Remove them and try again.", parser.getEscaped());
+		}
+	}
+
+	@Override
 	public void handleUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
 		// get group apps based on the vo
 		List<Application> apps = jdbc.query(
@@ -4145,8 +4157,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		AppType type = app.getType();
 
-		if ((AppType.INITIAL.equals(type) && !form.isAutomaticApproval()) || (AppType.EXTENSION.equals(type) && !form.isAutomaticApprovalExtension()) || (AppType.EMBEDDED.equals(type) && !form.isAutomaticApprovalEmbedded())) {
-			return;
+		if (!forceAutoApprove(sess, app)) {
+			if (AppType.INITIAL.equals(type) && !form.isAutomaticApproval()) return;
+			if (AppType.EXTENSION.equals(type) && !form.isAutomaticApprovalExtension()) return;
+			if (AppType.EMBEDDED.equals(type) && !form.isAutomaticApprovalEmbedded()) return;
 		}
 
 		// do not auto-approve Group applications, if user is not member of VO
@@ -4206,6 +4220,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			getMailManager().sendMessage(app, MailType.APP_ERROR_VO_ADMIN, null, List.of(ex));
 			throw ex;
 		}
+	}
+
+	/**
+	 * Check if application meets some condition for forced auto approval.
+	 *
+	 * @param sess perun session
+	 * @param app application
+	 * @return true if some condition for forced auto approval is met
+	 * @throws PerunException
+	 */
+	private boolean forceAutoApprove(PerunSession sess, Application app) throws PerunException {
+		Set<RegistrarModule> modules = app.getGroup() != null ? getRegistrarModules(getFormForGroup(app.getGroup())) : getRegistrarModules(getFormForVo(app.getVo()));
+		if (!modules.isEmpty()) {
+			for (RegistrarModule module: modules) {
+				if (module.autoApproveShouldBeForce(sess, app)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -4659,9 +4693,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (application.getState().equals(AppState.NEW)) return;
 
 		// approve applications only for auto-approve forms
-		if (!getFormForGroup(application.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(application.getType())) return;
-		if (!getFormForGroup(application.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(application.getType())) return;
-		if (!getFormForGroup(application.getGroup()).isAutomaticApprovalEmbedded() && AppType.EMBEDDED.equals(application.getType())) return;
+		if (!forceAutoApprove(sess, application)) {
+			if (!getFormForGroup(application.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(application.getType())) return;
+			if (!getFormForGroup(application.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(application.getType())) return;
+			if (!getFormForGroup(application.getGroup()).isAutomaticApprovalEmbedded() && AppType.EMBEDDED.equals(application.getType())) return;
+		}
 
 		try {
 			registrarManager.approveApplicationInternal(sess, application.getId());
@@ -5103,6 +5139,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 	}
 
+	@Override
+	public void setAutoApproveErrorToApplication(Application application, String error) {
+		jdbc.update("UPDATE application SET auto_approve_error=? WHERE id=?", error, application.getId());
+	}
+
 	/**
 	 * Prepare map tempId -> savedId, save tempId -> hiddenDependencyId and tempId -> disabledDependencyId
 	 * and reset the dependencyId attributes for unsaved items
@@ -5145,16 +5186,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				idsTranslation.get(toHidden.get(tempId)),
 				idsTranslation.get(tempId));
 		}
-	}
-
-	/**
-	 * Sets error that occurred during automatic approval of application.
-	 *
-	 * @param application application
-	 * @param error error
-	 */
-	private void setAutoApproveErrorToApplication(Application application, String error) {
-		jdbc.update("UPDATE application SET auto_approve_error=? WHERE id=?", error, application.getId());
 	}
 
 	/**
