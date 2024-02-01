@@ -312,6 +312,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters");
 		}
 
+		if (!facility.getName().equals(facility.getName().trim())) {
+			throw new IllegalArgumentException("Wrong facility name, facility name cannot contain leading and trailing spaces");
+		}
+
 		//check if facility have uniq name
 		try {
 			this.getFacilityByName(sess, facility.getName());
@@ -442,6 +446,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		//check facility name, it can contain only a-zA-Z.0-9_-
 		if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
 			throw new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters");
+		}
+
+		if (!facility.getName().equals(facility.getName().trim())) {
+			throw new IllegalArgumentException("Wrong facility name, facility name cannot contain leading and trailing spaces");
 		}
 
 		// if renaming the facility and consent hub's name match the old facility's name, then also rename the corresponding consent hub

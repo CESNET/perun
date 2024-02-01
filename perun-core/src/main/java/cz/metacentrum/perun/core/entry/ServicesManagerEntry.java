@@ -381,6 +381,9 @@ public class ServicesManagerEntry implements ServicesManager {
 
 		getServicesManagerBl().checkServiceExists(sess, service);
 
+		if (!service.getName().matches(ServicesManager.SERVICE_NAME_REGEXP)) {
+			throw new IllegalArgumentException("Wrong service name, service name must matches " + ServicesManager.SERVICE_NAME_REGEXP + ", but was: " + service.getName());
+		}
 		getServicesManagerBl().updateService(sess, service);
 	}
 
