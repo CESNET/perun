@@ -403,7 +403,7 @@ public class MailManagerImpl implements MailManager {
 			String inputSubject = htmlMessage.getSubject();
 			String inputText = htmlMessage.getText();
 
-			if (inputSubject != null && inputText != null) {
+			if (inputSubject != null) {
 				// Check if html text contains invalid tags (subject and text)
 				HTMLParser parser = new HTMLParser()
 					.sanitizeHTML(inputSubject)
@@ -412,12 +412,14 @@ public class MailManagerImpl implements MailManager {
 					throw new InvalidHtmlInputException("HTML Subject contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
 				}
 				htmlMessage.setSubject(parser.getEscapedHTML());
+			}
 
+			if (inputText != null) {
 				HTMLParser parser2 = new HTMLParser()
                     .sanitizeHTML(inputText)
                     .checkEscapedHTML();
 				if (!parser2.isInputValid()) {
-					throw new InvalidHtmlInputException("HTML Text contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+					throw new InvalidHtmlInputException("HTML Text contains unsafe HTML tags or styles. Remove them and try again.", parser2.getEscaped());
 				}
 				htmlMessage.setText(parser2.getEscapedHTML());
 			}
