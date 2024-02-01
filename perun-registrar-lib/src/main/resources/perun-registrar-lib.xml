@@ -63,11 +63,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="properties">
 				<props>
-					<prop key="perunUrl">http://localhost/</prop>
 					<prop key="secretKey">mySecretKey</prop>
 					<prop key="backupFrom">perun@localhost</prop>
 					<prop key="backupTo">perun@localhost</prop>
-					<prop key="fedAuthz">fed</prop>
 				</props>
 			</property>
 		</bean>
