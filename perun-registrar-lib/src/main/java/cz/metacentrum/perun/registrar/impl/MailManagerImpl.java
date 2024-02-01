@@ -2053,25 +2053,6 @@ public class MailManagerImpl implements MailManager {
 		return mailText;
 	}
 
-	/**
-	 * Get parts of URL, which are considered federative and must have "?" in URLs and not "#".
-	 *
-	 * @return Array of federative URLs
-	 */
-	private ArrayList<String> getFedAuthz() {
-		ArrayList<String> fedAuthz = new ArrayList<>();
-		fedAuthz.add("fed");
-		String fedString = getPropertyFromConfiguration("fedAuthz");
-		if (fedString != null && !fedString.isEmpty()) {
-			String[] array = fedString.split(",");
-			for (String s : array) {
-				fedAuthz.add(s.trim());
-			}
-		}
-
-		return fedAuthz;
-	}
-
 	private static String buildUrl(String base, Map<String, String> params, List<String> pathComponents) {
 		if (pathComponents == null) {
 			return buildUrl(base, params);
