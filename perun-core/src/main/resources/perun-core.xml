@@ -471,12 +471,12 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<constructor-arg ref="perun" />
 	</bean>
 
-	<!-- merged from perun-core-transaction-manager.xml -->
-	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="auditer" ref="auditer"/>
-		<property name="nestedTransactionAllowed" value="true"/>
-	</bean>
+	<!-- moved to production and default to have a different tx manager for tests -->
+<!--	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">-->
+<!--		<property name="dataSource" ref="dataSource"/>-->
+<!--		<property name="auditer" ref="auditer"/>-->
+<!--		<property name="nestedTransactionAllowed" value="true"/>-->
+<!--	</bean>-->
 
 	<bean id="springTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
@@ -537,6 +537,12 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<bean id="perunOidcConfigLoader" class="cz.metacentrum.perun.core.impl.PerunOidcConfigLoader">
 			<property name="configurationPath" value="file:@perun.conf@perun-oidc-config.yml"/>
 		</bean>
+
+		<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
+			<property name="dataSource" ref="dataSource"/>
+			<property name="auditer" ref="auditer"/>
+			<property name="nestedTransactionAllowed" value="true"/>
+		</bean>
 	</beans>
 
 	<!-- Containerized Perun for local testing -->
@@ -589,6 +595,13 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 		<!-- Spring's @Async execution runs synchronously	-->
 		<bean id="asyncExecutor" class="org.springframework.core.task.SyncTaskExecutor">
+		</bean>
+
+		<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
+			<property name="dataSource" ref="dataSource"/>
+			<property name="auditer" ref="auditer"/>
+			<property name="nestedTransactionAllowed" value="true"/>
+			<property name="globalRollbackOnParticipationFailure" value="false"/>
 		</bean>
 	</beans>
 
