@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -172,6 +173,10 @@ public class VosManagerEntry implements VosManager {
 			throw new IllegalArgumentException("Wrong VO short name - must matches [-_a-zA-z0-9.]+ and not be longer than 32 characters.");
 		}
 
+		if (!vo.getShortName().equals(vo.getShortName().trim())) {
+			throw new IllegalArgumentException("Wrong VO short name - cannot contain leading and trailing spaces");
+		}
+
 		return vosManagerBl.createVo(sess, vo);
 	}
 
@@ -184,13 +189,16 @@ public class VosManagerEntry implements VosManager {
 		if (!AuthzResolver.authorizedInternal(sess, "updateVo_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "updateVo");
 		}
-
 		if (vo.getName().length() > 128) {
 			throw new IllegalArgumentException("VO name is too long, >128 characters");
 		}
 
 		if (!vo.getShortName().matches("^[-_a-zA-z0-9.]{1,32}$")) {
 			throw new IllegalArgumentException("Wrong VO short name - must matches [-_a-zA-z0-9.]+ and not be longer than 32 characters.");
+		}
+
+		if (!vo.getShortName().equals(vo.getShortName().trim())) {
+			throw new IllegalArgumentException("Wrong VO short name - cannot contain leading and trailing spaces");
 		}
 
 		return vosManagerBl.updateVo(sess, vo);
