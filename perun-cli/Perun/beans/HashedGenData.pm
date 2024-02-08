@@ -121,6 +121,23 @@ sub isMemberAssignedToVo
 	return 0;
 }
 
+sub isMemberAssignedToGroup
+{
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	my $groupId = $args{group};
+	my $resourceId = $args{resource};
+	unless($memberId) { die "MemberId is mandatory to check if member is assigned to group!\n"; }
+	unless($groupId) { die "GroupId is mandatory to check if member is assigned to group!\n"; }
+	unless($resourceId) { die "ResourceId is mandatory to check if member is assigned to group!\n"; }
+	my $facilityId = $self->getFacilityId;
+	if($self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}->{$groupId}->{m}->{$memberId}) {
+		return 1;
+	}
+	return 0;
+}
+
 #--------------------------------------------------
 #--------------GET OBJECT IDs methods--------------
 #--------------------------------------------------
@@ -195,6 +212,24 @@ sub getGroupIds()
 	foreach my $resourceId ($self->getResourceIds()) {
 		foreach my $groupId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}}) {
 			push @groupIds, $groupId;
+		}
+	}
+	return @groupIds;
+}
+
+sub getGroupIdsForMember()
+{
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	unless($memberId) { die "MemberId is mandatory to get groupIds from hierarchy!\n"; }
+	my $facilityId = $self->getFacilityId;
+	my @groupIds = ();
+	foreach my $resourceId ($self->getResourceIds()) {
+		foreach my $groupId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}}) {
+			if($self->isMemberAssignedToGroup( member => $memberId, group => $groupId, resource => $resourceId )) {
+				push @groupIds, $groupId;
+			}
 		}
 	}
 	return @groupIds;
