@@ -6,14 +6,34 @@ variables:
   # release from production branch instead of main
   RELEASE_FROM_PRODUCTION: 1
 
-# build and run tests
-maven-build:
-  image: registry.gitlab.ics.muni.cz:443/perun/ci/pipeline-components/perun-idm-builder:latest
-  stage: build
-  tags: # do not run on k8s
-    - docker
-    - privileged
+postgres_docker_build:
+  stage: .pre
+  image: registry.gitlab.ics.muni.cz:443/perun/ci/pipeline-components/kaniko:latest
+  tags:
+    - k8s-root
+  before_script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"},\"$CI_DEPENDENCY_PROXY_SERVER\":{\"auth\":\"$(printf "%s:%s" ${CI_DEPENDENCY_PROXY_USER} "${CI_DEPENDENCY_PROXY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+  variables:
+    FOLDER: perun-base/src/test/resources
   script:
-    - mvn -B -Dmaven.repo.local=.m2/repository clean install
-  rules:
-    - if: "$CI_PIPELINE_SOURCE != 'schedule'"
+    - >-
+      /kaniko/executor
+      --context "$CI_PROJECT_DIR/$FOLDER"
+      --dockerfile "$CI_PROJECT_DIR/$FOLDER/Dockerfile"
+      --build-arg CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX="$CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX"
+      --destination "$CI_REGISTRY_IMAGE/postgres:$CI_COMMIT_SHA"
+
+maven-build:
+  tags:
+    - k8s-1s
+  script:
+    - mvn -DDB_DRIVER=org.postgresql.Driver -DDB_URL=jdbc:postgresql://db:5432/perun -DDB_USERNAME=perun -DDB_PASSWORD=test clean install
+  services:
+    - name: $CI_REGISTRY_IMAGE/postgres:$CI_COMMIT_SHA
+      alias: db
+      variables:
+        POSTGRESQL_USERNAME: perun
+        POSTGRESQL_PASSWORD: test
+        POSTGRESQL_DATABASE: perun
+        HEALTHCHECK_TCP_PORT: "5432"
