@@ -810,7 +810,8 @@ public interface RegistrarManager {
 	 *
 	 * @param sess sess
 	 * @param html the input html
+	 * @return warning if the input will be autocompleted/changed during the sanitization, empty string otherwise
 	 * @throws InvalidHtmlInputException when html is not valid
 	 */
-	void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException;
+	String checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException;
 }
