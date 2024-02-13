@@ -278,6 +278,16 @@ public interface ServicesManager {
 	void forceServicePropagationBulk(PerunSession sess, List<Service> services) throws PrivilegeException, ForceServicePropagationDisabledException;
 
 	/**
+	 * Forces service propagation on all facilities for all services where hostname is used.
+	 *
+	 * @param perunSession
+	 * @param hostname Hostname to get facilities for
+	 * @return message Non-empty message in case of problem (no facilities found, services are blocked)
+	 *
+	 */
+	String forceServicePropagationForHostname(PerunSession perunSession, String hostname) throws PrivilegeException;
+
+	/**
 	 * Plans service propagation on defined facility.
 	 *
 	 * @param perunSession

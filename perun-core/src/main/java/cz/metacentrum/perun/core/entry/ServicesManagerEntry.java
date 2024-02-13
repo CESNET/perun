@@ -303,6 +303,32 @@ public class ServicesManagerEntry implements ServicesManager {
 			}
 		}
 	}
+	@Override
+	public String forceServicePropagationForHostname(PerunSession sess, String hostname) throws PrivilegeException {
+
+		// Authorization
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(sess, hostname);
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "forceServicePropagationForHostname_String_policy", facility));
+		if (facilities.isEmpty()) {
+			return "No facilities found for '"+hostname+"'.";
+		}
+
+		StringBuilder response = new StringBuilder();
+
+		for (Facility facility : facilities) {
+
+			List<Service> services = getPerunBl().getServicesManagerBl().getAssignedServices(sess, facility);
+			for (Service service : services) {
+				if (!getPerunBl().getServicesManagerBl().forceServicePropagation(sess, facility, service)) {
+					response.append("Service '").append(service.getName()).append("' is blocked for facility '").append(facility.getName()).append("'\n");
+				}
+			}
+
+		}
+
+		return response.toString();
+
+	}
 
 	@Override
 	public boolean planServicePropagation(PerunSession sess, Facility facility, Service service) throws PrivilegeException {
