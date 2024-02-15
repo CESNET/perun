@@ -1543,7 +1543,9 @@ public class MailManagerImpl implements MailManager {
 
 			for (ApplicationFormItemData item : data) {
 				if (itemName.equals(item.getShortname())) {
-					mailText = replaceNullSafe(mailText, "{fromApp-" + itemName +"}", item.getValue());
+					// escape <> to ensure malicious HTML cannot be placed into mail
+					String escapedValue = item.getValue().replace("<", "&lt;").replace(">", "&gt;");
+					mailText = replaceNullSafe(mailText, "{fromApp-" + itemName +"}", escapedValue);
 					break;
 				}
 			}
