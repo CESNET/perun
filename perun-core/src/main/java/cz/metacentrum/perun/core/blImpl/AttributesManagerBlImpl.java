@@ -8015,6 +8015,35 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
 		attributes.put(attr, createInitialPolicyCollections(policies));
 
+		//urn:perun:resource:attribute-def:def:proxyAccessControlDisabled
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("proxyAccessControlDisabled");
+		attr.setDisplayName("Proxy Access Control Disabled");
+		attr.setDescription("If true, this resource is not used in access control at ProxyIdP.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.SPREGAPPLICATION, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.SPREGAPPLICATION, WRITE, RoleObject.Facility));
+		policies.add(Triple.of(Role.PROXY, READ, RoleObject.Resource));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:resource:attribute-def:def:groupEntitlementDisabled
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("groupEntitlementDisabled");
+		attr.setDisplayName("Group Entitlement Disabled");
+		attr.setDescription("If true, this resource is not considered when computing group entitlements.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+		policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
+		policies.add(Triple.of(Role.PROXY, READ, RoleObject.Resource));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+
 		//urn:perun:vo:attribute-def:def:aupLink
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
