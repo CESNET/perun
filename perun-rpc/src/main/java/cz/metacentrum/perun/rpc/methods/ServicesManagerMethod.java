@@ -377,6 +377,23 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Forces services propagation on all facilities for all services where hostname is used.
+	 *
+	 * @param hostname String hostname
+	 * @return String Non-empty message if there is a problem (services are blocked or no facility found)
+	 *
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	forceServicePropagationForHostname {
+		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getServicesManager().forceServicePropagationForHostname(ac.getSession(), parms.readString("hostname"));
+
+		}
+	},
+
+	/*#
 	 * Plans service propagation on defined facility.
 	 *
 	 * @param service int Service <code>id</code>

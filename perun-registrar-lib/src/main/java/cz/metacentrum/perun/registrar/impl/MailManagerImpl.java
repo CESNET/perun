@@ -403,7 +403,7 @@ public class MailManagerImpl implements MailManager {
 			String inputSubject = htmlMessage.getSubject();
 			String inputText = htmlMessage.getText();
 
-			if (inputSubject != null && inputText != null) {
+			if (inputSubject != null) {
 				// Check if html text contains invalid tags (subject and text)
 				HTMLParser parser = new HTMLParser()
 					.sanitizeHTML(inputSubject)
@@ -412,12 +412,14 @@ public class MailManagerImpl implements MailManager {
 					throw new InvalidHtmlInputException("HTML Subject contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
 				}
 				htmlMessage.setSubject(parser.getEscapedHTML());
+			}
 
+			if (inputText != null) {
 				HTMLParser parser2 = new HTMLParser()
                     .sanitizeHTML(inputText)
                     .checkEscapedHTML();
 				if (!parser2.isInputValid()) {
-					throw new InvalidHtmlInputException("HTML Text contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
+					throw new InvalidHtmlInputException("HTML Text contains unsafe HTML tags or styles. Remove them and try again.", parser2.getEscaped());
 				}
 				htmlMessage.setText(parser2.getEscapedHTML());
 			}
@@ -947,7 +949,7 @@ public class MailManagerImpl implements MailManager {
 
 		if (checkCanBeSubmitted) {
 			// check that invitation form can be submitted
-			List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(sess, form, AppType.INITIAL);
+			List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(registrarSession, form, AppType.INITIAL);
 			return applicationItems.stream().anyMatch(item -> item.getType().equals(ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON) || item.getType().equals(ApplicationFormItem.Type.SUBMIT_BUTTON));
 		} else {
 			return true;
@@ -2051,25 +2053,6 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		return mailText;
-	}
-
-	/**
-	 * Get parts of URL, which are considered federative and must have "?" in URLs and not "#".
-	 *
-	 * @return Array of federative URLs
-	 */
-	private ArrayList<String> getFedAuthz() {
-		ArrayList<String> fedAuthz = new ArrayList<>();
-		fedAuthz.add("fed");
-		String fedString = getPropertyFromConfiguration("fedAuthz");
-		if (fedString != null && !fedString.isEmpty()) {
-			String[] array = fedString.split(",");
-			for (String s : array) {
-				fedAuthz.add(s.trim());
-			}
-		}
-
-		return fedAuthz;
 	}
 
 	private static String buildUrl(String base, Map<String, String> params, List<String> pathComponents) {

@@ -5421,6 +5421,14 @@ perun_policies:
     include_policies:
       - default_policy
 
+  forceServicePropagationForHostname_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+    include_policies:
+      - default_policy
+
   getFacilityAssignedServicesForGUI_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility

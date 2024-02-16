@@ -2,18 +2,18 @@
 	"name": "perun",
 	"version": "0.0.0-development",
 	"devDependencies": {
-		"@commitlint/cli": "17.8.1",
-		"@commitlint/config-conventional": "17.8.1",
-		"@commitlint/cz-commitlint": "17.8.1",
+		"@commitlint/cli": "18.6.0",
+		"@commitlint/config-conventional": "18.6.0",
+		"@commitlint/cz-commitlint": "18.6.0",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/exec": "6.0.3",
 		"@semantic-release/git": "10.0.1",
-		"@semantic-release/gitlab": "12.1.1",
-		"@semantic-release/gitlab-config": "13.0.0",
+		"@semantic-release/gitlab": "13.0.2",
+		"@semantic-release/gitlab-config": "14.0.0",
 		"commitizen": "4.3.0",
-		"conventional-changelog-conventionalcommits": "6.1.0",
+		"conventional-changelog-conventionalcommits": "7.0.2",
 		"inquirer": "8.2.6",
-		"semantic-release": "21.1.2"
+		"semantic-release": "23.0.0"
 	},
 	"config": {
 		"commitizen": {

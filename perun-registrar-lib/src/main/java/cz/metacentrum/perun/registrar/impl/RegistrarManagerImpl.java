@@ -108,6 +108,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
+import cz.metacentrum.perun.registrar.model.ApplicationOperationResult;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
 import cz.metacentrum.perun.registrar.model.RichApplication;
@@ -1631,10 +1632,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void deleteApplications(PerunSession sess, List<Application> applications) throws PerunException {
-		for (Application app : applications) {
-			deleteApplication(sess, app);
+	public List<ApplicationOperationResult> deleteApplications(PerunSession sess, List<Integer> applicationIds) {
+		List<ApplicationOperationResult> deleteApplicationsResult = new ArrayList<>();
+
+		for (Integer id: applicationIds) {
+			try {
+				Application app = getApplicationById(sess, id);
+				deleteApplication(sess, app);
+				deleteApplicationsResult.add( new ApplicationOperationResult(app.getId(), null));
+			} catch (Exception e) {
+				deleteApplicationsResult.add(new ApplicationOperationResult(id, e));
+			}
 		}
+		return deleteApplicationsResult;
 	}
 
 	@Override
@@ -1760,11 +1770,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException {
+	public List<ApplicationOperationResult> rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) {
 		Collections.sort(applicationIds, Collections.reverseOrder());
+		List<ApplicationOperationResult> rejectApplicationsResult = new ArrayList<>();
 		for (Integer id : applicationIds) {
-			registrarManager.rejectApplication(sess, id, reason);
+			try {
+				registrarManager.rejectApplication(sess, id, reason);
+				rejectApplicationsResult.add(new ApplicationOperationResult(id, null));
+			} catch (Exception e) {
+				rejectApplicationsResult.add(new ApplicationOperationResult(id, e));
+			}
 		}
+		return rejectApplicationsResult;
 	}
 
 	/**
@@ -1865,11 +1882,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException {
+	public List<ApplicationOperationResult> approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException {
 		Collections.sort(applicationIds);
+		List<ApplicationOperationResult> approveApplicationsResult = new ArrayList<>();
 		for (Integer id : applicationIds) {
-			approveApplication(sess, id);
+			try {
+				registrarManager.approveApplication(sess, id);
+				approveApplicationsResult.add(new ApplicationOperationResult(id, null));
+			} catch (Exception e) {
+				approveApplicationsResult.add(new ApplicationOperationResult(id, e));
+			}
 		}
+		return approveApplicationsResult;
 	}
 
 	/**
@@ -3980,7 +4004,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException {
+	public String checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException {
 		Utils.checkPerunSession(sess);
 
 		HTMLParser parser = new HTMLParser()
@@ -3989,6 +4013,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (!parser.isInputValid()) {
 			throw new InvalidHtmlInputException("HTML input contains unsafe HTML tags, attributes, styles or links. Remove them and try again.", parser.getEscaped());
 		}
+
+		// check if after sanitization is the output still valid
+		parser = new HTMLParser()
+			.sanitizeHTML(parser.getEscapedHTML())
+			.checkEscapedHTML();
+		if (!parser.isInputValid()) {
+			throw new InvalidHtmlInputException("HTML will be autocompleted during the sanitization and the result will be an invalid HTML (e.g. incorrect link in the href attribute). Fix the HTML input and try again.", parser.getEscaped());
+		}
+
+
+		// check if the sanitization will change the HTML input
+		String responseMessage = "";
+		if (!parser.getEscapedHTML().equals(html)) {
+			responseMessage = "HTML will be autocompleted/changed during the sanitization so the result will be different than the input HTML.";
+		}
+
+		return responseMessage;
 	}
 
 	@Override

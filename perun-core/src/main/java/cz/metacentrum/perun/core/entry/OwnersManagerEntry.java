@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
@@ -55,6 +56,9 @@ public class OwnersManagerEntry implements OwnersManager {
 		if (!AuthzResolver.authorizedInternal(sess, "createOwner_Owner_policy"))
 			throw new PrivilegeException(sess, "createOwner");
 
+		if (!owner.getName().equals(owner.getName().trim())) {
+			throw new IllegalArgumentException("Owner name cannot contain leading or trailing spaces");
+		}
 		Utils.notNull(owner, "owner");
 
 		return getOwnersManagerBl().createOwner(sess, owner);

@@ -11,6 +11,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
+import cz.metacentrum.perun.registrar.model.ApplicationOperationResult;
 import cz.metacentrum.perun.registrar.model.RichApplication;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 
@@ -271,10 +272,11 @@ public interface RegistrarManager {
 	 * Manually deletes multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
 	 *
 	 * @param sess perun session
-	 * @param applications list of applications
+	 * @param applicationIds list of application IDs
+	 * @return list of ApplicationOperationResult
 	 * @throws PerunException
 	 */
-	void deleteApplications(PerunSession sess, List<Application> applications) throws PerunException;
+	List<ApplicationOperationResult> deleteApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException;
 
 	/**
 	 * Get page of applications for the given vo, with the given parameters
@@ -381,11 +383,12 @@ public interface RegistrarManager {
 	/**
 	 * Manually approves multiple applications at once. Expected to be called as a result of direct VO administrator action in the web UI.
 	 *
-	 * @param sess perun session
+	 * @param sess           perun session
 	 * @param applicationIds list of application IDs
+	 * @return list of ApplicationOperationResult
 	 * @throws PerunException
 	 */
-	void approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException;
+	List<ApplicationOperationResult> approveApplications(PerunSession sess, List<Integer> applicationIds) throws PerunException;
 
 	/**
 	 * Approves an application in one transaction.
@@ -426,9 +429,10 @@ public interface RegistrarManager {
 	 * @param sess perun session
 	 * @param applicationIds list of application IDs
 	 * @param reason optional reason of rejection displayed to user
+	 * @return list of ApplicationOperationResult
 	 * @throws PerunException
 	 */
-	void rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException;
+	List<ApplicationOperationResult> rejectApplications(PerunSession sess, List<Integer> applicationIds, String reason) throws PerunException;
 
 	/**
 	 * Returns data submitted by user in given application (by id)
@@ -806,7 +810,8 @@ public interface RegistrarManager {
 	 *
 	 * @param sess sess
 	 * @param html the input html
+	 * @return warning if the input will be autocompleted/changed during the sanitization, empty string otherwise
 	 * @throws InvalidHtmlInputException when html is not valid
 	 */
-	void checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException;
+	String checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException;
 }

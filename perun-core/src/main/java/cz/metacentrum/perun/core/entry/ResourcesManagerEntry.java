@@ -203,6 +203,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "createResource");
 		}
 
+		if (!resource.getName().equals(resource.getName().trim())) {
+			throw new IllegalArgumentException("Resource name cannot contain leading or trailing spaces");
+		}
+
 		return getResourcesManagerBl().createResource(sess, resource, vo, facility);
 	}
 
@@ -865,6 +869,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "updateResource_Resource_policy", resource)) {
 			throw new PrivilegeException(sess, "updateResource");
+		}
+
+		if (!resource.getName().equals(resource.getName().trim())) {
+			throw new IllegalArgumentException("Resource name cannot contain leading or trailing spaces");
 		}
 
 		return resourcesManagerBl.updateResource(sess, resource);

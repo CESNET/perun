@@ -379,13 +379,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Checks whether input is valid html according to the rules in our custom html parser
 	 *
 	 * @param html String input html to check
+	 *
+	 * @return warning if the input will be autocompleted/changed during the sanitization, empty string otherwise
 	 * @throw InvalidHtmlInputException when html is not valid
 	 */
 	checkHtmlInput {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getRegistrarManager().checkHtmlInput(ac.getSession(), parms.readString("html"));
-			return null;
+		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getRegistrarManager().checkHtmlInput(ac.getSession(), parms.readString("html"));
 		}
 	},
 
@@ -954,20 +955,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Expected to be called as a result of direct VO administrator action in the web UI.
 	 *
 	 * @param ids int[] List of Application IDs
+	 * @return list of ApplicationOperationResult
 	 */
 	deleteApplications {
 
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<ApplicationOperationResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
-
-			List<Application> applications = new ArrayList<>();
-			List<Integer> appIds = parms.readList("ids", Integer.class);
-			for (Integer id : appIds) {
-				applications.add(ac.getRegistrarManager().getApplicationById(ac.getSession(), id));
-			}
-			ac.getRegistrarManager().deleteApplications(ac.getSession(), applications);
-			return null;
+			return ac.getRegistrarManager().deleteApplications(ac.getSession(), parms.readList("ids", Integer.class));
 		}
 
 	},
@@ -996,14 +991,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Expected to be called as a result of direct VO administrator action in the web UI.
 	 *
 	 * @param ids int[] List of Application IDs
+	 * @return list of ApplicationOperationResult
 	 */
 	approveApplications {
 
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<ApplicationOperationResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
-			ac.getRegistrarManager().approveApplications(ac.getSession(), parms.readList("ids", Integer.class));
-			return null;
+            return ac.getRegistrarManager().approveApplications(ac.getSession(), parms.readList("ids", Integer.class));
 		}
 
 	},
@@ -1069,20 +1064,22 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param ids int[] List of Application IDs
 	 * @param reason String Reason description
+	 * @return list of ApplicationOperationResult
 	 */
 	rejectApplications {
 
 		@Override
-		public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<ApplicationOperationResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
+			List<ApplicationOperationResult> rejectApplicationsResult;
 
 			if (parms.contains("reason")) {
-				ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), parms.readString("reason"));
+				rejectApplicationsResult = ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), parms.readString("reason"));
 			} else {
-				ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), null);
+				rejectApplicationsResult = ac.getRegistrarManager().rejectApplications(ac.getSession(), parms.readList("ids", Integer.class), null);
 			}
 
-			return null;
+			return rejectApplicationsResult;
 		}
 	},
 
