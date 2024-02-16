@@ -949,7 +949,7 @@ public class MailManagerImpl implements MailManager {
 
 		if (checkCanBeSubmitted) {
 			// check that invitation form can be submitted
-			List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(sess, form, AppType.INITIAL);
+			List<ApplicationFormItem> applicationItems = registrarManager.getFormItems(registrarSession, form, AppType.INITIAL);
 			return applicationItems.stream().anyMatch(item -> item.getType().equals(ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON) || item.getType().equals(ApplicationFormItem.Type.SUBMIT_BUTTON));
 		} else {
 			return true;
