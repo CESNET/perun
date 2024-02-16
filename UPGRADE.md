@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [34.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.0.0...v34.1.0) (2024-02-16)
+
+
+### Features
+
+* **core:** attribute module for eosc login ([a6e7c2f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a6e7c2fbba4d86628b5ac06d1e03d28dfa6401b4))
+
 ## [34.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.3.0...v34.0.0) (2024-02-16)
 
 
