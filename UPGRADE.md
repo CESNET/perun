@@ -1,5 +1,34 @@
 Upgrade notes
 
+## [34.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.3.0...v34.0.0) (2024-02-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** Add methods to HashedGenData module
+* **core:** (reject/approve/delete)Applications now return a list of
+ApplicationOperationResult
+* **registrar:** Remove unused properties `perunUrl` and `fedAuthz` from `perun-registrar-lib.properties`.
+
+### Features
+
+* **cli:** getGroupIdsForMember for hashGenData ([ccb88e6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ccb88e6bdc9954709a9003cf0a0d6b0e624d20e9))
+* **core:** allow partial success for bulk operations with applications ([1ca1e0c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1ca1e0ce419be18fff67f0f546af6a2a1b1ab8da))
+* **core:** check for trailing and leading spaces when creating entities ([c8c608b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c8c608ba03b39129cf8b3912c265adb2d3ed0ba5))
+* **core:** new API method forceServicePropagationForHostname() ([83f79bb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/83f79bb22cfc59263d016e1898aa86575a0840c3))
+
+
+### Bug Fixes
+
+* **registrar:** inform about autocompleting/changing the HTML input during the sanitization ([5949f9d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5949f9d23e0e1a73c0f8bd03311a15e8106bb474))
+* **registrar:** mailManager not escaping html properly ([7e19f57](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7e19f5776b007b934ac1c81ccbea4cc9e035cdda))
+* **registrar:** use internal session when checking form items ([268d27c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/268d27c87b58b06d41785f373234ed8f0fd9689d))
+
+
+### Refactoring
+
+* **registrar:** removed perunUrl and fedAuthz from registrar config ([3828d12](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3828d12e5232f06b607efd3379c0d00d4f17f73b))
+
 ## [33.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v33.2.0...v33.3.0) (2024-01-30)
 
 
