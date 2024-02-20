@@ -4,7 +4,10 @@ import cz.metacentrum.perun.TestUtils.TestConsumer;
 import cz.metacentrum.perun.TestUtils.TestSupplier;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.BlockedLogin;
@@ -26,6 +29,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.SpecificUserType;
@@ -54,6 +58,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -1948,6 +1953,53 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void getUsersByAttributeFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersByAttributeFilter");
+
+		Attribute attr = setUpAttribute();
+		attr.setValue("value");
+
+		User user1 = setUpUser("User1", "Test");
+		User user2 = setUpUser("User2", "Test");
+		perun.getMembersManagerBl().createMember(sess, vo, user2);
+
+		perun.getAttributesManagerBl().setAttribute(sess, user1, attr);
+		perun.getAttributesManagerBl().setAttribute(sess, user2, attr);
+
+		sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.VOADMIN, vo));
+
+		List<User> result = usersManager.getUsersByAttribute(sess, attr);
+
+		assertTrue(result.contains(user2));
+		assertFalse(result.contains(user1));
+	}
+
+	@Test
+	public void getUsersByAttributeWithValueFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersByAttributeValueFilter");
+
+		User user1 = setUpUser("User1", "Test");
+		User user2 = setUpUser("User2", "Test");
+		User user3 = setUpUser("User3", "Test");
+		perun.getMembersManagerBl().createMember(sess, vo, user2);
+		perun.getMembersManagerBl().createMember(sess, vo, user3);
+
+		Attribute attr = setUpAttribute();
+		attr.setValue("value1");
+		perun.getAttributesManagerBl().setAttribute(sess, user1, attr);
+		perun.getAttributesManagerBl().setAttribute(sess, user2, attr);
+		attr.setValue("value2");
+		perun.getAttributesManagerBl().setAttribute(sess, user3, attr);
+
+		sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.VOADMIN, vo));
+
+		List<User> result = usersManager.getUsersByAttribute(sess, attr.getName(), "value1");
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(user2));
+	}
+
+	@Test
 	public void findUsersByExactName() throws Exception {
 		System.out.println(CLASS_NAME + "findUsersByExactName");
 
@@ -3062,6 +3114,31 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void getUsersByAttributeValueFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersByAttributeValueFilter");
+
+		User user1 = setUpUser("User1", "Test");
+		User user2 = setUpUser("User2", "Test");
+		User user3 = setUpUser("User3", "Test");
+		perun.getMembersManagerBl().createMember(sess, vo, user2);
+		perun.getMembersManagerBl().createMember(sess, vo, user3);
+
+		Attribute attr = setUpAttribute();
+		attr.setValue("value1");
+		perun.getAttributesManagerBl().setAttribute(sess, user1, attr);
+		perun.getAttributesManagerBl().setAttribute(sess, user2, attr);
+		attr.setValue("value2");
+		perun.getAttributesManagerBl().setAttribute(sess, user3, attr);
+
+		sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.VOADMIN, vo));
+
+		List<User> result = usersManager.getUsersByAttributeValue(sess, attr.getName(), "value1");
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(user2));
+	}
+
+	@Test
 	public void getUsersByAttributeValue_list() throws Exception {
 		System.out.println(CLASS_NAME + "getUsersByAttributeValue_list");
 
@@ -3485,5 +3562,19 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource.setName("UsersManagerTestResource");
 		resource.setDescription("Testovaci");
 		return perun.getResourcesManager().createResource(sess, resource, vo, facility);
+	}
+
+	private Attribute setUpAttribute() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace("urn:perun:user:attribute-def:opt");
+		attrDef.setFriendlyName("user-test-attribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+		List<AttributePolicyCollection> collections = perun.getAttributesManagerBl().getAttributePolicyCollections(sess, attrDef.getId());
+		collections.add(new AttributePolicyCollection(-1, attrDef.getId(), AttributeAction.READ, List.of(new AttributePolicy(0, Role.VOADMIN, RoleObject.Vo, -1))));
+		perun.getAttributesManagerBl().setAttributePolicyCollections(sess, collections);
+
+		return new Attribute(attrDef);
 	}
 }

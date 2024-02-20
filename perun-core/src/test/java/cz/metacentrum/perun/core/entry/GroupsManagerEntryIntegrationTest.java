@@ -2,7 +2,10 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -26,6 +29,7 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleAssignmentType;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -54,6 +58,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.Before;
@@ -3100,6 +3105,43 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue("list of groups must containt this group", groups1.contains(group3));
 		assertTrue("list of groups must containt this group", groups2.contains(group2));
 		assertTrue("list of groups must containt this group", groups2.contains(group4));
+	}
+
+	@Test
+	public void getMemberGroupsByAttributeFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberGroupsByAttributeFilter");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "Vo", "Test"));
+		Member member = setUpMember(vo);
+
+		Group group1 = groupsManagerBl.createGroup(sess, vo, new Group("Group1", "Test"));
+		Group group2 = groupsManagerBl.createGroup(sess, vo, new Group("Group2", "Test"));
+
+		groupsManagerBl.addMember(sess, group1, member);
+		groupsManagerBl.addMember(sess, group2, member);
+
+		// Create attribute
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManagerEntry.NS_GROUP_ATTR_DEF);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName("testingAttribute");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		List<AttributePolicyCollection> collections = perun.getAttributesManagerBl().getAttributePolicyCollections(sess, attrDef.getId());
+		collections.add(new AttributePolicyCollection(-1, attrDef.getId(), AttributeAction.READ, List.of(new AttributePolicy(0, Role.GROUPADMIN, RoleObject.Group, -1))));
+		perun.getAttributesManagerBl().setAttributePolicyCollections(sess, collections);
+
+		perun.getAttributesManagerBl().setAttribute(sess, group1, attribute);
+		perun.getAttributesManagerBl().setAttribute(sess, group2, attribute);
+
+		sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.GROUPADMIN, List.of(vo, group1)));
+
+		List<Group> result = perun.getGroupsManager().getMemberGroupsByAttribute(sess, member, attribute);
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(group1));
 	}
 
 	@Test

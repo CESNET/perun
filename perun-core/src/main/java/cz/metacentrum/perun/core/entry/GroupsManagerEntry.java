@@ -1285,6 +1285,8 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		List<Group> groups = this.groupsManagerBl.getMemberGroupsByAttribute(sess, member, attribute);
 
+		groups.removeIf(group -> !AuthzResolver.authorizedInternal(sess, "filter-getMemberGroupsByAttribute_Member_Attribute_policy", group));
+
 		//If actor has no right to read attribute for group, throw exception
 		for(Group group: groups) {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.READ, attribute, group, true)) {
