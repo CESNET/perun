@@ -1339,6 +1339,26 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="proxyAccessControlDisabled"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="proxyAccessControlDisabled"/>
+							<property name="namespace" value="urn:perun:resource:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="groupEntitlementDisabled"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="groupEntitlementDisabled"/>
+							<property name="namespace" value="urn:perun:resource:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
 			</list>
 		</property>
 		<property name="attributeDescriptionsExt" ref="perunResourceAttributesExt"/>
