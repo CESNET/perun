@@ -378,9 +378,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Forces services propagation on all facilities for all services where hostname is used.
+	 * Service must be correctly assigned, have destination matching hostname and
+	 * not be blocked on any level (globally, facility, destination).
 	 *
 	 * @param hostname String hostname
-	 * @return String Non-empty message if there is a problem (services are blocked or no facility found)
+	 * @return String Space separated list of forced services or error message.
 	 *
 	 * @throw PrivilegeException insufficient permissions
 	 */

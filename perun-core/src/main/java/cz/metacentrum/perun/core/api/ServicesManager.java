@@ -279,10 +279,12 @@ public interface ServicesManager {
 
 	/**
 	 * Forces service propagation on all facilities for all services where hostname is used.
+	 * Service must be correctly assigned, have destination matching hostname and
+	 * not be blocked on any level (globally, facility, destination).
 	 *
 	 * @param perunSession
 	 * @param hostname Hostname to get facilities for
-	 * @return message Non-empty message in case of problem (no facilities found, services are blocked)
+	 * @return message Space separated list of forced services or error message (no facilities found, services are blocked)
 	 *
 	 */
 	String forceServicePropagationForHostname(PerunSession perunSession, String hostname) throws PrivilegeException;
