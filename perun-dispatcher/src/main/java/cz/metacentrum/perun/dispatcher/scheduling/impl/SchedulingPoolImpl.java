@@ -407,7 +407,7 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 				"  GENERATED: " + generated +
 				"  GENERROR: " + generror +
 				"  SENDING:  " + sending +
-				"  SENDEEROR:  " + senderror +
+				"  SENDERROR:  " + senderror +
 				"  DONE: " + done +
 				"  WARNING: " + warning +
 				"  ERROR: " + error;
