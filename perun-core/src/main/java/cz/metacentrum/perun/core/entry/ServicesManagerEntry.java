@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ForceServicePropagationDisabledException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -39,12 +40,16 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Slavek Licehammer <glory@ics.muni.cz>
@@ -305,28 +310,40 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 	@Override
 	public String forceServicePropagationForHostname(PerunSession sess, String hostname) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		if (StringUtils.isBlank(hostname)) throw new InternalErrorException("Non-empty parameter 'hostname' is required!");
 
 		// Authorization
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(sess, hostname);
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "forceServicePropagationForHostname_String_policy", facility));
 		if (facilities.isEmpty()) {
-			return "No facilities found for '"+hostname+"'.";
+			return "ERROR: No facilities found for '"+hostname+"'.";
 		}
 
-		StringBuilder response = new StringBuilder();
-
+		Set<String> forcedServices = new HashSet<>();
 		for (Facility facility : facilities) {
 
-			List<Service> services = getPerunBl().getServicesManagerBl().getAssignedServices(sess, facility);
+			// work only with assigned and allowed services used on destinations matching the hostname
+			List<RichDestination> destinations = getPerunBl().getServicesManagerBl().getAllRichDestinations(sess, facility);
+			List<Service> assignedServices = getPerunBl().getServicesManagerBl().getAssignedServices(sess, facility);
+			List<RichDestination> filteredDestinations = destinations.stream().filter(
+					d -> hostname.equalsIgnoreCase(d.getHostNameFromDestination()) &&
+							!d.isBlocked() &&
+							assignedServices.contains(d.getService())
+			).toList();
+			Set<Service> services = filteredDestinations.stream().map(RichDestination::getService).collect(Collectors.toSet());
 			for (Service service : services) {
-				if (!getPerunBl().getServicesManagerBl().forceServicePropagation(sess, facility, service)) {
-					response.append("Service '").append(service.getName()).append("' is blocked for facility '").append(facility.getName()).append("'\n");
+				if (getPerunBl().getServicesManagerBl().forceServicePropagation(sess, facility, service)) {
+					forcedServices.add(service.getName());
 				}
 			}
-
 		}
 
-		return response.toString();
+		if (!forcedServices.isEmpty()) {
+			return String.join(" ", forcedServices);
+		}
+
+		return "ERROR: No services found for '"+hostname+"'.";
 
 	}
 
