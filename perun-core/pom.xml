@@ -215,6 +215,12 @@
 			<version>20220608.1</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- JSON Path -->
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+		</dependency>
+
 	</dependencies>
 
 			<!--
