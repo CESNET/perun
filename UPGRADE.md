@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [34.1.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.1.0...v34.1.1) (2024-02-28)
+
+
+### Bug Fixes
+
+* **core:** changed response of forceServicePropagationForHostname ([9191ab4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9191ab417955296f0da7cfc4b18935669f33b631))
+
 ## [34.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.0.0...v34.1.0) (2024-02-16)
 
 
