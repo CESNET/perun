@@ -2,7 +2,10 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributePolicy;
+import cz.metacentrum.perun.core.api.AttributePolicyCollection;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.Candidate;
@@ -25,6 +28,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
@@ -63,8 +67,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -72,6 +76,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
 
 /**
  * Integration tests of FacilitiesManager
@@ -225,6 +230,26 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getFacilitiesByAttributeFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByAttributeFilter");
+
+		Facility otherFacility = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(-1, "Facility"));
+
+		Attribute attr = setUpAttribute4();
+		attr.setValue("value");
+
+		perun.getAttributesManagerBl().setAttribute(sess, facility, attr);
+		perun.getAttributesManagerBl().setAttribute(sess, otherFacility, attr);
+
+		sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.FACILITYADMIN, facility));
+
+		List<Facility> result = facilitiesManagerEntry.getFacilitiesByAttribute(sess, attr.getName(), "value");
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(facility));
+	}
+
+	@Test
 	public void getFacilitiesByAttributeWithAttributes() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilitiesByAttributeWithAttributes");
 
@@ -239,6 +264,35 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		assertEquals(result.getFacility(), facility);
 		assertEquals(result.getAttributes().get(0).getValue(), facility.getName());
+	}
+
+	@Test
+	public void getFacilitiesByAttributeWithAttributesFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByAttributeWithAttributesFilter");
+
+		Facility otherFacility1 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(-1, "Facility1"));
+		Facility otherFacility2 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(-2, "Facility2"));
+
+		Attribute searchAttr = setUpAttribute4();
+		searchAttr.setValue("value1");
+		perun.getAttributesManagerBl().setAttribute(sess, facility, searchAttr);
+		perun.getAttributesManagerBl().setAttribute(sess, otherFacility1, searchAttr);
+		searchAttr.setValue("value2");
+		perun.getAttributesManagerBl().setAttribute(sess, otherFacility2, searchAttr);
+
+		AttributeDefinition getAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_CORE + ":name");
+		List<AttributePolicyCollection> collections = perun.getAttributesManagerBl().getAttributePolicyCollections(sess, getAttrDef.getId());
+		collections.add(new AttributePolicyCollection(-2, getAttrDef.getId(), AttributeAction.READ, List.of(new AttributePolicy(0, Role.FACILITYADMIN, RoleObject.Facility, -2))));
+		perun.getAttributesManagerBl().setAttributePolicyCollections(sess, collections);
+
+		sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.FACILITYADMIN, List.of(facility, otherFacility2)));
+
+		List<FacilityWithAttributes> result = facilitiesManagerEntry.getFacilitiesByAttributeWithAttributes(sess, searchAttr.getName(), "value1", List.of(getAttrDef.getName()));
+
+		assertEquals(1, result.size());
+		assertEquals(facility, result.get(0).getFacility());
+		assertEquals(1, result.get(0).getAttributes().size());
+		assertEquals(facility.getName(), result.get(0).getAttributes().get(0).getValue());
 	}
 
 	@Test
@@ -2481,6 +2535,10 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			attrDef.setType(String.class.getName());
 
 			attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+			List<AttributePolicyCollection> collections = perun.getAttributesManagerBl().getAttributePolicyCollections(sess, attrDef.getId());
+			collections.add(new AttributePolicyCollection(-1, attrDef.getId(), AttributeAction.READ, List.of(new AttributePolicy(0, Role.FACILITYADMIN, RoleObject.Facility, -1))));
+			perun.getAttributesManagerBl().setAttributePolicyCollections(sess, collections);
 		}
 
 		return new Attribute(attrDef);

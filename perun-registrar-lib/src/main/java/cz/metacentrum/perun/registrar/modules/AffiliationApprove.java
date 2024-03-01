@@ -54,7 +54,9 @@ public class AffiliationApprove extends DefaultRegistrarModule {
 		Attribute voAttr;
 		try {
 			voAttr = perun.getAttributesManagerBl().getAttribute(session, app.getVo(), voRegexAttr);
-			stringRegexps = voAttr.valueAsList();
+			if (voAttr.valueAsList() != null) {
+				stringRegexps = voAttr.valueAsList();
+			}
 		} catch (Exception ex) {
 			log.error("Couldn't retrieve domains attribute when trying to auto approve application: " + app +
 				"with error: " + ex.getMessage());
@@ -63,7 +65,9 @@ public class AffiliationApprove extends DefaultRegistrarModule {
 			Attribute groupAttr;
 			try {
 				groupAttr = perun.getAttributesManagerBl().getAttribute(session, app.getGroup(), groupRegexAttr);
-				stringRegexps.addAll(groupAttr.valueAsList());
+				if (groupAttr.valueAsList() != null) {
+					stringRegexps.addAll(groupAttr.valueAsList());
+				}
 			} catch (Exception ex) {
 				log.error("Couldn't retrieve domains attribute when trying to auto approve application: " + app +
 					"with error: " + ex.getMessage());

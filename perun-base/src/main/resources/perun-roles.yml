@@ -730,6 +730,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  filter-getFacilitiesByAttribute_String_String_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+      - SPREGAPPLICATION:
+      - PROXY:
+    include_policies:
+      - default_policy
+
   getFacilitiesByAttributeWithAttributes_String_String_List<String>_policy:
     policy_roles:
       - FACILITYADMIN:
@@ -2194,6 +2204,18 @@ perun_policies:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
       - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getMemberGroupsByAttribute_Member_Attribute_policy:
+    policy_roles:
+      - SELF: User
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -6430,6 +6452,48 @@ perun_policies:
       - default_policy
 
   filter-getUsersByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getUsersByAttribute_Attribute_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getUsersByAttribute_String_String_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - GROUPMEMBERSHIPMANAGER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getUsersByAttributeValue_String_String_policy:
     policy_roles:
       - RPC:
       - ENGINE:

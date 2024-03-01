@@ -157,23 +157,23 @@ sub getFacilityId ()
 sub getMemberIdsForFacility ()
 {
 	my $self = shift;
-	my @memberIds = ();
+	my %memberIds;
 	my $facilityId = $self->getFacilityId;
 	foreach my $memberId (sort keys %{$self->{_hierarchy}->{$facilityId}->{m}}) {
-		push @memberIds, $memberId;
+		$memberIds{$memberId} = 1;
 	}
-	return @memberIds;
+	return keys %memberIds;
 }
 
 sub getResourceIds ()
 {
 	my $self = shift;
-	my @resourceIds = ();
+	my %resourceIds;
 	my $facilityId = $self->getFacilityId;
 	foreach my $resourceId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}}) {
-		push @resourceIds, $resourceId;
+		$resourceIds{$resourceId} = 1;
 	}
-	return @resourceIds;
+	return keys %resourceIds;
 }
 
 sub getResourceIdsForMember ()
@@ -183,38 +183,39 @@ sub getResourceIdsForMember ()
 	my $memberId = $args{member};
 	unless($memberId) { die "MemberId is mandatory to get resourceIds from hierarchy!\n"; }
 	my $facilityId = $self->getFacilityId;
-	my @resourceIds = ();
+	my %resourceIds;
 	foreach my $resourceId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}}) {
 		if($self->isMemberAssignedToResource( member => $memberId, resource => $resourceId )) {
-			push @resourceIds, $resourceId;
+			$resourceIds{$resourceId} = 1;
 		}
 	}
 
-	return @resourceIds;
+	return keys %resourceIds;
 }
 
 sub getVoIds ()
 {
 	my $self = shift;
-	my @vosIds = ();
+	my %voIds;
 	my $facilityId = $self->getFacilityId;
 	foreach my $resourceId ($self->getResourceIds()) {
-		push @vosIds, $self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{v};
+		my $value = $self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{v};
+		$voIds{$value} = 1;
 	}
-	return @vosIds;
+	return keys %voIds;
 }
 
 sub getGroupIds()
 {
 	my $self = shift;
-	my @groupIds = ();
+	my %groupIds;
 	my $facilityId = $self->getFacilityId;
 	foreach my $resourceId ($self->getResourceIds()) {
 		foreach my $groupId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}}) {
-			push @groupIds, $groupId;
+			$groupIds{$groupId} = 1;
 		}
 	}
-	return @groupIds;
+	return keys %groupIds;
 }
 
 sub getGroupIdsForMember()
@@ -224,15 +225,15 @@ sub getGroupIdsForMember()
 	my $memberId = $args{member};
 	unless($memberId) { die "MemberId is mandatory to get groupIds from hierarchy!\n"; }
 	my $facilityId = $self->getFacilityId;
-	my @groupIds = ();
+	my %groupIds;
 	foreach my $resourceId ($self->getResourceIds()) {
 		foreach my $groupId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}}) {
 			if($self->isMemberAssignedToGroup( member => $memberId, group => $groupId, resource => $resourceId )) {
-				push @groupIds, $groupId;
+				$groupIds{$groupId} = 1;
 			}
 		}
 	}
-	return @groupIds;
+	return keys %groupIds;
 }
 
 
@@ -268,11 +269,11 @@ sub getMemberIdsForResource ($)
 	my $resourceId = $args{resource};
 	unless($resourceId) { die "ResourceId is mandatory to get members from hierarchy!\n"; }
 	my $facilityId = $self->getFacilityId;
-	my @memberIds = ();
+	my %memberIds;
 	foreach my $memberId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{m}}) {
-		push @memberIds, $memberId;
+		$memberIds{$memberId} = 1;
 	}
-	return @memberIds;
+	return keys %memberIds;
 }
 
 sub getGroupIdsForVo ($)
@@ -282,15 +283,15 @@ sub getGroupIdsForVo ($)
 	my $voId = $args{vo};
 	unless($voId) { die "VoId is mandatory to get groups from hierarchy!\n"; }
 	my $facilityId = $self->getFacilityId;
-	my @groupIds = ();
+	my %groupIds;
 	foreach my $resourceId ($self->getResourceIds()) {
 		if($self->getVoIdForResource( resource => $resourceId ) eq $voId) {
 			foreach my $groupId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}}) {
-				push @groupIds, $groupId;
+				$groupIds{$groupId} = 1;
 			}
 		}
 	}
-	return @groupIds;
+	return keys %groupIds;
 }
 
 sub getGroupIdsForResource ($)
@@ -300,11 +301,11 @@ sub getGroupIdsForResource ($)
 	my $resourceId = $args{resource};
 	unless($resourceId) { die "ResourceId is mandatory to get groups from hierarchy!\n"; }
 	my $facilityId = $self->getFacilityId;
-	my @groupIds = ();
+	my %groupIds;
 	foreach my $groupId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}}) {
-		push @groupIds, $groupId;
+		$groupIds{$groupId} = 1;
 	}
-	return @groupIds;
+	return keys %groupIds;
 }
 
 sub getMemberIdsForResourceAndGroup ($$)
@@ -316,11 +317,11 @@ sub getMemberIdsForResourceAndGroup ($$)
 	unless($resourceId) { die "ResourceId is mandatory to get members for resource and group!\n"; }
 	unless($groupId) { die "GroupId is mandatory to get members for resource and group!\n"; }
 	my $facilityId = $self->getFacilityId;
-	my @memberIds = ();
+	my %memberIds;
 	foreach my $memberId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}->{$groupId}->{m}}) {
-		push @memberIds, $memberId;
+		$memberIds{$memberId} = 1;
 	}
-	return @memberIds;
+	return keys %memberIds;
 }
 
 sub getUserIdForMember ($)

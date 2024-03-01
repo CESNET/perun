@@ -80,7 +80,7 @@
 		<json.version>20231013</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.12</reflections.version>
-		<testcontainers.version>1.19.4</testcontainers.version>
+		<testcontainers.version>1.19.5</testcontainers.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
