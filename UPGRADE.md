@@ -1,5 +1,23 @@
 Upgrade notes
 
+## [34.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.1.1...v34.2.0) (2024-03-01)
+
+
+### Features
+
+* **core:** add attributes to LDAP scheme and Perun initialization ([a48ff3c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a48ff3cbd2c6cbb438c82daae9983d74d48c952a))
+* **core:** attribute module for eosc login ([94c8398](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/94c8398c2c71232e8ddfda781f2f0f9e3e75666f))
+* **registrar:** escape app items before HTML notification ([62f58aa](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/62f58aae75014365885688b0d36c159a36dfd3b7))
+
+
+### Bug Fixes
+
+* **cli:** removed duplicities in getMethods ([e51b0f0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e51b0f0e50bd1a38b2d387c2908d1dccff56987e))
+* **core:** changed response of forceServicePropagationForHostname ([6ebdf35](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6ebdf353790fb5ea09075fa8a734bbee0848bb6a))
+* **core:** check syntax of expiration attributes for VSUP ([7edea8e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7edea8e94c8e02fcda87d9cc565c535f8a55da6c))
+* **core:** filter policies ([986a4ec](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/986a4ecd3d0ab00b628eded60f3bf608eaf8c620))
+* **registrar:** fix affiliation autoapprove without VO or Group regex ([59757d4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/59757d42fca2230c9ef48b18c1e1fffe17368dff))
+
 ## [34.1.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.1.0...v34.1.1) (2024-02-28)
 
 
