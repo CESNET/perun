@@ -30,112 +30,49 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class UserSynchronizer extends AbstractSynchronizer implements ApplicationContextAware {
 
-	private final static Logger log = LoggerFactory.getLogger(UserSynchronizer.class);
+  private final static Logger log = LoggerFactory.getLogger(UserSynchronizer.class);
+  private static AtomicInteger taskCount;
+  private static boolean wasThreadException = false;
+  private ApplicationContext context;
+  private PerunUser[] perunUser = new PerunUser[5];
 
-	private ApplicationContext context;
+  public void synchronizeUsers() {
 
-	private PerunUser[] perunUser = new PerunUser[5];
+    PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 
-	private static AtomicInteger taskCount;
+    ThreadPoolTaskExecutor syncExecutor = new ThreadPoolTaskExecutor();
+    int poolIndex;
+    boolean shouldWriteExceptionLog = true;
 
-	private static boolean wasThreadException = false;
+    for (poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
+      perunUser[poolIndex] = context.getBean("perunUser", PerunUser.class);
+    }
 
-	private class SyncUsersWorker implements Runnable {
+    try {
 
-		public int poolIndex;
-		public User user;
-		public List<Attribute> attrs;
-		public Set<Integer> voIds;
-		public List<Group> groups;
-		List<UserExtSource> userExtSources;
-		List<Group> admin_groups;
-		List<Vo> admin_vos;
-		List<Facility> admin_facilities;
+      log.debug("Getting list of users");
+      List<User> users = perun.getUsersManagerBl().getUsers(ldapcManager.getPerunSession());
+      users.sort(Comparator.comparingInt(User::getId));
+      Set<Name> presentUsers = new HashSet<Name>(users.size());
 
-		public SyncUsersWorker(
-				int poolIndex,
-				User user,
-				List<Attribute> attrs,
-				Set<Integer> voIds,
-				List<Group> groups,
-				List<UserExtSource> userExtSources,
-				List<Group> admin_groups,
-				List<Vo> admin_vos,
-				List<Facility> admin_facilities) {
-			this.poolIndex = poolIndex;
-			this.user = user;
-			this.attrs = attrs;
-			this.voIds = voIds;
-			this.groups = groups;
-			this.userExtSources = userExtSources;
-			this.admin_groups = admin_groups;
-			this.admin_vos = admin_vos;
-			this.admin_facilities = admin_facilities;
-		}
+      syncExecutor.setCorePoolSize(5);
+      syncExecutor.setMaxPoolSize(8);
+      //syncExecutor.setQueueCapacity(30);
+      syncExecutor.initialize();
 
-		public void run() {
-			try {
-				log.debug("Synchronizing user {} with {} attrs", user, attrs.size());
-				//perunUser[poolIndex].synchronizeEntry(user, attrs);
-				log.debug("Synchronizing user {} with {} VOs and {} groups", user.getId(), voIds.size(), groups.size());
-				//perunUser[poolIndex].synchronizeMembership(user, voIds, groups);
-				log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
-				//perunUser[poolIndex].synchronizePrincipals(user, userExtSources);
-				log.debug("Synchronizing user {} as admin of {} groups, {} VOs and {} facilities", user.getId(), admin_groups.size(), admin_vos.size(), admin_facilities.size());
-				perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos, admin_facilities);
-			} catch (PerunRuntimeException e) {
-				log.error("Error synchronizing user", e);
-				UserSynchronizer.wasThreadException = true;
+      poolIndex = 0;
+      taskCount = new AtomicInteger(0);
 
-			} catch (Exception e) {
-				log.error("Error synchronizing user", e);
-				UserSynchronizer.wasThreadException = true;
+      for (User user : users) {
 
-			} finally {
-				taskCount.decrementAndGet();
-			}
-		}
+        presentUsers.add(perunUser[0].getEntryDN(String.valueOf(user.getId())));
 
-	}
-
-
-	public void synchronizeUsers() {
-
-		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
-
-		ThreadPoolTaskExecutor syncExecutor = new ThreadPoolTaskExecutor();
-		int poolIndex;
-		boolean shouldWriteExceptionLog = true;
-
-		for (poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
-			perunUser[poolIndex] = context.getBean("perunUser", PerunUser.class);
-		}
-
-		try {
-
-			log.debug("Getting list of users");
-			List<User> users = perun.getUsersManagerBl().getUsers(ldapcManager.getPerunSession());
-			users.sort(Comparator.comparingInt(User::getId));
-			Set<Name> presentUsers = new HashSet<Name>(users.size());
-
-			syncExecutor.setCorePoolSize(5);
-			syncExecutor.setMaxPoolSize(8);
-			//syncExecutor.setQueueCapacity(30);
-			syncExecutor.initialize();
-
-			poolIndex = 0;
-			taskCount = new AtomicInteger(0);
-
-			for (User user : users) {
-
-				presentUsers.add(perunUser[0].getEntryDN(String.valueOf(user.getId())));
-
-				log.debug("Getting list of attributes for user {}", user.getId());
-				List<Attribute> attrs = new ArrayList<Attribute>();
-				List<String> attrNames = fillPerunAttributeNames(perunUser[poolIndex].getPerunAttributeNames());
-				try {
-					//log.debug("Getting attribute {} for user {}", attrName, user.getId());
-					attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), user, attrNames));
+        log.debug("Getting list of attributes for user {}", user.getId());
+        List<Attribute> attrs = new ArrayList<Attribute>();
+        List<String> attrNames = fillPerunAttributeNames(perunUser[poolIndex].getPerunAttributeNames());
+        try {
+          //log.debug("Getting attribute {} for user {}", attrName, user.getId());
+          attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), user, attrNames));
 						/* very chatty
 						if(attr == null) {
 							log.debug("Got null for attribute {}", attrName);
@@ -145,99 +82,164 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 							log.debug("Got attribute {} with value {}", attrName, attr.getValue().toString());
 						}
 						*/
-				} catch (PerunRuntimeException e) {
-					log.warn("Couldn't get attributes {} for user {}: {}", attrNames, user.getId(), e.getMessage());
-					shouldWriteExceptionLog = false;
-					throw new InternalErrorException(e);
-				}
-				log.debug("Got attributes {}", attrNames.toString());
+        } catch (PerunRuntimeException e) {
+          log.warn("Couldn't get attributes {} for user {}: {}", attrNames, user.getId(), e.getMessage());
+          shouldWriteExceptionLog = false;
+          throw new InternalErrorException(e);
+        }
+        log.debug("Got attributes {}", attrNames.toString());
 
-				try {
-					//log.debug("Synchronizing user {} with {} attrs", user, attrs.size());
-					//perunUser.synchronizeEntry(user, attrs);
+        try {
+          //log.debug("Synchronizing user {} with {} attrs", user, attrs.size());
+          //perunUser.synchronizeEntry(user, attrs);
 
-					log.debug("Getting list of member groups for user {}", user.getId());
-					Set<Integer> voIds = new HashSet<>();
-					List<Member> members = perun.getMembersManagerBl().getMembersByUser(ldapcManager.getPerunSession(), user);
-					List<Group> groups = new ArrayList<Group>();
-					for (Member member : members) {
-						if (member.getStatus().equals(Status.VALID)) {
-							voIds.add(member.getVoId());
-							groups.addAll(perun.getGroupsManagerBl().getAllGroupsWhereMemberIsActive(ldapcManager.getPerunSession(), member));
-						}
-					}
+          log.debug("Getting list of member groups for user {}", user.getId());
+          Set<Integer> voIds = new HashSet<>();
+          List<Member> members = perun.getMembersManagerBl().getMembersByUser(ldapcManager.getPerunSession(), user);
+          List<Group> groups = new ArrayList<Group>();
+          for (Member member : members) {
+            if (member.getStatus().equals(Status.VALID)) {
+              voIds.add(member.getVoId());
+              groups.addAll(
+                  perun.getGroupsManagerBl().getAllGroupsWhereMemberIsActive(ldapcManager.getPerunSession(), member));
+            }
+          }
 
-					//log.debug("Synchronizing user {} with {} VOs and {} groups", user.getId(), voIds.size(), groups.size());
-					//perunUser.synchronizeMembership(user, voIds, groups);
+          //log.debug("Synchronizing user {} with {} VOs and {} groups", user.getId(), voIds.size(), groups.size());
+          //perunUser.synchronizeMembership(user, voIds, groups);
 
-					log.debug("Getting list of extSources for user {}", user.getId());
-					List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(ldapcManager.getPerunSession(), user);
+          log.debug("Getting list of extSources for user {}", user.getId());
+          List<UserExtSource> userExtSources =
+              perun.getUsersManagerBl().getUserExtSources(ldapcManager.getPerunSession(), user);
 
-					List<Group> admin_groups = perun.getUsersManagerBl().getGroupsWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
-					List<Vo> admin_vos = perun.getUsersManagerBl().getVosWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
-					List<Facility> admin_facilities = perun.getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+          List<Group> admin_groups =
+              perun.getUsersManagerBl().getGroupsWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+          List<Vo> admin_vos = perun.getUsersManagerBl().getVosWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+          List<Facility> admin_facilities =
+              perun.getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
 
-					//log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
-					//perunUser.synchronizePrincipals(user, userExtSources);
+          //log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
+          //perunUser.synchronizePrincipals(user, userExtSources);
 
-					syncExecutor.execute(new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos, admin_facilities));
-					taskCount.incrementAndGet();
+          syncExecutor.execute(
+              new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos,
+                  admin_facilities));
+          taskCount.incrementAndGet();
 
-				} catch (PerunRuntimeException e) {
-					log.error("Error synchronizing user", e);
-					shouldWriteExceptionLog = false;
-					throw new InternalErrorException(e);
-				}
+        } catch (PerunRuntimeException e) {
+          log.error("Error synchronizing user", e);
+          shouldWriteExceptionLog = false;
+          throw new InternalErrorException(e);
+        }
 
-				poolIndex = (poolIndex + 1) % perunUser.length;
-			}
+        poolIndex = (poolIndex + 1) % perunUser.length;
+      }
 
-			try {
-				removeOldEntries(perunUser[0], presentUsers, log);
-			} catch (InternalErrorException e) {
-				log.error("Error removing old user entries", e);
-				shouldWriteExceptionLog = false;
-				throw new InternalErrorException(e);
-			}
+      try {
+        removeOldEntries(perunUser[0], presentUsers, log);
+      } catch (InternalErrorException e) {
+        log.error("Error removing old user entries", e);
+        shouldWriteExceptionLog = false;
+        throw new InternalErrorException(e);
+      }
 
-		} catch (PerunRuntimeException e) {
-			if (shouldWriteExceptionLog) {
-				log.error("Error synchronizing users", e);
-			}
-			throw new InternalErrorException(e);
+    } catch (PerunRuntimeException e) {
+      if (shouldWriteExceptionLog) {
+        log.error("Error synchronizing users", e);
+      }
+      throw new InternalErrorException(e);
 
-		} finally {
-			// wait for all the tasks to get executed
-			while (!syncExecutor.getThreadPoolExecutor().getQueue().isEmpty()) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					break;
-				}
-			}
-			// wait for all the tasks to complete (for at most 10 seconds)
-			for (int i = 0; i < 10 && taskCount.get() > 0; i++) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					break;
-				}
-			}
-			syncExecutor.shutdown();
-			for (poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
-				perunUser[poolIndex] = null;
-			}
-		}
-		if (wasThreadException) {
-			throw new InternalErrorException("Error synchronizing user in executed thread");
-		}
+    } finally {
+      // wait for all the tasks to get executed
+      while (!syncExecutor.getThreadPoolExecutor().getQueue().isEmpty()) {
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          break;
+        }
+      }
+      // wait for all the tasks to complete (for at most 10 seconds)
+      for (int i = 0; i < 10 && taskCount.get() > 0; i++) {
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          break;
+        }
+      }
+      syncExecutor.shutdown();
+      for (poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
+        perunUser[poolIndex] = null;
+      }
+    }
+    if (wasThreadException) {
+      throw new InternalErrorException("Error synchronizing user in executed thread");
+    }
 
-	}
+  }
 
+  @Override
+  public void setApplicationContext(ApplicationContext context) {
+    this.context = context;
+  }
 
-	@Override
-	public void setApplicationContext(ApplicationContext context) {
-		this.context = context;
-	}
+  private class SyncUsersWorker implements Runnable {
+
+    public int poolIndex;
+    public User user;
+    public List<Attribute> attrs;
+    public Set<Integer> voIds;
+    public List<Group> groups;
+    List<UserExtSource> userExtSources;
+    List<Group> admin_groups;
+    List<Vo> admin_vos;
+    List<Facility> admin_facilities;
+
+    public SyncUsersWorker(
+        int poolIndex,
+        User user,
+        List<Attribute> attrs,
+        Set<Integer> voIds,
+        List<Group> groups,
+        List<UserExtSource> userExtSources,
+        List<Group> admin_groups,
+        List<Vo> admin_vos,
+        List<Facility> admin_facilities) {
+      this.poolIndex = poolIndex;
+      this.user = user;
+      this.attrs = attrs;
+      this.voIds = voIds;
+      this.groups = groups;
+      this.userExtSources = userExtSources;
+      this.admin_groups = admin_groups;
+      this.admin_vos = admin_vos;
+      this.admin_facilities = admin_facilities;
+    }
+
+    public void run() {
+      try {
+        log.debug("Synchronizing user {} with {} attrs", user, attrs.size());
+        //perunUser[poolIndex].synchronizeEntry(user, attrs);
+        log.debug("Synchronizing user {} with {} VOs and {} groups", user.getId(), voIds.size(), groups.size());
+        //perunUser[poolIndex].synchronizeMembership(user, voIds, groups);
+        log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
+        //perunUser[poolIndex].synchronizePrincipals(user, userExtSources);
+        log.debug("Synchronizing user {} as admin of {} groups, {} VOs and {} facilities", user.getId(),
+            admin_groups.size(), admin_vos.size(), admin_facilities.size());
+        perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos,
+            admin_facilities);
+      } catch (PerunRuntimeException e) {
+        log.error("Error synchronizing user", e);
+        UserSynchronizer.wasThreadException = true;
+
+      } catch (Exception e) {
+        log.error("Error synchronizing user", e);
+        UserSynchronizer.wasThreadException = true;
+
+      } finally {
+        taskCount.decrementAndGet();
+      }
+    }
+
+  }
 
 }

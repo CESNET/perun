@@ -25,110 +25,113 @@ import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENDIN
 
 /**
  * This class represents permanently running thread, which should run in a single instance.
- *
+ * <p>
  * It takes all GENERATED Tasks from generatedTasks blocking queue provided by GenCollector
  * and creates SendTask and SendWorker for each Destination and put them to BlockingSendExecutorCompletionService.
  * Processing waits on call of blockingSubmit() for each SendWorker.
- *
+ * <p>
  * Expected Task status change GENERATED -> SENDING is reported to Dispatcher.
  * For Tasks without any Destination, status changes GENERATED -> ERROR and Task is removed from SchedulingPool (Engine).
  *
+ * @author David Šarman
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  * @see SchedulingPool#getGeneratedTasksQueue()
  * @see SendTask
  * @see SendWorkerImpl
  * @see BlockingSendExecutorCompletionService
- *
- * @author David Šarman
- * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class SendPlanner extends AbstractRunner {
 
-	private final static Logger log = LoggerFactory.getLogger(SendPlanner.class);
+  private final static Logger log = LoggerFactory.getLogger(SendPlanner.class);
 
-	@Autowired
-	private BlockingSendExecutorCompletionService sendCompletionService;
-	@Autowired
-	private SchedulingPool schedulingPool;
-	@Autowired
-	private JMSQueueManager jmsQueueManager;
-	private File directory;
+  @Autowired
+  private BlockingSendExecutorCompletionService sendCompletionService;
+  @Autowired
+  private SchedulingPool schedulingPool;
+  @Autowired
+  private JMSQueueManager jmsQueueManager;
+  private File directory;
 
-	public SendPlanner() {
-	}
+  public SendPlanner() {
+  }
 
-	public SendPlanner(BlockingSendExecutorCompletionService sendCompletionService, SchedulingPool schedulingPool,
-	                   JMSQueueManager jmsQueueManager) {
-		this.sendCompletionService = sendCompletionService;
-		this.schedulingPool = schedulingPool;
-		this.jmsQueueManager = jmsQueueManager;
-	}
+  public SendPlanner(BlockingSendExecutorCompletionService sendCompletionService, SchedulingPool schedulingPool,
+                     JMSQueueManager jmsQueueManager) {
+    this.sendCompletionService = sendCompletionService;
+    this.schedulingPool = schedulingPool;
+    this.jmsQueueManager = jmsQueueManager;
+  }
 
-	@Override
-	public void run() {
-		BlockingQueue<Task> generatedTasks = schedulingPool.getGeneratedTasksQueue();
-		while (!shouldStop()) {
-			try {
-				Task task = generatedTasks.take();
-				// set Task status immediately
-				// no destination -> ERROR
-				// has destinations -> SENDING
-				if (task.getDestinations().isEmpty()) {
-					task.setStatus(Task.TaskStatus.ERROR);
-					try {
-						jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
-					} catch (JMSException e) {
-						jmsLogError(task);
-					}
-					try {
-						schedulingPool.removeTask(task);
-					} catch (TaskStoreException e) {
-						log.error("[{}] Generated Task without destinations could not be removed from SchedulingPool: {}", task.getId(), e);
-					}
-					// skip to next generated Task
-					continue;
-				}
-				// Task has destinations
-				task.setStatus(Task.TaskStatus.SENDING);
-				// TODO - would be probably better to have this as one time call after first SendWorker is submitted
-				// TODO   but then processing stuck tasks must reflect, that SENDING task might have sendStartTime=NULL
-				task.setSendStartTime(LocalDateTime.now());
+  @Override
+  public void run() {
+    BlockingQueue<Task> generatedTasks = schedulingPool.getGeneratedTasksQueue();
+    while (!shouldStop()) {
+      try {
+        Task task = generatedTasks.take();
+        // set Task status immediately
+        // no destination -> ERROR
+        // has destinations -> SENDING
+        if (task.getDestinations().isEmpty()) {
+          task.setStatus(Task.TaskStatus.ERROR);
+          try {
+            jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+          } catch (JMSException e) {
+            jmsLogError(task);
+          }
+          try {
+            schedulingPool.removeTask(task);
+          } catch (TaskStoreException e) {
+            log.error("[{}] Generated Task without destinations could not be removed from SchedulingPool: {}",
+                task.getId(), e);
+          }
+          // skip to next generated Task
+          continue;
+        }
+        // Task has destinations
+        task.setStatus(Task.TaskStatus.SENDING);
+        // TODO - would be probably better to have this as one time call after first SendWorker is submitted
+        // TODO   but then processing stuck tasks must reflect, that SENDING task might have sendStartTime=NULL
+        task.setSendStartTime(LocalDateTime.now());
 
-				schedulingPool.addSendTaskCount(task, task.getDestinations().size());
-				try {
-					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getSendStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-				} catch (JMSException e) {
-					jmsLogError(task);
-				}
+        schedulingPool.addSendTaskCount(task, task.getDestinations().size());
+        try {
+          jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(),
+              task.getSendStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        } catch (JMSException e) {
+          jmsLogError(task);
+        }
 
-				// create SendTask and SendWorker for each Destination
-				for (Destination destination : task.getDestinations()) {
-					// submit for execution
-					SendTask sendTask = new SendTask(task, destination);
-					SendWorker worker = new SendWorkerImpl(sendTask, directory);
-					sendCompletionService.blockingSubmit(worker);
-				}
+        // create SendTask and SendWorker for each Destination
+        for (Destination destination : task.getDestinations()) {
+          // submit for execution
+          SendTask sendTask = new SendTask(task, destination);
+          SendWorker worker = new SendWorkerImpl(sendTask, directory);
+          sendCompletionService.blockingSubmit(worker);
+        }
 
-			} catch (InterruptedException e) {
+      } catch (InterruptedException e) {
 
-				String errorStr = "Thread planning SendTasks was interrupted.";
-				log.error(errorStr);
-				throw new RuntimeException(errorStr, e);
+        String errorStr = "Thread planning SendTasks was interrupted.";
+        log.error(errorStr);
+        throw new RuntimeException(errorStr, e);
 
-			} catch (Throwable ex) {
-				log.error("Unexpected exception in SendPlanner thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later.", ex);
-			}
-		}
-	}
+      } catch (Throwable ex) {
+        log.error(
+            "Unexpected exception in SendPlanner thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later.",
+            ex);
+      }
+    }
+  }
 
-	private void jmsLogError(Task task) {
-		log.warn("[{}] Could not send SEND status update to {} to Dispatcher.", task.getId(), task.getStatus());
-	}
+  private void jmsLogError(Task task) {
+    log.warn("[{}] Could not send SEND status update to {} to Dispatcher.", task.getId(), task.getStatus());
+  }
 
-	@Autowired
-	public void setPropertiesBean(Properties propertiesBean) {
-		if (propertiesBean != null) {
-			directory = new File(propertiesBean.getProperty("engine.sendscript.path"));
-		}
-	}
+  @Autowired
+  public void setPropertiesBean(Properties propertiesBean) {
+    if (propertiesBean != null) {
+      directory = new File(propertiesBean.getProperty("engine.sendscript.path"));
+    }
+  }
 
 }

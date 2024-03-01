@@ -18,68 +18,71 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 
 public class LogoutWidget extends Composite {
 
-	PerunWebSession session = PerunWebSession.getInstance();
+  PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Creates a new instance of LogoutWidget
-	 */
-	public LogoutWidget() {
+  /**
+   * Creates a new instance of LogoutWidget
+   */
+  public LogoutWidget() {
 
-		// widget inside
-		VerticalPanel widget = new VerticalPanel();
+    // widget inside
+    VerticalPanel widget = new VerticalPanel();
 
-		this.initWidget(widget);
+    this.initWidget(widget);
 
-		try {
+    try {
 
-			widget.setSize("100%", "100%");
-			FlexTable content = new FlexTable();
-			content.setCellSpacing(5);
-			widget.add(content);
-			widget.setCellHorizontalAlignment(content, HasHorizontalAlignment.ALIGN_CENTER);
-			widget.setCellVerticalAlignment(content, HasVerticalAlignment.ALIGN_MIDDLE);
+      widget.setSize("100%", "100%");
+      FlexTable content = new FlexTable();
+      content.setCellSpacing(5);
+      widget.add(content);
+      widget.setCellHorizontalAlignment(content, HasHorizontalAlignment.ALIGN_CENTER);
+      widget.setCellVerticalAlignment(content, HasVerticalAlignment.ALIGN_MIDDLE);
 
-			String server = session.getRpcServer();
-			if (server.equalsIgnoreCase("fed")) {
+      String server = session.getRpcServer();
+      if (server.equalsIgnoreCase("fed")) {
 
-				content.setWidget(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon()));
-				content.setHTML(0, 1, "<h2>Log-out from Perun was successful.</h2>");
+        content.setWidget(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon()));
+        content.setHTML(0, 1, "<h2>Log-out from Perun was successful.</h2>");
 
-			} else {
+      } else {
 
-				content.setWidget(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()));
-				content.setHTML(0, 1, "<h2>You must close browser to successfully log-out from Perun.</h2>");
+        content.setWidget(0, 0, new Image(LargeIcons.INSTANCE.errorIcon()));
+        content.setHTML(0, 1, "<h2>You must close browser to successfully log-out from Perun.</h2>");
 
-			}
+      }
 
-			FlexTable links = new FlexTable();
-			links.setCellSpacing(10);
+      FlexTable links = new FlexTable();
+      links.setCellSpacing(10);
 
-			CustomButton loginButton = new CustomButton("Log-in back to Perun", SmallIcons.INSTANCE.arrowLeftIcon(), new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					History.back();
-					Window.Location.reload();
-				}
-			});
-			CustomButton perunWebButton = new CustomButton("Go to Perun web", SmallIcons.INSTANCE.arrowRightIcon(), new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					Window.Location.replace("https://perun-aai.org");
-				}
-			});
-			perunWebButton.setImageAlign(true);
+      CustomButton loginButton =
+          new CustomButton("Log-in back to Perun", SmallIcons.INSTANCE.arrowLeftIcon(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+              History.back();
+              Window.Location.reload();
+            }
+          });
+      CustomButton perunWebButton =
+          new CustomButton("Go to Perun web", SmallIcons.INSTANCE.arrowRightIcon(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+              Window.Location.replace("https://perun-aai.org");
+            }
+          });
+      perunWebButton.setImageAlign(true);
 
-			links.setWidget(0, 0, loginButton);
-			links.setWidget(0, 1, perunWebButton);
+      links.setWidget(0, 0, loginButton);
+      links.setWidget(0, 1, perunWebButton);
 
-			content.setWidget(1, 0, links);
-			content.getFlexCellFormatter().setColSpan(1, 0, 2);
-			content.getFlexCellFormatter().setAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_TOP);
+      content.setWidget(1, 0, links);
+      content.getFlexCellFormatter().setColSpan(1, 0, 2);
+      content.getFlexCellFormatter()
+          .setAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_TOP);
 
-		} catch (Exception ex) {
-			GWT.log(""+ex.toString());
-		}
-	}
+    } catch (Exception ex) {
+      GWT.log("" + ex.toString());
+    }
+  }
 
 }

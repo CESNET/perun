@@ -14,54 +14,55 @@ import java.util.List;
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
-public interface UserVirtualAttributesModuleImplApi extends UserAttributesModuleImplApi, VirtualAttributesModuleImplApi {
+public interface UserVirtualAttributesModuleImplApi
+    extends UserAttributesModuleImplApi, VirtualAttributesModuleImplApi {
 
-	/**
-	 * This method will return computed value.
-	 *
-	 * @param perunSession perun session
-	 * @param user user which is needed for computing the value
-	 * @param attribute attribute to operate on
-	 * @return
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 */
-	Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute);
+  /**
+   * This method will return computed value.
+   *
+   * @param perunSession perun session
+   * @param user         user which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return
+   * @throws InternalErrorException if an exception is raised in particular
+   *                                implementation, the exception is wrapped in InternalErrorException
+   */
+  Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute);
 
-	/**
-	 * Method sets attributes' values which are dependent on this virtual attribute.
-	 *
-	 * @param perunSession
-	 * @param user user which is needed for computing the value
-	 * @param attribute attribute to operate on
-	 * @return true if attribute was really changed
-	 */
-	boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute);
+  /**
+   * Method sets attributes' values which are dependent on this virtual attribute.
+   *
+   * @param perunSession
+   * @param user         user which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return true if attribute was really changed
+   */
+  boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute);
 
-	/**
-	 * Currently do nothing.
-	 *
-	 * @param perunSession
-	 * @param user user which is needed for computing the value
-	 * @param attribute attribute to operate on
-	 * @return
-	 */
-	void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute);
+  /**
+   * Currently do nothing.
+   *
+   * @param perunSession
+   * @param user         user which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return
+   */
+  void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute);
 
-	/**
-	 * Method searches all users, who have attribute with the given value.
-	 * The rules of the match are dependent on the type of the attribute:
-	 * <table>
-	 * <tr><td><em>String</em></td> <td>match in substring</td></tr>
-	 * <tr><td><em>List</em></td> <td>match in one item</td></tr>
-	 * <tr><td><em>Map</em></td> <td>match in key or value</td></tr>
-	 * </table>
-	 *
-	 * @param perunSession perun session
-	 * @param attribute attribute with value, which all returned users have to have
-	 * @return all users, who have attribute with given value
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 */
-	List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute);
+  /**
+   * Method searches all users, who have attribute with the given value.
+   * The rules of the match are dependent on the type of the attribute:
+   * <table>
+   * <tr><td><em>String</em></td> <td>match in substring</td></tr>
+   * <tr><td><em>List</em></td> <td>match in one item</td></tr>
+   * <tr><td><em>Map</em></td> <td>match in key or value</td></tr>
+   * </table>
+   *
+   * @param perunSession perun session
+   * @param attribute    attribute with value, which all returned users have to have
+   * @return all users, who have attribute with given value
+   * @throws InternalErrorException if an exception is raised in particular
+   *                                implementation, the exception is wrapped in InternalErrorException
+   */
+  List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute);
 }

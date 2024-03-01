@@ -29,188 +29,197 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  */
 public class AddHostsTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Add hosts");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Add hosts");
 
-	// data
-	private int facilityId;
-	private Facility facility;
+  // data
+  private int facilityId;
+  private Facility facility;
 
-	/**
-	 * Creates a tab instance
-	 * @param facilityId
-	 */
-	public AddHostsTabItem(int facilityId){
-		this.facilityId = facilityId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				facility = jso.cast();
-			}
-		}).retrieveData();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId
+   */
+  public AddHostsTabItem(int facilityId) {
+    this.facilityId = facilityId;
+    new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        facility = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param facility
-	 */
-	public AddHostsTabItem(Facility facility){
-		this.facility = facility;
-		this.facilityId = facility.getId();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facility
+   */
+  public AddHostsTabItem(Facility facility) {
+    this.facility = facility;
+    this.facilityId = facility.getId();
+  }
 
-	public boolean isPrepared() {
-		return !(facility == null);
-	}
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public void onClose() {
 
-	}
+  }
 
-	public Widget draw() {
+  public Widget draw() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": add hosts");
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": add hosts");
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		final ExtendedTextArea newHosts = new ExtendedTextArea();
-		newHosts.getTextArea().setSize("335px", "150px");
+    final ExtendedTextArea newHosts = new ExtendedTextArea();
+    newHosts.getTextArea().setSize("335px", "150px");
 
-		final ExtendedTextArea.TextAreaValidator validator = new ExtendedTextArea.TextAreaValidator() {
-			@Override
-			public boolean validateTextArea() {
-				if (newHosts.getTextArea().getText().trim().isEmpty()) {
-					newHosts.setError("Please enter at least one hostname to add it to facility.");
-					return false;
-				} else {
-					newHosts.setOk();
-					return true;
-				}
-			}
-		};
-		newHosts.setValidator(validator);
+    final ExtendedTextArea.TextAreaValidator validator = new ExtendedTextArea.TextAreaValidator() {
+      @Override
+      public boolean validateTextArea() {
+        if (newHosts.getTextArea().getText().trim().isEmpty()) {
+          newHosts.setError("Please enter at least one hostname to add it to facility.");
+          return false;
+        } else {
+          newHosts.setOk();
+          return true;
+        }
+      }
+    };
+    newHosts.setValidator(validator);
 
-		final CustomButton addHostsButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addHost());
+    final CustomButton addHostsButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addHost());
 
-		// close tab, disable button
-		final TabItem tab = this;
+    // close tab, disable button
+    final TabItem tab = this;
 
-		addHostsButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				if (validator.validateTextArea()) {
-					String hostnames = newHosts.getTextArea().getText().trim();
-					String hosts[] = hostnames.split("\n");
-					// trim whitespace
-					for (int i = 0; i< hosts.length; i++) {
-						hosts[i] = hosts[i].trim();
-					}
-					AddHosts request = new AddHosts(facility.getId(), JsonCallbackEvents.closeTabDisableButtonEvents(addHostsButton, tab, true));
-					request.addHosts(hosts);
-				}
-			}
-		});
+    addHostsButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        if (validator.validateTextArea()) {
+          String hostnames = newHosts.getTextArea().getText().trim();
+          String hosts[] = hostnames.split("\n");
+          // trim whitespace
+          for (int i = 0; i < hosts.length; i++) {
+            hosts[i] = hosts[i].trim();
+          }
+          AddHosts request =
+              new AddHosts(facility.getId(), JsonCallbackEvents.closeTabDisableButtonEvents(addHostsButton, tab, true));
+          request.addHosts(hosts);
+        }
+      }
+    });
 
-		TabMenu menu = new TabMenu();
+    TabMenu menu = new TabMenu();
 
-		menu.addWidget(addHostsButton);
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    menu.addWidget(addHostsButton);
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		// layout
-		final FlexTable layout = new FlexTable();
-		layout.setWidth("350px");
-		layout.setStyleName("inputFormFlexTable");
-		FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+    // layout
+    final FlexTable layout = new FlexTable();
+    layout.setWidth("350px");
+    layout.setStyleName("inputFormFlexTable");
+    FlexTable.FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-		layout.setHTML(0, 0, "Hostnames:");
-		layout.setWidget(1, 0, newHosts);
-		cellFormatter.addStyleName(0, 0, "itemName");
+    layout.setHTML(0, 0, "Hostnames:");
+    layout.setWidget(1, 0, newHosts);
+    cellFormatter.addStyleName(0, 0, "itemName");
 
-		layout.setHTML(2, 0, "Enter one host per line. You can use \"[x-y]\" in hostname to generate hosts with numbers from x to y. This replacer can be specified multiple times in one hostname to generate MxN combinations.");
-		cellFormatter.addStyleName(2, 0, "inputFormInlineComment");
+    layout.setHTML(2, 0,
+        "Enter one host per line. You can use \"[x-y]\" in hostname to generate hosts with numbers from x to y. This replacer can be specified multiple times in one hostname to generate MxN combinations.");
+    cellFormatter.addStyleName(2, 0, "inputFormInlineComment");
 
-		vp.add(layout);
-		vp.add(menu);
+    vp.add(layout);
+    vp.add(menu);
 
-		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+    vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		this.contentWidget.setWidget(vp);
+    this.contentWidget.setWidget(vp);
 
-		return getWidget();
+    return getWidget();
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 661;
-		int result = 1;
-		result = prime * result + facilityId;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 661;
+    int result = 1;
+    result = prime * result + facilityId;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AddHostsTabItem other = (AddHostsTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    AddHostsTabItem other = (AddHostsTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open() {
-	}
+  public void open() {
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isFacilityAdmin(facilityId)) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isFacilityAdmin(facilityId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
 }

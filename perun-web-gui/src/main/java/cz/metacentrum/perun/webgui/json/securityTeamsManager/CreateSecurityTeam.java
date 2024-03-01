@@ -17,112 +17,114 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  */
 public class CreateSecurityTeam {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	// vo name
-	private String name = "";
-
-	// vo short name
-	private String description = "";
-
-	// URL to call
-	final String JSON_URL = "securityTeamsManager/createSecurityTeam";
-
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "securityTeamsManager/createSecurityTeam";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // vo name
+  private String name = "";
+  // vo short name
+  private String description = "";
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
 
-	/**
-	 * Creates a new request
-	 */
-	public CreateSecurityTeam() {}
+  /**
+   * Creates a new request
+   */
+  public CreateSecurityTeam() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 * @param events Custom events
-	 */
-	public CreateSecurityTeam(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public CreateSecurityTeam(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return
-	 */
-	private boolean testCreating()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return
+   */
+  private boolean testCreating() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(name.length() == 0){
-			errorMsg += "You must fill in the parameter <strong>Name</strong>.<br />";
-			result = false;
-		}
+    if (name.length() == 0) {
+      errorMsg += "You must fill in the parameter <strong>Name</strong>.<br />";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Confirm c = new Confirm("Error while creating SecurityTeam", new HTML(errorMsg), true);
-			c.show();
-		}
+    if (errorMsg.length() > 0) {
+      Confirm c = new Confirm("Error while creating SecurityTeam", new HTML(errorMsg), true);
+      c.show();
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to create a new SecurityTeam, it first tests the values and then submits them.
-	 *
-	 * @param name		  SecurityTeam name
-	 * @param description SecurityTeam description
-	 */
-	public void createSecurityTeam(final String name, final String description)
-	{
-		this.name = name;
-		this.description = description;
+  /**
+   * Attempts to create a new SecurityTeam, it first tests the values and then submits them.
+   *
+   * @param name        SecurityTeam name
+   * @param description SecurityTeam description
+   */
+  public void createSecurityTeam(final String name, final String description) {
+    this.name = name;
+    this.description = description;
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating security team " + name + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating security team " + name + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Security team " + name + " created.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Security team " + name + " created.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		// vo
-		JSONObject team = new JSONObject();
-		team.put("name", new JSONString(name));
-		team.put("description", new JSONString(description));
+      ;
+    };
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("securityTeam", team);
-		return jsonQuery;
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+
+  }
+
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // vo
+    JSONObject team = new JSONObject();
+    team.put("name", new JSONString(name));
+    team.put("description", new JSONString(description));
+
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("securityTeam", team);
+    return jsonQuery;
+  }
 
 }

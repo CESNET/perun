@@ -41,234 +41,241 @@ import java.util.List;
 
 /**
  * Implementation of publication connector for OBD 3.0 from ZČU or UK
- *
+ * <p>
  * Remote API documentation: https://support.zcu.cz/index.php/OBD
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 
-	private static Logger log = LoggerFactory.getLogger(OBD30Strategy.class);
+  private static Logger log = LoggerFactory.getLogger(OBD30Strategy.class);
 
-	// ZČU (all "?", "&" and "=" must be replaced with "/" so that their proxy can offer data without authentication)
-	// https://obd.zcu.cz/fcgi/verso.fpl/fname/obd_exportt_xml/_a_prijmeni/Habernal/_diakritika=0/_a_jmeno=Ivan/_diakritika=0
-	// UK
-	// https://verso.is.cuni.cz/pub/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Voc%C5%AF&_diakritika=0&_v_vlo=2010
+  // ZČU (all "?", "&" and "=" must be replaced with "/" so that their proxy can offer data without authentication)
+  // https://obd.zcu.cz/fcgi/verso.fpl/fname/obd_exportt_xml/_a_prijmeni/Habernal/_diakritika=0/_a_jmeno=Ivan/_diakritika=0
+  // UK
+  // https://verso.is.cuni.cz/pub/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Voc%C5%AF&_diakritika=0&_v_vlo=2010
 
-	@Override
-	public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
-		try {
-			return parseResponse(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-		} catch (IOException e) {
-			throw new CabinetException(ErrorCodes.IO_EXCEPTION, e);
-		}
-	}
+  @Override
+  public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
+    try {
+      return parseResponse(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      throw new CabinetException(ErrorCodes.IO_EXCEPTION, e);
+    }
+  }
 
-	@Override
-	public HttpUriRequest getHttpRequest(String kodOsoby, int yearSince, int yearTill, PublicationSystem ps) {
+  @Override
+  public HttpUriRequest getHttpRequest(String kodOsoby, int yearSince, int yearTill, PublicationSystem ps) {
 
-		// set params
-		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-		formparams.add(new BasicNameValuePair("fname", "obd_exportt_xml"));
-		formparams.add(new BasicNameValuePair("_v_vlo", String.valueOf(yearSince)));
-		formparams.add(new BasicNameValuePair("_v_vld", String.valueOf(yearTill)));
+    // set params
+    List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+    formparams.add(new BasicNameValuePair("fname", "obd_exportt_xml"));
+    formparams.add(new BasicNameValuePair("_v_vlo", String.valueOf(yearSince)));
+    formparams.add(new BasicNameValuePair("_v_vld", String.valueOf(yearTill)));
 
-		// search base on lastName + firstName of person
-		String[] names = String.valueOf(kodOsoby).split(",");
-		formparams.add(new BasicNameValuePair("_a_prijmeni", names[0]));
-		formparams.add(new BasicNameValuePair("_diakritika", "0"));
-		formparams.add(new BasicNameValuePair("_a_jmeno", names[1]));
-		formparams.add(new BasicNameValuePair("_diakritika", "0"));
+    // search base on lastName + firstName of person
+    String[] names = String.valueOf(kodOsoby).split(",");
+    formparams.add(new BasicNameValuePair("_a_prijmeni", names[0]));
+    formparams.add(new BasicNameValuePair("_diakritika", "0"));
+    formparams.add(new BasicNameValuePair("_a_jmeno", names[1]));
+    formparams.add(new BasicNameValuePair("_diakritika", "0"));
 
-		// prepare valid uri
-		URI uri = null;
-		try {
-			if (ps.getUrl().startsWith("https://obd.zcu.cz/")) {
-				// ZČU OBD
-				String params = URLEncodedUtils.format(formparams, StandardCharsets.UTF_8);
-				params = params.replaceAll("[?&=]", "/");
-				uri = new URI(ps.getUrl() + params);
-			} else {
-				// generic OBD
-				uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, StandardCharsets.UTF_8));
-			}
-			// log response into /var/log/perun/perun-cabinet.log
-			//log.debug("URI: {}", uri);
-		} catch (URISyntaxException e) {
-			log.error("Wrong URL syntax for contacting OBD 3.0 publication system.", e);
-		}
+    // prepare valid uri
+    URI uri = null;
+    try {
+      if (ps.getUrl().startsWith("https://obd.zcu.cz/")) {
+        // ZČU OBD
+        String params = URLEncodedUtils.format(formparams, StandardCharsets.UTF_8);
+        params = params.replaceAll("[?&=]", "/");
+        uri = new URI(ps.getUrl() + params);
+      } else {
+        // generic OBD
+        uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, StandardCharsets.UTF_8));
+      }
+      // log response into /var/log/perun/perun-cabinet.log
+      //log.debug("URI: {}", uri);
+    } catch (URISyntaxException e) {
+      log.error("Wrong URL syntax for contacting OBD 3.0 publication system.", e);
+    }
 
-		return new HttpGet(uri);
+    return new HttpGet(uri);
 
-	}
+  }
 
-	/**
-	 * Parse String response as XML document and retrieve Publications from it.
-	 * @param xml XML response from OBD 3.0
-	 * @return List of Publications
-	 * @throws CabinetException If anything fails
-	 */
-	protected List<Publication> parseResponse(String xml) throws CabinetException {
+  /**
+   * Parse String response as XML document and retrieve Publications from it.
+   *
+   * @param xml XML response from OBD 3.0
+   * @return List of Publications
+   * @throws CabinetException If anything fails
+   */
+  protected List<Publication> parseResponse(String xml) throws CabinetException {
 
-		assert xml != null;
-		List<Publication> result = new ArrayList<Publication>();
-		//hook for titles with &
-		xml= xml.replace("&", "&amp;");
+    assert xml != null;
+    List<Publication> result = new ArrayList<Publication>();
+    //hook for titles with &
+    xml = xml.replace("&", "&amp;");
 
-		log.trace("RESPONSE: "+xml);
+    log.trace("RESPONSE: " + xml);
 
-		//Create new document factory builder
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder;
-		try {
-			builder = factory.newDocumentBuilder();
-		} catch (ParserConfigurationException ex) {
-			throw new CabinetException("Error when creating newDocumentBuilder.", ex);
-		}
+    //Create new document factory builder
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder;
+    try {
+      builder = factory.newDocumentBuilder();
+    } catch (ParserConfigurationException ex) {
+      throw new CabinetException("Error when creating newDocumentBuilder.", ex);
+    }
 
-		Document doc;
-		try {
-			doc = builder.parse(new InputSource(new StringReader(xml)));
-		} catch (SAXParseException ex) {
-			throw new CabinetException("Error when parsing uri by document builder.", ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
-		} catch (SAXException ex) {
-			throw new CabinetException("Problem with parsing is more complex, not only invalid characters.", ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
-		} catch (IOException ex) {
-			throw new CabinetException("Error when parsing uri by document builder. Problem with input or output.", ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
-		}
+    Document doc;
+    try {
+      doc = builder.parse(new InputSource(new StringReader(xml)));
+    } catch (SAXParseException ex) {
+      throw new CabinetException("Error when parsing uri by document builder.", ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
+    } catch (SAXException ex) {
+      throw new CabinetException("Problem with parsing is more complex, not only invalid characters.",
+          ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
+    } catch (IOException ex) {
+      throw new CabinetException("Error when parsing uri by document builder. Problem with input or output.",
+          ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
+    }
 
-		//Prepare xpath expression
-		XPathFactory xPathfactory = XPathFactory.newInstance();
-		XPath xpath = xPathfactory.newXPath();
-		XPathExpression publicationsQuery;
-		try {
-			publicationsQuery = xpath.compile("/zaznamy/zaznam");
-		} catch (XPathExpressionException ex) {
-			throw new CabinetException("Error when compiling xpath query.", ex);
-		}
+    //Prepare xpath expression
+    XPathFactory xPathfactory = XPathFactory.newInstance();
+    XPath xpath = xPathfactory.newXPath();
+    XPathExpression publicationsQuery;
+    try {
+      publicationsQuery = xpath.compile("/zaznamy/zaznam");
+    } catch (XPathExpressionException ex) {
+      throw new CabinetException("Error when compiling xpath query.", ex);
+    }
 
-		NodeList nodeList;
-		try {
-			nodeList = (NodeList) publicationsQuery.evaluate(doc, XPathConstants.NODESET);
-		} catch (XPathExpressionException ex) {
-			throw new CabinetException("Error when evaluate xpath query on document.", ex);
-		}
+    NodeList nodeList;
+    try {
+      nodeList = (NodeList) publicationsQuery.evaluate(doc, XPathConstants.NODESET);
+    } catch (XPathExpressionException ex) {
+      throw new CabinetException("Error when evaluate xpath query on document.", ex);
+    }
 
-		//Test if there is any nodeset in result
-		if(nodeList.getLength() == 0) {
-			//There is no results, return empty subjects
-			return result;
-		}
+    //Test if there is any nodeset in result
+    if (nodeList.getLength() == 0) {
+      //There is no results, return empty subjects
+      return result;
+    }
 
-		//Iterate through nodes and convert them to Map<String,String>
-		for(int i=0; i<nodeList.getLength(); i++) {
-			Node singleNode = nodeList.item(i);
-			// remove node from original structure in order to keep access time constant (otherwise is exp.)
-			singleNode.getParentNode().removeChild(singleNode);
-			try {
-				Publication publication = convertNodeToPublication(singleNode);
-				result.add(publication);
-			} catch (InternalErrorException ex) {
-				log.error("Unable to parse Publication:", ex);
-			}
-		}
+    //Iterate through nodes and convert them to Map<String,String>
+    for (int i = 0; i < nodeList.getLength(); i++) {
+      Node singleNode = nodeList.item(i);
+      // remove node from original structure in order to keep access time constant (otherwise is exp.)
+      singleNode.getParentNode().removeChild(singleNode);
+      try {
+        Publication publication = convertNodeToPublication(singleNode);
+        result.add(publication);
+      } catch (InternalErrorException ex) {
+        log.error("Unable to parse Publication:", ex);
+      }
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Convert node of response to Publication
-	 *
-	 * @param node XML node to convert
-	 * @return Publication instance
-	 * @throws InternalErrorException
-	 */
-	private Publication convertNodeToPublication(Node node) {
+  /**
+   * Convert node of response to Publication
+   *
+   * @param node XML node to convert
+   * @return Publication instance
+   * @throws InternalErrorException
+   */
+  private Publication convertNodeToPublication(Node node) {
 
-		Publication publication = new Publication();
+    Publication publication = new Publication();
 
-		publication.setExternalId(Integer.valueOf(node.getAttributes().getNamedItem("id").getNodeValue()));
+    publication.setExternalId(Integer.valueOf(node.getAttributes().getNamedItem("id").getNodeValue()));
 
-		NodeList titleList = (NodeList) getValueFromXpath(node, "./titul_list/titul", XPathConstants.NODESET);
-		for(int i=0; i<titleList.getLength(); i++) {
-			Node singleNode = titleList.item(i);
+    NodeList titleList = (NodeList) getValueFromXpath(node, "./titul_list/titul", XPathConstants.NODESET);
+    for (int i = 0; i < titleList.getLength(); i++) {
+      Node singleNode = titleList.item(i);
 
-			String original = (String)getValueFromXpath(singleNode, "./original/text()", XPathConstants.STRING);
-			// use original name (language) of publication
-			if ("ano".equalsIgnoreCase(original)) {
-				String title = (String) getValueFromXpath(singleNode, "./nazev/text()", XPathConstants.STRING);
-				publication.setTitle((title != null) ? title : "");
-			}
+      String original = (String) getValueFromXpath(singleNode, "./original/text()", XPathConstants.STRING);
+      // use original name (language) of publication
+      if ("ano".equalsIgnoreCase(original)) {
+        String title = (String) getValueFromXpath(singleNode, "./nazev/text()", XPathConstants.STRING);
+        publication.setTitle((title != null) ? title : "");
+      }
 
-		}
+    }
 
-		String isbn = (String) getValueFromXpath(node, "./isbn/text()", XPathConstants.STRING);
-		isbn = (isbn != null) ? isbn : "";
+    String isbn = (String) getValueFromXpath(node, "./isbn/text()", XPathConstants.STRING);
+    isbn = (isbn != null) ? isbn : "";
 
-		String issn = (String) getValueFromXpath(node, "./issn/text()", XPathConstants.STRING);
-		issn = (issn != null) ? issn : "";
+    String issn = (String) getValueFromXpath(node, "./issn/text()", XPathConstants.STRING);
+    issn = (issn != null) ? issn : "";
 
-		if (!issn.isEmpty()) publication.setIsbn(issn);
-		if (!isbn.isEmpty()) publication.setIsbn(isbn);
+    if (!issn.isEmpty()) {
+      publication.setIsbn(issn);
+    }
+    if (!isbn.isEmpty()) {
+      publication.setIsbn(isbn);
+    }
 
-		int year = ((Double)getValueFromXpath(node, "./rok/text()", XPathConstants.NUMBER)).intValue();
-		publication.setYear(year);
+    int year = ((Double) getValueFromXpath(node, "./rok/text()", XPathConstants.NUMBER)).intValue();
+    publication.setYear(year);
 
-		String source = (String) getValueFromXpath(node, "./zdroj_nazev/text()", XPathConstants.STRING);
-		source = (source != null) ? source : "";
+    String source = (String) getValueFromXpath(node, "./zdroj_nazev/text()", XPathConstants.STRING);
+    source = (source != null) ? source : "";
 
-		String source_year = (String) getValueFromXpath(node, "./rocnik/text()", XPathConstants.STRING);
-		source_year = (source_year != null) ? source_year : "";
+    String source_year = (String) getValueFromXpath(node, "./rocnik/text()", XPathConstants.STRING);
+    source_year = (source_year != null) ? source_year : "";
 
-		String pages = (String) getValueFromXpath(node, "./strany/text()", XPathConstants.STRING);
-		pages = (pages != null) ? pages : "";
+    String pages = (String) getValueFromXpath(node, "./strany/text()", XPathConstants.STRING);
+    pages = (pages != null) ? pages : "";
 
-		String issue = (String) getValueFromXpath(node, "./cislo/text()", XPathConstants.STRING);
-		issue = (issue != null) ? issue : "";
+    String issue = (String) getValueFromXpath(node, "./cislo/text()", XPathConstants.STRING);
+    issue = (issue != null) ? issue : "";
 
-		// parse authors
-		List<Author> authors = new ArrayList<Author>();
+    // parse authors
+    List<Author> authors = new ArrayList<Author>();
 
-		NodeList authorList = (NodeList) getValueFromXpath(node, "./autor_list/autor", XPathConstants.NODESET);
-		for(int i=0; i<authorList.getLength(); i++) {
-			Node singleNode = authorList.item(i);
+    NodeList authorList = (NodeList) getValueFromXpath(node, "./autor_list/autor", XPathConstants.NODESET);
+    for (int i = 0; i < authorList.getLength(); i++) {
+      Node singleNode = authorList.item(i);
 
-			Author author = new Author();
-			author.setTitleBefore((String)getValueFromXpath(singleNode, "./titul_pred/text()", XPathConstants.STRING));
-			author.setTitleAfter((String)getValueFromXpath(singleNode, "./titul_za/text()", XPathConstants.STRING));
-			author.setFirstName((String)getValueFromXpath(singleNode, "./jmeno/text()", XPathConstants.STRING));
-			author.setLastName((String)getValueFromXpath(singleNode, "./prijmeni/text()", XPathConstants.STRING));
-			authors.add(author);
-		}
+      Author author = new Author();
+      author.setTitleBefore((String) getValueFromXpath(singleNode, "./titul_pred/text()", XPathConstants.STRING));
+      author.setTitleAfter((String) getValueFromXpath(singleNode, "./titul_za/text()", XPathConstants.STRING));
+      author.setFirstName((String) getValueFromXpath(singleNode, "./jmeno/text()", XPathConstants.STRING));
+      author.setLastName((String) getValueFromXpath(singleNode, "./prijmeni/text()", XPathConstants.STRING));
+      authors.add(author);
+    }
 
-		publication.setAuthors(authors);
+    publication.setAuthors(authors);
 
-		// create main entry
-		String main = "";
-		for (int i=0; i<authors.size(); i++){
-			if (i == 0) {
-				main += authors.get(i).getLastName().toUpperCase() + " " + authors.get(i).getFirstName();
-			} else {
-				main += authors.get(i).getFirstName() + " " + authors.get(i).getLastName().toUpperCase();
-			}
-			main += " a ";
-		}
-		if (main.length() > 3) {
-			main = main.substring(0, main.length()-3)+ ". ";
-		}
-		main += publication.getTitle() + ". ";
-		main += (publication.getYear() != 0) ? publication.getYear()+". " : "";
+    // create main entry
+    String main = "";
+    for (int i = 0; i < authors.size(); i++) {
+      if (i == 0) {
+        main += authors.get(i).getLastName().toUpperCase() + " " + authors.get(i).getFirstName();
+      } else {
+        main += authors.get(i).getFirstName() + " " + authors.get(i).getLastName().toUpperCase();
+      }
+      main += " a ";
+    }
+    if (main.length() > 3) {
+      main = main.substring(0, main.length() - 3) + ". ";
+    }
+    main += publication.getTitle() + ". ";
+    main += (publication.getYear() != 0) ? publication.getYear() + ". " : "";
 
-		main += (!source.isEmpty()) ? source+"," : "";
-		main += (!source_year.isEmpty()) ? " roč. "+source_year+"," : "";
-		main += (!issue.isEmpty()) ? " č. "+issue+"," : "";
-		main += (!pages.isEmpty()) ? " s. "+pages+"," : "";
-		main += (!isbn.isEmpty()) ? " ISBN: "+isbn+"." : "";
-		main += (!issn.isEmpty()) ? " ISSN: "+issn+"." : "";
-		publication.setMain(main);
+    main += (!source.isEmpty()) ? source + "," : "";
+    main += (!source_year.isEmpty()) ? " roč. " + source_year + "," : "";
+    main += (!issue.isEmpty()) ? " č. " + issue + "," : "";
+    main += (!pages.isEmpty()) ? " s. " + pages + "," : "";
+    main += (!isbn.isEmpty()) ? " ISBN: " + isbn + "." : "";
+    main += (!issn.isEmpty()) ? " ISSN: " + issn + "." : "";
+    publication.setMain(main);
 
-		return publication;
+    return publication;
 
-	}
+  }
 
 }

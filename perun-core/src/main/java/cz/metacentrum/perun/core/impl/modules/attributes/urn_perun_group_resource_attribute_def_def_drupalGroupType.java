@@ -18,54 +18,63 @@ import org.slf4j.LoggerFactory;
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 16.10.2015
  */
-public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends GroupResourceAttributesModuleAbstract
+    implements GroupResourceAttributesModuleImplApi {
 
-	private final static org.slf4j.Logger log = LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_drupalGroupType.class);
+  private final static org.slf4j.Logger log =
+      LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_drupalGroupType.class);
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		String attributeValue = attribute.valueAsString();
+    String attributeValue = attribute.valueAsString();
 
-		if(!(attributeValue.equals("public") || attributeValue.equals("private"))) {
-			throw new WrongAttributeValueException(attribute, resource, group, "Type of drupal group is not in correct form. It can be either 'public' or 'private'.");
-		}
-	}
+    if (!(attributeValue.equals("public") || attributeValue.equals("private"))) {
+      throw new WrongAttributeValueException(attribute, resource, group,
+          "Type of drupal group is not in correct form. It can be either 'public' or 'private'.");
+    }
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(attribute, null, resource, group, "Type of drupal group can't be null.");
-		}
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, group,
+          "Type of drupal group can't be null.");
+    }
+  }
 
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource, AttributeDefinition attribute) {
-		Attribute filledAttribute = new Attribute(attribute);
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource,
+                                 AttributeDefinition attribute) {
+    Attribute filledAttribute = new Attribute(attribute);
 
-		String attributeValue = (String) filledAttribute.getValue();
-		if((attributeValue == null) || ("".equals(attributeValue))) {
-			filledAttribute.setValue("public");
-		} else {
-			try {
-				checkAttributeSyntax(session, group, resource, filledAttribute);
-				checkAttributeSemantics(session, group, resource, filledAttribute);
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				log.error("Type of drupal group can be either 'public' or 'private'.", ex);
-			}
-		}
-		return filledAttribute;
-	}
+    String attributeValue = (String) filledAttribute.getValue();
+    if ((attributeValue == null) || ("".equals(attributeValue))) {
+      filledAttribute.setValue("public");
+    } else {
+      try {
+        checkAttributeSyntax(session, group, resource, filledAttribute);
+        checkAttributeSemantics(session, group, resource, filledAttribute);
+      } catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+        log.error("Type of drupal group can be either 'public' or 'private'.", ex);
+      }
+    }
+    return filledAttribute;
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("drupalGroupType");
-		attr.setDisplayName("Drupal group type");
-		attr.setType(String.class.getName());
-		attr.setDescription("Type of the drupal group");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("drupalGroupType");
+    attr.setDisplayName("Drupal group type");
+    attr.setType(String.class.getName());
+    attr.setDescription("Type of the drupal group");
+    return attr;
+  }
 }

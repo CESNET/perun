@@ -12,29 +12,31 @@ import org.junit.Test;
 import static org.mockito.Mockito.mock;
 
 public class urn_perun_member_group_attribute_def_virt_groupStatusIndirectTest extends AbstractPerunIntegrationTest {
-	private static urn_perun_member_group_attribute_def_virt_groupStatusIndirect classInstance;
-	private static PerunSessionImpl session;
-	private static Attribute attributeToCheck;
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_member_group_attribute_def_virt_groupStatusIndirect();
-		attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
-		session = mock(PerunSessionImpl.class);
-	}
-	@Test
-	public void testCheckAttributeValueNull() throws Exception {
-		System.out.println("testCheckAttributeValueNull()");
-		attributeToCheck.setValue(null);
+  private static urn_perun_member_group_attribute_def_virt_groupStatusIndirect classInstance;
+  private static PerunSessionImpl session;
+  private static Attribute attributeToCheck;
 
-		classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
-	}
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_member_group_attribute_def_virt_groupStatusIndirect();
+    attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
+    session = mock(PerunSessionImpl.class);
+  }
 
-	@Test
-	public void testCheckAttributeValueCorrect() throws Exception {
-		System.out.println("testCheckAttributeValueCorrect()");
+  @Test
+  public void testCheckAttributeValueNull() throws Exception {
+    System.out.println("testCheckAttributeValueNull()");
+    attributeToCheck.setValue(null);
 
-		attributeToCheck.setValue(true);
-		classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
+  }
+
+  @Test
+  public void testCheckAttributeValueCorrect() throws Exception {
+    System.out.println("testCheckAttributeValueCorrect()");
+
+    attributeToCheck.setValue(true);
+    classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
+  }
 
 }

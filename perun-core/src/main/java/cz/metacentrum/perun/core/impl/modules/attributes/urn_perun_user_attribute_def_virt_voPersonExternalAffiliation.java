@@ -51,310 +51,347 @@ import java.util.stream.Collectors;
 
 /**
  * All affiliations collected from:
- *  - UserExtSources attributes
- *  - urn:perun:user:attribute-def:def:voPersonExternalAffiliationManuallyAssigned
- *  - urn:perun:group:attribute-def:def:groupAffiliations
+ * - UserExtSources attributes
+ * - urn:perun:user:attribute-def:def:voPersonExternalAffiliationManuallyAssigned
+ * - urn:perun:group:attribute-def:def:groupAffiliations
  *
  * @author Martin Kuba makub@ics.muni.cz
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
 @SuppressWarnings("unused")
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliation extends UserVirtualAttributeCollectedFromUserExtSource {
+public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliation
+    extends UserVirtualAttributeCollectedFromUserExtSource {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)]", Pattern.DOTALL);
-	private final Pattern userEPSAMASetPattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +">(.*)] set for User:\\[(.*)]", Pattern.DOTALL);
-	private final Pattern userEPSAMARemovePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.*)] removed for User:\\[(.*)]", Pattern.DOTALL);
+  private final Pattern userAllAttrsRemovedPattern =
+      Pattern.compile("All attributes removed for User:\\[(.*)]", Pattern.DOTALL);
+  private final Pattern userEPSAMASetPattern = Pattern.compile(
+      "Attribute:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.*)] set for User:\\[(.*)]",
+      Pattern.DOTALL);
+  private final Pattern userEPSAMARemovePattern = Pattern.compile(
+      "AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +
+          ">(.*)] removed for User:\\[(.*)]", Pattern.DOTALL);
 
-	// format has to match the format in Perun-wui setAffiliation miniapp (method createAssignedAffiliationsAttribute)
-	private final String VALIDITY_DATE_FORMAT = "yyyy-MM-dd";
+  // format has to match the format in Perun-wui setAffiliation miniapp (method createAssignedAffiliationsAttribute)
+  private final String VALIDITY_DATE_FORMAT = "yyyy-MM-dd";
 
-	@Override
-	public String getSourceAttributeFriendlyName() {
-		return "affiliation";
-	}
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "affiliation";
+  }
 
-	/**
-	 * Get friendly name of secondary source attribute
-	 * @return friendly name of secondary source attribute
-	 */
-	public String getSecondarySourceAttributeFriendlyName() {
-		return "voPersonExternalAffiliationManuallyAssigned";
-	}
+  /**
+   * Get friendly name of secondary source attribute
+   *
+   * @return friendly name of secondary source attribute
+   */
+  public String getSecondarySourceAttributeFriendlyName() {
+    return "voPersonExternalAffiliationManuallyAssigned";
+  }
 
-	/**
-	 * Get name of secondary source attribute
-	 * @return name of secondary source attribute
-	 */
-	public String getSecondarySourceAttributeName() {
-		return AttributesManager.NS_USER_ATTR_DEF + ":" + getSecondarySourceAttributeFriendlyName();
-	}
+  /**
+   * Get name of secondary source attribute
+   *
+   * @return name of secondary source attribute
+   */
+  public String getSecondarySourceAttributeName() {
+    return AttributesManager.NS_USER_ATTR_DEF + ":" + getSecondarySourceAttributeFriendlyName();
+  }
 
-	/**
-	 * Get friendly name of tertiary source attribute
-	 * @return friendly name of tertiary source attribute
-	 */
-	public String getTertiarySourceAttributeFriendlyName() {
-		return "groupAffiliations";
-	}
+  /**
+   * Get friendly name of tertiary source attribute
+   *
+   * @return friendly name of tertiary source attribute
+   */
+  public String getTertiarySourceAttributeFriendlyName() {
+    return "groupAffiliations";
+  }
 
-	/**
-	 * Get name of tertiary source attribute
-	 * @return name of secondary source attribute
-	 */
-	public String getTertiarySourceAttributeName() {
-		return AttributesManager.NS_GROUP_ATTR_DEF + ":" + getTertiarySourceAttributeFriendlyName();
-	}
+  /**
+   * Get name of tertiary source attribute
+   *
+   * @return name of secondary source attribute
+   */
+  public String getTertiarySourceAttributeName() {
+    return AttributesManager.NS_GROUP_ATTR_DEF + ":" + getTertiarySourceAttributeFriendlyName();
+  }
 
-	@Override
-	public String getDestinationAttributeFriendlyName() {
-		return "voPersonExternalAffiliation";
-	}
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "voPersonExternalAffiliation";
+  }
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) {
-		//get already filled value obtained from UserExtSources
-		Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user,
+                                     AttributeDefinition destinationAttributeDefinition) {
+    //get already filled value obtained from UserExtSources
+    Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
 
-		Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
-		//get values previously obtained and add them to Set representing final value
-		//for values use set because of avoiding duplicities
-		Set<String> valuesWithoutDuplicities = new HashSet<>(attribute.valueAsList());
+    Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
+    //get values previously obtained and add them to Set representing final value
+    //for values use set because of avoiding duplicities
+    Set<String> valuesWithoutDuplicities = new HashSet<>(attribute.valueAsList());
 
-		valuesWithoutDuplicities.addAll(getAffiliationsManuallyAssigned(sess, user));
-		valuesWithoutDuplicities.addAll(getAffiliationsFromGroups(sess, user));
+    valuesWithoutDuplicities.addAll(getAffiliationsManuallyAssigned(sess, user));
+    valuesWithoutDuplicities.addAll(getAffiliationsFromGroups(sess, user));
 
-		// remove duplicities, by accepting only the first occurrence of each value (other occurences, case-insensitive, will be removed)
-		Set<String> valuesWithoutDuplicitiesCaseInsensitive = new HashSet<>();
-		for (String value: valuesWithoutDuplicities) {
-			boolean isDuplicity = valuesWithoutDuplicitiesCaseInsensitive.stream().anyMatch(value::equalsIgnoreCase);
-			if (isDuplicity) {
-				continue;
-			}
-			valuesWithoutDuplicitiesCaseInsensitive.add(value);
-		}
+    // remove duplicities, by accepting only the first occurrence of each value (other occurences, case-insensitive, will be removed)
+    Set<String> valuesWithoutDuplicitiesCaseInsensitive = new HashSet<>();
+    for (String value : valuesWithoutDuplicities) {
+      boolean isDuplicity = valuesWithoutDuplicitiesCaseInsensitive.stream().anyMatch(value::equalsIgnoreCase);
+      if (isDuplicity) {
+        continue;
+      }
+      valuesWithoutDuplicitiesCaseInsensitive.add(value);
+    }
 
-		//convert set to list (values in list will be without duplicities)
-		destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicitiesCaseInsensitive));
-		return destinationAttribute;
-	}
+    //convert set to list (values in list will be without duplicities)
+    destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicitiesCaseInsensitive));
+    return destinationAttribute;
+  }
 
-	/**
-	 * Collect manually assigned affiliations
-	 * @param sess Perun session
-	 * @param user User for whom the values should be collected
-	 * @return Set of collected affiliations
-	 * @throws InternalErrorException When some error occurs, see exception cause for details.
-	 */
-	private Set<String> getAffiliationsManuallyAssigned(PerunSessionImpl sess, User user) {
-		Set<String> result = new HashSet<>();
+  /**
+   * Collect manually assigned affiliations
+   *
+   * @param sess Perun session
+   * @param user User for whom the values should be collected
+   * @return Set of collected affiliations
+   * @throws InternalErrorException When some error occurs, see exception cause for details.
+   */
+  private Set<String> getAffiliationsManuallyAssigned(PerunSessionImpl sess, User user) {
+    Set<String> result = new HashSet<>();
 
-		Attribute manualEPSAAttr = null;
-		try {
-			manualEPSAAttr = sess.getPerunBl().getAttributesManagerBl()
-				.getAttribute(sess, user, getSecondarySourceAttributeName());
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException("Wrong assignment of " + getSecondarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
-		} catch (AttributeNotExistsException e) {
-			log.debug("Attribute " + getSecondarySourceAttributeFriendlyName() + " of user " + user.getId() + " does not exist, values will be skipped", e);
-		}
+    Attribute manualEPSAAttr = null;
+    try {
+      manualEPSAAttr = sess.getPerunBl().getAttributesManagerBl()
+          .getAttribute(sess, user, getSecondarySourceAttributeName());
+    } catch (WrongAttributeAssignmentException e) {
+      throw new InternalErrorException(
+          "Wrong assignment of " + getSecondarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
+    } catch (AttributeNotExistsException e) {
+      log.debug("Attribute " + getSecondarySourceAttributeFriendlyName() + " of user " + user.getId() +
+          " does not exist, values will be skipped", e);
+    }
 
-		if (manualEPSAAttr != null) {
-			Map<String, String> value = manualEPSAAttr.valueAsMap();
-			if (value != null) {
+    if (manualEPSAAttr != null) {
+      Map<String, String> value = manualEPSAAttr.valueAsMap();
+      if (value != null) {
 
-				LocalDate now = LocalDate.now();
-				DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(VALIDITY_DATE_FORMAT);
-				for (Map.Entry<String, String> entry: value.entrySet()) {
-					LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(VALIDITY_DATE_FORMAT);
+        for (Map.Entry<String, String> entry : value.entrySet()) {
+          LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
 
-					if (! now.isAfter(expiration)) {
-						result.add(entry.getKey());
-					}
-				}
-			}
-		}
+          if (!now.isAfter(expiration)) {
+            result.add(entry.getKey());
+          }
+        }
+      }
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Collect affiliations from perun Groups
-	 * @param sess Perun session
-	 * @param user User for whom the values should be collected
-	 * @return Set of collected affiliations
-	 * @throws InternalErrorException When some error occurs, see exception cause for details.
-	 */
-	private Set<String> getAffiliationsFromGroups(PerunSessionImpl sess, User user) {
-		Set<String> result = new HashSet<>();
+  /**
+   * Collect affiliations from perun Groups
+   *
+   * @param sess Perun session
+   * @param user User for whom the values should be collected
+   * @return Set of collected affiliations
+   * @throws InternalErrorException When some error occurs, see exception cause for details.
+   */
+  private Set<String> getAffiliationsFromGroups(PerunSessionImpl sess, User user) {
+    Set<String> result = new HashSet<>();
 
-		List<Member> validVoMembers = sess.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID);
+    List<Member> validVoMembers =
+        sess.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID);
 
-		GroupsManagerBl groupsManagerBl = sess.getPerunBl().getGroupsManagerBl();
+    GroupsManagerBl groupsManagerBl = sess.getPerunBl().getGroupsManagerBl();
 
-		Set<Group> groupsForAttrCheck = new HashSet<>();
-		for (Member member : validVoMembers) {
-			groupsForAttrCheck.addAll(groupsManagerBl.getGroupsWhereMemberIsActive(sess, member));
-		}
+    Set<Group> groupsForAttrCheck = new HashSet<>();
+    for (Member member : validVoMembers) {
+      groupsForAttrCheck.addAll(groupsManagerBl.getGroupsWhereMemberIsActive(sess, member));
+    }
 
-		if (!groupsForAttrCheck.isEmpty()) {
-			try {
-				// check, if attribute exists
-				sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, getTertiarySourceAttributeName());
-			} catch (AttributeNotExistsException e) {
-				log.debug("Attribute " + getTertiarySourceAttributeFriendlyName() + " does not exist", e);
-				return result;
-			}
-		}
+    if (!groupsForAttrCheck.isEmpty()) {
+      try {
+        // check, if attribute exists
+        sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, getTertiarySourceAttributeName());
+      } catch (AttributeNotExistsException e) {
+        log.debug("Attribute " + getTertiarySourceAttributeFriendlyName() + " does not exist", e);
+        return result;
+      }
+    }
 
-		for (Group group : groupsForAttrCheck) {
-			try {
-				Attribute groupAffiliations = sess.getPerunBl().getAttributesManagerBl()
-					.getAttribute(sess, group, getTertiarySourceAttributeName());
-				if (groupAffiliations != null && groupAffiliations.valueAsList() != null) {
-					result.addAll(groupAffiliations.valueAsList());
-				}
-			} catch (WrongAttributeAssignmentException e) {
-				throw new InternalErrorException("Wrong assignment of " + getTertiarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
-			} catch (AttributeNotExistsException e) {
-				log.debug("Attribute " + getTertiarySourceAttributeFriendlyName() + " of group " + group.getId() + " does not exist, values will be skipped", e);
-			}
-		}
+    for (Group group : groupsForAttrCheck) {
+      try {
+        Attribute groupAffiliations = sess.getPerunBl().getAttributesManagerBl()
+            .getAttribute(sess, group, getTertiarySourceAttributeName());
+        if (groupAffiliations != null && groupAffiliations.valueAsList() != null) {
+          result.addAll(groupAffiliations.valueAsList());
+        }
+      } catch (WrongAttributeAssignmentException e) {
+        throw new InternalErrorException(
+            "Wrong assignment of " + getTertiarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
+      } catch (AttributeNotExistsException e) {
+        log.debug("Attribute " + getTertiarySourceAttributeFriendlyName() + " of group " + group.getId() +
+            " does not exist, values will be skipped", e);
+      }
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	@Override
-	public List<AttributeHandleIdentifier> getHandleIdentifiers() {
+  @Override
+  public List<AttributeHandleIdentifier> getHandleIdentifiers() {
 
-		List<AttributeHandleIdentifier> handleIdentifiers = super.getHandleIdentifiers();
+    List<AttributeHandleIdentifier> handleIdentifiers = super.getHandleIdentifiers();
 
-		// member related events
-		handleIdentifiers.add(auditEvent -> {
+    // member related events
+    handleIdentifiers.add(auditEvent -> {
 
-			if (auditEvent instanceof DirectMemberAddedToGroup) {
-				return ((DirectMemberAddedToGroup) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof IndirectMemberAddedToGroup) {
-				return ((IndirectMemberAddedToGroup) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberRemovedFromGroupTotally) {
-				return ((MemberRemovedFromGroupTotally) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberExpiredInGroup) {
-				return ((MemberExpiredInGroup) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberValidatedInGroup) {
-				return ((MemberValidatedInGroup) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberValidated) {
-				return ((MemberValidated) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberExpired) {
-				return ((MemberExpired) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberSuspended) {
-				return ((MemberSuspended) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberDisabled) {
-				return ((MemberDisabled) auditEvent).getMember().getUserId();
-			} else if (auditEvent instanceof MemberInvalidated) {
-				return ((MemberInvalidated) auditEvent).getMember().getUserId();
-			}
+      if (auditEvent instanceof DirectMemberAddedToGroup) {
+        return ((DirectMemberAddedToGroup) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof IndirectMemberAddedToGroup) {
+        return ((IndirectMemberAddedToGroup) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberRemovedFromGroupTotally) {
+        return ((MemberRemovedFromGroupTotally) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberExpiredInGroup) {
+        return ((MemberExpiredInGroup) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberValidatedInGroup) {
+        return ((MemberValidatedInGroup) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberValidated) {
+        return ((MemberValidated) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberExpired) {
+        return ((MemberExpired) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberSuspended) {
+        return ((MemberSuspended) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberDisabled) {
+        return ((MemberDisabled) auditEvent).getMember().getUserId();
+      } else if (auditEvent instanceof MemberInvalidated) {
+        return ((MemberInvalidated) auditEvent).getMember().getUserId();
+      }
 
-			// no match
-			return null;
+      // no match
+      return null;
 
-		});
+    });
 
-		return handleIdentifiers;
-	}
+    return handleIdentifiers;
+  }
 
-	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+  @Override
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
+      throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		// generic handling
-		List<AuditEvent> resolvingMessages = super.resolveVirtualAttributeValueChange(perunSession, message);
+    // generic handling
+    List<AuditEvent> resolvingMessages = super.resolveVirtualAttributeValueChange(perunSession, message);
 
-		// handle source user attribute changes
+    // handle source user attribute changes
 
-		if (message instanceof AttributeSetForUser &&
-			((AttributeSetForUser) message).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
+    if (message instanceof AttributeSetForUser &&
+        ((AttributeSetForUser) message).getAttribute().getFriendlyName()
+            .equals(getSecondarySourceAttributeFriendlyName())) {
 
-			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
-			resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeSetForUser) message).getUser()));
+      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(perunSession, getDestinationAttributeName());
+      resolvingMessages.add(
+          new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeSetForUser) message).getUser()));
 
-		} else if (message instanceof AttributeRemovedForUser &&
-			((AttributeRemovedForUser) message).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
+    } else if (message instanceof AttributeRemovedForUser &&
+        ((AttributeRemovedForUser) message).getAttribute().getFriendlyName()
+            .equals(getSecondarySourceAttributeFriendlyName())) {
 
-			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
-			resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeRemovedForUser) message).getUser()));
+      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(perunSession, getDestinationAttributeName());
+      resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition),
+          ((AttributeRemovedForUser) message).getUser()));
 
-		} else if (message instanceof AllAttributesRemovedForUser) {
+    } else if (message instanceof AllAttributesRemovedForUser) {
 
-			boolean skip = false;
-			try {
-				AttributeDefinition sourceExists = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getSecondarySourceAttributeName());
-				User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, ((AllAttributesRemovedForUser) message).getUser().getId());
-			} catch (AttributeNotExistsException | UserNotExistsException ex) {
-				// silently skip this event, since source attribute couldn't be between deleted
-				// or user no longer exist
-				skip = true;
-			}
+      boolean skip = false;
+      try {
+        AttributeDefinition sourceExists = perunSession.getPerunBl().getAttributesManagerBl()
+            .getAttributeDefinition(perunSession, getSecondarySourceAttributeName());
+        User user = perunSession.getPerunBl().getUsersManagerBl()
+            .getUserById(perunSession, ((AllAttributesRemovedForUser) message).getUser().getId());
+      } catch (AttributeNotExistsException | UserNotExistsException ex) {
+        // silently skip this event, since source attribute couldn't be between deleted
+        // or user no longer exist
+        skip = true;
+      }
 
-			if (!skip) {
-				AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
-				resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), ((AllAttributesRemovedForUser) message).getUser()));
-			}
+      if (!skip) {
+        AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+            .getAttributeDefinition(perunSession, getDestinationAttributeName());
+        resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition),
+            ((AllAttributesRemovedForUser) message).getUser()));
+      }
 
-		}
+    }
 
-		// handle group attr changes, exclude "members" group, since its not counted within attr value
+    // handle group attr changes, exclude "members" group, since its not counted within attr value
 
-		if (message instanceof AttributeSetForGroup &&
-			!VosManager.MEMBERS_GROUP.equals(((AttributeSetForGroup) message).getGroup().getName()) &&
-			((AttributeSetForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
+    if (message instanceof AttributeSetForGroup &&
+        !VosManager.MEMBERS_GROUP.equals(((AttributeSetForGroup) message).getGroup().getName()) &&
+        ((AttributeSetForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
 
-			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
-			// TODO - get only active group users, since expired are not affected by current group affiliations
-			List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, ((AttributeSetForGroup) message).getGroup());
-			for (User user : users) {
-				resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
-			}
+      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(perunSession, getDestinationAttributeName());
+      // TODO - get only active group users, since expired are not affected by current group affiliations
+      List<User> users = perunSession.getPerunBl().getGroupsManagerBl()
+          .getGroupUsers(perunSession, ((AttributeSetForGroup) message).getGroup());
+      for (User user : users) {
+        resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
+      }
 
-		} else if (message instanceof AttributeRemovedForGroup &&
-			!VosManager.MEMBERS_GROUP.equals(((AttributeRemovedForGroup) message).getGroup().getName()) &&
-			((AttributeRemovedForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
+    } else if (message instanceof AttributeRemovedForGroup &&
+        !VosManager.MEMBERS_GROUP.equals(((AttributeRemovedForGroup) message).getGroup().getName()) &&
+        ((AttributeRemovedForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
 
-			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
-			// TODO - get only active group users, since expired are not affected by current group affiliations
-			List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, ((AttributeRemovedForGroup) message).getGroup());
-			for (User user : users) {
-				resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
-			}
+      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(perunSession, getDestinationAttributeName());
+      // TODO - get only active group users, since expired are not affected by current group affiliations
+      List<User> users = perunSession.getPerunBl().getGroupsManagerBl()
+          .getGroupUsers(perunSession, ((AttributeRemovedForGroup) message).getGroup());
+      for (User user : users) {
+        resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
+      }
 
-		} else if (message instanceof AllAttributesRemovedForGroup &&
-			!VosManager.MEMBERS_GROUP.equals(((AllAttributesRemovedForGroup) message).getGroup().getName())) {
+    } else if (message instanceof AllAttributesRemovedForGroup &&
+        !VosManager.MEMBERS_GROUP.equals(((AllAttributesRemovedForGroup) message).getGroup().getName())) {
 
-			boolean skip = false;
-			try {
-				AttributeDefinition sourceExists = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getTertiarySourceAttributeName());
-				Group group = perunSession.getPerunBl().getGroupsManagerBl().getGroupById(perunSession, ((AllAttributesRemovedForGroup) message).getGroup().getId());
-			} catch (AttributeNotExistsException | GroupNotExistsException ex) {
-				// silently skip this event, since source attribute couldn't be between deleted
-				// or group no longer exist.
-				skip = true;
-			}
+      boolean skip = false;
+      try {
+        AttributeDefinition sourceExists = perunSession.getPerunBl().getAttributesManagerBl()
+            .getAttributeDefinition(perunSession, getTertiarySourceAttributeName());
+        Group group = perunSession.getPerunBl().getGroupsManagerBl()
+            .getGroupById(perunSession, ((AllAttributesRemovedForGroup) message).getGroup().getId());
+      } catch (AttributeNotExistsException | GroupNotExistsException ex) {
+        // silently skip this event, since source attribute couldn't be between deleted
+        // or group no longer exist.
+        skip = true;
+      }
 
-			if (!skip) {
-				AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
-				// TODO - get only active group users, since expired are not affected by current group affiliations
-				List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, ((AllAttributesRemovedForGroup) message).getGroup());
-				for (User user : users) {
-					resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
-				}
-			}
+      if (!skip) {
+        AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+            .getAttributeDefinition(perunSession, getDestinationAttributeName());
+        // TODO - get only active group users, since expired are not affected by current group affiliations
+        List<User> users = perunSession.getPerunBl().getGroupsManagerBl()
+            .getGroupUsers(perunSession, ((AllAttributesRemovedForGroup) message).getGroup());
+        for (User user : users) {
+          resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
+        }
+      }
 
-		}
+    }
 
-		// case AllAttributesRemovedForGroup doesn't matter, everything was processed by removing members before group deletion
+    // case AllAttributesRemovedForGroup doesn't matter, everything was processed by removing members before group deletion
 
-		return resolvingMessages;
+    return resolvingMessages;
 
-	}
+  }
 
 }

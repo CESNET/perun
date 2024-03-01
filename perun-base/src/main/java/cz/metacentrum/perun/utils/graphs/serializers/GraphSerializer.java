@@ -7,10 +7,10 @@ import cz.metacentrum.perun.utils.graphs.Graph;
  */
 public interface GraphSerializer {
 
-	/**
-	 * Generates content of a text file describing graph.
-	 *
-	 * @return content of a text file describing relations of given attributes.
-	 */
-	String generateTextFileContent(Graph graph);
+  /**
+   * Generates content of a text file describing graph.
+   *
+   * @return content of a text file describing relations of given attributes.
+   */
+  String generateTextFileContent(Graph graph);
 }

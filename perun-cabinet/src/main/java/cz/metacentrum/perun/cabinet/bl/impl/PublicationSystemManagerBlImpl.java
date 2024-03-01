@@ -26,84 +26,86 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PublicationSystemManagerBlImpl implements PublicationSystemManagerBl {
 
-	private static Logger log = LoggerFactory.getLogger(PublicationSystemManagerBlImpl.class);
+  private static Logger log = LoggerFactory.getLogger(PublicationSystemManagerBlImpl.class);
 
-	private PublicationSystemManagerDao publicationSystemManagerDao;
-	private PerunBl perunBl;
+  private PublicationSystemManagerDao publicationSystemManagerDao;
+  private PerunBl perunBl;
 
-	@Autowired
-	public void setPublicationSystemManagerDao(PublicationSystemManagerDao publicationSystemManagerDao) {
-		this.publicationSystemManagerDao = publicationSystemManagerDao;
-	}
+  public PublicationSystemManagerDao getPublicationSystemManagerDao() {
+    return publicationSystemManagerDao;
+  }
 
-	public PublicationSystemManagerDao getPublicationSystemManagerDao() {
-		return publicationSystemManagerDao;
-	}
+  @Autowired
+  public void setPublicationSystemManagerDao(PublicationSystemManagerDao publicationSystemManagerDao) {
+    this.publicationSystemManagerDao = publicationSystemManagerDao;
+  }
 
-	@Autowired
-	public void setPerunBl(PerunBl perun) {
-		this.perunBl = perun;
-	}
+  @Autowired
+  public void setPerunBl(PerunBl perun) {
+    this.perunBl = perun;
+  }
 
-	// methods -----------------------------
+  // methods -----------------------------
 
-	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) {
-		PublicationSystem newps = getPublicationSystemManagerDao().createPublicationSystem(session, ps);
-		log.debug("{} created.", newps);
-		return newps;
-	}
+  public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) {
+    PublicationSystem newps = getPublicationSystemManagerDao().createPublicationSystem(session, ps);
+    log.debug("{} created.", newps);
+    return newps;
+  }
 
-	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException {
-		PublicationSystem upps = getPublicationSystemManagerDao().updatePublicationSystem(session, ps);
-		log.debug("{} updated.", upps);
-		return upps;
-	}
+  public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException {
+    PublicationSystem upps = getPublicationSystemManagerDao().updatePublicationSystem(session, ps);
+    log.debug("{} updated.", upps);
+    return upps;
+  }
 
-	public void deletePublicationSystem(PublicationSystem ps) throws CabinetException {
-		getPublicationSystemManagerDao().deletePublicationSystem(ps);
-		log.debug("{} deleted.", ps);
-	}
+  public void deletePublicationSystem(PublicationSystem ps) throws CabinetException {
+    getPublicationSystemManagerDao().deletePublicationSystem(ps);
+    log.debug("{} deleted.", ps);
+  }
 
-	public PublicationSystem getPublicationSystemById(int id) throws CabinetException {
-		return getPublicationSystemManagerDao().getPublicationSystemById(id);
-	}
+  public PublicationSystem getPublicationSystemById(int id) throws CabinetException {
+    return getPublicationSystemManagerDao().getPublicationSystemById(id);
+  }
 
-	public PublicationSystem getPublicationSystemByName(String name) throws CabinetException {
-		return getPublicationSystemManagerDao().getPublicationSystemByName(name);
-	}
+  public PublicationSystem getPublicationSystemByName(String name) throws CabinetException {
+    return getPublicationSystemManagerDao().getPublicationSystemByName(name);
+  }
 
-	public PublicationSystem getPublicationSystemByNamespace(String namespace) throws CabinetException {
-		return getPublicationSystemManagerDao().getPublicationSystemByNamespace(namespace);
-	}
+  public PublicationSystem getPublicationSystemByNamespace(String namespace) throws CabinetException {
+    return getPublicationSystemManagerDao().getPublicationSystemByNamespace(namespace);
+  }
 
-	public List<PublicationSystem> getPublicationSystems() {
-		return getPublicationSystemManagerDao().getPublicationSystems();
-	}
+  public List<PublicationSystem> getPublicationSystems() {
+    return getPublicationSystemManagerDao().getPublicationSystems();
+  }
 
-	/**
-	 * Checks if INTERNAL publication system is present in DB. If not, creates one.
-	 */
-	protected void initialize() throws CabinetException {
-		// search for internal system
-		try {
-			getPublicationSystemManagerDao().getPublicationSystemByName("INTERNAL");
-		} catch (CabinetException ex) {
-			if (ErrorCodes.PUBLICATION_SYSTEM_NOT_EXISTS.equals(ex.getType())) {
-				PerunSession session = perunBl.getPerunSession(new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
-				log.error("Internal PS not exists: {}", ex);
-				// create internal if not exists
-				PublicationSystem record = new PublicationSystem();
-				record.setFriendlyName("INTERNAL");
-				record.setLoginNamespace("empty");
-				record.setType("empty");
-				record.setUrl("empty");
-				record.setPassword(null);
-				record.setUsername(null);
-				createPublicationSystem(session, record);
-			}
-		} catch (Exception ex) {
-			log.error("Unable to determine if Internal PS exists: {}", ex);
-		}
-	}
+  /**
+   * Checks if INTERNAL publication system is present in DB. If not, creates one.
+   */
+  protected void initialize() throws CabinetException {
+    // search for internal system
+    try {
+      getPublicationSystemManagerDao().getPublicationSystemByName("INTERNAL");
+    } catch (CabinetException ex) {
+      if (ErrorCodes.PUBLICATION_SYSTEM_NOT_EXISTS.equals(ex.getType())) {
+        PerunSession session = perunBl.getPerunSession(
+            new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+                ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
+        log.error("Internal PS not exists: {}", ex);
+        // create internal if not exists
+        PublicationSystem record = new PublicationSystem();
+        record.setFriendlyName("INTERNAL");
+        record.setLoginNamespace("empty");
+        record.setType("empty");
+        record.setUrl("empty");
+        record.setPassword(null);
+        record.setUsername(null);
+        createPublicationSystem(session, record);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to determine if Internal PS exists: {}", ex);
+    }
+  }
 
 }

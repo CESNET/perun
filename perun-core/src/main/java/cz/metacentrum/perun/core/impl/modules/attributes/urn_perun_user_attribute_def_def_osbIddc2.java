@@ -14,23 +14,27 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_osbIddc2 extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_osbIddc2 extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
 
-		if(attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "ID from DC2 can't be null.");
-	}
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "ID from DC2 can't be null.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("osbIddc2");
-		attr.setDisplayName("OSB_ID DC2");
-		attr.setType(String.class.getName());
-		attr.setDescription("ID of person in DC2 system.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("osbIddc2");
+    attr.setDisplayName("OSB_ID DC2");
+    attr.setType(String.class.getName());
+    attr.setDescription("ID of person in DC2 system.");
+    return attr;
+  }
 
 }

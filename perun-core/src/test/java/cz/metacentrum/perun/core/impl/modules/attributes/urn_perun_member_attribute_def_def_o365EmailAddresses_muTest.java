@@ -34,98 +34,98 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("unchecked")
 public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 
-	private urn_perun_member_attribute_def_def_o365EmailAddresses_mu classInstance;
-	private PerunSessionImpl session;
-	private Attribute attributeToCheck;
-	private final String uco = "123456";
-	private final User user = new User(10, "Joe", "Doe", "W.", "", "");
-	private final Member member = new Member(1, user.getId());
-	private AttributesManagerBl am;
+  private final String uco = "123456";
+  private final User user = new User(10, "Joe", "Doe", "W.", "", "");
+  private final Member member = new Member(1, user.getId());
+  private urn_perun_member_attribute_def_def_o365EmailAddresses_mu classInstance;
+  private PerunSessionImpl session;
+  private Attribute attributeToCheck;
+  private AttributesManagerBl am;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_member_attribute_def_def_o365EmailAddresses_mu();
-		//prepare mocks
-		session = mock(PerunSessionImpl.class);
-		PerunBl perunBl = mock(PerunBl.class);
-		am = mock(AttributesManagerBl.class);
-		UsersManagerBl um = mock(UsersManagerBl.class);
-		Attribute ucoAttr = mock(Attribute.class);
-		when(session.getPerunBl()).thenReturn(perunBl);
-		when(perunBl.getAttributesManagerBl()).thenReturn(am);
-		when(perunBl.getUsersManagerBl()).thenReturn(um);
-		when(um.getUserById(session, member.getUserId())).thenReturn(user);
-		when(ucoAttr.getValue()).thenReturn(uco);
-		when(ucoAttr.valueAsString()).thenReturn(uco);
-		when(um.getUserById(session, member.getUserId())).thenReturn(user);
-		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("member"))))
-				.thenReturn(Sets.newHashSet(new Pair<>(member.getId(), 0)));
-		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("group"))))
-				.thenReturn(Sets.newHashSet());
-		attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
-		attributeToCheck.setId(101);
-	}
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_member_attribute_def_def_o365EmailAddresses_mu();
+    //prepare mocks
+    session = mock(PerunSessionImpl.class);
+    PerunBl perunBl = mock(PerunBl.class);
+    am = mock(AttributesManagerBl.class);
+    UsersManagerBl um = mock(UsersManagerBl.class);
+    Attribute ucoAttr = mock(Attribute.class);
+    when(session.getPerunBl()).thenReturn(perunBl);
+    when(perunBl.getAttributesManagerBl()).thenReturn(am);
+    when(perunBl.getUsersManagerBl()).thenReturn(um);
+    when(um.getUserById(session, member.getUserId())).thenReturn(user);
+    when(ucoAttr.getValue()).thenReturn(uco);
+    when(ucoAttr.valueAsString()).thenReturn(uco);
+    when(um.getUserById(session, member.getUserId())).thenReturn(user);
+    when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("member"))))
+        .thenReturn(Sets.newHashSet(new Pair<>(member.getId(), 0)));
+    when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("group"))))
+        .thenReturn(Sets.newHashSet());
+    attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
+    attributeToCheck.setId(101);
+  }
 
-	/**
-	 * Mockito ArgumentMatcher that matches attributes for a given PerunBean type, for example "member" or "group_resource".
-	 */
-	public static class BeanAttributeMatcher implements ArgumentMatcher<Attribute> {
+  public void testCheckNull() throws Exception {
+    System.out.println("testCheckNull()");
+    attributeToCheck.setValue(null);
+    classInstance.checkAttributeSemantics(session, member, attributeToCheck);
+  }
 
-		private final String beanName;
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckType() throws Exception {
+    System.out.println("testCheckType()");
+    attributeToCheck.setValue("AAA");
+    classInstance.checkAttributeSyntax(session, member, attributeToCheck);
+  }
 
-		BeanAttributeMatcher(String beanName) {
-			this.beanName = beanName;
-		}
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckEmailSyntax() throws Exception {
+    System.out.println("testCheckEmailSyntax()");
+    attributeToCheck.setValue(Lists.newArrayList("my@example.com", "a/-+"));
+    classInstance.checkAttributeSyntax(session, member, attributeToCheck);
+  }
 
-		@Override
-		public boolean matches(Attribute argument) {
-			return beanName.equals(argument.getNamespace().split(":")[2]);
-		}
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckDuplicates() throws Exception {
+    System.out.println("testCheckDuplicates()");
+    attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", "my@example.com"));
+    classInstance.checkAttributeSyntax(session, member, attributeToCheck);
+  }
 
-		@Override
-		public String toString() {
-			return "Attribute in namespace urn:perun:" + beanName;
-		}
-	}
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com"));
+    classInstance.checkAttributeSemantics(session, member, attributeToCheck);
+  }
 
-	public void testCheckNull() throws Exception {
-		System.out.println("testCheckNull()");
-		attributeToCheck.setValue(null);
-		classInstance.checkAttributeSemantics(session, member, attributeToCheck);
-	}
+  @Test
+  public void testCorrectSyntax() throws Exception {
+    System.out.println("testCorrectSyntax()");
+    attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", uco + "@muni.cz"));
+    classInstance.checkAttributeSyntax(session, member, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckType() throws Exception {
-		System.out.println("testCheckType()");
-		attributeToCheck.setValue("AAA");
-		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
-	}
+  /**
+   * Mockito ArgumentMatcher that matches attributes for a given PerunBean type, for example "member" or "group_resource".
+   */
+  public static class BeanAttributeMatcher implements ArgumentMatcher<Attribute> {
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckEmailSyntax() throws Exception {
-		System.out.println("testCheckEmailSyntax()");
-		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "a/-+"));
-		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
-	}
+    private final String beanName;
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckDuplicates() throws Exception {
-		System.out.println("testCheckDuplicates()");
-		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", "my@example.com"));
-		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
-	}
+    BeanAttributeMatcher(String beanName) {
+      this.beanName = beanName;
+    }
 
-	@Test
-	public void testCorrectSemantics() throws Exception {
-		System.out.println("testCorrectSemantics()");
-		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com"));
-		classInstance.checkAttributeSemantics(session, member, attributeToCheck);
-	}
+    @Override
+    public boolean matches(Attribute argument) {
+      return beanName.equals(argument.getNamespace().split(":")[2]);
+    }
 
-	@Test
-	public void testCorrectSyntax() throws Exception {
-		System.out.println("testCorrectSyntax()");
-		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", uco + "@muni.cz"));
-		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
-	}
+    @Override
+    public String toString() {
+      return "Attribute in namespace urn:perun:" + beanName;
+    }
+  }
 }

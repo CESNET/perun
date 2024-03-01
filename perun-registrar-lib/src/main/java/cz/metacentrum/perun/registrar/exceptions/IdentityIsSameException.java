@@ -9,42 +9,42 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class IdentityIsSameException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private String login = "";
-	private String source = "";
-	private String sourceType = "";
+  private String login = "";
+  private String source = "";
+  private String sourceType = "";
 
-	public IdentityIsSameException(String message) {
-		super(message);
-	}
+  public IdentityIsSameException(String message) {
+    super(message);
+  }
 
-	public IdentityIsSameException(String message, Throwable ex) {
-		super(message, ex);
-	}
+  public IdentityIsSameException(String message, Throwable ex) {
+    super(message, ex);
+  }
 
-	public String getLogin() {
-		return login;
-	}
+  public String getLogin() {
+    return login;
+  }
 
-	public void setLogin(String login) {
-		this.login = login;
-	}
+  public void setLogin(String login) {
+    this.login = login;
+  }
 
-	public String getSource() {
-		return source;
-	}
+  public String getSource() {
+    return source;
+  }
 
-	public void setSource(String source) {
-		this.source = source;
-	}
+  public void setSource(String source) {
+    this.source = source;
+  }
 
-	public String getSourceType() {
-		return sourceType;
-	}
+  public String getSourceType() {
+    return sourceType;
+  }
 
-	public void setSourceType(String sourceType) {
-		this.sourceType = sourceType;
-	}
+  public void setSourceType(String sourceType) {
+    this.sourceType = sourceType;
+  }
 
 }

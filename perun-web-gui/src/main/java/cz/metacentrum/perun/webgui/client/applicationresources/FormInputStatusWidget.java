@@ -10,59 +10,59 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class FormInputStatusWidget extends Composite{
+public class FormInputStatusWidget extends Composite {
 
-	public enum Status { OK, ERROR, LOADING };
+  private Status status;
 
-	private Status status;
+  ;
+  private String message;
+  private FlexTable ft = new FlexTable();
 
-	private String message;
+  public FormInputStatusWidget(String message) {
+    this(message, Status.OK);
+  }
 
-	private FlexTable ft = new FlexTable();
 
+  public FormInputStatusWidget(String message, Status status) {
+    this.status = status;
+    this.message = message;
+    this.initWidget(ft);
+    build();
 
-	public FormInputStatusWidget(String message){
-		this(message, Status.OK);
-	}
+  }
 
-	public FormInputStatusWidget(String message, Status status){
-		this.status = status;
-		this.message = message;
-		this.initWidget(ft);
-		build();
+  private void build() {
 
-	}
+    ft.clear();
+    FlexCellFormatter ftf = ft.getFlexCellFormatter();
 
-	private void build() {
+    Image img;
+    String classname = "";
 
-		ft.clear();
-		FlexCellFormatter ftf = ft.getFlexCellFormatter();
+    if (status == Status.OK) {
+      img = new Image(SmallIcons.INSTANCE.acceptIcon());
+      classname = "input-status-ok";
+    } else if (status == Status.ERROR) {
+      img = new Image(SmallIcons.INSTANCE.exclamationIcon());
+      classname = "input-status-error";
+    } else {
+      img = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
+      classname = "input-status-loading";
+    }
 
-		Image img;
-		String classname = "";
+    Label label = new Label(message);
+    label.addStyleName(classname);
+    label.getElement().setId(classname);
 
-		if(status == Status.OK){
-			img = new Image(SmallIcons.INSTANCE.acceptIcon());
-			classname = "input-status-ok";
-		}else if(status == Status.ERROR){
-			img = new Image(SmallIcons.INSTANCE.exclamationIcon());
-			classname = "input-status-error";
-		} else{
-			img = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
-			classname = "input-status-loading";
-		}
+    ft.setWidget(0, 0, img);
+    ft.setWidget(0, 1, label);
 
-		Label label = new Label(message);
-		label.addStyleName(classname);
-		label.getElement().setId(classname);
+    ftf.setWidth(0, 0, "25px");
+    ftf.setHeight(0, 0, "25px");
+    ftf.setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+    ftf.setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
 
-		ft.setWidget(0, 0, img);
-		ft.setWidget(0, 1, label);
-
-		ftf.setWidth(0, 0, "25px");
-		ftf.setHeight(0, 0, "25px");
-		ftf.setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-		ftf.setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
-	}
+  public enum Status {OK, ERROR, LOADING}
 }
 

@@ -27,47 +27,47 @@ import static org.mockito.Mockito.mock;
  */
 public class ExtSourceEGISSOTest {
 
-	@Spy
-	private static ExtSourceEGISSO extSourceEGISSO;
+  @Spy
+  private static ExtSourceEGISSO extSourceEGISSO;
 
-	@Before
-	public void setUp() throws Exception {
-		extSourceEGISSO = new ExtSourceEGISSO();
+  @Before
+  public void setUp() throws Exception {
+    extSourceEGISSO = new ExtSourceEGISSO();
 
-		MockitoAnnotations.initMocks(this);
-	}
+    MockitoAnnotations.initMocks(this);
+  }
 
-	@Test
-	public void getUsersSubjectsTest() throws Exception {
-		System.out.println("getUsersSubjectsTest");
+  @Test
+  public void getUsersSubjectsTest() throws Exception {
+    System.out.println("getUsersSubjectsTest");
 
-		// define needed attributes
-		String usersQuery = "firstName=josef";
-		Map<String, String> mapOfAttributes = new HashMap<>();
-		mapOfAttributes.put("usersQuery", usersQuery);
-		doReturn(mapOfAttributes).when(extSourceEGISSO).getAttributes();
+    // define needed attributes
+    String usersQuery = "firstName=josef";
+    Map<String, String> mapOfAttributes = new HashMap<>();
+    mapOfAttributes.put("usersQuery", usersQuery);
+    doReturn(mapOfAttributes).when(extSourceEGISSO).getAttributes();
 
-		// mock connection and define received attributes
-		DirContext dirContext = mock(DirContext.class);
-		doReturn(dirContext).when(extSourceEGISSO).getContext();
-		Attributes attributes = new BasicAttributes();
-		attributes.put(new BasicAttribute("cn", "josef"));
-		NamingEnumeration<SearchResult> namingEnumeration = mock(NamingEnumeration.class);
-		doReturn(namingEnumeration).when(dirContext).search(anyString(), anyString(), any());
-		doReturn(true,false).when(namingEnumeration).hasMore();
-		SearchResult searchResult = new SearchResult("name", namingEnumeration, attributes);
-		doReturn(searchResult).when(namingEnumeration).next();
-		extSourceEGISSO.mapping = new HashMap<>();
-		extSourceEGISSO.mapping.put("cn", "cn");
+    // mock connection and define received attributes
+    DirContext dirContext = mock(DirContext.class);
+    doReturn(dirContext).when(extSourceEGISSO).getContext();
+    Attributes attributes = new BasicAttributes();
+    attributes.put(new BasicAttribute("cn", "josef"));
+    NamingEnumeration<SearchResult> namingEnumeration = mock(NamingEnumeration.class);
+    doReturn(namingEnumeration).when(dirContext).search(anyString(), anyString(), any());
+    doReturn(true, false).when(namingEnumeration).hasMore();
+    SearchResult searchResult = new SearchResult("name", namingEnumeration, attributes);
+    doReturn(searchResult).when(namingEnumeration).next();
+    extSourceEGISSO.mapping = new HashMap<>();
+    extSourceEGISSO.mapping.put("cn", "cn");
 
-		// create expected subject to get
-		List<Map<String, String>> expectedSubjects = new ArrayList<>();
-		Map<String, String> subject = new HashMap<>();
-		subject.put("cn", "josef");
-		expectedSubjects.add(subject);
+    // create expected subject to get
+    List<Map<String, String>> expectedSubjects = new ArrayList<>();
+    Map<String, String> subject = new HashMap<>();
+    subject.put("cn", "josef");
+    expectedSubjects.add(subject);
 
-		// test the method
-		List<Map<String, String>> actualSubjects = extSourceEGISSO.getUsersSubjects();
-		assertEquals("subjects should be same", expectedSubjects, actualSubjects);
-	}
+    // test the method
+    List<Map<String, String>> actualSubjects = extSourceEGISSO.getUsersSubjects();
+    assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
 }

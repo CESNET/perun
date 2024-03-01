@@ -17,24 +17,24 @@ import org.slf4j.LoggerFactory;
  */
 public class PerunSessionImpl extends PerunSession {
 
-	final static Logger log = LoggerFactory.getLogger(PerunSessionImpl.class);
+  final static Logger log = LoggerFactory.getLogger(PerunSessionImpl.class);
 
-	public PerunSessionImpl(Perun perun, PerunPrincipal principal, PerunClient client) {
-		super(perun, principal, client);
-	}
+  public PerunSessionImpl(Perun perun, PerunPrincipal principal, PerunClient client) {
+    super(perun, principal, client);
+  }
 
 
-	@Override
-	public void destroy() {
-		super.destroy();
-	}
+  @Override
+  public void destroy() {
+    super.destroy();
+  }
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + ":[perunPrincipal='"+ getPerunPrincipal() +"']";
-	}
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + ":[perunPrincipal='" + getPerunPrincipal() + "']";
+  }
 
-	public PerunBl getPerunBl() {
-		return (PerunBl) super.getPerun();
-	}
+  public PerunBl getPerunBl() {
+    return (PerunBl) super.getPerun();
+  }
 }

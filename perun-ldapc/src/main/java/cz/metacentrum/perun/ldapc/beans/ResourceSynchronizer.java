@@ -22,39 +22,39 @@ import java.util.Set;
 @Component
 public class ResourceSynchronizer extends AbstractSynchronizer {
 
-	private final static Logger log = LoggerFactory.getLogger(ResourceSynchronizer.class);
+  private final static Logger log = LoggerFactory.getLogger(ResourceSynchronizer.class);
 
-	@Autowired
-	protected PerunResource perunResource;
+  @Autowired
+  protected PerunResource perunResource;
 
-	public void synchronizeResources() {
-		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
-		boolean shouldWriteExceptionLog = true;
-		try {
-			log.debug("Resource synchronization - getting list of VOs");
-			// List<Vo> vos = Rpc.VosManager.getVos(ldapcManager.getRpcCaller());
-			List<Vo> vos = perun.getVosManagerBl().getVos(ldapcManager.getPerunSession());
-			Set<Name> presentResources = new HashSet<Name>();
+  public void synchronizeResources() {
+    PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
+    boolean shouldWriteExceptionLog = true;
+    try {
+      log.debug("Resource synchronization - getting list of VOs");
+      // List<Vo> vos = Rpc.VosManager.getVos(ldapcManager.getRpcCaller());
+      List<Vo> vos = perun.getVosManagerBl().getVos(ldapcManager.getPerunSession());
+      Set<Name> presentResources = new HashSet<Name>();
 
-			for (Vo vo : vos) {
-				// Map<String, Object> params = new HashMap <String, Object>();
-				// params.put("vo", new Integer(vo.getId()));
+      for (Vo vo : vos) {
+        // Map<String, Object> params = new HashMap <String, Object>();
+        // params.put("vo", new Integer(vo.getId()));
 
-				try {
-					log.debug("Getting list of resources for VO {}", vo);
-					//List<Resource> resources = ldapcManager.getRpcCaller().call("resourceManager", "getResources", params).readList(Resource.class);
-					List<Resource> resources = perun.getResourcesManagerBl().getResources(ldapcManager.getPerunSession(), vo);
+        try {
+          log.debug("Getting list of resources for VO {}", vo);
+          //List<Resource> resources = ldapcManager.getRpcCaller().call("resourceManager", "getResources", params).readList(Resource.class);
+          List<Resource> resources = perun.getResourcesManagerBl().getResources(ldapcManager.getPerunSession(), vo);
 
-					for (Resource resource : resources) {
+          for (Resource resource : resources) {
 
-						presentResources.add(perunResource.getEntryDN(
-								String.valueOf(vo.getId()),
-								String.valueOf(resource.getId())
-						));
+            presentResources.add(perunResource.getEntryDN(
+                String.valueOf(vo.getId()),
+                String.valueOf(resource.getId())
+            ));
 
-						try {
-							log.debug("Getting list of attributes for resource {}", resource.getId());
-							List<Attribute> attrs = new ArrayList<Attribute>();
+            try {
+              log.debug("Getting list of attributes for resource {}", resource.getId());
+              List<Attribute> attrs = new ArrayList<Attribute>();
 							/*
 							 *  replaced with single call
 							 *
@@ -67,62 +67,64 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 								}
 							}
 							*/
-							List<String> attrNames = fillPerunAttributeNames(perunResource.getPerunAttributeNames());
-							try {
-								//log.debug("Getting attribute {} for resource {}", attrName, resource.getId());
-								attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), resource, attrNames));
-							} catch (PerunRuntimeException e) {
-								log.warn("No attributes {} found for resource {}: {}", attrNames, resource.getId(), e.getMessage());
-								shouldWriteExceptionLog = false;
-								throw new InternalErrorException(e);
-							}
-							log.debug("Got attributes {}", attrs.toString());
+              List<String> attrNames = fillPerunAttributeNames(perunResource.getPerunAttributeNames());
+              try {
+                //log.debug("Getting attribute {} for resource {}", attrName, resource.getId());
+                attrs.addAll(
+                    perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), resource, attrNames));
+              } catch (PerunRuntimeException e) {
+                log.warn("No attributes {} found for resource {}: {}", attrNames, resource.getId(), e.getMessage());
+                shouldWriteExceptionLog = false;
+                throw new InternalErrorException(e);
+              }
+              log.debug("Got attributes {}", attrs.toString());
 
-							log.debug("Synchronizing resource {} with {} attrs", resource, attrs.size());
-							//perunResource.synchronizeEntry(resource, attrs);
+              log.debug("Synchronizing resource {} with {} attrs", resource, attrs.size());
+              //perunResource.synchronizeEntry(resource, attrs);
 
-							log.debug("Getting list of assigned group for resource {}", resource.getId());
-							List<Group> assignedGroups = perun.getResourcesManagerBl().getAssignedGroups(ldapcManager.getPerunSession(), resource);
+              log.debug("Getting list of assigned group for resource {}", resource.getId());
+              List<Group> assignedGroups =
+                  perun.getResourcesManagerBl().getAssignedGroups(ldapcManager.getPerunSession(), resource);
 
-							log.debug("Synchronizing {} groups for resource {}", assignedGroups.size(), resource.getId());
-							//perunResource.synchronizeGroups(resource, assignedGroups);
+              log.debug("Synchronizing {} groups for resource {}", assignedGroups.size(), resource.getId());
+              //perunResource.synchronizeGroups(resource, assignedGroups);
 
-							perunResource.synchronizeResource(resource, attrs, assignedGroups);
+              perunResource.synchronizeResource(resource, attrs, assignedGroups);
 
-						} catch (PerunRuntimeException e) {
-							if (shouldWriteExceptionLog) {
-								log.error("Error synchronizing resource", e);
-							}
-							shouldWriteExceptionLog = false;
-							throw new InternalErrorException(e);
-						}
-					}
+            } catch (PerunRuntimeException e) {
+              if (shouldWriteExceptionLog) {
+                log.error("Error synchronizing resource", e);
+              }
+              shouldWriteExceptionLog = false;
+              throw new InternalErrorException(e);
+            }
+          }
 
 
-				} catch (PerunRuntimeException e) {
-					if (shouldWriteExceptionLog) {
-						log.error("Error synchronizing resources", e);
-					}
-					shouldWriteExceptionLog = false;
-					throw new InternalErrorException(e);
-				}
-			}
+        } catch (PerunRuntimeException e) {
+          if (shouldWriteExceptionLog) {
+            log.error("Error synchronizing resources", e);
+          }
+          shouldWriteExceptionLog = false;
+          throw new InternalErrorException(e);
+        }
+      }
 
-			try {
-				removeOldEntries(perunResource, presentResources, log);
-			} catch (InternalErrorException e) {
-				log.error("Error removing old resource entries", e);
-				shouldWriteExceptionLog = false;
-				throw new InternalErrorException(e);
-			}
+      try {
+        removeOldEntries(perunResource, presentResources, log);
+      } catch (InternalErrorException e) {
+        log.error("Error removing old resource entries", e);
+        shouldWriteExceptionLog = false;
+        throw new InternalErrorException(e);
+      }
 
-		} catch (InternalErrorException e) {
-			if (shouldWriteExceptionLog) {
-				log.error("Error getting VO list", e);
-			}
-			throw new InternalErrorException(e);
-		}
+    } catch (InternalErrorException e) {
+      if (shouldWriteExceptionLog) {
+        log.error("Error getting VO list", e);
+      }
+      throw new InternalErrorException(e);
+    }
 
-	}
+  }
 
 }

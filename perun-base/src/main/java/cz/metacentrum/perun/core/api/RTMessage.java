@@ -7,32 +7,32 @@ package cz.metacentrum.perun.core.api;
  */
 public class RTMessage {
 
-	private String memberPreferredEmail;
-	private Integer ticketNumber;
+  private String memberPreferredEmail;
+  private Integer ticketNumber;
 
-	public RTMessage(){
-	}
+  public RTMessage() {
+  }
 
-	public RTMessage(String memberPreferredEmail, Integer ticketNumber){
-		this.memberPreferredEmail = memberPreferredEmail;
-		this.ticketNumber = ticketNumber;
-	}
+  public RTMessage(String memberPreferredEmail, Integer ticketNumber) {
+    this.memberPreferredEmail = memberPreferredEmail;
+    this.ticketNumber = ticketNumber;
+  }
 
-	public String getMemberPreferredEmail() {
-		return memberPreferredEmail;
-	}
+  public String getMemberPreferredEmail() {
+    return memberPreferredEmail;
+  }
 
-	public void setMemberPreferredEmail(String memberPreferredEmail) {
-		this.memberPreferredEmail = memberPreferredEmail;
-	}
+  public void setMemberPreferredEmail(String memberPreferredEmail) {
+    this.memberPreferredEmail = memberPreferredEmail;
+  }
 
-	public Integer getTicketNumber() {
-		return ticketNumber;
-	}
+  public Integer getTicketNumber() {
+    return ticketNumber;
+  }
 
-	public void setTicketNumber(Integer ticketNumber) {
-		this.ticketNumber = ticketNumber;
-	}
+  public void setTicketNumber(Integer ticketNumber) {
+    this.ticketNumber = ticketNumber;
+  }
 
 
 }

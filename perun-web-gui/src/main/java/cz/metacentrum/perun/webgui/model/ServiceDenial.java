@@ -9,17 +9,18 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class ServiceDenial extends JavaScriptObject {
 
-	protected ServiceDenial() {}
+  protected ServiceDenial() {
+  }
 
-	public final native int getServiceId() /*-{
+  public final native int getServiceId() /*-{
 		return this.serviceId;
 	}-*/;
 
-	public final native int getFacilityId() /*-{
+  public final native int getFacilityId() /*-{
 		return this.facilityId;
 	}-*/;
 
-	public final native int getDestinationId() /*-{
+  public final native int getDestinationId() /*-{
 		return this.destinationId;
 	}-*/;
 

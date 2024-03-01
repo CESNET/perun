@@ -19,108 +19,108 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 
 public class SendPasswordResetLinkEmail {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "membersManager/sendPasswordResetLinkEmail";
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// params
-	private RichMember member;
-	private String namespace = "";
-	private String mailAttributeURN;
-	private String language;
+  // URL to call
+  final String JSON_URL = "membersManager/sendPasswordResetLinkEmail";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // params
+  private RichMember member;
+  private String namespace = "";
+  private String mailAttributeURN;
+  private String language;
 
-	/**
-	 * Creates a new request
-	 */
-	public SendPasswordResetLinkEmail() {
-	}
+  /**
+   * Creates a new request
+   */
+  public SendPasswordResetLinkEmail() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events external events
-	 */
-	public SendPasswordResetLinkEmail(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events external events
+   */
+  public SendPasswordResetLinkEmail(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Send password reset gui link to member's email
-	 *
-	 * @param member
-	 */
-	public void sendEmail(final RichMember member, String namespace, String attribute, String language) {
+  /**
+   * Send password reset gui link to member's email
+   *
+   * @param member
+   */
+  public void sendEmail(final RichMember member, String namespace, String attribute, String language) {
 
-		this.member = member;
-		this.namespace = namespace;
-		this.mailAttributeURN = attribute;
-		this.language = language;
+    this.member = member;
+    this.namespace = namespace;
+    this.mailAttributeURN = attribute;
+    this.language = language;
 
-		// test arguments
-		if (!this.testAdding()) {
-			return;
-		}
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
-			public void onError(PerunError error) {
-				events.onError(error);
-			}
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				events.onFinished(jso);
-			}
+      public void onFinished(JavaScriptObject jso) {
+        events.onFinished(jso);
+      }
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			}
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
+    };
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testAdding() {
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testAdding() {
 
-		boolean result = true;
-		String errorMsg = "";
+    boolean result = true;
+    String errorMsg = "";
 
-		if (member == null) {
-			errorMsg += "Wrong <strong>Member parameter</strong>. Can't be null.\n";
-			result = false;
-		}
+    if (member == null) {
+      errorMsg += "Wrong <strong>Member parameter</strong>. Can't be null.\n";
+      result = false;
+    }
 
-		if (errorMsg.length() > 0) {
-			UiElements.generateAlert("Wrong parameter", errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Wrong parameter", errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("member", new JSONNumber(member.getId()));
-		jsonQuery.put("namespace", new JSONString(namespace));
-		jsonQuery.put("emailAttributeURN", new JSONString(mailAttributeURN));
-		jsonQuery.put("language", new JSONString(language));
-		return jsonQuery;
+    // create whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("member", new JSONNumber(member.getId()));
+    jsonQuery.put("namespace", new JSONString(namespace));
+    jsonQuery.put("emailAttributeURN", new JSONString(mailAttributeURN));
+    jsonQuery.put("language", new JSONString(language));
+    return jsonQuery;
 
-	}
+  }
 
 }

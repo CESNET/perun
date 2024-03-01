@@ -32,74 +32,80 @@ import java.util.stream.Collectors;
  * @author Michal Stava stavamichal@gmail.com
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganizations extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganizations
+    extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private static final String sponsorOrganizationIdentifierFriendlyName = "sponsorOrganizationIdentifier";
-	private static final String A_G_D_sponsorOrganizationIdentifier = AttributesManager.NS_GROUP_ATTR_DEF + ":" + sponsorOrganizationIdentifierFriendlyName;
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganizations.class);
+  private static final String sponsorOrganizationIdentifierFriendlyName = "sponsorOrganizationIdentifier";
+  private static final String A_G_D_sponsorOrganizationIdentifier =
+      AttributesManager.NS_GROUP_ATTR_DEF + ":" + sponsorOrganizationIdentifierFriendlyName;
+  private final static Logger log =
+      LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganizations.class);
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute attribute = new Attribute(attributeDefinition);
-		attribute.setValue(getSponsorOrganizationIdentifiersFromGroups(sess, user));
-		return attribute;
-	}
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+    attribute.setValue(getSponsorOrganizationIdentifiersFromGroups(sess, user));
+    return attribute;
+  }
 
-	/**
-	 * Collect sponsor organization's identifiers from perun Groups
-	 * @param sess Perun session
-	 * @param user User for whom the values should be collected
-	 * @return List of collected identifiers
-	 * @throws InternalErrorException When some error occurs, see exception cause for details.
-	 */
-	private List<String> getSponsorOrganizationIdentifiersFromGroups(PerunSessionImpl sess, User user) {
-		GroupsManagerBl groupsManagerBl = sess.getPerunBl().getGroupsManagerBl();
-		MembersManagerBl membersManagerBl = sess.getPerunBl().getMembersManagerBl();
+  /**
+   * Collect sponsor organization's identifiers from perun Groups
+   *
+   * @param sess Perun session
+   * @param user User for whom the values should be collected
+   * @return List of collected identifiers
+   * @throws InternalErrorException When some error occurs, see exception cause for details.
+   */
+  private List<String> getSponsorOrganizationIdentifiersFromGroups(PerunSessionImpl sess, User user) {
+    GroupsManagerBl groupsManagerBl = sess.getPerunBl().getGroupsManagerBl();
+    MembersManagerBl membersManagerBl = sess.getPerunBl().getMembersManagerBl();
 
-		return membersManagerBl.getMembersByUserWithStatus(sess, user, Status.VALID).stream()
-			.flatMap(validMember -> groupsManagerBl.getGroupsWhereMemberIsActive(sess, validMember).stream())
-			.map(groupWhereMemberIsActive -> getOrganizationIdentifierAttribute(sess, groupWhereMemberIsActive, user))
-			.filter(Objects::nonNull)
-			.map(Attribute::valueAsString)
-			.filter(Objects::nonNull)
-			.distinct()
-			.collect(Collectors.toList());
-	}
+    return membersManagerBl.getMembersByUserWithStatus(sess, user, Status.VALID).stream()
+        .flatMap(validMember -> groupsManagerBl.getGroupsWhereMemberIsActive(sess, validMember).stream())
+        .map(groupWhereMemberIsActive -> getOrganizationIdentifierAttribute(sess, groupWhereMemberIsActive, user))
+        .filter(Objects::nonNull)
+        .map(Attribute::valueAsString)
+        .filter(Objects::nonNull)
+        .distinct()
+        .collect(Collectors.toList());
+  }
 
-	/**
-	 * Return attribute organization identifier for group.
-	 * Return null if attribute definition does not exist.
-	 *
-	 * @param sess
-	 * @param group group to get attribute for
-	 * @param user user to add context information about in exceptions
-	 * @return attribute of organization for group or null if definition does not exist in Perun
-	 */
-	private Attribute getOrganizationIdentifierAttribute(PerunSessionImpl sess, Group group, User user) {
-		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, A_G_D_sponsorOrganizationIdentifier);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException("Wrong assignment of " + A_G_D_sponsorOrganizationIdentifier + " for user " + user.getId(), e);
-		} catch (AttributeNotExistsException e) {
-			log.debug("Attribute " + A_G_D_sponsorOrganizationIdentifier + " of group " + group.getId() + " does not exist, values will be skipped", e);
-		}
-		return null;
-	}
+  /**
+   * Return attribute organization identifier for group.
+   * Return null if attribute definition does not exist.
+   *
+   * @param sess
+   * @param group group to get attribute for
+   * @param user  user to add context information about in exceptions
+   * @return attribute of organization for group or null if definition does not exist in Perun
+   */
+  private Attribute getOrganizationIdentifierAttribute(PerunSessionImpl sess, Group group, User user) {
+    try {
+      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, A_G_D_sponsorOrganizationIdentifier);
+    } catch (WrongAttributeAssignmentException e) {
+      throw new InternalErrorException(
+          "Wrong assignment of " + A_G_D_sponsorOrganizationIdentifier + " for user " + user.getId(), e);
+    } catch (AttributeNotExistsException e) {
+      log.debug("Attribute " + A_G_D_sponsorOrganizationIdentifier + " of group " + group.getId() +
+          " does not exist, values will be skipped", e);
+    }
+    return null;
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Arrays.asList(A_G_D_sponsorOrganizationIdentifier);
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Arrays.asList(A_G_D_sponsorOrganizationIdentifier);
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("sponsoredMembershipInOrganizations");
-		attr.setDisplayName("Sponsored membership in organizations");
-		attr.setType(ArrayList.class.getName());
-		attr.setDescription("List of organization identifiers where user has sponsored membership.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("sponsoredMembershipInOrganizations");
+    attr.setDisplayName("Sponsored membership in organizations");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("List of organization identifiers where user has sponsored membership.");
+    return attr;
+  }
 
 }

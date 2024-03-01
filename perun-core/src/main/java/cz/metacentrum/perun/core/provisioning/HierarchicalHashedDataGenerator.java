@@ -21,155 +21,158 @@ import static java.util.stream.Collectors.toMap;
 
 /**
  * Generates data in format:
- *
+ * <p>
  * attributes: {...hashes...}
  * hierarchy: {
- *   "1": {    ** facility id **
- *     members: {    ** all members on the facility **
- *        "4" : 5,    ** member id : user id **
- *        "6" : 7,    ** member id : user id **
- *       ...
- *     }
- *     children: [
- *       "2": {    ** resource id **
- *         children: [],
- *         voId: 30,
- *         members: {    ** all members on the resource with id 2 **
- *           "4" : 5    ** member id : user id **
- *         }
- *       },
- *       "3": {
- *         ...
- *       }
- *     ]
- *   }
+ * "1": {    ** facility id **
+ * members: {    ** all members on the facility **
+ * "4" : 5,    ** member id : user id **
+ * "6" : 7,    ** member id : user id **
+ * ...
+ * }
+ * children: [
+ * "2": {    ** resource id **
+ * children: [],
+ * voId: 30,
+ * members: {    ** all members on the resource with id 2 **
+ * "4" : 5    ** member id : user id **
+ * }
+ * },
+ * "3": {
+ * ...
+ * }
+ * ]
+ * }
  * }
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 
-	private final PerunSessionImpl sess;
-	private final Service service;
-	private final Facility facility;
-	private final GenDataProvider dataProvider;
-	private final Set<Member> membersWithConsent = new HashSet<>();
-	private final boolean filterExpiredMembers;
-	private final boolean consentEval;
-	private HierarchicalHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
-	                                        boolean filterExpiredMembers, boolean consentEval) {
-		this.sess = sess;
-		this.service = service;
-		this.facility = facility;
-		this.filterExpiredMembers = filterExpiredMembers;
-		this.consentEval = consentEval;
-		dataProvider = new GenDataProviderImpl(sess, service, facility);
-	}
+  private final PerunSessionImpl sess;
+  private final Service service;
+  private final Facility facility;
+  private final GenDataProvider dataProvider;
+  private final Set<Member> membersWithConsent = new HashSet<>();
+  private final boolean filterExpiredMembers;
+  private final boolean consentEval;
 
-	@Override
-	public HashedGenData generateData() {
-		dataProvider.loadFacilityAttributes();
+  private HierarchicalHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
+                                          boolean filterExpiredMembers, boolean consentEval) {
+    this.sess = sess;
+    this.service = service;
+    this.facility = facility;
+    this.filterExpiredMembers = filterExpiredMembers;
+    this.consentEval = consentEval;
+    dataProvider = new GenDataProviderImpl(sess, service, facility);
+  }
 
-		List<Resource> resources =
-				sess.getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
+  @Override
+  public HashedGenData generateData() {
+    dataProvider.loadFacilityAttributes();
 
-		if (BeansUtils.getCoreConfig().getForceConsents()) {
-			List<Member> membersToEvaluate;
-			if (filterExpiredMembers) {
-				membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
-			} else {
-				membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
-			}
-			membersWithConsent.addAll(sess.getPerunBl().getConsentsManagerBl().evaluateConsents(sess, service, facility, membersToEvaluate, consentEval));
-		}
+    List<Resource> resources =
+        sess.getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
 
-		Map<Integer, GenDataNode> childNodes = resources.stream()
-				.collect(toMap(Resource::getId, this::getDataForResource));
+    if (BeansUtils.getCoreConfig().getForceConsents()) {
+      List<Member> membersToEvaluate;
+      if (filterExpiredMembers) {
+        membersToEvaluate =
+            sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
+      } else {
+        membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+      }
+      membersWithConsent.addAll(sess.getPerunBl().getConsentsManagerBl()
+          .evaluateConsents(sess, service, facility, membersToEvaluate, consentEval));
+    }
 
-		dataProvider.getFacilityAttributesHashes();
-		Map<String, Map<String, Object>> attributes = dataProvider.getAllFetchedAttributes();
+    Map<Integer, GenDataNode> childNodes = resources.stream()
+        .collect(toMap(Resource::getId, this::getDataForResource));
 
-		Map<Integer, Integer> memberIdsToUserIds = membersWithConsent.stream()
-				.collect(toMap(Member::getId, Member::getUserId));
+    dataProvider.getFacilityAttributesHashes();
+    Map<String, Map<String, Object>> attributes = dataProvider.getAllFetchedAttributes();
 
-		GenDataNode root = new GenDataNode.Builder()
-				.children(childNodes)
-				.members(memberIdsToUserIds)
-				.build();
+    Map<Integer, Integer> memberIdsToUserIds = membersWithConsent.stream()
+        .collect(toMap(Member::getId, Member::getUserId));
 
-		return new HashedGenData(attributes, root, facility.getId());
-	}
+    GenDataNode root = new GenDataNode.Builder()
+        .children(childNodes)
+        .members(memberIdsToUserIds)
+        .build();
 
-	private GenResourceDataNode getDataForResource(Resource resource) {
-		List<Member> members;
-		if (filterExpiredMembers) {
-			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
-		} else {
-			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-		}
-		if (BeansUtils.getCoreConfig().getForceConsents()) {
-			// remove the members without granted consents on required attributes
-			members.removeIf(member -> !membersWithConsent.contains(member));
-		} else {
-			// we skipped this part if consents were required, so add them now
-			membersWithConsent.addAll(members);
-		}
+    return new HashedGenData(attributes, root, facility.getId());
+  }
 
-		dataProvider.loadResourceAttributes(resource, members, true);
+  private GenResourceDataNode getDataForResource(Resource resource) {
+    List<Member> members;
+    if (filterExpiredMembers) {
+      members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
+    } else {
+      members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+    }
+    if (BeansUtils.getCoreConfig().getForceConsents()) {
+      // remove the members without granted consents on required attributes
+      members.removeIf(member -> !membersWithConsent.contains(member));
+    } else {
+      // we skipped this part if consents were required, so add them now
+      membersWithConsent.addAll(members);
+    }
 
-		dataProvider.getResourceAttributesHashes(resource, true);
+    dataProvider.loadResourceAttributes(resource, members, true);
 
-		members.forEach(member -> getDataForMember(resource, member));
+    dataProvider.getResourceAttributesHashes(resource, true);
 
-		Map<Integer, Integer> memberIdsToUserIds = members.stream()
-				.collect(toMap(Member::getId, Member::getUserId));
+    members.forEach(member -> getDataForMember(resource, member));
 
-		return new GenResourceDataNode.Builder()
-				.members(memberIdsToUserIds)
-				.voId(resource.getVoId())
-				.build();
-	}
+    Map<Integer, Integer> memberIdsToUserIds = members.stream()
+        .collect(toMap(Member::getId, Member::getUserId));
 
-	private GenMemberDataNode getDataForMember(Resource resource, Member member) {
-		List<String> memberAttrHashes = dataProvider.getMemberAttributesHashes(resource, member);
+    return new GenResourceDataNode.Builder()
+        .members(memberIdsToUserIds)
+        .voId(resource.getVoId())
+        .build();
+  }
 
-		return new GenMemberDataNode(memberAttrHashes);
-	}
+  private GenMemberDataNode getDataForMember(Resource resource, Member member) {
+    List<String> memberAttrHashes = dataProvider.getMemberAttributesHashes(resource, member);
 
-	public static class Builder {
-		private PerunSessionImpl sess;
-		private Service service;
-		private Facility facility;
-		private boolean filterExpiredMembers = false;
-		private boolean consentEval = false;
+    return new GenMemberDataNode(memberAttrHashes);
+  }
 
-		public Builder sess(PerunSessionImpl sess) {
-			this.sess = sess;
-			return this;
-		}
+  public static class Builder {
+    private PerunSessionImpl sess;
+    private Service service;
+    private Facility facility;
+    private boolean filterExpiredMembers = false;
+    private boolean consentEval = false;
 
-		public Builder service(Service service) {
-			this.service = service;
-			return this;
-		}
+    public Builder sess(PerunSessionImpl sess) {
+      this.sess = sess;
+      return this;
+    }
 
-		public Builder facility(Facility facility) {
-			this.facility = facility;
-			return this;
-		}
+    public Builder service(Service service) {
+      this.service = service;
+      return this;
+    }
 
-		public Builder filterExpiredMembers(boolean filterExpiredMembers) {
-			this.filterExpiredMembers = filterExpiredMembers;
-			return this;
-		}
+    public Builder facility(Facility facility) {
+      this.facility = facility;
+      return this;
+    }
 
-		public Builder consentEval(boolean consentEval) {
-			this.consentEval = consentEval;
-			return this;
-		}
+    public Builder filterExpiredMembers(boolean filterExpiredMembers) {
+      this.filterExpiredMembers = filterExpiredMembers;
+      return this;
+    }
 
-		public HierarchicalHashedDataGenerator build() {
-			return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval);
-		}
-	}
+    public Builder consentEval(boolean consentEval) {
+      this.consentEval = consentEval;
+      return this;
+    }
+
+    public HierarchicalHashedDataGenerator build() {
+      return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval);
+    }
+  }
 }

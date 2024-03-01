@@ -11,38 +11,38 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_k4NavTest {
 
-	private static urn_perun_user_attribute_def_def_k4Nav classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_def_k4Nav classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_user_attribute_def_def_k4Nav();
-		session = mock(PerunSessionImpl.class);
-		user = new User();
-		attributeToCheck = new Attribute();
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_user_attribute_def_def_k4Nav();
+    session = mock(PerunSessionImpl.class);
+    user = new User();
+    attributeToCheck = new Attribute();
+  }
 
-	@Test
-	public void testCorrectSyntax() throws Exception {
-		System.out.println("testCorrectSyntax()");
+  @Test
+  public void testCorrectSyntax() throws Exception {
+    System.out.println("testCorrectSyntax()");
 
-		attributeToCheck.setValue("0");
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    attributeToCheck.setValue("0");
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
-		attributeToCheck.setValue("1");
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    attributeToCheck.setValue("1");
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
-		attributeToCheck.setValue(null);
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    attributeToCheck.setValue(null);
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithWrongValue()");
-		attributeToCheck.setValue("5");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+    attributeToCheck.setValue("5");
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 }

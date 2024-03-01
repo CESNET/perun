@@ -11,15 +11,14 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation is used for virtual attribute modules marking.
- *
+ * <p>
  * Virtual attributes that has a module, which are annotated with this interface, are skipped
  * while checking attributes value during dependencies check. This provides an optimization.
  * It is not necessary to calculate virtual attributes value if its module has empty
  * value check methods.
  *
- * @see AttributesManagerBlImpl#checkAttributeDependencies(PerunSession, RichAttribute)
- *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
+ * @see AttributesManagerBlImpl#checkAttributeDependencies(PerunSession, RichAttribute)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

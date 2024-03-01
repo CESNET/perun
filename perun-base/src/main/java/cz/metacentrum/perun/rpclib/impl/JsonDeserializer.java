@@ -1,14 +1,10 @@
 package cz.metacentrum.perun.rpclib.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
@@ -17,19 +13,32 @@ import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Deserializer that reads values from JSON content.
@@ -40,277 +49,290 @@ import cz.metacentrum.perun.rpclib.api.Deserializer;
 @SuppressWarnings("WeakerAccess")
 public class JsonDeserializer extends Deserializer {
 
-	@JsonIgnoreProperties({"name","baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-	public interface AttributeMixIn {}
+  private static final ObjectMapper mapper = new ObjectMapper();
+  private static final Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
 
-	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName", "writable"})
-	public interface AttributeDefinitionMixIn {}
+  static {
+    mixinMap.put(Attribute.class, AttributeMixIn.class);
+    mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+    mixinMap.put(User.class, UserMixIn.class);
+    mixinMap.put(Member.class, MemberMixIn.class);
+    mixinMap.put(PerunBean.class, PerunBeanMixIn.class);
+    mixinMap.put(Candidate.class, CandidateMixIn.class);
+    mixinMap.put(PerunException.class, PerunExceptionMixIn.class);
+    mixinMap.put(Destination.class, DestinationMixIn.class);
+    mixinMap.put(Group.class, GroupMixIn.class);
+    mixinMap.put(UserExtSource.class, UserExtSourceMixIn.class);
 
-	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType"})
-	public interface UserMixIn {}
+    mixinMap.put(Application.class, PerunBeanMixIn.class);
+    mixinMap.put(ApplicationForm.class, PerunBeanMixIn.class);
+    mixinMap.put(ApplicationFormItem.class, PerunBeanMixIn.class);
+    mixinMap.put(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
+    mixinMap.put(ApplicationMail.class, PerunBeanMixIn.class);
 
-	@JsonIgnoreProperties({"beanName"})
-	public interface PerunBeanMixIn {}
+    mixinMap.put(Author.class, PerunBeanMixIn.class);
+    mixinMap.put(Category.class, PerunBeanMixIn.class);
+    mixinMap.put(Publication.class, PerunBeanMixIn.class);
+    mixinMap.put(PublicationForGUI.class, PerunBeanMixIn.class);
+    mixinMap.put(PublicationSystem.class, PerunBeanMixIn.class);
+    mixinMap.put(Thanks.class, PerunBeanMixIn.class);
+    mixinMap.put(ThanksForGUI.class, PerunBeanMixIn.class);
 
-	@JsonIgnoreProperties({"userExtSources"})
-	public interface CandidateMixIn {}
+    mapper.setMixIns(mixinMap);
+  }
 
-	@JsonIgnoreProperties({"name"})
-	public interface PerunExceptionMixIn {}
+  private final JsonNode root;
 
-	@JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
-	public interface DestinationMixIn {}
+  /**
+   * @param in {@code InputStream} to read JSON data from
+   * @throws IOException  if an IO error occurs
+   * @throws RpcException if content of {@code in} is wrongly formatted
+   */
+  public JsonDeserializer(InputStream in) throws IOException {
+    try {
+      root = mapper.readTree(in);
+    } catch (JsonProcessingException ex) {
+      throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
+    }
+  }
 
-	@JsonIgnoreProperties({"shortName", "beanName"})
-	public interface GroupMixIn {}
+  @Override
+  public boolean contains(String name) {
+    return root.get(name) != null;
+  }
 
-	@JsonIgnoreProperties({"persistent","beanName"})
-	public interface UserExtSourceMixIn {}
+  @Override
+  public String readString(String name) {
+    JsonNode node;
 
-	@SuppressWarnings("unused")
-	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName", "suspended"})
-	public interface MemberMixIn {
-		@JsonIgnore
-		void setStatus(String status);
+    if (name == null) {
+      // The object is not under root, but directly in the response
+      node = root;
+    } else {
+      node = root.get(name);
+    }
 
-		@JsonDeserialize
-		void setStatus(Status status);
+    if (node.isNull()) {
+      return null;
+    }
+    if (!node.isValueNode()) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as String");
+    }
 
-		@JsonIgnore
-		void setMembershipType(String type);
+    return node.asText();
+  }
 
-		@JsonDeserialize
-		void setMembershipType(MembershipType type);
+  @Override
+  public String readString() {
+    return readString(null);
+  }
 
-		@JsonIgnore
-		void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses);
+  @Override
+  public int readInt(String name) {
+    JsonNode node;
 
-		@JsonIgnore
-		void putGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses);
+    if (name == null) {
+      // The object is not under root, but directly in the response
+      node = root;
+      name = "root";
+    } else {
+      node = root.get(name);
+    }
 
-		@JsonIgnore
-		void putGroupStatus(int groupId, MemberGroupStatus status);
+    if (node == null) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
 
-	}
+    if (!node.isInt()) {
+      if (!node.isTextual()) {
+        throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
+      } else {
+        try {
+          return Integer.parseInt(node.textValue());
+        } catch (NumberFormatException ex) {
+          throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int", ex);
+        }
+      }
+    }
 
-	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
-	static {
-		mixinMap.put(Attribute.class, AttributeMixIn.class);
-		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-		mixinMap.put(User.class, UserMixIn.class);
-		mixinMap.put(Member.class, MemberMixIn.class);
-		mixinMap.put(PerunBean.class, PerunBeanMixIn.class);
-		mixinMap.put(Candidate.class, CandidateMixIn.class);
-		mixinMap.put(PerunException.class, PerunExceptionMixIn.class);
-		mixinMap.put(Destination.class, DestinationMixIn.class);
-		mixinMap.put(Group.class, GroupMixIn.class);
-		mixinMap.put(UserExtSource.class, UserExtSourceMixIn.class);
+    return node.intValue();
+  }
 
-		mixinMap.put(Application.class, PerunBeanMixIn.class);
-		mixinMap.put(ApplicationForm.class, PerunBeanMixIn.class);
-		mixinMap.put(ApplicationFormItem.class, PerunBeanMixIn.class);
-		mixinMap.put(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
-		mixinMap.put(ApplicationMail.class, PerunBeanMixIn.class);
+  @Override
+  public int readInt() {
+    return readInt(null);
+  }
 
-		mixinMap.put(Author.class, PerunBeanMixIn.class);
-		mixinMap.put(Category.class, PerunBeanMixIn.class);
-		mixinMap.put(Publication.class, PerunBeanMixIn.class);
-		mixinMap.put(PublicationForGUI.class, PerunBeanMixIn.class);
-		mixinMap.put(PublicationSystem.class, PerunBeanMixIn.class);
-		mixinMap.put(Thanks.class, PerunBeanMixIn.class);
-		mixinMap.put(ThanksForGUI.class, PerunBeanMixIn.class);
+  @Override
+  public int[] readArrayOfInts(String name) {
+    JsonNode node;
 
-		mapper.setMixIns(mixinMap);
-	}
+    if (name == null) {
+      // The object is not under root, but directly in the response
+      node = root;
+    } else {
+      node = root.get(name);
+    }
 
-	private final JsonNode root;
+    if (node.isNull()) {
+      return null;
+    }
+    if (!node.isArray()) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int[] - not an array");
+    }
 
-	/**
-	 * @param in {@code InputStream} to read JSON data from
-	 * @throws IOException if an IO error occurs
-	 * @throws RpcException if content of {@code in} is wrongly formatted
-	 */
-	public JsonDeserializer(InputStream in) throws IOException {
-		try {
-			root = mapper.readTree(in);
-		} catch (JsonProcessingException ex) {
-			throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
-		}
-	}
+    int[] array = new int[node.size()];
 
-	@Override
-	public boolean contains(String name) {
-		return root.get(name) != null;
-	}
+    for (int i = 0; i < node.size(); ++i) {
+      JsonNode value = node.get(i);
+      if (!value.isInt()) {
+        throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
+      }
+      array[i] = node.get(i).intValue();
+    }
+    return array;
+  }
 
-	@Override
-	public String readString(String name) {
-		JsonNode node;
+  @Override
+  public int[] readArrayOfInts() {
+    return readArrayOfInts(null);
+  }
 
-		if (name == null) {
-			// The object is not under root, but directly in the response
-			node = root;
-		} else {
-			node = root.get(name);
-		}
+  @Override
+  public <T> T read(String name, Class<T> valueType) {
+    JsonNode node;
 
-		if (node.isNull()) {
-			return null;
-		}
-		if (!node.isValueNode()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as String");
-		}
+    if (name == null) {
+      // The object is not under root, but directly in the response
+      node = root;
+      name = "root";
+    } else {
+      node = root.get(name);
+    }
 
-		return node.asText();
-	}
+    if (node == null) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
+    if (node.isNull()) {
+      return null;
+    }
+    if (!node.isObject()) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName());
+    }
 
-	@Override
-	public String readString() {
-		return readString(null);
-	}
+    try {
+      return mapper.readValue(node.traverse(), valueType);
+    } catch (IOException ex) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName(), ex);
+    }
+  }
 
-	@Override
-	public int readInt(String name) {
-		JsonNode node;
+  @Override
+  public <T> T read(Class<T> valueType) {
+    return read(null, valueType);
+  }
 
-		if (name == null) {
-			// The object is not under root, but directly in the response
-			node = root;
-			name = "root";
-		} else {
-			node = root.get(name);
-		}
+  @Override
+  public <T> List<T> readList(String name, Class<T> valueType) {
+    JsonNode node;
 
-		if (node == null) {
-			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-		}
+    if (name == null) {
+      // The object is not under root, but directly in the response
+      node = root;
+      name = "root";
+    } else {
+      node = root.get(name);
+    }
 
-		if (!node.isInt()) {
-			if (!node.isTextual()) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
-			} else {
-				try {
-					return Integer.parseInt(node.textValue());
-				} catch (NumberFormatException ex) {
-					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int", ex);
-				}
-			}
-		}
+    if (node == null) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
+    if (node.isNull()) {
+      return null;
+    }
+    if (!node.isArray()) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+          node + " as List<" + valueType.getSimpleName() + "> - not an array");
+    }
 
-		return node.intValue();
-	}
+    try {
+      List<T> list = new ArrayList<>(node.size());
+      for (JsonNode e : node) {
+        list.add(mapper.readValue(e.traverse(), valueType));
+      }
+      return list;
+    } catch (IOException ex) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
+          node + " as List<" + valueType.getSimpleName() + ">", ex);
+    }
+  }
 
-	@Override
-	public int readInt() {
-		return readInt(null);
-	}
+  @Override
+  public <T> List<T> readList(Class<T> valueType) {
+    return readList(null, valueType);
+  }
+
+  @JsonIgnoreProperties({"name", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
+  public interface AttributeMixIn {
+  }
+
+  @JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName",
+      "writable"})
+  public interface AttributeDefinitionMixIn {
+  }
+
+  @JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType"})
+  public interface UserMixIn {
+  }
+
+  @JsonIgnoreProperties({"beanName"})
+  public interface PerunBeanMixIn {
+  }
 
 
-	@Override
-	public int[] readArrayOfInts(String name) {
-		JsonNode node;
+  @JsonIgnoreProperties({"userExtSources"})
+  public interface CandidateMixIn {
+  }
 
-		if (name == null) {
-			// The object is not under root, but directly in the response
-			node = root;
-		} else {
-			node = root.get(name);
-		}
+  @JsonIgnoreProperties({"name"})
+  public interface PerunExceptionMixIn {
+  }
 
-		if (node.isNull()) {
-			return null;
-		}
-		if (!node.isArray()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int[] - not an array");
-		}
+  @JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
+  public interface DestinationMixIn {
+  }
 
-		int[] array = new int[node.size()];
+  @JsonIgnoreProperties({"shortName", "beanName"})
+  public interface GroupMixIn {
+  }
 
-		for (int i = 0; i < node.size(); ++i) {
-			JsonNode value = node.get(i);
-			if (!value.isInt()) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
-			}
-			array[i] = node.get(i).intValue();
-		}
-		return array;
-	}
+  @JsonIgnoreProperties({"persistent", "beanName"})
+  public interface UserExtSourceMixIn {
+  }
 
-	@Override
-	public int[] readArrayOfInts() {
-		return readArrayOfInts(null);
-	}
+  @SuppressWarnings("unused")
+  @JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName", "suspended"})
+  public interface MemberMixIn {
+    @JsonIgnore
+    void setStatus(String status);
 
-	@Override
-	public <T> T read(String name, Class<T> valueType) {
-		JsonNode node;
+    @JsonDeserialize
+    void setStatus(Status status);
 
-		if (name == null) {
-			// The object is not under root, but directly in the response
-			node = root;
-			name = "root";
-		} else {
-			node = root.get(name);
-		}
+    @JsonIgnore
+    void setMembershipType(String type);
 
-		if (node == null) {
-			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-		}
-		if (node.isNull()) {
-			return null;
-		}
-		if (!node.isObject()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName());
-		}
+    @JsonDeserialize
+    void setMembershipType(MembershipType type);
 
-		try {
-			return mapper.readValue(node.traverse(), valueType);
-		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName(), ex);
-		}
-	}
+    @JsonIgnore
+    void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses);
 
-	@Override
-	public <T> T read(Class<T> valueType) {
-		return read(null, valueType);
-	}
+    @JsonIgnore
+    void putGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses);
 
-	@Override
-	public <T> List<T> readList(String name, Class<T> valueType) {
-		JsonNode node;
+    @JsonIgnore
+    void putGroupStatus(int groupId, MemberGroupStatus status);
 
-		if (name == null) {
-			// The object is not under root, but directly in the response
-			node = root;
-			name = "root";
-		} else {
-			node = root.get(name);
-		}
-
-		if (node == null) {
-			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-		}
-		if (node.isNull()) {
-			return null;
-		}
-		if (!node.isArray()) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as List<" + valueType.getSimpleName() + "> - not an array");
-		}
-
-		try {
-			List<T> list = new ArrayList<>(node.size());
-			for (JsonNode e : node) {
-				list.add(mapper.readValue(e.traverse(), valueType));
-			}
-			return list;
-		} catch (IOException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as List<" + valueType.getSimpleName() + ">", ex);
-		}
-	}
-
-	@Override
-	public <T> List<T> readList(Class<T> valueType) {
-		return readList(null, valueType);
-	}
+  }
 }

@@ -7,41 +7,41 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class GroupMembershipExpired extends AuditEvent implements EngineIgnoreEvent {
 
-	private Member member;
-	private int daysAfterExpiration;
-	private Group group;
-	private String message;
+  private Member member;
+  private int daysAfterExpiration;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public GroupMembershipExpired() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public GroupMembershipExpired() {
+  }
 
-	public GroupMembershipExpired(Member member, int daysAfterExpiration, Group group) {
-		this.member = member;
-		this.daysAfterExpiration = daysAfterExpiration;
-		this.group = group;
-		this.message = formatMessage("%s has expired %d days ago in %s.", member, daysAfterExpiration, group);
-	}
+  public GroupMembershipExpired(Member member, int daysAfterExpiration, Group group) {
+    this.member = member;
+    this.daysAfterExpiration = daysAfterExpiration;
+    this.group = group;
+    this.message = formatMessage("%s has expired %d days ago in %s.", member, daysAfterExpiration, group);
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	public int getDaysAfterExpiration() {
-		return daysAfterExpiration;
-	}
+  public int getDaysAfterExpiration() {
+    return daysAfterExpiration;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

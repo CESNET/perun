@@ -16,117 +16,122 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class CopyMails {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/copyMails";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/copyMails";
+  private int fromId;
+  private int toId;
+  private PerunEntity entityFrom;
+  private PerunEntity entityTo;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param fromId
+   * @param toId
+   */
+  public CopyMails(PerunEntity entityFrom, int fromId, PerunEntity entityTo, int toId) {
+    this.entityFrom = entityFrom;
+    this.entityTo = entityTo;
+    this.fromId = fromId;
+    this.toId = toId;
+  }
 
-	private int fromId;
-	private int toId;
-	private PerunEntity entityFrom;
-	private PerunEntity entityTo;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param fromId
+   * @param toId
+   * @param events Custom events
+   */
+  public CopyMails(PerunEntity entityFrom, int fromId, PerunEntity entityTo, int toId, JsonCallbackEvents events) {
+    this.entityFrom = entityFrom;
+    this.fromId = fromId;
+    this.entityTo = entityTo;
+    this.toId = toId;
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param fromId
-	 * @param toId
-	 */
-	public CopyMails(PerunEntity entityFrom, int fromId, PerunEntity entityTo, int toId) {
-		this.entityFrom = entityFrom;
-		this.entityTo = entityTo;
-		this.fromId = fromId;
-		this.toId = toId;
-	}
+  /**
+   * Send request to copy form
+   */
+  public void copyMails() {
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param fromId
-	 * @param toId
-	 * @param events Custom events
-	 */
-	public CopyMails(PerunEntity entityFrom, int fromId, PerunEntity entityTo, int toId, JsonCallbackEvents events) {
-		this.entityFrom = entityFrom;
-		this.fromId = fromId;
-		this.entityTo = entityTo;
-		this.toId = toId;
-		this.events = events;
-	}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-	/**
-	 * Send request to copy form
-	 */
-	public void copyMails() {
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Copying form failed.");
+        events.onError(error);
+      }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Copying form failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Form successfully copied.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Form successfully copied.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	private boolean testCreating() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+  private boolean testCreating() {
+    // TODO Auto-generated method stub
+    return true;
+  }
 
-		// query
-		JSONObject query = new JSONObject();
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entityFrom)) {
+    // query
+    JSONObject query = new JSONObject();
 
-			query.put("fromVo", new JSONNumber(fromId));
+    if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entityFrom)) {
 
-		} else if (PerunEntity.GROUP.equals(entityFrom)) {
+      query.put("fromVo", new JSONNumber(fromId));
 
-			query.put("fromGroup", new JSONNumber(fromId));
+    } else if (PerunEntity.GROUP.equals(entityFrom)) {
 
-		}
+      query.put("fromGroup", new JSONNumber(fromId));
 
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entityTo)) {
+    }
 
-			query.put("toVo", new JSONNumber(toId));
+    if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entityTo)) {
 
-		} else if (PerunEntity.GROUP.equals(entityTo)) {
+      query.put("toVo", new JSONNumber(toId));
 
-			query.put("toGroup", new JSONNumber(toId));
+    } else if (PerunEntity.GROUP.equals(entityTo)) {
 
-		}
+      query.put("toGroup", new JSONNumber(toId));
 
-		return query;
+    }
 
-	}
+    return query;
+
+  }
 
 }

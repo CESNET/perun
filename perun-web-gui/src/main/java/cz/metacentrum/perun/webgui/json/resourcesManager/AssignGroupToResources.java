@@ -9,8 +9,11 @@ import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
-import cz.metacentrum.perun.webgui.model.*;
-
+import cz.metacentrum.perun.webgui.model.Attribute;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
+import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichResource;
 import java.util.ArrayList;
 
 /**
@@ -20,216 +23,225 @@ import java.util.ArrayList;
  */
 public class AssignGroupToResources {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "resourcesManager/assignGroupToResources";
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// ids
-	private Group group;
-	private ArrayList<RichResource> resources;
+  // URL to call
+  final String JSON_URL = "resourcesManager/assignGroupToResources";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // ids
+  private Group group;
+  private ArrayList<RichResource> resources;
 
-	/**
-	 * Creates a new request
-	 */
-	public AssignGroupToResources() {}
+  /**
+   * Creates a new request
+   */
+  public AssignGroupToResources() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events external events
-	 */
-	public AssignGroupToResources(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events external events
+   */
+  public AssignGroupToResources(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Attempts to assign group to resources
-	 *
-	 * @param group group which should be assigned
-	 * @param resources resources where group should be assigned
-	 */
-	public void assignGroupToResources(final Group group, final ArrayList<RichResource> resources) {
+  /**
+   * Attempts to assign group to resources
+   *
+   * @param group     group which should be assigned
+   * @param resources resources where group should be assigned
+   */
+  public void assignGroupToResources(final Group group, final ArrayList<RichResource> resources) {
 
-		this.group = group;
-		this.resources = resources;
+    this.group = group;
+    this.resources = resources;
 
-		// test arguments
-		if(!this.testAssigning()){
-			return;
-		}
+    // test arguments
+    if (!this.testAssigning()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Assigning group: " + group.getShortName() + " failed.");
-				handleCommonExceptions(error, group);
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Assigning group: " + group.getShortName() + " failed.");
+        handleCommonExceptions(error, group);
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group: "+group.getShortName()+" was successfully assigned to resources.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements()
+            .setLogSuccessText("Group: " + group.getShortName() + " was successfully assigned to resources.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-        // to allow own error handling for attributes errors.
-        jspc.setHidden(true);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testAssigning() {
+      ;
+    };
 
-		boolean result = true;
-		String errorMsg = "";
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    // to allow own error handling for attributes errors.
+    jspc.setHidden(true);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-		if(resources == null || resources.isEmpty()){
-			errorMsg += "Wrong parameter <strong>Resources</strong>.<br />";
-			result = false;
-		}
+  }
 
-		if(group == null){
-			errorMsg += "Wrong parameter <strong>group</strong>.";
-			result = false;
-		}
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testAssigning() {
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Parameter error", errorMsg);
-		}
+    boolean result = true;
+    String errorMsg = "";
 
-		return result;
-	}
+    if (resources == null || resources.isEmpty()) {
+      errorMsg += "Wrong parameter <strong>Resources</strong>.<br />";
+      result = false;
+    }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+    if (group == null) {
+      errorMsg += "Wrong parameter <strong>group</strong>.";
+      result = false;
+    }
 
-		JSONObject jsonQuery = new JSONObject();
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Parameter error", errorMsg);
+    }
 
-		JSONArray array = new JSONArray();
-		for (int i=0; i< resources.size(); i++) {
-			array.set(i, new JSONNumber(resources.get(i).getId()));
-		}
-		jsonQuery.put("resources", array);
-		jsonQuery.put("group", new JSONNumber(group.getId()));
+    return result;
+  }
 
-		return jsonQuery;
-	}
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-	/**
-	 * Handle common exceptions caused by this callback.
-	 *
-	 * @param error     PerunError returned from Perun
-	 * @param group  related group
-	 */
-	private void handleCommonExceptions(PerunError error, Group group) {
+    JSONObject jsonQuery = new JSONObject();
 
-		if (error != null) {
+    JSONArray array = new JSONArray();
+    for (int i = 0; i < resources.size(); i++) {
+      array.set(i, new JSONNumber(resources.get(i).getId()));
+    }
+    jsonQuery.put("resources", array);
+    jsonQuery.put("group", new JSONNumber(group.getId()));
 
-			if ("WrongAttributeValueException".equals(error.getName())) {
+    return jsonQuery;
+  }
 
-				Attribute a = error.getAttribute();
-				GeneralObject holder = error.getAttributeHolder();
-				GeneralObject secondHolder = error.getAttributeHolderSecondary();
+  /**
+   * Handle common exceptions caused by this callback.
+   *
+   * @param error PerunError returned from Perun
+   * @param group related group
+   */
+  private void handleCommonExceptions(PerunError error, Group group) {
 
-				String text = "Group "+group.getShortName()+" can't be assigned to one of resources.";
+    if (error != null) {
 
-				if (a != null) {
+      if ("WrongAttributeValueException".equals(error.getName())) {
 
-					if (a.getValue().equals("null")) {
-						text += "<p>Following setting is missing, but it's required by services on resource.";
-					} else {
-						text += "<p>Following setting, required by services on resource, is wrong.";
-					}
+        Attribute a = error.getAttribute();
+        GeneralObject holder = error.getAttributeHolder();
+        GeneralObject secondHolder = error.getAttributeHolderSecondary();
 
-					String attrName = a.getDisplayName();
-					String attrValue = a.getValue();
-					text += "<p><strong>Setting:&nbsp;</strong>" + attrName + "<br />";
+        String text = "Group " + group.getShortName() + " can't be assigned to one of resources.";
 
-					if (holder != null) {
-						if (!holder.getName().equalsIgnoreCase("undefined")) {
-							text += "<strong>" + holder.getObjectType() + ":</strong>&nbsp;" + holder.getName() + "<br />";
-						}
-					}
-					if (secondHolder != null) {
-						if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
-							text += "<strong>" + secondHolder.getObjectType() + ":</strong>&nbsp;" + secondHolder.getName() + "<br />";
-						}
-					}
+        if (a != null) {
 
-					if (!a.getValue().equals("null")) {
-						text += "<strong>Value:&nbsp;</strong>" + attrValue;
-					}
+          if (a.getValue().equals("null")) {
+            text += "<p>Following setting is missing, but it's required by services on resource.";
+          } else {
+            text += "<p>Following setting, required by services on resource, is wrong.";
+          }
 
-					text += "<p>Please fix the issue before assigning group to resource on group's settings page.";
+          String attrName = a.getDisplayName();
+          String attrValue = a.getValue();
+          text += "<p><strong>Setting:&nbsp;</strong>" + attrName + "<br />";
 
-				} else {
-					text += "<p><i>Attribute is null, please report this error.</i>";
-				}
+          if (holder != null) {
+            if (!holder.getName().equalsIgnoreCase("undefined")) {
+              text += "<strong>" + holder.getObjectType() + ":</strong>&nbsp;" + holder.getName() + "<br />";
+            }
+          }
+          if (secondHolder != null) {
+            if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
+              text +=
+                  "<strong>" + secondHolder.getObjectType() + ":</strong>&nbsp;" + secondHolder.getName() + "<br />";
+            }
+          }
 
-				UiElements.generateError(error, "Wrong settings", text);
+          if (!a.getValue().equals("null")) {
+            text += "<strong>Value:&nbsp;</strong>" + attrValue;
+          }
 
-			} else if ("GroupAlreadyAssignedException".equals(error.getName())) {
+          text += "<p>Please fix the issue before assigning group to resource on group's settings page.";
 
-				UiElements.generateError(error, "Already assigned", "Group is already assigned to one of resources.");
+        } else {
+          text += "<p><i>Attribute is null, please report this error.</i>";
+        }
 
-			} else if ("WrongReferenceAttributeValueException".equals(error.getName())) {
+        UiElements.generateError(error, "Wrong settings", text);
 
-				String text = "Group "+group.getShortName()+" can't be assigned to one of resources.";
+      } else if ("GroupAlreadyAssignedException".equals(error.getName())) {
 
-				text += "<p>Following combination of settings is not correct:";
+        UiElements.generateError(error, "Already assigned", "Group is already assigned to one of resources.");
 
-				Attribute a = error.getAttribute();
-				Attribute a2 = error.getReferenceAttribute();
+      } else if ("WrongReferenceAttributeValueException".equals(error.getName())) {
 
-				if (a != null) {
-					String attrName = a.getDisplayName();
-					String attrValue = a.getValue();
-					String entity = a.getEntity();
-					text += "<p><strong>Setting&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
-					text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
-				} else {
-					text += "<p><i>Setting 1 is null or not present in error message.</i>";
-				}
+        String text = "Group " + group.getShortName() + " can't be assigned to one of resources.";
 
-				if (a2 != null) {
-					String attrName = a2.getDisplayName();
-					String attrValue = a2.getValue();
-					String entity = a2.getEntity();
-					text += "<p><strong>Setting&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
-					text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
-				} else {
-					text += "<p><i>Setting 2 is null or not present in error message.</i>";
-				}
+        text += "<p>Following combination of settings is not correct:";
 
-				UiElements.generateError(error, "Wrong settings", text);
+        Attribute a = error.getAttribute();
+        Attribute a2 = error.getReferenceAttribute();
 
-			} else {
+        if (a != null) {
+          String attrName = a.getDisplayName();
+          String attrValue = a.getValue();
+          String entity = a.getEntity();
+          text += "<p><strong>Setting&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
+          text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
+        } else {
+          text += "<p><i>Setting 1 is null or not present in error message.</i>";
+        }
 
-				// use standard processing for other errors
-				JsonErrorHandler.alertBox(error);
+        if (a2 != null) {
+          String attrName = a2.getDisplayName();
+          String attrValue = a2.getValue();
+          String entity = a2.getEntity();
+          text += "<p><strong>Setting&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
+          text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
+        } else {
+          text += "<p><i>Setting 2 is null or not present in error message.</i>";
+        }
 
-			}
+        UiElements.generateError(error, "Wrong settings", text);
 
-		}
+      } else {
+
+        // use standard processing for other errors
+        JsonErrorHandler.alertBox(error);
+
+      }
+
+    }
 
 
-	}
+  }
 
 }

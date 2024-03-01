@@ -19,49 +19,49 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class urn_perun_user_attribute_def_def_login_namespace_mu_admTest {
-	private static urn_perun_user_attribute_def_def_login_namespace_mu_adm classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
-	private CoreConfig oldConfig = BeansUtils.getCoreConfig();
+  private static urn_perun_user_attribute_def_def_login_namespace_mu_adm classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
+  private CoreConfig oldConfig = BeansUtils.getCoreConfig();
 
-	@Before
-	public void setUp() throws Exception {
-		//prepare core config for this test
-		CoreConfig cfNew = new CoreConfig();
-		cfNew.setInstanceId("test");
-		BeansUtils.setConfig(cfNew);
-		
-		classInstance = new urn_perun_user_attribute_def_def_login_namespace_mu_adm();
-		session = mock(PerunSessionImpl.class);
-		user = new User();
-		attributeToCheck = new Attribute();
-		attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attributeToCheck.setFriendlyName("login-namespace:mu-adm");
+  @Before
+  public void setUp() throws Exception {
+    //prepare core config for this test
+    CoreConfig cfNew = new CoreConfig();
+    cfNew.setInstanceId("test");
+    BeansUtils.setConfig(cfNew);
 
-		PerunBl perunBl = mock(PerunBl.class);
-		when(session.getPerunBl()).thenReturn(perunBl);
-		UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
-		when(session.getPerunBl().getUsersManagerBl()).thenReturn(usersManagerBl);
-		PasswordManagerModule module = mock(GenericPasswordManagerModule.class);
-		when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "mu-adm")).thenReturn(module);
+    classInstance = new urn_perun_user_attribute_def_def_login_namespace_mu_adm();
+    session = mock(PerunSessionImpl.class);
+    user = new User();
+    attributeToCheck = new Attribute();
+    attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attributeToCheck.setFriendlyName("login-namespace:mu-adm");
 
-		ModulesUtilsBl modulesUtilsBl = mock(ModulesUtilsBl.class);
-		when(perunBl.getModulesUtilsBl()).thenReturn(modulesUtilsBl);
-	}
+    PerunBl perunBl = mock(PerunBl.class);
+    when(session.getPerunBl()).thenReturn(perunBl);
+    UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
+    when(session.getPerunBl().getUsersManagerBl()).thenReturn(usersManagerBl);
+    PasswordManagerModule module = mock(GenericPasswordManagerModule.class);
+    when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "mu-adm")).thenReturn(module);
 
-	@After
-	public void tearDown() throws Exception {
-		//return old core config
-		BeansUtils.setConfig(oldConfig);
-	}
+    ModulesUtilsBl modulesUtilsBl = mock(ModulesUtilsBl.class);
+    when(perunBl.getModulesUtilsBl()).thenReturn(modulesUtilsBl);
+  }
 
-	@Test
-	public void testCorrectSemantics() throws Exception {
-		System.out.println("testCorrectSemantics()");
-		attributeToCheck.setValue(null);
+  @After
+  public void tearDown() throws Exception {
+    //return old core config
+    BeansUtils.setConfig(oldConfig);
+  }
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue(null);
+
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 
 }

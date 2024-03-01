@@ -5,30 +5,30 @@ import cz.metacentrum.perun.core.api.Consent;
 
 public class ConsentCreated extends AuditEvent {
 
-	private Consent consent;
-	private String message;
+  private Consent consent;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ConsentCreated(){
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ConsentCreated() {
 
-	}
+  }
 
-	public ConsentCreated(Consent consent){
-		this.consent = consent;
-		this.message = formatMessage("Created consent: %s", consent);
-	}
+  public ConsentCreated(Consent consent) {
+    this.consent = consent;
+    this.message = formatMessage("Created consent: %s", consent);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Consent getConsent() {
-		return consent;
-	}
+  public Consent getConsent() {
+    return consent;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -52,413 +52,412 @@ import java.util.Map;
 
 public class SearcherTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Searcher");
-
-	private TabLayoutPanel tabPanel;
-	private int lastTabId = 0;
-
-	/**
-	 * Creates a tab instance
-	 */
-	public SearcherTabItem(){ }
-
-	public boolean isPrepared(){
-		return true;
-	}
-
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public final static String URL = "searcher";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Searcher");
+  private TabLayoutPanel tabPanel;
+  private int lastTabId = 0;
+
+  /**
+   * Creates a tab instance
+   */
+  public SearcherTabItem() {
+  }
+
+  static public SearcherTabItem load(Map<String, String> parameters) {
+    return new SearcherTabItem();
+  }
+
+  public boolean isPrepared() {
+    return true;
+  }
+
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
+
+  @Override
+  public void onClose() {
+
+  }
+
+  public Widget draw() {
+
+    // main widget panel
+    VerticalPanel vp = new VerticalPanel();
+    vp.setWidth("100%");
+
+    tabPanel = new TabLayoutPanel(33, Style.Unit.PX);
+    tabPanel.addStyleName("smallTabPanel");
+    final TabItem tab = this;
+    tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+      public void onSelection(SelectionEvent<Integer> event) {
+        UiElements.runResizeCommands(tab);
+      }
+    });
+
+    final SimplePanel sp0 = new SimplePanel(); // users
+    final SimplePanel sp1 = new SimplePanel(); // facilities
+    final SimplePanel sp2 = new SimplePanel(); // members
+    final SimplePanel sp3 = new SimplePanel(); // resources
+
+    session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
+
+    tabPanel.add(sp0, "Users");
+    tabPanel.add(sp2, "Members");
+    tabPanel.add(sp1, "Facilities");
+    tabPanel.add(sp3, "Resources");
+
+    sp0.setWidget(loadUsersTab());
+
+    tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+
+      public void onSelection(SelectionEvent<Integer> event) {
+        UiElements.runResizeCommands(tab);
+        setLastTabId(event.getSelectedItem());
+        if (0 == event.getSelectedItem()) {
+          if (sp0.getWidget() == null) {
+            sp0.setWidget(loadUsersTab());
+          }
+        } else if (1 == event.getSelectedItem()) {
+          if (sp2.getWidget() == null) {
+            sp2.setWidget(loadMembersTab());
+          }
+        } else if (2 == event.getSelectedItem()) {
+          if (sp1.getWidget() == null) {
+            sp1.setWidget(loadFacilitiesTab());
+          }
+        } else if (3 == event.getSelectedItem()) {
+          if (sp3.getWidget() == null) {
+            sp3.setWidget(loadResourcesTab());
+          }
+        }
+      }
+    });
+
+    tabPanel.selectTab(getLastTabId(), true);  // select and trigger onSelect event
+
+    session.getUiElements().resizePerunTable(tabPanel, 100, this);
+
+    // add tabs to the main panel
+    vp.add(tabPanel);
+    this.contentWidget.setWidget(vp);
 
-	@Override
-	public void onClose() {
-
-	}
-
-	public Widget draw() {
-
-		// main widget panel
-		VerticalPanel vp = new VerticalPanel();
-		vp.setWidth("100%");
-
-		tabPanel = new TabLayoutPanel(33, Style.Unit.PX);
-		tabPanel.addStyleName("smallTabPanel");
-		final TabItem tab = this;
-		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-			public void onSelection(SelectionEvent<Integer> event) {
-				UiElements.runResizeCommands(tab);
-			}
-		});
+    return getWidget();
 
-		final SimplePanel sp0 = new SimplePanel(); // users
-		final SimplePanel sp1 = new SimplePanel(); // facilities
-		final SimplePanel sp2 = new SimplePanel(); // members
-		final SimplePanel sp3 = new SimplePanel(); // resources
+  }
 
-		session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
+  private Widget loadUsersTab() {
 
-		tabPanel.add(sp0, "Users");
-		tabPanel.add(sp2, "Members");
-		tabPanel.add(sp1, "Facilities");
-		tabPanel.add(sp3, "Resources");
 
-		sp0.setWidget(loadUsersTab());
+    // request
+    final GetUsers request = new GetUsers();
 
-		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-			public void onSelection(SelectionEvent<Integer> event) {
-				UiElements.runResizeCommands(tab);
-				setLastTabId(event.getSelectedItem());
-				if (0 == event.getSelectedItem()) {
-					if (sp0.getWidget() == null) {
-						sp0.setWidget(loadUsersTab());
-					}
-				} else if (1 == event.getSelectedItem()) {
-					if (sp2.getWidget() == null) {
-						sp2.setWidget(loadMembersTab());
-					}
-				} else if (2 == event.getSelectedItem()) {
-					if (sp1.getWidget() == null) {
-						sp1.setWidget(loadFacilitiesTab());
-					}
-				} else if (3 == event.getSelectedItem()) {
-					if (sp3.getWidget() == null) {
-						sp3.setWidget(loadResourcesTab());
-					}
-				}
-			}
-		});
+    PerunSearchParametersWidget params =
+        new PerunSearchParametersWidget(PerunEntity.USER, new PerunSearchParametersWidget.SearchEvent() {
 
-		tabPanel.selectTab(getLastTabId(), true);  // select and trigger onSelect event
+          public void search(Map<String, String> map) {
 
-		session.getUiElements().resizePerunTable(tabPanel, 100, this);
+            request.clearParameters();
 
-		// add tabs to the main panel
-		vp.add(tabPanel);
-		this.contentWidget.setWidget(vp);
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+              request.addSearchParameter(entry.getKey(), entry.getValue());
+            }
 
-		return getWidget();
+            request.search();
+          }
+        });
 
-	}
+    firstTabPanel.add(params);
 
-	private Widget loadUsersTab() {
+    // get the table
+    final CellTable<User> table = request.getEmptyTable(new FieldUpdater<User, String>() {
+      public void update(int index, User object, String value) {
+        // opens the tab
+        session.getTabManager().addTab(new UserDetailTabItem(object));
+      }
+    });
 
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
 
-		// request
-		final GetUsers request = new GetUsers();
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    firstTabPanel.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
+    return firstTabPanel;
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+  }
 
-		PerunSearchParametersWidget params = new PerunSearchParametersWidget(PerunEntity.USER, new PerunSearchParametersWidget.SearchEvent() {
+  private Widget loadFacilitiesTab() {
 
-			public void search(Map<String, String> map) {
+    // request
+    final GetFacilities request = new GetFacilities();
 
-				request.clearParameters();
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-				for(Map.Entry<String, String> entry : map.entrySet())
-				{
-					request.addSearchParameter(entry.getKey(), entry.getValue());
-				}
+    PerunSearchParametersWidget params =
+        new PerunSearchParametersWidget(PerunEntity.FACILITY, new PerunSearchParametersWidget.SearchEvent() {
 
-				request.search();
-			}
-		});
+          public void search(Map<String, String> map) {
 
-		firstTabPanel.add(params);
+            request.clearParameters();
 
-		// get the table
-		final CellTable<User> table = request.getEmptyTable(new FieldUpdater<User, String>() {
-			public void update(int index, User object, String value) {
-				// opens the tab
-				session.getTabManager().addTab(new UserDetailTabItem(object));
-			}
-		});
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+              request.addSearchParameter(entry.getKey(), entry.getValue());
+            }
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
+            request.search();
+          }
+        });
 
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		firstTabPanel.add(sp);
-		session.getUiElements().resizePerunTable(sp, 350, this);
-		return firstTabPanel;
+    firstTabPanel.add(params);
 
-	}
+    // get the table
+    final CellTable<Facility> table = request.getEmptyTable(new FieldUpdater<Facility, String>() {
+      public void update(int index, Facility object, String value) {
+        // opens the tab
+        session.getTabManager().addTab(new FacilityDetailTabItem(object));
+      }
+    });
 
-	private Widget loadFacilitiesTab() {
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
 
-		// request
-		final GetFacilities request = new GetFacilities();
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    firstTabPanel.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
+    return firstTabPanel;
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+  }
 
-		PerunSearchParametersWidget params = new PerunSearchParametersWidget(PerunEntity.FACILITY, new PerunSearchParametersWidget.SearchEvent() {
+  private Widget loadResourcesTab() {
 
-			public void search(Map<String, String> map) {
+    // request
+    final GetResources request = new GetResources();
 
-				request.clearParameters();
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-				for(Map.Entry<String, String> entry : map.entrySet())
-				{
-					request.addSearchParameter(entry.getKey(), entry.getValue());
-				}
+    PerunSearchParametersWidget params =
+        new PerunSearchParametersWidget(PerunEntity.RESOURCE, new PerunSearchParametersWidget.SearchEvent() {
 
-				request.search();
-			}
-		});
+          public void search(Map<String, String> map) {
 
-		firstTabPanel.add(params);
+            request.clearParameters();
 
-		// get the table
-		final CellTable<Facility> table = request.getEmptyTable(new FieldUpdater<Facility, String>() {
-			public void update(int index, Facility object, String value) {
-				// opens the tab
-				session.getTabManager().addTab(new FacilityDetailTabItem(object));
-			}
-		});
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+              request.addSearchParameter(entry.getKey(), entry.getValue());
+            }
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
+            request.search();
+          }
+        });
 
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		firstTabPanel.add(sp);
-		session.getUiElements().resizePerunTable(sp, 350, this);
-		return firstTabPanel;
+    firstTabPanel.add(params);
 
-	}
+    // get the table
+    final CellTable<Resource> table = request.getEmptyTable(new FieldUpdater<Resource, String>() {
+      public void update(int index, Resource object, String value) {
+        // opens the tab
+        session.getTabManager().addTab(new ResourceDetailTabItem(object.getId(), object.getFacilityId()));
+      }
+    });
 
-	private Widget loadResourcesTab() {
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
 
-		// request
-		final GetResources request = new GetResources();
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    firstTabPanel.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
+    return firstTabPanel;
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+  }
 
-		PerunSearchParametersWidget params = new PerunSearchParametersWidget(PerunEntity.RESOURCE, new PerunSearchParametersWidget.SearchEvent() {
+  private Widget loadMembersTab() {
 
-			public void search(Map<String, String> map) {
+    // request
+    final GetMembers request = new GetMembers(0);
 
-				request.clearParameters();
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-				for(Map.Entry<String, String> entry : map.entrySet())
-				{
-					request.addSearchParameter(entry.getKey(), entry.getValue());
-				}
+    PerunSearchParametersWidget params =
+        new PerunSearchParametersWidget(PerunEntity.MEMBER, new PerunSearchParametersWidget.SearchEvent() {
 
-				request.search();
-			}
-		});
+          public void search(Map<String, String> map) {
 
-		firstTabPanel.add(params);
+            request.clearParameters();
 
-		// get the table
-		final CellTable<Resource> table = request.getEmptyTable(new FieldUpdater<Resource, String>() {
-			public void update(int index, Resource object, String value) {
-				// opens the tab
-				session.getTabManager().addTab(new ResourceDetailTabItem(object.getId(), object.getFacilityId()));
-			}
-		});
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+              request.addSearchParameter(entry.getKey(), entry.getValue());
+            }
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
+            request.search();
+          }
+        });
 
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		firstTabPanel.add(sp);
-		session.getUiElements().resizePerunTable(sp, 350, this);
-		return firstTabPanel;
+    final ListBoxWithObjects<VirtualOrganization> vos = new ListBoxWithObjects<VirtualOrganization>();
 
-	}
-
-	private Widget loadMembersTab() {
+    vos.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent changeEvent) {
+        request.setVoId(vos.getSelectedObject().getId());
+      }
+    });
+
+    // initial fill listbox and trigger groups loading
+    GetVos vosCall = new GetVos(new JsonCallbackEvents() {
+      public void onLoadingStart() {
+        vos.clear();
+        vos.addItem("Loading...");
+      }
+
+      public void onFinished(JavaScriptObject jso) {
+        vos.clear();
+        ArrayList<VirtualOrganization> returnedVos = JsonUtils.jsoAsList(jso);
+        returnedVos = new TableSorter<VirtualOrganization>().sortByName(returnedVos);
+        if (returnedVos == null || returnedVos.isEmpty()) {
+          vos.addItem("No VO available");
+          return;
+        }
+        vos.addAllItems(returnedVos);
+        request.setVoId(vos.getSelectedObject().getId());
+      }
 
-		// request
-		final GetMembers request = new GetMembers(0);
+      public void onError(PerunError error) {
+        vos.clear();
+        vos.addItem("Error while loading");
+      }
+
+      ;
+    });
+    vosCall.retrieveData();
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    TabMenu menu = new TabMenu();
+    menu.addWidget(new HTML("<strong>Selected VO:</strong>"));
+    menu.addWidget(vos);
+    firstTabPanel.add(menu);
+    firstTabPanel.add(params);
 
-		PerunSearchParametersWidget params = new PerunSearchParametersWidget(PerunEntity.MEMBER, new PerunSearchParametersWidget.SearchEvent() {
-
-			public void search(Map<String, String> map) {
+    // get the table
+    final CellTable<Member> table = request.getEmptyTable(new FieldUpdater<Member, String>() {
+      public void update(int index, Member object, String value) {
+        // opens the tab
+        session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), object.getSourceGroupId()));
+      }
+    });
 
-				request.clearParameters();
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
 
-				for(Map.Entry<String, String> entry : map.entrySet())
-				{
-					request.addSearchParameter(entry.getKey(), entry.getValue());
-				}
-
-				request.search();
-			}
-		});
-
-		final ListBoxWithObjects<VirtualOrganization> vos = new ListBoxWithObjects<VirtualOrganization>();
-
-		vos.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent changeEvent) {
-				request.setVoId(vos.getSelectedObject().getId());
-			}
-		});
-
-		// initial fill listbox and trigger groups loading
-		GetVos vosCall = new GetVos(new JsonCallbackEvents(){
-			public void onLoadingStart(){
-				vos.clear();
-				vos.addItem("Loading...");
-			}
-			public void onFinished(JavaScriptObject jso) {
-				vos.clear();
-				ArrayList<VirtualOrganization> returnedVos = JsonUtils.jsoAsList(jso);
-				returnedVos = new TableSorter<VirtualOrganization>().sortByName(returnedVos);
-				if (returnedVos == null || returnedVos.isEmpty()){
-					vos.addItem("No VO available");
-					return;
-				}
-				vos.addAllItems(returnedVos);
-				request.setVoId(vos.getSelectedObject().getId());
-			}
-			public void onError(PerunError error){
-				vos.clear();
-				vos.addItem("Error while loading");
-			};
-		});
-		vosCall.retrieveData();
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    firstTabPanel.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
+    return firstTabPanel;
 
-		TabMenu menu = new TabMenu();
-		menu.addWidget(new HTML("<strong>Selected VO:</strong>"));
-		menu.addWidget(vos);
-		firstTabPanel.add(menu);
-		firstTabPanel.add(params);
-
-		// get the table
-		final CellTable<Member> table = request.getEmptyTable(new FieldUpdater<Member, String>() {
-			public void update(int index, Member object, String value) {
-				// opens the tab
-				session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), object.getSourceGroupId()));
-			}
-		});
-
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		firstTabPanel.add(sp);
-		session.getUiElements().resizePerunTable(sp, 350, this);
-		return firstTabPanel;
-
-	}
-
-	/**
-	 * Returns ID of last selected subtab in this page
-	 *
-	 * @return ID of subtab
-	 */
-	private int getLastTabId(){
-		return this.lastTabId;
-	}
-
-	/**
-	 * Sets ID of subtab as last selected
-	 *
-	 * @param id
-	 */
-	private void setLastTabId(int id){
-		this.lastTabId = id;
-	}
-
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
-
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
-
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.magnifierIcon();
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 953;
-		int result = 1;
-		result = prime * result + 122341;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-
-
-		return true;
-	}
-
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
-
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Searcher", getUrlWithParameters());
-	}
-
-	public boolean isAuthorized() {
-
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "searcher";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public SearcherTabItem load(Map<String, String> parameters)
-	{
-		return new SearcherTabItem();
-	}
+  }
+
+  /**
+   * Returns ID of last selected subtab in this page
+   *
+   * @return ID of subtab
+   */
+  private int getLastTabId() {
+    return this.lastTabId;
+  }
+
+  /**
+   * Sets ID of subtab as last selected
+   *
+   * @param id
+   */
+  private void setLastTabId(int id) {
+    this.lastTabId = id;
+  }
+
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
+
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
+
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.magnifierIcon();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 953;
+    int result = 1;
+    result = prime * result + 122341;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+
+    return true;
+  }
+
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
+
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Searcher", getUrlWithParameters());
+  }
+
+  public boolean isAuthorized() {
+
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
+  public String getUrl() {
+    return URL;
+  }
+
+  public String getUrlWithParameters() {
+    return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 }

@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.User;
@@ -12,55 +14,55 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF;
-
 /**
  * Attribute module for setting title before name from KOS.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	/**
-	 * When KOS title before name is set, check if there is title from DC2 (personal system).
-	 * If not, update title in User.
-	 *
-	 * @param session
-	 * @param user
-	 * @param attribute
-	 * @throws InternalErrorException
-	 */
-	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
+  /**
+   * When KOS title before name is set, check if there is title from DC2 (personal system).
+   * If not, update title in User.
+   *
+   * @param session
+   * @param user
+   * @param attribute
+   * @throws InternalErrorException
+   */
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
 
-		if (attribute.getValue() != null) {
-			Attribute titleBeforeDc2;
-			try {
-				titleBeforeDc2 = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, NS_USER_ATTR_DEF + ":titleBeforeDc2");
-				if (titleBeforeDc2.getValue() == null) {
-					// no title from DC2 - update from KOS
-					user.setTitleBefore((String)attribute.getValue());
-					session.getPerunBl().getUsersManagerBl().updateNameTitles(session, user);
-				}
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-				throw new InternalErrorException(e);
-			} catch (UserNotExistsException e) {
-				throw new ConsistencyErrorException("User we set attributes for doesn't exists!", e);
-			}
+    if (attribute.getValue() != null) {
+      Attribute titleBeforeDc2;
+      try {
+        titleBeforeDc2 = session.getPerunBl().getAttributesManagerBl()
+            .getAttribute(session, user, NS_USER_ATTR_DEF + ":titleBeforeDc2");
+        if (titleBeforeDc2.getValue() == null) {
+          // no title from DC2 - update from KOS
+          user.setTitleBefore((String) attribute.getValue());
+          session.getPerunBl().getUsersManagerBl().updateNameTitles(session, user);
+        }
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+        throw new InternalErrorException(e);
+      } catch (UserNotExistsException e) {
+        throw new ConsistencyErrorException("User we set attributes for doesn't exists!", e);
+      }
 
-		}
+    }
 
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(NS_USER_ATTR_DEF);
-		attr.setFriendlyName("titleBeforeKos");
-		attr.setDisplayName("Title before (KOS)");
-		attr.setType(Integer.class.getName());
-		attr.setDescription("Title before name from KOS.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(NS_USER_ATTR_DEF);
+    attr.setFriendlyName("titleBeforeKos");
+    attr.setDisplayName("Title before (KOS)");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("Title before name from KOS.");
+    return attr;
+  }
 
 }

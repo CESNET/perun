@@ -20,29 +20,34 @@ import java.util.List;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public abstract class MemberResourceVirtualAttributesModuleAbstract extends MemberResourceAttributesModuleAbstract implements MemberResourceVirtualAttributesModuleImplApi {
+public abstract class MemberResourceVirtualAttributesModuleAbstract extends MemberResourceAttributesModuleAbstract
+    implements MemberResourceVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) {
-		return new Attribute(attribute);
-	}
+  public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource,
+                                     AttributeDefinition attribute) {
+    return new Attribute(attribute);
+  }
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) {
-		return false;
-	}
+  public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource,
+                                   Attribute attribute) {
+    return false;
+  }
 
-	public boolean removeAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) {
-		return false;
-	}
+  public boolean removeAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource,
+                                      AttributeDefinition attribute) {
+    return false;
+  }
 
-	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
-		return new ArrayList<>();
-	}
+  @Override
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+    return new ArrayList<>();
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    return dependecies;
+  }
 }

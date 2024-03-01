@@ -14,36 +14,36 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_eduroamIdentitiesTest {
 
-	private static urn_perun_user_attribute_def_def_eduroamIdentities classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_def_eduroamIdentities classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_user_attribute_def_def_eduroamIdentities();
-		session = mock(PerunSessionImpl.class);
-		user = new User();
-		attributeToCheck = new Attribute();
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_user_attribute_def_def_eduroamIdentities();
+    session = mock(PerunSessionImpl.class);
+    user = new User();
+    attributeToCheck = new Attribute();
+  }
 
-	@Test
-	public void testCorrectSyntax() throws Exception {
-		System.out.println("testCheckAttributeSyntax()");
-		List<String> value = new ArrayList<>();
-		value.add("my@example");
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCorrectSyntax() throws Exception {
+    System.out.println("testCheckAttributeSyntax()");
+    List<String> value = new ArrayList<>();
+    value.add("my@example");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithWrongValue()");
-		List<String> value = new ArrayList<>();
-		value.add("bad.example");
-		attributeToCheck.setValue(value);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+    List<String> value = new ArrayList<>();
+    value.add("bad.example");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 }

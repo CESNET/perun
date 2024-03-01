@@ -11,15 +11,15 @@ import cz.metacentrum.perun.cli.PerunCommand;
 @SuppressWarnings("unused")
 public class PerunStatus extends PerunCommand {
 
-	@Override
-	public String getCommandDescription() {
-		return "prints status of the Perun instance";
-	}
+  @Override
+  public String getCommandDescription() {
+    return "prints status of the Perun instance";
+  }
 
-	@Override
-	public void executeCommand(PerunCLI.CommandContext ctx) {
-		for (String status : ctx.getPerunRPC().getUtils().getPerunStatus()) {
-			System.out.println(status);
-		}
-	}
+  @Override
+  public void executeCommand(PerunCLI.CommandContext ctx) {
+    for (String status : ctx.getPerunRPC().getUtils().getPerunStatus()) {
+      System.out.println(status);
+    }
+  }
 }

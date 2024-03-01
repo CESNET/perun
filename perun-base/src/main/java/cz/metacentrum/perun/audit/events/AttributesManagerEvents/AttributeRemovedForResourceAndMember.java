@@ -10,41 +10,41 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class AttributeRemovedForResourceAndMember extends AuditEvent {
 
-	private AttributeDefinition attribute;
-	private Resource resource;
-	private Member member;
-	private String message;
+  private AttributeDefinition attribute;
+  private Resource resource;
+  private Member member;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeRemovedForResourceAndMember() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeRemovedForResourceAndMember() {
+  }
 
-	public AttributeRemovedForResourceAndMember(AttributeDefinition attribute, Resource resource, Member member) {
-		this.attribute = attribute;
-		this.resource = resource;
-		this.member = member;
-		this.message = formatMessage("%s removed for %s and %s.", attribute, resource, member);
-	}
+  public AttributeRemovedForResourceAndMember(AttributeDefinition attribute, Resource resource, Member member) {
+    this.attribute = attribute;
+    this.resource = resource;
+    this.member = member;
+    this.message = formatMessage("%s removed for %s and %s.", attribute, resource, member);
+  }
 
-	public AttributeDefinition getAttribute() {
-		return attribute;
-	}
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

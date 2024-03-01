@@ -15,34 +15,36 @@ import java.util.List;
 /**
  * @author Metodej Klang <metodej.klang@gmail.com>
  */
-public class urn_perun_member_group_attribute_def_virt_o365SendAs extends MemberGroupVirtualAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
+public class urn_perun_member_group_attribute_def_virt_o365SendAs extends MemberGroupVirtualAttributesModuleAbstract
+    implements MemberGroupVirtualAttributesModuleImplApi {
 
-	private static final String A_MG_o365SendAs = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":o365SendAs";
-	private static final String A_G_o365SendAsGroups = AttributesManager.NS_GROUP_ATTR_DEF + ":o365SendAsGroups";
+  private static final String A_MG_o365SendAs = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":o365SendAs";
+  private static final String A_G_o365SendAsGroups = AttributesManager.NS_GROUP_ATTR_DEF + ":o365SendAsGroups";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
-		boolean value = sess.getPerunBl().getModulesUtilsBl().getSendRightFromAttributes(sess, member, group, A_MG_o365SendAs, A_G_o365SendAsGroups);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
+    boolean value = sess.getPerunBl().getModulesUtilsBl()
+        .getSendRightFromAttributes(sess, member, group, A_MG_o365SendAs, A_G_o365SendAsGroups);
 
-		return new Attribute(attribute, value);
-	}
+    return new Attribute(attribute, value);
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<>();
-		strongDependencies.add(A_MG_o365SendAs);
-		strongDependencies.add(A_G_o365SendAsGroups);
-		return strongDependencies;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(A_MG_o365SendAs);
+    strongDependencies.add(A_G_o365SendAsGroups);
+    return strongDependencies;
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		attr.setFriendlyName("o365SendAs");
-		attr.setDisplayName("O365 Send as");
-		attr.setType(Boolean.class.getName());
-		attr.setDescription("Whether member has a right to send as a group.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+    attr.setFriendlyName("o365SendAs");
+    attr.setDisplayName("O365 Send as");
+    attr.setType(Boolean.class.getName());
+    attr.setDescription("Whether member has a right to send as a group.");
+    return attr;
+  }
 }

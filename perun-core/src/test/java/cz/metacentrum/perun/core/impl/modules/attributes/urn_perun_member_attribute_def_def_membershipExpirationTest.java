@@ -12,108 +12,107 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 
 /**
- *
  * @author Michal Šťava <stava.michal@gmail.com>
  * @date 12.04.2012 14:35:00
  */
 public class urn_perun_member_attribute_def_def_membershipExpirationTest {
 
-	private static urn_perun_member_attribute_def_def_membershipExpiration classInstance;
-	private static PerunSessionImpl session;
-	private static Attribute attributeToCheck;
+  private static urn_perun_member_attribute_def_def_membershipExpiration classInstance;
+  private static PerunSessionImpl session;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void SetUp() {
-		classInstance = new urn_perun_member_attribute_def_def_membershipExpiration();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-		attributeToCheck = new Attribute();
-	}
+  @Before
+  public void SetUp() {
+    classInstance = new urn_perun_member_attribute_def_def_membershipExpiration();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    attributeToCheck = new Attribute();
+  }
 
-	@Test
-	public void testCheckAttributeReturnNull() throws Exception {
-		System.out.println("testCheckAttributeReturnNull()");
-		attributeToCheck.setValue(null);
+  @Test
+  public void testCheckAttributeReturnNull() throws Exception {
+    System.out.println("testCheckAttributeReturnNull()");
+    attributeToCheck.setValue(null);
 
-		classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeCommonValue() throws Exception {
-		System.out.println("testCheckAttributeCommonValue()");
-		attributeToCheck.setValue("2001-12-25");
+  @Test
+  public void testCheckAttributeCommonValue() throws Exception {
+    System.out.println("testCheckAttributeCommonValue()");
+    attributeToCheck.setValue("2001-12-25");
 
-		classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeLowBorderValue() throws Exception {
-		System.out.println("testCheckAttributeLowBorderValue()");
-		attributeToCheck.setValue("1000-01-01");
+  @Test
+  public void testCheckAttributeLowBorderValue() throws Exception {
+    System.out.println("testCheckAttributeLowBorderValue()");
+    attributeToCheck.setValue("1000-01-01");
 
-		classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeHighBorderValue() throws Exception {
-		System.out.println("testCheckAttributeHighBorderValue()");
-		attributeToCheck.setValue("9999-12-31");
+  @Test
+  public void testCheckAttributeHighBorderValue() throws Exception {
+    System.out.println("testCheckAttributeHighBorderValue()");
+    attributeToCheck.setValue("9999-12-31");
 
-		classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeWrongMonths() throws Exception {
-			System.out.println("testCheckAttributeWrongMonth()");
-			attributeToCheck.setValue("1500-15-25");
-			classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeWrongMonths() throws Exception {
+    System.out.println("testCheckAttributeWrongMonth()");
+    attributeToCheck.setValue("1500-15-25");
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
 
-		}
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeWrongYears() throws Exception {
-			System.out.println("testCheckAttributeWrongYear()");
-			attributeToCheck.setValue("500-10-25");
-			classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeWrongYears() throws Exception {
+    System.out.println("testCheckAttributeWrongYear()");
+    attributeToCheck.setValue("500-10-25");
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
 
-		}
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeWrongDays() throws Exception {
-			System.out.println("testCheckAttributeWrongDay()");
-			attributeToCheck.setValue("1500-10-32");
-			classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeWrongDays() throws Exception {
+    System.out.println("testCheckAttributeWrongDay()");
+    attributeToCheck.setValue("1500-10-32");
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
 
-		}
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeWrongMonthWithBadDaysValueTime() throws Exception {
-			System.out.println("testCheckAttributeWrongMonthWithBadDaysValueTime()");
-			attributeToCheck.setValue("3595-11-31");
-			classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeWrongMonthWithBadDaysValueTime() throws Exception {
+    System.out.println("testCheckAttributeWrongMonthWithBadDaysValueTime()");
+    attributeToCheck.setValue("3595-11-31");
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
 
-		}
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeWrongCharInDate() throws Exception {
-			System.out.println("testCheckAttributeWrongCharsInDate()");
-			attributeToCheck.setValue("3595-11-31s");
-			classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeWrongCharInDate() throws Exception {
+    System.out.println("testCheckAttributeWrongCharsInDate()");
+    attributeToCheck.setValue("3595-11-31s");
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
 
-		}
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeWrongCharsBetweenDate() throws Exception {
-			System.out.println("testCheckAttributeWrongCharsBetweenDate()");
-			attributeToCheck.setValue("3595.11.31");
-			classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeWrongCharsBetweenDate() throws Exception {
+    System.out.println("testCheckAttributeWrongCharsBetweenDate()");
+    attributeToCheck.setValue("3595.11.31");
+    classInstance.checkAttributeSyntax(session, new Member(), attributeToCheck);
 
-		}
+  }
 
-	@Test
-	public void testFillAttributeValue() throws Exception {
-		System.out.println("testCheckAttriubuteReturnNull()");
-		Attribute attribute = classInstance.fillAttribute(session, new Member(), classInstance.getAttributeDefinition());
-		assertNull("Test", attribute.getValue());
-		classInstance.checkAttributeSyntax(session, new Member(), attribute);
-	}
+  @Test
+  public void testFillAttributeValue() throws Exception {
+    System.out.println("testCheckAttriubuteReturnNull()");
+    Attribute attribute = classInstance.fillAttribute(session, new Member(), classInstance.getAttributeDefinition());
+    assertNull("Test", attribute.getValue());
+    classInstance.checkAttributeSyntax(session, new Member(), attribute);
+  }
 }

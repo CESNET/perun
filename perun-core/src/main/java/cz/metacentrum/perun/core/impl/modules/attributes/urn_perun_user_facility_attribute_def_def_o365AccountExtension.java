@@ -15,36 +15,39 @@ import java.text.ParseException;
 import java.util.Date;
 
 /**
- *
  * @author V. Mecko vladimir.mecko@gmail.com
  */
-public class urn_perun_user_facility_attribute_def_def_o365AccountExtension extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_def_o365AccountExtension extends UserFacilityAttributesModuleAbstract
+    implements UserFacilityAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
-		String o365AccExtTime = attribute.valueAsString();
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute)
+      throws WrongAttributeValueException {
+    String o365AccExtTime = attribute.valueAsString();
 
-		if(o365AccExtTime == null) return; //null is allowed value
-		Date testDate;
-		try {
-			testDate = BeansUtils.getDateFormatterWithoutTime().parse(o365AccExtTime);
-		} catch (ParseException ex) {
-			throw new WrongAttributeValueException(attribute, "Date parsing failed", ex);
-		}
+    if (o365AccExtTime == null) {
+      return; //null is allowed value
+    }
+    Date testDate;
+    try {
+      testDate = BeansUtils.getDateFormatterWithoutTime().parse(o365AccExtTime);
+    } catch (ParseException ex) {
+      throw new WrongAttributeValueException(attribute, "Date parsing failed", ex);
+    }
 
-		if (!BeansUtils.getDateFormatterWithoutTime().format(testDate).equals(o365AccExtTime)) {
-			throw new WrongAttributeValueException(attribute, "Wrong format, yyyy-mm-dd expected.");
-		}
-	}
+    if (!BeansUtils.getDateFormatterWithoutTime().format(testDate).equals(o365AccExtTime)) {
+      throw new WrongAttributeValueException(attribute, "Wrong format, yyyy-mm-dd expected.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("o365AccountExtension");
-		attr.setDisplayName("o365 Account Extension");
-		attr.setType(String.class.getName());
-		attr.setDescription("Expiration date of manually extended account in o365 (format yyyy-mm-dd).");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+    attr.setFriendlyName("o365AccountExtension");
+    attr.setDisplayName("o365 Account Extension");
+    attr.setType(String.class.getName());
+    attr.setDescription("Expiration date of manually extended account in o365 (format yyyy-mm-dd).");
+    return attr;
+  }
 }

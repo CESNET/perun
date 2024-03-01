@@ -6,6 +6,6 @@ package cz.metacentrum.perun.core.api;
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public enum AttributeAction {
-	READ,
-	WRITE
+  READ,
+  WRITE
 }

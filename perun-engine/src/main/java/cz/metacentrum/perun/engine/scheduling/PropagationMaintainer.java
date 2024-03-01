@@ -7,9 +7,9 @@ package cz.metacentrum.perun.engine.scheduling;
  */
 public interface PropagationMaintainer {
 
-	/**
-	 * Switch processing tasks which started too long ago to error and report them back to dispatcher.
-	 */
-	void endStuckTasks();
+  /**
+   * Switch processing tasks which started too long ago to error and report them back to dispatcher.
+   */
+  void endStuckTasks();
 
 }

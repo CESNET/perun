@@ -1,7 +1,11 @@
 package cz.metacentrum.perun.webgui.json.registrarManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -9,7 +13,6 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.ApplicationMail;
 import cz.metacentrum.perun.webgui.model.MailText;
 import cz.metacentrum.perun.webgui.model.PerunError;
-
 import java.util.ArrayList;
 
 /**
@@ -19,129 +22,135 @@ import java.util.ArrayList;
  */
 public class SetSendingEnabled {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/setSendingEnabled";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/setSendingEnabled";
+  // data
+  private ArrayList<ApplicationMail> appMails;
+  private boolean enabled = true;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   */
+  public SetSendingEnabled() {
+  }
 
-	// data
-	private ArrayList<ApplicationMail> appMails;
-	private boolean enabled = true;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public SetSendingEnabled(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public SetSendingEnabled() {}
+  /**
+   * Updates ApplicationMail
+   *
+   * @param appMails
+   * @param enabled
+   */
+  public void setEnabled(ArrayList<ApplicationMail> appMails, boolean enabled) {
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public SetSendingEnabled(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    this.appMails = appMails;
+    this.enabled = enabled;
 
-	/**
-	 * Updates ApplicationMail
-	 *
-	 * @param appMails
-	 * @param enabled
-	 */
-	public void setEnabled(ArrayList<ApplicationMail> appMails, boolean enabled) {
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		this.appMails = appMails;
-		this.enabled = enabled;
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Updating email failed.");
+        events.onError(error);
+      }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Updating email failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Email updated.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Email updated.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	private boolean testCreating() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+  private boolean testCreating() {
+    // TODO Auto-generated method stub
+    return true;
+  }
 
-		JSONArray mails = new JSONArray();
-		int i = 0;
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-		for (ApplicationMail appMail : appMails) {
+    JSONArray mails = new JSONArray();
+    int i = 0;
 
-			JSONObject mail = new JSONObject();
+    for (ApplicationMail appMail : appMails) {
 
-			// update send
-			mail.put("send", JSONBoolean.getInstance(appMail.isSend()));
+      JSONObject mail = new JSONObject();
 
-			JSONObject mailTexts = new JSONObject();
+      // update send
+      mail.put("send", JSONBoolean.getInstance(appMail.isSend()));
 
-			// update texts
-			MailText mt = appMail.getMessage("en");
-			mailTexts.put("en", new JSONObject(mt));
+      JSONObject mailTexts = new JSONObject();
 
-			if (!Utils.getNativeLanguage().isEmpty()) {
-				MailText mt2 = appMail.getMessage(Utils.getNativeLanguage().get(0));
-				mailTexts.put(Utils.getNativeLanguage().get(0), new JSONObject(mt2));
-			}
+      // update texts
+      MailText mt = appMail.getMessage("en");
+      mailTexts.put("en", new JSONObject(mt));
 
-			mail.put("message", mailTexts);
+      if (!Utils.getNativeLanguage().isEmpty()) {
+        MailText mt2 = appMail.getMessage(Utils.getNativeLanguage().get(0));
+        mailTexts.put(Utils.getNativeLanguage().get(0), new JSONObject(mt2));
+      }
 
-			// sending other values just for sure
-			mail.put("id", new JSONNumber(appMail.getId()));
-			mail.put("appType", new JSONString(appMail.getAppType()));
-			mail.put("mailType", new JSONString(appMail.getMailType()));
-			mail.put("formId", new JSONNumber(appMail.getFormId()));
+      mail.put("message", mailTexts);
 
-			// put in list
-			mails.set(i, mail);
-			i++;
+      // sending other values just for sure
+      mail.put("id", new JSONNumber(appMail.getId()));
+      mail.put("appType", new JSONString(appMail.getAppType()));
+      mail.put("mailType", new JSONString(appMail.getMailType()));
+      mail.put("formId", new JSONNumber(appMail.getFormId()));
 
-		}
+      // put in list
+      mails.set(i, mail);
+      i++;
+
+    }
 
 
-		JSONObject request = new JSONObject();
-		request.put("mails", mails);
-		if (enabled == true) {
-			request.put("enabled", new JSONNumber(1));
-		} else {
-			request.put("enabled", new JSONNumber(0));
-		}
+    JSONObject request = new JSONObject();
+    request.put("mails", mails);
+    if (enabled == true) {
+      request.put("enabled", new JSONNumber(1));
+    } else {
+      request.put("enabled", new JSONNumber(0));
+    }
 
-		return request;
+    return request;
 
-	}
+  }
 
 }

@@ -16,34 +16,44 @@ import java.util.List;
 /**
  * @author Michal Šťava <stavamichal@gmail.com>
  */
-public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) return;
-		
-		//Testing if some ssh key contains new line character
-		List<String> sshKeys = attribute.valueAsList();
-		for(String sshKey: sshKeys) {
-			if(sshKey != null) {
-				if(sshKey.contains("\n")) throw new WrongAttributeValueException(attribute, user, "One of keys in attribute contains new line character. New line character is not allowed here.");
-			}
-		}
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Cant be null.");
-	}
+    //Testing if some ssh key contains new line character
+    List<String> sshKeys = attribute.valueAsList();
+    for (String sshKey : sshKeys) {
+      if (sshKey != null) {
+        if (sshKey.contains("\n")) {
+          throw new WrongAttributeValueException(attribute, user,
+              "One of keys in attribute contains new line character. New line character is not allowed here.");
+        }
+      }
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("sshPublicAdminKey");
-		attr.setDisplayName("Public ssh admin key");
-		attr.setType(ArrayList.class.getName());
-		attr.setDescription("User's SSH public keys used from root access.");
-		return attr;
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Cant be null.");
+    }
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("sshPublicAdminKey");
+    attr.setDisplayName("Public ssh admin key");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("User's SSH public keys used from root access.");
+    return attr;
+  }
 }

@@ -17,29 +17,36 @@ import java.util.regex.Pattern;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class urn_perun_facility_attribute_def_def_scratchLocalDirPermissions extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
+public class urn_perun_facility_attribute_def_def_scratchLocalDirPermissions extends FacilityAttributesModuleAbstract
+    implements FacilityAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^[01234567]?[01234567]{3}$");
+  private static final Pattern pattern = Pattern.compile("^[01234567]?[01234567]{3}$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
-		//Null is ok, it means use default permissions in script (probably 0700)
-		if(attribute.getValue() == null) return;
-		String attrValue = attribute.valueAsString();
-		
-		Matcher match = pattern.matcher(attrValue);
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Null is ok, it means use default permissions in script (probably 0700)
+    if (attribute.getValue() == null) {
+      return;
+    }
+    String attrValue = attribute.valueAsString();
 
-		if(!match.matches()) throw new WrongAttributeValueException(attribute, facility, "Bad format of attribute, (expected something like '750' or '0700').");
-	}
+    Matcher match = pattern.matcher(attrValue);
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("scratchLocalDirPermissions");
-		attr.setDisplayName("Unix permissions for scratch local");
-		attr.setType(String.class.getName());
-		attr.setDescription("Unix permissions, which will be applied when new scratch folder is created.");
-		return attr;
-	}
+    if (!match.matches()) {
+      throw new WrongAttributeValueException(attribute, facility,
+          "Bad format of attribute, (expected something like '750' or '0700').");
+    }
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setFriendlyName("scratchLocalDirPermissions");
+    attr.setDisplayName("Unix permissions for scratch local");
+    attr.setType(String.class.getName());
+    attr.setDescription("Unix permissions, which will be applied when new scratch folder is created.");
+    return attr;
+  }
 }

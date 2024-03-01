@@ -19,36 +19,44 @@ import java.util.regex.Pattern;
  *
  * @author Vladimir Mecko vladimir.mecko@gmail.com
  */
-public class urn_perun_resource_attribute_def_def_apacheAuthzFile extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_apacheAuthzFile extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9.?*+$%]+)+$");
+  private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9.?*+$%]+)+$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		//checks for valid unix file path in attribute based on pattern
-		Matcher match = pattern.matcher(attribute.valueAsString());
+    //checks for valid unix file path in attribute based on pattern
+    Matcher match = pattern.matcher(attribute.valueAsString());
 
-		if(!match.matches()) {
-			throw new WrongAttributeValueException(attribute, resource, null, "Wrong file path format in attribute (should be like '/dir1/dir2').");
-		}
-	}
+    if (!match.matches()) {
+      throw new WrongAttributeValueException(attribute, resource, null,
+          "Wrong file path format in attribute (should be like '/dir1/dir2').");
+    }
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null)
-			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value can not be null.");
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Attribute value can not be null.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("apacheAuthzFile");
-		attr.setDisplayName("Apache authz file");
-		attr.setType(String.class.getName());
-		attr.setDescription("File containing authz entries for Apache.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("apacheAuthzFile");
+    attr.setDisplayName("Apache authz file");
+    attr.setType(String.class.getName());
+    attr.setDescription("File containing authz entries for Apache.");
+    return attr;
+  }
 }

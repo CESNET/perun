@@ -29,279 +29,286 @@ import java.util.ArrayList;
  */
 public class CreateAttributeDefinitionTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  private final CheckBox unique = new CheckBox();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Create attribute definition");
+  private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+  private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public CreateAttributeDefinitionTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Create attribute definition");
-	private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+  public boolean isPrepared() {
+    return true;
+  }
 
-	private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	private final CheckBox unique = new CheckBox();
+  @Override
+  public void onClose() {
 
-	/**
-	 * Creates a tab instance
-	 */
-	public CreateAttributeDefinitionTabItem(){}
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  public Widget draw() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	@Override
-	public void onClose() {
+    // creates HTML elements
+    final ExtendedTextBox attributeDisplayName = new ExtendedTextBox();
+    final ExtendedTextBox attributeName = new ExtendedTextBox();
+    final ExtendedTextBox attributeDescription = new ExtendedTextBox();
 
-	}
+    final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+        if (attributeName.getTextBox().getText().trim().isEmpty()) {
+          attributeName.setError("Name of attribute can't be empty.");
+        } else if (!attributeName.getTextBox().getText().trim().matches(Utils.ATTRIBUTE_FRIENDLY_NAME_MATCHER)) {
+          attributeName.setError("Name of attribute can contain only letters, numbers, dash and colon.");
+        } else {
+          attributeName.setOk();
+          return true;
+        }
+        return false;
+      }
+    };
 
-	public Widget draw() {
+    final ExtendedTextBox.TextBoxValidator descriptionValidator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+        if (!attributeDescription.getTextBox().getText().trim().isEmpty()) {
+          attributeDescription.setOk();
+          return true;
+        } else {
+          attributeDescription.setError("Description of attribute can't be empty.");
+          return false;
+        }
+      }
+    };
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    final ExtendedTextBox.TextBoxValidator displayNameValidator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+        if (!attributeDisplayName.getTextBox().getText().trim().isEmpty()) {
+          attributeDisplayName.setOk();
+          return true;
+        } else {
+          attributeDisplayName.setError("Display name of attribute can't be empty.");
+          return false;
+        }
+      }
+    };
 
-		// creates HTML elements
-		final ExtendedTextBox attributeDisplayName = new ExtendedTextBox();
-		final ExtendedTextBox attributeName = new ExtendedTextBox();
-		final ExtendedTextBox attributeDescription = new ExtendedTextBox();
+    attributeName.setValidator(nameValidator);
+    attributeDisplayName.setValidator(displayNameValidator);
+    attributeDescription.setValidator(descriptionValidator);
 
-		final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-				if (attributeName.getTextBox().getText().trim().isEmpty()) {
-					attributeName.setError("Name of attribute can't be empty.");
-				} else if (!attributeName.getTextBox().getText().trim().matches(Utils.ATTRIBUTE_FRIENDLY_NAME_MATCHER)) {
-					attributeName.setError("Name of attribute can contain only letters, numbers, dash and colon.");
-				} else {
-					attributeName.setOk();
-					return true;
-				}
-				return false;
-			}
-		};
+    final ListBox entityListBox = new ListBox();
+    final ListBox definitionListBox = new ListBox();
+    final ListBox typeListBox = new ListBox();
 
-		final ExtendedTextBox.TextBoxValidator descriptionValidator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-				if (!attributeDescription.getTextBox().getText().trim().isEmpty()) {
-					attributeDescription.setOk();
-					return true;
-				} else {
-					attributeDescription.setError("Description of attribute can't be empty.");
-					return false;
-				}
-			}
-		};
+    // fill listboxs with pre-defined values
+    entityListBox.addItem("facility", "urn:perun:facility:");
+    entityListBox.addItem("resource", "urn:perun:resource:");
+    entityListBox.addItem("group", "urn:perun:group:");
+    entityListBox.addItem("group_resource", "urn:perun:group_resource:");
+    entityListBox.addItem("host", "urn:perun:host:");
+    entityListBox.addItem("member", "urn:perun:member:");
+    entityListBox.addItem("member_group", "urn:perun:member_group:");
+    entityListBox.addItem("member_resource", "urn:perun:member_resource:");
+    entityListBox.addItem("user", "urn:perun:user:");
+    entityListBox.addItem("user_ext_source", "urn:perun:ues:");
+    entityListBox.addItem("user_facility", "urn:perun:user_facility:");
+    entityListBox.addItem("vo", "urn:perun:vo:");
+    entityListBox.addItem("entityless", "urn:perun:entityless:");
 
-		final ExtendedTextBox.TextBoxValidator displayNameValidator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-				if (!attributeDisplayName.getTextBox().getText().trim().isEmpty()) {
-					attributeDisplayName.setOk();
-					return true;
-				} else {
-					attributeDisplayName.setError("Display name of attribute can't be empty.");
-					return false;
-				}
-			}
-		};
+    definitionListBox.addItem("def", "attribute-def:def");
+    definitionListBox.addItem("opt", "attribute-def:opt");
+    definitionListBox.addItem("virt", "attribute-def:virt");
+    definitionListBox.addItem("core", "attribute-def:core");
 
-		attributeName.setValidator(nameValidator);
-		attributeDisplayName.setValidator(displayNameValidator);
-		attributeDescription.setValidator(descriptionValidator);
+    typeListBox.addItem("String", "java.lang.String");
+    typeListBox.addItem("Integer", "java.lang.Integer");
+    typeListBox.addItem("Boolean", "java.lang.Boolean");
+    typeListBox.addItem("Array", "java.util.ArrayList");
+    typeListBox.addItem("LinkedHashMap", "java.util.LinkedHashMap");
 
-		final ListBox entityListBox = new ListBox();
-		final ListBox definitionListBox = new ListBox();
-		final ListBox typeListBox = new ListBox();
+    // prepare layout for this tab
+    FlexTable layout = new FlexTable();
+    layout.setStyleName("inputFormFlexTable");
+    FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+    TabMenu menu = new TabMenu();
 
-		// fill listboxs with pre-defined values
-		entityListBox.addItem("facility", "urn:perun:facility:");
-		entityListBox.addItem("resource", "urn:perun:resource:");
-		entityListBox.addItem("group", "urn:perun:group:");
-		entityListBox.addItem("group_resource", "urn:perun:group_resource:");
-		entityListBox.addItem("host", "urn:perun:host:");
-		entityListBox.addItem("member", "urn:perun:member:");
-		entityListBox.addItem("member_group", "urn:perun:member_group:");
-		entityListBox.addItem("member_resource", "urn:perun:member_resource:");
-		entityListBox.addItem("user", "urn:perun:user:");
-		entityListBox.addItem("user_ext_source", "urn:perun:ues:");
-		entityListBox.addItem("user_facility", "urn:perun:user_facility:");
-		entityListBox.addItem("vo", "urn:perun:vo:");
-		entityListBox.addItem("entityless", "urn:perun:entityless:");
+    // BUTTONS
 
-		definitionListBox.addItem("def", "attribute-def:def");
-		definitionListBox.addItem("opt", "attribute-def:opt");
-		definitionListBox.addItem("virt", "attribute-def:virt");
-		definitionListBox.addItem("core", "attribute-def:core");
+    final CustomButton createButton =
+        TabMenu.getPredefinedButton(ButtonType.CREATE, buttonTranslation.createAttributeDefinition());
+    menu.addWidget(createButton);
 
-		typeListBox.addItem("String", "java.lang.String");
-		typeListBox.addItem("Integer", "java.lang.Integer");
-		typeListBox.addItem("Boolean", "java.lang.Boolean");
-		typeListBox.addItem("Array", "java.util.ArrayList");
-		typeListBox.addItem("LinkedHashMap", "java.util.LinkedHashMap");
+    // close tab events & enable, disable buttons
+    final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(createButton, this, true);
 
-		// prepare layout for this tab
-		FlexTable layout = new FlexTable();
-		layout.setStyleName("inputFormFlexTable");
-		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
-		TabMenu menu = new TabMenu();
+    createButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
 
-		// BUTTONS
+        if (nameValidator.validateTextBox() && descriptionValidator.validateTextBox() &&
+            displayNameValidator.validateTextBox()) {
 
-		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, buttonTranslation.createAttributeDefinition());
-		menu.addWidget(createButton);
+          String displayName = attributeDisplayName.getTextBox().getText().trim();
+          String friendlyName = attributeName.getTextBox().getText().trim();
+          String description = attributeDescription.getTextBox().getText().trim();
+          String namespace = entityListBox.getValue(entityListBox.getSelectedIndex()) +
+              definitionListBox.getValue(definitionListBox.getSelectedIndex());
+          String type = typeListBox.getValue(typeListBox.getSelectedIndex());
+          boolean isUnique = unique.getValue();
 
-		// close tab events & enable, disable buttons
-		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(createButton, this, true);
+          CreateAttribute request =
+              new CreateAttribute(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+                @Override
+                public void onFinished(JavaScriptObject jso) {
+                  closeTabEvents.onFinished(jso);
+                }
+              }));
+          request.createAttributeDefinition(displayName, friendlyName, description, namespace, type, isUnique);
 
-		createButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+        }
+      }
+    });
 
-				if (nameValidator.validateTextBox() && descriptionValidator.validateTextBox() && displayNameValidator.validateTextBox()) {
+    // insert layout
 
-					String displayName = attributeDisplayName.getTextBox().getText().trim();
-					String friendlyName = attributeName.getTextBox().getText().trim();
-					String description = attributeDescription.getTextBox().getText().trim();
-					String namespace = entityListBox.getValue(entityListBox.getSelectedIndex())+definitionListBox.getValue(definitionListBox.getSelectedIndex());
-					String type = typeListBox.getValue(typeListBox.getSelectedIndex());
-					boolean isUnique = unique.getValue();
+    layout.setHTML(0, 0, "Friendly name:");
+    layout.setWidget(0, 1, attributeName);
+    layout.setHTML(1, 0, "Display name:");
+    layout.setWidget(1, 1, attributeDisplayName);
+    layout.setHTML(2, 0, "Description:");
+    layout.setWidget(2, 1, attributeDescription);
+    layout.setHTML(3, 0, "Entity:");
+    layout.setWidget(3, 1, entityListBox);
+    layout.setHTML(4, 0, "Definition type:");
+    layout.setWidget(4, 1, definitionListBox);
+    layout.setHTML(5, 0, "Value type:");
+    layout.setWidget(5, 1, typeListBox);
+    layout.setHTML(6, 0, "Unique:");
+    layout.setWidget(6, 1, unique);
 
-					CreateAttribute request = new CreateAttribute(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso){
-							closeTabEvents.onFinished(jso);
-						}
-					}));
-					request.createAttributeDefinition(displayName, friendlyName, description, namespace, type, isUnique);
+    for (int i = 0; i < layout.getRowCount(); i++) {
+      cellFormatter.addStyleName(i, 0, "itemName");
+    }
 
-				}
-			}
-		});
+    final TabItem tab = this;
 
-		// insert layout
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		layout.setHTML(0, 0, "Friendly name:");
-		layout.setWidget(0, 1, attributeName);
-		layout.setHTML(1, 0, "Display name:");
-		layout.setWidget(1, 1, attributeDisplayName);
-		layout.setHTML(2, 0, "Description:");
-		layout.setWidget(2, 1, attributeDescription);
-		layout.setHTML(3, 0, "Entity:");
-		layout.setWidget(3, 1, entityListBox);
-		layout.setHTML(4, 0, "Definition type:");
-		layout.setWidget(4, 1, definitionListBox);
-		layout.setHTML(5, 0, "Value type:");
-		layout.setWidget(5, 1, typeListBox);
-		layout.setHTML(6, 0, "Unique:");
-		layout.setWidget(6, 1, unique);
+    String newGuiAlertContent = session.getNewGuiAlert();
+    final FlexTable alert = new FlexTable();
+    String alertText =
+        "<p>Setting attribute rights is no longer supported in this GUI. In order to set attribute rights please use the New GUI.</p> ";
+    if (newGuiAlertContent != null && !newGuiAlertContent.isEmpty()) {
+      alertText += newGuiAlertContent;
+    }
+    alert.setHTML(0, 0, alertText);
 
-		for (int i=0; i<layout.getRowCount(); i++) {
-			cellFormatter.addStyleName(i, 0, "itemName");
-		}
+    vp.add(layout);
+    vp.add(alert);
+    vp.add(menu);
+    vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		final TabItem tab = this;
+    this.contentWidget.setWidget(vp);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    return getWidget();
+  }
 
-		String newGuiAlertContent = session.getNewGuiAlert();
-		final FlexTable alert = new FlexTable();
-		String alertText = "<p>Setting attribute rights is no longer supported in this GUI. In order to set attribute rights please use the New GUI.</p> ";
-		if (newGuiAlertContent != null && !newGuiAlertContent.isEmpty()) alertText += newGuiAlertContent;
-		alert.setHTML(0,0,alertText);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		vp.add(layout);
-		vp.add(alert);
-		vp.add(menu);
-		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		this.contentWidget.setWidget(vp);
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-		return getWidget();
-	}
+  private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, AttributeRights right) {
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    right.setRights(read.getValue(), write.getValue());
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    return right;
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  }
 
-	private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, AttributeRights right) {
+  private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
+                                               CheckBox readVo, CheckBox writeVo, AttributeRights right) {
 
-		right.setRights(read.getValue(), write.getValue());
+    right.setSelfRights(read.getValue(), write.getValue(), readPublic.getValue(), writePublic.getValue(),
+        readVo.getValue(), writeVo.getValue());
 
-		return right;
+    return right;
 
-	}
+  }
 
-	private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
-												 CheckBox readVo, CheckBox writeVo, AttributeRights right) {
+  @Override
+  public int hashCode() {
+    final int prime = 569;
+    int result = 1;
+    result = prime * result + 135345;
+    return result;
+  }
 
-		right.setSelfRights(read.getValue(), write.getValue(), readPublic.getValue(), writePublic.getValue(),
-			readVo.getValue(), writeVo.getValue());
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-		return right;
+    return true;
+  }
 
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 569;
-		int result = 1;
-		result = prime * result + 135345;
-		return result;
-	}
+  public void open() {
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public boolean isAuthorized() {
 
-		return true;
-	}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
-
-	public void open() {
-	}
-
-	public boolean isAuthorized() {
-
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
+  }
 
 }

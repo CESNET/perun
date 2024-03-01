@@ -16,64 +16,64 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_userCertDNsTest {
 
-	private static urn_perun_user_attribute_def_def_userCertDNs classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_def_userCertDNs classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_user_attribute_def_def_userCertDNs();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-		user = new User();
-		attributeToCheck = new Attribute();
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_user_attribute_def_def_userCertDNs();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    user = new User();
+    attributeToCheck = new Attribute();
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithIncorrectKeyValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithIncorrectKeyValue()");
-		Map<String, String> value = new LinkedHashMap<>();
-		value.put("bad_example", "/example");
-		attributeToCheck.setValue(value);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithIncorrectKeyValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithIncorrectKeyValue()");
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put("bad_example", "/example");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithIncorrectValueValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithIncorrectValueValue()");
-		Map<String, String> value = new LinkedHashMap<>();
-		value.put("/example", "");
-		attributeToCheck.setValue(value);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithIncorrectValueValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithIncorrectValueValue()");
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put("/example", "");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeSyntaxCorrect() throws Exception {
-		System.out.println("testCheckAttributeSyntaxCorrect()");
-		Map<String, String> value = new LinkedHashMap<>();
-		value.put("/example", "/example");
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCheckAttributeSyntaxCorrect() throws Exception {
+    System.out.println("testCheckAttributeSyntaxCorrect()");
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put("/example", "/example");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithNullValue() throws Exception {
-		System.out.println("testCheckAttributeSemanticsWithNullValue()");
-		attributeToCheck.setValue(null);
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithNullValue()");
+    attributeToCheck.setValue(null);
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeSemanticsCorrect() throws Exception {
-		System.out.println("testCheckAttributeSemanticsCorrect()");
-		Map<String, String> value = new LinkedHashMap<>();
-		value.put("/example", "/example");
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put("/example", "/example");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 }

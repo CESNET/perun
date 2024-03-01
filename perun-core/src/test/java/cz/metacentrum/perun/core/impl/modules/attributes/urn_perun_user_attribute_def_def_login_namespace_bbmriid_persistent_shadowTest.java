@@ -17,49 +17,48 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- *
  * Testing class for login-namespace elixir persistent shadow attribute
- *
  */
 public class urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadowTest {
 
-    private static urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadow classInstance;
-    private static PerunSessionImpl session;
-    private static User user;
-	private static CoreConfig originalCoreConfig;
-	private static final CoreConfig mockedCoreConfig = mock(CoreConfig.class);
-    @Before
-    public void SetUp() {
-		classInstance = new urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadow();
-		session = mock(PerunSessionImpl.class);
-		user = new User();
-		user.setId(123456);
-	}
+  private static final CoreConfig mockedCoreConfig = mock(CoreConfig.class);
+  private static urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadow classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static CoreConfig originalCoreConfig;
 
-	@BeforeClass
-	public static void setUpCoreConfig() {
-		originalCoreConfig = BeansUtils.getCoreConfig();
-		BeansUtils.setConfig(mockedCoreConfig);
-		when(mockedCoreConfig.getGeneratedLoginNamespaces())
-			.thenReturn(emptyList());
-	}
+  @BeforeClass
+  public static void setUpCoreConfig() {
+    originalCoreConfig = BeansUtils.getCoreConfig();
+    BeansUtils.setConfig(mockedCoreConfig);
+    when(mockedCoreConfig.getGeneratedLoginNamespaces())
+        .thenReturn(emptyList());
+  }
 
-	@AfterClass
-	public static void resetCoreConfig() {
-		BeansUtils.setConfig(originalCoreConfig);
-	}
+  @AfterClass
+  public static void resetCoreConfig() {
+    BeansUtils.setConfig(originalCoreConfig);
+  }
 
-    @Test
-    public void testFillAttributeValueBbmriIdNamespace() {
-        System.out.println("testFillAttributeValue()");
+  @Before
+  public void SetUp() {
+    classInstance = new urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadow();
+    session = mock(PerunSessionImpl.class);
+    user = new User();
+    user.setId(123456);
+  }
 
-        Attribute attribute = new Attribute();
-        attribute.setFriendlyName("login-namespace:bbmriid-persistent-shadow");
+  @Test
+  public void testFillAttributeValueBbmriIdNamespace() {
+    System.out.println("testFillAttributeValue()");
 
-        Attribute outputOne = classInstance.fillAttribute(session, user, attribute);
-		Attribute outputTwo = classInstance.fillAttribute(session, user, attribute);
-		assertNotNull(outputOne.valueAsString());
-		assertNotNull(outputTwo.valueAsString());
-        assertNotEquals(outputOne.valueAsString(), outputTwo.valueAsString());
-    }
+    Attribute attribute = new Attribute();
+    attribute.setFriendlyName("login-namespace:bbmriid-persistent-shadow");
+
+    Attribute outputOne = classInstance.fillAttribute(session, user, attribute);
+    Attribute outputTwo = classInstance.fillAttribute(session, user, attribute);
+    assertNotNull(outputOne.valueAsString());
+    assertNotNull(outputTwo.valueAsString());
+    assertNotEquals(outputOne.valueAsString(), outputTwo.valueAsString());
+  }
 }

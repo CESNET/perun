@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupSyncFinishedWithErrors extends AuditEvent implements EngineIgnoreEvent {
 
-	private Group group;
-	private String message;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public GroupSyncFinishedWithErrors() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public GroupSyncFinishedWithErrors() {
+  }
 
-	public GroupSyncFinishedWithErrors(Group group) {
-		this.group = group;
-		this.message = formatMessage("%s synchronization finished with errors.", group);
-	}
+  public GroupSyncFinishedWithErrors(Group group) {
+    this.group = group;
+    this.message = formatMessage("%s synchronization finished with errors.", group);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

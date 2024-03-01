@@ -9,19 +9,19 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class ModulePropertyNotFoundException extends InternalErrorException {
-	public ModulePropertyNotFoundException(String message) {
-		super(message);
-	}
+  public ModulePropertyNotFoundException(String message) {
+    super(message);
+  }
 
-	public ModulePropertyNotFoundException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public ModulePropertyNotFoundException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public ModulePropertyNotFoundException(Throwable cause) {
-		super(cause);
-	}
+  public ModulePropertyNotFoundException(Throwable cause) {
+    super(cause);
+  }
 
-	public ModulePropertyNotFoundException(String module, String property) {
-		super("Failed to parse property: '" + property + "' for module: " + module);
-	}
+  public ModulePropertyNotFoundException(String module, String property) {
+    super("Failed to parse property: '" + property + "' for module: " + module);
+  }
 }

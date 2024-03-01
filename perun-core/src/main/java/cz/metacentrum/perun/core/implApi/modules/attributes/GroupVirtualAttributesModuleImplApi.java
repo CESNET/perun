@@ -13,36 +13,37 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * @author Pavel Vyskocil <vyskocilpavel@muni.cz>
  */
 
-public interface GroupVirtualAttributesModuleImplApi extends GroupAttributesModuleImplApi, VirtualAttributesModuleImplApi{
-	/**
-	 * This method will return computed value.
-	 *
-	 * @param perunSession perun session
-	 * @param group group which is needed for computing the value
-	 * @param attribute attribute to operate on
-	 * @return
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 */
-	Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute);
+public interface GroupVirtualAttributesModuleImplApi
+    extends GroupAttributesModuleImplApi, VirtualAttributesModuleImplApi {
+  /**
+   * This method will return computed value.
+   *
+   * @param perunSession perun session
+   * @param group        group which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return
+   * @throws InternalErrorException if an exception is raised in particular
+   *                                implementation, the exception is wrapped in InternalErrorException
+   */
+  Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute);
 
-	/**
-	 * Method sets attributes' values which are dependent on this virtual attribute.
-	 *
-	 * @param perunSession
-	 * @param group group which is needed for computing the value
-	 * @param attribute attribute to operate on
-	 * @return true if attribute was really changed
-	 */
-	boolean setAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute);
+  /**
+   * Method sets attributes' values which are dependent on this virtual attribute.
+   *
+   * @param perunSession
+   * @param group        group which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return true if attribute was really changed
+   */
+  boolean setAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute);
 
-	/**
-	 * Currently do nothing.
-	 *
-	 * @param perunSession
-	 * @param group group which is needed for computing the value
-	 * @param attribute attribute to operate on
-	 * @return
-	 */
-	void removeAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute);
+  /**
+   * Currently do nothing.
+   *
+   * @param perunSession
+   * @param group        group which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return
+   */
+  void removeAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute);
 }

@@ -15,35 +15,37 @@ import java.util.List;
  * Abstract class for Member Group Virtual Attributes modules.
  * Implements methods for modules to perform default function.
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
- *
+ * <p>
  * author: Oliver Mrazik
  * version: 2015-04-16
  */
-public abstract class MemberGroupVirtualAttributesModuleAbstract extends MemberGroupAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
+public abstract class MemberGroupVirtualAttributesModuleAbstract extends MemberGroupAttributesModuleAbstract
+    implements MemberGroupVirtualAttributesModuleImplApi {
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
-		return new Attribute(attribute);
-	}
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
+    return new Attribute(attribute);
+  }
 
-	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) {
-		return false;
-	}
+  @Override
+  public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) {
+    return false;
+  }
 
-	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
-		return false;
-	}
+  @Override
+  public boolean removeAttributeValue(PerunSessionImpl sess, Member member, Group group,
+                                      AttributeDefinition attribute) {
+    return false;
+  }
 
-	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
-		return new ArrayList<>();
-	}
+  @Override
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
+    return new ArrayList<>();
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    return dependecies;
+  }
 }

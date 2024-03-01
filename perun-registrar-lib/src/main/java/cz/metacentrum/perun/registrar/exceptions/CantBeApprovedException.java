@@ -10,82 +10,84 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class CantBeApprovedException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private String reason = null;
-	private String category = null;
-	private String affiliation = null;
-	private boolean isSoft = false;
-	private int applicationId = 0;
+  private String reason = null;
+  private String category = null;
+  private String affiliation = null;
+  private boolean isSoft = false;
+  private int applicationId = 0;
 
-	public CantBeApprovedException(String message) {
-		super(message);
-	}
+  public CantBeApprovedException(String message) {
+    super(message);
+  }
 
-	public CantBeApprovedException(String message, String reason, String category, String affiliation, int applicationId) {
-		super(message);
-		this.reason = reason;
-		this.category = category;
-		this.affiliation = affiliation;
-		this.applicationId = applicationId;
-	}
+  public CantBeApprovedException(String message, String reason, String category, String affiliation,
+                                 int applicationId) {
+    super(message);
+    this.reason = reason;
+    this.category = category;
+    this.affiliation = affiliation;
+    this.applicationId = applicationId;
+  }
 
-	public CantBeApprovedException(String message, String reason, String category, String affiliation, boolean isSoft, int applicationId) {
-		super(message);
-		this.reason = reason;
-		this.category = category;
-		this.affiliation = affiliation;
-		this.isSoft = isSoft;
-		this.applicationId = applicationId;
-	}
+  public CantBeApprovedException(String message, String reason, String category, String affiliation, boolean isSoft,
+                                 int applicationId) {
+    super(message);
+    this.reason = reason;
+    this.category = category;
+    this.affiliation = affiliation;
+    this.isSoft = isSoft;
+    this.applicationId = applicationId;
+  }
 
-	public CantBeApprovedException(String message, Throwable ex) {
-		super(message, ex);
-	}
+  public CantBeApprovedException(String message, Throwable ex) {
+    super(message, ex);
+  }
 
-	public CantBeApprovedException(String message, String reason, Throwable ex) {
-		super(message, ex);
-		this.reason = reason;
-	}
+  public CantBeApprovedException(String message, String reason, Throwable ex) {
+    super(message, ex);
+    this.reason = reason;
+  }
 
-	public String getReason() {
-		return reason;
-	}
+  public String getReason() {
+    return reason;
+  }
 
-	public void setReason(String reason) {
-		this.reason = reason;
-	}
+  public void setReason(String reason) {
+    this.reason = reason;
+  }
 
-	public String getCategory() {
-		return category;
-	}
+  public String getCategory() {
+    return category;
+  }
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-	public String getAffiliation() {
-		return affiliation;
-	}
+  public String getAffiliation() {
+    return affiliation;
+  }
 
-	public void setAffiliation(String affiliation) {
-		this.affiliation = affiliation;
-	}
+  public void setAffiliation(String affiliation) {
+    this.affiliation = affiliation;
+  }
 
-	public boolean isSoft() {
-		return isSoft;
-	}
+  public boolean isSoft() {
+    return isSoft;
+  }
 
-	public void setSoft(boolean soft) {
-		isSoft = soft;
-	}
+  public void setSoft(boolean soft) {
+    isSoft = soft;
+  }
 
-	public int getApplicationId() {
-		return applicationId;
-	}
+  public int getApplicationId() {
+    return applicationId;
+  }
 
-	public void setApplicationId(int applicationId) {
-		this.applicationId = applicationId;
-	}
+  public void setApplicationId(int applicationId) {
+    this.applicationId = applicationId;
+  }
 
 }

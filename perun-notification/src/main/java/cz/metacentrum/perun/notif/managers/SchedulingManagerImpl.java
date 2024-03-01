@@ -21,184 +21,184 @@ import org.springframework.stereotype.Service;
  * doNotification.
  *
  * @author tomas.tunkl
- *
  */
 @Service("schedulingManager")
 public class SchedulingManagerImpl {
 
-	private static final Logger logger = LoggerFactory.getLogger(SchedulingManagerImpl.class);
-	private PerunSession session;
+  private static final Logger logger = LoggerFactory.getLogger(SchedulingManagerImpl.class);
+  private static final AtomicBoolean running = new AtomicBoolean(false);
+  private static final AtomicBoolean runningAllowed = new AtomicBoolean(true);
+  private PerunSession session;
+  @Autowired
+  private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
 
-	private static final AtomicBoolean running = new AtomicBoolean(false);
-	private static final AtomicBoolean runningAllowed = new AtomicBoolean(true);
+  @Autowired
+  private PerunNotifAuditMessageManager perunNotifAuditMessagesManager;
 
-	@Autowired
-	private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
+  @Autowired
+  private PerunNotifRegexManager perunNotifRegexManager;
 
-	@Autowired
-	private PerunNotifAuditMessageManager perunNotifAuditMessagesManager;
+  @Autowired
+  private PerunNotifTemplateManager perunNotifTemplateManager;
 
-	@Autowired
-	private PerunNotifRegexManager perunNotifRegexManager;
+  @Autowired
+  private PerunBl perun;
 
-	@Autowired
-	private PerunNotifTemplateManager perunNotifTemplateManager;
+  @PostConstruct
+  public void init() {
+    session = NotifUtils.getPerunSession(perun);
+  }
 
-	@Autowired
-	private PerunBl perun;
+  /**
+   * Method starts processing poolMessages from db and starts sending
+   * notifications to users.
+   */
+  public void doNotification() {
 
-	@PostConstruct
-	public void init() {
-		session = NotifUtils.getPerunSession(perun);
-	}
+    if (!(runningAllowed.get())) {
+      return;
+    }
 
-	/**
-	 * Method starts processing poolMessages from db and starts sending
-	 * notifications to users.
-	 */
-	public void doNotification() {
+    if (!(running.compareAndSet(false, true))) {
+      logger.warn("DoNotification is still running.");
+      return;
+    }
 
-		if (!(runningAllowed.get())) {
-			return;
-		}
+    logger.info("Starting doNotification");
 
-		if (!(running.compareAndSet(false, true))) {
-			logger.warn("DoNotification is still running.");
-			return;
-		}
+    try {
+      logger.debug("1: Processing perun AuditMessages");
+      processPerunAuditMessages();
+      logger.debug("2: Processing perunNotifAuditMessages");
+      processPerunNotifAuditMessages();
+      logger.info("3: Getting poolMessages from db.");
+      perunNotifPoolMessageManager.processPerunNotifPoolMessagesFromDb();
+    } catch (Exception ex) {
+      stopNotifications(ex);
+    } finally {
+      running.set(false);
 
-		logger.info("Starting doNotification");
+    }
+  }
 
-		try {
-			logger.debug("1: Processing perun AuditMessages");
-			processPerunAuditMessages();
-			logger.debug("2: Processing perunNotifAuditMessages");
-			processPerunNotifAuditMessages();
-			logger.info("3: Getting poolMessages from db.");
-			perunNotifPoolMessageManager.processPerunNotifPoolMessagesFromDb();
-		} catch (Exception ex) {
-			stopNotifications(ex);
-		} finally {
-			running.set(false);
+  /**
+   * Loads notif audit messages from db restart their processing.
+   * Call processing of one perunAuditMessage for each gotten msg.
+   */
+  private void processPerunNotifAuditMessages() throws Exception {
 
-		}
-	}
+    List<PerunNotifAuditMessage> oldAuditMessages;
+    try {
+      oldAuditMessages = perunNotifAuditMessagesManager.getAll();
+    } catch (Exception ex) {
+      logger.error("Error during getting all old messages.");
+      throw ex;
+    }
+    if (oldAuditMessages != null && !oldAuditMessages.isEmpty()) {
+      for (PerunNotifAuditMessage perunAuditMessage : oldAuditMessages) {
+        processPerunNotifAuditMessage(perunAuditMessage, session);
+      }
+    }
+  }
 
-	/**
-	 * Loads notif audit messages from db restart their processing.
-	 * Call processing of one perunAuditMessage for each gotten msg.
-	 */
-	private void processPerunNotifAuditMessages() throws Exception {
+  /**
+   * The method loads perun audit messages from the database and saves them as PerunNotifAudiMessages.
+   */
+  public void processPerunAuditMessages() {
+    try {
+      List<AuditEvent> events = perun.getAuditMessagesManagerBl().pollConsumerEvents(session, "notifications");
+      for (AuditEvent event : events) {
+        try {
+          perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(event.getMessage(), session);
+        } catch (InternalErrorException ex) {
+          logger.error("Error during saving message to db. Message: " + event.getMessage());
+          throw ex;
+        }
+      }
+    } catch (Exception ex) {
+      logger.error("Error during perunNotification process.");
+      throw ex;
+    }
+  }
 
-		List<PerunNotifAuditMessage> oldAuditMessages;
-		try {
-			oldAuditMessages = perunNotifAuditMessagesManager.getAll();
-		} catch (Exception ex) {
-			logger.error("Error during getting all old messages.");
-			throw ex;
-		}
-		if (oldAuditMessages != null && !oldAuditMessages.isEmpty()) {
-			for (PerunNotifAuditMessage perunAuditMessage : oldAuditMessages) {
-				processPerunNotifAuditMessage(perunAuditMessage, session);
-			}
-		}
-	}
+  /**
+   * Handles processing of auditer message and in case of success removes
+   * auditer message from db. To accomplish a success, the message have to be well-formed, so that the
+   * object can be parsed, there have to be matching notifRegex in the db. If the message is recognized and
+   * the matching regex is assigned to the template,  PerunNotifPoolMessage is created.
+   */
+  private void processPerunNotifAuditMessage(PerunNotifAuditMessage perunAuditMessage, PerunSession session)
+      throws Exception {
 
-	/**
-	 * The method loads perun audit messages from the database and saves them as PerunNotifAudiMessages.
-	 */
-	public void processPerunAuditMessages() {
-		try {
-			List<AuditEvent> events = perun.getAuditMessagesManagerBl().pollConsumerEvents(session, "notifications");
-			for (AuditEvent event : events) {
-				try {
-					perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(event.getMessage(), session);
-				} catch (InternalErrorException ex) {
-					logger.error("Error during saving message to db. Message: " + event.getMessage());
-					throw ex;
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Error during perunNotification process.");
-			throw ex;
-		}
-	}
+    try {
+      logger.trace("Getting regexIds, matching received message with id: " + perunAuditMessage.getId());
+      Set<Integer> regexIds = perunNotifRegexManager.getIdsOfRegexesMatchingMessage(perunAuditMessage);
+      logger.debug("Received regexIds for message with id: " + perunAuditMessage.getId() + "; regexIds = " + regexIds +
+          "; now getting templateIds.");
+      if (regexIds == null || regexIds.isEmpty()) {
+        logger.info("Message is not recognized, will be deleted: " + perunAuditMessage.getMessage());
+        perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
+        return;
+      }
+      List<PerunNotifPoolMessage> perunNotifPoolMessages = null;
+      try {
+        perunNotifPoolMessages =
+            perunNotifTemplateManager.getPerunNotifPoolMessagesForRegexIds(regexIds, perunAuditMessage, session);
+      } catch (InternalErrorException ex) {
+        logger.error("Error during processPerunNotifAuditMessage.");
+        throw ex;
+      }
 
-	/**
-	 * Handles processing of auditer message and in case of success removes
-	 * auditer message from db. To accomplish a success, the message have to be well-formed, so that the
-	 * object can be parsed, there have to be matching notifRegex in the db. If the message is recognized and
-	 * the matching regex is assigned to the template,  PerunNotifPoolMessage is created.
-	 */
-	private void processPerunNotifAuditMessage(PerunNotifAuditMessage perunAuditMessage, PerunSession session) throws Exception {
+      if (perunNotifPoolMessages != null && !perunNotifPoolMessages.isEmpty()) {
+        try {
+          perunNotifPoolMessageManager.savePerunNotifPoolMessages(perunNotifPoolMessages);
+        } catch (InternalErrorException ex) {
+          logger.error("Error during saving pool message.");
+          throw ex;
+        }
+      } else {
+        logger.warn("No pool messages recognized for message: " + perunAuditMessage.getMessage());
+      }
 
-		try {
-			logger.trace("Getting regexIds, matching received message with id: " + perunAuditMessage.getId());
-			Set<Integer> regexIds = perunNotifRegexManager.getIdsOfRegexesMatchingMessage(perunAuditMessage);
-			logger.debug("Received regexIds for message with id: " + perunAuditMessage.getId() + "; regexIds = " + regexIds + "; now getting templateIds.");
-			if (regexIds == null || regexIds.isEmpty()) {
-				logger.info("Message is not recognized, will be deleted: " + perunAuditMessage.getMessage());
-				perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
-				return;
-			}
-			List<PerunNotifPoolMessage> perunNotifPoolMessages = null;
-			try {
-				perunNotifPoolMessages = perunNotifTemplateManager.getPerunNotifPoolMessagesForRegexIds(regexIds, perunAuditMessage, session);
-			} catch (InternalErrorException ex) {
-				logger.error("Error during processPerunNotifAuditMessage.");
-				throw ex;
-			}
+      logger.info("Removing saved perunMessage with id=" + perunAuditMessage.getId());
+      perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
+    } catch (Exception ex) {
+      logger.error("Error during process of perun notif audit message: " + perunAuditMessage.getId());
+      throw ex;
+    }
+  }
 
-			if (perunNotifPoolMessages != null && !perunNotifPoolMessages.isEmpty()) {
-				try {
-					perunNotifPoolMessageManager.savePerunNotifPoolMessages(perunNotifPoolMessages);
-				} catch (InternalErrorException ex) {
-					logger.error("Error during saving pool message.");
-					throw ex;
-				}
-			} else {
-				logger.warn("No pool messages recognized for message: " + perunAuditMessage.getMessage());
-			}
+  public void processOneAuditerMessage(String message) throws Exception {
 
-			logger.info("Removing saved perunMessage with id=" + perunAuditMessage.getId());
-			perunNotifAuditMessagesManager.removePerunAuditerMessageById(perunAuditMessage.getId());
-		} catch (Exception ex) {
-			logger.error("Error during process of perun notif audit message: " + perunAuditMessage.getId());
-			throw ex;
-		}
-	}
+    PerunNotifAuditMessage perunNotifAuditMessage = null;
+    try {
+      perunNotifAuditMessage = perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(message, session);
+    } catch (InternalErrorException ex) {
+      logger.error("Error during saving one time auditer message: " + message);
+    }
 
-	public void processOneAuditerMessage(String message) throws Exception {
+    processPerunNotifAuditMessage(perunNotifAuditMessage, session);
+  }
 
-		PerunNotifAuditMessage perunNotifAuditMessage = null;
-		try {
-			perunNotifAuditMessage = perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(message, session);
-		} catch (InternalErrorException ex) {
-			logger.error("Error during saving one time auditer message: " + message);
-		}
+  public void stopNotifications() {
+    stopNotifications(null);
+  }
 
-		processPerunNotifAuditMessage(perunNotifAuditMessage, session);
-	}
+  public void stopNotifications(Exception ex) {
+    runningAllowed.set(false);
+    if (ex == null) {
+      logger.info("Notifications was stopped.");
+    } else {
+      logger.error("Notifications was stopped due to exception: ", ex);
+    }
+  }
 
-	public void stopNotifications() {
-		stopNotifications(null);
-	}
+  public void startNotifications() {
+    runningAllowed.set(true);
+    logger.info("Notifications was started.");
+  }
 
-	public void stopNotifications(Exception ex) {
-		runningAllowed.set(false);
-		if (ex == null) {
-			logger.info("Notifications was stopped.");
-		} else {
-			logger.error("Notifications was stopped due to exception: ", ex);
-		}
-	}
-
-	public void startNotifications() {
-		runningAllowed.set(true);
-		logger.info("Notifications was started.");
-	}
-
-	public boolean isNotificationsRunning() {
-		return runningAllowed.get();
-	}
+  public boolean isNotificationsRunning() {
+    return runningAllowed.get();
+  }
 }

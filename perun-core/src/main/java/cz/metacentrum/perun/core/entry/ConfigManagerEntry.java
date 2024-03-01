@@ -19,44 +19,47 @@ import cz.metacentrum.perun.core.impl.Utils;
  */
 
 public class ConfigManagerEntry implements ConfigManager {
-	private ConfigManagerBl configManagerBl;
-	private PerunBl perunBl;
+  private ConfigManagerBl configManagerBl;
+  private PerunBl perunBl;
 
-	public ConfigManagerEntry(PerunBl perunBl) {
-		this.perunBl = perunBl;
-		this.configManagerBl = perunBl.getConfigManagerBl();
-	}
-	
-	public ConfigManagerEntry() {}
-	
-	public PerunBl getPerunBl() {
-		return this.perunBl;
-	}
+  public ConfigManagerEntry(PerunBl perunBl) {
+    this.perunBl = perunBl;
+    this.configManagerBl = perunBl.getConfigManagerBl();
+  }
 
-	public void setPerunBl(PerunBlImpl perunBl) {
-		this.perunBl = perunBl;
-	}
+  public ConfigManagerEntry() {
+  }
 
-	public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
-		this.configManagerBl = configManagerBl;
-	}
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
 
-	@Override
-	public void reloadAppsConfig(PerunSession sess) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
+  public void setPerunBl(PerunBlImpl perunBl) {
+    this.perunBl = perunBl;
+  }
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "reloadAppsConfig_policy"))
-			throw new PrivilegeException(sess, "reloadAppsConfig");
+  public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
+    this.configManagerBl = configManagerBl;
+  }
 
-		configManagerBl.reloadAppsConfig();
-	}
+  @Override
+  public void reloadAppsConfig(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-	@Override
-	public OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
-		Utils.checkPerunSession(sess);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "reloadAppsConfig_policy")) {
+      throw new PrivilegeException(sess, "reloadAppsConfig");
+    }
+
+    configManagerBl.reloadAppsConfig();
+  }
+
+  @Override
+  public OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl)
+      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
+    Utils.checkPerunSession(sess);
 
 
-		return configManagerBl.getPerunOidcConfig(requestUrl);
-	}
+    return configManagerBl.getPerunOidcConfig(requestUrl);
+  }
 }

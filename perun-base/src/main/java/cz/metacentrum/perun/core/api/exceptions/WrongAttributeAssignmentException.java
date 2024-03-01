@@ -8,49 +8,54 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
  * @author Slavek Licehammer
  */
 public class WrongAttributeAssignmentException extends PerunException {
-	static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-	private AttributeDefinition attribute;
+  private AttributeDefinition attribute;
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public WrongAttributeAssignmentException(String message) {
-		super(message);
-	}
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public WrongAttributeAssignmentException(String message) {
+    super(message);
+  }
 
-	/**
-	 * Constructor with a message and Throwable object
-	 * @param message message with details about the cause
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public WrongAttributeAssignmentException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  /**
+   * Constructor with a message and Throwable object
+   *
+   * @param message message with details about the cause
+   * @param cause   Throwable that caused throwing of this exception
+   */
+  public WrongAttributeAssignmentException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	/**
-	 * Constructor with a Throwable object
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public WrongAttributeAssignmentException(Throwable cause) {
-		super(cause);
-	}
+  /**
+   * Constructor with a Throwable object
+   *
+   * @param cause Throwable that caused throwing of this exception
+   */
+  public WrongAttributeAssignmentException(Throwable cause) {
+    super(cause);
+  }
 
-	/**
-	 * Constructor with the attribute
-	 * @param attribute attribute that was supposed to be assigned to the wrong entity
-	 */
-	public WrongAttributeAssignmentException(AttributeDefinition attribute) {
-		super(attribute.toString());
-		this.attribute = attribute;
-	}
+  /**
+   * Constructor with the attribute
+   *
+   * @param attribute attribute that was supposed to be assigned to the wrong entity
+   */
+  public WrongAttributeAssignmentException(AttributeDefinition attribute) {
+    super(attribute.toString());
+    this.attribute = attribute;
+  }
 
-	/**
-	 * Getter for the attribute
-	 * @return attribute that was supposed to be assigned to the wrong entity
-	 */
-	public AttributeDefinition getAttribute() {
-		return attribute;
-	}
+  /**
+   * Getter for the attribute
+   *
+   * @return attribute that was supposed to be assigned to the wrong entity
+   */
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
 }

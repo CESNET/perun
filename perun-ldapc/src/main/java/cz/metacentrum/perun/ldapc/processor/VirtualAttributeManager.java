@@ -8,12 +8,12 @@ import cz.metacentrum.perun.ldapc.model.PerunVirtualAttribute;
 
 public interface VirtualAttributeManager<T extends PerunBean> {
 
-	public void registerAttributeDependency(String parentName, PerunVirtualAttribute<T> dependentAttr);
+  public void registerAttributeDependency(String parentName, PerunVirtualAttribute<T> dependentAttr);
 
-	Collection<PerunVirtualAttribute<T>> getAttributeDependants(String name);
-	
-	Collection<PerunVirtualAttribute<T>> getAllAttributeDependants();
+  Collection<PerunVirtualAttribute<T>> getAttributeDependants(String name);
 
-	List<String> getRegisteredAttributes();
-	
+  Collection<PerunVirtualAttribute<T>> getAllAttributeDependants();
+
+  List<String> getRegisteredAttributes();
+
 }

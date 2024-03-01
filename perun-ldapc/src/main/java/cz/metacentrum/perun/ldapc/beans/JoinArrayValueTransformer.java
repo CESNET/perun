@@ -14,33 +14,33 @@ import static java.util.stream.Collectors.joining;
  */
 public class JoinArrayValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
-	/**
-	 * Separator used to join incoming multi-valued attribute into single value
-	 * Initialized from Spring context.
-	 */
-	protected String separator;
+  /**
+   * Separator used to join incoming multi-valued attribute into single value
+   * Initialized from Spring context.
+   */
+  protected String separator;
 
-	@Override
-	public String getValue(Collection<String> value, Attribute attr) {
-		return value.stream().collect(joining(this.separator));
-	}
+  @Override
+  public String getValue(Collection<String> value, Attribute attr) {
+    return value.stream().collect(joining(this.separator));
+  }
 
-	@Override
-	public Boolean isMassTransformationPreferred() {
-		return true;
-	}
+  @Override
+  public Boolean isMassTransformationPreferred() {
+    return true;
+  }
 
-	@Override
-	public Boolean isReduce() {
-		return true;
-	}
+  @Override
+  public Boolean isReduce() {
+    return true;
+  }
 
-	public String getSeparator() {
-		return separator;
-	}
+  public String getSeparator() {
+    return separator;
+  }
 
-	public void setSeparator(String separator) {
-		this.separator = separator;
-	}
+  public void setSeparator(String separator) {
+    this.separator = separator;
+  }
 
 }

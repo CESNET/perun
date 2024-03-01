@@ -9,73 +9,77 @@ import java.util.Objects;
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public class EnrichedFacility {
-	private Facility facility;
-	private List<Owner> owners;
-	private List<Destination> destinations;
-	private List<Host> hosts;
+  private Facility facility;
+  private List<Owner> owners;
+  private List<Destination> destinations;
+  private List<Host> hosts;
 
-	public EnrichedFacility() {
-	}
+  public EnrichedFacility() {
+  }
 
-	public EnrichedFacility(Facility facility, List<Owner> owners, List<Destination> destinations, List<Host> hosts) {
-		this.facility = facility;
-		this.owners = owners;
-		this.destinations = destinations;
-		this.hosts = hosts;
-	}
+  public EnrichedFacility(Facility facility, List<Owner> owners, List<Destination> destinations, List<Host> hosts) {
+    this.facility = facility;
+    this.owners = owners;
+    this.destinations = destinations;
+    this.hosts = hosts;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
 
-	public List<Owner> getOwners() {
-		return owners;
-	}
+  public List<Owner> getOwners() {
+    return owners;
+  }
 
-	public void setOwners(List<Owner> owners) {
-		this.owners = owners;
-	}
+  public void setOwners(List<Owner> owners) {
+    this.owners = owners;
+  }
 
-	public List<Destination> getDestinations() {
-		return destinations;
-	}
+  public List<Destination> getDestinations() {
+    return destinations;
+  }
 
-	public void setDestinations(List<Destination> destinations) {
-		this.destinations = destinations;
-	}
+  public void setDestinations(List<Destination> destinations) {
+    this.destinations = destinations;
+  }
 
-	public List<Host> getHosts() {
-		return hosts;
-	}
+  public List<Host> getHosts() {
+    return hosts;
+  }
 
-	public void setHosts(List<Host> hosts) {
-		this.hosts = hosts;
-	}
+  public void setHosts(List<Host> hosts) {
+    this.hosts = hosts;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		EnrichedFacility that = (EnrichedFacility) o;
-		return Objects.equals(getFacility(), that.getFacility());
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedFacility that = (EnrichedFacility) o;
+    return Objects.equals(getFacility(), that.getFacility());
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getFacility());
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(getFacility());
+  }
 
-	@Override
-	public String toString() {
-		return "EnrichedFacility{" +
-			"facility=" + facility +
-			", owners=" + owners +
-			", destinations=" + destinations +
-			", hosts=" + hosts +
-			'}';
-	}
+  @Override
+  public String toString() {
+    return "EnrichedFacility{" +
+        "facility=" + facility +
+        ", owners=" + owners +
+        ", destinations=" + destinations +
+        ", hosts=" + hosts +
+        '}';
+  }
 }

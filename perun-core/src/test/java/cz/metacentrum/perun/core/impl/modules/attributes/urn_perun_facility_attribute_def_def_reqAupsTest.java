@@ -21,52 +21,54 @@ import static org.mockito.Mockito.when;
 
 public class urn_perun_facility_attribute_def_def_reqAupsTest {
 
-	private static urn_perun_facility_attribute_def_def_reqAups classInstance;
-	private static PerunSessionImpl session;
-	private static Facility facility;
-	private static Attribute attributeToCheck;
-	private static Attribute reqAttribute;
+  private static urn_perun_facility_attribute_def_def_reqAups classInstance;
+  private static PerunSessionImpl session;
+  private static Facility facility;
+  private static Attribute attributeToCheck;
+  private static Attribute reqAttribute;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_facility_attribute_def_def_reqAups();
-		session = mock(PerunSessionImpl.class);
-		facility = new Facility();
-		attributeToCheck = new Attribute();
-		reqAttribute = new Attribute();
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_facility_attribute_def_def_reqAups();
+    session = mock(PerunSessionImpl.class);
+    facility = new Facility();
+    attributeToCheck = new Attribute();
+    reqAttribute = new Attribute();
 
-		PerunBl perunBl = mock(PerunBl.class);
-		when(session.getPerunBl()).thenReturn(perunBl);
+    PerunBl perunBl = mock(PerunBl.class);
+    when(session.getPerunBl()).thenReturn(perunBl);
 
-		AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
-		when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
-		when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(session, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":orgAups")).thenReturn(Collections.singletonList(reqAttribute));
+    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
+    when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getEntitylessAttributes(session, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":orgAups")).thenReturn(
+        Collections.singletonList(reqAttribute));
 
-	}
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithoutAUPInOrganization() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithoutAUPInOrganization()");
-		List<String> value = new ArrayList<>();
-		value.add("bad_example");
-		attributeToCheck.setValue(value);
-		Map<String, String> value2 = new LinkedHashMap<>();
-		value2.put("example", "example");
-		reqAttribute.setValue(value2);
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithoutAUPInOrganization() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithoutAUPInOrganization()");
+    List<String> value = new ArrayList<>();
+    value.add("bad_example");
+    attributeToCheck.setValue(value);
+    Map<String, String> value2 = new LinkedHashMap<>();
+    value2.put("example", "example");
+    reqAttribute.setValue(value2);
 
-		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeSemanticsCorrect() throws Exception {
-		System.out.println("testCheckAttributeSemanticsCorrect()");
-		List<String> value = new ArrayList<>();
-		value.add("example");
-		attributeToCheck.setValue(value);
-		Map<String, String> value2 = new LinkedHashMap<>();
-		value2.put("example", "example");
-		reqAttribute.setValue(value2);
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
+    List<String> value = new ArrayList<>();
+    value.add("example");
+    attributeToCheck.setValue(value);
+    Map<String, String> value2 = new LinkedHashMap<>();
+    value2.put("example", "example");
+    reqAttribute.setValue(value2);
 
-		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
 }

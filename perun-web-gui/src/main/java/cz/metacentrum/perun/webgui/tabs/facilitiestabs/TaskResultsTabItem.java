@@ -37,211 +37,218 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
+public class TaskResultsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "taskresults";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading Task");
+  // data
+  private Task task;
+  private int taskId;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading Task");
-
-	// data
-	private Task task;
-	private int taskId;
-
-	/**
-	 * Creates a tab instance
-	 * @param task RichTask
-	 */
-	public TaskResultsTabItem(Task task){
-		this.task = task;
-		this.taskId = task.getId();
-	}
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param taskId
-	 */
-	public TaskResultsTabItem(int taskId){
-		this.taskId = taskId;
-		new GetEntityById(PerunEntity.TASK, taskId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				task = jso.cast();
-			}
-		}).retrieveData();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param task RichTask
+   */
+  public TaskResultsTabItem(Task task) {
+    this.task = task;
+    this.taskId = task.getId();
+  }
 
 
-	public boolean isPrepared(){
-		return !(task == null);
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param taskId
+   */
+  public TaskResultsTabItem(int taskId) {
+    this.taskId = taskId;
+    new GetEntityById(PerunEntity.TASK, taskId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        task = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  static public TaskResultsTabItem load(Task task) {
+    return new TaskResultsTabItem(task);
+  }
 
-	@Override
-	public void onClose() {
+  static public TaskResultsTabItem load(Map<String, String> parameters) {
+    int tid = Integer.parseInt(parameters.get("id"));
+    return new TaskResultsTabItem(tid);
+  }
 
-	}
+  public boolean isPrepared() {
+    return !(task == null);
+  }
 
-	public Widget draw() {
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-		this.titleWidget.setText("Tasks results: "+task.getService().getName());
+  @Override
+  public void onClose() {
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+  }
 
-		final GetRichTaskResultsByTask callback = new GetRichTaskResultsByTask(task.getId());
+  public Widget draw() {
 
-		// refresh table events
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
+    this.titleWidget.setText("Tasks results: " + task.getService().getName());
 
-		TabMenu menu = new TabMenu();
-		menu.addWidget(UiElements.getRefreshButton(this));
-		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				callback.filterTable(text);
-			}
-		}, "Filter results by destination");
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove all TaskResults for Destination");
-		removeButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<TaskResult> tasksResultsToDelete = callback.getTableSelectedList();
-				String text = "<b>All TaskResults</b> for following Destinations will be deleted.";
-				UiElements.showDeleteConfirm(tasksResultsToDelete, text, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i = 0; i < tasksResultsToDelete.size(); i++) {
-							if (i == tasksResultsToDelete.size()-1) {
-								DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-								request.deleteTaskResults(tasksResultsToDelete.get(i).getTaskId(), tasksResultsToDelete.get(i).getDestination().getId());
-							} else {
-								DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton));
-								request.deleteTaskResults(tasksResultsToDelete.get(i).getTaskId(), tasksResultsToDelete.get(i).getDestination().getId());
-							}
-						}
-					}});
-			}
-		});
-		menu.addWidget(removeButton);
+    final GetRichTaskResultsByTask callback = new GetRichTaskResultsByTask(task.getId());
 
-		// on row click
-		CellTable<TaskResult> table = callback.getTable((index, taskResult, value) -> {
-			if (taskResult != null) {
-				session.getTabManager().addTab(new TaskResultsForDestinationTabItem(task.getId(), taskResult.getDestination().getId()));
-			}
-		});
+    // refresh table events
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    TabMenu menu = new TabMenu();
+    menu.addWidget(UiElements.getRefreshButton(this));
+    menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        callback.filterTable(text);
+      }
+    }, "Filter results by destination");
 
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
-		vp.add(sp);
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove all TaskResults for Destination");
+    removeButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        final ArrayList<TaskResult> tasksResultsToDelete = callback.getTableSelectedList();
+        String text = "<b>All TaskResults</b> for following Destinations will be deleted.";
+        UiElements.showDeleteConfirm(tasksResultsToDelete, text, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+            for (int i = 0; i < tasksResultsToDelete.size(); i++) {
+              if (i == tasksResultsToDelete.size() - 1) {
+                DeleteTaskResults request =
+                    new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+                request.deleteTaskResults(tasksResultsToDelete.get(i).getTaskId(),
+                    tasksResultsToDelete.get(i).getDestination().getId());
+              } else {
+                DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton));
+                request.deleteTaskResults(tasksResultsToDelete.get(i).getTaskId(),
+                    tasksResultsToDelete.get(i).getDestination().getId());
+              }
+            }
+          }
+        });
+      }
+    });
+    menu.addWidget(removeButton);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    // on row click
+    CellTable<TaskResult> table = callback.getTable((index, taskResult, value) -> {
+      if (taskResult != null) {
+        session.getTabManager()
+            .addTab(new TaskResultsForDestinationTabItem(task.getId(), taskResult.getDestination().getId()));
+      }
+    });
 
-		removeButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(callback, table, removeButton);
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		this.contentWidget.setWidget(vp);
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
+    vp.add(sp);
+
+    session.getUiElements().resizePerunTable(sp, 350, this);
+
+    removeButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(callback, table, removeButton);
+
+    this.contentWidget.setWidget(vp);
 
 
-		return getWidget();
+    return getWidget();
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.databaseServerIcon();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 773;
-		int result = 1;
-		result = prime * result + taskId;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 773;
+    int result = 1;
+    result = prime * result + taskId;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TaskResultsTabItem other = (TaskResultsTabItem) obj;
-		if (taskId != other.taskId)
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    TaskResultsTabItem other = (TaskResultsTabItem) obj;
+    if (taskId != other.taskId) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(), "Propagation results: "+task.getService().getName(), getUrlWithParameters());
-		if(task != null) {
-			if (task.getFacility() != null) {
-				session.setActiveFacility(task.getFacility());
-			}
-		}
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+    session.getUiElements().getBreadcrumbs()
+        .setLocation(task.getFacility(), "Propagation results: " + task.getService().getName(), getUrlWithParameters());
+    if (task != null) {
+      if (task.getFacility() != null) {
+        session.setActiveFacility(task.getFacility());
+      }
+    }
+  }
 
-	public boolean isAuthorized() {
-		if (session.isFacilityAdmin(task.getFacility().getId())) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+  public boolean isAuthorized() {
+    if (session.isFacilityAdmin(task.getFacility().getId())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-	public final static String URL = "taskresults";
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + task.getId();
-	}
-
-	static public TaskResultsTabItem load(Task task) {
-		return new TaskResultsTabItem(task);
-	}
-
-	static public TaskResultsTabItem load(Map<String, String> parameters) {
-		int tid = Integer.parseInt(parameters.get("id"));
-		return new TaskResultsTabItem(tid);
-	}
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + task.getId();
+  }
 
 }

@@ -11,18 +11,17 @@ import java.util.Map;
  */
 public abstract class ExtSourceImpl extends ExtSource {
 
-	protected PerunBl perunBl;
+  protected PerunBl perunBl;
+  private Map<String, String> extSourceAttributes;
 
-	void setPerunBl(PerunBl perunBl) {
-		this.perunBl = perunBl;
-	}
+  void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
+  }
 
-	private Map<String,String> extSourceAttributes;
-
-	protected Map<String,String> getAttributes() throws InternalErrorException {
-		if (extSourceAttributes == null) {
-			extSourceAttributes = perunBl.getExtSourcesManagerBl().getAttributes(this);
-		}
-		return extSourceAttributes;
-	}
+  protected Map<String, String> getAttributes() throws InternalErrorException {
+    if (extSourceAttributes == null) {
+      extSourceAttributes = perunBl.getExtSourcesManagerBl().getAttributes(this);
+    }
+    return extSourceAttributes;
+  }
 }

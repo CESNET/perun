@@ -9,19 +9,19 @@ import java.util.List;
  */
 public class PerunNotifRegexUsedException extends PerunException {
 
-	private List<Integer> referencedTemplateIds;
+  private List<Integer> referencedTemplateIds;
 
-	public PerunNotifRegexUsedException(List<Integer> referencedTemplateIds) {
-		super();
-		this.referencedTemplateIds = referencedTemplateIds;
-	}
+  public PerunNotifRegexUsedException(List<Integer> referencedTemplateIds) {
+    super();
+    this.referencedTemplateIds = referencedTemplateIds;
+  }
 
-	public PerunNotifRegexUsedException(String message, List<Integer> referencedTemplateIds) {
-		super(message);
-		this.referencedTemplateIds = referencedTemplateIds;
-	}
+  public PerunNotifRegexUsedException(String message, List<Integer> referencedTemplateIds) {
+    super(message);
+    this.referencedTemplateIds = referencedTemplateIds;
+  }
 
-	public List<Integer> getReferencedTemplateIds() {
-		return referencedTemplateIds;
-	}
+  public List<Integer> getReferencedTemplateIds() {
+    return referencedTemplateIds;
+  }
 }

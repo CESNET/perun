@@ -11,13 +11,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Ban;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
@@ -33,193 +36,193 @@ import java.util.Map;
  */
 public final class JsonSerializer implements Serializer {
 
-	@JsonIgnoreProperties({"name"})
-	private interface AttributeMixIn {
-	}
+  public static final String CONTENT_TYPE = "application/json; charset=utf-8";
+  private static final ObjectMapper mapper = new ObjectMapper();
+  private static final Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
+  private static final JsonFactory jsonFactory = new JsonFactory();
 
-	@JsonIgnoreProperties({"name"})
-	private interface AttributeDefinitionMixIn {
-	}
+  static {
 
-	@JsonIgnoreProperties({"commonName", "displayName"})
-	private interface UserMixIn {
-	}
+    JavaTimeModule module = new JavaTimeModule();
+    mapper.registerModule(module);
+    // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-	@JsonIgnoreProperties({"userExtSources"})
-	private interface CandidateMixIn {
-	}
+    mixinMap.put(Attribute.class, AttributeMixIn.class);
+    mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+    mixinMap.put(User.class, UserMixIn.class);
+    mixinMap.put(Candidate.class, CandidateMixIn.class);
+    mixinMap.put(PerunException.class, PerunExceptionMixIn.class);
+    mixinMap.put(PerunRuntimeException.class, PerunExceptionMixIn.class);
+    mixinMap.put(Task.class, TaskMixIn.class);
+    mixinMap.put(TaskResult.class, TaskResultMixIn.class);
+    mixinMap.put(Ban.class, BanMixIn.class);
 
-	@JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
-	private interface PerunExceptionMixIn {
-	}
+    mapper.setMixIns(mixinMap);
+  }
 
-	@SuppressWarnings("unused")
-	private interface TaskMixIn {
-		@JsonSerialize
-		@JsonProperty(value = "startTime")
-		Long getStartTimeAsLong();
+  static {
+    //FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
+    jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
+        .setCodec(mapper);
+  }
 
-		@JsonIgnore
-		LocalDateTime getStartTime();
+  private OutputStream out;
 
-		@JsonSerialize
-		@JsonProperty(value = "schedule")
-		Long getScheduleAsLong();
+  /**
+   * @param out {@code OutputStream} to output serialized data
+   * @throws IOException if an IO error occurs
+   */
+  public JsonSerializer(OutputStream out) throws IOException {
+    this.out = out;
+  }
 
-		@JsonIgnore
-		LocalDateTime getSchedule();
+  @Override
+  public String getContentType() {
+    return CONTENT_TYPE;
+  }
 
-		@JsonSerialize
-		@JsonProperty(value = "genEndTime")
-		Long getGenEndTimeAsLong();
+  @Override
+  public void write(Object object) throws IOException {
+    JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 
-		@JsonIgnore
-		LocalDateTime getGenEndTime();
+    try {
+      gen.writeObject(object);
+      gen.flush();
+      gen.close();
+    } catch (JsonProcessingException ex) {
+      throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, ex);
+    }
+  }
 
-		@JsonSerialize
-		@JsonProperty(value = "sendEndTime")
-		Long getSendEndTimeAsLong();
+  @Override
+  public void writePerunException(PerunException pex) throws IOException {
 
-		@JsonIgnore
-		LocalDateTime getSendEndTime();
+    JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    if (pex == null) {
+      throw new IllegalArgumentException("pex is null");
+    } else {
+      gen.writeObject(pex);
+      gen.flush();
+    }
+    gen.close();
 
-		@JsonSerialize
-		@JsonProperty(value = "sendStartTime")
-		Long getSendStartTimeAsLong();
+  }
 
-		@JsonIgnore
-		LocalDateTime getSendStartTime();
+  @Override
+  public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
 
-		@JsonSerialize
-		@JsonProperty(value = "genStartTime")
-		Long getGenStartTimeAsLong();
+    JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    if (prex == null) {
+      throw new IllegalArgumentException("prex is null");
+    } else {
+      gen.writeObject(prex);
+      gen.flush();
+    }
+    gen.close();
 
-		@JsonIgnore
-		LocalDateTime getGenStartTime();
+  }
 
-		@JsonSerialize
-		@JsonProperty(value = "sentToEngine")
-		Long getSentToEngineAsLong();
+  @JsonIgnoreProperties({"name"})
+  private interface AttributeMixIn {
+  }
 
-		@JsonIgnore
-		LocalDateTime getSentToEngine();
+  @JsonIgnoreProperties({"name"})
+  private interface AttributeDefinitionMixIn {
+  }
 
-		@JsonSerialize
-		@JsonProperty(value = "endTime")
-		Long getEndTimeAsLong();
+  @JsonIgnoreProperties({"commonName", "displayName"})
+  private interface UserMixIn {
+  }
 
-		@JsonIgnore
-		LocalDateTime getEndTime();
-	}
+  @JsonIgnoreProperties({"userExtSources"})
+  private interface CandidateMixIn {
+  }
 
-	@SuppressWarnings("unused")
-	private interface TaskResultMixIn {
+  @JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
+  private interface PerunExceptionMixIn {
+  }
 
-		@JsonSerialize
-		@JsonProperty(value = "timestamp")
-		Long getTimestampAsLong();
+  @SuppressWarnings("unused")
+  private interface TaskMixIn {
+    @JsonSerialize
+    @JsonProperty(value = "startTime")
+    Long getStartTimeAsLong();
 
-		@JsonIgnore
-		Date getTimestamp();
+    @JsonIgnore
+    LocalDateTime getStartTime();
 
-	}
+    @JsonSerialize
+    @JsonProperty(value = "schedule")
+    Long getScheduleAsLong();
 
-	@SuppressWarnings("unused")
-	private interface BanMixIn {
+    @JsonIgnore
+    LocalDateTime getSchedule();
 
-		@JsonSerialize
-		@JsonProperty(value = "validityTo")
-		Long getValidityToAsLong();
+    @JsonSerialize
+    @JsonProperty(value = "genEndTime")
+    Long getGenEndTimeAsLong();
 
-		@JsonIgnore
-		Date getValidityTo();
+    @JsonIgnore
+    LocalDateTime getGenEndTime();
 
-	}
+    @JsonSerialize
+    @JsonProperty(value = "sendEndTime")
+    Long getSendEndTimeAsLong();
 
-	public static final String CONTENT_TYPE = "application/json; charset=utf-8";
-	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
+    @JsonIgnore
+    LocalDateTime getSendEndTime();
 
-	static {
+    @JsonSerialize
+    @JsonProperty(value = "sendStartTime")
+    Long getSendStartTimeAsLong();
 
-		JavaTimeModule module = new JavaTimeModule();
-		mapper.registerModule(module);
-		// make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    @JsonIgnore
+    LocalDateTime getSendStartTime();
 
-		mixinMap.put(Attribute.class, AttributeMixIn.class);
-		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-		mixinMap.put(User.class, UserMixIn.class);
-		mixinMap.put(Candidate.class, CandidateMixIn.class);
-		mixinMap.put(PerunException.class, PerunExceptionMixIn.class);
-		mixinMap.put(PerunRuntimeException.class, PerunExceptionMixIn.class);
-		mixinMap.put(Task.class, TaskMixIn.class);
-		mixinMap.put(TaskResult.class, TaskResultMixIn.class);
-		mixinMap.put(Ban.class, BanMixIn.class);
+    @JsonSerialize
+    @JsonProperty(value = "genStartTime")
+    Long getGenStartTimeAsLong();
 
-		mapper.setMixIns(mixinMap);
-	}
+    @JsonIgnore
+    LocalDateTime getGenStartTime();
 
-	private static final JsonFactory jsonFactory = new JsonFactory();
+    @JsonSerialize
+    @JsonProperty(value = "sentToEngine")
+    Long getSentToEngineAsLong();
 
-	static {
-		//FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
-		jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT).setCodec(mapper);
-	}
+    @JsonIgnore
+    LocalDateTime getSentToEngine();
 
-	private OutputStream out;
+    @JsonSerialize
+    @JsonProperty(value = "endTime")
+    Long getEndTimeAsLong();
 
-	/**
-	 * @param out {@code OutputStream} to output serialized data
-	 * @throws IOException if an IO error occurs
-	 */
-	public JsonSerializer(OutputStream out) throws IOException {
-		this.out = out;
-	}
+    @JsonIgnore
+    LocalDateTime getEndTime();
+  }
 
-	@Override
-	public String getContentType() {
-		return CONTENT_TYPE;
-	}
+  @SuppressWarnings("unused")
+  private interface TaskResultMixIn {
 
-	@Override
-	public void write(Object object) throws IOException {
-		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    @JsonSerialize
+    @JsonProperty(value = "timestamp")
+    Long getTimestampAsLong();
 
-		try {
-			gen.writeObject(object);
-			gen.flush();
-			gen.close();
-		} catch (JsonProcessingException ex) {
-			throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, ex);
-		}
-	}
+    @JsonIgnore
+    Date getTimestamp();
 
-	@Override
-	public void writePerunException(PerunException pex) throws IOException {
+  }
 
-		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
-		if (pex == null) {
-			throw new IllegalArgumentException("pex is null");
-		} else {
-			gen.writeObject(pex);
-			gen.flush();
-		}
-		gen.close();
+  @SuppressWarnings("unused")
+  private interface BanMixIn {
 
-	}
+    @JsonSerialize
+    @JsonProperty(value = "validityTo")
+    Long getValidityToAsLong();
 
-	@Override
-	public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
+    @JsonIgnore
+    Date getValidityTo();
 
-		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
-		if (prex == null) {
-			throw new IllegalArgumentException("prex is null");
-		} else {
-			gen.writeObject(prex);
-			gen.flush();
-		}
-		gen.close();
-
-	}
+  }
 }

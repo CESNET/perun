@@ -18,43 +18,43 @@ import static org.mockito.Mockito.mock;
  */
 public class urn_perun_group_attribute_def_def_o365SendAsGroupsTest {
 
-	private urn_perun_group_attribute_def_def_o365SendAsGroups classInstance;
-	private Attribute attributeToCheck;
-	private Group group = new Group(1,"group1","Group 1",null,null,null,null,0,0);
-	private PerunSessionImpl sess;
+  private urn_perun_group_attribute_def_def_o365SendAsGroups classInstance;
+  private Attribute attributeToCheck;
+  private Group group = new Group(1, "group1", "Group 1", null, null, null, null, 0, 0);
+  private PerunSessionImpl sess;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_group_attribute_def_def_o365SendAsGroups();
-		sess = mock(PerunSessionImpl.class);
-		attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
-	}
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_group_attribute_def_def_o365SendAsGroups();
+    sess = mock(PerunSessionImpl.class);
+    attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
+  }
 
-	@Test
-	public void testCheckCorrectSyntax() throws Exception {
-		System.out.println("testCheckCorrectSyntax");
-		List<String> value = new ArrayList<>();
-		value.add("123");
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCheckCorrectSyntax() throws Exception {
+    System.out.println("testCheckCorrectSyntax");
+    List<String> value = new ArrayList<>();
+    value.add("123");
+    attributeToCheck.setValue(value);
 
-		assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
-	}
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+  }
 
-	@Test
-	public void testCheckCorrectSyntaxNull() throws Exception {
-		System.out.println("testCheckCorrectSyntaxNull");
-		attributeToCheck.setValue(null);
+  @Test
+  public void testCheckCorrectSyntaxNull() throws Exception {
+    System.out.println("testCheckCorrectSyntaxNull");
+    attributeToCheck.setValue(null);
 
-		assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
-	}
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckIncorrectSyntaxIdNotNumber() throws Exception {
-		System.out.println("testCheckIncorrectSyntaxIdNotNumber");
-		List<String> value = new ArrayList<>();
-		value.add("ahoj");
-		attributeToCheck.setValue(value);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckIncorrectSyntaxIdNotNumber() throws Exception {
+    System.out.println("testCheckIncorrectSyntaxIdNotNumber");
+    List<String> value = new ArrayList<>();
+    value.add("ahoj");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
+  }
 }

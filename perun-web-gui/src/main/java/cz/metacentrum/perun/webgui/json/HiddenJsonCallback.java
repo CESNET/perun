@@ -8,15 +8,17 @@ package cz.metacentrum.perun.webgui.json;
  */
 public interface HiddenJsonCallback {
 
-	/**
-	 * Whether should be the callback silent
-	 * @return
-	 */
-	public boolean isHidden();
+  /**
+   * Whether should be the callback silent
+   *
+   * @return
+   */
+  public boolean isHidden();
 
-	/**
-	 * Set true for not triggering the alert box if failed
-	 * @param hidden
-	 */
-	public void setHidden(boolean hidden);
+  /**
+   * Set true for not triggering the alert box if failed
+   *
+   * @param hidden
+   */
+  public void setHidden(boolean hidden);
 }

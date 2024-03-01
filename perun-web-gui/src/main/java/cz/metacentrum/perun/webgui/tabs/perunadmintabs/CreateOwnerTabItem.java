@@ -26,181 +26,186 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  */
 public class CreateOwnerTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Create owner");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Create owner");
 
-	/**
-	 * Creates a tab instance
-	 *
-	 */
-	public CreateOwnerTabItem(){ }
+  /**
+   * Creates a tab instance
+   */
+  public CreateOwnerTabItem() {
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  public boolean isPrepared() {
+    return true;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public void onClose() {
 
-	}
+  }
 
-	public Widget draw() {
+  public Widget draw() {
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%","100%");
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		// textboxes which set the class data when updated
-		final ExtendedTextBox ownerNameTextBox = new ExtendedTextBox();
-		final ExtendedTextBox ownerContactTextBox = new ExtendedTextBox();
+    // textboxes which set the class data when updated
+    final ExtendedTextBox ownerNameTextBox = new ExtendedTextBox();
+    final ExtendedTextBox ownerContactTextBox = new ExtendedTextBox();
 
-		final ListBox ownerType = new ListBox();
-		ownerType.addItem(ObjectTranslation.INSTANCE.ownerTypeAdministrative(),"administrative");
-		ownerType.addItem(ObjectTranslation.INSTANCE.ownerTypeTechnical(),"technical");
+    final ListBox ownerType = new ListBox();
+    ownerType.addItem(ObjectTranslation.INSTANCE.ownerTypeAdministrative(), "administrative");
+    ownerType.addItem(ObjectTranslation.INSTANCE.ownerTypeTechnical(), "technical");
 
-		final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-				if (ownerNameTextBox.getTextBox().getText().trim().isEmpty()) {
-					ownerNameTextBox.setError("Name can't be empty.");
-					return false;
-				}
-				ownerNameTextBox.setOk();
-				return true;
-			}
-		};
+    final ExtendedTextBox.TextBoxValidator nameValidator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+        if (ownerNameTextBox.getTextBox().getText().trim().isEmpty()) {
+          ownerNameTextBox.setError("Name can't be empty.");
+          return false;
+        }
+        ownerNameTextBox.setOk();
+        return true;
+      }
+    };
 
-		final ExtendedTextBox.TextBoxValidator contactValidator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-				if (ownerContactTextBox.getTextBox().getText().trim().isEmpty()) {
-					ownerContactTextBox.setError("Contact can't be empty.");
-					return false;
-				}
-				ownerContactTextBox.setOk();
-				return true;
-			}
-		};
+    final ExtendedTextBox.TextBoxValidator contactValidator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+        if (ownerContactTextBox.getTextBox().getText().trim().isEmpty()) {
+          ownerContactTextBox.setError("Contact can't be empty.");
+          return false;
+        }
+        ownerContactTextBox.setOk();
+        return true;
+      }
+    };
 
-		ownerNameTextBox.setValidator(nameValidator);
-		ownerContactTextBox.setValidator(contactValidator);
+    ownerNameTextBox.setValidator(nameValidator);
+    ownerContactTextBox.setValidator(contactValidator);
 
-		// layout
-		FlexTable layout = new FlexTable();
-		layout.setStyleName("inputFormFlexTable");
-		FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
+    // layout
+    FlexTable layout = new FlexTable();
+    layout.setStyleName("inputFormFlexTable");
+    FlexCellFormatter cellFormatter = layout.getFlexCellFormatter();
 
-		// Add some standard form options
-		layout.setHTML(0, 0, "Name:");
-		layout.setWidget(0, 1, ownerNameTextBox);
-		layout.setHTML(1, 0, "Contact:");
-		layout.setWidget(1, 1, ownerContactTextBox);
-		layout.setHTML(2, 0, "Type:");
-		layout.setWidget(2, 1, ownerType);
+    // Add some standard form options
+    layout.setHTML(0, 0, "Name:");
+    layout.setWidget(0, 1, ownerNameTextBox);
+    layout.setHTML(1, 0, "Contact:");
+    layout.setWidget(1, 1, ownerContactTextBox);
+    layout.setHTML(2, 0, "Type:");
+    layout.setWidget(2, 1, ownerType);
 
-		for (int i=0; i<layout.getRowCount(); i++) {
-			cellFormatter.addStyleName(i, 0, "itemName");
-		}
+    for (int i = 0; i < layout.getRowCount(); i++) {
+      cellFormatter.addStyleName(i, 0, "itemName");
+    }
 
-		// buttons
-		TabMenu menu = new TabMenu();
-		final TabItem tab = this;
+    // buttons
+    TabMenu menu = new TabMenu();
+    final TabItem tab = this;
 
-		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createOwner());
+    final CustomButton createButton =
+        TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createOwner());
 
-		createButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				if (nameValidator.validateTextBox() && contactValidator.validateTextBox()) {
-					CreateOwner request = new CreateOwner(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
-					request.createOwner(ownerNameTextBox.getTextBox().getText().trim(), ownerContactTextBox.getTextBox().getText().trim(), ownerType.getValue(ownerType.getSelectedIndex()));
-				}
-			}
-		});
+    createButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        if (nameValidator.validateTextBox() && contactValidator.validateTextBox()) {
+          CreateOwner request =
+              new CreateOwner(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
+          request.createOwner(ownerNameTextBox.getTextBox().getText().trim(),
+              ownerContactTextBox.getTextBox().getText().trim(), ownerType.getValue(ownerType.getSelectedIndex()));
+        }
+      }
+    });
 
-		menu.addWidget(createButton);
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    menu.addWidget(createButton);
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		vp.add(layout);
-		vp.add(menu);
-		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+    vp.add(layout);
+    vp.add(menu);
+    vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		this.contentWidget.setWidget(vp);
+    this.contentWidget.setWidget(vp);
 
-		return getWidget();
-	}
+    return getWidget();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 919;
-		int result = 1;
-		result = prime * result + 678186;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 919;
+    int result = 1;
+    result = prime * result + 678186;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open()
-	{
+  public void open() {
 
-	}
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
 }

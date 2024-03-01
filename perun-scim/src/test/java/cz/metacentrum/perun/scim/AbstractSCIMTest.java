@@ -25,53 +25,52 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 11.10.2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-scim.xml" })
+@ContextConfiguration(locations = {"classpath:perun-scim.xml"})
 @Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractSCIMTest {
 
-	@Autowired
-	private PerunBl perun;
-	private User testUser;
+  public PerunSession session;
+  @Autowired
+  private PerunBl perun;
+  private User testUser;
 
-	public PerunSession session;
+  @Before
+  public void setUpSession() throws Exception {
+    session = perun.getPerunSession(new PerunPrincipal(
+            "perunTests",
+            ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+            ExtSourcesManager.EXTSOURCE_INTERNAL),
+        new PerunClient());
 
-	@Before
-	public void setUpSession() throws Exception {
-		session = perun.getPerunSession(new PerunPrincipal(
-						"perunTests",
-						ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-						ExtSourcesManager.EXTSOURCE_INTERNAL),
-				new PerunClient());
+    testUser = createTestUser();
+    session.getPerunPrincipal().setUser(testUser);
+  }
 
-		testUser = createTestUser();
-		session.getPerunPrincipal().setUser(testUser);
-	}
+  private User createTestUser() {
+    User user = new User();
+    user.setFirstName("James");
+    user.setLastName("Bond");
+    return perun.getUsersManagerBl().createUser(session, user);
+  }
 
-	private User createTestUser() {
-		User user = new User();
-		user.setFirstName("James");
-		user.setLastName("Bond");
-		return perun.getUsersManagerBl().createUser(session, user);
-	}
+  public Vo createVo(int id, String name, String shortName) throws Exception {
+    return perun.getVosManagerBl().createVo(session, new Vo(id, name, shortName));
+  }
 
-	public Vo createVo(int id, String name, String shortName) throws Exception {
-		return perun.getVosManagerBl().createVo(session, new Vo(id, name, shortName));
-	}
+  public Group createGroup(Vo vo, String name, String desc) throws Exception {
+    return perun.getGroupsManagerBl().createGroup(session, vo, new Group(name, desc));
+  }
 
-	public Group createGroup(Vo vo, String name, String desc) throws Exception {
-		return perun.getGroupsManagerBl().createGroup(session, vo, new Group(name, desc));
-	}
+  public User createUser(int id, String firstName, String lastName) throws Exception {
+    User user = new User(id, firstName, lastName, null, null, null);
+    return perun.getUsersManagerBl().createUser(session, user);
+  }
 
-	public User createUser(int id, String firstName, String lastName) throws Exception {
-		User user = new User(id, firstName, lastName, null, null, null);
-		return perun.getUsersManagerBl().createUser(session, user);
-	}
+  public Member createMember(Vo vo, User user) throws Exception {
+    return perun.getMembersManagerBl().createMember(session, vo, user);
+  }
 
-	public Member createMember(Vo vo, User user) throws Exception {
-		return perun.getMembersManagerBl().createMember(session, vo, user);
-	}
-
-	public final void addMemberToGroup(Group group, Member member) throws Exception {
-		perun.getGroupsManagerBl().addMember(session, group, member);
-	}
+  public final void addMemberToGroup(Group group, Member member) throws Exception {
+    perun.getGroupsManagerBl().addMember(session, group, member);
+  }
 }

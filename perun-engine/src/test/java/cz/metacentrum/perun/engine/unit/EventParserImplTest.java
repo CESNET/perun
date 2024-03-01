@@ -21,30 +21,29 @@ import cz.metacentrum.perun.taskslib.model.Task;
  */
 public class EventParserImplTest extends AbstractEngineTest {
 
-	private final static Logger log = LoggerFactory.getLogger(EventParserImplTest.class);
+  private final static Logger log = LoggerFactory.getLogger(EventParserImplTest.class);
+  @Autowired
+  PerunBl perun;
+  @Autowired
+  private EventParser eventParser;
 
-	@Autowired
-	private EventParser eventParser;
-	@Autowired
-	PerunBl perun;
+  @Test
+  public void parseEventTest() throws Exception {
+    System.out.println("EventParserImpl.parseEventTest");
 
-	@Test
-	public void parseEventTest() throws Exception {
-		System.out.println("EventParserImpl.parseEventTest");
+    String testEvent = "task|[" + task1.getId() + "][false]|["
+        + task1.getService().serializeToString() + "]|["
+        + task1.getFacility().serializeToString() + "]|[Destinations [";
 
-		String testEvent = "task|[" + task1.getId() + "][false]|["
-				+ task1.getService().serializeToString() + "]|["
-				+ task1.getFacility().serializeToString() + "]|[Destinations [";
+    for (Destination destination : task1.getDestinations()) {
+      testEvent = testEvent.concat(destination.serializeToString() + ", ");
+    }
+    testEvent = testEvent.concat("]]");
 
-		for (Destination destination : task1.getDestinations()) {
-			testEvent = testEvent.concat(destination.serializeToString() + ", ");
-		}
-		testEvent = testEvent.concat("]]");
+    Task task2 = eventParser.parseEvent(testEvent);
 
-		Task task2 = eventParser.parseEvent(testEvent);
+    Assert.isTrue(task1.equals(task2), "task1 equals task2");
 
-		Assert.isTrue(task1.equals(task2), "task1 equals task2");
-
-	}
+  }
 
 }

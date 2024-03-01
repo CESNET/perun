@@ -10,58 +10,59 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class RichService extends JavaScriptObject {
 
-	protected RichService() {}
+  protected RichService() {
+  }
 
-	/**
-	 * Gets ID of service
-	 *
-	 * @return id of service
-	 */
-	public final native int getId() /*-{
+  /**
+   * Gets ID of service
+   *
+   * @return id of service
+   */
+  public final native int getId() /*-{
 		return this.id;
 	}-*/;
 
-		/**
-		 * Gets name of service
-		 *
-		 * @return name of service
-		 */
-		public final native String getName()  /*-{
+  /**
+   * Gets name of service
+   *
+   * @return name of service
+   */
+  public final native String getName()  /*-{
 			return this.name;
 		}-*/;
 
-		/**
-		 * Returns Perun specific type of object
-		 *
-		 * @return type of object
-		 */
-		public final native String getObjectType() /*-{
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 			if (!this.beanName) {
 			return "JavaScriptObject"
 			}
 			return this.beanName;
 		}-*/;
 
-		/**
-		 * Sets Perun specific type of object
-		 *
-		 * @param type type of object
-		 */
-		public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 			this.beanName = type;
 		}-*/;
 
-		/**
-		 * Returns the status of this item in Perun system as String
-		 * VALID, INVALID, EXPIRED, DISABLED
-		 *
-		 * @return string which defines item status
-		 */
-		public final native String getStatus() /*-{
+  /**
+   * Returns the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @return string which defines item status
+   */
+  public final native String getStatus() /*-{
 			return this.status;
 		}-*/;
 
-		public final native String getAllowedOnFacility()/*-{
+  public final native String getAllowedOnFacility()/*-{
 			if (this.allowedOnFacility==true) {
 			return "Allowed";
 			} else {
@@ -69,18 +70,18 @@ public class RichService extends JavaScriptObject {
 			}
 		}-*/;
 
-		public final native Service getService()/*-{
+  public final native Service getService()/*-{
 			return this;
 		}-*/;
 
-		/**
-		 * Compares to another object
-		 * @param o Object to compare
-		 * @return true, if they are the same
-		 */
-		public final boolean equals(Service o)
-		{
-			return o.getId() == this.getId();
-		}
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(Service o) {
+    return o.getId() == this.getId();
+  }
 
 }

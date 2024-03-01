@@ -43,215 +43,217 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class VosManagerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
-	private final static String CLASS_NAME = "VosManagerImpl.";
+  private final static String CLASS_NAME = "VosManagerImpl.";
 
-	final ExtSource extSource = new ExtSource(0, "VosManagerExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
-	private int userLoginSequence = 0;
+  final ExtSource extSource = new ExtSource(0, "VosManagerExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
+  private int userLoginSequence = 0;
 
-	private User user;
-	private Member member;
-	private Member otherMember;
-	private Vo vo;
-	private Vo otherVo;
+  private User user;
+  private Member member;
+  private Member otherMember;
+  private Vo vo;
+  private Vo otherVo;
 
-	private VosManagerImplApi vosManagerImpl;
+  private VosManagerImplApi vosManagerImpl;
 
-	@Before
-	public void setUp() throws Exception {
-		MembersManagerImplApi membersManagerImplApi = (MembersManagerImplApi) ReflectionTestUtils.getField(
-				perun.getMembersManagerBl(), "membersManagerImpl");
-		if (membersManagerImplApi == null) {
-			throw new RuntimeException("Failed to get membersManagerImpl");
-		}
+  @Before
+  public void setUp() throws Exception {
+    MembersManagerImplApi membersManagerImplApi = (MembersManagerImplApi) ReflectionTestUtils.getField(
+        perun.getMembersManagerBl(), "membersManagerImpl");
+    if (membersManagerImplApi == null) {
+      throw new RuntimeException("Failed to get membersManagerImpl");
+    }
 
-		vosManagerImpl = (VosManagerImplApi) ReflectionTestUtils.getField(perun.getVosManagerBl(), "vosManagerImpl");
-		if (vosManagerImpl == null) {
-			throw new RuntimeException("Failed to get vosManagerImpl");
-		}
+    vosManagerImpl = (VosManagerImplApi) ReflectionTestUtils.getField(perun.getVosManagerBl(), "vosManagerImpl");
+    if (vosManagerImpl == null) {
+      throw new RuntimeException("Failed to get vosManagerImpl");
+    }
 
-		user = new User(-1, "John", "Doe", "", "", "");
-		user = perun.getUsersManagerBl().createUser(sess, user);
+    user = new User(-1, "John", "Doe", "", "", "");
+    user = perun.getUsersManagerBl().createUser(sess, user);
 
-		vo = new Vo(-1, "Vo", "vo");
-		vo = perun.getVosManagerBl().createVo(sess, vo);
+    vo = new Vo(-1, "Vo", "vo");
+    vo = perun.getVosManagerBl().createVo(sess, vo);
 
-		member = membersManagerImplApi.createMember(sess, vo, user);
+    member = membersManagerImplApi.createMember(sess, vo, user);
 
-		otherVo = new Vo(-1, "Other vo", "othervo");
-		otherVo = perun.getVosManagerBl().createVo(sess, otherVo);
+    otherVo = new Vo(-1, "Other vo", "othervo");
+    otherVo = perun.getVosManagerBl().createVo(sess, otherVo);
 
-		otherMember = membersManagerImplApi.createMember(sess, otherVo, user);
-	}
+    otherMember = membersManagerImplApi.createMember(sess, otherVo, user);
+  }
 
-	@Test
-	public void setBan() throws Exception {
-		System.out.println(CLASS_NAME + "setBan");
+  @Test
+  public void setBan() throws Exception {
+    System.out.println(CLASS_NAME + "setBan");
 
-		BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
-		originBan = vosManagerImpl.setBan(sess, originBan);
+    BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
+    originBan = vosManagerImpl.setBan(sess, originBan);
 
-		BanOnVo actualBan = vosManagerImpl.getBanForMember(sess, originBan.getMemberId());
+    BanOnVo actualBan = vosManagerImpl.getBanForMember(sess, originBan.getMemberId());
 
-		assertThat(originBan).isEqualTo(actualBan);
-	}
+    assertThat(originBan).isEqualTo(actualBan);
+  }
 
-	@Test
-	public void getBanById() throws Exception {
-		System.out.println(CLASS_NAME + "getBanById");
+  @Test
+  public void getBanById() throws Exception {
+    System.out.println(CLASS_NAME + "getBanById");
 
-		BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
-		originBan = vosManagerImpl.setBan(sess, originBan);
+    BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
+    originBan = vosManagerImpl.setBan(sess, originBan);
 
-		BanOnVo actualBan = vosManagerImpl.getBanById(sess, originBan.getId());
+    BanOnVo actualBan = vosManagerImpl.getBanById(sess, originBan.getId());
 
-		isValidBan(actualBan, originBan.getId(), originBan.getMemberId(), originBan.getVoId(),
-				originBan.getValidityTo(), originBan.getDescription());
-	}
+    isValidBan(actualBan, originBan.getId(), originBan.getMemberId(), originBan.getVoId(),
+        originBan.getValidityTo(), originBan.getDescription());
+  }
 
-	@Test
-	public void getBanForMember() throws Exception {
-		System.out.println(CLASS_NAME + "getBanForMember");
+  @Test
+  public void getBanForMember() throws Exception {
+    System.out.println(CLASS_NAME + "getBanForMember");
 
-		BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
-		originBan = vosManagerImpl.setBan(sess, originBan);
+    BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
+    originBan = vosManagerImpl.setBan(sess, originBan);
 
-		BanOnVo actualBan = vosManagerImpl.getBanById(sess, originBan.getId());
+    BanOnVo actualBan = vosManagerImpl.getBanById(sess, originBan.getId());
 
-		isValidBan(actualBan, originBan.getId(), originBan.getMemberId(), originBan.getVoId(),
-				originBan.getValidityTo(), originBan.getDescription());
-	}
+    isValidBan(actualBan, originBan.getId(), originBan.getMemberId(), originBan.getVoId(),
+        originBan.getValidityTo(), originBan.getDescription());
+  }
 
-	@Test
-	public void getBansForVo() {
-		System.out.println(CLASS_NAME + "getBansForVo");
+  @Test
+  public void getBansForVo() {
+    System.out.println(CLASS_NAME + "getBansForVo");
 
-		BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
-		originBan = vosManagerImpl.setBan(sess, originBan);
+    BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
+    originBan = vosManagerImpl.setBan(sess, originBan);
 
-		BanOnVo otherBan = new BanOnVo(-1, otherMember.getId(), otherVo.getId(), new Date(), "noob");
-		vosManagerImpl.setBan(sess, otherBan);
+    BanOnVo otherBan = new BanOnVo(-1, otherMember.getId(), otherVo.getId(), new Date(), "noob");
+    vosManagerImpl.setBan(sess, otherBan);
 
-		List<BanOnVo> voBans = vosManagerImpl.getBansForVo(sess, vo.getId());
+    List<BanOnVo> voBans = vosManagerImpl.getBansForVo(sess, vo.getId());
 
-		assertThat(voBans).containsOnly(originBan);
-	}
+    assertThat(voBans).containsOnly(originBan);
+  }
 
-	@Test
-	public void updateBanDescription() throws Exception {
-		System.out.println(CLASS_NAME + "updateBanDescription");
+  @Test
+  public void updateBanDescription() throws Exception {
+    System.out.println(CLASS_NAME + "updateBanDescription");
 
-		testUpdateBan(ban -> ban.setDescription("Updated Description"));
-	}
+    testUpdateBan(ban -> ban.setDescription("Updated Description"));
+  }
 
-	@Test
-	public void updateBanValidity() throws Exception {
-		System.out.println(CLASS_NAME + "updateBanValidity");
+  @Test
+  public void updateBanValidity() throws Exception {
+    System.out.println(CLASS_NAME + "updateBanValidity");
 
-		testUpdateBan(ban -> ban.setValidityTo(new Date(1434343L)));
-	}
+    testUpdateBan(ban -> ban.setValidityTo(new Date(1434343L)));
+  }
 
-	@Test
-	public void removeBan() throws Exception {
-		System.out.println(CLASS_NAME + "removeBan");
+  @Test
+  public void removeBan() throws Exception {
+    System.out.println(CLASS_NAME + "removeBan");
 
-		BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
-		vosManagerImpl.setBan(sess, originBan);
+    BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
+    vosManagerImpl.setBan(sess, originBan);
 
-		vosManagerImpl.removeBan(sess, originBan.getId());
+    vosManagerImpl.removeBan(sess, originBan.getId());
 
-		assertThatExceptionOfType(BanNotExistsException.class)
-				.isThrownBy(() -> vosManagerImpl.getBanById(sess, originBan.getId()));
-	}
+    assertThatExceptionOfType(BanNotExistsException.class)
+        .isThrownBy(() -> vosManagerImpl.getBanById(sess, originBan.getId()));
+  }
 
-	@Test
-	public void getAdminsOnlyValidMembers() throws Exception {
-		System.out.println(CLASS_NAME + "getAdminsOnlyValidMembers");
+  @Test
+  public void getAdminsOnlyValidMembers() throws Exception {
+    System.out.println(CLASS_NAME + "getAdminsOnlyValidMembers");
 
-		Member member1 = createSomeMember(vo);
+    Member member1 = createSomeMember(vo);
 
-		User user1 = perun.getUsersManagerBl().getUserByMember(sess,member1);
+    User user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
 
-		Group group1 = setUpGroup(vo, member1, "testGroup");
+    Group group1 = setUpGroup(vo, member1, "testGroup");
 
-		AuthzResolver.setRole(sess, group1, this.vo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, group1, this.vo, Role.VOADMIN);
 
-		assertThat(vosManagerImpl.getAdmins(sess,vo, Role.VOADMIN)).containsExactly(user1);
+    assertThat(vosManagerImpl.getAdmins(sess, vo, Role.VOADMIN)).containsExactly(user1);
 
-		perun.getMembersManagerBl().invalidateMember(sess, member1);
-		assertThat(vosManagerImpl.getAdmins(sess, vo, Role.VOADMIN)).containsExactly();
+    perun.getMembersManagerBl().invalidateMember(sess, member1);
+    assertThat(vosManagerImpl.getAdmins(sess, vo, Role.VOADMIN)).containsExactly();
 
-		perun.getMembersManagerBl().validateMember(sess, member1);
-		assertThat(vosManagerImpl.getAdmins(sess,vo, Role.VOADMIN)).containsExactly(user1);
+    perun.getMembersManagerBl().validateMember(sess, member1);
+    assertThat(vosManagerImpl.getAdmins(sess, vo, Role.VOADMIN)).containsExactly(user1);
 
-		perun.getGroupsManagerBl().expireMemberInGroup(sess, member1, group1);
-		assertThat(vosManagerImpl.getAdmins(sess, vo, Role.VOADMIN)).containsExactly();
-	}
-
-
-	private void testUpdateBan(Consumer<BanOnVo> banChange) throws Exception {
-		BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
-		originBan = vosManagerImpl.setBan(sess, originBan);
-		originBan = vosManagerImpl.getBanById(sess, originBan.getId());
-
-		banChange.accept(originBan);
-
-		vosManagerImpl.updateBan(sess, originBan);
-
-		BanOnVo updatedBan = vosManagerImpl.getBanById(sess, originBan.getId());
-
-		assertThat(updatedBan).isEqualByComparingTo(originBan);
-	}
-
-	private void isValidBan(BanOnVo ban, int banId, int memberId, int voId, Date validity, String description) {
-		assertThat(ban.getId()).isEqualTo(banId);
-		assertThat(ban.getMemberId()).isEqualTo(memberId);
-		assertThat(ban.getVoId()).isEqualTo(voId);
-		assertThat(ban.getValidityTo()).isEqualTo(validity);
-		assertThat(ban.getDescription()).isEqualTo(description);
-
-		assertThat(ban.getCreatedAt()).isNotNull();
-		assertThat(ban.getCreatedBy()).isNotNull();
-		assertThat(ban.getCreatedByUid()).isNotNull();
-		assertThat(ban.getModifiedAt()).isNotNull();
-		assertThat(ban.getModifiedBy()).isNotNull();
-		assertThat(ban.getModifiedByUid()).isNotNull();
-	}
+    perun.getGroupsManagerBl().expireMemberInGroup(sess, member1, group1);
+    assertThat(vosManagerImpl.getAdmins(sess, vo, Role.VOADMIN)).containsExactly();
+  }
 
 
-	// private methods ==============================================================
+  private void testUpdateBan(Consumer<BanOnVo> banChange) throws Exception {
+    BanOnVo originBan = new BanOnVo(-1, member.getId(), vo.getId(), new Date(), "noob");
+    originBan = vosManagerImpl.setBan(sess, originBan);
+    originBan = vosManagerImpl.getBanById(sess, originBan.getId());
 
-	private Candidate setUpCandidate(String login) {
+    banChange.accept(originBan);
 
-		String userFirstName = "FirstTest";
-		String userLastName = "LastTest";
+    vosManagerImpl.updateBan(sess, originBan);
 
-		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
-		candidate.setFirstName(userFirstName);
-		candidate.setId(0);
-		candidate.setMiddleName("");
-		candidate.setLastName(userLastName);
-		candidate.setTitleBefore("");
-		candidate.setTitleAfter("");
-		final UserExtSource userExtSource = new UserExtSource(extSource, login);
-		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<>());
-		return candidate;
+    BanOnVo updatedBan = vosManagerImpl.getBanById(sess, originBan.getId());
 
-	}
+    assertThat(updatedBan).isEqualByComparingTo(originBan);
+  }
 
-		private Group setUpGroup(Vo vo, Member member, String name) throws Exception {
+  private void isValidBan(BanOnVo ban, int banId, int memberId, int voId, Date validity, String description) {
+    assertThat(ban.getId()).isEqualTo(banId);
+    assertThat(ban.getMemberId()).isEqualTo(memberId);
+    assertThat(ban.getVoId()).isEqualTo(voId);
+    assertThat(ban.getValidityTo()).isEqualTo(validity);
+    assertThat(ban.getDescription()).isEqualTo(description);
 
-		Group group = new Group(name, "test group");
-		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+    assertThat(ban.getCreatedAt()).isNotNull();
+    assertThat(ban.getCreatedBy()).isNotNull();
+    assertThat(ban.getCreatedByUid()).isNotNull();
+    assertThat(ban.getModifiedAt()).isNotNull();
+    assertThat(ban.getModifiedBy()).isNotNull();
+    assertThat(ban.getModifiedByUid()).isNotNull();
+  }
 
-		perun.getGroupsManagerBl().addMember(sess, group, member);
 
-		return group;
-	}
+  // private methods ==============================================================
 
-	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
-		final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
-		return createdMember;
-	}
+  private Candidate setUpCandidate(String login) {
+
+    String userFirstName = "FirstTest";
+    String userLastName = "LastTest";
+
+    Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
+    candidate.setFirstName(userFirstName);
+    candidate.setId(0);
+    candidate.setMiddleName("");
+    candidate.setLastName(userLastName);
+    candidate.setTitleBefore("");
+    candidate.setTitleAfter("");
+    final UserExtSource userExtSource = new UserExtSource(extSource, login);
+    candidate.setUserExtSource(userExtSource);
+    candidate.setAttributes(new HashMap<>());
+    return candidate;
+
+  }
+
+  private Group setUpGroup(Vo vo, Member member, String name) throws Exception {
+
+    Group group = new Group(name, "test group");
+    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+
+    perun.getGroupsManagerBl().addMember(sess, group, member);
+
+    return group;
+  }
+
+  private Member createSomeMember(final Vo createdVo)
+      throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
+      WrongReferenceAttributeValueException {
+    final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
+    final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+    return createdMember;
+  }
 }

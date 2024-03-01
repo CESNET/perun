@@ -9,35 +9,35 @@ import cz.metacentrum.perun.core.api.UserExtSource;
  */
 public class AttributeRemovedForUes extends AuditEvent {
 
-	private AttributeDefinition attribute;
-	private UserExtSource ues;
-	private String message;
+  private AttributeDefinition attribute;
+  private UserExtSource ues;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeRemovedForUes() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeRemovedForUes() {
+  }
 
-	public AttributeRemovedForUes(AttributeDefinition attribute, UserExtSource ues) {
-		this.attribute = attribute;
-		this.ues = ues;
-		this.message = formatMessage("%s removed for %s.", attribute, ues);
-	}
+  public AttributeRemovedForUes(AttributeDefinition attribute, UserExtSource ues) {
+    this.attribute = attribute;
+    this.ues = ues;
+    this.message = formatMessage("%s removed for %s.", attribute, ues);
+  }
 
-	public AttributeDefinition getAttribute() {
-		return attribute;
-	}
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
 
-	public UserExtSource getUes() {
-		return ues;
-	}
+  public UserExtSource getUes() {
+    return ues;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

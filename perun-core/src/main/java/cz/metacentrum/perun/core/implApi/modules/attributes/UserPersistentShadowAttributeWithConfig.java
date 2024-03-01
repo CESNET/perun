@@ -12,37 +12,37 @@ import cz.metacentrum.perun.core.impl.modules.ModulesYamlConfigLoader;
  */
 public abstract class UserPersistentShadowAttributeWithConfig extends UserPersistentShadowAttribute {
 
-	private final ModulesConfigLoader loader = new ModulesYamlConfigLoader();
-	private String extSourceName = null;
-	private String domainName = null;
+  private final ModulesConfigLoader loader = new ModulesYamlConfigLoader();
+  private String extSourceName = null;
+  private String domainName = null;
 
-	@Override
-	public String getExtSourceName() {
-		if (extSourceName == null) {
-			extSourceName = loader.loadString(getClass().getSimpleName(), getExtSourceConfigName());
-		}
-		return extSourceName;
-	}
+  @Override
+  public String getExtSourceName() {
+    if (extSourceName == null) {
+      extSourceName = loader.loadString(getClass().getSimpleName(), getExtSourceConfigName());
+    }
+    return extSourceName;
+  }
 
-	@Override
-	public String getDomainName() {
-		if (domainName == null) {
-			domainName = loader.loadString(getClass().getSimpleName(), getDomainConfigName());
-		}
-		return domainName;
-	}
+  @Override
+  public String getDomainName() {
+    if (domainName == null) {
+      domainName = loader.loadString(getClass().getSimpleName(), getDomainConfigName());
+    }
+    return domainName;
+  }
 
-	/**
-	 * Get path in the config file to the extSource.
-	 *
-	 * @return path in the config file to the extSource name.
-	 */
-	public abstract String getExtSourceConfigName();
+  /**
+   * Get path in the config file to the extSource.
+   *
+   * @return path in the config file to the extSource name.
+   */
+  public abstract String getExtSourceConfigName();
 
-	/**
-	 * Get path in the config file to the domain name.
-	 *
-	 * @return path in the config file to the domain name.
-	 */
-	public abstract String getDomainConfigName();
+  /**
+   * Get path in the config file to the domain name.
+   *
+   * @return path in the config file to the domain name.
+   */
+  public abstract String getDomainConfigName();
 }

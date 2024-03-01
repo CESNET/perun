@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class ResourceDeleted extends AuditEvent {
 
-	private Resource resource;
-	private Facility facility;
-	private String message;
+  private Resource resource;
+  private Facility facility;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ResourceDeleted() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ResourceDeleted() {
+  }
 
-	public ResourceDeleted(Resource resource, Facility facility) {
-		this.resource = resource;
-		this.facility = facility;
-		this.message = formatMessage("%s deleted.#%s.", resource, facility);
-	}
+  public ResourceDeleted(Resource resource, Facility facility) {
+    this.resource = resource;
+    this.facility = facility;
+    this.message = formatMessage("%s deleted.#%s.", resource, facility);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

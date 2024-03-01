@@ -1,6 +1,7 @@
 /**
  *
  */
+
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -29,142 +30,148 @@ import java.util.Map;
  */
 public class ExtSourceISMU extends ExtSourceImpl implements ExtSourceSimpleApi {
 
-	private final static Logger log = LoggerFactory.getLogger(ExtSourceISMU.class);
+  private final static Logger log = LoggerFactory.getLogger(ExtSourceISMU.class);
 
-	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
-	}
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
 
-	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
-	}
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
 
-	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
-	}
+  @Override
+  public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
 
-	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
-		// Get the url query for the group subjects
-		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+  @Override
+  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
+    // Get the url query for the group subjects
+    String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
-		return this.querySource(queryForGroup, null, 0);
-	}
+    return this.querySource(queryForGroup, null, 0);
+  }
 
-	@Override
-	public List<Map<String, String>> getUsersSubjects() {
-		// Get the url query for users subjects
-		String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
+  @Override
+  public List<Map<String, String>> getUsersSubjects() {
+    // Get the url query for users subjects
+    String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
 
-		return querySource(queryForUsers, null, 0);
-	}
+    return querySource(queryForUsers, null, 0);
+  }
 
-	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) {
+  protected List<Map<String, String>> querySource(String query, String searchString, int maxResults) {
 
-		try {
-			HttpURLConnection http = getHttpConnection(query, searchString);
-			// Prepare the basic auth, if the username and password was specified
-			if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
-				String val = getAttributes().get("user") + ":" + getAttributes().get("password");
+    try {
+      HttpURLConnection http = getHttpConnection(query, searchString);
+      // Prepare the basic auth, if the username and password was specified
+      if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
+        String val = getAttributes().get("user") + ":" + getAttributes().get("password");
 
-				Base64 encoder = new Base64();
-				String base64Encoded = new String(encoder.encode(val.getBytes()));
-				// Java bug : http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6459815
-				base64Encoded = base64Encoded.trim();
-				String authorizationString = "Basic " + base64Encoded;
-				http.setRequestProperty("Authorization", authorizationString);
-			}
+        Base64 encoder = new Base64();
+        String base64Encoded = new String(encoder.encode(val.getBytes()));
+        // Java bug : http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6459815
+        base64Encoded = base64Encoded.trim();
+        String authorizationString = "Basic " + base64Encoded;
+        http.setRequestProperty("Authorization", authorizationString);
+      }
 
-			http.setAllowUserInteraction(false);
-			http.setRequestMethod("GET");
-			http.connect();
+      http.setAllowUserInteraction(false);
+      http.setRequestMethod("GET");
+      http.connect();
 
-			InputStream is = http.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			String line;
+      InputStream is = http.getInputStream();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+      String line;
 
-			List<Map<String, String>> subjects = new ArrayList<>();
+      List<Map<String, String>> subjects = new ArrayList<>();
 
-			while ((line = reader.readLine()) != null) {
-				Map<String, String> map = new HashMap<>();
+      while ((line = reader.readLine()) != null) {
+        Map<String, String> map = new HashMap<>();
 
-				// Each line looks like:
-				// UCO  ;;          ;"title before. title before. firstName lastName, title after
-				// 39700;;“RNDr. Michal Procházka";Procházka;Michal;
+        // Each line looks like:
+        // UCO  ;;          ;"title before. title before. firstName lastName, title after
+        // 39700;;“RNDr. Michal Procházka";Procházka;Michal;
 
-				// Parse the line
-				String[] entries = line.split(";");
-				// Get the UCO
-				if (entries[0].equals("")) {
-					// skip this subject, because it doesn't have UCO defined
-					continue;
-				}
-				String login = entries[0];
-				if (login.isEmpty()) login = null;
-				map.put("login", login);
+        // Parse the line
+        String[] entries = line.split(";");
+        // Get the UCO
+        if (entries[0].equals("")) {
+          // skip this subject, because it doesn't have UCO defined
+          continue;
+        }
+        String login = entries[0];
+        if (login.isEmpty()) {
+          login = null;
+        }
+        map.put("login", login);
 
-				String name = entries[2];
-				// Remove "" from name
-				name = name.replaceAll("^\"|\"$", "");
-				// entries[3] contains name of the user, so parse it to get titleBefore, firstName, lastName and titleAfter in separate fields
-				map.putAll(Utils.parseCommonName(name));
+        String name = entries[2];
+        // Remove "" from name
+        name = name.replaceAll("^\"|\"$", "");
+        // entries[3] contains name of the user, so parse it to get titleBefore, firstName, lastName and titleAfter in separate fields
+        map.putAll(Utils.parseCommonName(name));
 
-				// Add additional userExtSource for MU IdP with loa 2
-				map.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING + "1",
-						"https://idp2.ics.muni.cz/idp/shibboleth|cz.metacentrum.perun.core.impl.ExtSourceIdp|" + login + "@muni.cz|2");
+        // Add additional userExtSource for MU IdP with loa 2
+        map.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING + "1",
+            "https://idp2.ics.muni.cz/idp/shibboleth|cz.metacentrum.perun.core.impl.ExtSourceIdp|" + login +
+                "@muni.cz|2");
 
-				subjects.add(map);
-			}
+        subjects.add(map);
+      }
 
-			return subjects;
-		} catch (Exception e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      return subjects;
+    } catch (Exception e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	protected HttpURLConnection getHttpConnection(String query, String searchString) throws IOException {
-		// Get the URL, if query was provided it has precedence over url attribute defined in extSource
-		String url;
-		if (query != null && !query.isEmpty()) {
-			url = query;
-		} else if (getAttributes().get("url") != null) {
-			url = getAttributes().get("url");
-		} else {
-			throw new InternalErrorException("url attribute or query is required");
-		}
+  protected HttpURLConnection getHttpConnection(String query, String searchString) throws IOException {
+    // Get the URL, if query was provided it has precedence over url attribute defined in extSource
+    String url;
+    if (query != null && !query.isEmpty()) {
+      url = query;
+    } else if (getAttributes().get("url") != null) {
+      url = getAttributes().get("url");
+    } else {
+      throw new InternalErrorException("url attribute or query is required");
+    }
 
-		log.debug("Searching in external source url:'{}'", url);
+    log.debug("Searching in external source url:'{}'", url);
 
-		// If there is a search string, replace all occurences of the * with the searchstring
-		if (searchString != null && !searchString.isEmpty()) {
-			url = url.replaceAll("\\*", searchString);
-		}
+    // If there is a search string, replace all occurences of the * with the searchstring
+    if (searchString != null && !searchString.isEmpty()) {
+      url = url.replaceAll("\\*", searchString);
+    }
 
-		URL u = new URL(url);
+    URL u = new URL(url);
 
-		// Check supported protocols
-		HttpURLConnection http;
-		if (u.getProtocol().equals("https")) {
-			http = (HttpsURLConnection) u.openConnection();
-		} else if (u.getProtocol().equals("http")) {
-			http = (HttpURLConnection) u.openConnection();
-		} else {
-			throw new InternalErrorException("Protocol " + u.getProtocol() + " is not supported by this extSource.");
-		}
+    // Check supported protocols
+    HttpURLConnection http;
+    if (u.getProtocol().equals("https")) {
+      http = (HttpsURLConnection) u.openConnection();
+    } else if (u.getProtocol().equals("http")) {
+      http = (HttpURLConnection) u.openConnection();
+    } else {
+      throw new InternalErrorException("Protocol " + u.getProtocol() + " is not supported by this extSource.");
+    }
 
-		return http;
-	}
+    return http;
+  }
 
-	@Override
-	public void close() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for ISMU");
-	}
+  @Override
+  public void close() throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException("Using this method is not supported for ISMU");
+  }
 
-	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
-	}
+  @Override
+  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
 }

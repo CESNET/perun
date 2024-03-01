@@ -18,108 +18,111 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class urn_perun_resource_attribute_def_def_m365LicenseGroupTest {
-	private static urn_perun_resource_attribute_def_def_m365LicenseGroup classInstance;
-	private static PerunSessionImpl session;
-	private static Resource resource;
-	private static Facility facility;
-	private static Attribute attributeToCheck;
+  private static urn_perun_resource_attribute_def_def_m365LicenseGroup classInstance;
+  private static PerunSessionImpl session;
+  private static Resource resource;
+  private static Facility facility;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_resource_attribute_def_def_m365LicenseGroup();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-		resource = new Resource();
-		facility = new Facility();
-		attributeToCheck = new Attribute();
-		attributeToCheck.setFriendlyName("m365LicenseGroup");
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_resource_attribute_def_def_m365LicenseGroup();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    resource = new Resource();
+    facility = new Facility();
+    attributeToCheck = new Attribute();
+    attributeToCheck.setFriendlyName("m365LicenseGroup");
+  }
 
-	@Test
-	public void testAttributeSyntaxValid() throws Exception {
-		System.out.println("testAttributeSyntaxValid()");
+  @Test
+  public void testAttributeSyntaxValid() throws Exception {
+    System.out.println("testAttributeSyntaxValid()");
 
-		attributeToCheck.setValue("LicenseGroupA");
-		classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
-	}
+    attributeToCheck.setValue("LicenseGroupA");
+    classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testAttributeSyntaxValidNull() throws Exception {
-		System.out.println("testAttributeSyntaxInvalidNull()");
+  @Test
+  public void testAttributeSyntaxValidNull() throws Exception {
+    System.out.println("testAttributeSyntaxInvalidNull()");
 
-		attributeToCheck.setValue(null);
-		classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
-	}
+    attributeToCheck.setValue(null);
+    classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testAttributeSyntaxValidEmpty() throws Exception {
-		System.out.println("testAttributeSyntaxInvalidEmpty()");
+  @Test
+  public void testAttributeSyntaxValidEmpty() throws Exception {
+    System.out.println("testAttributeSyntaxInvalidEmpty()");
 
-		attributeToCheck.setValue("");
-		classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
-	}
+    attributeToCheck.setValue("");
+    classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testAttributeSemanticsNullLicenseGroup() throws Exception {
-		System.out.println("testAttributeSemanticsNullLicenseGroup()");
+  @Test
+  public void testAttributeSemanticsNullLicenseGroup() throws Exception {
+    System.out.println("testAttributeSemanticsNullLicenseGroup()");
 
-		attributeToCheck.setValue(null);
-		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-	}
+    attributeToCheck.setValue(null);
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testAttributeSemanticsEmptyLicenseGroup() throws Exception {
-		System.out.println("testAttributeSemanticsEmptyLicenseGroup()");
+  @Test
+  public void testAttributeSemanticsEmptyLicenseGroup() throws Exception {
+    System.out.println("testAttributeSemanticsEmptyLicenseGroup()");
 
-		attributeToCheck.setValue("");
-		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-	}
+    attributeToCheck.setValue("");
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testAttributeSemanticsValidLicenseGroup() throws Exception {
-		System.out.println("testAttributeSemanticsValidLicenseGroup()");
+  @Test
+  public void testAttributeSemanticsValidLicenseGroup() throws Exception {
+    System.out.println("testAttributeSemanticsValidLicenseGroup()");
 
-		attributeToCheck.setValue("LicenseGroupA");
-		when(session.getPerunBl().getResourcesManagerBl().getFacility(any(), eq(resource))).thenReturn(facility);
+    attributeToCheck.setValue("LicenseGroupA");
+    when(session.getPerunBl().getResourcesManagerBl().getFacility(any(), eq(resource))).thenReturn(facility);
 
-		// Mock allowed licenses for the facility
-		Attribute allowedLicensesAttribute = new Attribute();
-		LinkedHashMap<String, String> allowedLicensesMap = new LinkedHashMap<>();
-		allowedLicensesMap.put("1", "LicenseGroupA");
-		allowedLicensesMap.put("2", "LicenseGroupB");
-		allowedLicensesAttribute.setValue(allowedLicensesMap);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(facility), any())).thenReturn(allowedLicensesAttribute);
+    // Mock allowed licenses for the facility
+    Attribute allowedLicensesAttribute = new Attribute();
+    LinkedHashMap<String, String> allowedLicensesMap = new LinkedHashMap<>();
+    allowedLicensesMap.put("1", "LicenseGroupA");
+    allowedLicensesMap.put("2", "LicenseGroupB");
+    allowedLicensesAttribute.setValue(allowedLicensesMap);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(facility), any())).thenReturn(
+        allowedLicensesAttribute);
 
-		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testAttributeSemanticsInvalidLicenseGroup() throws Exception {
-		System.out.println("testAttributeSemanticsInvalidLicenseGroup()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testAttributeSemanticsInvalidLicenseGroup() throws Exception {
+    System.out.println("testAttributeSemanticsInvalidLicenseGroup()");
 
-		attributeToCheck.setValue("LicenseGroupB");
-		when(session.getPerunBl().getResourcesManagerBl().getFacility(any(), eq(resource))).thenReturn(facility);
+    attributeToCheck.setValue("LicenseGroupB");
+    when(session.getPerunBl().getResourcesManagerBl().getFacility(any(), eq(resource))).thenReturn(facility);
 
-		// Mock allowed licenses for the facility
-		Attribute allowedLicensesAttribute = new Attribute();
-		LinkedHashMap<String, String> allowedLicensesMap = new LinkedHashMap<>();
-		allowedLicensesMap.put("1", "LicenseGroupA");
-		allowedLicensesAttribute.setValue(allowedLicensesMap);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(facility), any())).thenReturn(allowedLicensesAttribute);
+    // Mock allowed licenses for the facility
+    Attribute allowedLicensesAttribute = new Attribute();
+    LinkedHashMap<String, String> allowedLicensesMap = new LinkedHashMap<>();
+    allowedLicensesMap.put("1", "LicenseGroupA");
+    allowedLicensesAttribute.setValue(allowedLicensesMap);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(facility), any())).thenReturn(
+        allowedLicensesAttribute);
 
-		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testAttributeSemanticsExceptionInFetchingLicenses() throws Exception {
-		System.out.println("testAttributeSemanticsExceptionInFetchingLicenses()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testAttributeSemanticsExceptionInFetchingLicenses() throws Exception {
+    System.out.println("testAttributeSemanticsExceptionInFetchingLicenses()");
 
-		attributeToCheck.setValue("LicenseGroupA");
-		when(session.getPerunBl().getResourcesManagerBl().getFacility(any(), eq(resource))).thenReturn(facility);
+    attributeToCheck.setValue("LicenseGroupA");
+    when(session.getPerunBl().getResourcesManagerBl().getFacility(any(), eq(resource))).thenReturn(facility);
 
-		// Throw an exception when trying to fetch allowed licenses
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(facility), any())).thenThrow(new AttributeNotExistsException(""));
+    // Throw an exception when trying to fetch allowed licenses
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(facility), any())).thenThrow(
+        new AttributeNotExistsException(""));
 
-		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+  }
 
 }

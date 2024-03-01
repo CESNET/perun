@@ -5,7 +5,6 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -17,88 +16,87 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class ResendNotification {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/sendMessage";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/sendMessage";
+  private int appId = 0;
+  private String mailType = "";
+  private String reason = "";
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param appId
+   */
+  public ResendNotification(int appId) {
+    this.appId = appId;
+  }
 
-	private int appId = 0;
-	private String mailType = "";
-	private String reason = "";
+  /**
+   * Creates a new request
+   *
+   * @param appId
+   * @param events
+   */
+  public ResendNotification(int appId, JsonCallbackEvents events) {
+    this.appId = appId;
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param appId
-	 */
-	public ResendNotification(int appId) {
-		this.appId = appId;
-	}
+  /**
+   * Send request to RPC to sendMessage() == re-send notification
+   *
+   * @param mailType type of mail notification to send.
+   * @param reason   Optional reason for "APP_REJECTED_USER" notification.
+   */
+  public void resendNotification(String mailType, String reason) {
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param appId
-	 * @param events
-	 */
-	public ResendNotification(int appId, JsonCallbackEvents events) {
-		this.appId = appId;
-		this.events = events;
-	}
+    this.mailType = mailType;
+    this.reason = reason;
 
-	/**
-	 * Send request to RPC to sendMessage() == re-send notification
-	 *
-	 * @param mailType type of mail notification to send.
-	 * @param reason Optional reason for "APP_REJECTED_USER" notification.
-	 */
-	public void resendNotification(String mailType, String reason) {
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Notification not re-sent.");
+        events.onError(error);
+      }
 
-		this.mailType = mailType;
-		this.reason = reason;
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Notification was sent.");
+        events.onFinished(jso);
+      }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Notification not re-sent.");
-				events.onError(error);
-			}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
+    };
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Notification was sent.");
-				events.onFinished(jso);
-			}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			}
-		};
+  }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-	}
+    // query
+    JSONObject query = new JSONObject();
+    query.put("appId", new JSONNumber(appId));
+    query.put("mailType", new JSONString(mailType));
+    if (mailType.equals("APP_REJECTED_USER")) {
+      query.put("reason", new JSONString(reason));
+    }
+    return query;
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-
-		// query
-		JSONObject query = new JSONObject();
-		query.put("appId", new JSONNumber(appId));
-		query.put("mailType", new JSONString(mailType));
-		if (mailType.equals("APP_REJECTED_USER")) {
-			query.put("reason", new JSONString(reason));
-		}
-		return query;
-
-	}
+  }
 
 }

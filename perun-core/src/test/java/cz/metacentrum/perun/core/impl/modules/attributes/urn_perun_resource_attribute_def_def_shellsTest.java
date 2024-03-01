@@ -28,80 +28,88 @@ import static org.mockito.Mockito.when;
  */
 public class urn_perun_resource_attribute_def_def_shellsTest {
 
-	private static urn_perun_resource_attribute_def_def_shells classInstance;
-	private static PerunSessionImpl session;
-	private static final Attribute listOfShells = new Attribute();
+  private static final Attribute listOfShells = new Attribute();
+  private static urn_perun_resource_attribute_def_def_shells classInstance;
+  private static PerunSessionImpl session;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_resource_attribute_def_def_shells();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_resource_attribute_def_def_shells();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-		ArrayList<String> shells = new ArrayList<>();
-		shells.add("/bin/bash");
-		shells.add("/bin/csh");
-		listOfShells.setValue(shells);
-	}
+    ArrayList<String> shells = new ArrayList<>();
+    shells.add("/bin/bash");
+    shells.add("/bin/csh");
+    listOfShells.setValue(shells);
+  }
 
-	/**
-	 * Test of fillAttribute method, of class urn_perun_resource_attribute_def_def_shells.
-	 * with all parameters properly set.
-	 */
-	@Test
-	public void testFillAttribute() throws Exception {
-		System.out.println("testFillAttribute()");
+  /**
+   * Test of fillAttribute method, of class urn_perun_resource_attribute_def_def_shells.
+   * with all parameters properly set.
+   */
+  @Test
+  public void testFillAttribute() throws Exception {
+    System.out.println("testFillAttribute()");
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
-		final Attribute result = classInstance.fillAttribute(session, new Resource(), new AttributeDefinition());
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+    final Attribute result = classInstance.fillAttribute(session, new Resource(), new AttributeDefinition());
 
-		assertEquals("fillAttribute has filled different shells than expected", listOfShells, result);
-	}
+    assertEquals("fillAttribute has filled different shells than expected", listOfShells, result);
+  }
 
-	/**
-	 * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
-	 * with all parameters properly set.
-	 */
-	@Test
-	public void testCheckAttributeSemantics() throws Exception {
-		System.out.println("testCheckAttributeSemantics()");
+  /**
+   * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
+   * with all parameters properly set.
+   */
+  @Test
+  public void testCheckAttributeSemantics() throws Exception {
+    System.out.println("testCheckAttributeSemantics()");
 
-		Attribute attributeToCheck = new Attribute();
-		attributeToCheck.setValue(new ArrayList<String>() {{add("/bin/bash");}});
+    Attribute attributeToCheck = new Attribute();
+    attributeToCheck.setValue(new ArrayList<String>() {{
+      add("/bin/bash");
+    }});
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
 
-		classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
+  }
 
-	/**
-	 * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
-	 * with empty attribute.
-	 */
-	@Test(expected= WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
-		System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
+  /**
+   * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
+   * with empty attribute.
+   */
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
+    System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
 
-		Attribute attributeToCheck = new Attribute();
-		//when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
-		classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
-		fail("Attribute without value has not thrown WrongAttributeSemanticsException.");
-	}
+    Attribute attributeToCheck = new Attribute();
+    //when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+    classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
+    fail("Attribute without value has not thrown WrongAttributeSemanticsException.");
+  }
 
-	/**
-	 * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
-	 * attempting to set shell which is not available at that particular resource.
-	 */
-	@Test(expected=WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsUnknownShell() throws Exception {
-		System.out.println("testCheckAttributeSemanticsUnknownShell()");
+  /**
+   * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
+   * attempting to set shell which is not available at that particular resource.
+   */
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsUnknownShell() throws Exception {
+    System.out.println("testCheckAttributeSemanticsUnknownShell()");
 
-		Attribute attributeToCheck = new Attribute();
-		attributeToCheck.setValue(new ArrayList<String>() {{add("/bin/bash"); add("/hypershell");}});
+    Attribute attributeToCheck = new Attribute();
+    attributeToCheck.setValue(new ArrayList<String>() {{
+      add("/bin/bash");
+      add("/hypershell");
+    }});
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
 
-		classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
+    classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
 
-		fail("Unknown shell at facility was approved");
-	}
+    fail("Unknown shell at facility was approved");
+  }
 }

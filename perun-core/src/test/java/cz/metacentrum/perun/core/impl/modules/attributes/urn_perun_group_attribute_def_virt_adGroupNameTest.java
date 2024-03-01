@@ -19,74 +19,75 @@ import static org.mockito.Mockito.when;
 
 public class urn_perun_group_attribute_def_virt_adGroupNameTest {
 
-	private static final String defAdGroupNameAttributeName = AttributesManager.NS_GROUP_ATTR_DEF + ":adGroupName";
+  private static final String defAdGroupNameAttributeName = AttributesManager.NS_GROUP_ATTR_DEF + ":adGroupName";
 
-	private final urn_perun_group_attribute_def_virt_adGroupName classInstance = new urn_perun_group_attribute_def_virt_adGroupName();
-	private final AttributeDefinition adDGroupNameDefinition = classInstance.getAttributeDefinition();
+  private final urn_perun_group_attribute_def_virt_adGroupName classInstance =
+      new urn_perun_group_attribute_def_virt_adGroupName();
+  private final AttributeDefinition adDGroupNameDefinition = classInstance.getAttributeDefinition();
 
-	private final Group groupA = setUpGroup(1, null, "groupA", "A");
-	private final Group groupB = setUpGroup(2, 1, "groupB", "B");
-	private final Group groupC = setUpGroup(3, 2, "groupC", "C");
+  private final Group groupA = setUpGroup(1, null, "groupA", "A");
+  private final Group groupB = setUpGroup(2, 1, "groupB", "B");
+  private final Group groupC = setUpGroup(3, 2, "groupC", "C");
 
-	private final Attribute attributeA = new Attribute();
-	private final Attribute attributeB = new Attribute();
-	private final Attribute attributeC = new Attribute();
+  private final Attribute attributeA = new Attribute();
+  private final Attribute attributeB = new Attribute();
+  private final Attribute attributeC = new Attribute();
 
-	private PerunSessionImpl sess;
+  private PerunSessionImpl sess;
 
-	@Before
-	public void setUp() throws Exception {
-		attributeA.setValue("A");
-		attributeB.setValue("B");
-		attributeC.setValue("C");
+  @Before
+  public void setUp() throws Exception {
+    attributeA.setValue("A");
+    attributeB.setValue("B");
+    attributeC.setValue("C");
 
-		//prepare mocks
-		sess = mock(PerunSessionImpl.class);
-		PerunBl perunBl = mock(PerunBl.class);
-		AttributesManagerBl am = mock(AttributesManagerBl.class);
-		GroupsManagerBl gm = mock(GroupsManagerBl.class);
+    //prepare mocks
+    sess = mock(PerunSessionImpl.class);
+    PerunBl perunBl = mock(PerunBl.class);
+    AttributesManagerBl am = mock(AttributesManagerBl.class);
+    GroupsManagerBl gm = mock(GroupsManagerBl.class);
 
-		when(sess.getPerunBl())
-			.thenReturn(perunBl);
-		when(perunBl.getAttributesManagerBl())
-			.thenReturn(am);
-		when(perunBl.getGroupsManagerBl())
-			.thenReturn(gm);
+    when(sess.getPerunBl())
+        .thenReturn(perunBl);
+    when(perunBl.getAttributesManagerBl())
+        .thenReturn(am);
+    when(perunBl.getGroupsManagerBl())
+        .thenReturn(gm);
 
-		when(gm.getParentGroup(sess, groupB))
-			.thenReturn(groupA);
-		when(gm.getParentGroup(sess, groupC))
-			.thenReturn(groupB);
+    when(gm.getParentGroup(sess, groupB))
+        .thenReturn(groupA);
+    when(gm.getParentGroup(sess, groupC))
+        .thenReturn(groupB);
 
-		when(am.getAttribute(sess, groupA, defAdGroupNameAttributeName))
-			.thenReturn(attributeA);
-		when(am.getAttribute(sess, groupB, defAdGroupNameAttributeName))
-			.thenReturn(attributeB);
-		when(am.getAttribute(sess, groupC, defAdGroupNameAttributeName))
-			.thenReturn(attributeC);
-	}
+    when(am.getAttribute(sess, groupA, defAdGroupNameAttributeName))
+        .thenReturn(attributeA);
+    when(am.getAttribute(sess, groupB, defAdGroupNameAttributeName))
+        .thenReturn(attributeB);
+    when(am.getAttribute(sess, groupC, defAdGroupNameAttributeName))
+        .thenReturn(attributeC);
+  }
 
-	@Test
-	public void testCorrectGetAttributeValue() {
-		System.out.println("testCorrectGetAttributeValue()");
+  @Test
+  public void testCorrectGetAttributeValue() {
+    System.out.println("testCorrectGetAttributeValue()");
 
-		Attribute result = classInstance.getAttributeValue(sess, groupC, adDGroupNameDefinition);
-		Assert.assertEquals("A-B-C", result.getValue());
-	}
+    Attribute result = classInstance.getAttributeValue(sess, groupC, adDGroupNameDefinition);
+    Assert.assertEquals("A-B-C", result.getValue());
+  }
 
-	@Test
-	public void testIncorrectGetAttributeValue() {
-		System.out.println("testIncorrectGetAttributeValue()");
+  @Test
+  public void testIncorrectGetAttributeValue() {
+    System.out.println("testIncorrectGetAttributeValue()");
 
-		attributeB.setValue(null);
-		Attribute result = classInstance.getAttributeValue(sess, groupC, adDGroupNameDefinition);
-		Assert.assertNull(result.getValue());
-	}
+    attributeB.setValue(null);
+    Attribute result = classInstance.getAttributeValue(sess, groupC, adDGroupNameDefinition);
+    Assert.assertNull(result.getValue());
+  }
 
-	private Group setUpGroup(int id, Integer parentGroupId, String name, String description) {
-		Group group = new Group(name, description);
-		group.setId(id);
-		group.setParentGroupId(parentGroupId);
-		return group;
-	}
+  private Group setUpGroup(int id, Integer parentGroupId, String name, String description) {
+    Group group = new Group(name, description);
+    group.setId(id);
+    group.setParentGroupId(parentGroupId);
+    return group;
+  }
 }

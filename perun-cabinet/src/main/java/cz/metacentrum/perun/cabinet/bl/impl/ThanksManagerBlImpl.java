@@ -28,107 +28,106 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ThanksManagerBlImpl implements ThanksManagerBl {
 
-	private ThanksManagerDao thanksManagerDao;
-	private AuthorshipManagerBl authorshipManagerBl;
-	private CabinetManagerBl cabinetManagerBl;
+  private static Logger log = LoggerFactory.getLogger(ThanksManagerBlImpl.class);
+  private ThanksManagerDao thanksManagerDao;
+  private AuthorshipManagerBl authorshipManagerBl;
+  private CabinetManagerBl cabinetManagerBl;
 
-	private static Logger log = LoggerFactory.getLogger(ThanksManagerBlImpl.class);
+  // setters -------------------------
 
-	// setters -------------------------
+  public ThanksManagerDao getThanksManagerDao() {
+    return thanksManagerDao;
+  }
 
-	@Autowired
-	public void setThanksManagerDao(ThanksManagerDao thanksManagerDao) {
-		this.thanksManagerDao = thanksManagerDao;
-	}
+  @Autowired
+  public void setThanksManagerDao(ThanksManagerDao thanksManagerDao) {
+    this.thanksManagerDao = thanksManagerDao;
+  }
 
-	@Autowired
-	public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
-		this.authorshipManagerBl = authorshipManagerBl;
-	}
+  public AuthorshipManagerBl getAuthorshipManagerBl() {
+    return authorshipManagerBl;
+  }
 
-	@Autowired
-	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
-		this.cabinetManagerBl = cabinetManagerBl;
-	}
+  @Autowired
+  public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
+    this.authorshipManagerBl = authorshipManagerBl;
+  }
 
-	public ThanksManagerDao getThanksManagerDao() {
-		return thanksManagerDao;
-	}
+  public CabinetManagerBl getCabinetManagerBl() {
+    return cabinetManagerBl;
+  }
 
-	public AuthorshipManagerBl getAuthorshipManagerBl() {
-		return authorshipManagerBl;
-	}
-
-	public CabinetManagerBl getCabinetManagerBl() {
-		return cabinetManagerBl;
-	}
+  @Autowired
+  public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+    this.cabinetManagerBl = cabinetManagerBl;
+  }
 
 
-	// methods -------------------------
+  // methods -------------------------
 
-	public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException {
-		if (t.getCreatedDate() == null) {
-			t.setCreatedDate(new Date());
-		}
-		if (thanksExist(t)) {
-			throw new CabinetException("Can't create duplicate thanks.", ErrorCodes.THANKS_ALREADY_EXISTS);
-		}
+  public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException {
+    if (t.getCreatedDate() == null) {
+      t.setCreatedDate(new Date());
+    }
+    if (thanksExist(t)) {
+      throw new CabinetException("Can't create duplicate thanks.", ErrorCodes.THANKS_ALREADY_EXISTS);
+    }
 
-		t = getThanksManagerDao().createThanks(sess, t);
-		log.debug("{} created.", t);
+    t = getThanksManagerDao().createThanks(sess, t);
+    log.debug("{} created.", t);
 
-		// recalculate thanks for all publication's authors
-		List<Author> authors = new ArrayList<Author>();
-		authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
-		// sort to prevent locking
-		synchronized (ThanksManagerBlImpl.class) {
-			for (Author a : authors) {
-				getCabinetManagerBl().setThanksAttribute(a.getId());
-			}
-		}
-		return t;
-	}
+    // recalculate thanks for all publication's authors
+    List<Author> authors = new ArrayList<Author>();
+    authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
+    // sort to prevent locking
+    synchronized (ThanksManagerBlImpl.class) {
+      for (Author a : authors) {
+        getCabinetManagerBl().setThanksAttribute(a.getId());
+      }
+    }
+    return t;
+  }
 
-	@Override
-	public void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException {
+  @Override
+  public void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException {
 
-		getThanksManagerDao().deleteThanks(sess, thanks);
-		log.debug("{} deleted.", thanks);
+    getThanksManagerDao().deleteThanks(sess, thanks);
+    log.debug("{} deleted.", thanks);
 
-		// recalculate thanks for all publication's authors
-		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
+    // recalculate thanks for all publication's authors
+    List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
 
-		synchronized (ThanksManagerBlImpl.class) {
-			for (Author a : authors) {
-				getCabinetManagerBl().setThanksAttribute(a.getId());
-			}
-		}
+    synchronized (ThanksManagerBlImpl.class) {
+      for (Author a : authors) {
+        getCabinetManagerBl().setThanksAttribute(a.getId());
+      }
+    }
 
-	}
+  }
 
-	@Override
-	public boolean thanksExist(Thanks thanks) {
-		return getThanksManagerDao().thanksExist(thanks);
-	}
+  @Override
+  public boolean thanksExist(Thanks thanks) {
+    return getThanksManagerDao().thanksExist(thanks);
+  }
 
-	@Override
-	public Thanks getThanksById(int id) throws CabinetException {
-		return getThanksManagerDao().getThanksById(id);
-	}
+  @Override
+  public Thanks getThanksById(int id) throws CabinetException {
+    return getThanksManagerDao().getThanksById(id);
+  }
 
-	@Override
-	public List<Thanks> getThanksByPublicationId(int publicationId) {
-		return getThanksManagerDao().getThanksByPublicationId(publicationId);
-	}
+  @Override
+  public List<Thanks> getThanksByPublicationId(int publicationId) {
+    return getThanksManagerDao().getThanksByPublicationId(publicationId);
+  }
 
-	@Override
-	public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) {
-		return getThanksManagerDao().getRichThanksByPublicationId(publicationId);
-	}
+  @Override
+  public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) {
+    return getThanksManagerDao().getRichThanksByPublicationId(publicationId);
+  }
 
-	@Override
-	public List<ThanksForGUI> getRichThanksByUserId(int userId) {
-		return getThanksManagerDao().getRichThanksByUserId(userId);
-	}
+  @Override
+  public List<ThanksForGUI> getRichThanksByUserId(int userId) {
+    return getThanksManagerDao().getRichThanksByUserId(userId);
+  }
 
 }

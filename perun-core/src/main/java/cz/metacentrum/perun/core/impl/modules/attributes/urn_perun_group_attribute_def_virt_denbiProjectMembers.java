@@ -24,38 +24,40 @@ import java.util.List;
  * @author Pavel Vyskocil <vyskocilpavel@muni.cz>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends GroupVirtualAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi  {
+public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends GroupVirtualAttributesModuleAbstract
+    implements GroupVirtualAttributesModuleImplApi {
 
-	private static final String ELIXIR_PERSISTENT = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
-	private static final String PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
-	private static final String ELIXIR_LOGIN = "urn:perun:user:attribute-def:def:login-namespace:elixir";
+  private static final String ELIXIR_PERSISTENT = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
+  private static final String PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
+  private static final String ELIXIR_LOGIN = "urn:perun:user:attribute-def:def:login-namespace:elixir";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) {
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) {
 
-		List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, group);
-		JSONArray jsonMembers = new JSONArray();
-		for (User user : users) {
-			JSONObject jsonUser = new JSONObject();
-			try {
-				List<Attribute> attributes = perunSession.getPerunBl().getAttributesManagerBl().getAttributes(perunSession, user, Arrays.asList(ELIXIR_PERSISTENT, ELIXIR_LOGIN, PREFERRED_MAIL));
-				jsonUser.put("id", user.getId());
-				for (Attribute attr : attributes) {
-					jsonUser.put(attr.getFriendlyName(), attr.getValue());
-				}
-				jsonMembers.put(jsonUser);
-			} catch (JSONException e){
-				throw new InternalErrorException(e);
-			}
-		}
+    List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, group);
+    JSONArray jsonMembers = new JSONArray();
+    for (User user : users) {
+      JSONObject jsonUser = new JSONObject();
+      try {
+        List<Attribute> attributes = perunSession.getPerunBl().getAttributesManagerBl()
+            .getAttributes(perunSession, user, Arrays.asList(ELIXIR_PERSISTENT, ELIXIR_LOGIN, PREFERRED_MAIL));
+        jsonUser.put("id", user.getId());
+        for (Attribute attr : attributes) {
+          jsonUser.put(attr.getFriendlyName(), attr.getValue());
+        }
+        jsonMembers.put(jsonUser);
+      } catch (JSONException e) {
+        throw new InternalErrorException(e);
+      }
+    }
 
-		Attribute members = new Attribute(attribute);
-		members.setValue(jsonMembers.toString());
-		return members;
+    Attribute members = new Attribute(attribute);
+    members.setValue(jsonMembers.toString());
+    return members;
 
-	}
+  }
 
-	//IMPORTANT - this is very performance demanding operation, we will skip it
+  //IMPORTANT - this is very performance demanding operation, we will skip it
 	/*
 	@Override
 	public List<String> getStrongDependencies() {
@@ -67,14 +69,14 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
 		return strongDependencies;
 	}*/
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
-		attr.setFriendlyName("denbiProjectMembers");
-		attr.setDisplayName("Project Members");
-		attr.setType(String.class.getName());
-		attr.setDescription("Project Members");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
+    attr.setFriendlyName("denbiProjectMembers");
+    attr.setDisplayName("Project Members");
+    attr.setType(String.class.getName());
+    attr.setDescription("Project Members");
+    return attr;
+  }
 }

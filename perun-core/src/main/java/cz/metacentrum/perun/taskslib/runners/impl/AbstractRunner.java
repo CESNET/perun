@@ -11,16 +11,16 @@ import cz.metacentrum.perun.taskslib.runners.Runner;
  */
 public abstract class AbstractRunner implements Runner {
 
-	volatile private boolean stop = false;
+  volatile private boolean stop = false;
 
-	@Override
-	public boolean shouldStop() {
-		return stop;
-	}
+  @Override
+  public boolean shouldStop() {
+    return stop;
+  }
 
-	@Override
-	public void stop() {
-		stop = true;
-	}
+  @Override
+  public void stop() {
+    stop = true;
+  }
 
 }

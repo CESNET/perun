@@ -14,20 +14,21 @@ import java.io.InputStream;
  */
 public class PerunAppsConfigLoader {
 
-	private Resource configPath;
+  private Resource configPath;
 
-	public void setConfigPath(Resource configPath) {
-		this.configPath = configPath;
-	}
+  public void setConfigPath(Resource configPath) {
+    this.configPath = configPath;
+  }
 
-	public void initialize() {
-		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-		try (InputStream is = configPath.getInputStream()) {
-			PerunAppsConfig.setInstance(mapper.readValue(is, PerunAppsConfig.class));
-		} catch (JsonProcessingException e) {
-			throw new InternalErrorException("Configuration file for perun apps has invalid format.", e);
-		} catch (IOException e) {
-			throw new InternalErrorException("Configuration file not found for perun apps. It should be in: " + configPath, e);
-		}
-	}
+  public void initialize() {
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    try (InputStream is = configPath.getInputStream()) {
+      PerunAppsConfig.setInstance(mapper.readValue(is, PerunAppsConfig.class));
+    } catch (JsonProcessingException e) {
+      throw new InternalErrorException("Configuration file for perun apps has invalid format.", e);
+    } catch (IOException e) {
+      throw new InternalErrorException("Configuration file not found for perun apps. It should be in: " + configPath,
+          e);
+    }
+  }
 }

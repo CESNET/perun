@@ -6,7 +6,6 @@ import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,125 +18,122 @@ import java.util.Map;
 
 public class GetListOfAttributes implements JsonCallback {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "attributesManager/getAttributes";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // IDs
+  private Map<String, Integer> ids = new HashMap<String, Integer>();
+  private ArrayList<String> attributes = new ArrayList<String>();
+  private String attributesString;
 
-	// URL to call
-	final String JSON_URL = "attributesManager/getAttributes";
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// IDs
-	private Map<String, Integer> ids = new HashMap<String, Integer>();
-	private ArrayList<String> attributes = new ArrayList<String>();
-	private String attributesString;
+  /**
+   * Creates a new request
+   */
+  public GetListOfAttributes() {
+  }
 
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events externalEvents
+   */
+  public GetListOfAttributes(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public GetListOfAttributes() {}
+  /**
+   * Attempts to get list of attributes
+   *
+   * @param ids        defines which type of attribute will be set (member, user, member_resource, etc.)
+   * @param attributes list of attributes with a new value
+   */
+  public void getListOfAttributes(final Map<String, Integer> ids, final ArrayList<String> attributes) {
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events externalEvents
-	 */
-	public GetListOfAttributes(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+    this.ids = ids;
+    this.attributes = attributes;
+    retrieveData();
 
-	/**
-	 * Attempts to get list of attributes
-	 *
-	 * @param ids defines which type of attribute will be set (member, user, member_resource, etc.)
-	 * @param attributes list of attributes with a new value
-	 */
-	public void getListOfAttributes(final Map<String, Integer> ids, final ArrayList<String> attributes)
-	{
+  }
 
-		this.ids = ids;
-		this.attributes = attributes;
-		retrieveData();
+  /**
+   * Attempts to get list of attributes
+   *
+   * @param ids        defines which type of attribute will be set (member, user, member_resource, etc.)
+   * @param attributes list of attributes with a new value
+   */
+  public void getListOfAttributes(final Map<String, Integer> ids, final String attributes) {
 
-	}
+    this.ids = ids;
+    this.attributesString = attributes;
+    retrieveData();
 
-	/**
-	 * Attempts to get list of attributes
-	 *
-	 * @param ids defines which type of attribute will be set (member, user, member_resource, etc.)
-	 * @param attributes list of attributes with a new value
-	 */
-	public void getListOfAttributes(final Map<String, Integer> ids, final String attributes)
-	{
+  }
 
-		this.ids = ids;
-		this.attributesString = attributes;
-		retrieveData();
+  /**
+   * Retrieves data from the RPC
+   */
+  public void retrieveData() {
 
-	}
+    String params = "";
+    // serialize parameters
+    for (Map.Entry<String, Integer> attr : this.ids.entrySet()) {
+      params += attr.getKey() + "=" + attr.getValue() + "&";
+    }
 
-	/**
-	 * Retrieves data from the RPC
-	 */
-	public void retrieveData() {
-
-		String params = "";
-		// serialize parameters
-		for (Map.Entry<String, Integer> attr : this.ids.entrySet()) {
-			params += attr.getKey() + "=" + attr.getValue() + "&";
-		}
-
-		if (attributes != null && !attributes.isEmpty()) {
-			// parse lists
-			for (int i=0; i<attributes.size(); i++) {
-				if (i != attributes.size()-1) {
-					params += "attrNames[]=" + attributes.get(i) + "&";
-				} else {
-					params += "attrNames[]=" + attributes.get(i);
-				}
-			}
+    if (attributes != null && !attributes.isEmpty()) {
+      // parse lists
+      for (int i = 0; i < attributes.size(); i++) {
+        if (i != attributes.size() - 1) {
+          params += "attrNames[]=" + attributes.get(i) + "&";
+        } else {
+          params += "attrNames[]=" + attributes.get(i);
+        }
+      }
 
 
-		} else if (attributesString != null && attributesString.length() != 0) {
+    } else if (attributesString != null && attributesString.length() != 0) {
 
-			String[] splitted = attributesString.split(",");
-			for (int i=0; i<splitted.length; i++) {
-				params += "attrNames[]="+splitted[i].trim()+"&";
-			}
+      String[] splitted = attributesString.split(",");
+      for (int i = 0; i < splitted.length; i++) {
+        params += "attrNames[]=" + splitted[i].trim() + "&";
+      }
 
-		}
+    }
 
-		if (params.endsWith("&")) {
-			params = params.substring(0, params.length()-1);
-		}
+    if (params.endsWith("&")) {
+      params = params.substring(0, params.length() - 1);
+    }
 
-		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, params, this);
+    JsonClient js = new JsonClient();
+    js.retrieveData(JSON_URL, params, this);
 
-		// clear values after call because they can be switched
-		this.attributes = null;
-		this.attributesString = null;
+    // clear values after call because they can be switched
+    this.attributes = null;
+    this.attributesString = null;
 
-	}
+  }
 
-	public void onFinished(JavaScriptObject jso) {
-		session.getUiElements().setLogText("Loading of attributes finished.");
-		events.onFinished(jso);
-	}
+  public void onFinished(JavaScriptObject jso) {
+    session.getUiElements().setLogText("Loading of attributes finished.");
+    events.onFinished(jso);
+  }
 
-	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Loading of attributes failed.");
-		events.onError(error);
-	}
+  public void onError(PerunError error) {
+    session.getUiElements().setLogErrorText("Loading of attributes failed.");
+    events.onError(error);
+  }
 
-	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading of attributes started.");
-		events.onLoadingStart();
-	}
+  public void onLoadingStart() {
+    session.getUiElements().setLogText("Loading of attributes started.");
+    events.onLoadingStart();
+  }
 
-	public void setEvents(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
 }

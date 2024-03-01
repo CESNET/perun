@@ -32,126 +32,140 @@ import static org.mockito.Mockito.when;
 
 public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
-	private static urn_perun_resource_attribute_def_def_defaultShell defShellAttr;
-	private static PerunSessionImpl ps;
+  private static urn_perun_resource_attribute_def_def_defaultShell defShellAttr;
+  private static PerunSessionImpl ps;
 
-	@Before
-	public  void setUp() {
-		defShellAttr = new urn_perun_resource_attribute_def_def_defaultShell();
+  @Before
+  public void setUp() {
+    defShellAttr = new urn_perun_resource_attribute_def_def_defaultShell();
 
-		//mockujeme PerunSession ps
-		ps = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS); //RETURNS_DEEP_STUBS = budeme mockovat nekolik vnorenych volani metod
+    //mockujeme PerunSession ps
+    ps = mock(PerunSessionImpl.class,
+        RETURNS_DEEP_STUBS); //RETURNS_DEEP_STUBS = budeme mockovat nekolik vnorenych volani metod
 
-	}
+  }
 
-	@SuppressWarnings("serial")
-	@Test
-	public void fillAttribute() throws Exception {
-		System.out.println("fillAttribute()");
+  @SuppressWarnings("serial")
+  @Test
+  public void fillAttribute() throws Exception {
+    System.out.println("fillAttribute()");
 
-		//tento objekt ocekavame, ze se nam vrati po zavolani fillAttribute()
-		final Attribute attrToReturn = new Attribute();
-		final String shellName = "mujShell";
-		attrToReturn.setValue(new ArrayList<String>(){{add(shellName);}});
+    //tento objekt ocekavame, ze se nam vrati po zavolani fillAttribute()
+    final Attribute attrToReturn = new Attribute();
+    final String shellName = "mujShell";
+    attrToReturn.setValue(new ArrayList<String>() {{
+      add(shellName);
+    }});
 
-		//a tady si nastavime pozadovane chovani
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
+    //a tady si nastavime pozadovane chovani
+    when(ps.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
 
-		// ideal scenario
-		final Attribute result= defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
+    // ideal scenario
+    final Attribute result = defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
 
-		assertEquals("fillAttribute spatne vyplnil value",shellName, result.getValue());
-	}
-
-
-	@Test
-	public void fillAttributeWithEmptyValue() throws Exception {
-		System.out.println("fillAttributeWithEmptyValue()");
-
-		final Attribute attrToReturn = new Attribute();
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
+    assertEquals("fillAttribute spatne vyplnil value", shellName, result.getValue());
+  }
 
 
-		final Attribute attrResult = defShellAttr.fillAttribute(ps, new Resource(), new Attribute());
+  @Test
+  public void fillAttributeWithEmptyValue() throws Exception {
+    System.out.println("fillAttributeWithEmptyValue()");
 
-		assertNull("Atribut.getValue() ma byt null", attrResult.getValue());
-	}
-
-	@Test
-	public void fillAttributeWhichNotExists() throws Exception {
-		System.out.println("fillAttributeWhichNotExists()");
-
-		//testujeme scenar, kdy budeme hledat neexistujici atribut a proto ocekavame vyjimku AttrNotExists..
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeNotExistsException("neexistuje"));
-
-		try {
-			defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
-			fail();
-		} catch (InternalErrorException ex) {
-			assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException", (ex.getCause() instanceof AttributeNotExistsException));
-		}
-	}
+    final Attribute attrToReturn = new Attribute();
+    when(ps.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
 
 
+    final Attribute attrResult = defShellAttr.fillAttribute(ps, new Resource(), new Attribute());
 
-	@SuppressWarnings("serial")
-	@Test
-	public void checkAttributeSemantics() throws Exception {
-		System.out.println("checkAttributeSemantics()");
+    assertNull("Atribut.getValue() ma byt null", attrResult.getValue());
+  }
 
-		final Attribute attrToReturn = new Attribute();
-		final String shellName = "mujShell";
-		attrToReturn.setValue(new ArrayList<String>(){{add(shellName);}});
+  @Test
+  public void fillAttributeWhichNotExists() throws Exception {
+    System.out.println("fillAttributeWhichNotExists()");
+
+    //testujeme scenar, kdy budeme hledat neexistujici atribut a proto ocekavame vyjimku AttrNotExists..
+    when(ps.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(
+        new AttributeNotExistsException("neexistuje"));
+
+    try {
+      defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
+      fail();
+    } catch (InternalErrorException ex) {
+      assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException",
+          (ex.getCause() instanceof AttributeNotExistsException));
+    }
+  }
 
 
-		// chceme najit atribut attrToReturn
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
+  @SuppressWarnings("serial")
+  @Test
+  public void checkAttributeSemantics() throws Exception {
+    System.out.println("checkAttributeSemantics()");
 
-		// parametr pro hledani
-		final Attribute attribute = new Attribute();
-		attribute.setValue(shellName);
+    final Attribute attrToReturn = new Attribute();
+    final String shellName = "mujShell";
+    attrToReturn.setValue(new ArrayList<String>() {{
+      add(shellName);
+    }});
 
-		//ideal scenario without exceptions..
-		defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
 
-	}
+    // chceme najit atribut attrToReturn
+    when(ps.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
 
-	@Test(expected=WrongReferenceAttributeValueException.class)
-	public void checkAttributeWithoutValue() throws Exception {
-		System.out.println("checkAttributeWithoutValue()");
-		defShellAttr.checkAttributeSemantics(ps, new Resource(), new Attribute());
-	}
+    // parametr pro hledani
+    final Attribute attribute = new Attribute();
+    attribute.setValue(shellName);
 
-	@Test
-	public void checkAttributeSemanticsWhichNotExists() throws Exception {
-		System.out.println("checkAttributeSemanticsWhichNotExists()");
+    //ideal scenario without exceptions..
+    defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
 
-		// hledame neexistujici atribut, proto ocekavame vyjimku
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeNotExistsException("neexistuje"));
+  }
 
-		final Attribute attribute = new Attribute();
-		attribute.setValue("mujShell");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void checkAttributeWithoutValue() throws Exception {
+    System.out.println("checkAttributeWithoutValue()");
+    defShellAttr.checkAttributeSemantics(ps, new Resource(), new Attribute());
+  }
 
-		try {
-			defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
-			fail();
-		} catch (InternalErrorException ex) {
-			assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException", (ex.getCause() instanceof AttributeNotExistsException));
-		}
-	}
+  @Test
+  public void checkAttributeSemanticsWhichNotExists() throws Exception {
+    System.out.println("checkAttributeSemanticsWhichNotExists()");
 
-	@Test(expected=WrongReferenceAttributeValueException.class)
-	public void checkAttributeSemanticsWithWrongReference() throws Exception {
-		System.out.println("checkAttributeSemanticsWithWrongReference()");
+    // hledame neexistujici atribut, proto ocekavame vyjimku
+    when(ps.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(
+        new AttributeNotExistsException("neexistuje"));
 
-		final Attribute toReturn = new Attribute();
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(toReturn);
+    final Attribute attribute = new Attribute();
+    attribute.setValue("mujShell");
 
-		final Attribute attribute = new Attribute();
-		attribute.setValue("mujShell");
+    try {
+      defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
+      fail();
+    } catch (InternalErrorException ex) {
+      assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException",
+          (ex.getCause() instanceof AttributeNotExistsException));
+    }
+  }
 
-		defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
-	}
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void checkAttributeSemanticsWithWrongReference() throws Exception {
+    System.out.println("checkAttributeSemanticsWithWrongReference()");
+
+    final Attribute toReturn = new Attribute();
+    when(ps.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(toReturn);
+
+    final Attribute attribute = new Attribute();
+    attribute.setValue("mujShell");
+
+    defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
+  }
 
 
 }

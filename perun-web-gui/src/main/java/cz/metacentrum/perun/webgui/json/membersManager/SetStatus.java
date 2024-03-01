@@ -18,108 +18,111 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class SetStatus implements JsonStatusSetCallback {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	private int memberId = 0;
-	private String status = "";
-	final String JSON_URL = "membersManager/setStatus";
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  final String JSON_URL = "membersManager/setStatus";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  private int memberId = 0;
+  private String status = "";
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param memberId ID of member to set new status
-	 */
-	public SetStatus(int memberId) {
-		this.memberId = memberId;
-	}
+  /**
+   * Creates a new request
+   *
+   * @param memberId ID of member to set new status
+   */
+  public SetStatus(int memberId) {
+    this.memberId = memberId;
+  }
 
-	public SetStatus(int memberId, JsonCallbackEvents events) {
-		this.memberId = memberId;
-		this.events = events;
-	}
+  public SetStatus(int memberId, JsonCallbackEvents events) {
+    this.memberId = memberId;
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false
-	 */
-	private boolean testSetting()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false
+   */
+  private boolean testSetting() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(status.length() == 0){
-			errorMsg += "Wrong parameter 'Status'.\n";
-			result = false;
-		}
+    if (status.length() == 0) {
+      errorMsg += "Wrong parameter 'Status'.\n";
+      result = false;
+    }
 
-		if(memberId == 0){
-			errorMsg += "Wrong parameter 'Member ID'.\n";
-			result = false;
-		}
+    if (memberId == 0) {
+      errorMsg += "Wrong parameter 'Member ID'.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to set new status for selected member
-	 *
-	 * @param status new status (VALID,INVALID,EXPIRED,DISABLED)
-	 */
-	public void setStatus(String status)
-	{
-		this.status = status;
+  /**
+   * Attempts to set new status for selected member
+   *
+   * @param status new status (VALID,INVALID,EXPIRED,DISABLED)
+   */
+  public void setStatus(String status) {
+    this.status = status;
 
-		// test arguments
-		if(!this.testSetting()){
-			return;
-		}
+    // test arguments
+    if (!this.testSetting()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Setting new status for member: " + memberId + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Setting new status for member: " + memberId + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("New status for member: " + memberId + " successfully set.");
-				events.onFinished(jso);
+      ;
 
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("New status for member: " + memberId + " successfully set.");
+        events.onFinished(jso);
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
-	}
+      ;
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("member", new JSONNumber(memberId));
-		jsonQuery.put("status", new JSONString(status));
-		return jsonQuery;
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Sets the json events
-	 */
-	public void setEvents(JsonCallbackEvents events)
-	{
-		this.events = events;
-	}
+      ;
+    };
+
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+  }
+
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("member", new JSONNumber(memberId));
+    jsonQuery.put("status", new JSONString(status));
+    return jsonQuery;
+  }
+
+  /**
+   * Sets the json events
+   */
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 }

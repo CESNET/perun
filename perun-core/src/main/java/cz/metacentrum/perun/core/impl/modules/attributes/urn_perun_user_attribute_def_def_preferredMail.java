@@ -10,23 +10,28 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 
 /**
  * @author Michal Šťava   <stava.michal@gmail.com>
  */
-public class urn_perun_user_attribute_def_def_preferredMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_preferredMail extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
+  private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) return;
-		String attributeValue = attribute.valueAsString();
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+    String attributeValue = attribute.valueAsString();
 
-		Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);
-		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");
+    Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);
+    if (!emailMatcher.find()) {
+      throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");
+    }
 
 		/* User preferredMail now can be anything
 		//user prefferedMail can be only one of memberMails if any
@@ -50,13 +55,16 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
 		}
 		throw new WrongAttributeValueException("Attribute user preffered mail can be null (if no members mail exists) or one of the existing member's mails [" + possiblePrefferedMailValues.toString() + "]. " + attribute);
 		*/
-	}
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null)
-			throw new WrongReferenceAttributeValueException(attribute, null, user, null, "User preferred mail can't be set to null.");
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null,
+          "User preferred mail can't be set to null.");
+    }
+  }
 
 	/* Not needed now this funcionality
 		 @Override
@@ -96,14 +104,14 @@ throw new InternalErrorException(ex);
 }
 }*/
 
-	@Override
-public AttributeDefinition getAttributeDefinition() {
-	AttributeDefinition attr = new AttributeDefinition();
-	attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-	attr.setFriendlyName("preferredMail");
-	attr.setDisplayName("Preferred mail");
-	attr.setType(String.class.getName());
-	attr.setDescription("User's preferred mail");
-	return attr;
-}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("preferredMail");
+    attr.setDisplayName("Preferred mail");
+    attr.setType(String.class.getName());
+    attr.setDescription("User's preferred mail");
+    return attr;
+  }
 }

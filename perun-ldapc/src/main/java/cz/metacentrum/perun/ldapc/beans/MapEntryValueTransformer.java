@@ -13,39 +13,39 @@ import java.util.Map;
  */
 public class MapEntryValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
-	/**
-	 * Separator used to join KEY=VALUE pairs of resulting attribute values.
-	 * It is initialized from Spring config.
-	 */
-	protected String separator;
+  /**
+   * Separator used to join KEY=VALUE pairs of resulting attribute values.
+   * It is initialized from Spring config.
+   */
+  protected String separator;
 
-	@Override
-	public String[] getAllValues(Map<String, String> value, Attribute attr) {
-		String[] result = new String[value.size()];
-		int i = 0;
-		for (Map.Entry<String, String> entry : value.entrySet()) {
-			result[i] = entry.getKey() + this.separator + entry.getValue();
-			i++;
-		}
-		return result;
-	}
+  @Override
+  public String[] getAllValues(Map<String, String> value, Attribute attr) {
+    String[] result = new String[value.size()];
+    int i = 0;
+    for (Map.Entry<String, String> entry : value.entrySet()) {
+      result[i] = entry.getKey() + this.separator + entry.getValue();
+      i++;
+    }
+    return result;
+  }
 
-	@Override
-	public Boolean isMassTransformationPreferred() {
-		return true;
-	}
+  @Override
+  public Boolean isMassTransformationPreferred() {
+    return true;
+  }
 
-	@Override
-	public Boolean isReduce() {
-		return false;
-	}
+  @Override
+  public Boolean isReduce() {
+    return false;
+  }
 
-	public String getSeparator() {
-		return separator;
-	}
+  public String getSeparator() {
+    return separator;
+  }
 
-	public void setSeparator(String separator) {
-		this.separator = separator;
-	}
+  public void setSeparator(String separator) {
+    this.separator = separator;
+  }
 
 }

@@ -7,14 +7,14 @@ import java.util.List;
 
 public abstract class AbstractPerunAttributeConfigurer<T extends PerunBean> implements PerunAttributeConfigurer<T> {
 
-	private List<PerunAttribute<T>> attributeDescriptions;
+  private List<PerunAttribute<T>> attributeDescriptions;
 
-	public List<PerunAttribute<T>> getAttributeDescriptions() {
-		return attributeDescriptions;
-	}
+  public List<PerunAttribute<T>> getAttributeDescriptions() {
+    return attributeDescriptions;
+  }
 
-	public void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions) {
-		this.attributeDescriptions = attributeDescriptions;
-	}
+  public void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions) {
+    this.attributeDescriptions = attributeDescriptions;
+  }
 
 }

@@ -6,11 +6,11 @@ package cz.metacentrum.perun.notif.exceptions;
  */
 public class NotExistsException extends RuntimeException {
 
-	public NotExistsException() {
-		super();
-	}
+  public NotExistsException() {
+    super();
+  }
 
-	public NotExistsException(String message) {
-		super(message);
-	}
+  public NotExistsException(String message) {
+    super(message);
+  }
 }

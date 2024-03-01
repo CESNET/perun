@@ -12,32 +12,32 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_rootMailAliasesMailTest {
 
-	private static urn_perun_user_attribute_def_def_rootMailAliasesMail classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_def_rootMailAliasesMail classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_user_attribute_def_def_rootMailAliasesMail();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-		user = new User();
-		attributeToCheck = new Attribute();
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_user_attribute_def_def_rootMailAliasesMail();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    user = new User();
+    attributeToCheck = new Attribute();
+  }
 
-	@Test
-	public void testCheckCorrectAttributeSyntax() throws Exception {
-		System.out.println("testCheckCorrectAttributeSyntax()");
-		attributeToCheck.setValue("my@example.com");
+  @Test
+  public void testCheckCorrectAttributeSyntax() throws Exception {
+    System.out.println("testCheckCorrectAttributeSyntax()");
+    attributeToCheck.setValue("my@example.com");
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithWrongValue()");
-		attributeToCheck.setValue("bad@example");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+    attributeToCheck.setValue("bad@example");
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 }

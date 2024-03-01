@@ -13,31 +13,37 @@ import java.util.Map;
  */
 public class FacilityState extends JavaScriptObject {
 
-	protected FacilityState(){};
+  protected FacilityState() {
+  }
 
-	public final native Facility getFacility() /*-{
+  ;
+
+  public final native Facility getFacility() /*-{
 		return this.facility;
 	}-*/;
 
-	public final native String getState() /*-{
+  public final native String getState() /*-{
 		return this.state;
 	}-*/;
 
-	public final native JavaScriptObject getResults() /*-{
+  public final native JavaScriptObject getResults() /*-{
 		return this.results;
 	}-*/;
 
-	public final Map<String, JSONValue> getDestinations() {
-		return JsonUtils.parseJsonToMap(getResults());
-	};
+  public final Map<String, JSONValue> getDestinations() {
+    return JsonUtils.parseJsonToMap(getResults());
+  }
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(FacilityState o) {
-		return o.getFacility().equals(getFacility()) && o.getState().equals(getState());
-	}
+  ;
+
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(FacilityState o) {
+    return o.getFacility().equals(getFacility()) && o.getState().equals(getState());
+  }
 
 }

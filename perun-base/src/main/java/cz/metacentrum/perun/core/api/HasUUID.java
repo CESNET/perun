@@ -9,10 +9,10 @@ import java.util.UUID;
  */
 public interface HasUUID {
 
-	/**
-	 * Get UUID.
-	 *
-	 * @return UUID of the object
-	 */
-	UUID getUuid();
+  /**
+   * Get UUID.
+   *
+   * @return UUID of the object
+   */
+  UUID getUuid();
 }

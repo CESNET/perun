@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.Host;
 
 public class HostRemovedFromFacility extends AuditEvent {
 
-	private Host host;
-	private Facility facility;
-	private String message;
+  private Host host;
+  private Facility facility;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public HostRemovedFromFacility() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public HostRemovedFromFacility() {
+  }
 
-	public HostRemovedFromFacility(Host host, Facility facility) {
-		this.host = host;
-		this.facility = facility;
-		this.message = formatMessage("%s removed from %s.", host, facility);
-	}
+  public HostRemovedFromFacility(Host host, Facility facility) {
+    this.host = host;
+    this.facility = facility;
+    this.message = formatMessage("%s removed from %s.", host, facility);
+  }
 
-	public Host getHost() {
-		return host;
-	}
+  public Host getHost() {
+    return host;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -8,18 +8,18 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.notif.managers.SchedulingManagerImpl;
-import org.junit.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Properties;
-
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -30,65 +30,64 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional(transactionManager = "springTransactionManager")
-@ContextConfiguration(locations = {"classpath:perun-core.xml","classpath:perun-notification.xml", "classpath:perun-notification-scheduler.xml"})
+@ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-notification.xml",
+    "classpath:perun-notification-scheduler.xml"})
 public class AbstractTest {
 
-	@Autowired
-	protected PerunBl perun;
+  protected static SimpleSmtpServer smtpServer;
+  @Autowired
+  protected PerunBl perun;
+  protected PerunSession sess;
+  @Autowired
+  protected PerunNotifNotificationManager manager;
 
-	protected PerunSession sess;
+  @Autowired
+  protected SchedulingManagerImpl schedulingManager;
 
-	protected static SimpleSmtpServer smtpServer;
+  @Autowired
+  private ApplicationContext appContext;
 
-	@Autowired
-	protected PerunNotifNotificationManager manager;
+  public static String convertStreamToString(java.io.InputStream is) {
+    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+    return s.hasNext() ? s.next() : "";
+  }
 
-	@Autowired
-	protected SchedulingManagerImpl schedulingManager;
+  @AfterClass
+  public static void shutdown() {
+    if (smtpServer != null) {
+      smtpServer.stop();
+    }
+  }
 
-	@Autowired
-	private ApplicationContext appContext;
+  @Before
+  public void startSmtpServer() {
+    if (smtpServer == null) {
+      smtpServer = SimpleSmtpServer.start(8086);
+    }
+  }
 
-	public static String convertStreamToString(java.io.InputStream is) {
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-		return s.hasNext() ? s.next() : "";
-	}
+  @Before
+  public void setUpSess() throws Exception {
+    final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL);
+    sess = perun.getPerunSession(pp, new PerunClient());
+  }
 
-	@AfterClass
-	public static void shutdown() {
-		if (smtpServer != null) {
-			smtpServer.stop();
-		}
-	}
+  @After
+  public void stopSmtpServer() {
+    if (smtpServer != null) {
+      smtpServer.stop();
+      smtpServer = null;
+    }
+  }
 
-	@Before
-	public void startSmtpServer() {
-		if (smtpServer == null) {
-			smtpServer = SimpleSmtpServer.start(8086);
-		}
-	}
+  @Test
+  public void dummyTest() {
+    System.out.println("Dummy test to prevent: NoRunnableMethodsException");
+  }
 
-	@Before
-	public void setUpSess() throws Exception {
-		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		sess = perun.getPerunSession(pp, new PerunClient());
-	}
-
-	@After
-	public void stopSmtpServer() {
-		if (smtpServer != null) {
-			smtpServer.stop();
-			smtpServer = null;
-		}
-	}
-
-	@Test
-	public void dummyTest() {
-		System.out.println("Dummy test to prevent: NoRunnableMethodsException");
-	}
-
-	public Connection getConnection() throws SQLException {
-		// classic Autowire dataSource does not work
-		return ((SimpleDriverDataSource) appContext.getBean("dataSource")).getConnection();
-	}
+  public Connection getConnection() throws SQLException {
+    // classic Autowire dataSource does not work
+    return ((SimpleDriverDataSource) appContext.getBean("dataSource")).getConnection();
+  }
 }

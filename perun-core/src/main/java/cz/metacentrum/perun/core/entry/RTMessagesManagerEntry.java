@@ -16,69 +16,71 @@ import cz.metacentrum.perun.core.impl.Utils;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class RTMessagesManagerEntry implements RTMessagesManager{
+public class RTMessagesManagerEntry implements RTMessagesManager {
 
-	private PerunBl perunBl;
-	private RTMessagesManagerBl rtMessagesManagerBl;
+  private PerunBl perunBl;
+  private RTMessagesManagerBl rtMessagesManagerBl;
 
-	public RTMessagesManagerEntry(PerunBl perunBl) {
-		this.perunBl = perunBl;
-		this.rtMessagesManagerBl = perunBl.getRTMessagesManagerBl();
-	}
+  public RTMessagesManagerEntry(PerunBl perunBl) {
+    this.perunBl = perunBl;
+    this.rtMessagesManagerBl = perunBl.getRTMessagesManagerBl();
+  }
 
-	public RTMessagesManagerEntry() {}
+  public RTMessagesManagerEntry() {
+  }
 
-	@Override
-	@Deprecated
-	public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws MemberNotExistsException {
-		Utils.checkPerunSession(sess);
-		perunBl.getMembersManagerBl().checkMemberExists(sess, member);
+  @Override
+  @Deprecated
+  public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text)
+      throws MemberNotExistsException {
+    Utils.checkPerunSession(sess);
+    perunBl.getMembersManagerBl().checkMemberExists(sess, member);
 
-		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
+    AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
 
-		return rtMessagesManagerBl.sendMessageToRT(sess, member, queue, subject, text);
-	}
+    return rtMessagesManagerBl.sendMessageToRT(sess, member, queue, subject, text);
+  }
 
-	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
-		Utils.checkPerunSession(sess);
+  @Override
+  public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
+    Utils.checkPerunSession(sess);
 
-		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
+    AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
 
-		return rtMessagesManagerBl.sendMessageToRT(sess, voId, queue, subject, text);
-	}
+    return rtMessagesManagerBl.sendMessageToRT(sess, voId, queue, subject, text);
+  }
 
-	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) {
-		Utils.checkPerunSession(sess);
+  @Override
+  public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) {
+    Utils.checkPerunSession(sess);
 
-		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
+    AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
 
-		return rtMessagesManagerBl.sendMessageToRT(sess, queue, subject, text);
-	}
+    return rtMessagesManagerBl.sendMessageToRT(sess, queue, subject, text);
+  }
 
-	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) {
-		Utils.checkPerunSession(sess);
+  @Override
+  public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) {
+    Utils.checkPerunSession(sess);
 
-		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
+    AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
 
-		return rtMessagesManagerBl.sendMessageToRT(sess, voId, subject, text);
-	}
+    return rtMessagesManagerBl.sendMessageToRT(sess, voId, subject, text);
+  }
 
-	public PerunBl getPerunBl() {
-		return this.perunBl;
-	}
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
 
-	public void setPerunBl(PerunBl perunBl) {
-		this.perunBl = perunBl;
-	}
+  public void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
+  }
 
-	public RTMessagesManagerBl getRTMessagesManagerBl() {
-		return this.rtMessagesManagerBl;
-	}
+  public RTMessagesManagerBl getRTMessagesManagerBl() {
+    return this.rtMessagesManagerBl;
+  }
 
-	public void setRTMessagesManagerBl(RTMessagesManagerBl rtMessagesManagerBl) {
-		this.rtMessagesManagerBl = rtMessagesManagerBl;
-	}
+  public void setRTMessagesManagerBl(RTMessagesManagerBl rtMessagesManagerBl) {
+    this.rtMessagesManagerBl = rtMessagesManagerBl;
+  }
 }

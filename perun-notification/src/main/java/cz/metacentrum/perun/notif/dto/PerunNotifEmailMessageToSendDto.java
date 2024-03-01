@@ -7,49 +7,45 @@ import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
  */
 public class PerunNotifEmailMessageToSendDto {
 
-	//Contains message send by email
-	private String message;
+  private final PerunNotifTypeOfReceiver typeOfReceiver = PerunNotifTypeOfReceiver.EMAIL_USER;
+  //Contains message send by email
+  private String message;
+  //Email address of receiver
+  private String receiver;
+  //Subject of email
+  private String subject;
+  //Sender of email message
+  private String sender;
 
-	//Email address of receiver
-	private String receiver;
+  public String getMessage() {
+    return message;
+  }
 
-	//Subject of email
-	private String subject;
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-	//Sender of email message
-	private String sender;
+  public String getReceiver() {
+    return receiver;
+  }
 
-	private final PerunNotifTypeOfReceiver typeOfReceiver = PerunNotifTypeOfReceiver.EMAIL_USER;
+  public void setReceiver(String receiver) {
+    this.receiver = receiver;
+  }
 
-	public String getMessage() {
-		return message;
-	}
+  public String getSubject() {
+    return subject;
+  }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+  public void setSubject(String subject) {
+    this.subject = subject;
+  }
 
-	public String getReceiver() {
-		return receiver;
-	}
+  public String getSender() {
+    return sender;
+  }
 
-	public void setReceiver(String receiver) {
-		this.receiver = receiver;
-	}
-
-	public String getSubject() {
-		return subject;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public String getSender() {
-		return sender;
-	}
-
-	public void setSender(String sender) {
-		this.sender = sender;
-	}
+  public void setSender(String sender) {
+    this.sender = sender;
+  }
 }

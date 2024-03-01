@@ -17,65 +17,65 @@ import static org.mockito.Mockito.mock;
  */
 public class urn_perun_facility_attribute_def_def_ldapBaseDNTest {
 
-	private static urn_perun_facility_attribute_def_def_ldapBaseDN classInstance;
-	private static PerunSessionImpl session;
-	private static Facility facility;
+  private static urn_perun_facility_attribute_def_def_ldapBaseDN classInstance;
+  private static PerunSessionImpl session;
+  private static Facility facility;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_facility_attribute_def_def_ldapBaseDN();
-		session = mock(PerunSessionImpl.class);
-		facility = new Facility();
-	}
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_facility_attribute_def_def_ldapBaseDN();
+    session = mock(PerunSessionImpl.class);
+    facility = new Facility();
+  }
 
-	@Test
-	public void testCheckAttributeSyntaxCorrect() throws Exception {
-		Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
-		attribute.setValue("dc=example,dc=domain");
+  @Test
+  public void testCheckAttributeSyntaxCorrect() throws Exception {
+    Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
+    attribute.setValue("dc=example,dc=domain");
 
-		classInstance.checkAttributeSyntax(session, facility, attribute);
+    classInstance.checkAttributeSyntax(session, facility, attribute);
 
-		attribute.setValue("ou=example,dc=domain");
+    attribute.setValue("ou=example,dc=domain");
 
-		classInstance.checkAttributeSyntax(session, facility, attribute);
-	}
+    classInstance.checkAttributeSyntax(session, facility, attribute);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxEmptyString() throws Exception {
-		Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
-		attribute.setValue("");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxEmptyString() throws Exception {
+    Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
+    attribute.setValue("");
 
-		classInstance.checkAttributeSyntax(session, facility, attribute);
-	}
+    classInstance.checkAttributeSyntax(session, facility, attribute);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxFailsLessChars() throws Exception {
-		Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
-		attribute.setValue("ou");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxFailsLessChars() throws Exception {
+    Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
+    attribute.setValue("ou");
 
-		classInstance.checkAttributeSyntax(session, facility, attribute);
-	}
+    classInstance.checkAttributeSyntax(session, facility, attribute);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSemanticsWrongChars() throws Exception {
-		Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
-		attribute.setValue("cn=example,dc=domain");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSemanticsWrongChars() throws Exception {
+    Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
+    attribute.setValue("cn=example,dc=domain");
 
-		classInstance.checkAttributeSyntax(session, facility, attribute);
-	}
+    classInstance.checkAttributeSyntax(session, facility, attribute);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithNullValue() throws Exception {
-		Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+    Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
 
-		classInstance.checkAttributeSemantics(session, facility, attribute);
-	}
+    classInstance.checkAttributeSemantics(session, facility, attribute);
+  }
 
-	@Test
-	public void testCheckAttributeSemanticsCorrect() throws Exception {
-		Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
-		attribute.setValue("dc=example,dc=domain");
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
+    attribute.setValue("dc=example,dc=domain");
 
-		classInstance.checkAttributeSemantics(session, facility, attribute);
-	}
+    classInstance.checkAttributeSemantics(session, facility, attribute);
+  }
 }

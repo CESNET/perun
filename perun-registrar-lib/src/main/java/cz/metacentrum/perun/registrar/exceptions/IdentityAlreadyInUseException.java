@@ -10,44 +10,44 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class IdentityAlreadyInUseException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private User user;
-	private User secondUser;
+  private User user;
+  private User secondUser;
 
-	public IdentityAlreadyInUseException(String message) {
-		super(message);
-	}
+  public IdentityAlreadyInUseException(String message) {
+    super(message);
+  }
 
-	public IdentityAlreadyInUseException(String message, User user, User secondUser) {
-		super(message);
-		this.user = user;
-		this.secondUser = secondUser;
-	}
+  public IdentityAlreadyInUseException(String message, User user, User secondUser) {
+    super(message);
+    this.user = user;
+    this.secondUser = secondUser;
+  }
 
-	public IdentityAlreadyInUseException(String message, Throwable ex) {
-		super(message, ex);
-	}
+  public IdentityAlreadyInUseException(String message, Throwable ex) {
+    super(message, ex);
+  }
 
-	public IdentityAlreadyInUseException(String message, Throwable ex, User user, User secondUser) {
-		super(message, ex);
-		this.user = user;
-		this.secondUser = secondUser;
-	}
+  public IdentityAlreadyInUseException(String message, Throwable ex, User user, User secondUser) {
+    super(message, ex);
+    this.user = user;
+    this.secondUser = secondUser;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-	public User getSecondUser() {
-		return secondUser;
-	}
+  public User getSecondUser() {
+    return secondUser;
+  }
 
-	public void setSecondUser(User secondUser) {
-		this.secondUser = secondUser;
-	}
+  public void setSecondUser(User secondUser) {
+    this.secondUser = secondUser;
+  }
 }

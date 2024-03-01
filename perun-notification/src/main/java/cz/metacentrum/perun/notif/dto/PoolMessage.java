@@ -1,10 +1,8 @@
 package cz.metacentrum.perun.notif.dto;
 
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -12,58 +10,57 @@ import java.util.Map;
  * keyAttributes
  *
  * @author tomas.tunkl
- *
  */
 public class PoolMessage {
 
-	/**
-	 * Template id common for all PerunNotifPoolMessages from list
-	 */
-	private Integer templateId;
+  /**
+   * Template id common for all PerunNotifPoolMessages from list
+   */
+  private Integer templateId;
 
-	/**
-	 * KeyAttributes which are the same for PerunNotifPoolMessages from list
-	 */
-	private Map<String, String> keyAttributes;
+  /**
+   * KeyAttributes which are the same for PerunNotifPoolMessages from list
+   */
+  private Map<String, String> keyAttributes;
 
-	/**
-	 * PerunNotifPoolMessages from db, which has common keyAttributes and
-	 * templateIds
-	 */
-	private List<PerunNotifPoolMessage> list;
+  /**
+   * PerunNotifPoolMessages from db, which has common keyAttributes and
+   * templateIds
+   */
+  private List<PerunNotifPoolMessage> list;
 
-	public Integer getTemplateId() {
-		return templateId;
-	}
+  public Integer getTemplateId() {
+    return templateId;
+  }
 
-	public void setTemplateId(Integer templateId) {
-		this.templateId = templateId;
-	}
+  public void setTemplateId(Integer templateId) {
+    this.templateId = templateId;
+  }
 
-	public Map<String, String> getKeyAttributes() {
-		return keyAttributes;
-	}
+  public Map<String, String> getKeyAttributes() {
+    return keyAttributes;
+  }
 
-	public void setKeyAttributes(Map<String, String> keyAttributes) {
-		this.keyAttributes = keyAttributes;
-	}
+  public void setKeyAttributes(Map<String, String> keyAttributes) {
+    this.keyAttributes = keyAttributes;
+  }
 
-	public List<PerunNotifPoolMessage> getList() {
-		return list;
-	}
+  public List<PerunNotifPoolMessage> getList() {
+    return list;
+  }
 
-	public void addToList(PerunNotifPoolMessage message) {
-		if (list == null) {
-			list = new ArrayList<PerunNotifPoolMessage>();
-		}
+  public void addToList(PerunNotifPoolMessage message) {
+    if (list == null) {
+      list = new ArrayList<PerunNotifPoolMessage>();
+    }
 
-		list.add(message);
-	}
+    list.add(message);
+  }
 
-	@Override
-	public String toString() {
-		return "PoolMessage{" + "templateId=" + templateId + ", keyAttributes=" + keyAttributes + ", list=" + list + '}';
-	}
+  @Override
+  public String toString() {
+    return "PoolMessage{" + "templateId=" + templateId + ", keyAttributes=" + keyAttributes + ", list=" + list + '}';
+  }
 
-	
+
 }

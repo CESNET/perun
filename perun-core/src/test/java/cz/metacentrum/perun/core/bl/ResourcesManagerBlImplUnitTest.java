@@ -38,164 +38,162 @@ import static org.mockito.Mockito.when;
  */
 public class ResourcesManagerBlImplUnitTest {
 
-	private final static String CLASS_NAME = "ResourcesManagerBlImplUnitTest.";
+  private final static String CLASS_NAME = "ResourcesManagerBlImplUnitTest.";
+  /**
+   * Partial mock.
+   * Use it when you need to mock other methods from the manager.
+   */
+  private final ResourcesManagerBlImpl resourcesManagerBlMock = mock(ResourcesManagerBlImpl.class);
+  private final ResourcesManagerImpl resourcesManagerImplMock = mock(ResourcesManagerImpl.class);
+  private final AttributesManagerBl attributesManagerBlMock = mock(AttributesManagerBl.class);
+  private final PerunBl perunBlMock = mock(PerunBl.class, RETURNS_DEEP_STUBS);
+  private final Auditer auditerMock = mock(Auditer.class);
+  private final PerunSession sessionMock = mock(PerunSession.class);
+  private ResourcesManagerBlImpl resourcesManagerBl;
 
-	private ResourcesManagerBlImpl resourcesManagerBl;
+  @Before
+  public void setUp() {
+    ReflectionTestUtils.setField(resourcesManagerBlMock, "resourcesManagerImpl", resourcesManagerImplMock);
+    resourcesManagerBl = new ResourcesManagerBlImpl(resourcesManagerImplMock);
+    resourcesManagerBl.setPerunBl(perunBlMock);
+    when(perunBlMock.getAttributesManagerBl()).thenReturn(attributesManagerBlMock);
+    when(resourcesManagerBlMock.getResourcesManagerImpl()).thenReturn(resourcesManagerImplMock);
+    when(resourcesManagerBlMock.getPerunBl()).thenReturn(perunBlMock);
+    when(perunBlMock.getAuditer()).thenReturn(auditerMock);
+  }
 
-	/**
-	 * Partial mock.
-	 * Use it when you need to mock other methods from the manager.
-	 */
-	private final ResourcesManagerBlImpl resourcesManagerBlMock = mock(ResourcesManagerBlImpl.class);
-	private final ResourcesManagerImpl resourcesManagerImplMock = mock(ResourcesManagerImpl.class);
-	private final AttributesManagerBl attributesManagerBlMock = mock(AttributesManagerBl.class);
-	private final PerunBl perunBlMock = mock(PerunBl.class, RETURNS_DEEP_STUBS);
-	private final Auditer auditerMock = mock(Auditer.class);
-	private final PerunSession sessionMock = mock(PerunSession.class);
+  @After
+  public void tearDown() {
+    Mockito.reset(resourcesManagerBlMock,
+        resourcesManagerImplMock,
+        attributesManagerBlMock,
+        perunBlMock,
+        auditerMock);
+  }
 
-	@Before
-	public void setUp() {
-		ReflectionTestUtils.setField(resourcesManagerBlMock, "resourcesManagerImpl", resourcesManagerImplMock);
-		resourcesManagerBl = new ResourcesManagerBlImpl(resourcesManagerImplMock);
-		resourcesManagerBl.setPerunBl(perunBlMock);
-		when(perunBlMock.getAttributesManagerBl()).thenReturn(attributesManagerBlMock);
-		when(resourcesManagerBlMock.getResourcesManagerImpl()).thenReturn(resourcesManagerImplMock);
-		when(resourcesManagerBlMock.getPerunBl()).thenReturn(perunBlMock);
-		when(perunBlMock.getAuditer()).thenReturn(auditerMock);
-	}
+  @Test
+  public void assignServices() throws Exception {
+    System.out.println(CLASS_NAME + "assignServices");
 
-	@After
-	public void tearDown() {
-		Mockito.reset(resourcesManagerBlMock,
-					  resourcesManagerImplMock,
-					  attributesManagerBlMock,
-					  perunBlMock,
-					  auditerMock);
-	}
+    Resource resource = new Resource(1, "r1", "", -1);
+    Service s1 = new Service(1, "s1");
+    Service s2 = new Service(2, "s2");
+    List<Service> services = Arrays.asList(s1, s2);
 
-	@Test
-	public void assignServices() throws Exception {
-        System.out.println(CLASS_NAME + "assignServices");
+    doCallRealMethod()
+        .when(resourcesManagerBlMock)
+        .assignServices(sessionMock, resource, services);
 
-        Resource resource = new Resource(1, "r1", "", -1);
-        Service s1 = new Service(1, "s1");
-        Service s2 = new Service(2, "s2");
-        List<Service> services = Arrays.asList(s1, s2);
+    resourcesManagerBlMock.assignServices(sessionMock, resource, services);
 
-        doCallRealMethod()
-	        .when(resourcesManagerBlMock)
-	        .assignServices(sessionMock, resource, services);
+    for (Service service : services) {
+      verify(resourcesManagerImplMock, times(1))
+          .assignService(sessionMock, resource, service);
+      verify(auditerMock, times(1))
+          .log(sessionMock, new ServiceAssignedToResource(service, resource));
+    }
+  }
 
-        resourcesManagerBlMock.assignServices(sessionMock, resource, services);
+  @Test
+  public void updateAllRequiredAttributesForAllowedMembers() throws Exception {
+    System.out.println(CLASS_NAME + "updateAllRequiredAttributesForAllowedMembers");
 
-        for (Service service : services) {
-            verify(resourcesManagerImplMock, times(1))
-	            .assignService(sessionMock, resource, service);
-            verify(auditerMock, times(1))
-	            .log(sessionMock, new ServiceAssignedToResource(service, resource));
-        }
-	}
+    Facility facility = new Facility(1, "Facility");
+    Resource resource = new Resource(9, "", "", facility.getId());
+    Member m1 = new Member(1);
+    Member m2 = new Member(2);
+    User u1 = new User(1, "", "", "", "", "");
+    User u2 = new User(2, "", "", "", "", "");
+    List<Service> services = new ArrayList<>();
+    List<Member> members = Arrays.asList(m1, m2);
+    List<User> users = Arrays.asList(u1, u2);
 
-	@Test
-	public void updateAllRequiredAttributesForAllowedMembers() throws Exception {
-		System.out.println(CLASS_NAME + "updateAllRequiredAttributesForAllowedMembers");
+    for (int i = 0; i < users.size(); i++) {
+      when(perunBlMock
+          .getUsersManagerBl().getUserByMember(sessionMock, members.get(i)))
+          .thenReturn(users.get(i));
+    }
+    when(perunBlMock
+        .getUsersManagerBl().getUserByMember(sessionMock, m2))
+        .thenReturn(u2);
+    when(perunBlMock
+        .getFacilitiesManagerBl().getFacilityById(sessionMock, facility.getId()))
+        .thenReturn(facility);
+    when(resourcesManagerImplMock
+        .getAllowedMembers(sessionMock, resource))
+        .thenReturn(members);
 
-		Facility facility = new Facility(1, "Facility");
-		Resource resource = new Resource(9, "", "", facility.getId());
-		Member m1 = new Member(1);
-		Member m2 = new Member(2);
-		User u1 = new User(1, "", "", "", "", "");
-		User u2 = new User(2, "", "", "", "", "");
-		List<Service> services = new ArrayList<>();
-		List<Member> members = Arrays.asList(m1, m2);
-		List<User> users = Arrays.asList(u1, u2);
+    resourcesManagerBl.updateAllRequiredAttributesForAllowedMembers(sessionMock, resource, services);
 
-		for (int i = 0; i < users.size(); i++) {
-			when(perunBlMock
-				.getUsersManagerBl().getUserByMember(sessionMock, members.get(i)))
-				.thenReturn(users.get(i));
-		}
-		when(perunBlMock
-			.getUsersManagerBl().getUserByMember(sessionMock, m2))
-			.thenReturn(u2);
-		when(perunBlMock
-			.getFacilitiesManagerBl().getFacilityById(sessionMock, facility.getId()))
-			.thenReturn(facility);
-		when(resourcesManagerImplMock
-			.getAllowedMembers(sessionMock, resource))
-			.thenReturn(members);
+    for (int i = 0; i < users.size(); i++) {
+      verify(attributesManagerBlMock, times(1))
+          .setRequiredAttributes(sessionMock, services, facility, resource, users.get(i), members.get(i), true);
+    }
+  }
 
-		resourcesManagerBl.updateAllRequiredAttributesForAllowedMembers(sessionMock, resource, services);
+  @Test
+  public void checkSemanticsOfFacilityAndResourceRequiredAttributes() throws Exception {
+    System.out.println(CLASS_NAME + "checkSemanticsOfFacilityAndResourceRequiredAttributes");
 
-		for (int i = 0; i < users.size(); i++) {
-			verify(attributesManagerBlMock, times(1))
-				.setRequiredAttributes(sessionMock, services, facility, resource, users.get(i), members.get(i), true);
-		}
-	}
+    Facility facility = new Facility(1, "Facility");
+    Resource resource = new Resource(2, "r", "", facility.getId());
 
-	@Test
-	public void checkSemanticsOfFacilityAndResourceRequiredAttributes() throws Exception {
-		System.out.println(CLASS_NAME + "checkSemanticsOfFacilityAndResourceRequiredAttributes");
+    List<Attribute> facilityAttributes = Collections.singletonList(new Attribute());
+    List<Attribute> resourceAttributes = Arrays.asList(new Attribute(), new Attribute());
 
-		Facility facility = new Facility(1, "Facility");
-		Resource resource = new Resource(2, "r", "", facility.getId());
-
-		List<Attribute> facilityAttributes = Collections.singletonList(new Attribute());
-		List<Attribute> resourceAttributes = Arrays.asList(new Attribute(), new Attribute());
-
-		when(perunBlMock
-			.getFacilitiesManagerBl().getFacilityById(sessionMock, facility.getId()))
-			.thenReturn(facility);
-		when(attributesManagerBlMock.getRequiredAttributes(sessionMock, facility))
-			.thenReturn(facilityAttributes);
-		when(attributesManagerBlMock.getRequiredAttributes(sessionMock, resource))
-			.thenReturn(resourceAttributes);
+    when(perunBlMock
+        .getFacilitiesManagerBl().getFacilityById(sessionMock, facility.getId()))
+        .thenReturn(facility);
+    when(attributesManagerBlMock.getRequiredAttributes(sessionMock, facility))
+        .thenReturn(facilityAttributes);
+    when(attributesManagerBlMock.getRequiredAttributes(sessionMock, resource))
+        .thenReturn(resourceAttributes);
 
 
-		resourcesManagerBl.checkSemanticsOfFacilityAndResourceRequiredAttributes(sessionMock, resource);
+    resourcesManagerBl.checkSemanticsOfFacilityAndResourceRequiredAttributes(sessionMock, resource);
 
-		verify(attributesManagerBlMock, times(1))
-			.checkAttributesSemantics(sessionMock, facility, facilityAttributes);
-		verify(attributesManagerBlMock, times(1))
-			.checkAttributesSemantics(sessionMock, resource, resourceAttributes);
-	}
+    verify(attributesManagerBlMock, times(1))
+        .checkAttributesSemantics(sessionMock, facility, facilityAttributes);
+    verify(attributesManagerBlMock, times(1))
+        .checkAttributesSemantics(sessionMock, resource, resourceAttributes);
+  }
 
-	@Test
-	public void fillAndSetRequiredAttributesForGroups() throws Exception {
-		System.out.println(CLASS_NAME + "fillAndSetRequiredAttributesForGroups");
+  @Test
+  public void fillAndSetRequiredAttributesForGroups() throws Exception {
+    System.out.println(CLASS_NAME + "fillAndSetRequiredAttributesForGroups");
 
-		Resource resource = new Resource();
-		List<Service> services = new ArrayList<>();
-		Group g1 = new Group("G1", "G1");
-		Group g2 = new Group("G2", "G2");
-		List<Group> groups = new ArrayList<>();
-		groups.add(g1);
-		groups.add(g2);
+    Resource resource = new Resource();
+    List<Service> services = new ArrayList<>();
+    Group g1 = new Group("G1", "G1");
+    Group g2 = new Group("G2", "G2");
+    List<Group> groups = new ArrayList<>();
+    groups.add(g1);
+    groups.add(g2);
 
-		List<Attribute> requiredAttributes = Collections.singletonList(mock(Attribute.class));
-		List<Attribute> filledAttributes = Collections.singletonList(mock(Attribute.class));
+    List<Attribute> requiredAttributes = Collections.singletonList(mock(Attribute.class));
+    List<Attribute> filledAttributes = Collections.singletonList(mock(Attribute.class));
 
-		when(resourcesManagerBlMock
-			.getAssignedGroups(sessionMock, resource))
-			.thenReturn(groups);
-		when(attributesManagerBlMock
-			.getRequiredAttributes(any(), anyList(), any(), any(), anyBoolean()))
-			.thenReturn(requiredAttributes);
-		when(attributesManagerBlMock
-			.fillAttributes(any(), any(Resource.class), any(Group.class), anyList(), anyBoolean()))
-			.thenReturn(filledAttributes);
+    when(resourcesManagerBlMock
+        .getAssignedGroups(sessionMock, resource))
+        .thenReturn(groups);
+    when(attributesManagerBlMock
+        .getRequiredAttributes(any(), anyList(), any(), any(), anyBoolean()))
+        .thenReturn(requiredAttributes);
+    when(attributesManagerBlMock
+        .fillAttributes(any(), any(Resource.class), any(Group.class), anyList(), anyBoolean()))
+        .thenReturn(filledAttributes);
 
-		doCallRealMethod()
-			.when(resourcesManagerBlMock)
-			.fillAndSetRequiredAttributesForGroups(any(), anyList(), any());
+    doCallRealMethod()
+        .when(resourcesManagerBlMock)
+        .fillAndSetRequiredAttributesForGroups(any(), anyList(), any());
 
-		resourcesManagerBlMock.fillAndSetRequiredAttributesForGroups(sessionMock, services, resource);
+    resourcesManagerBlMock.fillAndSetRequiredAttributesForGroups(sessionMock, services, resource);
 
-		for (Group group : groups) {
-			verify(attributesManagerBlMock, times(1))
-				.fillAttributes(sessionMock, resource, group, requiredAttributes, true);
-			verify(attributesManagerBlMock, times(1))
-				.setAttributes(sessionMock, resource, group, filledAttributes, true);
-		}
-	}
+    for (Group group : groups) {
+      verify(attributesManagerBlMock, times(1))
+          .fillAttributes(sessionMock, resource, group, requiredAttributes, true);
+      verify(attributesManagerBlMock, times(1))
+          .setAttributes(sessionMock, resource, group, filledAttributes, true);
+    }
+  }
 }

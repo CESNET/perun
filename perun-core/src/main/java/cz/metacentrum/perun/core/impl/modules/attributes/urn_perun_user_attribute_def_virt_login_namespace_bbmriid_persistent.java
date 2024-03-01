@@ -17,53 +17,54 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * Class for access def:bbmriid-persistent-shadow attribute. It generates value if you call it for the first time.
- *
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persistent extends UserVirtualAttributesModuleAbstract {
-    
-        public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:bbmriid-persistent-shadow";
+public class urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persistent
+    extends UserVirtualAttributesModuleAbstract {
 
-        @Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute bbmriidPersistent = new Attribute(attributeDefinition);
+  public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:bbmriid-persistent-shadow";
 
-		try {
-			Attribute bbmriidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute bbmriidPersistent = new Attribute(attributeDefinition);
 
-			if (bbmriidPersistentShadow.getValue() == null) {
+    try {
+      Attribute bbmriidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-				bbmriidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, bbmriidPersistentShadow);
+      if (bbmriidPersistentShadow.getValue() == null) {
 
-				if (bbmriidPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("BBMRI ID couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, bbmriidPersistentShadow);
-			}
+        bbmriidPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, bbmriidPersistentShadow);
 
-			bbmriidPersistent.setValue(bbmriidPersistentShadow.getValue());
-			return bbmriidPersistent;
+        if (bbmriidPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("BBMRI ID couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, bbmriidPersistentShadow);
+      }
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      bbmriidPersistent.setValue(bbmriidPersistentShadow.getValue());
+      return bbmriidPersistent;
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:bbmriid-persistent");
-		attr.setDisplayName("BBMRI Computed ID");
-		attr.setType(String.class.getName());
-		attr.setDescription("BBMRI Computed ID used in proxy and BBMRI services. It is set automatically with first call.");
-		return attr;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:bbmriid-persistent");
+    attr.setDisplayName("BBMRI Computed ID");
+    attr.setType(String.class.getName());
+    attr.setDescription("BBMRI Computed ID used in proxy and BBMRI services. It is set automatically with first call.");
+    return attr;
+  }
 }

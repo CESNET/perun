@@ -22,68 +22,68 @@ import static org.mockito.Mockito.when;
  */
 public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadowTest {
 
-	private final ModulesConfigLoader mockedModulesConfigLoader = Mockito.mock(ModulesConfigLoader.class);
-	private final CoreConfig mockedCoreConfig = Mockito.mock(CoreConfig.class, RETURNS_DEEP_STUBS);
-	private CoreConfig originConfig;
+  private final ModulesConfigLoader mockedModulesConfigLoader = Mockito.mock(ModulesConfigLoader.class);
+  private final CoreConfig mockedCoreConfig = Mockito.mock(CoreConfig.class, RETURNS_DEEP_STUBS);
+  private CoreConfig originConfig;
 
-	private urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow module;
+  private urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow module;
 
-	@Before
-	public void setUp() {
-		originConfig = BeansUtils.getCoreConfig();
-		// this config has to be mocked, because it is used in the module's super class
-		BeansUtils.setConfig(mockedCoreConfig);
-		module = new urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow();
-		ReflectionTestUtils.setField(module, "loader", mockedModulesConfigLoader);
-	}
+  @Before
+  public void setUp() {
+    originConfig = BeansUtils.getCoreConfig();
+    // this config has to be mocked, because it is used in the module's super class
+    BeansUtils.setConfig(mockedCoreConfig);
+    module = new urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow();
+    ReflectionTestUtils.setField(module, "loader", mockedModulesConfigLoader);
+  }
 
-	@After
-	public void tearDown() {
-		BeansUtils.setConfig(originConfig);
-		Mockito.reset(mockedModulesConfigLoader, mockedCoreConfig);
-	}
+  @After
+  public void tearDown() {
+    BeansUtils.setConfig(originConfig);
+    Mockito.reset(mockedModulesConfigLoader, mockedCoreConfig);
+  }
 
-	@Test
-	public void testGetExtSourceNameFenix() {
-		String testValue = "ExtSourceName";
-		when(mockedModulesConfigLoader.loadString(any(), any()))
-			.thenReturn(testValue);
+  @Test
+  public void testGetExtSourceNameFenix() {
+    String testValue = "ExtSourceName";
+    when(mockedModulesConfigLoader.loadString(any(), any()))
+        .thenReturn(testValue);
 
-		assertThat(module.getExtSourceName()).isEqualTo(testValue);
-	}
+    assertThat(module.getExtSourceName()).isEqualTo(testValue);
+  }
 
-	@Test
-	public void testGetDomainNameFenix() {
-		String testValue = "Domain name";
-		when(mockedModulesConfigLoader.loadString(any(), any()))
-			.thenReturn(testValue);
+  @Test
+  public void testGetDomainNameFenix() {
+    String testValue = "Domain name";
+    when(mockedModulesConfigLoader.loadString(any(), any()))
+        .thenReturn(testValue);
 
-		assertThat(module.getDomainName()).isEqualTo(testValue);
-	}
+    assertThat(module.getDomainName()).isEqualTo(testValue);
+  }
 
-	@Test
-	public void testExtSourceValueIsNotLoadedAgain() {
-		String testValue = "ExtSourceName";
+  @Test
+  public void testExtSourceValueIsNotLoadedAgain() {
+    String testValue = "ExtSourceName";
 
-		when(mockedModulesConfigLoader.loadString(any(), any()))
-			.thenReturn(testValue);
+    when(mockedModulesConfigLoader.loadString(any(), any()))
+        .thenReturn(testValue);
 
-		module.getExtSourceName();
-		module.getExtSourceName();
+    module.getExtSourceName();
+    module.getExtSourceName();
 
-		verify(mockedModulesConfigLoader, times(1)).loadString(any(), eq("extSourceNameFenix"));
-	}
+    verify(mockedModulesConfigLoader, times(1)).loadString(any(), eq("extSourceNameFenix"));
+  }
 
-	@Test
-	public void testdomainNameFenixIsNotLoadedAgain() {
-		String testValue = "Domain name";
+  @Test
+  public void testdomainNameFenixIsNotLoadedAgain() {
+    String testValue = "Domain name";
 
-		when(mockedModulesConfigLoader.loadString(any(), any()))
-			.thenReturn(testValue);
+    when(mockedModulesConfigLoader.loadString(any(), any()))
+        .thenReturn(testValue);
 
-		module.getDomainName();
-		module.getDomainName();
+    module.getDomainName();
+    module.getDomainName();
 
-		verify(mockedModulesConfigLoader, times(1)).loadString(any(), eq("domainNameFenix"));
-	}
+    verify(mockedModulesConfigLoader, times(1)).loadString(any(), eq("domainNameFenix"));
+  }
 }

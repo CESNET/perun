@@ -2,17 +2,17 @@ package cz.metacentrum.perun.core.api;
 
 public enum SpecificUserType {
 
-	NORMAL ("normal"),
-	SERVICE ("service"),
-	SPONSORED ("sponsored");
+  NORMAL("normal"),
+  SERVICE("service"),
+  SPONSORED("sponsored");
 
-	private final String specificUserType;
+  private final String specificUserType;
 
-	SpecificUserType(String specificUserType) {
-		this.specificUserType = specificUserType;
-	}
+  SpecificUserType(String specificUserType) {
+    this.specificUserType = specificUserType;
+  }
 
-	public String getSpecificUserType() {
-		return specificUserType;
-	}
+  public String getSpecificUserType() {
+    return specificUserType;
+  }
 }

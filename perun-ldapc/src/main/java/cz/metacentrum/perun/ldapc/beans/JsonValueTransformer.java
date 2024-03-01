@@ -16,48 +16,48 @@ import java.util.Map;
  */
 public class JsonValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
-	private final static Logger log = LoggerFactory.getLogger(JsonValueTransformer.class);
+  private final static Logger log = LoggerFactory.getLogger(JsonValueTransformer.class);
 
-	protected static ObjectMapper mapper = new ObjectMapper();
+  protected static ObjectMapper mapper = new ObjectMapper();
 
-	@Override
-	public String getValue(String value, Attribute attr) {
-		try {
-			return mapper.writeValueAsString(value);
-		} catch (JsonProcessingException e) {
-			log.warn("Error converting {} to JSON", value, e);
-			return null;
-		}
-	}
+  @Override
+  public String getValue(String value, Attribute attr) {
+    try {
+      return mapper.writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      log.warn("Error converting {} to JSON", value, e);
+      return null;
+    }
+  }
 
-	@Override
-	public String getValue(Collection<String> value, Attribute attr) {
-		try {
-			return mapper.writeValueAsString(value);
-		} catch (JsonProcessingException e) {
-			log.warn("Error converting {} to JSON", value, e);
-			return null;
-		}
-	}
+  @Override
+  public String getValue(Collection<String> value, Attribute attr) {
+    try {
+      return mapper.writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      log.warn("Error converting {} to JSON", value, e);
+      return null;
+    }
+  }
 
-	@Override
-	public String getValue(Map<String, String> value, Attribute attr) {
-		try {
-			return mapper.writeValueAsString(value);
-		} catch (JsonProcessingException e) {
-			log.warn("Error converting {} to JSON", value, e);
-			return null;
-		}
-	}
+  @Override
+  public String getValue(Map<String, String> value, Attribute attr) {
+    try {
+      return mapper.writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      log.warn("Error converting {} to JSON", value, e);
+      return null;
+    }
+  }
 
-	@Override
-	public Boolean isMassTransformationPreferred() {
-		return true;
-	}
+  @Override
+  public Boolean isMassTransformationPreferred() {
+    return true;
+  }
 
-	@Override
-	public Boolean isReduce() {
-		return true;
-	}
+  @Override
+  public Boolean isReduce() {
+    return true;
+  }
 
 }

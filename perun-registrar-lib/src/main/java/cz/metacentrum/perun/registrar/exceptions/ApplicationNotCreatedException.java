@@ -10,23 +10,23 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class ApplicationNotCreatedException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private final String login;
-	private final String namespace;
+  private final String login;
+  private final String namespace;
 
-	public ApplicationNotCreatedException(String message, String login, String namespace) {
-		super(message);
-		this.login = login;
-		this.namespace = namespace;
-	}
+  public ApplicationNotCreatedException(String message, String login, String namespace) {
+    super(message);
+    this.login = login;
+    this.namespace = namespace;
+  }
 
-	public String getLogin() {
-		return login;
-	}
+  public String getLogin() {
+    return login;
+  }
 
-	public String getNamespace() {
-		return namespace;
-	}
+  public String getNamespace() {
+    return namespace;
+  }
 
 }

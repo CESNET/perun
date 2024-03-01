@@ -9,14 +9,14 @@ import cz.metacentrum.perun.taskslib.model.SendTask;
  */
 public interface SendWorker extends EngineWorker<SendTask> {
 
-	@Override
-	SendTask call() throws Exception;
+  @Override
+  SendTask call() throws Exception;
 
-	/**
-	 * Return SendTask associated with this SendWorker
-	 *
-	 * @return SendTask
-	 */
-	SendTask getSendTask();
+  /**
+   * Return SendTask associated with this SendWorker
+   *
+   * @return SendTask
+   */
+  SendTask getSendTask();
 
 }

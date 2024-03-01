@@ -26,182 +26,188 @@ import static org.mockito.Mockito.when;
 @Deprecated
 public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 
-	private static final String VALUE = "http://www.ga4gh.org/beacon/bonafide/ver1.0";
+  private static final String VALUE = "http://www.ga4gh.org/beacon/bonafide/ver1.0";
 
-	private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
-	private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
-	private static final String USER_PUBLICATIONS_ATTR_NAME = "publications";
+  private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
+  private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
+  private static final String USER_PUBLICATIONS_ATTR_NAME = "publications";
 
-	private static final String A_U_D_userBonaFideStatusRems = AttributesManager.NS_USER_ATTR_DEF + ":" + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
-	private static final String A_U_D_userPublications = AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_PUBLICATIONS_ATTR_NAME;
-	private static final String A_U_V_userAffiliations = AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_AFFILIATIONS_ATTR_NAME;
+  private static final String A_U_D_userBonaFideStatusRems =
+      AttributesManager.NS_USER_ATTR_DEF + ":" + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
+  private static final String A_U_D_userPublications =
+      AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_PUBLICATIONS_ATTR_NAME;
+  private static final String A_U_V_userAffiliations =
+      AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_AFFILIATIONS_ATTR_NAME;
+  private final String ELIXIR_KEY = "ELIXIR";
+  private urn_perun_user_attribute_def_def_elixirBonaFideStatus classInstance;
+  private PerunSessionImpl session;
+  private User user;
+  private Attribute voPersonExternalAffiliation;
+  private Attribute publicationAttribute;
+  private Attribute elixirBonaFideStatusREMS;
 
-	private urn_perun_user_attribute_def_def_elixirBonaFideStatus classInstance;
+  @Before
+  public void setUp() {
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-	private PerunSessionImpl session;
-	private User user;
-	private Attribute voPersonExternalAffiliation;
-	private Attribute publicationAttribute;
-	private Attribute elixirBonaFideStatusREMS;
+    user = new User();
+    user.setId(1);
 
-	private final String ELIXIR_KEY = "ELIXIR";
+    List<String> EPSA_VAL = new ArrayList<>();
+    EPSA_VAL.add("faculty@somewhere.edu");
+    EPSA_VAL.add("member@somewhere.edu");
+    voPersonExternalAffiliation = new Attribute();
+    voPersonExternalAffiliation.setValue(EPSA_VAL);
 
-	@Before
-	public void setUp() {
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    LinkedHashMap<String, String> PUBLICATIONS_VAL = new LinkedHashMap<>();
+    PUBLICATIONS_VAL.put(ELIXIR_KEY, "3");
+    PUBLICATIONS_VAL.put("KEY", "9");
+    publicationAttribute = new Attribute();
+    publicationAttribute.setValue(PUBLICATIONS_VAL);
 
-		user = new User();
-		user.setId(1);
+    elixirBonaFideStatusREMS = new Attribute();
+    elixirBonaFideStatusREMS.setValue("IS_RESEARCHER");
+  }
 
-		List<String> EPSA_VAL = new ArrayList<>();
-		EPSA_VAL.add("faculty@somewhere.edu");
-		EPSA_VAL.add("member@somewhere.edu");
-		voPersonExternalAffiliation = new Attribute();
-		voPersonExternalAffiliation.setValue(EPSA_VAL);
+  @Test
+  public void fillAttributeWithNoDependenciesFilled() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
-		LinkedHashMap<String, String> PUBLICATIONS_VAL = new LinkedHashMap<>();
-		PUBLICATIONS_VAL.put(ELIXIR_KEY, "3");
-		PUBLICATIONS_VAL.put("KEY", "9");
-		publicationAttribute = new Attribute();
-		publicationAttribute.setValue(PUBLICATIONS_VAL);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
+        null
+    );
 
-		elixirBonaFideStatusREMS = new Attribute();
-		elixirBonaFideStatusREMS.setValue("IS_RESEARCHER");
-	}
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
+        null
+    );
 
-	@Test
-	public void fillAttributeWithNoDependenciesFilled() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
+        null
+    );
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
-				null
-		);
+    Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
+    assertNull("returned value is incorrect", receivedAttr.getValue());
+  }
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				null
-		);
+  @Test
+  public void fillAttributeWithDependenciesHavingUnsatisfyingValues() throws Exception {
+    List<String> EPSA_FAILING_VAL = new ArrayList<>();
+    EPSA_FAILING_VAL.add("member@here.edu");
+    Attribute voPersonExternalAffiliationNotSatisfying = new Attribute();
+    voPersonExternalAffiliation.setValue(EPSA_FAILING_VAL);
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
-				null
-		);
+    LinkedHashMap<String, String> PUBLICATIONS_FAILING_VAL = new LinkedHashMap<>();
+    PUBLICATIONS_FAILING_VAL.put(ELIXIR_KEY, "0");
+    PUBLICATIONS_FAILING_VAL.put("KEY", "5");
+    Attribute publicationAttributeNotSatisfying = new Attribute();
+    publicationAttributeNotSatisfying.setValue(PUBLICATIONS_FAILING_VAL);
 
-		Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
-		assertNull("returned value is incorrect", receivedAttr.getValue());
-	}
+    Attribute elixirBonaFideStatusREMSEmpty = new Attribute();
+    elixirBonaFideStatusREMSEmpty.setValue(null);
 
-	@Test
-	public void fillAttributeWithDependenciesHavingUnsatisfyingValues() throws Exception {
-		List<String> EPSA_FAILING_VAL = new ArrayList<>();
-		EPSA_FAILING_VAL.add("member@here.edu");
-		Attribute voPersonExternalAffiliationNotSatisfying = new Attribute();
-		voPersonExternalAffiliation.setValue(EPSA_FAILING_VAL);
+    classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
-		LinkedHashMap<String, String> PUBLICATIONS_FAILING_VAL = new LinkedHashMap<>();
-		PUBLICATIONS_FAILING_VAL.put(ELIXIR_KEY, "0");
-		PUBLICATIONS_FAILING_VAL.put("KEY", "5");
-		Attribute publicationAttributeNotSatisfying = new Attribute();
-		publicationAttributeNotSatisfying.setValue(PUBLICATIONS_FAILING_VAL);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
+        elixirBonaFideStatusREMSEmpty
+    );
 
-		Attribute elixirBonaFideStatusREMSEmpty = new Attribute();
-		elixirBonaFideStatusREMSEmpty.setValue(null);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
+        voPersonExternalAffiliationNotSatisfying
+    );
 
-		classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
+        publicationAttributeNotSatisfying
+    );
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
-				elixirBonaFideStatusREMSEmpty
-		);
+    Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
+    assertNull("returned value is incorrect", receivedAttr.getValue());
+  }
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-			voPersonExternalAffiliationNotSatisfying
-		);
+  @Test
+  public void fillAttributeWithOnlyREMSFilled() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
-				publicationAttributeNotSatisfying
-		);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
+        elixirBonaFideStatusREMS
+    );
 
-		Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
-		assertNull("returned value is incorrect", receivedAttr.getValue());
-	}
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
+        null
+    );
 
-	@Test
-	public void fillAttributeWithOnlyREMSFilled() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
+        null
+    );
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
-				elixirBonaFideStatusREMS
-		);
+    Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
+    assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
+  }
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				null
-		);
+  @Test
+  public void fillAttributeWithOnlyEPSAFilled() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
-				null
-		);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
+        null
+    );
 
-		Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
-		assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
-	}
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
+        voPersonExternalAffiliation
+    );
 
-	@Test
-	public void fillAttributeWithOnlyEPSAFilled() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
+        null
+    );
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
-				null
-		);
+    Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
+    assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
+  }
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				voPersonExternalAffiliation
-		);
+  @Test
+  public void fillAttributeWithOnlyPublicationsFilled() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
-				null
-		);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
+        null
+    );
 
-		Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
-		assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
-	}
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
+        null
+    );
 
-	@Test
-	public void fillAttributeWithOnlyPublicationsFilled() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
+        publicationAttribute
+    );
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
-				null
-		);
+    Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
+    assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				null
-		);
+  }
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
-				publicationAttribute
-		);
+  @Test
+  public void fillAttributeWithAllDependencyAttrsFiled() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
-		Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
-		assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
+        elixirBonaFideStatusREMS
+    );
 
-	}
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
+        voPersonExternalAffiliation
+    );
 
-	@Test
-	public void fillAttributeWithAllDependencyAttrsFiled() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
+        publicationAttribute
+    );
 
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(
-				elixirBonaFideStatusREMS
-		);
-
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
-				voPersonExternalAffiliation
-		);
-
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_D_userPublications)).thenReturn(
-				publicationAttribute
-		);
-
-		Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
-		assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
-	}
+    Attribute receivedAttr = classInstance.fillAttribute(session, user, classInstance.getAttributeDefinition());
+    assertEquals("returned value is incorrect", receivedAttr.getValue(), VALUE);
+  }
 
 }

@@ -23,241 +23,336 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 /**
- *
  * @author Jakub Peschel <410368@mail.muni.cz>
  */
 public class urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest {
 
-		private static urn_perun_user_facility_attribute_def_virt_defaultUnixGID classInstance;
-		private static PerunSessionImpl session;
-		private static String gidNamespace;
-		private static String groupNameNamespace;
-		private static Attribute dDefaultUnixGid;
-		private static Attribute prefferedUnixGroupName;
-		private static List<Resource> allowedResource;
-		private static String resourceGroupName;
-		private static List<Member> memberByUser;
-		private static List<Group> assignedGroupsToResource;
-		private static List<Member> groupMembers;
-		private static String groupGroupName;
-		private static Integer resourceUnixGID;
-		private static Integer groupUnixGID;
-		private static Attribute basicDefaultGID;
-		private static Facility facility;
-		private static User user;
-		private static AttributeDefinition attrDef;
-		private static Attribute prefferedUnixGroupNameSelectedValueGID;
-		private static Resource resource;
-		private static Member member;
-		private static Group group;
+  private static urn_perun_user_facility_attribute_def_virt_defaultUnixGID classInstance;
+  private static PerunSessionImpl session;
+  private static String gidNamespace;
+  private static String groupNameNamespace;
+  private static Attribute dDefaultUnixGid;
+  private static Attribute prefferedUnixGroupName;
+  private static List<Resource> allowedResource;
+  private static String resourceGroupName;
+  private static List<Member> memberByUser;
+  private static List<Group> assignedGroupsToResource;
+  private static List<Member> groupMembers;
+  private static String groupGroupName;
+  private static Integer resourceUnixGID;
+  private static Integer groupUnixGID;
+  private static Attribute basicDefaultGID;
+  private static Facility facility;
+  private static User user;
+  private static AttributeDefinition attrDef;
+  private static Attribute prefferedUnixGroupNameSelectedValueGID;
+  private static Resource resource;
+  private static Member member;
+  private static Group group;
 
-		public urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest() {
-		}
+  public urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest() {
+  }
 
-		@Before
-		public void setUp() throws Exception{
-				classInstance = new urn_perun_user_facility_attribute_def_virt_defaultUnixGID();
-				session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-				attrDef = session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "defaultUnixGID");
-				dDefaultUnixGid = new Attribute();
-				gidNamespace = "test1";
-				groupNameNamespace = "test2";
-				prefferedUnixGroupName = new Attribute();
-				allowedResource = new ArrayList<>();
-				memberByUser = new ArrayList<>();
-				assignedGroupsToResource = new ArrayList<>();
-				groupMembers = new ArrayList<>();
-				basicDefaultGID = new Attribute();
-				facility = new Facility(1, "testFacility");
-				user = new User(1, "name", "surname", "middlename", "title", "title");
-				prefferedUnixGroupNameSelectedValueGID = new Attribute(attrDef);
-				resource = new Resource(1, "testName", "desc", 1);
-				member = new Member(1, 1);
-				group = new Group("name", "desc");
-				allowedResource.add(resource);
-				memberByUser.add(member);
-				assignedGroupsToResource.add(group);
-				groupMembers.add(member);
-				resourceGroupName = "test1";
-				groupGroupName = "test2";
-				resourceUnixGID = 1;
-				groupUnixGID = 2;
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_user_facility_attribute_def_virt_defaultUnixGID();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    attrDef = session.getPerunBl().getAttributesManagerBl()
+        .getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "defaultUnixGID");
+    dDefaultUnixGid = new Attribute();
+    gidNamespace = "test1";
+    groupNameNamespace = "test2";
+    prefferedUnixGroupName = new Attribute();
+    allowedResource = new ArrayList<>();
+    memberByUser = new ArrayList<>();
+    assignedGroupsToResource = new ArrayList<>();
+    groupMembers = new ArrayList<>();
+    basicDefaultGID = new Attribute();
+    facility = new Facility(1, "testFacility");
+    user = new User(1, "name", "surname", "middlename", "title", "title");
+    prefferedUnixGroupNameSelectedValueGID = new Attribute(attrDef);
+    resource = new Resource(1, "testName", "desc", 1);
+    member = new Member(1, 1);
+    group = new Group("name", "desc");
+    allowedResource.add(resource);
+    memberByUser.add(member);
+    assignedGroupsToResource.add(group);
+    groupMembers.add(member);
+    resourceGroupName = "test1";
+    groupGroupName = "test2";
+    resourceUnixGID = 1;
+    groupUnixGID = 2;
 
-		}
+  }
 
-		@Test
-		public void getValueDefaultUGidIsSetTest ()throws Exception{
-				System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValueDefaultUGidIsSetTest ()");
-				//setup
-				dDefaultUnixGid.setValue(123);
-				//phase one
-				//UF:D:DefaultUnixGid attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
-				//phase two
-				//gid namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
-				//group name namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(groupNameNamespace);
-				//prefferedUnixGroupName attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class), eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(prefferedUnixGroupName);
-				//allowedResource list<resource>
-				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResource);
-				//R:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(resourceGroupName);
-				//getMemberByUser list<members>
-				when(session.getPerunBl().getMembersManagerBl().getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
-				//getAssignedGroupsToResource list<group>
-				when(session.getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(assignedGroupsToResource);
-				//getGroupMembers list<members>
-				when(session.getPerunBl().getGroupsManagerBl().getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
-				//G:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(groupGroupName);
-				//R:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(resourceUnixGID);
-				//G:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(groupUnixGID);
-				//phase three
-				//UF:D:basicDefaultGID attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
+  @Test
+  public void getValueDefaultUGidIsSetTest() throws Exception {
+    System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValueDefaultUGidIsSetTest ()");
+    //setup
+    dDefaultUnixGid.setValue(123);
+    //phase one
+    //UF:D:DefaultUnixGid attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
+    //phase two
+    //gid namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
+    //group name namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(
+        groupNameNamespace);
+    //prefferedUnixGroupName attr
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class),
+        eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(
+        prefferedUnixGroupName);
+    //allowedResource list<resource>
+    when(session.getPerunBl().getUsersManagerBl()
+        .getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(
+        allowedResource);
+    //R:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+            eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(resourceGroupName);
+    //getMemberByUser list<members>
+    when(session.getPerunBl().getMembersManagerBl()
+        .getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
+    //getAssignedGroupsToResource list<group>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(
+        assignedGroupsToResource);
+    //getGroupMembers list<members>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
+    //G:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+            eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(groupGroupName);
+    //R:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+        eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        resourceUnixGID);
+    //G:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+        eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        groupUnixGID);
+    //phase three
+    //UF:D:basicDefaultGID attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
-				assertEquals(testAttr,dDefaultUnixGid);
-		}
+    Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
+    assertEquals(testAttr, dDefaultUnixGid);
+  }
 
-		@Test
-		public void getValueWithoutAnyAttrTest ()throws Exception{
-				System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValueWithoutAnyAttrTest ()");
-				//setup
-				//phase one
-				//UF:D:DefaultUnixGid attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
-				//phase two
-				//gid namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
-				//group name namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(groupNameNamespace);
-				//prefferedUnixGroupName attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class), eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(prefferedUnixGroupName);
-				//allowedResource list<resource>
-				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResource);
-				//R:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(resourceGroupName);
-				//getMemberByUser list<members>
-				when(session.getPerunBl().getMembersManagerBl().getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
-				//getAssignedGroupsToResource list<group>
-				when(session.getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(assignedGroupsToResource);
-				//getGroupMembers list<members>
-				when(session.getPerunBl().getGroupsManagerBl().getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
-				//G:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(groupGroupName);
-				//R:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(resourceUnixGID);
-				//G:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(groupUnixGID);
-				//phase three
-				//UF:D:basicDefaultGID attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
+  @Test
+  public void getValueWithoutAnyAttrTest() throws Exception {
+    System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValueWithoutAnyAttrTest ()");
+    //setup
+    //phase one
+    //UF:D:DefaultUnixGid attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
+    //phase two
+    //gid namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
+    //group name namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(
+        groupNameNamespace);
+    //prefferedUnixGroupName attr
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class),
+        eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(
+        prefferedUnixGroupName);
+    //allowedResource list<resource>
+    when(session.getPerunBl().getUsersManagerBl()
+        .getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(
+        allowedResource);
+    //R:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+            eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(resourceGroupName);
+    //getMemberByUser list<members>
+    when(session.getPerunBl().getMembersManagerBl()
+        .getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
+    //getAssignedGroupsToResource list<group>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(
+        assignedGroupsToResource);
+    //getGroupMembers list<members>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
+    //G:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+            eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(groupGroupName);
+    //R:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+        eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        resourceUnixGID);
+    //G:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+        eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        groupUnixGID);
+    //phase three
+    //UF:D:basicDefaultGID attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
-				assertEquals(testAttr, new Attribute(attrDef));
-		}
+    Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
+    assertEquals(testAttr, new Attribute(attrDef));
+  }
 
-		@Test
-		public void getValuePrefferedGroupNameIsSetTest ()throws Exception{
-				System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValuePrefferedGroupNameIsSetTest ()");
-				//setup
-				String[] array = { "test2", "test3"};
-				List<String> list = Arrays.asList(array);
-				prefferedUnixGroupName.setValue(list);
-				prefferedUnixGroupNameSelectedValueGID.setValue(2);
-				//phase one
-				//UF:D:DefaultUnixGid attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
-				//phase two
-				//gid namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
-				//group name namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(groupNameNamespace);
-				//prefferedUnixGroupName attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class), eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(prefferedUnixGroupName);
-				//allowedResource list<resource>
-				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResource);
-				//R:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(resourceGroupName);
-				//getMemberByUser list<members>
-				when(session.getPerunBl().getMembersManagerBl().getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
-				//getAssignedGroupsToResource list<group>
-				when(session.getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(assignedGroupsToResource);
-				//getGroupMembers list<members>
-				when(session.getPerunBl().getGroupsManagerBl().getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
-				//G:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(groupGroupName);
-				//R:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(resourceUnixGID);
-				//G:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(groupUnixGID);
-				//phase three
-				//UF:D:basicDefaultGID attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
+  @Test
+  public void getValuePrefferedGroupNameIsSetTest() throws Exception {
+    System.out.println(
+        "urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValuePrefferedGroupNameIsSetTest ()");
+    //setup
+    String[] array = {"test2", "test3"};
+    List<String> list = Arrays.asList(array);
+    prefferedUnixGroupName.setValue(list);
+    prefferedUnixGroupNameSelectedValueGID.setValue(2);
+    //phase one
+    //UF:D:DefaultUnixGid attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
+    //phase two
+    //gid namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
+    //group name namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(
+        groupNameNamespace);
+    //prefferedUnixGroupName attr
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class),
+        eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(
+        prefferedUnixGroupName);
+    //allowedResource list<resource>
+    when(session.getPerunBl().getUsersManagerBl()
+        .getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(
+        allowedResource);
+    //R:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+            eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(resourceGroupName);
+    //getMemberByUser list<members>
+    when(session.getPerunBl().getMembersManagerBl()
+        .getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
+    //getAssignedGroupsToResource list<group>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(
+        assignedGroupsToResource);
+    //getGroupMembers list<members>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
+    //G:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+            eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(groupGroupName);
+    //R:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+        eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        resourceUnixGID);
+    //G:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+        eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        groupUnixGID);
+    //phase three
+    //UF:D:basicDefaultGID attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
-				assertEquals(testAttr, prefferedUnixGroupNameSelectedValueGID);
-		}
+    Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
+    assertEquals(testAttr, prefferedUnixGroupNameSelectedValueGID);
+  }
 
-		@Test
-		public void getValuebasicDefaultUGidIsSetTest ()throws Exception{
-				System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValuebasicDefaultUGidIsSetTest ()");
-				//setup
-				basicDefaultGID.setValue(123);
-				//phase one
-				//UF:D:DefaultUnixGid attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
-				//phase two
-				//gid namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
-				//group name namespace String
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(groupNameNamespace);
-				//prefferedUnixGroupName attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class), eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(prefferedUnixGroupName);
-				//allowedResource list<resource>
-				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResource);
-				//R:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(resourceGroupName);
-				//getMemberByUser list<members>
-				when(session.getPerunBl().getMembersManagerBl().getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
-				//getAssignedGroupsToResource list<group>
-				when(session.getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(assignedGroupsToResource);
-				//getGroupMembers list<members>
-				when(session.getPerunBl().getGroupsManagerBl().getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
-				//G:D:unixGroupName-namespace:namespace string
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace)).getValue()).thenReturn(groupGroupName);
-				//R:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(resourceUnixGID);
-				//G:D:unixGID-namespace:namespace int
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class), eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(groupUnixGID);
-				//phase three
-				//UF:D:basicDefaultGID attr
-				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
+  @Test
+  public void getValuebasicDefaultUGidIsSetTest() throws Exception {
+    System.out.println(
+        "urn_perun_user_facility_attribute_def_virt_defaultUnixGID.getValuebasicDefaultUGidIsSetTest ()");
+    //setup
+    basicDefaultGID.setValue(123);
+    //phase one
+    //UF:D:DefaultUnixGid attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID"))).thenReturn(dDefaultUnixGid);
+    //phase two
+    //gid namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace")).getValue()).thenReturn(gidNamespace);
+    //group name namespace String
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).getValue()).thenReturn(
+        groupNameNamespace);
+    //prefferedUnixGroupName attr
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class),
+        eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace))).thenReturn(
+        prefferedUnixGroupName);
+    //allowedResource list<resource>
+    when(session.getPerunBl().getUsersManagerBl()
+        .getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(
+        allowedResource);
+    //R:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+            eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(resourceGroupName);
+    //getMemberByUser list<members>
+    when(session.getPerunBl().getMembersManagerBl()
+        .getMembersByUser(any(PerunSessionImpl.class), any(User.class))).thenReturn(memberByUser);
+    //getAssignedGroupsToResource list<group>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getAssignedGroupsToResource(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(
+        assignedGroupsToResource);
+    //getGroupMembers list<members>
+    when(session.getPerunBl().getGroupsManagerBl()
+        .getGroupMembers(any(PerunSessionImpl.class), any(Group.class))).thenReturn(groupMembers);
+    //G:D:unixGroupName-namespace:namespace string
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+            eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace))
+        .getValue()).thenReturn(groupGroupName);
+    //R:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+        eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        resourceUnixGID);
+    //G:D:unixGID-namespace:namespace int
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Group.class),
+        eq(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace)).getValue()).thenReturn(
+        groupUnixGID);
+    //phase three
+    //UF:D:basicDefaultGID attr
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
-				assertEquals(testAttr, basicDefaultGID);
-		}
+    Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
+    assertEquals(testAttr, basicDefaultGID);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testSemanticsWithoutReqAttribute() throws Exception {
-		System.out.println("testSemanticsWithoutReqAttribute()");
-		Attribute attributeToCheck = new Attribute();
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testSemanticsWithoutReqAttribute() throws Exception {
+    System.out.println("testSemanticsWithoutReqAttribute()");
+    Attribute attributeToCheck = new Attribute();
 
-		classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
+  }
 
-	@Test
-	public void testSemanticsCorrect() throws Exception {
-		System.out.println("testSemanticsCorrect()");
-		Attribute attributeToCheck = new Attribute();
-		attributeToCheck.setValue(5);
+  @Test
+  public void testSemanticsCorrect() throws Exception {
+    System.out.println("testSemanticsCorrect()");
+    Attribute attributeToCheck = new Attribute();
+    attributeToCheck.setValue(5);
 
-		classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
+  }
 }

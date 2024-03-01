@@ -6,34 +6,34 @@ import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
 import cz.metacentrum.perun.core.implApi.ConfigManagerImplApi;
 
 /**
- *
  * @author David Flor <493294@mail.muni.cz>
  */
 public class ConfigManagerImpl implements ConfigManagerImplApi {
 
-	private PerunAppsConfigLoader perunAppsConfigLoader;
-	private PerunOidcConfigLoader perunOidcConfigLoader;
+  private final PerunOidcConfigContainer perunOidcConfigContainer = new PerunOidcConfigContainer();
+  private PerunAppsConfigLoader perunAppsConfigLoader;
+  private PerunOidcConfigLoader perunOidcConfigLoader;
 
-	private final PerunOidcConfigContainer perunOidcConfigContainer = new PerunOidcConfigContainer();
+  public void initialize() {
+    this.perunOidcConfigContainer.setOidcConfigs(perunOidcConfigLoader.loadPerunOidcConfigs());
+  }
 
-	public void initialize() {
-		this.perunOidcConfigContainer.setOidcConfigs(perunOidcConfigLoader.loadPerunOidcConfigs());
-	}
-	@Override
-	public void setPerunAppsConfigLoader(PerunAppsConfigLoader perunAppsConfigLoader) {
-		this.perunAppsConfigLoader = perunAppsConfigLoader;
-	}
+  @Override
+  public void setPerunAppsConfigLoader(PerunAppsConfigLoader perunAppsConfigLoader) {
+    this.perunAppsConfigLoader = perunAppsConfigLoader;
+  }
 
-	public void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader) {
-		this.perunOidcConfigLoader = perunOidcConfigLoader;
-	}
+  public void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader) {
+    this.perunOidcConfigLoader = perunOidcConfigLoader;
+  }
 
-	@Override
-	public void reloadAppsConfig() {
-		perunAppsConfigLoader.initialize();
-	}
+  @Override
+  public void reloadAppsConfig() {
+    perunAppsConfigLoader.initialize();
+  }
 
-	public OidcConfig getPerunOidcConfig(String name) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
-		return perunOidcConfigContainer.getOidcConfig(name);
-	}
+  public OidcConfig getPerunOidcConfig(String name)
+      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
+    return perunOidcConfigContainer.getOidcConfig(name);
+  }
 }

@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class MemberSuspended extends AuditEvent implements EngineForceEvent {
 
-	private Member member;
-	private String message;
+  private Member member;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public MemberSuspended() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public MemberSuspended() {
+  }
 
-	public MemberSuspended(Member member) {
-		this.member = member;
-		this.message = formatMessage("%s suspended.", member);
-	}
+  public MemberSuspended(Member member) {
+    this.member = member;
+    this.message = formatMessage("%s suspended.", member);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -3,34 +3,33 @@ package cz.metacentrum.perun.auditlogger.service;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 public interface AuditLoggerManager {
 
-	/**
-	 * Start processing incommming events from Perun Auditer.
-	 */
-	void startProcessingEvents();
+  /**
+   * Start processing incommming events from Perun Auditer.
+   */
+  void startProcessingEvents();
 
-	/**
-	 * Stop processing incommming events from Perun Auditer.
-	 */
-	void stopProcessingEvents();
+  /**
+   * Stop processing incommming events from Perun Auditer.
+   */
+  void stopProcessingEvents();
 
-	public Perun getPerunBl();
+  public Perun getPerunBl();
 
-	public void setPerunBl(Perun perunBl);
+  public void setPerunBl(Perun perunBl);
 
-	public PerunSession getPerunSession();
+  public PerunSession getPerunSession();
 
-	public PerunPrincipal getPerunPrincipal();
+  public PerunPrincipal getPerunPrincipal();
 
-	public void setPerunPrincipal(PerunPrincipal perunPrincipal);
+  public void setPerunPrincipal(PerunPrincipal perunPrincipal);
 
-	public void setLastProcessedId(int lastProcessedId);
+  public void setLastProcessedId(int lastProcessedId);
 
-	String getConsumerName();
+  String getConsumerName();
 
-	String getStateFile();
+  String getStateFile();
 
 }

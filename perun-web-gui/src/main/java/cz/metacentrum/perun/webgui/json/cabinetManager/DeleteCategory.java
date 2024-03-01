@@ -16,106 +16,111 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class DeleteCategory {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// category
-	private int categoryId = 0;
-	// URL to call
-	final String JSON_URL = "cabinetManager/deleteCategory";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "cabinetManager/deleteCategory";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // category
+  private int categoryId = 0;
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	/**
-	 * Creates a new request
-	 *
-	 */
-	public DeleteCategory() {}
+  /**
+   * Creates a new request
+   */
+  public DeleteCategory() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events external events
-	 */
-	public DeleteCategory(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events external events
+   */
+  public DeleteCategory(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false when process can/can't continue
-	 */
-	private boolean testDeleting()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false when process can/can't continue
+   */
+  private boolean testDeleting() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(categoryId == 0){
-			errorMsg += "Wrong parameter 'Category ID'.\n";
-			result = false;
-		}
+    if (categoryId == 0) {
+      errorMsg += "Wrong parameter 'Category ID'.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to delete a Category, it first tests the values and then submits them.
-	 *
-	 * @param categoryId ID of category to be deleted
-	 */
-	public void deleteCategory(final int categoryId) {
+  /**
+   * Attempts to delete a Category, it first tests the values and then submits them.
+   *
+   * @param categoryId ID of category to be deleted
+   */
+  public void deleteCategory(final int categoryId) {
 
-		this.categoryId = categoryId;
+    this.categoryId = categoryId;
 
-		// test arguments
-		if(!this.testDeleting()){
-			return;
-		}
+    // test arguments
+    if (!this.testDeleting()) {
+      return;
+    }
 
-		// json object
-		JSONObject jsonQuery = prepareJSONObject();
+    // json object
+    JSONObject jsonQuery = prepareJSONObject();
 
-		// local events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+    // local events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting category " + categoryId + " failed.");
-				events.onError(error);
-			};
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Deleting category " + categoryId + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Category " + categoryId + " deleted.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Category " + categoryId + " deleted.");
+        events.onFinished(jso);
+      }
 
-		};
+      ;
 
-		// create request
-		JsonPostClient request = new JsonPostClient(newEvents);
-		request.sendData(JSON_URL, jsonQuery);
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	}
+      ;
 
-	/**
-	 * Prepares a JSON object
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		// category
-		JSONObject category = new JSONObject();
-		category.put("id", new JSONNumber(categoryId));
+    };
 
-		return category;
+    // create request
+    JsonPostClient request = new JsonPostClient(newEvents);
+    request.sendData(JSON_URL, jsonQuery);
 
-	}
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // category
+    JSONObject category = new JSONObject();
+    category.put("id", new JSONNumber(categoryId));
+
+    return category;
+
+  }
 
 }

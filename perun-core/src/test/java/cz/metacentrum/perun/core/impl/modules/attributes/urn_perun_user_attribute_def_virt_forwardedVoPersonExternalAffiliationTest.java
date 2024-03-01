@@ -27,66 +27,67 @@ import static org.mockito.Mockito.*;
  */
 public class urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliationTest {
 
-	private static urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliation classInstance;
-	private PerunSessionImpl session;
-	private User user;
-	private UserExtSource ues1;
-	private UserExtSource ues2;
-	private Attribute uesAtt1;
-	private Attribute uesAtt2;
-	private final String VALUE1 = "11aff11@somewhere.edu";
-	private final String VALUE2 = "22aff22@somewhere.edu";
-	private final String VALUE3 = "33aff33@somewhere.edu";
+  private static urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliation classInstance;
+  private final String VALUE1 = "11aff11@somewhere.edu";
+  private final String VALUE2 = "22aff22@somewhere.edu";
+  private final String VALUE3 = "33aff33@somewhere.edu";
+  private PerunSessionImpl session;
+  private User user;
+  private UserExtSource ues1;
+  private UserExtSource ues2;
+  private Attribute uesAtt1;
+  private Attribute uesAtt2;
 
-	@Before
-	public void setVariables() {
-		classInstance = new urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliation();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+  private static void prepareCoreConfig() {
+    if (BeansUtils.getCoreConfig() == null) {
+      CoreConfig testConfig = new CoreConfig();
+      BeansUtils.setConfig(testConfig);
+    }
+  }
 
-		prepareCoreConfig();
+  @Before
+  public void setVariables() {
+    classInstance = new urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliation();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-		user = new User();
-		user.setId(1);
+    prepareCoreConfig();
 
-		ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), "login1");
-		ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), "login2");
+    user = new User();
+    user.setId(1);
 
-		uesAtt1 = new Attribute();
-		uesAtt2 = new Attribute();
-		uesAtt1.setValue(VALUE1);
-		uesAtt2.setValue(VALUE2+";"+VALUE3);
-	}
+    ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), "login1");
+    ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), "login2");
 
-	@Test
-	public void getAttributeValueOnlyFromUserExtSources() throws Exception {
-		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-			Arrays.asList(ues1, ues2)
-		);
+    uesAtt1 = new Attribute();
+    uesAtt2 = new Attribute();
+    uesAtt1.setValue(VALUE1);
+    uesAtt2.setValue(VALUE2 + ";" + VALUE3);
+  }
 
-		String attributeName = classInstance.getSourceAttributeName();
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
-			uesAtt1
-		);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
-			uesAtt2
-		);
+  @Test
+  public void getAttributeValueOnlyFromUserExtSources() throws Exception {
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Arrays.asList(ues1, ues2)
+    );
 
-		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-		assertTrue(receivedAttr.getValue() instanceof List);
-		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
+    String attributeName = classInstance.getSourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
+        uesAtt1
+    );
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
+        uesAtt2
+    );
 
-		@SuppressWarnings("unchecked")
-		List<String> actual = (List<String>) receivedAttr.getValue();
-		Collections.sort(actual);
-		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
-		Collections.sort(expected);
-		assertEquals("collected values are incorrect", expected, actual);
-	}
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
 
-	private static void prepareCoreConfig() {
-		if (BeansUtils.getCoreConfig() == null) {
-			CoreConfig testConfig = new CoreConfig();
-			BeansUtils.setConfig(testConfig);
-		}
-	}
+    @SuppressWarnings("unchecked")
+    List<String> actual = (List<String>) receivedAttr.getValue();
+    Collections.sort(actual);
+    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
+    Collections.sort(expected);
+    assertEquals("collected values are incorrect", expected, actual);
+  }
 }

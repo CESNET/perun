@@ -7,29 +7,29 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class AllAttributesRemovedForGroup extends AuditEvent implements EngineIgnoreEvent {
 
-	private Group group;
-	private String message;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AllAttributesRemovedForGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AllAttributesRemovedForGroup() {
+  }
 
-	public AllAttributesRemovedForGroup(Group group) {
-		this.group = group;
-		this.message = formatMessage("All attributes removed for %s.", group);
-	}
+  public AllAttributesRemovedForGroup(Group group) {
+    this.group = group;
+    this.message = formatMessage("All attributes removed for %s.", group);
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

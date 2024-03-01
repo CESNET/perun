@@ -19,29 +19,31 @@ import java.util.LinkedHashMap;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class urn_perun_resource_attribute_def_def_maxUserFileQuotas extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_maxUserFileQuotas extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		//attribute can be null, it means there are no max user settings on resource
-		if(attribute.getValue() == null) {
-			return;
-		}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    //attribute can be null, it means there are no max user settings on resource
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		//Check if every part of this map has the right pattern
-		//And also check if every quota part has right settings (softQuota<=hardQuota)
-		perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, false);
-	}
+    //Check if every part of this map has the right pattern
+    //And also check if every quota part has right settings (softQuota<=hardQuota)
+    perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, false);
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("maxUserFileQuotas");
-		attr.setDisplayName("Maximum of file quotas of user on any volumes.");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Maximum file quota for each user on this resource. " +
-				"Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota'. Example: '1000:2000'.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("maxUserFileQuotas");
+    attr.setDisplayName("Maximum of file quotas of user on any volumes.");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Maximum file quota for each user on this resource. " +
+        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota'. Example: '1000:2000'.");
+    return attr;
+  }
 }

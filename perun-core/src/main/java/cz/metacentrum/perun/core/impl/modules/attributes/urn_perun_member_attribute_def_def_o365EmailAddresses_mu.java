@@ -49,42 +49,47 @@ import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
 @SuppressWarnings("unused")
 public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends MemberAttributesModuleAbstract {
 
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_attribute_def_def_o365EmailAddresses_mu.class);
+  private final static Logger log =
+      LoggerFactory.getLogger(urn_perun_member_attribute_def_def_o365EmailAddresses_mu.class);
 
-	private static final String NAMESPACE = AttributesManager.NS_MEMBER_ATTR_DEF;
+  private static final String NAMESPACE = AttributesManager.NS_MEMBER_ATTR_DEF;
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
-		Object value = attribute.getValue();
-		List<String> emails;
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute)
+      throws WrongAttributeValueException {
+    Object value = attribute.getValue();
+    List<String> emails;
 
-		if (value == null) return;
-		else if (!(value instanceof ArrayList)) {
-			throw new WrongAttributeValueException(attribute, member, "is of type " + value.getClass() + ", but should be ArrayList");
-		} else {
-			emails = attribute.valueAsList();
-		}
+    if (value == null) {
+      return;
+    } else if (!(value instanceof ArrayList)) {
+      throw new WrongAttributeValueException(attribute, member,
+          "is of type " + value.getClass() + ", but should be ArrayList");
+    } else {
+      emails = attribute.valueAsList();
+    }
 
-		//check for duplicities
-		if (hasDuplicate(emails)) {
-			throw new WrongAttributeValueException(attribute, member, "has duplicate values");
-		}
+    //check for duplicities
+    if (hasDuplicate(emails)) {
+      throw new WrongAttributeValueException(attribute, member, "has duplicate values");
+    }
 
-		for (String email : emails) {
-			Matcher emailMatcher = emailPattern.matcher(email);
-			if (!emailMatcher.matches())
-				throw new WrongAttributeValueException(attribute, member, "Email " + email + " is not in correct form.");
-		}
-	}
+    for (String email : emails) {
+      Matcher emailMatcher = emailPattern.matcher(email);
+      if (!emailMatcher.matches()) {
+        throw new WrongAttributeValueException(attribute, member, "Email " + email + " is not in correct form.");
+      }
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(NAMESPACE);
-		attr.setFriendlyName("o365EmailAddresses:mu");
-		attr.setDisplayName("MU O365 email addresses");
-		attr.setType(ArrayList.class.getName());
-		attr.setUnique(true);
-		attr.setDescription("Email address for Office365 at Masaryk University");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(NAMESPACE);
+    attr.setFriendlyName("o365EmailAddresses:mu");
+    attr.setDisplayName("MU O365 email addresses");
+    attr.setType(ArrayList.class.getName());
+    attr.setUnique(true);
+    attr.setDescription("Email address for Office365 at Masaryk University");
+    return attr;
+  }
 }

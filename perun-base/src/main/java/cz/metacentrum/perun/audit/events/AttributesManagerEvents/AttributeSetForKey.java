@@ -8,35 +8,35 @@ import cz.metacentrum.perun.core.api.Attribute;
  */
 public class AttributeSetForKey extends AuditEvent {
 
-	private Attribute attribute;
-	private String key;
-	private String message;
+  private Attribute attribute;
+  private String key;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeSetForKey() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeSetForKey() {
+  }
 
-	public AttributeSetForKey(Attribute attribute, String key) {
-		this.attribute = attribute;
-		this.key = key;
-		this.message = formatMessage("%s set for %s.", attribute, key);
-	}
+  public AttributeSetForKey(Attribute attribute, String key) {
+    this.attribute = attribute;
+    this.key = key;
+    this.message = formatMessage("%s set for %s.", attribute, key);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public String getKey() {
-		return key;
-	}
+  public String getKey() {
+    return key;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

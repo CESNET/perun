@@ -8,35 +8,35 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
  */
 public class AttributeRemovedForKey extends AuditEvent {
 
-	private AttributeDefinition attribute;
-	private String key;
-	private String message;
+  private AttributeDefinition attribute;
+  private String key;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeRemovedForKey() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeRemovedForKey() {
+  }
 
-	public AttributeRemovedForKey(AttributeDefinition attribute, String key) {
-		this.attribute = attribute;
-		this.key = key;
-		this.message = formatMessage("%s removed for %s.", attribute, key);
-	}
+  public AttributeRemovedForKey(AttributeDefinition attribute, String key) {
+    this.attribute = attribute;
+    this.key = key;
+    this.message = formatMessage("%s removed for %s.", attribute, key);
+  }
 
-	public AttributeDefinition getAttribute() {
-		return attribute;
-	}
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
 
-	public String getKey() {
-		return key;
-	}
+  public String getKey() {
+    return key;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

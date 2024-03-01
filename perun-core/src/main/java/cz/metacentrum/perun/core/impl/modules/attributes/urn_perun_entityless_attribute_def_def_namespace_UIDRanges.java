@@ -15,22 +15,25 @@ import java.util.LinkedHashMap;
  *
  * @author Metodej Klang <metodej.klang@gmail.com>
  */
-public class urn_perun_entityless_attribute_def_def_namespace_UIDRanges extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
+public class urn_perun_entityless_attribute_def_def_namespace_UIDRanges extends EntitylessAttributesModuleAbstract
+    implements EntitylessAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
-		//Check if uid ranges are in correct format (we don't need to use the output of the method there, we want to just check it)
-		perunSession.getPerunBl().getModulesUtilsBl().checkAndConvertIDRanges(attribute);
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Check if uid ranges are in correct format (we don't need to use the output of the method there, we want to just check it)
+    perunSession.getPerunBl().getModulesUtilsBl().checkAndConvertIDRanges(attribute);
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-		attr.setFriendlyName("namespace-UIDRanges");
-		attr.setDisplayName("UID ranges in namespace");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Manageable UID ranges in a namespace - key of map is minimum and assigned value is maximum of one range, minimum and maximum can be equal");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+    attr.setFriendlyName("namespace-UIDRanges");
+    attr.setDisplayName("UID ranges in namespace");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription(
+        "Manageable UID ranges in a namespace - key of map is minimum and assigned value is maximum of one range, minimum and maximum can be equal");
+    return attr;
+  }
 }

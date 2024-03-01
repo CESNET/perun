@@ -2,7 +2,6 @@ package cz.metacentrum.perun.registrar.exceptions;
 
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,21 +14,21 @@ import java.util.List;
  */
 public class NoPrefilledUneditableRequiredDataException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private List<ApplicationFormItemWithPrefilledValue> formItems = new ArrayList<>();
+  private List<ApplicationFormItemWithPrefilledValue> formItems = new ArrayList<>();
 
-	public NoPrefilledUneditableRequiredDataException(String message) {
-		super(message);
-	}
+  public NoPrefilledUneditableRequiredDataException(String message) {
+    super(message);
+  }
 
-	public NoPrefilledUneditableRequiredDataException(String message, List<ApplicationFormItemWithPrefilledValue> items) {
-		super(message);
-		this.formItems = items;
-	}
+  public NoPrefilledUneditableRequiredDataException(String message, List<ApplicationFormItemWithPrefilledValue> items) {
+    super(message);
+    this.formItems = items;
+  }
 
-	public List<ApplicationFormItemWithPrefilledValue> getFormItems() {
-		return formItems;
-	}
+  public List<ApplicationFormItemWithPrefilledValue> getFormItems() {
+    return formItems;
+  }
 
 }

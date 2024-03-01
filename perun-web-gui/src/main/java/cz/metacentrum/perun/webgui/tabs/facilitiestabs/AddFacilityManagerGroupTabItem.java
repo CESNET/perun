@@ -32,265 +32,281 @@ import java.util.ArrayList;
 
 /**
  * !! USE AS INNER TAB ONLY !!
- *
+ * <p>
  * Provides page with add admin facility to Facility form
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddFacilityManagerGroupTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Add facility manager");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Add facility manager");
 
-	/**
-	 * Entity ID to set
-	 */
-	private int facilityId = 0;
-	private Facility facility;
-	private GetAllGroups getAllGroups;
-	private JsonCallbackEvents refreshEvents;
+  /**
+   * Entity ID to set
+   */
+  private int facilityId = 0;
+  private Facility facility;
+  private GetAllGroups getAllGroups;
+  private JsonCallbackEvents refreshEvents;
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facilityId ID of Facility to add admin into
-	 * @param refreshEvents events to trigger on finish
-	 */
-	public AddFacilityManagerGroupTabItem(int facilityId, JsonCallbackEvents refreshEvents){
-		this.facilityId = facilityId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				facility = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.GROUP, facilityId, events).retrieveData();
-		this.refreshEvents = refreshEvents;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId    ID of Facility to add admin into
+   * @param refreshEvents events to trigger on finish
+   */
+  public AddFacilityManagerGroupTabItem(int facilityId, JsonCallbackEvents refreshEvents) {
+    this.facilityId = facilityId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        facility = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.GROUP, facilityId, events).retrieveData();
+    this.refreshEvents = refreshEvents;
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facility Facility to add admin into
-	 * @param refreshEvents events to trigger on finish
-	 */
-	public AddFacilityManagerGroupTabItem(Facility facility, JsonCallbackEvents refreshEvents){
-		this.facilityId = facility.getId();
-		this.facility = facility;
-		this.refreshEvents = refreshEvents;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facility      Facility to add admin into
+   * @param refreshEvents events to trigger on finish
+   */
+  public AddFacilityManagerGroupTabItem(Facility facility, JsonCallbackEvents refreshEvents) {
+    this.facilityId = facility.getId();
+    this.facility = facility;
+    this.refreshEvents = refreshEvents;
+  }
 
 
-	public boolean isPrepared(){
-		return facility != null;
-	}
+  public boolean isPrepared() {
+    return facility != null;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
-		if (refreshEvents != null) refreshEvents.onFinished(null);
-	}
+  @Override
+  public void onClose() {
+    if (refreshEvents != null) {
+      refreshEvents.onFinished(null);
+    }
+  }
 
-	public Widget draw() {
+  public Widget draw() {
 
-		titleWidget.setText("Add manager group");
+    titleWidget.setText("Add manager group");
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		// HORIZONTAL MENU
-		final TabMenu tabMenu = new TabMenu();
-		final ListBoxWithObjects<VirtualOrganization> box = new ListBoxWithObjects<VirtualOrganization>();
+    // HORIZONTAL MENU
+    final TabMenu tabMenu = new TabMenu();
+    final ListBoxWithObjects<VirtualOrganization> box = new ListBoxWithObjects<VirtualOrganization>();
 
-		// pass empty items to menu to ensure drawing of rest
-		tabMenu.addWidget(new HTML(""));
-		tabMenu.addWidget(new HTML(""));
-		tabMenu.addWidget(2, new HTML("<strong>Select VO:</strong>"));
-		tabMenu.addWidget(3, box);
+    // pass empty items to menu to ensure drawing of rest
+    tabMenu.addWidget(new HTML(""));
+    tabMenu.addWidget(new HTML(""));
+    tabMenu.addWidget(2, new HTML("<strong>Select VO:</strong>"));
+    tabMenu.addWidget(3, box);
 
-		// get the table
-		final ScrollPanel sp = new ScrollPanel();
-		sp.addStyleName("perun-tableScrollPanel");
+    // get the table
+    final ScrollPanel sp = new ScrollPanel();
+    sp.addStyleName("perun-tableScrollPanel");
 
-		box.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				sp.setWidget(fillGroupsContent(new GetAllGroups(box.getSelectedObject().getId()), tabMenu, box));
-			}
-		});
+    box.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent event) {
+        sp.setWidget(fillGroupsContent(new GetAllGroups(box.getSelectedObject().getId()), tabMenu, box));
+      }
+    });
 
-		if (box.getAllObjects().isEmpty()) {
-			GetVos vos = new GetVos(new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					box.clear();
-					ArrayList<VirtualOrganization> list = new TableSorter<VirtualOrganization>().sortByName(JsonUtils.<VirtualOrganization>jsoAsList(jso));
-					if (list != null && !list.isEmpty()) {
-						box.addAllItems(list);
-						sp.setWidget(fillGroupsContent(new GetAllGroups(box.getSelectedObject().getId()), tabMenu, box));
-					} else {
-						box.addItem("No VOs found");
-					}
-				}
-			@Override
-			public void onError(PerunError error) {
-				box.clear();
-				box.addItem("Error while loading");
-			}
-			@Override
-			public void onLoadingStart() {
-				box.clear();
-				box.addItem("Loading...");
-			}
-			});
-			vos.retrieveData();
-		}
+    if (box.getAllObjects().isEmpty()) {
+      GetVos vos = new GetVos(new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          box.clear();
+          ArrayList<VirtualOrganization> list =
+              new TableSorter<VirtualOrganization>().sortByName(JsonUtils.<VirtualOrganization>jsoAsList(jso));
+          if (list != null && !list.isEmpty()) {
+            box.addAllItems(list);
+            sp.setWidget(fillGroupsContent(new GetAllGroups(box.getSelectedObject().getId()), tabMenu, box));
+          } else {
+            box.addItem("No VOs found");
+          }
+        }
 
-		final TabItem tab = this;
-		tabMenu.addWidget(1, TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				//if (refreshEvents != null) refreshEvents.onFinished(null);
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+        @Override
+        public void onError(PerunError error) {
+          box.clear();
+          box.addItem("Error while loading");
+        }
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
-		firstTabPanel.add(sp);
+        @Override
+        public void onLoadingStart() {
+          box.clear();
+          box.addItem("Loading...");
+        }
+      });
+      vos.retrieveData();
+    }
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    final TabItem tab = this;
+    tabMenu.addWidget(1, TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        //if (refreshEvents != null) refreshEvents.onFinished(null);
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		this.contentWidget.setWidget(firstTabPanel);
+    // add menu and the table to the main panel
+    firstTabPanel.add(tabMenu);
+    firstTabPanel.setCellHeight(tabMenu, "30px");
+    firstTabPanel.add(sp);
 
-		return getWidget();
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-	}
+    this.contentWidget.setWidget(firstTabPanel);
 
-	private Widget fillGroupsContent(GetAllGroups groups, TabMenu tabMenu, final ListBoxWithObjects<VirtualOrganization> box) {
+    return getWidget();
 
-		getAllGroups = groups;
-		getAllGroups.setCoreGroupsCheckable(true);
-		final CellTable<Group> table = getAllGroups.getTable();
+  }
 
-		getAllGroups.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-			private boolean found = false;
-			@Override
-			public void onSelectionChange(SelectionChangeEvent event) {
-				for (Group g : getAllGroups.getTableSelectedList()) {
-					if (g.isCoreGroup()) {
-						if (!found) {
-							// display only once
-							UiElements.generateInfo("You have selected 'all vo members' group", "If this group will be added as 'manager group', all new members of VO "+box.getSelectedObject().getName()+" will be automatically managers of your Facility and all removed members will lose management rights.");
-						}
-						found = true;
-						return;
-					}
-				}
-				found = false;
-			}
-		});
+  private Widget fillGroupsContent(GetAllGroups groups, TabMenu tabMenu,
+                                   final ListBoxWithObjects<VirtualOrganization> box) {
 
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersGroupToGroup());
-		tabMenu.addWidget(0, addButton);
-		final TabItem tab = this;
-		addButton.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				ArrayList<Group> list = getAllGroups.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)){
-					for (int i=0; i<list.size(); i++) {
-						if (i == list.size() - 1) {
-							AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
-								public void onFinished(JavaScriptObject jso) {
-									session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-								}
-							}));
-							request.addFacilityAdminGroup(facility, list.get(i));
-						} else {
-							AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton));
-							request.addFacilityAdminGroup(facility, list.get(i));
-						}
-					}
-				}
-			}
-		});
+    getAllGroups = groups;
+    getAllGroups.setCoreGroupsCheckable(true);
+    final CellTable<Group> table = getAllGroups.getTable();
 
-		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(getAllGroups, table, addButton);
+    getAllGroups.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+      private boolean found = false;
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
+      @Override
+      public void onSelectionChange(SelectionChangeEvent event) {
+        for (Group g : getAllGroups.getTableSelectedList()) {
+          if (g.isCoreGroup()) {
+            if (!found) {
+              // display only once
+              UiElements.generateInfo("You have selected 'all vo members' group",
+                  "If this group will be added as 'manager group', all new members of VO " +
+                      box.getSelectedObject().getName() +
+                      " will be automatically managers of your Facility and all removed members will lose management rights.");
+            }
+            found = true;
+            return;
+          }
+        }
+        found = false;
+      }
+    });
 
-		return table;
+    final CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersGroupToGroup());
+    tabMenu.addWidget(0, addButton);
+    final TabItem tab = this;
+    addButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        ArrayList<Group> list = getAllGroups.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+              AddAdmin request =
+                  new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents() {
+                    public void onFinished(JavaScriptObject jso) {
+                      session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+                    }
+                  }));
+              request.addFacilityAdminGroup(facility, list.get(i));
+            } else {
+              AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton));
+              request.addFacilityAdminGroup(facility, list.get(i));
+            }
+          }
+        }
+      }
+    });
 
-	}
+    addButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(getAllGroups, table, addButton);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    return table;
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 643;
-		int result = 1;
-		result = prime * result + 6786786;
-		return result;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AddFacilityManagerGroupTabItem create = (AddFacilityManagerGroupTabItem) obj;
-		if (facilityId != create.facilityId){
-			return false;
-		}
-		return true;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-	public void open() { }
+  @Override
+  public int hashCode() {
+    final int prime = 643;
+    int result = 1;
+    result = prime * result + 6786786;
+    return result;
+  }
 
-	public boolean isAuthorized() {
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    AddFacilityManagerGroupTabItem create = (AddFacilityManagerGroupTabItem) obj;
+    if (facilityId != create.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-		if (session.isFacilityAdmin(facilityId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	}
+  public void open() {
+  }
+
+  public boolean isAuthorized() {
+
+    if (session.isFacilityAdmin(facilityId)) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
 
 }

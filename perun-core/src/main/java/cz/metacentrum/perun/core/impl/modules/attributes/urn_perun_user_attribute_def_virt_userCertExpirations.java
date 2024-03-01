@@ -26,47 +26,49 @@ import java.util.Map;
  * @author Michal Šťava <stavamichal@gmail.com>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserVirtualAttributesModuleAbstract
+    implements UserVirtualAttributesModuleImplApi {
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute attribute = new Attribute(attributeDefinition);
-		Map<String, String> certsExpiration = new LinkedHashMap<>();
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+    Map<String, String> certsExpiration = new LinkedHashMap<>();
 
-		Attribute userCertsAttribute = getUserCertsAttribute(sess, user);
-		Map<String, String> certs = userCertsAttribute.valueAsMap();
+    Attribute userCertsAttribute = getUserCertsAttribute(sess, user);
+    Map<String, String> certs = userCertsAttribute.valueAsMap();
 
-		if (certs != null) {
-			certsExpiration = ModulesUtilsBlImpl.retrieveCertificatesExpiration(certs);
-			Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
-		}
-		attribute.setValue(certsExpiration);
-		return attribute;
-	}
+    if (certs != null) {
+      certsExpiration = ModulesUtilsBlImpl.retrieveCertificatesExpiration(certs);
+      Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
+    }
+    attribute.setValue(certsExpiration);
+    return attribute;
+  }
 
-	private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) {
-		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException(e);
-		}
-	}
+  private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) {
+    try {
+      return sess.getPerunBl().getAttributesManagerBl()
+          .getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    } catch (AttributeNotExistsException e) {
+      throw new ConsistencyErrorException(e);
+    }
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("userCertExpirations");
-		attr.setDisplayName("Certificates expirations");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Expiration of user certificate.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("userCertExpirations");
+    attr.setDisplayName("Certificates expirations");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Expiration of user certificate.");
+    return attr;
+  }
 }

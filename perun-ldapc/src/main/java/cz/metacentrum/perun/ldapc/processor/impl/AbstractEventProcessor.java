@@ -18,46 +18,46 @@ import java.util.Collection;
 
 public abstract class AbstractEventProcessor implements EventProcessor, InitializingBean {
 
-	protected interface PerunAttributeNames {
+  @Autowired
+  protected LdapcManager ldapcManager;
+  @Autowired
+  protected PerunGroup perunGroup;
+  @Autowired
+  protected PerunResource perunResource;
+  @Autowired
+  protected PerunFacility perunFacility;
+  @Autowired
+  protected PerunUser perunUser;
+  @Autowired
+  protected PerunVO perunVO;
+  protected Collection<DispatchEventCondition> dispatchConditions;
+  private EventDispatcher eventDispatcher;
 
-	}
+  @Required
+  @Autowired
+  public void setEventDispatcher(EventDispatcher eventDispatcher) {
+    this.eventDispatcher = eventDispatcher;
+  }
 
-	private EventDispatcher eventDispatcher;
+  @Required
+  @Override
+  public void setDispatchConditions(Collection<DispatchEventCondition> condition) {
+    if (dispatchConditions == null) {
+      dispatchConditions = new ArrayList<DispatchEventCondition>(10);
+    }
+    dispatchConditions.addAll(condition);
+  }
 
-	@Autowired
-	protected LdapcManager ldapcManager;
-	@Autowired
-	protected PerunGroup perunGroup;
-	@Autowired
-	protected PerunResource perunResource;
-	@Autowired
-	protected PerunFacility perunFacility;
-	@Autowired
-	protected PerunUser perunUser;
-	@Autowired
-	protected PerunVO perunVO;
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    for (DispatchEventCondition dispatchEventCondition : dispatchConditions) {
+      eventDispatcher.registerProcessor(this, dispatchEventCondition);
+    }
+  }
 
-	protected Collection<DispatchEventCondition> dispatchConditions;
+  protected interface PerunAttributeNames {
 
-	@Required
-	@Autowired
-	public void setEventDispatcher(EventDispatcher eventDispatcher) {
-		this.eventDispatcher = eventDispatcher;
-	}
-
-	@Required
-	@Override
-	public void setDispatchConditions(Collection<DispatchEventCondition> condition) {
-		if (dispatchConditions == null) dispatchConditions = new ArrayList<DispatchEventCondition>(10);
-		dispatchConditions.addAll(condition);
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		for (DispatchEventCondition dispatchEventCondition : dispatchConditions) {
-			eventDispatcher.registerProcessor(this, dispatchEventCondition);
-		}
-	}
+  }
 
 
 }

@@ -33,247 +33,287 @@ import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
  */
 public interface PerunBl extends Perun {
 
-	String INTERNALPRINCIPAL = "INTERNAL";
+  String INTERNALPRINCIPAL = "INTERNAL";
 
-	/**
-	 * Gets a (possibly cached) Perun session.
-	 * @throws InternalErrorException raised when session cannot be created.
-	 * @param actor identification of the actor, who will perform operations.
-	 * @return perun session
-	 */
-	PerunSession getPerunSession(PerunPrincipal actor, PerunClient client);
+  /**
+   * Gets a (possibly cached) Perun session.
+   *
+   * @param actor identification of the actor, who will perform operations.
+   * @return perun session
+   * @throws InternalErrorException raised when session cannot be created.
+   */
+  PerunSession getPerunSession(PerunPrincipal actor, PerunClient client);
 
-	/**
-	 * Gets a groups manager.
-	 * @return groups manager
-	 */
-	GroupsManager getGroupsManager();
+  /**
+   * Gets a groups manager.
+   *
+   * @return groups manager
+   */
+  GroupsManager getGroupsManager();
 
-	/**
-	 * Gets a resource manager.
-	 * @return resource manager
-	 */
-	FacilitiesManager getFacilitiesManager();
+  /**
+   * Gets a resource manager.
+   *
+   * @return resource manager
+   */
+  FacilitiesManager getFacilitiesManager();
 
-	/**
-	 * Gets a database manager.
-	 * @return database manager
-	 */
-	DatabaseManager getDatabaseManager();
-	
-	/**
-	 * Gets a users manager.
-	 * @return users manager
-	 */
-	UsersManager getUsersManager();
+  /**
+   * Gets a database manager.
+   *
+   * @return database manager
+   */
+  DatabaseManager getDatabaseManager();
 
-	/**
-	 * Gets a members manager.
-	 * @return members manager
-	 */
-	MembersManager getMembersManager();
+  /**
+   * Gets a users manager.
+   *
+   * @return users manager
+   */
+  UsersManager getUsersManager();
 
-	/**
-	 * Gets a VOs manager.
-	 * @return VOs manager
-	 */
-	VosManager getVosManager();
+  /**
+   * Gets a members manager.
+   *
+   * @return members manager
+   */
+  MembersManager getMembersManager();
 
-	/**
-	 * Gets a Resources manager.
-	 * @return Resources manager
-	 */
-	ResourcesManager getResourcesManager();
+  /**
+   * Gets a VOs manager.
+   *
+   * @return VOs manager
+   */
+  VosManager getVosManager();
 
-	/**
-	 * Gets a ExtSources manager.
-	 * @return ExtSources manager
-	 */
-	ExtSourcesManager getExtSourcesManager();
+  /**
+   * Gets a Resources manager.
+   *
+   * @return Resources manager
+   */
+  ResourcesManager getResourcesManager();
 
-	/**
-	 * Gets a Attributes manager.
-	 * @return Attributes manager
-	 */
-	AttributesManager getAttributesManager();
+  /**
+   * Gets a ExtSources manager.
+   *
+   * @return ExtSources manager
+   */
+  ExtSourcesManager getExtSourcesManager();
 
-	/**
-	 * Gets a Services manager.
-	 * @return Services manager
-	 */
-	ServicesManager getServicesManager();
+  /**
+   * Gets a Attributes manager.
+   *
+   * @return Attributes manager
+   */
+  AttributesManager getAttributesManager();
 
-	/**
-	 * Gets a Owners manager.
-	 * @return Owners manager
-	 */
-	OwnersManager getOwnersManager();
+  /**
+   * Gets a Services manager.
+   *
+   * @return Services manager
+   */
+  ServicesManager getServicesManager();
 
-	/**
-	 * Gets a AuditMessages manager.
-	 * @return AuditMessages manager
-	 */
-	AuditMessagesManager getAuditMessagesManager();
+  /**
+   * Gets a Owners manager.
+   *
+   * @return Owners manager
+   */
+  OwnersManager getOwnersManager();
 
-	/**
-	 * Gets a Messages manager.
-	 * @return Messages manager
-	 */
-	RTMessagesManager getRTMessagesManager();
+  /**
+   * Gets a AuditMessages manager.
+   *
+   * @return AuditMessages manager
+   */
+  AuditMessagesManager getAuditMessagesManager();
 
-	/**
-	 * Gets a Security Teams manager.
-	 * @return Security Teams manager
-	 */
-	SecurityTeamsManager getSecurityTeamsManager();
+  /**
+   * Gets a Messages manager.
+   *
+   * @return Messages manager
+   */
+  RTMessagesManager getRTMessagesManager();
 
-	/**
-	 * Gets a Searcher.
-	 * @return Searcher
-	 */
-	Searcher getSearcher();
+  /**
+   * Gets a Security Teams manager.
+   *
+   * @return Security Teams manager
+   */
+  SecurityTeamsManager getSecurityTeamsManager();
 
-	/**
-	 * Gets a TasksManager
-	 * @return TasksManager
-	 */
-	TasksManager getTasksManager();
+  /**
+   * Gets a Searcher.
+   *
+   * @return Searcher
+   */
+  Searcher getSearcher();
 
-	/**
-	 * Gets a ConfigManager
-	 * @return ConfigManager
-	 */
-	ConfigManager getConfigManager();
+  /**
+   * Gets a TasksManager
+   *
+   * @return TasksManager
+   */
+  TasksManager getTasksManager();
 
-	/**
-	 * Gets a ConsentsManager
-	 * @return ConsentsManager
-	 */
-	ConsentsManager getConsentsManager();
+  /**
+   * Gets a ConfigManager
+   *
+   * @return ConfigManager
+   */
+  ConfigManager getConfigManager();
 
-	/**
-	 * Gets a ResourceAssignmentChecker
-	 * @return ResourceAssignmentChecker
-	 */
-	ResourceAssignmentChecker getResourceAssignmentChecker();
+  /**
+   * Gets a ConsentsManager
+   *
+   * @return ConsentsManager
+   */
+  ConsentsManager getConsentsManager();
 
-	/**
-	 * Gets a ResourceAssignmentActivatorApi
-	 * @return ResourceAssignmentActivatorApi
-	 */
-	ResourceAssignmentActivatorApi getResourceAssignmentActivator();
+  /**
+   * Gets a ResourceAssignmentChecker
+   *
+   * @return ResourceAssignmentChecker
+   */
+  ResourceAssignmentChecker getResourceAssignmentChecker();
 
-	/**
-	 * Gets a AuditMessages manager business logic.
-	 * @return groups manager
-	 */
-	AuditMessagesManagerBl getAuditMessagesManagerBl();
+  /**
+   * Gets a ResourceAssignmentActivatorApi
+   *
+   * @return ResourceAssignmentActivatorApi
+   */
+  ResourceAssignmentActivatorApi getResourceAssignmentActivator();
 
-	/**
-	 * Gets a groups manager buisness logic.
-	 * @return groups manager
-	 */
-	GroupsManagerBl getGroupsManagerBl();
+  /**
+   * Gets a AuditMessages manager business logic.
+   *
+   * @return groups manager
+   */
+  AuditMessagesManagerBl getAuditMessagesManagerBl();
 
-	/**
-	 * Gets a resource manager buisness logic.
-	 * @return resource manager
-	 */
-	FacilitiesManagerBl getFacilitiesManagerBl();
+  /**
+   * Gets a groups manager buisness logic.
+   *
+   * @return groups manager
+   */
+  GroupsManagerBl getGroupsManagerBl();
 
-	/**
-	 * Gets a database manager buisness logic.
-	 * @return database manager
-	 */
-	DatabaseManagerBl getDatabaseManagerBl();
-	
-	/**
-	 * Gets a users manager buisness logic.
-	 * @return users manager
-	 */
-	UsersManagerBl getUsersManagerBl();
+  /**
+   * Gets a resource manager buisness logic.
+   *
+   * @return resource manager
+   */
+  FacilitiesManagerBl getFacilitiesManagerBl();
 
-	/**
-	 * Gets a members manager buisness logic.
-	 * @return members manager
-	 */
-	MembersManagerBl getMembersManagerBl();
+  /**
+   * Gets a database manager buisness logic.
+   *
+   * @return database manager
+   */
+  DatabaseManagerBl getDatabaseManagerBl();
 
-	/**
-	 * Gets a VOs manager buisness logic.
-	 * @return VOs manager
-	 */
-	VosManagerBl getVosManagerBl();
+  /**
+   * Gets a users manager buisness logic.
+   *
+   * @return users manager
+   */
+  UsersManagerBl getUsersManagerBl();
 
-	/**
-	 * Gets a Resources manager buisness logic.
-	 * @return Resources manager
-	 */
-	ResourcesManagerBl getResourcesManagerBl();
+  /**
+   * Gets a members manager buisness logic.
+   *
+   * @return members manager
+   */
+  MembersManagerBl getMembersManagerBl();
 
-	/**
-	 * Gets a ExtSources manager buisness logic.
-	 * @return ExtSources manager
-	 */
-	ExtSourcesManagerBl getExtSourcesManagerBl();
+  /**
+   * Gets a VOs manager buisness logic.
+   *
+   * @return VOs manager
+   */
+  VosManagerBl getVosManagerBl();
 
-	/**
-	 * Gets a Attributes manager buisness logic.
-	 * @return Attributes manager
-	 */
-	AttributesManagerBl getAttributesManagerBl();
+  /**
+   * Gets a Resources manager buisness logic.
+   *
+   * @return Resources manager
+   */
+  ResourcesManagerBl getResourcesManagerBl();
 
-	/**
-	 * Gets a Services manager buisness logic.
-	 * @return Services manager
-	 */
-	ServicesManagerBl getServicesManagerBl();
+  /**
+   * Gets a ExtSources manager buisness logic.
+   *
+   * @return ExtSources manager
+   */
+  ExtSourcesManagerBl getExtSourcesManagerBl();
 
-	/**
-	 * Gets a Owners manager buisness logic.
-	 * @return Owners manager
-	 */
-	OwnersManagerBl getOwnersManagerBl();
+  /**
+   * Gets a Attributes manager buisness logic.
+   *
+   * @return Attributes manager
+   */
+  AttributesManagerBl getAttributesManagerBl();
 
-	/**
-	 * Gets a Messages manager.
-	 * @return Messages manager
-	 */
-	RTMessagesManagerBl getRTMessagesManagerBl();
+  /**
+   * Gets a Services manager buisness logic.
+   *
+   * @return Services manager
+   */
+  ServicesManagerBl getServicesManagerBl();
 
-	/**
-	 * Gets a Security Teams manager.
-	 * @return Security Teams manager
-	 */
-	SecurityTeamsManagerBl getSecurityTeamsManagerBl();
+  /**
+   * Gets a Owners manager buisness logic.
+   *
+   * @return Owners manager
+   */
+  OwnersManagerBl getOwnersManagerBl();
 
-	/**
-	 * Gets a SearcherBl
-	 * @return SearcherBl
-	 */
-	SearcherBl getSearcherBl();
+  /**
+   * Gets a Messages manager.
+   *
+   * @return Messages manager
+   */
+  RTMessagesManagerBl getRTMessagesManagerBl();
 
-	/**
-	 * Gets a ModulesUtilsBl
-	 * @return  ModulesUtilsBl
-	 */
-	ModulesUtilsBl getModulesUtilsBl();
+  /**
+   * Gets a Security Teams manager.
+   *
+   * @return Security Teams manager
+   */
+  SecurityTeamsManagerBl getSecurityTeamsManagerBl();
 
-	/**
-	 * Gets a TasksManagerBl
-	 * @return TasksManagerBl
-	 */
-	TasksManagerBl getTasksManagerBl();
+  /**
+   * Gets a SearcherBl
+   *
+   * @return SearcherBl
+   */
+  SearcherBl getSearcherBl();
 
-	/**
-	 * Gets a ConfigManagerBl
-	 * @return ConfigManagerBl
-	 */
-	ConfigManagerBl getConfigManagerBl();
+  /**
+   * Gets a ModulesUtilsBl
+   *
+   * @return ModulesUtilsBl
+   */
+  ModulesUtilsBl getModulesUtilsBl();
 
-	/**
-	 * Gets a ConsentsManagerBl
-	 * @return ConsentsManagerBl
-	 */
-	ConsentsManagerBl getConsentsManagerBl();
+  /**
+   * Gets a TasksManagerBl
+   *
+   * @return TasksManagerBl
+   */
+  TasksManagerBl getTasksManagerBl();
+
+  /**
+   * Gets a ConfigManagerBl
+   *
+   * @return ConfigManagerBl
+   */
+  ConfigManagerBl getConfigManagerBl();
+
+  /**
+   * Gets a ConsentsManagerBl
+   *
+   * @return ConsentsManagerBl
+   */
+  ConsentsManagerBl getConsentsManagerBl();
 }

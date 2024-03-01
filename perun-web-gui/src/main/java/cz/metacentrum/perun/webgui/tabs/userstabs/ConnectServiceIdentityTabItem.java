@@ -6,9 +6,16 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -22,7 +29,6 @@ import cz.metacentrum.perun.webgui.tabs.UsersTabs;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -33,235 +39,233 @@ import java.util.Map;
  */
 public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * User id
-	 */
-	private int userId;
-	/**
-	 * User
-	 */
-	private User user;
+  public final static String URL = "connect-identity";
+  /**
+   * User id
+   */
+  private int userId;
+  /**
+   * User
+   */
+  private User user;
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading user");
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Creates a new instance
+   *
+   * @param userId
+   */
+  public ConnectServiceIdentityTabItem(int userId) {
+    this.userId = userId;
+    new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        user = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a new instance
+   *
+   * @param user
+   */
+  public ConnectServiceIdentityTabItem(User user) {
+    this.userId = user.getId();
+    this.user = user;
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading user");
+  static public ConnectServiceIdentityTabItem load(Map<String, String> parameters) {
+    int uid = Integer.parseInt(parameters.get("id"));
+    return new ConnectServiceIdentityTabItem(uid);
+  }
 
-	/**
-	 * Creates a new instance
-	 *
-	 * @param userId
-	 */
-	public ConnectServiceIdentityTabItem(int userId){
-		this.userId = userId;
-		new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				user = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public boolean isPrepared() {
+    return !(user == null);
+  }
 
-	/**
-	 * Creates a new instance
-	 *
-	 * @param user
-	 */
-	public ConnectServiceIdentityTabItem(User user){
-		this.userId = user.getId();
-		this.user = user;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return true;
+  }
 
-	public boolean isPrepared(){
-		return !(user == null);
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return true;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    titleWidget.setText("Connect identity");
 
-	public Widget draw() {
+    VerticalPanel content = new VerticalPanel();
+    content.setSize("100%", "100%");
 
-		titleWidget.setText("Connect identity");
+    final TabItem tab = this;
 
-		VerticalPanel content = new VerticalPanel();
-		content.setSize("100%", "100%");
+    // add button
+    final CustomButton addButton;
 
-		final TabItem tab = this;
+    if (user.isServiceUser() || user.isSponsoredUser()) {
+      addButton = new CustomButton("Connect", "Add selected users to this identity", SmallIcons.INSTANCE.addIcon());
+    } else {
+      addButton = new CustomButton("Connect", "Add selected identities to user", SmallIcons.INSTANCE.addIcon());
+    }
 
-		// add button
-		final CustomButton addButton;
+    TabMenu menu = new TabMenu();
+    menu.addWidget(addButton);
 
-		if (user.isServiceUser() || user.isSponsoredUser()) {
-			addButton = new CustomButton("Connect", "Add selected users to this identity",SmallIcons.INSTANCE.addIcon());
-		} else {
-			addButton = new CustomButton("Connect", "Add selected identities to user",SmallIcons.INSTANCE.addIcon());
-		}
+    content.add(menu);
+    content.setCellHeight(menu, "30px");
 
-		TabMenu menu = new TabMenu();
-		menu.addWidget(addButton);
+    final FindCompleteRichUsers call = new FindCompleteRichUsers("", null);
+    if (user.isServiceUser()) {
+      call.hideService(true);
+    }
+    if (user.isSponsoredUser()) {
+      call.hideSponsored(true);
+      call.hideService(true);
+    }
+    if (!user.isSpecificUser()) {
+      call.hidePerson(true);
+    }
 
-		content.add(menu);
-		content.setCellHeight(menu, "30px");
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      public void onClick(ClickEvent clickEvent) {
+        // close tab and refresh
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		final FindCompleteRichUsers call = new FindCompleteRichUsers("", null);
-		if (user.isServiceUser()) {
-			call.hideService(true);
-		}
-		if (user.isSponsoredUser()) {
-			call.hideSponsored(true);
-			call.hideService(true);
-		}
-		if (!user.isSpecificUser()) {
-			call.hidePerson(true);
-		}
+    // search textbox
+    ExtendedTextBox searchBox = menu.addSearchWidget(new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        call.searchFor(text);
+      }
+    }, "");
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			public void onClick(ClickEvent clickEvent) {
-				// close tab and refresh
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    addButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent clickEvent) {
 
-		// search textbox
-		ExtendedTextBox searchBox = menu.addSearchWidget(new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				call.searchFor(text);
-			}
-		}, "");
+        ArrayList<User> list = call.getTableSelectedList();
+        for (int i = 0; i < list.size(); i++) {
+          // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+          AddSpecificUserOwner req;
+          if (i == list.size() - 1) {
+            req = new AddSpecificUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
+          } else {
+            req = new AddSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
+          }
+          if (user.isServiceUser() || user.isSponsoredUser()) {
+            // service user adds user
+            req.addSpecificUser(list.get(i), user);
+          } else {
+            // user adds service users
+            req.addSpecificUser(user, list.get(i));
+          }
+        }
+      }
+    });
 
-		addButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent clickEvent) {
+    FieldUpdater<User, String> fieldUpdater = null;
+    if (session.isPerunAdmin()) {
+      fieldUpdater = new FieldUpdater<User, String>() {
+        public void update(int i, User user, String s) {
+          session.getTabManager().addTab(new UserDetailTabItem(user));
+        }
+      };
+    }
+    CellTable<User> table = call.getTable(fieldUpdater);
+    table.addStyleName("perun-table");
+    table.setWidth("100%");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-				ArrayList<User> list = call.getTableSelectedList();
-				for (int i = 0; i < list.size(); i++) {
-					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-					AddSpecificUserOwner req;
-					if (i == list.size() - 1) {
-						req = new AddSpecificUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
-					} else {
-						req = new AddSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
-					}
-					if (user.isServiceUser() || user.isSponsoredUser()) {
-						// service user adds user
-						req.addSpecificUser(list.get(i), user);
-					} else {
-						// user adds service users
-						req.addSpecificUser(user, list.get(i));
-					}
-				}
-			}
-		});
+    addButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(call, table, addButton);
 
-		FieldUpdater<User, String> fieldUpdater = null;
-		if (session.isPerunAdmin()) {
-			fieldUpdater = new FieldUpdater<User, String>() {
-				public void update(int i, User user, String s) {
-					session.getTabManager().addTab(new UserDetailTabItem(user));
-				}
-			};
-		}
-		CellTable<User> table = call.getTable(fieldUpdater);
-		table.addStyleName("perun-table");
-		table.setWidth("100%");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    content.add(sp);
+    session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(call, table, addButton);
+    this.contentWidget.setWidget(new SimplePanel(content));
 
-		content.add(sp);
-		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+    return getWidget();
+  }
 
-		this.contentWidget.setWidget(new SimplePanel(content));
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1187;
+    int result = 1;
+    result = prime * result + userId;
+    return result;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ConnectServiceIdentityTabItem other = (ConnectServiceIdentityTabItem) obj;
+    if (userId != other.userId) {
+      return false;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1187;
-		int result = 1;
-		result = prime * result + userId;
-		return result;
-	}
+    return true;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ConnectServiceIdentityTabItem other = (ConnectServiceIdentityTabItem) obj;
-		if (userId != other.userId)
-			return false;
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-		return true;
-	}
+  public void open() {
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  }
 
-	public void open()
-	{
+  public boolean isAuthorized() {
 
-	}
+    if (session.isSelf(userId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+  }
 
-		if (session.isSelf(userId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public String getUrl() {
+    return URL;
+  }
 
-	}
-
-	public final static String URL = "connect-identity";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
-	}
-
-	static public ConnectServiceIdentityTabItem load(Map<String, String> parameters) {
-		int uid = Integer.parseInt(parameters.get("id"));
-		return new ConnectServiceIdentityTabItem(uid);
-	}
+  public String getUrlWithParameters() {
+    return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
+  }
 
 }

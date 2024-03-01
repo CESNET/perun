@@ -19,113 +19,117 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  */
 public class UpdateVo {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	// vo
-	private VirtualOrganization vo;
-
-	// URL to call
-	final String JSON_URL = "vosManager/updateVo";
-
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "vosManager/updateVo";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // vo
+  private VirtualOrganization vo;
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
 
-	/**
-	 * Creates a new request
-	 */
-	public UpdateVo() {}
+  /**
+   * Creates a new request
+   */
+  public UpdateVo() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 * @param events Custom events
-	 */
-	public UpdateVo(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public UpdateVo(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return
-	 */
-	private boolean testCreating()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return
+   */
+  private boolean testCreating() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(vo == null){
-			errorMsg += "Can't update NULL VO.<br />";
-			result = false;
-		}
+    if (vo == null) {
+      errorMsg += "Can't update NULL VO.<br />";
+      result = false;
+    }
 
-		if(vo.getName().length() == 0){
-			errorMsg += "VO must have parameter <strong>Name</strong>.<br />";
-			result = false;
-		}
+    if (vo.getName().length() == 0) {
+      errorMsg += "VO must have parameter <strong>Name</strong>.<br />";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Confirm c = new Confirm("Error while creating VO", new HTML(errorMsg), true);
-			c.show();
-		}
+    if (errorMsg.length() > 0) {
+      Confirm c = new Confirm("Error while creating VO", new HTML(errorMsg), true);
+      c.show();
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to create a new VO, it first tests the values and then submits them.
-	 *
-	 * @param vo Virtual organization to update
-	 */
-	public void updateVo(final VirtualOrganization vo) {
+  /**
+   * Attempts to create a new VO, it first tests the values and then submits them.
+   *
+   * @param vo Virtual organization to update
+   */
+  public void updateVo(final VirtualOrganization vo) {
 
-		this.vo = vo;
+    this.vo = vo;
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Updating virtual organization " + vo.getName() + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Updating virtual organization " + vo.getName() + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Virtual organization " + vo.getName() + " updated.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Virtual organization " + vo.getName() + " updated.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		// vo
-		JSONObject newVo = new JSONObject();
-		newVo.put("id", new JSONNumber(vo.getId()));
-		newVo.put("name", new JSONString(vo.getName()));
-		newVo.put("shortName", new JSONString(vo.getShortName()));
+      ;
+    };
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("vo", newVo);
-		return jsonQuery;
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+
+  }
+
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // vo
+    JSONObject newVo = new JSONObject();
+    newVo.put("id", new JSONNumber(vo.getId()));
+    newVo.put("name", new JSONString(vo.getName()));
+    newVo.put("shortName", new JSONString(vo.getShortName()));
+
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("vo", newVo);
+    return jsonQuery;
+  }
 
 }

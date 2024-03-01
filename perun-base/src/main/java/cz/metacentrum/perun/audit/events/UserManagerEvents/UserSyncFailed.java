@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserSyncFailed extends AuditEvent implements EngineIgnoreEvent {
 
-	private User user;
-	private String message;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public UserSyncFailed() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public UserSyncFailed() {
+  }
 
-	public UserSyncFailed(User user) {
-		this.user = user;
-		this.message = formatMessage( "%s synchronization failed.", user);
-	}
+  public UserSyncFailed(User user) {
+    this.user = user;
+    this.message = formatMessage("%s synchronization failed.", user);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

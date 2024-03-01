@@ -12,32 +12,32 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_osbIddc2Test {
 
-	private static urn_perun_user_attribute_def_def_osbIddc2 classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_def_osbIddc2 classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_user_attribute_def_def_osbIddc2();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-		user = new User();
-		attributeToCheck = new Attribute();
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_user_attribute_def_def_osbIddc2();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    user = new User();
+    attributeToCheck = new Attribute();
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeWithNullValue() throws Exception {
-		System.out.println("testCheckAttributeWithNullValue()");
-		attributeToCheck.setValue(null);
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeWithNullValue()");
+    attributeToCheck.setValue(null);
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 
-	@Test
-	public void testCheckCorrectSemantics() throws Exception {
-		System.out.println("testCheckCorrectSemantics()");
-		attributeToCheck.setValue("my_example");
+  @Test
+  public void testCheckCorrectSemantics() throws Exception {
+    System.out.println("testCheckCorrectSemantics()");
+    attributeToCheck.setValue("my_example");
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 }

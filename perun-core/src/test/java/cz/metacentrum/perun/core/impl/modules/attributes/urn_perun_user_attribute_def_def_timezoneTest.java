@@ -18,66 +18,66 @@ import static org.mockito.Mockito.mock;
  */
 public class urn_perun_user_attribute_def_def_timezoneTest {
 
-	private static PerunSessionImpl session;
-	private static urn_perun_user_attribute_def_def_timezone classInstance;
-	private static User user;
+  private static PerunSessionImpl session;
+  private static urn_perun_user_attribute_def_def_timezone classInstance;
+  private static User user;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_user_attribute_def_def_timezone();
-		user = new User();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_user_attribute_def_def_timezone();
+    user = new User();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+  }
 
-	@Test
-	public void testCheckAttributeSyntax() throws Exception {
-		System.out.println("testCheckAttributeSyntax()");
+  @Test
+  public void testCheckAttributeSyntax() throws Exception {
+    System.out.println("testCheckAttributeSyntax()");
 
-		Attribute attributeToCheck = new Attribute();
+    Attribute attributeToCheck = new Attribute();
 
-		attributeToCheck.setValue("Europe/Prague");
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    attributeToCheck.setValue("Europe/Prague");
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
-		attributeToCheck.setValue("Africa/Johannesburg");
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    attributeToCheck.setValue("Africa/Johannesburg");
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
-		attributeToCheck.setValue("Jamaica");
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    attributeToCheck.setValue("Jamaica");
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
-			System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
 
-			Attribute attributeToCheck = new Attribute();
-			attributeToCheck.setValue("123");
+    Attribute attributeToCheck = new Attribute();
+    attributeToCheck.setValue("123");
 
-			classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-		}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeSemantics() throws Exception {
-		System.out.println("testCheckAttributeSemantics()");
+  @Test
+  public void testCheckAttributeSemantics() throws Exception {
+    System.out.println("testCheckAttributeSemantics()");
 
-		Attribute attributeToCheck = new Attribute();
+    Attribute attributeToCheck = new Attribute();
 
-		attributeToCheck.setValue("Europe/Prague");
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    attributeToCheck.setValue("Europe/Prague");
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
-		attributeToCheck.setValue("Africa/Johannesburg");
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    attributeToCheck.setValue("Africa/Johannesburg");
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
-		attributeToCheck.setValue("Jamaica");
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    attributeToCheck.setValue("Jamaica");
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithNullValue() throws Exception {
-		System.out.println("testCheckAttributeSemanticsWithNullValue()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithNullValue()");
 
-		Attribute attributeToCheck = new Attribute();
+    Attribute attributeToCheck = new Attribute();
 
-		attributeToCheck.setValue(null);
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    attributeToCheck.setValue(null);
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 }

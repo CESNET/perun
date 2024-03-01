@@ -15,87 +15,93 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class UpdateForm {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/updateForm";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/updateForm";
+  // data
+  private ApplicationForm form;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   */
+  public UpdateForm() {
+  }
 
-	// data
-	private ApplicationForm form;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public UpdateForm(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public UpdateForm(){}
+  /**
+   * Updates form
+   *
+   * @param form
+   */
+  public void updateForm(ApplicationForm form) {
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public UpdateForm(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    this.form = form;
 
-	/**
-	 * Updates form
-	 *
-	 * @param form
-	 */
-	public void updateForm(ApplicationForm form) {
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		this.form = form;
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Updating approval style failed.");
+        events.onError(error);
+      }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Updating approval style failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Approval style updated.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Approval style updated.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	private boolean testCreating() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+  private boolean testCreating() {
+    // TODO Auto-generated method stub
+    return true;
+  }
 
-		// query
-		JSONObject query = new JSONObject(form);
-		JSONObject result = new JSONObject();
-		result.put("form", query);
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-		return result;
+    // query
+    JSONObject query = new JSONObject(form);
+    JSONObject result = new JSONObject();
+    result.put("form", query);
 
-	}
+    return result;
+
+  }
 
 }

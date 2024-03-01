@@ -36,186 +36,185 @@ import java.util.Map;
  */
 public class OwnersTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "owners";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Owners");
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public OwnersTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Owners");
+  static public OwnersTabItem load(Map<String, String> parameters) {
+    return new OwnersTabItem();
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public OwnersTabItem(){ }
+  public boolean isPrepared() {
+    return true;
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public void onClose() {
+  }
 
-	}
+  public Widget draw() {
 
-	public Widget draw() {
+    // tab content
+    final VerticalPanel mainTab = new VerticalPanel();
+    mainTab.setSize("100%", "100%");
 
-		// tab content
-		final VerticalPanel mainTab = new VerticalPanel();
-		mainTab.setSize("100%", "100%");
+    // horizontal menu
+    TabMenu tabMenu = new TabMenu();
+    tabMenu.addWidget(UiElements.getRefreshButton(this));
 
-		// horizontal menu
-		TabMenu tabMenu = new TabMenu();
-		tabMenu.addWidget(UiElements.getRefreshButton(this));
+    final GetOwners owners = new GetOwners();
 
-		final GetOwners owners = new GetOwners();
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(owners);
 
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(owners);
+    // create button
+    tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createOwner(),
+        new ClickHandler() {
+          public void onClick(ClickEvent event) {
+            session.getTabManager().addTabToCurrentTab(new CreateOwnerTabItem());
+          }
+        }));
 
-		// create button
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createOwner(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new CreateOwnerTabItem());
-			}
-		}));
+    // remove button
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteOwner());
+    removeButton.addClickHandler(new ClickHandler() {
+                                   public void onClick(ClickEvent event) {
+                                     final ArrayList<Owner> itemsToRemove = owners.getTableSelectedList();
+                                     String text = "Following owners will be removed.";
+                                     UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
+                                       @Override
+                                       public void onClick(ClickEvent clickEvent) {
+                                         // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+                                         for (int i = 0; i < itemsToRemove.size(); i++) {
+                                           DeleteOwner request;
+                                           if (i == itemsToRemove.size() - 1) {
+                                             request = new DeleteOwner(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+                                           } else {
+                                             request = new DeleteOwner(JsonCallbackEvents.disableButtonEvents(removeButton));
+                                           }
+                                           request.deleteOwner(itemsToRemove.get(i).getId());
+                                         }
+                                       }
+                                     });
+                                   }
+                                 }
+    );
+    tabMenu.addWidget(removeButton);
 
-		// remove button
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteOwner());
-		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final ArrayList<Owner> itemsToRemove = owners.getTableSelectedList();
-				String text = "Following owners will be removed.";
-				UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i=0; i<itemsToRemove.size(); i++ ) {
-							DeleteOwner request;
-							if(i == itemsToRemove.size() - 1){
-								request = new DeleteOwner(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-							} else {
-								request = new DeleteOwner(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.deleteOwner(itemsToRemove.get(i).getId());
-						}
-					}
-				});
-			}}
-			);
-		tabMenu.addWidget(removeButton);
+    tabMenu.addFilterWidget(new ExtendedSuggestBox(owners.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        owners.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterOwners());
 
-		tabMenu.addFilterWidget(new ExtendedSuggestBox(owners.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				owners.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterOwners());
-
-		// adding menu to the page
-		mainTab.add(tabMenu);
-		mainTab.setCellHeight(tabMenu, "30px");
-
-
-		CellTable<Owner> table = owners.getTable();
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel();
-		sp.add(table);
-		sp.addStyleName("perun-tableScrollPanel");
-
-		mainTab.add(sp);
-
-		removeButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(owners, table, removeButton);
-
-		// resize perun table to correct size on screen
-		session.getUiElements().resizePerunTable(sp, 350, this);
-
-		this.contentWidget.setWidget(mainTab);
-
-		return getWidget();
-	}
-
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
-
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
-
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userSilhouetteIcon();
-	}
+    // adding menu to the page
+    mainTab.add(tabMenu);
+    mainTab.setCellHeight(tabMenu, "30px");
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 941;
-		int result = 1;
-		result = prime * result + 122341;
-		return result;
-	}
+    CellTable<Owner> table = owners.getTable();
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel();
+    sp.add(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+    mainTab.add(sp);
+
+    removeButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(owners, table, removeButton);
+
+    // resize perun table to correct size on screen
+    session.getUiElements().resizePerunTable(sp, 350, this);
+
+    this.contentWidget.setWidget(mainTab);
+
+    return getWidget();
+  }
+
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
+
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
+
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.userSilhouetteIcon();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 941;
+    int result = 1;
+    result = prime * result + 122341;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Owners", getUrlWithParameters());
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Owners", getUrlWithParameters());
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
-	public final static String URL = "owners";
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public OwnersTabItem load(Map<String, String> parameters)
-	{
-		return new OwnersTabItem();
-	}
+  public String getUrlWithParameters() {
+    return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

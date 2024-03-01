@@ -6,29 +6,29 @@ import cz.metacentrum.perun.registrar.model.Application;
 
 public class ApplicationCreated extends AuditEvent implements EngineIgnoreEvent {
 
-	private Application app;
-	private String message;
+  private Application app;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ApplicationCreated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ApplicationCreated() {
+  }
 
-	public ApplicationCreated(Application app) {
-		this.app = app;
-		this.message = formatMessage("New %s created.", app);
-	}
+  public ApplicationCreated(Application app) {
+    this.app = app;
+    this.message = formatMessage("New %s created.", app);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Application getApp() {
-		return app;
-	}
+  public Application getApp() {
+    return app;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

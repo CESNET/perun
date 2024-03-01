@@ -27,76 +27,91 @@ import java.util.Map;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class urn_perun_resource_attribute_def_def_defaultFileQuotas extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_defaultFileQuotas extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	public static final String A_R_maxUserFileQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserFileQuotas";
+  public static final String A_R_maxUserFileQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserFileQuotas";
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, false);
-	}
+    perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, false);
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		//attribute can be null, it means there are no default settings on resource
-		if(attribute.getValue() == null) {
-			return;
-		}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+    //attribute can be null, it means there are no default settings on resource
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		//Check if every part of this map has the right pattern
-		//And also check if every quota part has right settings (softQuota<=hardQuota)
-		Map<String, Pair<BigDecimal, BigDecimal>> defaultFileQuotasForResource;
-		try {
-			defaultFileQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, false);
-		} catch (WrongAttributeValueException e) {
-			throw new ConsistencyErrorException("Final counted quotas on " + resource + " are in bad format.", e);
-		}
+    //Check if every part of this map has the right pattern
+    //And also check if every quota part has right settings (softQuota<=hardQuota)
+    Map<String, Pair<BigDecimal, BigDecimal>> defaultFileQuotasForResource;
+    try {
+      defaultFileQuotasForResource =
+          perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, false);
+    } catch (WrongAttributeValueException e) {
+      throw new ConsistencyErrorException("Final counted quotas on " + resource + " are in bad format.", e);
+    }
 
-		//If there are no values after converting quota, we can skip testing against maxUserFileQuota attribute, because there is nothing to check
-		if (defaultFileQuotasForResource == null || defaultFileQuotasForResource.isEmpty()) return;
+    //If there are no values after converting quota, we can skip testing against maxUserFileQuota attribute, because there is nothing to check
+    if (defaultFileQuotasForResource == null || defaultFileQuotasForResource.isEmpty()) {
+      return;
+    }
 
-		//Get maxUserFileQuotas value on this resource
-		Attribute maxUserFileQuotasAttribute;
-		try {
-			maxUserFileQuotasAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_maxUserFileQuotas);
-		} catch (AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		}
+    //Get maxUserFileQuotas value on this resource
+    Attribute maxUserFileQuotasAttribute;
+    try {
+      maxUserFileQuotasAttribute = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttribute(perunSession, resource, A_R_maxUserFileQuotas);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    }
 
-		//Check and transfer maxUserFileQuotasForResource
-		Map<String, Pair<BigDecimal, BigDecimal>> maxUserFileQuotasForResource;
-		try {
-			maxUserFileQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(maxUserFileQuotasAttribute, resource, null, false);
-		} catch (WrongAttributeValueException ex) {
-			throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, resource, null, resource, null,
-					"Can't set defaultFileQuotas for resource, because maxUserQuota is not in correct format. Please fix it first!", ex);
-		}
+    //Check and transfer maxUserFileQuotasForResource
+    Map<String, Pair<BigDecimal, BigDecimal>> maxUserFileQuotasForResource;
+    try {
+      maxUserFileQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl()
+          .checkAndTransferQuotas(maxUserFileQuotasAttribute, resource, null, false);
+    } catch (WrongAttributeValueException ex) {
+      throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, resource, null, resource,
+          null,
+          "Can't set defaultFileQuotas for resource, because maxUserQuota is not in correct format. Please fix it first!",
+          ex);
+    }
 
-		try {
-			perunSession.getPerunBl().getModulesUtilsBl().checkIfQuotasIsInLimit(defaultFileQuotasForResource, maxUserFileQuotasForResource);
-		} catch (QuotaNotInAllowedLimitException ex) {
-			throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, resource, null, resource, null,
-					"DefaultFileQuotas for resource is not in limit of maxUserQuota!", ex);
-		}
-	}
+    try {
+      perunSession.getPerunBl().getModulesUtilsBl()
+          .checkIfQuotasIsInLimit(defaultFileQuotasForResource, maxUserFileQuotasForResource);
+    } catch (QuotaNotInAllowedLimitException ex) {
+      throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, resource, null, resource,
+          null,
+          "DefaultFileQuotas for resource is not in limit of maxUserQuota!", ex);
+    }
+  }
 
-	@Override
-	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<>();
-		dependencies.add(A_R_maxUserFileQuotas);
-		return dependencies;
-	}
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_R_maxUserFileQuotas);
+    return dependencies;
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("defaultFileQuotas");
-		attr.setDisplayName("Default file quotas on any volumes.");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota'. Example: '1000:2000'.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("defaultFileQuotas");
+    attr.setDisplayName("Default file quotas on any volumes.");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription(
+        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota'. Example: '1000:2000'.");
+    return attr;
+  }
 }

@@ -20,44 +20,46 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  */
 @SuppressWarnings("unused")
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_alternativeLoginNames extends UserVirtualAttributeCollectedFromUserExtSource {
+public class urn_perun_user_attribute_def_virt_alternativeLoginNames
+    extends UserVirtualAttributeCollectedFromUserExtSource {
 
-	@Override
-	public String getSourceAttributeFriendlyName() {
-		return "alternativeLoginName";
-	}
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "alternativeLoginName";
+  }
 
-	@Override
-	public String getDestinationAttributeFriendlyName() {
-		return "alternativeLoginNames";
-	}
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "alternativeLoginNames";
+  }
 
-	@Override
-	public String getDestinationAttributeDisplayName() {
-		return "Alternative login names";
-	}
+  @Override
+  public String getDestinationAttributeDisplayName() {
+    return "Alternative login names";
+  }
 
-	@Override
-	public String getDestinationAttributeDescription() {
-		return "List of all alternative logins of user in organizations represented as tuples of entityId:alternativeLogin";
-	}
+  @Override
+  public String getDestinationAttributeDescription() {
+    return "List of all alternative logins of user in organizations represented as tuples of entityId:alternativeLogin";
+  }
 
-	@Override
-	public String modifyValue(PerunSession session, ModifyValueContext ctx, UserExtSource ues, String value) {
+  @Override
+  public String modifyValue(PerunSession session, ModifyValueContext ctx, UserExtSource ues, String value) {
 
-		if (ues != null && ExtSourcesManager.EXTSOURCE_IDP.equals(ues.getExtSource().getType())) {
-			try {
-				Attribute schacAttribute = ((PerunSessionImpl)session).getPerunBl().getAttributesManagerBl().getAttribute(session, ues, AttributesManager.NS_UES_ATTR_DEF + ":schacHomeOrganization");
-				if (schacAttribute.getValue() != null) {
-					return schacAttribute.getValue() + ":" + value;
-				}
-			} catch (InternalErrorException |WrongAttributeAssignmentException | AttributeNotExistsException e) {
-				return null;
-			}
-		}
+    if (ues != null && ExtSourcesManager.EXTSOURCE_IDP.equals(ues.getExtSource().getType())) {
+      try {
+        Attribute schacAttribute = ((PerunSessionImpl) session).getPerunBl().getAttributesManagerBl()
+            .getAttribute(session, ues, AttributesManager.NS_UES_ATTR_DEF + ":schacHomeOrganization");
+        if (schacAttribute.getValue() != null) {
+          return schacAttribute.getValue() + ":" + value;
+        }
+      } catch (InternalErrorException | WrongAttributeAssignmentException | AttributeNotExistsException e) {
+        return null;
+      }
+    }
 
-		return null;
+    return null;
 
-	}
+  }
 
 }

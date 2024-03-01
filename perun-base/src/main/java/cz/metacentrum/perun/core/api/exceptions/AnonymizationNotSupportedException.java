@@ -10,15 +10,15 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class AnonymizationNotSupportedException extends PerunException {
 
-	public AnonymizationNotSupportedException(String message) {
-		super(message);
-	}
+  public AnonymizationNotSupportedException(String message) {
+    super(message);
+  }
 
-	public AnonymizationNotSupportedException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public AnonymizationNotSupportedException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public AnonymizationNotSupportedException(Throwable cause) {
-		super(cause);
-	}
+  public AnonymizationNotSupportedException(Throwable cause) {
+    super(cause);
+  }
 }

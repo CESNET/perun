@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface PerunAttributeConfigurer<T extends PerunBean> {
 
-	public List<PerunAttribute<T>> getAttributeDescriptions();
+  public List<PerunAttribute<T>> getAttributeDescriptions();
 
 }

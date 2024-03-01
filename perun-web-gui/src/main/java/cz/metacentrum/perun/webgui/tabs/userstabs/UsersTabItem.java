@@ -6,7 +6,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
@@ -26,7 +30,6 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.Map;
 
 /**
@@ -38,83 +41,86 @@ import java.util.Map;
 
 public class UsersTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "users";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Users");
+  // users query
+  private FindCompleteRichUsers users;
+  /**
+   * Search string
+   */
+  private String searchString = "";
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public UsersTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Users");
+  static public UsersTabItem load(Map<String, String> parameters) {
+    return new UsersTabItem();
+  }
 
-	// users query
-	private FindCompleteRichUsers users;
+  public boolean isPrepared() {
+    return true;
+  }
 
-	/**
-	 * Search string
-	 */
-	private String searchString = "";
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public UsersTabItem(){ }
+  @Override
+  public void onClose() {
 
-	public boolean isPrepared(){
-		return true;
-	}
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public Widget draw() {
 
-	@Override
-	public void onClose() {
+    CustomButton searchButton =
+        new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
 
-	}
+    this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
 
-	public Widget draw() {
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+    // HORIZONTAL MENU
+    TabMenu tabMenu = new TabMenu();
 
-		this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton));
+    // search textbox
+    ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        startSearching(text);
+        searchString = text;
+      }
+    }, searchButton);
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    // get the table
+    final CellTable<User> table = users.getTable(new FieldUpdater<User, String>() {
+      public void update(int index, User object, String value) {
+        // opens the tab
+        session.getTabManager().addTab(new UserDetailTabItem(object));
+      }
+    });
 
-		// HORIZONTAL MENU
-		TabMenu tabMenu = new TabMenu();
-
-		// search textbox
-		ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				startSearching(text);
-				searchString = text;
-			}
-		}, searchButton);
-
-		// get the table
-		final CellTable<User> table = users.getTable(new FieldUpdater<User, String>() {
-			public void update(int index, User object, String value) {
-				// opens the tab
-				session.getTabManager().addTab(new UserDetailTabItem(object));
-			}
-		});
-
-		// if some text has been searched before
-		if(!searchString.equals("")) {
-			searchBox.getTextBox().setText(searchString);
-			startSearching(searchString);
-		}
+    // if some text has been searched before
+    if (!searchString.equals("")) {
+      searchBox.getTextBox().setText(searchString);
+      startSearching(searchString);
+    }
 
 		/*
 			 Button b1 = tabMenu.addButton("List all", SmallIcons.INSTANCE.userGrayIcon(), new ClickHandler(){
@@ -139,121 +145,120 @@ public class UsersTabItem implements TabItem, TabItemWithUrl {
 			 b1.setTitle("List of all users in Perun");
 			 */
 
-		final CustomButton withoutVoButton = new CustomButton(ButtonTranslation.INSTANCE.listUsersWithoutVoButton(), ButtonTranslation.INSTANCE.listUsersWithoutVo(), SmallIcons.INSTANCE.userRedIcon());
-		withoutVoButton.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				GetCompleteRichUsers callback = new GetCompleteRichUsers(null, new JsonCallbackEvents(){
-					public void onLoadingStart() {
-						users.clearTable();
-						table.setEmptyTableWidget(new AjaxLoaderImage().loadingStart());
-						withoutVoButton.setProcessing(true);
-					}
-					public void onFinished(JavaScriptObject jso) {
-						users.setList(JsonUtils.<User>jsoAsList(jso));
-						users.sortTable();
-						table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
-						withoutVoButton.setProcessing(false);
-					}
-					public void onError(PerunError error){
-						table.setEmptyTableWidget(new AjaxLoaderImage().loadingError(error));
-						withoutVoButton.setProcessing(false);
-					}
-				});
-				callback.getWithoutVo(true);
-				callback.retrieveData();
-			}
-		});
-		tabMenu.addWidget(withoutVoButton);
+    final CustomButton withoutVoButton = new CustomButton(ButtonTranslation.INSTANCE.listUsersWithoutVoButton(),
+        ButtonTranslation.INSTANCE.listUsersWithoutVo(), SmallIcons.INSTANCE.userRedIcon());
+    withoutVoButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        GetCompleteRichUsers callback = new GetCompleteRichUsers(null, new JsonCallbackEvents() {
+          public void onLoadingStart() {
+            users.clearTable();
+            table.setEmptyTableWidget(new AjaxLoaderImage().loadingStart());
+            withoutVoButton.setProcessing(true);
+          }
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+          public void onFinished(JavaScriptObject jso) {
+            users.setList(JsonUtils.<User>jsoAsList(jso));
+            users.sortTable();
+            table.setEmptyTableWidget(new AjaxLoaderImage().loadingFinished());
+            withoutVoButton.setProcessing(false);
+          }
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
-		firstTabPanel.add(sp);
+          public void onError(PerunError error) {
+            table.setEmptyTableWidget(new AjaxLoaderImage().loadingError(error));
+            withoutVoButton.setProcessing(false);
+          }
+        });
+        callback.getWithoutVo(true);
+        callback.retrieveData();
+      }
+    });
+    tabMenu.addWidget(withoutVoButton);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		this.contentWidget.setWidget(firstTabPanel);
+    // add menu and the table to the main panel
+    firstTabPanel.add(tabMenu);
+    firstTabPanel.setCellHeight(tabMenu, "30px");
+    firstTabPanel.add(sp);
 
-		return getWidget();
-	}
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-	/**
-	 * Starts the search for users
-	 */
-	protected void startSearching(String text){
-		users.searchFor(text);
-	}
+    this.contentWidget.setWidget(firstTabPanel);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    return getWidget();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  /**
+   * Starts the search for users
+   */
+  protected void startSearching(String text) {
+    users.searchFor(text);
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGrayIcon();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1283;
-		int result = 432;
-		result = prime * result;
-		return result;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.userGrayIcon();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 1283;
+    int result = 432;
+    result = prime * result;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", getUrlWithParameters());
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", getUrlWithParameters());
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
-	public final static String URL = "users";
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public UsersTabItem load(Map<String, String> parameters) {
-		return new UsersTabItem();
-	}
+  public String getUrlWithParameters() {
+    return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

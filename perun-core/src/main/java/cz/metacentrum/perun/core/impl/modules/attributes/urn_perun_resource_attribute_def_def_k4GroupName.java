@@ -14,24 +14,28 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_resource_attribute_def_def_k4GroupName extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_k4GroupName extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
 
-		if (attribute.getValue() != null &&
-				(attribute.valueAsString()).length() > 40) throw new WrongAttributeValueException("Name of Group in K4 mustn't exceed 40 characters.");
+    if (attribute.getValue() != null &&
+        (attribute.valueAsString()).length() > 40) {
+      throw new WrongAttributeValueException("Name of Group in K4 mustn't exceed 40 characters.");
+    }
 
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("k4GroupName");
-		attr.setDisplayName("K4 Group Name");
-		attr.setType(String.class.getName());
-		attr.setDescription("Name of Group in K4.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("k4GroupName");
+    attr.setDisplayName("K4 Group Name");
+    attr.setType(String.class.getName());
+    attr.setDescription("Name of Group in K4.");
+    return attr;
+  }
 }

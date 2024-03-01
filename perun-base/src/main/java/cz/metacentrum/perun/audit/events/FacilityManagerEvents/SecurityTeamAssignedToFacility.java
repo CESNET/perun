@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 
 public class SecurityTeamAssignedToFacility extends AuditEvent {
 
-	private SecurityTeam securityTeam;
-	private Facility facility;
-	private String message;
+  private SecurityTeam securityTeam;
+  private Facility facility;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public SecurityTeamAssignedToFacility() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public SecurityTeamAssignedToFacility() {
+  }
 
-	public SecurityTeamAssignedToFacility(SecurityTeam securityTeam, Facility facility) {
-		this.securityTeam = securityTeam;
-		this.facility = facility;
-		this.message = formatMessage("%s was assigned to %s.", securityTeam, facility);
-	}
+  public SecurityTeamAssignedToFacility(SecurityTeam securityTeam, Facility facility) {
+    this.securityTeam = securityTeam;
+    this.facility = facility;
+    this.message = formatMessage("%s was assigned to %s.", securityTeam, facility);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public SecurityTeam getSecurityTeam() {
-		return securityTeam;
-	}
+  public SecurityTeam getSecurityTeam() {
+    return securityTeam;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

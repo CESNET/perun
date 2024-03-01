@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.registrar.model;
 
 import cz.metacentrum.perun.core.api.ExtSource;
-
 import java.util.List;
 
 /**
@@ -11,54 +10,54 @@ import java.util.List;
  */
 public class Identity {
 
-	private int id;
-	private String name;
-	private String organization;
-	private String email;
-	private List<ExtSource> identities;
+  private int id;
+  private String name;
+  private String organization;
+  private String email;
+  private List<ExtSource> identities;
 
-	public int getId() {
-		return id;
-	}
+  public int getId() {
+    return id;
+  }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public String getOrganization() {
-		return organization;
-	}
+  public String getOrganization() {
+    return organization;
+  }
 
-	public void setOrganization(String organization) {
-		this.organization = organization;
-	}
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
-	public String getEmail() {
-		return email;
-	}
+  public String getEmail() {
+    return email;
+  }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-	public List<ExtSource> getIdentities() {
-		return identities;
-	}
+  public List<ExtSource> getIdentities() {
+    return identities;
+  }
 
-	public void setIdentities(List<ExtSource> identities) {
-		this.identities = identities;
-	}
+  public void setIdentities(List<ExtSource> identities) {
+    this.identities = identities;
+  }
 
-	public String getBeanName() {
-		return this.getClass().getSimpleName();
-	}
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
 
 }

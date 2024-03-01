@@ -10,14 +10,14 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class RegistrarException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public RegistrarException(String message) {
-		super(message);
-	}
+  public RegistrarException(String message) {
+    super(message);
+  }
 
-	public RegistrarException(String message, Throwable ex) {
-		super(message, ex);
-	}
+  public RegistrarException(String message, Throwable ex) {
+    super(message, ex);
+  }
 
 }

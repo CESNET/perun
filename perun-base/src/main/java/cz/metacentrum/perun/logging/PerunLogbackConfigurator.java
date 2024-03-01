@@ -6,7 +6,6 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.spi.Configurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.ContextAwareBase;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,32 +28,32 @@ import java.nio.file.Paths;
  */
 public class PerunLogbackConfigurator extends ContextAwareBase implements Configurator {
 
-	@Override
-	public void configure(LoggerContext loggerContext) {
-		JoranConfigurator configurator = new JoranConfigurator();
-		configurator.setContext(loggerContext);
+  @Override
+  public void configure(LoggerContext loggerContext) {
+    JoranConfigurator configurator = new JoranConfigurator();
+    configurator.setContext(loggerContext);
 
-		String confDir = System.getProperty("perun.conf.custom", "/etc/perun/");
-		File confFile = Paths.get(confDir, "logback.xml").toFile();
-		if (confFile.exists()) {
-			System.out.println("Loading logback config file " + confFile);
-			try {
-				configurator.doConfigure(confFile.toString()); // loads logback file
-			} catch (JoranException e) {
-				e.printStackTrace();
-			}
-		} else {
-			System.out.println("Loading logback-default.xml file from classpath");
-			try (InputStream configStream = this.getClass().getResourceAsStream("/logback-default.xml")) {
-				configurator.doConfigure(configStream); // loads logback file
-				configStream.close();
-			} catch (IOException | JoranException e) {
-				e.printStackTrace();
-				System.out.println("Falling back to logback basic configurator");
-				BasicConfigurator basicConfigurator = new BasicConfigurator();
-				basicConfigurator.setContext(loggerContext);
-				basicConfigurator.configure(loggerContext);
-			}
-		}
-	}
+    String confDir = System.getProperty("perun.conf.custom", "/etc/perun/");
+    File confFile = Paths.get(confDir, "logback.xml").toFile();
+    if (confFile.exists()) {
+      System.out.println("Loading logback config file " + confFile);
+      try {
+        configurator.doConfigure(confFile.toString()); // loads logback file
+      } catch (JoranException e) {
+        e.printStackTrace();
+      }
+    } else {
+      System.out.println("Loading logback-default.xml file from classpath");
+      try (InputStream configStream = this.getClass().getResourceAsStream("/logback-default.xml")) {
+        configurator.doConfigure(configStream); // loads logback file
+        configStream.close();
+      } catch (IOException | JoranException e) {
+        e.printStackTrace();
+        System.out.println("Falling back to logback basic configurator");
+        BasicConfigurator basicConfigurator = new BasicConfigurator();
+        basicConfigurator.setContext(loggerContext);
+        basicConfigurator.configure(loggerContext);
+      }
+    }
+  }
 }

@@ -9,10 +9,10 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public interface TabItemWithHelp extends TabItem {
 
-	/**
-	 * Returns the help widget, usually a SimplePanel
-	 *
-	 * @return
-	 */
-	public Widget getHelpWidget();
+  /**
+   * Returns the help widget, usually a SimplePanel
+   *
+   * @return
+   */
+  public Widget getHelpWidget();
 }

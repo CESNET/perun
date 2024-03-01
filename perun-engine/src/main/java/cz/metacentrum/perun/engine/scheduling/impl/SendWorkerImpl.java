@@ -22,122 +22,123 @@ import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.WARNIN
  * Implementation of SendWorker, which is used for starting SEND scripts.
  * On completion, SendTask endTime and status is set to either SEND or ERROR.
  * (beware, its SendTask.Status and not Task.Status).
- *
+ * <p>
  * Workers are created by SendPlanner, done/error workers are collected by SendCollector.
- *
- * @see cz.metacentrum.perun.engine.runners.SendPlanner
- * @see cz.metacentrum.perun.engine.runners.SendCollector
  *
  * @author David Šarman
  * @author Pavel Zlámal <zlamal@cesnet.cz>
+ * @see cz.metacentrum.perun.engine.runners.SendPlanner
+ * @see cz.metacentrum.perun.engine.runners.SendCollector
  */
 public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWorker {
 
-	private final static Logger log = LoggerFactory.getLogger(SendWorkerImpl.class);
+  private final static Logger log = LoggerFactory.getLogger(SendWorkerImpl.class);
 
-	private SendTask sendTask;
+  private SendTask sendTask;
 
-	public SendWorkerImpl(SendTask sendTask, File directory) {
-		if (sendTask == null) throw new IllegalArgumentException("SendTask to execute can't be null.");
-		this.sendTask = sendTask;
-		setDirectory(directory);
-	}
+  public SendWorkerImpl(SendTask sendTask, File directory) {
+    if (sendTask == null) {
+      throw new IllegalArgumentException("SendTask to execute can't be null.");
+    }
+    this.sendTask = sendTask;
+    setDirectory(directory);
+  }
 
-	@Override
-	public SendTask call() throws TaskExecutionException {
+  @Override
+  public SendTask call() throws TaskExecutionException {
 
-		Task task = sendTask.getTask();
-		Service service = task.getService();
+    Task task = sendTask.getTask();
+    Service service = task.getService();
 
-		// we never actually run DUMMY destinations !!
-		if (sendTask.getDestination().getPropagationType().equals(Destination.PROPAGATIONTYPE_DUMMY)) {
+    // we never actually run DUMMY destinations !!
+    if (sendTask.getDestination().getPropagationType().equals(Destination.PROPAGATIONTYPE_DUMMY)) {
 
-			log.info("[{}] Executing SEND worker skipped for dummy Destination: {}. Marked as SENT.",
-					sendTask.getTask().getId(), sendTask.getDestination().getDestination());
+      log.info("[{}] Executing SEND worker skipped for dummy Destination: {}. Marked as SENT.",
+          sendTask.getTask().getId(), sendTask.getDestination().getDestination());
 
-			// set results
-			sendTask.setStatus(SENT);
-			sendTask.setStdout("");
-			sendTask.setStderr("");
-			sendTask.setReturnCode(0);
-			sendTask.setEndTime(new Date(System.currentTimeMillis()));
+      // set results
+      sendTask.setStatus(SENT);
+      sendTask.setStdout("");
+      sendTask.setStderr("");
+      sendTask.setReturnCode(0);
+      sendTask.setEndTime(new Date(System.currentTimeMillis()));
 
-			return sendTask;
+      return sendTask;
 
-		}
+    }
 
-		log.info("[{}] Executing SEND worker for Task with Service ID: {} and Facility ID: {} and Destination: {}",
-				sendTask.getTask().getId(), sendTask.getTask().getServiceId(), sendTask.getTask().getFacilityId(),
-				sendTask.getDestination().getDestination());
-		ProcessBuilder pb;
-		if (service.getScript().equals("./" + service.getName())) {
-			pb = new ProcessBuilder(
-				service.getScript(),
-				task.getFacility().getName(),
-				sendTask.getDestination().getDestination(),
-				sendTask.getDestination().getType()
-			);
-		} else {
-			// if calling some generic script, also pass name of the service to allow correct gen folder selection
-			pb = new ProcessBuilder(
-				service.getScript(),
-				task.getFacility().getName(),
-				sendTask.getDestination().getDestination(),
-				sendTask.getDestination().getType(),
-				service.getName()
-			);
-		}
-		try {
+    log.info("[{}] Executing SEND worker for Task with Service ID: {} and Facility ID: {} and Destination: {}",
+        sendTask.getTask().getId(), sendTask.getTask().getServiceId(), sendTask.getTask().getFacilityId(),
+        sendTask.getDestination().getDestination());
+    ProcessBuilder pb;
+    if (service.getScript().equals("./" + service.getName())) {
+      pb = new ProcessBuilder(
+          service.getScript(),
+          task.getFacility().getName(),
+          sendTask.getDestination().getDestination(),
+          sendTask.getDestination().getType()
+      );
+    } else {
+      // if calling some generic script, also pass name of the service to allow correct gen folder selection
+      pb = new ProcessBuilder(
+          service.getScript(),
+          task.getFacility().getName(),
+          sendTask.getDestination().getDestination(),
+          sendTask.getDestination().getType(),
+          service.getName()
+      );
+    }
+    try {
 
-			// start the script and wait for results
-			super.execute(pb);
+      // start the script and wait for results
+      super.execute(pb);
 
-			// set results
-			sendTask.setStdout(super.getStdout());
-			sendTask.setStderr(super.getStderr());
-			sendTask.setReturnCode(super.getReturnCode());
-			sendTask.setEndTime(new Date(System.currentTimeMillis()));
+      // set results
+      sendTask.setStdout(super.getStdout());
+      sendTask.setStderr(super.getStderr());
+      sendTask.setReturnCode(super.getReturnCode());
+      sendTask.setEndTime(new Date(System.currentTimeMillis()));
 
-			if (getReturnCode() != 0) {
+      if (getReturnCode() != 0) {
 
-				log.error("[{}] SEND worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}",
-						task.getId(), getReturnCode(), getStdout(), getStderr());
+        log.error("[{}] SEND worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}",
+            task.getId(), getReturnCode(), getStdout(), getStderr());
 
-				sendTask.setStatus(ERROR);
-				// XXX: why exception? There is nothing exceptional about the situation.
-				throw new TaskExecutionException(task, sendTask.getDestination(), getReturnCode(), getStdout(), getStderr());
+        sendTask.setStatus(ERROR);
+        // XXX: why exception? There is nothing exceptional about the situation.
+        throw new TaskExecutionException(task, sendTask.getDestination(), getReturnCode(), getStdout(), getStderr());
 
-			} else {
+      } else {
 
-				if(getStderr().isEmpty()) {
-					sendTask.setStatus(SENT);
-				} else {
-					sendTask.setStatus(WARNING);
-				}
+        if (getStderr().isEmpty()) {
+          sendTask.setStatus(SENT);
+        } else {
+          sendTask.setStatus(WARNING);
+        }
 
-				log.info("[{}] SEND worker finished for Task with status {}. Ret code {}, STDOUT: {}, STDERR: {}",
-						sendTask.getTask().getId(), sendTask.getStatus(), getReturnCode(), getStdout(), getStderr());
+        log.info("[{}] SEND worker finished for Task with status {}. Ret code {}, STDOUT: {}, STDERR: {}",
+            sendTask.getTask().getId(), sendTask.getStatus(), getReturnCode(), getStdout(), getStderr());
 
-				return sendTask;
+        return sendTask;
 
-			}
+      }
 
-		} catch (IOException e) {
-			log.error("[{}] SEND worker failed for Task. IOException: {}.",  task.getId(), e);
-			sendTask.setStatus(ERROR);
-			sendTask.setEndTime(new Date(System.currentTimeMillis()));
-			throw new TaskExecutionException(task, sendTask.getDestination(), 2, "", e.getMessage());
-		} catch (InterruptedException e) {
-			log.warn("[{}] SEND worker failed for Task. Execution was interrupted {}.", task.getId(), e);
-			sendTask.setStatus(ERROR);
-			sendTask.setEndTime(new Date(System.currentTimeMillis()));
-			throw new TaskExecutionException(task, sendTask.getDestination(), 1, "", e.getMessage());
-		}
+    } catch (IOException e) {
+      log.error("[{}] SEND worker failed for Task. IOException: {}.", task.getId(), e);
+      sendTask.setStatus(ERROR);
+      sendTask.setEndTime(new Date(System.currentTimeMillis()));
+      throw new TaskExecutionException(task, sendTask.getDestination(), 2, "", e.getMessage());
+    } catch (InterruptedException e) {
+      log.warn("[{}] SEND worker failed for Task. Execution was interrupted {}.", task.getId(), e);
+      sendTask.setStatus(ERROR);
+      sendTask.setEndTime(new Date(System.currentTimeMillis()));
+      throw new TaskExecutionException(task, sendTask.getDestination(), 1, "", e.getMessage());
+    }
 
-	}
+  }
 
-	public SendTask getSendTask() {
-		return sendTask;
-	}
+  public SendTask getSendTask() {
+    return sendTask;
+  }
 
 }

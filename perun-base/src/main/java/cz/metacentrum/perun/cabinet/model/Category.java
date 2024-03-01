@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.cabinet.model;
 
 import cz.metacentrum.perun.core.api.PerunBean;
-
 import java.util.Objects;
 
 /**
@@ -13,72 +12,80 @@ import java.util.Objects;
  */
 public class Category extends PerunBean {
 
-	private String name;
-	private Double rank;
+  private String name;
+  private Double rank;
 
-	public Category() {}
+  public Category() {
+  }
 
-	public Category(int id, String name, Double rank) {
-		super(id);
-		this.name = name;
-		this.rank = rank;
-	}
+  public Category(int id, String name, Double rank) {
+    super(id);
+    this.name = name;
+    this.rank = rank;
+  }
 
-	/**
-	 * Get Category name
-	 *
-	 * @return name
-	 */
-	public String getName() {
-		return name;
-	}
+  /**
+   * Get Category name
+   *
+   * @return name
+   */
+  public String getName() {
+    return name;
+  }
 
-	/**
-	 * Set Category name.
-	 *
-	 * @param name the value for CATEGORY.name
-	 */
-	public void setName(String name) {
-		this.name = name == null ? null : name.trim();
-	}
+  /**
+   * Set Category name.
+   *
+   * @param name the value for CATEGORY.name
+   */
+  public void setName(String name) {
+    this.name = name == null ? null : name.trim();
+  }
 
-	/**
-	 * Get Category rank.
-	 *
-	 * @return Rank of Category
-	 */
-	public Double getRank() {
-		return rank;
-	}
+  /**
+   * Get Category rank.
+   *
+   * @return Rank of Category
+   */
+  public Double getRank() {
+    return rank;
+  }
 
-	/**
-	 * Set Category rank.
-	 *
-	 * @param rank the value for CATEGORY.rank
-	 */
-	public void setRank(Double rank) {
-		this.rank = rank;
-	}
+  /**
+   * Set Category rank.
+   *
+   * @param rank the value for CATEGORY.rank
+   */
+  public void setRank(Double rank) {
+    this.rank = rank;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), name, rank);
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), name, rank);
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Category)) return false;
-		if (!super.equals(o)) return false;
-		Category category = (Category) o;
-		return Objects.equals(name, category.name) &&
-				Objects.equals(rank, category.rank);
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Category)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    Category category = (Category) o;
+    return Objects.equals(name, category.name) &&
+        Objects.equals(rank, category.rank);
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
-		return str.append(getClass().getSimpleName()).append(":[id=").append(getId()).append(", name=").append(name).append(", rank=").append(rank).append( "]").toString();
-	}
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+    return str.append(getClass().getSimpleName()).append(":[id=").append(getId()).append(", name=").append(name)
+        .append(", rank=").append(rank).append("]").toString();
+  }
 
 }

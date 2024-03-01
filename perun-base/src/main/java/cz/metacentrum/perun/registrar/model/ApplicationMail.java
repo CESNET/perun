@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.registrar.model;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.registrar.model.Application.AppType;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.registrar.model.Application.AppType;
 
 /**
  * Object definition for mail notifications used
@@ -15,359 +14,375 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
  */
 public class ApplicationMail {
 
-	// locale const
-	public static final Locale EN = new Locale("en");
-	public static final Locale CS = getNativeLanguage();
+  // locale const
+  public static final Locale EN = new Locale("en");
+  public static final Locale CS = getNativeLanguage();
+  /**
+   * Object params
+   */
+  private int id;
+  private AppType appType;       // if mail is related to initial or extension application
+  private int formId;            // connection to correct application form (VO)
+  private MailType mailType;     // to what "action" is notification related
+  private boolean send = true; // if sending email is enabled or disabled (enabled by default)
+  // localized mail text (EN and CS by default)
+  private Map<Locale, MailText> message = new HashMap<Locale, MailText>();
+  private Map<Locale, MailText> htmlMessage = new HashMap<Locale, MailText>();
 
-	/**
-	 * Return code of native language defined in config file.
-	 * Return NULL if no native language set.
-	 *
-	 * @return String representation of native language
-	 */
-	public static Locale getNativeLanguage() {
-		try {
-			String loc = BeansUtils.getCoreConfig().getNativeLanguage().split(",")[0];
-			if (loc != null && loc.trim().isEmpty()) {
-				return null;
-			}
-			return new Locale(loc);
-		} catch (Exception ex) {
-			return null;
-		}
-	}
+  {
+    if (CS != null) {
+      message.put(CS, new MailText(CS));
+    }
+    message.put(EN, new MailText(EN));
+  }
 
-	/**
-	 * Available mail types
-	 */
-	public enum MailType {
+  {
+    if (CS != null) {
+      htmlMessage.put(CS, new MailText(CS));
+    }
+    htmlMessage.put(EN, new MailText(EN));
+  }
 
-		/**
-		 * Notification for user when application is created
-		 */
-		APP_CREATED_USER,
+  public ApplicationMail() {
+  }
 
-		/**
-		 * Notification for user when group application is created and it can be approved
-		 * (when the user becomes member in VO).
-		 */
-		APPROVABLE_GROUP_APP_USER,
+  public ApplicationMail(int id, AppType appType, int formId, MailType mailType, boolean send) {
+    this.id = id;
+    this.appType = appType;
+    this.formId = formId;
+    this.mailType = mailType;
+    this.send = send;
+  }
 
-		/**
-		 * Notification to VO administrator when application is created
-		 */
-		APP_CREATED_VO_ADMIN,
+  public ApplicationMail(int id, AppType appType, int formId, MailType mailType, boolean send,
+                         Map<Locale, MailText> message) {
+    this(id, appType, formId, mailType, send);
+    this.message = message;
+  }
 
-		/**
-		 * Notification to user for email address validation
-		 */
-		MAIL_VALIDATION,
+  ;
 
-		/**
-		 * Notification to user when application is approved
-		 */
-		APP_APPROVED_USER,
+  public ApplicationMail(int id, AppType appType, int formId, MailType mailType, boolean send,
+                         Map<Locale, MailText> message, Map<Locale, MailText> htmlMessage) {
+    this(id, appType, formId, mailType, send);
+    this.message = message;
+    this.htmlMessage = htmlMessage;
+  }
 
-		/**
-		 * Notification to user when application is rejected
-		 */
-		APP_REJECTED_USER,
+  /**
+   * Return code of native language defined in config file.
+   * Return NULL if no native language set.
+   *
+   * @return String representation of native language
+   */
+  public static Locale getNativeLanguage() {
+    try {
+      String loc = BeansUtils.getCoreConfig().getNativeLanguage().split(",")[0];
+      if (loc != null && loc.trim().isEmpty()) {
+        return null;
+      }
+      return new Locale(loc);
+    } catch (Exception ex) {
+      return null;
+    }
+  }
 
-		/**
-		 * Notification to VO administrator if auto approved application ends with error and is not approved.
-		 */
-		APP_ERROR_VO_ADMIN,
+  /**
+   * @return the id
+   */
+  public int getId() {
+    return id;
+  }
 
-		/**
-		 * Notification to User with invitation to VO / group
-		 */
-		USER_INVITE;
+  /**
+   * @param id the id to set
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	}
+  /**
+   * @return the appType
+   */
+  public AppType getAppType() {
+    return appType;
+  }
 
-	/**
-	 * Object params
-	 */
-	private int id;
-	private AppType appType;       // if mail is related to initial or extension application
-	private int formId;            // connection to correct application form (VO)
-	private MailType mailType;     // to what "action" is notification related
-	private boolean send = true; // if sending email is enabled or disabled (enabled by default)
-	// localized mail text (EN and CS by default)
-	private Map<Locale, MailText> message = new HashMap<Locale, MailText>(); {
-		if (CS != null) {
-			message.put(CS, new MailText(CS));
-		}
-		message.put(EN,new MailText(EN));
-	}
-	private Map<Locale, MailText> htmlMessage = new HashMap<Locale, MailText>(); {
-		if (CS != null) {
-			htmlMessage.put(CS, new MailText(CS));
-		}
-		htmlMessage.put(EN, new MailText(EN));
-	}
+  /**
+   * @param appType the appType to set
+   */
+  public void setAppType(AppType appType) {
+    this.appType = appType;
+  }
 
-	public ApplicationMail(){};
+  /**
+   * @return the formId
+   */
+  public int getFormId() {
+    return formId;
+  }
 
-	public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send) {
-		this.id = id;
-		this.appType = appType;
-		this.formId = formId;
-		this.mailType = mailType;
-		this.send = send;
-	}
+  /**
+   * @param formId the formId to set
+   */
+  public void setFormId(int formId) {
+    this.formId = formId;
+  }
 
-	public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send, Map<Locale, MailText> message) {
-		this(id, appType, formId, mailType, send);
-		this.message = message;
-	}
+  /**
+   * @return the mailType
+   */
+  public MailType getMailType() {
+    return mailType;
+  }
 
-	public ApplicationMail(int id,AppType appType, int formId, MailType mailType, boolean send, Map<Locale, MailText> message, Map<Locale, MailText> htmlMessage) {
-		this(id, appType, formId, mailType, send);
-		this.message = message;
-		this.htmlMessage = htmlMessage;
-	}
+  /**
+   * @param mailType the mailType to set
+   */
+  public void setMailType(MailType mailType) {
+    this.mailType = mailType;
+  }
 
-	/**
-	 * @return the id
-	 */
-	public int getId() {
-		return id;
-	}
+  /**
+   * @return the send
+   */
+  public boolean getSend() {
+    return send;
+  }
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(int id) {
-		this.id = id;
-	}
+  /**
+   * @param send the send to set
+   */
+  public void setSend(boolean send) {
+    this.send = send;
+  }
 
-	/**
-	 * @return the appType
-	 */
-	public AppType getAppType() {
-		return appType;
-	}
+  /**
+   * @return the message
+   */
+  public Map<Locale, MailText> getMessage() {
+    return message;
+  }
 
-	/**
-	 * @param appType the appType to set
-	 */
-	public void setAppType(AppType appType) {
-		this.appType = appType;
-	}
+  /**
+   * @param message the message to set
+   */
+  public void setMessage(Map<Locale, MailText> message) {
+    this.message = message;
+  }
 
-	/**
-	 * @return the formId
-	 */
-	public int getFormId() {
-		return formId;
-	}
+  /**
+   * @return the html message
+   */
+  public Map<Locale, MailText> getHtmlMessage() {
+    return htmlMessage;
+  }
 
-	/**
-	 * @param formId the formId to set
-	 */
-	public void setFormId(int formId) {
-		this.formId = formId;
-	}
+  /**
+   * @param htmlMessage the html message to set
+   */
+  public void setHtmlMessage(Map<Locale, MailText> htmlMessage) {
+    this.htmlMessage = htmlMessage;
+  }
 
-	/**
-	 * @return the mailType
-	 */
-	public MailType getMailType() {
-		return mailType;
-	}
+  /**
+   * Return message in specific language
+   * (empty message if not present)
+   *
+   * @param locale language
+   * @return the message
+   */
+  public MailText getMessage(Locale locale) {
+    MailText texts = message.get(locale);
+    if (texts == null) {
+      texts = new MailText();
+      message.put(locale, texts);
+    }
+    return texts;
+  }
 
-	/**
-	 * @param mailType the mailType to set
-	 */
-	public void setMailType(MailType mailType) {
-		this.mailType = mailType;
-	}
+  /**
+   * Return html message in specific language
+   * (empty message if not present)
+   *
+   * @param locale language
+   * @return the message
+   */
+  public MailText getHtmlMessage(Locale locale) {
+    MailText texts = htmlMessage.get(locale);
+    if (texts == null) {
+      texts = new MailText();
+      message.put(locale, texts);
+    }
+    return texts;
+  }
 
-	/**
-	 * @return the send
-	 */
-	public boolean getSend() {
-		return send;
-	}
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
 
-	/**
-	 * @param send the send to set
-	 */
-	public void setSend(boolean send) {
-		this.send = send;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + id;
+    return result;
+  }
 
-	/**
-	 * @return the message
-	 */
-	public Map<Locale, MailText> getMessage() {
-		return message;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof ApplicationMail)) {
+      return false;
+    }
+    ApplicationMail other = (ApplicationMail) obj;
+    if (id != other.id) {
+      return false;
+    }
+    return true;
+  }
 
-	/**
-	 * @return the html message
-	 */
-	public Map<Locale, MailText> getHtmlMessage() {
-		return htmlMessage;
-	}
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + ":[" +
+        "id='" + getId() + '\'' +
+        ", appType='" + getAppType().toString() + '\'' +
+        ", formId='" + getFormId() + '\'' +
+        ", mailType='" + getMailType().toString() + '\'' +
+        ", send='" + getSend() + '\'' +
+        ", message='" + getMessage().toString() + '\'' +
+        ", htmlMessage='" + getHtmlMessage().toString() + '\'' +
+        ']';
+  }
 
-	/**
-	 * Return message in specific language
-	 * (empty message if not present)
-	 *
-	 * @param locale language
-	 * @return the message
-	 */
-	public MailText getMessage(Locale locale) {
-		MailText texts = message.get(locale);
-		if(texts==null) {
-			texts = new MailText();
-			message.put(locale,texts);
-		}
-		return texts;
-	}
+  /**
+   * Available mail types
+   */
+  public enum MailType {
 
-	/**
-	 * Return html message in specific language
-	 * (empty message if not present)
-	 *
-	 * @param locale language
-	 * @return the message
-	 */
-	public MailText getHtmlMessage(Locale locale) {
-		MailText texts = htmlMessage.get(locale);
-		if(texts==null) {
-			texts = new MailText();
-			message.put(locale,texts);
-		}
-		return texts;
-	}
+    /**
+     * Notification for user when application is created
+     */
+    APP_CREATED_USER,
 
-	/**
-	 * @param message the message to set
-	 */
-	public void setMessage(Map<Locale, MailText> message) {
-		this.message = message;
-	}
+    /**
+     * Notification for user when group application is created and it can be approved
+     * (when the user becomes member in VO).
+     */
+    APPROVABLE_GROUP_APP_USER,
 
-	/**
-	 * @param htmlMessage the html message to set
-	 */
-	public void setHtmlMessage(Map<Locale, MailText> htmlMessage) {
-		this.htmlMessage = htmlMessage;
-	}
+    /**
+     * Notification to VO administrator when application is created
+     */
+    APP_CREATED_VO_ADMIN,
 
-	/**
-	 * Return bean name as PerunBean does.
-	 *
-	 * @return Class simple name (beanName)
-	 */
-	public String getBeanName() {
-		return this.getClass().getSimpleName();
-	}
+    /**
+     * Notification to user for email address validation
+     */
+    MAIL_VALIDATION,
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + id;
-		return result;
-	}
+    /**
+     * Notification to user when application is approved
+     */
+    APP_APPROVED_USER,
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof ApplicationMail))
-			return false;
-		ApplicationMail other = (ApplicationMail) obj;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+    /**
+     * Notification to user when application is rejected
+     */
+    APP_REJECTED_USER,
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-				"id='" + getId() + '\'' +
-				", appType='" + getAppType().toString() + '\'' +
-				", formId='" + getFormId() + '\'' +
-				", mailType='" + getMailType().toString() + '\'' +
-				", send='" + getSend() + '\'' +
-				", message='" + getMessage().toString() + '\'' +
-				", htmlMessage='" + getHtmlMessage().toString() + '\'' +
-				']';
-	}
+    /**
+     * Notification to VO administrator if auto approved application ends with error and is not approved.
+     */
+    APP_ERROR_VO_ADMIN,
 
-	/**
-	 * Inner class used for localized texts in mail message
-	 */
-	public static class MailText {
-		private Locale locale;
-		private boolean htmlFormat;
-		private String subject;
-		private String text;
+    /**
+     * Notification to User with invitation to VO / group
+     */
+    USER_INVITE;
 
-		public MailText() {
-		}
+  }
 
-		public MailText(Locale locale) {
-			this.locale = locale;
-		}
+  /**
+   * Inner class used for localized texts in mail message
+   */
+  public static class MailText {
+    private Locale locale;
+    private boolean htmlFormat;
+    private String subject;
+    private String text;
 
-		public MailText(Locale locale, String subject, String text) {
-			this.locale = locale;
-			this.subject = subject;
-			this.text = text;
-		}
+    public MailText() {
+    }
 
-		public MailText(Locale locale, boolean htmlFormat, String subject, String text) {
-			this.locale = locale;
-			this.htmlFormat = htmlFormat;
-			this.subject = subject;
-			this.text = text;
-		}
+    public MailText(Locale locale) {
+      this.locale = locale;
+    }
 
-		public Locale getLocale() {
-			return locale;
-		}
+    public MailText(Locale locale, String subject, String text) {
+      this.locale = locale;
+      this.subject = subject;
+      this.text = text;
+    }
 
-		public void setLocale(Locale locale) {
-			this.locale= locale ;
-		}
+    public MailText(Locale locale, boolean htmlFormat, String subject, String text) {
+      this.locale = locale;
+      this.htmlFormat = htmlFormat;
+      this.subject = subject;
+      this.text = text;
+    }
 
-		public boolean getHtmlFormat() { return htmlFormat; }
+    public Locale getLocale() {
+      return locale;
+    }
 
-		public void setHtmlFormat(boolean htmlFormat) { this.htmlFormat = htmlFormat; }
+    public void setLocale(Locale locale) {
+      this.locale = locale;
+    }
 
-		public String getText() {
-			return text;
-		}
+    public boolean getHtmlFormat() {
+      return htmlFormat;
+    }
 
-		public void setText(String text) {
-			this.text = text;
-		}
+    public void setHtmlFormat(boolean htmlFormat) {
+      this.htmlFormat = htmlFormat;
+    }
 
-		public String getSubject() {
-			return subject;
-		}
+    public String getText() {
+      return text;
+    }
 
-		public void setSubject(String subject) {
-			this.subject = subject;
-		}
+    public void setText(String text) {
+      this.text = text;
+    }
 
-		@Override
-		public String toString() {
-			return this.getClass().getSimpleName()+":[" +
-					"locale='" + getLocale() + '\'' +
-					"subject='" + getSubject() + '\'' +
-					", text='" + getText() + '\'' +
-					']';
-		}
+    public String getSubject() {
+      return subject;
+    }
 
-	}
+    public void setSubject(String subject) {
+      this.subject = subject;
+    }
+
+    @Override
+    public String toString() {
+      return this.getClass().getSimpleName() + ":[" +
+          "locale='" + getLocale() + '\'' +
+          "subject='" + getSubject() + '\'' +
+          ", text='" + getText() + '\'' +
+          ']';
+    }
+
+  }
 
 }

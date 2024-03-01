@@ -14,30 +14,30 @@ import java.util.Set;
 
 public abstract class AbstractSynchronizer {
 
-	@Autowired
-	protected LdapcManager ldapcManager;
+  @Autowired
+  protected LdapcManager ldapcManager;
 
-	protected List<String> fillPerunAttributeNames(List<String> attrNames) {
-		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
-		List<String> result = new ArrayList<String>();
-		for (String name : attrNames) {
-			if (name.endsWith(":")) {
-				result.addAll(perun.getAttributesManagerBl().getAllSimilarAttributeNames(ldapcManager.getPerunSession(), name));
-			} else {
-				result.add(name);
-			}
-		}
-		return result;
-	}
+  protected List<String> fillPerunAttributeNames(List<String> attrNames) {
+    PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
+    List<String> result = new ArrayList<String>();
+    for (String name : attrNames) {
+      if (name.endsWith(":")) {
+        result.addAll(perun.getAttributesManagerBl().getAllSimilarAttributeNames(ldapcManager.getPerunSession(), name));
+      } else {
+        result.add(name);
+      }
+    }
+    return result;
+  }
 
-	protected void removeOldEntries(PerunEntry<?> perunEntry, Set<Name> presentEntries, Logger log) {
-		List<Name> ldapEntries = perunEntry.listEntries();
-		log.debug("Checking for old entries: {} present, {} active", ldapEntries.size(), presentEntries.size());
-		for (Name name : ldapEntries) {
-			if (!presentEntries.contains(name)) {
-				log.debug("Removing entry {} which is not present anymore", name);
-				perunEntry.deleteEntry(name);
-			}
-		}
-	}
+  protected void removeOldEntries(PerunEntry<?> perunEntry, Set<Name> presentEntries, Logger log) {
+    List<Name> ldapEntries = perunEntry.listEntries();
+    log.debug("Checking for old entries: {} present, {} active", ldapEntries.size(), presentEntries.size());
+    for (Name name : ldapEntries) {
+      if (!presentEntries.contains(name)) {
+        log.debug("Removing entry {} which is not present anymore", name);
+        perunEntry.deleteEntry(name);
+      }
+    }
+  }
 }

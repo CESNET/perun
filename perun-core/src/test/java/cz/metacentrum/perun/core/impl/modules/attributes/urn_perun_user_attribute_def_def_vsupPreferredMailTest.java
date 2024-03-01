@@ -13,35 +13,35 @@ import static org.mockito.Mockito.when;
 
 public class urn_perun_user_attribute_def_def_vsupPreferredMailTest {
 
-	private static urn_perun_user_attribute_def_def_vsupPreferredMail classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_def_vsupPreferredMail classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_def_vsupPreferredMail();
-		session = mock(PerunSessionImpl.class);
-		user = new User(0, "John", "Doe", "", "", "");
-		attributeToCheck = new Attribute();
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_def_vsupPreferredMail();
+    session = mock(PerunSessionImpl.class);
+    user = new User(0, "John", "Doe", "", "", "");
+    attributeToCheck = new Attribute();
 
-		PerunBl perunBl = mock(PerunBl.class);
-		when(session.getPerunBl()).thenReturn(perunBl);
-	}
+    PerunBl perunBl = mock(PerunBl.class);
+    when(session.getPerunBl()).thenReturn(perunBl);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testSyntaxWithIncorrectEmail() throws Exception {
-		System.out.println("testSyntaxWithIncorrectEmail()");
-		attributeToCheck.setValue("bad@example");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testSyntaxWithIncorrectEmail() throws Exception {
+    System.out.println("testSyntaxWithIncorrectEmail()");
+    attributeToCheck.setValue("bad@example");
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test
-	public void testCorrectSyntax() throws Exception {
-		System.out.println("testCorrectSyntax()");
-		attributeToCheck.setValue("example@vsup.cz");
+  @Test
+  public void testCorrectSyntax() throws Exception {
+    System.out.println("testCorrectSyntax()");
+    attributeToCheck.setValue("example@vsup.cz");
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 }

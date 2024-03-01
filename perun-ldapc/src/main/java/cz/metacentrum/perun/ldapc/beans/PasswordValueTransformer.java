@@ -14,13 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PasswordValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
-	@Autowired
-	protected LdapProperties ldapProperties;
+  @Autowired
+  protected LdapProperties ldapProperties;
 
-	@Override
-	public String getValue(String value, Attribute attr) {
-		return StringUtils.isBlank(ldapProperties.getLdapLoginNamespace()) ?
-				null : "{SASL}" + attr.getValue() + "@" + ldapProperties.getLdapLoginNamespace().toUpperCase();
-	}
+  @Override
+  public String getValue(String value, Attribute attr) {
+    return StringUtils.isBlank(ldapProperties.getLdapLoginNamespace()) ?
+        null : "{SASL}" + attr.getValue() + "@" + ldapProperties.getLdapLoginNamespace().toUpperCase();
+  }
 
 }

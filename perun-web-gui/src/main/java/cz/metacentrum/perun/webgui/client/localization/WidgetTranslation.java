@@ -10,221 +10,221 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface WidgetTranslation extends Messages {
 
-	public static final WidgetTranslation INSTANCE = GWT.create(WidgetTranslation.class);
+  public static final WidgetTranslation INSTANCE = GWT.create(WidgetTranslation.class);
 
-	/* AJAX LOADER WIDGET */
+  /* AJAX LOADER WIDGET */
 
-	@DefaultMessage("No items found.")
-	String noItemsFound();
+  @DefaultMessage("No items found.")
+  String noItemsFound();
 
-	@DefaultMessage("Request timeout exceeded, please try again later.")
-	String requestTimeout();
+  @DefaultMessage("Request timeout exceeded, please try again later.")
+  String requestTimeout();
 
-	@DefaultMessage("Server responded with an error.")
-	String serverRespondedWithError();
+  @DefaultMessage("Server responded with an error.")
+  String serverRespondedWithError();
 
-	@DefaultMessage("Type the text to search form and click on the Search button.")
-	String emptySearch();
+  @DefaultMessage("Type the text to search form and click on the Search button.")
+  String emptySearch();
 
-	/* CUSTOM TEXTS FOR AJAX LOADER WIDGET */
+  /* CUSTOM TEXTS FOR AJAX LOADER WIDGET */
 
-	@DefaultMessage("Type in user`s First name, Last name (or both) or Login or Email and press Search button.")
-	String emptySearchForUsers();
+  @DefaultMessage("Type in user`s First name, Last name (or both) or Login or Email and press Search button.")
+  String emptySearchForUsers();
 
-	@DefaultMessage("Search member by name, login, email or click 'List all' to see all members.")
-	String emptySearchForMembers();
+  @DefaultMessage("Search member by name, login, email or click 'List all' to see all members.")
+  String emptySearchForMembers();
 
-	@DefaultMessage("Type in external identification (login) of people you want to add as members and press Search button.")
-	String emptySearchForCandidates();
+  @DefaultMessage("Type in external identification (login) of people you want to add as members and press Search button.")
+  String emptySearchForCandidates();
 
-	/* REST - CHECKBOX WIDGETS*/
+  /* REST - CHECKBOX WIDGETS*/
 
-	@DefaultMessage("Show also expired / disabled members")
-	String showDisabledMembers();
+  @DefaultMessage("Show also expired / disabled members")
+  String showDisabledMembers();
 
-	@DefaultMessage("Show also members with expired / disabled membership")
-	String showDisabledMembersTitle();
+  @DefaultMessage("Show also members with expired / disabled membership")
+  String showDisabledMembersTitle();
 
-	@DefaultMessage("Offer available only")
-	String offerAvailableServicesOnly();
+  @DefaultMessage("Offer available only")
+  String offerAvailableServicesOnly();
 
-	@DefaultMessage("Offer only currently available services")
-	String offerAvailableServicesOnlyTitle();
+  @DefaultMessage("Offer only currently available services")
+  String offerAvailableServicesOnlyTitle();
 
-	@DefaultMessage("Configure group(s) before assign")
-	String configureGroupBeforeAssign();
+  @DefaultMessage("Configure group(s) before assign")
+  String configureGroupBeforeAssign();
 
-	@DefaultMessage("Configure group(s) and members settings before assigning to resource")
-	String configureGroupBeforeAssignTitle();
+  @DefaultMessage("Configure group(s) and members settings before assigning to resource")
+  String configureGroupBeforeAssignTitle();
 
-	@DefaultMessage("Display all services")
-	String displayAllServices();
+  @DefaultMessage("Display all services")
+  String displayAllServices();
 
-	@DefaultMessage("Display all possible services to create destination for")
-	String displayAllServicesTitle();
+  @DefaultMessage("Display all possible services to create destination for")
+  String displayAllServicesTitle();
 
-	@DefaultMessage("Use names of all facility`s hosts")
-	String useFacilityHostnames();
+  @DefaultMessage("Use names of all facility`s hosts")
+  String useFacilityHostnames();
 
-	@DefaultMessage("Use names of all hosts on facility as destinations for selected service(s)")
-	String useFacilityHostnamesTitle();
+  @DefaultMessage("Use names of all hosts on facility as destinations for selected service(s)")
+  String useFacilityHostnamesTitle();
 
-	/* CANT SAVE EMPTY LIST CONFIRM */
+  /* CANT SAVE EMPTY LIST CONFIRM */
 
-	@DefaultMessage("No items selected")
-	String cantSaveEmptyListConfirmHeader();
+  @DefaultMessage("No items selected")
+  String cantSaveEmptyListConfirmHeader();
 
-	@DefaultMessage("To make changes please select some items first.")
-	String cantSaveEmptyListConfirmMessage();
+  @DefaultMessage("To make changes please select some items first.")
+  String cantSaveEmptyListConfirmMessage();
 
-	/* SEARCH STRING CANT BE EMPTY */
+  /* SEARCH STRING CANT BE EMPTY */
 
-	@DefaultMessage("Search string is empty")
-	String searchStringCantBeEmptyHeader();
+  @DefaultMessage("Search string is empty")
+  String searchStringCantBeEmptyHeader();
 
-	@DefaultMessage("Can`t search for items by empty string.")
-	String searchStringCantBeEmptyMessage();
+  @DefaultMessage("Can`t search for items by empty string.")
+  String searchStringCantBeEmptyMessage();
 
-	/* CANT SAVE EMPTY ATTRIBUTE */
+  /* CANT SAVE EMPTY ATTRIBUTE */
 
-	@DefaultMessage("Wrong attribute value")
-	String cantSaveAttributeValueDialogBoxHeader();
+  @DefaultMessage("Wrong attribute value")
+  String cantSaveAttributeValueDialogBoxHeader();
 
-	@DefaultMessage("Can`t save null or empty string as value for attribute <strong>{0}</strong>.<p>To safely remove value please use Remove button.")
-	String cantSaveAttributeValueDialogBoxWrongString(String attrName);
+  @DefaultMessage("Can`t save null or empty string as value for attribute <strong>{0}</strong>.<p>To safely remove value please use Remove button.")
+  String cantSaveAttributeValueDialogBoxWrongString(String attrName);
 
-	@DefaultMessage("Can`t save \"Not a number\" as value for attribute <strong>{0}</strong>.<p>To safely remove value please use Remove button.")
-	String cantSaveAttributeValueDialogBoxWrongInteger(String attrName);
+  @DefaultMessage("Can`t save \"Not a number\" as value for attribute <strong>{0}</strong>.<p>To safely remove value please use Remove button.")
+  String cantSaveAttributeValueDialogBoxWrongInteger(String attrName);
 
-	@DefaultMessage("Can`t save empty list as value for attribute <strong>{0}</strong>.<p>To safely remove value please use Remove button.")
-	String cantSaveAttributeValueDialogBoxWrongList(String attrName);
+  @DefaultMessage("Can`t save empty list as value for attribute <strong>{0}</strong>.<p>To safely remove value please use Remove button.")
+  String cantSaveAttributeValueDialogBoxWrongList(String attrName);
 
-	@DefaultMessage("Can`t parse value for attribute <strong>{0}</strong>.<p>Please try again or to safely remove value use Remove button.")
-	String cantSaveAttributeValueDialogBoxGeneral(String attrName);
+  @DefaultMessage("Can`t parse value for attribute <strong>{0}</strong>.<p>Please try again or to safely remove value use Remove button.")
+  String cantSaveAttributeValueDialogBoxGeneral(String attrName);
 
-	/* JSONCLIENT / JSONPOSTCLIENT ALERT BOX */
+  /* JSONCLIENT / JSONPOSTCLIENT ALERT BOX */
 
-	@DefaultMessage("Server responded with an error")
-	String jsonClientAlertBoxHeader();
+  @DefaultMessage("Server responded with an error")
+  String jsonClientAlertBoxHeader();
 
-	@DefaultMessage("Report error")
-	String jsonClientReportErrorButton();
+  @DefaultMessage("Report error")
+  String jsonClientReportErrorButton();
 
-	@DefaultMessage("You are not authorized")
-	String jsonClientNotAuthorizedHeader();
+  @DefaultMessage("You are not authorized")
+  String jsonClientNotAuthorizedHeader();
 
-	@DefaultMessage("You are not authorized to perform this action. If you think you should have this right, send us report.")
-	String jsonClientNotAuthorizedMessage();
+  @DefaultMessage("You are not authorized to perform this action. If you think you should have this right, send us report.")
+  String jsonClientNotAuthorizedMessage();
 
-	@DefaultMessage("Send report to RT")
-	String jsonClientSendErrorButton();
+  @DefaultMessage("Send report to RT")
+  String jsonClientSendErrorButton();
 
-	@DefaultMessage("Error type:")
-	String jsonClientAlertBoxErrorType();
+  @DefaultMessage("Error type:")
+  String jsonClientAlertBoxErrorType();
 
-	@DefaultMessage("Error text:")
-	String jsonClientAlertBoxErrorText();
+  @DefaultMessage("Error text:")
+  String jsonClientAlertBoxErrorText();
 
-	@DefaultMessage("Request:")
-	String jsonClientAlertBoxErrorRequest();
+  @DefaultMessage("Request:")
+  String jsonClientAlertBoxErrorRequest();
 
-	@DefaultMessage("POST&nbsp;data:")
-	String jsonClientAlertBoxErrorPostData();
+  @DefaultMessage("POST&nbsp;data:")
+  String jsonClientAlertBoxErrorPostData();
 
-	@DefaultMessage("App&nbsp;state:")
-	String jsonClientAlertBoxErrorAppState();
+  @DefaultMessage("App&nbsp;state:")
+  String jsonClientAlertBoxErrorAppState();
 
-	@DefaultMessage("Authorization:")
-	String jsonClientAlertBoxErrorAuthz();
+  @DefaultMessage("Authorization:")
+  String jsonClientAlertBoxErrorAuthz();
 
-	@DefaultMessage("Subject:")
-	String jsonClientAlertBoxErrorSubject();
+  @DefaultMessage("Subject:")
+  String jsonClientAlertBoxErrorSubject();
 
-	@DefaultMessage("Message:")
-	String jsonClientAlertBoxErrorMessage();
+  @DefaultMessage("Message:")
+  String jsonClientAlertBoxErrorMessage();
 
-	@DefaultMessage("Error while sending request")
-	String jsonClientAlertBoxErrorCrossSiteType();
+  @DefaultMessage("Error while sending request")
+  String jsonClientAlertBoxErrorCrossSiteType();
 
-	@DefaultMessage("Response was null or blocked by browser (cross-site request).")
-	String jsonClientAlertBoxErrorCrossSiteText();
+  @DefaultMessage("Response was null or blocked by browser (cross-site request).")
+  String jsonClientAlertBoxErrorCrossSiteText();
 
-	/* FOOTER SETTINGS BUTTONS */
+  /* FOOTER SETTINGS BUTTONS */
 
-	@DefaultMessage("Change language to {0}")
-	String changeLanguageToCzech(String lang);
+  @DefaultMessage("Change language to {0}")
+  String changeLanguageToCzech(String lang);
 
-	@DefaultMessage("Change language to English")
-	String changeLanguageToEnglish();
+  @DefaultMessage("Change language to English")
+  String changeLanguageToEnglish();
 
-	@DefaultMessage("<p>Changing language will reload whole application.</p><p><strong>All unsaved changes will be lost.</strong></p><p class=\"inputFormInlineComment\">Function is experimental - only few strings are translated to Czech at the moment.</p><p>Do you want to proceed ?</p>")
-	String changeLanguageConfirmText();
+  @DefaultMessage("<p>Changing language will reload whole application.</p><p><strong>All unsaved changes will be lost.</strong></p><p class=\"inputFormInlineComment\">Function is experimental - only few strings are translated to Czech at the moment.</p><p>Do you want to proceed ?</p>")
+  String changeLanguageConfirmText();
 
-	@DefaultMessage("Show / hide extended information")
-	String showHideExtendedInfo();
+  @DefaultMessage("Show / hide extended information")
+  String showHideExtendedInfo();
 
-	/* LISTBOX STANDARD PARAMS */
+  /* LISTBOX STANDARD PARAMS */
 
-	@DefaultMessage("All")
-	String listboxAll();
+  @DefaultMessage("All")
+  String listboxAll();
 
-	@DefaultMessage("Not selected")
-	String listboxNotSelected();
+  @DefaultMessage("Not selected")
+  String listboxNotSelected();
 
-	/* LISTBOX STANDARD PARAMS */
+  /* LISTBOX STANDARD PARAMS */
 
-	@DefaultMessage("By selecting a member you switch to members settings")
-	String selectingMember();
+  @DefaultMessage("By selecting a member you switch to members settings")
+  String selectingMember();
 
-	/* PERUN ATTRIBUTE CELLS */
+  /* PERUN ATTRIBUTE CELLS */
 
-	@DefaultMessage("Add new value")
-	String addValue();
+  @DefaultMessage("Add new value")
+  String addValue();
 
-	@DefaultMessage("Remove this value")
-	String removeValue();
+  @DefaultMessage("Remove this value")
+  String removeValue();
 
-	@DefaultMessage("You are not allowed to change this value")
-	String notWritable();
+  @DefaultMessage("You are not allowed to change this value")
+  String notWritable();
 
-	/* TAB PANEL BUTTONS */
+  /* TAB PANEL BUTTONS */
 
-	@DefaultMessage("Refresh tab")
-	String refreshTabButton();
+  @DefaultMessage("Refresh tab")
+  String refreshTabButton();
 
-	@DefaultMessage("Move to left")
-	String moveLeftButton();
+  @DefaultMessage("Move to left")
+  String moveLeftButton();
 
-	@DefaultMessage("Move to right")
-	String moveRightButton();
+  @DefaultMessage("Move to right")
+  String moveRightButton();
 
-	@DefaultMessage("Close other tabs")
-	String closeOthersButton();
+  @DefaultMessage("Close other tabs")
+  String closeOthersButton();
 
-	@DefaultMessage("Close this tab")
-	String closeThisTab();
+  @DefaultMessage("Close this tab")
+  String closeThisTab();
 
-	/* CUSTOM BUTTON WIDGET */
+  /* CUSTOM BUTTON WIDGET */
 
-	@DefaultMessage("Processing...")
-	String customButtonProcessing();
+  @DefaultMessage("Processing...")
+  String customButtonProcessing();
 
-	/* DELETE CONFIRM WIDGET */
+  /* DELETE CONFIRM WIDGET */
 
-	@DefaultMessage("Confirm delete action")
-	String deleteConfirmTitle();
+  @DefaultMessage("Confirm delete action")
+  String deleteConfirmTitle();
 
-	@DefaultMessage("Following items will be removed:")
-	String deleteConfirmText();
+  @DefaultMessage("Following items will be removed:")
+  String deleteConfirmText();
 
-	/* APPLICATION FORM */
+  /* APPLICATION FORM */
 
-	@DefaultMessage("Form doesn`t exists, do you wish to create new one ?")
-	String formDoesntExists();
+  @DefaultMessage("Form doesn`t exists, do you wish to create new one ?")
+  String formDoesntExists();
 
-	/* SAVE CONFIRM WIDGET */
+  /* SAVE CONFIRM WIDGET */
 
-	@DefaultMessage("Confirm save action")
-	String saveConfirmTitle();
+  @DefaultMessage("Confirm save action")
+  String saveConfirmTitle();
 
 }

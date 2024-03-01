@@ -17,62 +17,67 @@ import org.slf4j.LoggerFactory;
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
  */
 public class DatabaseManagerEntry implements DatabaseManager {
-	final static Logger log = LoggerFactory.getLogger(DatabaseManagerEntry.class);
+  final static Logger log = LoggerFactory.getLogger(DatabaseManagerEntry.class);
 
-	private DatabaseManagerBl databaseManagerBl;
-	private PerunBl perunBl;
+  private DatabaseManagerBl databaseManagerBl;
+  private PerunBl perunBl;
 
-	public DatabaseManagerEntry() {}
+  public DatabaseManagerEntry() {
+  }
 
-	@Override
-	public String getCurrentDatabaseVersion(PerunSession sess) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public String getCurrentDatabaseVersion(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCurrentDatabaseVersion_policy"))
-			throw new PrivilegeException(sess, "getCurrentDatabaseVersion");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getCurrentDatabaseVersion_policy")) {
+      throw new PrivilegeException(sess, "getCurrentDatabaseVersion");
+    }
 
-		return getDatabaseManagerBl().getCurrentDatabaseVersion();
-	}
+    return getDatabaseManagerBl().getCurrentDatabaseVersion();
+  }
 
-	@Override
-	public String getDatabaseDriverInformation(PerunSession sess) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public String getDatabaseDriverInformation(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getDatabaseDriverInformation_policy"))
-			throw new PrivilegeException(sess, "getDatabaseDriverInformation");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getDatabaseDriverInformation_policy")) {
+      throw new PrivilegeException(sess, "getDatabaseDriverInformation");
+    }
 
-		return getDatabaseManagerBl().getDatabaseDriverInformation();
-	}
+    return getDatabaseManagerBl().getDatabaseDriverInformation();
+  }
 
-	@Override
-	public String getDatabaseInformation(PerunSession sess) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public String getDatabaseInformation(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getDatabaseInformation_policy"))
-			throw new PrivilegeException(sess, "getDatabaseInformation");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getDatabaseInformation_policy")) {
+      throw new PrivilegeException(sess, "getDatabaseInformation");
+    }
 
-		return getDatabaseManagerBl().getDatabaseInformation();
-	}
+    return getDatabaseManagerBl().getDatabaseInformation();
+  }
 
-	@Override
-	public long getTimeOfQueryPerformance(PerunSession sess) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public long getTimeOfQueryPerformance(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getTimeOfQueryPerformance_policy"))
-			throw new PrivilegeException(sess, "getTimeOfQueryPerformance");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getTimeOfQueryPerformance_policy")) {
+      throw new PrivilegeException(sess, "getTimeOfQueryPerformance");
+    }
 
-		return getDatabaseManagerBl().getTimeOfQueryPerformance();
-	}
+    return getDatabaseManagerBl().getTimeOfQueryPerformance();
+  }
 
-	public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {
-		this.databaseManagerBl = databaseManagerBl;
-	}
+  public DatabaseManagerBl getDatabaseManagerBl() {
+    return this.databaseManagerBl;
+  }
 
-	public DatabaseManagerBl getDatabaseManagerBl() {
-		return this.databaseManagerBl;
-	}
+  public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {
+    this.databaseManagerBl = databaseManagerBl;
+  }
 }

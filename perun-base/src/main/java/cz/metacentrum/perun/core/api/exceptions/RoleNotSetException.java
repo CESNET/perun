@@ -5,14 +5,14 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class RoleNotSetException extends PerunException {
 
-	String role;
+  String role;
 
-	public RoleNotSetException(String role) {
-		super("The role: "+ role +" is not set so it cannot be unset.");
-		this.role = role;
-	}
+  public RoleNotSetException(String role) {
+    super("The role: " + role + " is not set so it cannot be unset.");
+    this.role = role;
+  }
 
-	public String getRole() {
-		return role;
-	}
+  public String getRole() {
+    return role;
+  }
 }

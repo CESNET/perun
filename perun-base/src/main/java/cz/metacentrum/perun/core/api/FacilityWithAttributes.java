@@ -9,49 +9,52 @@ import java.util.Objects;
  * @author David Flor <davidflor@seznam.cz>
  */
 public class FacilityWithAttributes {
-	private Facility facility;
+  List<Attribute> attributes;
+  private Facility facility;
 
-	List<Attribute> attributes;
+  public FacilityWithAttributes(Facility facility, List<Attribute> attributes) {
+    this.facility = facility;
+    this.attributes = attributes;
+  }
 
-	public FacilityWithAttributes(Facility facility, List<Attribute> attributes) {
-		this.facility = facility;
-		this.attributes = attributes;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
 
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
+  public List<Attribute> getAttributes() {
+    return attributes;
+  }
 
-	public List<Attribute> getAttributes() {
-		return attributes;
-	}
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
 
-	public void setAttributes(List<Attribute> attributes) {
-		this.attributes = attributes;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FacilityWithAttributes that = (FacilityWithAttributes) o;
+    return getFacility().equals(that.getFacility());
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		FacilityWithAttributes that = (FacilityWithAttributes) o;
-		return getFacility().equals(that.getFacility());
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(getFacility());
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getFacility());
-	}
-
-	@Override
-	public String toString() {
-		return "FacilityWithAttributes{" +
-			"facility=" + facility +
-			", attributes=" + attributes +
-			'}';
-	}
+  @Override
+  public String toString() {
+    return "FacilityWithAttributes{" +
+        "facility=" + facility +
+        ", attributes=" + attributes +
+        '}';
+  }
 }

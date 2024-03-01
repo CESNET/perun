@@ -26,7 +26,6 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,190 +36,194 @@ import java.util.Objects;
  */
 public class FormItemAutoRegistrationGroupsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "auto-reg-groups-item";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Manage registration groups - form item");
+  private PerunEntity entity;
+  private int id;
+  private int formItem;
+  private List<Group> groups;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  public FormItemAutoRegistrationGroupsTabItem(PerunEntity entity, int id, int formItem) {
+    this.entity = entity;
+    this.id = id;
+    this.formItem = formItem;
+    groups = new ArrayList<>();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Manage registration groups - form item");
+  public static FormItemAutoRegistrationGroupsTabItem load(Map<String, String> parameters) {
+    int id;
+    PerunEntity entity;
+    if (parameters.containsKey("vo")) {
+      id = Integer.parseInt(parameters.get("vo"));
+      entity = PerunEntity.VIRTUAL_ORGANIZATION;
+    } else {
+      id = Integer.parseInt(parameters.get("group"));
+      entity = PerunEntity.GROUP;
+    }
+    int formItem = Integer.parseInt(parameters.get("formItem"));
+    return new FormItemAutoRegistrationGroupsTabItem(entity, id, formItem);
+  }
 
-	public static final String URL = "auto-reg-groups-item";
+  @Override
+  public Widget draw() {
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	private PerunEntity entity;
-	private int id;
-	private int formItem;
-	private List<Group> groups;
+    TabMenu menu = new TabMenu();
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-	public FormItemAutoRegistrationGroupsTabItem(PerunEntity entity, int id, int formItem) {
-		this.entity = entity;
-		this.id = id;
-		this.formItem = formItem;
-		groups = new ArrayList<>();
-	}
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-	@Override
-	public Widget draw() {
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    final GetGroupsToAutoRegistration groups = new GetGroupsToAutoRegistration(entity, id, formItem);
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
 
-		TabMenu menu = new TabMenu();
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    if ((PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id)) ||
+        (PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id))) {
+      groups.setCheckable(false);
+    }
 
-		menu.addWidget(UiElements.getRefreshButton(this));
+    CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addGroupToAutoReg(),
+            event -> session.getTabManager()
+                .addTabToCurrentTab(new FormItemAddAutoRegistrationGroupsTabItem(entity, id, formItem), true));
+    if ((PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id)) ||
+        (PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id))) {
+      addButton.setEnabled(false);
+    }
+    menu.addWidget(addButton);
 
-		final GetGroupsToAutoRegistration groups = new GetGroupsToAutoRegistration(entity, id, formItem);
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
+    // remove selected groups button
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromAutoReg());
+    removeButton.addClickHandler(event -> {
+      final ArrayList<Group> groupsToRemove = groups.getTableSelectedList();
+      String text = "Following groups will be removed from the auto registration.";
+      UiElements.showDeleteConfirm(groupsToRemove, text, clickEvent -> {
+        RemoveGroupsFromAutoRegistration request =
+            new RemoveGroupsFromAutoRegistration(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+        request.deleteGroups(groupsToRemove, PerunEntity.GROUP.equals(entity) ? id : null, formItem);
+      });
+    });
+    menu.addWidget(removeButton);
 
-		if ((PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id)) ||
-			(PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id))) {
-			groups.setCheckable(false);
-		}
+    // filter box
+    menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
+      public void searchFor(String text) {
+        groups.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterGroup());
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addGroupToAutoReg(),
-				event -> session.getTabManager().addTabToCurrentTab(new FormItemAddAutoRegistrationGroupsTabItem(entity, id, formItem), true));
-		if ((PerunEntity.VIRTUAL_ORGANIZATION.equals(entity) && !session.isVoAdmin(id)) ||
-			(PerunEntity.GROUP.equals(entity) && !session.isGroupAdmin(id))) {
-			addButton.setEnabled(false);
-		}
-		menu.addWidget(addButton);
+    // add a table with a onclick
+    CellTable<Group> table = groups.getTable();
 
-		// remove selected groups button
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromAutoReg());
-		removeButton.addClickHandler(event -> {
-			final ArrayList<Group> groupsToRemove = groups.getTableSelectedList();
-			String text = "Following groups will be removed from the auto registration.";
-			UiElements.showDeleteConfirm(groupsToRemove, text, clickEvent -> {
-				RemoveGroupsFromAutoRegistration request = new RemoveGroupsFromAutoRegistration(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-				request.deleteGroups(groupsToRemove, PerunEntity.GROUP.equals(entity) ? id : null, formItem);
-			});
-		});
-		menu.addWidget(removeButton);
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		// filter box
-		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
-			public void searchFor(String text) {
-				groups.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterGroup());
-
-		// add a table with a onclick
-		CellTable<Group> table = groups.getTable();
-
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-
-		vp.add(table);
+    vp.add(table);
 
 
-		contentWidget.setWidget(vp);
-		return getWidget();
-	}
+    contentWidget.setWidget(vp);
+    return getWidget();
+  }
 
-	@Override
-	public Widget getWidget() {
-		return contentWidget;
-	}
+  @Override
+  public Widget getWidget() {
+    return contentWidget;
+  }
 
-	@Override
-	public Widget getTitle() {
-		return titleWidget;
-	}
+  @Override
+  public Widget getTitle() {
+    return titleWidget;
+  }
 
-	@Override
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupIcon();
-	}
+  @Override
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.groupIcon();
+  }
 
-	@Override
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public void open() {
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-			session.getUiElements().getBreadcrumbs().setLocation(id, "Auto registration groups", getUrlWithParameters());
-			session.setActiveVoId(id);
-		} else {
-			session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-			session.getUiElements().getBreadcrumbs().setLocation(id, "Auto registration groups", getUrlWithParameters());
-			session.setActiveGroupId(id);
-		}
-	}
+  @Override
+  public void open() {
+    if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+      session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+      session.getUiElements().getBreadcrumbs().setLocation(id, "Auto registration groups", getUrlWithParameters());
+      session.setActiveVoId(id);
+    } else {
+      session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
+      session.getUiElements().getBreadcrumbs().setLocation(id, "Auto registration groups", getUrlWithParameters());
+      session.setActiveGroupId(id);
+    }
+  }
 
-	@Override
-	public boolean isAuthorized() {
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			return session.isVoAdmin(id);
-		} else {
-			return session.isGroupAdmin(id);
-		}
-	}
+  @Override
+  public boolean isAuthorized() {
+    if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+      return session.isVoAdmin(id);
+    } else {
+      return session.isGroupAdmin(id);
+    }
+  }
 
-	@Override
-	public boolean isPrepared() {
-		return entity != null && groups != null;
-	}
+  @Override
+  public boolean isPrepared() {
+    return entity != null && groups != null;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public void onClose() {
 
-	}
+  }
 
-	@Override
-	public String getUrl() {
-		return URL;
-	}
+  @Override
+  public String getUrl() {
+    return URL;
+  }
 
-	@Override
-	public String getUrlWithParameters() {
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			return RegistrarTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo=" + id + "&formItem=" + formItem;
-		} else {
-			return RegistrarTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?group=" + "&formItem=" + formItem;
-		}
-	}
+  @Override
+  public String getUrlWithParameters() {
+    if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+      return RegistrarTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo=" + id + "&formItem=" + formItem;
+    } else {
+      return RegistrarTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?group=" + "&formItem=" + formItem;
+    }
+  }
 
-	public static FormItemAutoRegistrationGroupsTabItem load(Map<String, String> parameters) {
-		int id;
-		PerunEntity entity;
-		if (parameters.containsKey("vo")) {
-			id = Integer.parseInt(parameters.get("vo"));
-			entity = PerunEntity.VIRTUAL_ORGANIZATION;
-		} else {
-			id = Integer.parseInt(parameters.get("group"));
-			entity = PerunEntity.GROUP;
-		}
-		int formItem = Integer.parseInt(parameters.get("formItem"));
-		return new FormItemAutoRegistrationGroupsTabItem(entity, id, formItem);
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FormItemAutoRegistrationGroupsTabItem that = (FormItemAutoRegistrationGroupsTabItem) o;
+    return id == that.id && formItem == that.formItem && entity == that.entity;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		FormItemAutoRegistrationGroupsTabItem that = (FormItemAutoRegistrationGroupsTabItem) o;
-		return id == that.id && formItem == that.formItem && entity == that.entity;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(entity, id, formItem);
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(entity, id, formItem);
+  }
 }

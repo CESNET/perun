@@ -9,12 +9,11 @@ package cz.metacentrum.perun.core.implApi;
 @Deprecated
 public interface AuditerListener {
 
-	/**
-	 * This method process received message.
-	 * Auditer sends messages via this method.
-	 *
-	 *
-	 * @param message received message (from auditer)
-	 */
-	void notifyWith(String message);
+  /**
+   * This method process received message.
+   * Auditer sends messages via this method.
+   *
+   * @param message received message (from auditer)
+   */
+  void notifyWith(String message);
 }

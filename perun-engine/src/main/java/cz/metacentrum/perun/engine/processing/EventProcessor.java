@@ -8,6 +8,6 @@ package cz.metacentrum.perun.engine.processing;
  */
 public interface EventProcessor {
 
-	public void receiveEvent(String event);
+  public void receiveEvent(String event);
 
 }

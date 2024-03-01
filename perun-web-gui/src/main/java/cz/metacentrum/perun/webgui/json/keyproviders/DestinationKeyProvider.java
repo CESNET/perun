@@ -11,8 +11,8 @@ import cz.metacentrum.perun.webgui.model.Destination;
  */
 public class DestinationKeyProvider implements ProvidesKey<Destination> {
 
-	public Object getKey(Destination o) {
-		return o;
-	}
+  public Object getKey(Destination o) {
+    return o;
+  }
 
 }

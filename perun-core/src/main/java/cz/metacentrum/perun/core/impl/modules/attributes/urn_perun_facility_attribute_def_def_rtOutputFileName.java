@@ -19,34 +19,38 @@ import java.util.regex.Pattern;
  * @author Michal Stava <stavamichal@gmail.com>
  * @date 9.8.2019
  */
-public class urn_perun_facility_attribute_def_def_rtOutputFileName extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
+public class urn_perun_facility_attribute_def_def_rtOutputFileName extends FacilityAttributesModuleAbstract
+    implements FacilityAttributesModuleImplApi {
 
-	Pattern fileNamePattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
+  Pattern fileNamePattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongAttributeValueException {
 
-		//attribute can be empty
-		if (attribute.getValue() == null) {
-			return;
-		}
+    //attribute can be empty
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		String value = attribute.valueAsString();
+    String value = attribute.valueAsString();
 
-		Matcher matcher = fileNamePattern.matcher(value);
-		if (!matcher.matches()) {
-			throw new WrongAttributeValueException(attribute, facility, "Name of the file can contain only alphabet, numeric, dash and underscore characters.");
-		}
-	}
+    Matcher matcher = fileNamePattern.matcher(value);
+    if (!matcher.matches()) {
+      throw new WrongAttributeValueException(attribute, facility,
+          "Name of the file can contain only alphabet, numeric, dash and underscore characters.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("rtOutputFileName");
-		attr.setDisplayName("RT output file name");
-		attr.setType(String.class.getName());
-		attr.setDescription("Name of the file to which will Perun save the output file from the service 'rt' in the end device. It is always '/tmp/{nameOfTheFile}'.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setFriendlyName("rtOutputFileName");
+    attr.setDisplayName("RT output file name");
+    attr.setType(String.class.getName());
+    attr.setDescription(
+        "Name of the file to which will Perun save the output file from the service 'rt' in the end device. It is always '/tmp/{nameOfTheFile}'.");
+    return attr;
+  }
 }

@@ -1,13 +1,12 @@
 package cz.metacentrum.perun.dispatcher.jms;
 
+import cz.metacentrum.perun.dispatcher.exceptions.MessageFormatException;
+import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
-import cz.metacentrum.perun.dispatcher.exceptions.MessageFormatException;
-import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,144 +17,143 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Received messages are then parsed by SystemQueueProcessor.
  * If parsing fails, it tries to restart whole JMS processing.
  *
- * @see EngineMessageProcessor
- *
  * @author Michal Karm Babacek
  * @author Michal Voců
  * @author David Šarman
  * @author Pavel Zlámal <zlamal@cesnet.cz>
+ * @see EngineMessageProcessor
  */
 @org.springframework.stereotype.Service(value = "engineMessageConsumer")
 public class EngineMessageConsumer extends AbstractRunner {
 
-	private final static Logger log = LoggerFactory.getLogger(EngineMessageConsumer.class);
+  private final static Logger log = LoggerFactory.getLogger(EngineMessageConsumer.class);
 
-	private final static int timeout = 5000; // ms
+  private final static int timeout = 5000; // ms
 
-	private EngineMessageProcessor engineMessageProcessor;
-	private MessageConsumer messageConsumer = null;
-	private Session session = null;
-	private String queueName = null;
-	@Autowired
-	private EngineMessageProducerFactory producerFactory;
-	private EngineMessageProducer producer = null;
+  private EngineMessageProcessor engineMessageProcessor;
+  private MessageConsumer messageConsumer = null;
+  private Session session = null;
+  private String queueName = null;
+  @Autowired
+  private EngineMessageProducerFactory producerFactory;
+  private EngineMessageProducer producer = null;
 
-	public EngineMessageConsumer() {
-	}
+  public EngineMessageConsumer() {
+  }
 
-	// ----- setters -------------------------------------
-
-
-	public EngineMessageProcessor getEngineMessageProcessor() {
-		return engineMessageProcessor;
-	}
-
-	@Autowired
-	public void setEngineMessageProcessor(EngineMessageProcessor engineMessageProcessor) {
-		this.engineMessageProcessor = engineMessageProcessor;
-	}
-
-	public EngineMessageProducerFactory getProducerFactory() {
-		return producerFactory;
-	}
-
-	public void setProducerFactory(EngineMessageProducerFactory producerFactory) {
-		this.producerFactory = producerFactory;
-	}
+  // ----- setters -------------------------------------
 
 
-	// ----- methods -------------------------------------
+  public EngineMessageProcessor getEngineMessageProcessor() {
+    return engineMessageProcessor;
+  }
+
+  @Autowired
+  public void setEngineMessageProcessor(EngineMessageProcessor engineMessageProcessor) {
+    this.engineMessageProcessor = engineMessageProcessor;
+  }
+
+  public EngineMessageProducerFactory getProducerFactory() {
+    return producerFactory;
+  }
+
+  public void setProducerFactory(EngineMessageProducerFactory producerFactory) {
+    this.producerFactory = producerFactory;
+  }
 
 
-	/**
-	 * Set QueueName and HornetQ session in order to create correct message consumer.
-	 *
-	 * @param queueName Name of the JMS queue
-	 * @param session HornetQ session
-	 */
-	public void setUp(String queueName, Session session) {
-		this.queueName = queueName;
-		this.session = session;
-	}
+  // ----- methods -------------------------------------
 
-	/**
-	 * Create JMS message consumer for a queue and pass message content to EngineMessageProcessor.
-	 *
-	 * @see EngineMessageProcessor
-	 */
-	@Override
-	public void run() {
 
-		log.debug("SystemQueueReceiver has started...");
-		try {
+  /**
+   * Set QueueName and HornetQ session in order to create correct message consumer.
+   *
+   * @param queueName Name of the JMS queue
+   * @param session   HornetQ session
+   */
+  public void setUp(String queueName, Session session) {
+    this.queueName = queueName;
+    this.session = session;
+  }
 
-			// Step 1. Directly instantiate the JMS Queue object.
-			log.debug("Creating queue...");
-			Queue queue = HornetQJMSClient.createQueue(queueName);
+  /**
+   * Create JMS message consumer for a queue and pass message content to EngineMessageProcessor.
+   *
+   * @see EngineMessageProcessor
+   */
+  @Override
+  public void run() {
 
-			// Step 9. Create a JMS Message Consumer
-			log.debug("Creating consumer...");
-			messageConsumer = session.createConsumer(queue);
+    log.debug("SystemQueueReceiver has started...");
+    try {
 
-		} catch (JMSException e) {
-			log.error(e.toString(), e);
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-		}
+      // Step 1. Directly instantiate the JMS Queue object.
+      log.debug("Creating queue...");
+      Queue queue = HornetQJMSClient.createQueue(queueName);
 
-		while (!shouldStop()) {
+      // Step 9. Create a JMS Message Consumer
+      log.debug("Creating consumer...");
+      messageConsumer = session.createConsumer(queue);
 
-			producer = producerFactory.getProducer();
+    } catch (JMSException e) {
+      log.error(e.toString(), e);
+    } catch (Exception e) {
+      log.error(e.toString(), e);
+    }
 
-			// Step 11. Deliver output and try to receive the message
-			TextMessage messageReceived = null;
-			try {
-				if(producer != null) {
-					producer.deliverOutputMessages();
-				}
+    while (!shouldStop()) {
 
-				log.trace("Gonna call messageConsumer.receive(timeout)...");
-				messageReceived = (TextMessage) messageConsumer.receive(timeout);
-				if (messageReceived != null) {
-					if (log.isTraceEnabled()) {
-						log.trace("System message received [" + messageReceived.getText() + "]");
-					}
-					try {
-						engineMessageProcessor.processEngineMessage(messageReceived.getText());
-					} catch (MessageFormatException ex) {
-						// engine sent wrongly formatted messages
-						// shouldn't kill whole messaging process
-						log.error(ex.toString(), ex);
-					}
-					messageReceived.acknowledge();
-				} else {
-					if (log.isTraceEnabled()) {
-						log.trace("No message available...");
-					}
-				}
-			} catch (JMSException e) {
-				// try to restart JMS messaging
-				log.error(e.toString(), e);
-				// NOTE: this will call stop() on us
-				engineMessageProcessor.stopProcessingSystemMessages();
-				engineMessageProcessor.startProcessingSystemMessages();
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException ex) {
-					log.error(ex.toString(), ex);
-					stop();
-				}
-			} catch (Exception e) {
-				log.error(e.toString(), e);
-				stop();
-			}
-		}
-		try {
-			messageConsumer.close();
-		} catch (JMSException e) {
-			log.error(e.toString(), e);
-		}
-		messageConsumer = null;
-	}
+      producer = producerFactory.getProducer();
+
+      // Step 11. Deliver output and try to receive the message
+      TextMessage messageReceived = null;
+      try {
+        if (producer != null) {
+          producer.deliverOutputMessages();
+        }
+
+        log.trace("Gonna call messageConsumer.receive(timeout)...");
+        messageReceived = (TextMessage) messageConsumer.receive(timeout);
+        if (messageReceived != null) {
+          if (log.isTraceEnabled()) {
+            log.trace("System message received [" + messageReceived.getText() + "]");
+          }
+          try {
+            engineMessageProcessor.processEngineMessage(messageReceived.getText());
+          } catch (MessageFormatException ex) {
+            // engine sent wrongly formatted messages
+            // shouldn't kill whole messaging process
+            log.error(ex.toString(), ex);
+          }
+          messageReceived.acknowledge();
+        } else {
+          if (log.isTraceEnabled()) {
+            log.trace("No message available...");
+          }
+        }
+      } catch (JMSException e) {
+        // try to restart JMS messaging
+        log.error(e.toString(), e);
+        // NOTE: this will call stop() on us
+        engineMessageProcessor.stopProcessingSystemMessages();
+        engineMessageProcessor.startProcessingSystemMessages();
+        try {
+          Thread.sleep(10000);
+        } catch (InterruptedException ex) {
+          log.error(ex.toString(), ex);
+          stop();
+        }
+      } catch (Exception e) {
+        log.error(e.toString(), e);
+        stop();
+      }
+    }
+    try {
+      messageConsumer.close();
+    } catch (JMSException e) {
+      log.error(e.toString(), e);
+    }
+    messageConsumer = null;
+  }
 
 }

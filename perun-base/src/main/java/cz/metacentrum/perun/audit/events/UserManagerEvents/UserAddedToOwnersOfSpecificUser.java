@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserAddedToOwnersOfSpecificUser extends AuditEvent implements EngineIgnoreEvent {
 
-	private User user;
-	private User specificUser;
-	private String message;
+  private User user;
+  private User specificUser;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public UserAddedToOwnersOfSpecificUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public UserAddedToOwnersOfSpecificUser() {
+  }
 
-	public UserAddedToOwnersOfSpecificUser(User user, User specificUser) {
-		this.user = user;
-		this.specificUser = specificUser;
-		this.message = formatMessage("%s was added to owners of %s.", user, specificUser);
-	}
+  public UserAddedToOwnersOfSpecificUser(User user, User specificUser) {
+    this.user = user;
+    this.specificUser = specificUser;
+    this.message = formatMessage("%s was added to owners of %s.", user, specificUser);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	public User getSpecificUser() {
-		return specificUser;
-	}
+  public User getSpecificUser() {
+    return specificUser;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

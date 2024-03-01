@@ -10,20 +10,20 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
  */
 public class NotifTemplateMessageAlreadyExistsException extends PerunException {
 
-	public NotifTemplateMessageAlreadyExistsException(Throwable cause) {
-		super(cause);
-	}
+  public NotifTemplateMessageAlreadyExistsException(Throwable cause) {
+    super(cause);
+  }
 
-	public NotifTemplateMessageAlreadyExistsException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public NotifTemplateMessageAlreadyExistsException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 
-	public NotifTemplateMessageAlreadyExistsException(String msg) {
-		super(msg);
-	}
+  public NotifTemplateMessageAlreadyExistsException(String msg) {
+    super(msg);
+  }
 
-	public NotifTemplateMessageAlreadyExistsException(PerunNotifTemplateMessage message) {
-		super("TemplateMessage with template id: " + message.getTemplateId() + " and locale: "
-			+ message.getLocale() + " already exists.");
-	}
+  public NotifTemplateMessageAlreadyExistsException(PerunNotifTemplateMessage message) {
+    super("TemplateMessage with template id: " + message.getTemplateId() + " and locale: "
+        + message.getLocale() + " already exists.");
+  }
 }

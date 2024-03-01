@@ -16,37 +16,38 @@ import static org.mockito.Mockito.when;
 
 public class urn_perun_user_attribute_def_virt_anonymizedTest {
 
-	private static urn_perun_user_attribute_def_virt_anonymized classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_virt_anonymized classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_virt_anonymized();
-		session = mock(PerunSessionImpl.class);
-		user = mock(User.class);
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_virt_anonymized();
+    session = mock(PerunSessionImpl.class);
+    user = mock(User.class);
 
-		attributeToCheck = new Attribute();
-		attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attributeToCheck.setFriendlyName("anonymized");
-		attributeToCheck.setValue(true);
+    attributeToCheck = new Attribute();
+    attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attributeToCheck.setFriendlyName("anonymized");
+    attributeToCheck.setValue(true);
 
-		String attrName = AttributesManager.NS_USER_ATTR_VIRT + ":anonymized";
-		when(session.getPerunBl()).thenReturn(mock(PerunBl.class));
-		when(session.getPerunBl().getUsersManagerBl()).thenReturn(mock(UsersManagerBl.class));
-		when(session.getPerunBl().getUsersManagerBl().isUserAnonymized(session, user)).thenReturn((boolean) attributeToCheck.getValue());
-		when(session.getPerunBl().getAttributesManagerBl()).thenReturn(mock(AttributesManagerBl.class));
-	}
+    String attrName = AttributesManager.NS_USER_ATTR_VIRT + ":anonymized";
+    when(session.getPerunBl()).thenReturn(mock(PerunBl.class));
+    when(session.getPerunBl().getUsersManagerBl()).thenReturn(mock(UsersManagerBl.class));
+    when(session.getPerunBl().getUsersManagerBl().isUserAnonymized(session, user)).thenReturn(
+        (boolean) attributeToCheck.getValue());
+    when(session.getPerunBl().getAttributesManagerBl()).thenReturn(mock(AttributesManagerBl.class));
+  }
 
-	@Test
-	public void testCheckWithAttribute() {
-		System.out.println("testCheckWithAttribute()");
+  @Test
+  public void testCheckWithAttribute() {
+    System.out.println("testCheckWithAttribute()");
 
-		Attribute attr = new Attribute();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("anonymized");
+    Attribute attr = new Attribute();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("anonymized");
 
-		assertEquals(attributeToCheck.getValue(), classInstance.getAttributeValue(session, user, attr).getValue());
-	}
+    assertEquals(attributeToCheck.getValue(), classInstance.getAttributeValue(session, user, attr).getValue());
+  }
 }

@@ -7,7 +7,12 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -28,12 +33,11 @@ import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 
 /**
  * !! USE AS INNER TAB ONLY !!
- *
+ * <p>
  * Provides page with add admin to VO form
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -41,279 +45,288 @@ import java.util.ArrayList;
  */
 public class AddSecurityTeamManagerTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Add SecurityTeam manager");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Add SecurityTeam manager");
 
-	/**
-	 * Entity ID to set
-	 */
-	private int securityTeamId = 0;
-	private SecurityTeam securityTeam;
-	private FindCompleteRichUsers users;
-	private ArrayList<User> alreadyAddedList = new ArrayList<User>();
-	private SimplePanel alreadyAdded = new SimplePanel();
+  /**
+   * Entity ID to set
+   */
+  private int securityTeamId = 0;
+  private SecurityTeam securityTeam;
+  private FindCompleteRichUsers users;
+  private ArrayList<User> alreadyAddedList = new ArrayList<User>();
+  private SimplePanel alreadyAdded = new SimplePanel();
 
-	private String searchString = "";
-
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param securityTeamId ID of SecurityTeam to add admin into
-	 */
-	public AddSecurityTeamManagerTabItem(int securityTeamId){
-		this.securityTeamId = securityTeamId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				securityTeam = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.SECURITY_TEAM, securityTeamId, events).retrieveData();
-	}
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param securityTeam SecurityTeam to add admin into
-	 */
-	public AddSecurityTeamManagerTabItem(SecurityTeam securityTeam){
-		this.securityTeamId = securityTeam.getId();
-		this.securityTeam = securityTeam;
-	}
+  private String searchString = "";
 
 
-	public boolean isPrepared(){
-		return securityTeam != null;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param securityTeamId ID of SecurityTeam to add admin into
+   */
+  public AddSecurityTeamManagerTabItem(int securityTeamId) {
+    this.securityTeamId = securityTeamId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        securityTeam = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.SECURITY_TEAM, securityTeamId, events).retrieveData();
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return !alreadyAddedList.isEmpty();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param securityTeam SecurityTeam to add admin into
+   */
+  public AddSecurityTeamManagerTabItem(SecurityTeam securityTeam) {
+    this.securityTeamId = securityTeam.getId();
+    this.securityTeam = securityTeam;
+  }
 
-	@Override
-	public void onClose() {
 
-	}
+  public boolean isPrepared() {
+    return securityTeam != null;
+  }
 
-	public Widget draw() {
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return !alreadyAddedList.isEmpty();
+  }
 
-		titleWidget.setText("Add member");
+  @Override
+  public void onClose() {
 
-		final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+  }
 
-		this.users = new FindCompleteRichUsers("", null, JsonCallbackEvents.disableButtonEvents(searchButton, new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				// if found 1 item, select
-				ArrayList<User> list = JsonUtils.jsoAsList(jso);
-				if (list != null && list.size() == 1) {
-					users.getSelectionModel().setSelected(list.get(0), true);
-				}
-			}
-		}));
+  public Widget draw() {
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    titleWidget.setText("Add member");
 
-		// HORIZONTAL MENU
-		TabMenu tabMenu = new TabMenu();
+    final CustomButton searchButton =
+        new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
 
-		// get the table
-		final CellTable<User> table;
-		if (session.isPerunAdmin()) {
-			table = users.getTable(new FieldUpdater<User, String>() {
-				public void update(int i, User user, String s) {
-					session.getTabManager().addTab(new UserDetailTabItem(user));
-				}
-			});
-		} else {
-			table = users.getTable();
-		}
+    this.users = new FindCompleteRichUsers("", null,
+        JsonCallbackEvents.disableButtonEvents(searchButton, new JsonCallbackEvents() {
+          @Override
+          public void onFinished(JavaScriptObject jso) {
+            // if found 1 item, select
+            ArrayList<User> list = JsonUtils.jsoAsList(jso);
+            if (list != null && list.size() == 1) {
+              users.getSelectionModel().setSelected(list.get(0), true);
+            }
+          }
+        }));
 
-		rebuildAlreadyAddedWidget();
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToSecurityTeam());
-		final TabItem tab = this;
+    // HORIZONTAL MENU
+    TabMenu tabMenu = new TabMenu();
 
-		// search textbox
-		final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				startSearching(text);
-				searchString = text;
-			}
-		}, searchButton);
+    // get the table
+    final CellTable<User> table;
+    if (session.isPerunAdmin()) {
+      table = users.getTable(new FieldUpdater<User, String>() {
+        public void update(int i, User user, String s) {
+          session.getTabManager().addTab(new UserDetailTabItem(user));
+        }
+      });
+    } else {
+      table = users.getTable();
+    }
 
-		tabMenu.addWidget(addButton);
+    rebuildAlreadyAddedWidget();
 
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    final CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToSecurityTeam());
+    final TabItem tab = this;
 
-		addButton.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				final ArrayList<User> list = users.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)){
-					for (int i=0; i<list.size(); i++) {
-						// FIXME - Should have only one callback to core
-						final int n = i;
-						AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								// put names to already added
-								alreadyAddedList.add(list.get(n));
-								rebuildAlreadyAddedWidget();
-								// unselect added person
-								users.getSelectionModel().setSelected(list.get(n), false);
-								// clear search
-								searchBox.getTextBox().setText("");
-							}
-						}));
-						request.addSecurityTeamAdmin(securityTeam, list.get(i));
-					}
-				}
-			}
-		});
+    // search textbox
+    final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        startSearching(text);
+        searchString = text;
+      }
+    }, searchButton);
 
-		// if some text has been searched before
-		if(!searchString.equals("")) {
-			searchBox.getTextBox().setText(searchString);
-			startSearching(searchString);
-		}
+    tabMenu.addWidget(addButton);
 
-		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(users, table, addButton);
+    tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    addButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        final ArrayList<User> list = users.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          for (int i = 0; i < list.size(); i++) {
+            // FIXME - Should have only one callback to core
+            final int n = i;
+            AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents() {
+              @Override
+              public void onFinished(JavaScriptObject jso) {
+                // put names to already added
+                alreadyAddedList.add(list.get(n));
+                rebuildAlreadyAddedWidget();
+                // unselect added person
+                users.getSelectionModel().setSelected(list.get(n), false);
+                // clear search
+                searchBox.getTextBox().setText("");
+              }
+            }));
+            request.addSecurityTeamAdmin(securityTeam, list.get(i));
+          }
+        }
+      }
+    });
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
-		firstTabPanel.add(alreadyAdded);
-		firstTabPanel.add(sp);
+    // if some text has been searched before
+    if (!searchString.equals("")) {
+      searchBox.getTextBox().setText(searchString);
+      startSearching(searchString);
+    }
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    addButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(users, table, addButton);
 
-		this.contentWidget.setWidget(firstTabPanel);
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		return getWidget();
+    // add menu and the table to the main panel
+    firstTabPanel.add(tabMenu);
+    firstTabPanel.setCellHeight(tabMenu, "30px");
+    firstTabPanel.add(alreadyAdded);
+    firstTabPanel.add(sp);
 
-	}
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-	/**
-	 * Starts the search for users
-	 */
-	protected void startSearching(String text){
+    this.contentWidget.setWidget(firstTabPanel);
 
-		users.clearTable();
+    return getWidget();
 
-		// IS searched string IDs?
-		if (JsonUtils.isStringWithIds(text)) {
+  }
 
-			FindUsersByIdsNotInRpc req = new FindUsersByIdsNotInRpc(new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso){
-					ArrayList<User> usersList = JsonUtils.jsoAsList(jso);
-					for (User u : usersList) {
-						users.addToTable(u);
-					}
-				}
-			}, text);
+  /**
+   * Starts the search for users
+   */
+  protected void startSearching(String text) {
 
-			req.retrieveData();
-			return;
+    users.clearTable();
 
-		}
+    // IS searched string IDs?
+    if (JsonUtils.isStringWithIds(text)) {
 
-		users.searchFor(text);
+      FindUsersByIdsNotInRpc req = new FindUsersByIdsNotInRpc(new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          ArrayList<User> usersList = JsonUtils.jsoAsList(jso);
+          for (User u : usersList) {
+            users.addToTable(u);
+          }
+        }
+      }, text);
 
-	}
+      req.retrieveData();
+      return;
 
-	/**
-	 * Rebuild already added widget based on already added admins
-	 */
-	private void rebuildAlreadyAddedWidget() {
+    }
 
-		alreadyAdded.setStyleName("alreadyAdded");
-		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
-		alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-		for (int i=0; i<alreadyAddedList.size(); i++) {
-			alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + SafeHtmlUtils.fromString(alreadyAddedList.get(i).getFullName()).asString());
-		}
+    users.searchFor(text);
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  /**
+   * Rebuild already added widget based on already added admins
+   */
+  private void rebuildAlreadyAddedWidget() {
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    alreadyAdded.setStyleName("alreadyAdded");
+    alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+    alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+    for (int i = 0; i < alreadyAddedList.size(); i++) {
+      alreadyAdded.getWidget().getElement().setInnerHTML(
+          alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") +
+              SafeHtmlUtils.fromString(alreadyAddedList.get(i).getFullName()).asString());
+    }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1297;
-		int result = 1;
-		result = prime * result + 6786786;
-		return result;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		AddSecurityTeamManagerTabItem create = (AddSecurityTeamManagerTabItem) obj;
-		if (securityTeamId != create.securityTeamId){
-			return false;
-		}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-		return true;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1297;
+    int result = 1;
+    result = prime * result + 6786786;
+    return result;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public void open() { }
+    AddSecurityTeamManagerTabItem create = (AddSecurityTeamManagerTabItem) obj;
+    if (securityTeamId != create.securityTeamId) {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+    return true;
+  }
 
-		if (session.isSecurityAdmin(securityTeamId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	}
+  public void open() {
+  }
+
+  public boolean isAuthorized() {
+
+    if (session.isSecurityAdmin(securityTeamId)) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
 
 }

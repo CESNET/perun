@@ -16,23 +16,26 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- *
  */
-public abstract class UserFacilityAttributesModuleAbstract extends AttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
+public abstract class UserFacilityAttributesModuleAbstract extends AttributesModuleAbstract
+    implements UserFacilityAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute)
+      throws WrongAttributeValueException {
 
-	}
+  }
 
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-	}
+  }
 
-	public Attribute fillAttribute(PerunSessionImpl session, User user, Facility facility, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
-		return new Attribute(attribute);
-	}
+  public Attribute fillAttribute(PerunSessionImpl session, User user, Facility facility, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException {
+    return new Attribute(attribute);
+  }
 
-	public void changedAttributeHook(PerunSessionImpl session, User user, Facility facility, Attribute attribute) {
+  public void changedAttributeHook(PerunSessionImpl session, User user, Facility facility, Attribute attribute) {
 
-	}
+  }
 }

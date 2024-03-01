@@ -14,21 +14,22 @@ import java.util.ArrayList;
  */
 public class RichGroup extends Group {
 
-	protected RichGroup() { }
+  protected RichGroup() {
+  }
 
-	public final native void showAttributes() /*-{
+  public final native void showAttributes() /*-{
 		alert(JSON.stringify(this.attributes));
 	}-*/;
 
-	public final native JsArray getAttributes() /*-{
+  public final native JsArray getAttributes() /*-{
 		return this.attributes;
 	}-*/;
 
-	public final native void setAttributes(ArrayList<Attribute> attrs) /*-{
+  public final native void setAttributes(ArrayList<Attribute> attrs) /*-{
 		this.groupAttributes = attrs;
 	}-*/;
 
-	public final native boolean isSyncEnabled() /*-{
+  public final native boolean isSyncEnabled() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "synchronizationEnabled") {
 				if (this.attributes[id].value === null) return false;
@@ -37,7 +38,8 @@ public class RichGroup extends Group {
 		}
 		return false;
 	}-*/;
-	public final native String getSynchronizationInterval() /*-{
+
+  public final native String getSynchronizationInterval() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "synchronizationInterval") {
 				return this.attributes[id].value;
@@ -45,7 +47,8 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
-	public final native JsArrayString getSynchronizationTimes() /*-{
+
+  public final native JsArrayString getSynchronizationTimes() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "groupSynchronizationTimes") {
 				return this.attributes[id].value;
@@ -53,7 +56,8 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
-	public final native String getLastSynchronizationState() /*-{
+
+  public final native String getLastSynchronizationState() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "lastSynchronizationState") {
 				return this.attributes[id].value;
@@ -61,7 +65,8 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
-	public final native String getLastSynchronizationTimestamp() /*-{
+
+  public final native String getLastSynchronizationTimestamp() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "lastSynchronizationTimestamp") {
 				return this.attributes[id].value;
@@ -69,7 +74,8 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
-	public final native String getStartOfLastSynchronizationTimestamp() /*-{
+
+  public final native String getStartOfLastSynchronizationTimestamp() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "startOfLastSynchronization") {
 				return this.attributes[id].value;
@@ -77,7 +83,8 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
-	public final native String getLastSuccessSynchronizationTimestamp() /*-{
+
+  public final native String getLastSuccessSynchronizationTimestamp() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "lastSuccessSynchronizationTimestamp") {
 				return this.attributes[id].value;
@@ -85,7 +92,8 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
-	public final native String getStartOfLastSuccessfulSynchronization() /*-{
+
+  public final native String getStartOfLastSuccessfulSynchronization() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "startOfLastSuccessfulSynchronization") {
 				return this.attributes[id].value;
@@ -93,7 +101,8 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
-	public final native String getAuthoritativeGroup() /*-{
+
+  public final native String getAuthoritativeGroup() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "authoritativeGroup") {
 				if (this.attributes[id].value === null) return "0"; // not authoritative
@@ -103,7 +112,7 @@ public class RichGroup extends Group {
 		return null;
 	}-*/;
 
-	public final native boolean isBlockManualMemberAdding() /*-{
+  public final native boolean isBlockManualMemberAdding() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "blockManualMemberAdding") {
 				if (this.attributes[id].value === null) return false; // not blocked
@@ -113,13 +122,14 @@ public class RichGroup extends Group {
 		return false;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(RichGroup o) {
-		return o.getId() == this.getId();
-	}
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(RichGroup o) {
+    return o.getId() == this.getId();
+  }
 
 }

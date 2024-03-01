@@ -9,11 +9,12 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class ApplicationMailAlreadyRemovedException extends PerunException {
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public ApplicationMailAlreadyRemovedException(String message) {
-		super(message);
-	}
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public ApplicationMailAlreadyRemovedException(String message) {
+    super(message);
+  }
 }

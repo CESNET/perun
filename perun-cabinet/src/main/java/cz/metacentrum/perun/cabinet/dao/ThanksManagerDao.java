@@ -18,72 +18,72 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface ThanksManagerDao {
 
-	/**
-	 * Creates new Thanks for Publication
-	 *
-	 * @param sess PerunSession
-	 * @param thanks new Thanks object
-	 * @return Created Thanks with ID set
-	 * @throws InternalErrorException When implementation fails
-	 */
-	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	Thanks createThanks(PerunSession sess, Thanks thanks) throws CabinetException;
+  /**
+   * Creates new Thanks for Publication
+   *
+   * @param sess   PerunSession
+   * @param thanks new Thanks object
+   * @return Created Thanks with ID set
+   * @throws InternalErrorException When implementation fails
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+  Thanks createThanks(PerunSession sess, Thanks thanks) throws CabinetException;
 
-	/**
-	 * Delete Thanks by its ID.
-	 *
-	 * @param sess PerunSession
-	 * @param thanks Thanks to be deleted
-	 * @throws CabinetException When Thanks doesn't exists
-	 * @throws InternalErrorException When implementation fails
-	 */
-	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException;
+  /**
+   * Delete Thanks by its ID.
+   *
+   * @param sess   PerunSession
+   * @param thanks Thanks to be deleted
+   * @throws CabinetException       When Thanks doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+  void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException;
 
-	/**
-	 * Check if same Thanks exists by ID or OwnerId,PublicationId combination.
-	 *
-	 * @param thanks Thanks to check by
-	 * @return TRUE = Thanks for same Owner and Publication or with same ID exists / FALSE = Same Thanks not found
-	 * @throws InternalErrorException When implementation fails
-	 */
-	boolean thanksExist(Thanks thanks);
+  /**
+   * Check if same Thanks exists by ID or OwnerId,PublicationId combination.
+   *
+   * @param thanks Thanks to check by
+   * @return TRUE = Thanks for same Owner and Publication or with same ID exists / FALSE = Same Thanks not found
+   * @throws InternalErrorException When implementation fails
+   */
+  boolean thanksExist(Thanks thanks);
 
-	/**
-	 * Get Thanks by its ID. Throws exception, if not exists.
-	 *
-	 * @param id ID of Thanks to be found
-	 * @return Thanks by its ID.
-	 * @throws CabinetException When Thanks doesn't exists
-	 * @throws InternalErrorException When implementation fails
-	 */
-	Thanks getThanksById(int id) throws CabinetException;
+  /**
+   * Get Thanks by its ID. Throws exception, if not exists.
+   *
+   * @param id ID of Thanks to be found
+   * @return Thanks by its ID.
+   * @throws CabinetException       When Thanks doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  Thanks getThanksById(int id) throws CabinetException;
 
-	/**
-	 * Get Thanks of Publication specified by its ID or empty list.
-	 *
-	 * @param publicationId ID of Publication to get Thanks for
-	 * @return List of Publications Thanks
-	 * @throws InternalErrorException When implementation fails
-	 */
-	List<Thanks> getThanksByPublicationId(int publicationId);
+  /**
+   * Get Thanks of Publication specified by its ID or empty list.
+   *
+   * @param publicationId ID of Publication to get Thanks for
+   * @return List of Publications Thanks
+   * @throws InternalErrorException When implementation fails
+   */
+  List<Thanks> getThanksByPublicationId(int publicationId);
 
-	/**
-	 * Get ThanksForGUI of Publication specified by its ID or empty list.
-	 *
-	 * @param publicationId ID of Publication to get Thanks for
-	 * @return List of Publications Thanks
-	 * @throws InternalErrorException When implementation fails
-	 */
-	List<ThanksForGUI> getRichThanksByPublicationId(int publicationId);
+  /**
+   * Get ThanksForGUI of Publication specified by its ID or empty list.
+   *
+   * @param publicationId ID of Publication to get Thanks for
+   * @return List of Publications Thanks
+   * @throws InternalErrorException When implementation fails
+   */
+  List<ThanksForGUI> getRichThanksByPublicationId(int publicationId);
 
-	/**
-	 * Get ThanksForGUI of User specified by its ID or empty list.
-	 *
-	 * @param userId ID of User to get Thanks for
-	 * @return List of Publications Thanks
-	 * @throws InternalErrorException When implementation fails
-	 */
-	List<ThanksForGUI> getRichThanksByUserId(int userId);
+  /**
+   * Get ThanksForGUI of User specified by its ID or empty list.
+   *
+   * @param userId ID of User to get Thanks for
+   * @return List of Publications Thanks
+   * @throws InternalErrorException When implementation fails
+   */
+  List<ThanksForGUI> getRichThanksByUserId(int userId);
 
 }

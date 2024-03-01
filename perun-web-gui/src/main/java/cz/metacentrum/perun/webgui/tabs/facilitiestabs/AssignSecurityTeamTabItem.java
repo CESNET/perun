@@ -33,187 +33,192 @@ import java.util.ArrayList;
  */
 public class AssignSecurityTeamTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading facility");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading facility");
 
-	// data
-	private int facilityId;
-	private Facility facility;
+  // data
+  private int facilityId;
+  private Facility facility;
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facility Facility
-	 */
-	public AssignSecurityTeamTabItem(Facility facility){
-		this.facility = facility;
-		this.facilityId = facility.getId();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facility Facility
+   */
+  public AssignSecurityTeamTabItem(Facility facility) {
+    this.facility = facility;
+    this.facilityId = facility.getId();
+  }
 
-	public boolean isPrepared(){
-		return !(facility == null);
-	}
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public void onClose() {
 
-	}
+  }
 
-	public Widget draw() {
+  public Widget draw() {
 
-		// TITLE
-		titleWidget.setText("Add security team");
+    // TITLE
+    titleWidget.setText("Add security team");
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		// HORIZONTAL MENU
-		TabMenu tabMenu = new TabMenu();
+    // HORIZONTAL MENU
+    TabMenu tabMenu = new TabMenu();
 
-		// CALLBACK
-		final GetSecurityTeams secTeams = new GetSecurityTeams();
-		secTeams.setEvents(new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				if (secTeams.getList().size() == 1) {
-					secTeams.getSelectionModel().setSelected(secTeams.getList().get(0), true);
-				}
-			}
-		});
-		secTeams.setForceAll(true);
-		CellTable<SecurityTeam> table = secTeams.getTable();
+    // CALLBACK
+    final GetSecurityTeams secTeams = new GetSecurityTeams();
+    secTeams.setEvents(new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        if (secTeams.getList().size() == 1) {
+          secTeams.getSelectionModel().setSelected(secTeams.getList().get(0), true);
+        }
+      }
+    });
+    secTeams.setForceAll(true);
+    CellTable<SecurityTeam> table = secTeams.getTable();
 
-		// ADD BUTTON
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignSecurityTeam());
+    // ADD BUTTON
+    final CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignSecurityTeam());
 
-		final TabItem tab = this; // tab to be closed
+    final TabItem tab = this; // tab to be closed
 
-		addButton.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				// get
-				ArrayList<SecurityTeam> list = secTeams.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-					for (int i=0; i<list.size(); i++) {
-						if (i == list.size()-1) {
-							AssignSecurityTeam request = new AssignSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
-							request.assignSecurityTeam(facilityId, list.get(i).getId());
-						} else {
-							AssignSecurityTeam request = new AssignSecurityTeam(JsonCallbackEvents.disableButtonEvents(addButton));
-							request.assignSecurityTeam(facilityId, list.get(i).getId());
-						}
-					}
-				}
-			}
-		});
+    addButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        // get
+        ArrayList<SecurityTeam> list = secTeams.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+          for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+              AssignSecurityTeam request =
+                  new AssignSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
+              request.assignSecurityTeam(facilityId, list.get(i).getId());
+            } else {
+              AssignSecurityTeam request = new AssignSecurityTeam(JsonCallbackEvents.disableButtonEvents(addButton));
+              request.assignSecurityTeam(facilityId, list.get(i).getId());
+            }
+          }
+        }
+      }
+    });
 
-		tabMenu.addWidget(addButton);
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    tabMenu.addWidget(addButton);
+    tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		tabMenu.addFilterWidget(new ExtendedSuggestBox(secTeams.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				secTeams.filterTable(text);
-				if (secTeams.getList().size() == 1) {
-					secTeams.getSelectionModel().setSelected(secTeams.getList().get(0), true);
-				}
-			}
-		}, ButtonTranslation.INSTANCE.filterSecurityTeam());
+    tabMenu.addFilterWidget(new ExtendedSuggestBox(secTeams.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        secTeams.filterTable(text);
+        if (secTeams.getList().size() == 1) {
+          secTeams.getSelectionModel().setSelected(secTeams.getList().get(0), true);
+        }
+      }
+    }, ButtonTranslation.INSTANCE.filterSecurityTeam());
 
-		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(secTeams, table, addButton);
+    addButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(secTeams, table, addButton);
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
-		firstTabPanel.add(sp);
+    // add menu and the table to the main panel
+    firstTabPanel.add(tabMenu);
+    firstTabPanel.setCellHeight(tabMenu, "30px");
+    firstTabPanel.add(sp);
 
-		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+    session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-		this.contentWidget.setWidget(firstTabPanel);
+    this.contentWidget.setWidget(firstTabPanel);
 
-		return getWidget();
+    return getWidget();
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 653;
-		int result = 1;
-		result = prime * result + facilityId;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 653;
+    int result = 1;
+    result = prime * result + facilityId;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AssignSecurityTeamTabItem other = (AssignSecurityTeamTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    AssignSecurityTeamTabItem other = (AssignSecurityTeamTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open()
-	{
-	}
+  public void open() {
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isFacilityAdmin(facilityId)) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isFacilityAdmin(facilityId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
 }

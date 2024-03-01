@@ -7,7 +7,12 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -22,10 +27,9 @@ import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
-import cz.metacentrum.perun.webgui.widgets.CustomButton;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +37,7 @@ import java.util.Map;
 /**
  * Provides widget for attributes management for list of groups on specified resource
  * This is used when assigning more groups to resource
- *
+ * <p>
  * !!! USE ONLY AS PART OF INNER TAB !!!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -41,255 +45,255 @@ import java.util.Map;
  */
 public class GroupsResourceRequiredAttributesTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "gps-res-req-attrs";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Settings of groups");
+  /**
+   * Resource ID to set
+   */
+  private int resourceId = 0;
+  /**
+   * Groups list
+   */
+  private ArrayList<Group> groups;
+  /**
+   * Column id to switch when extended info visible
+   */
+  private int columnId = 3;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param resourceId ID of resource to get services from
+   * @param groups     groups
+   */
+  public GroupsResourceRequiredAttributesTabItem(int resourceId, ArrayList<Group> groups) {
+    this.groups = groups;
+    this.resourceId = resourceId;
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Settings of groups");
+  public boolean isPrepared() {
+    return true;
+  }
 
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Resource ID to set
-	 */
-	private int resourceId = 0;
+  @Override
+  public void onClose() {
 
-	/**
-	 * Groups list
-	 */
-	private ArrayList<Group> groups;
+  }
 
-	/**
-	 * Column id to switch when extended info visible
-	 */
-	private int columnId = 3;
+  public Widget draw() {
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param resourceId ID of resource to get services from
-	 * @param groups groups
-	 */
-	public GroupsResourceRequiredAttributesTabItem(int resourceId, ArrayList<Group> groups){
-		this.groups = groups;
-		this.resourceId = resourceId;
-	}
+    if (groups == null || groups.get(0) == null) {
+      Window.alert("No groups in list.");
+    }
 
-	public boolean isPrepared(){
-		return true;
-	}
+    if (JsonUtils.isExtendedInfoVisible()) {
+      columnId = 3;
+    } else {
+      columnId = 2;
+    }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+    final VerticalPanel mainTab = new VerticalPanel();
+    mainTab.setSize("100%", "100%");
 
-	@Override
-	public void onClose() {
+    TabMenu menu = new TabMenu();
 
-	}
+    mainTab.add(new HTML("<hr size=\"2px\" />"));
 
-	public Widget draw() {
+    // set attributes type to group_resource
+    final Map<String, Integer> ids = new HashMap<String, Integer>();
+    ids.put("resourceToGetServicesFrom", resourceId);
+    ids.put("group", groups.get(0).getId());
 
-		if (groups == null || groups.get(0) == null) {
-			Window.alert("No groups in list.");
-		}
+    // gets all required group attributes for specified group and resource
+    final GetResourceRequiredAttributesV2 reqAttrs = new GetResourceRequiredAttributesV2(ids);
+    final CellTable<Attribute> reqAttrsTable = reqAttrs.getTable();
 
-		if (JsonUtils.isExtendedInfoVisible()) {
-			columnId = 3;
-		} else {
-			columnId = 2;
-		}
+    // remove value column
+    reqAttrsTable.removeColumn(columnId);
 
-		final VerticalPanel mainTab = new VerticalPanel();
-		mainTab.setSize("100%","100%");
+    // create own value column
+    Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(
+        new PerunAttributeValueCell(), "Value",
+        new JsonUtils.GetValue<Attribute, Attribute>() {
+          public Attribute getValue(Attribute attribute) {
+            attribute.setValueAsJso(null); // set empty value
+            return attribute;
+          }
+        }, new FieldUpdater<Attribute, Attribute>() {
 
-		TabMenu menu = new TabMenu();
+          public void update(int index, Attribute object,
+                             Attribute value) {
 
-		mainTab.add(new HTML("<hr size=\"2px\" />"));
+            object = value;
+            reqAttrsTable.getSelectionModel().setSelected(object, object.isAttributeValid());
 
-		// set attributes type to group_resource
-		final Map<String, Integer> ids = new HashMap<String, Integer>();
-		ids.put("resourceToGetServicesFrom", resourceId);
-		ids.put("group", groups.get(0).getId());
+          }
+        });
 
-		// gets all required group attributes for specified group and resource
-		final GetResourceRequiredAttributesV2 reqAttrs = new GetResourceRequiredAttributesV2(ids);
-		final CellTable<Attribute> reqAttrsTable = reqAttrs.getTable();
+    // add to table
+    reqAttrsTable.insertColumn(columnId, valueColumn, "Value");
 
-		// remove value column
-		reqAttrsTable.removeColumn(columnId);
+    // get all required group_resource attributes too
+    ids.put("resource", resourceId);
+    reqAttrs.setIds(ids);
+    reqAttrs.retrieveData();
 
-		// create own value column
-		Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(
-				new PerunAttributeValueCell(), "Value",
-				new JsonUtils.GetValue<Attribute, Attribute>() {
-					public Attribute getValue(Attribute attribute) {
-						attribute.setValueAsJso(null); // set empty value
-						return attribute;
-					}
-				}, new FieldUpdater<Attribute, Attribute>() {
+    reqAttrsTable.addStyleName("perun-table");
+    final ScrollPanel sp = new ScrollPanel(reqAttrsTable);
+    sp.addStyleName("perun-tableScrollPanel");
 
-					public void update(int index, Attribute object,
-						Attribute value) {
+    CustomButton saveChangesButton =
+        TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes(),
+            new ClickHandler() {
+              public void onClick(ClickEvent event) {
 
-						object = value;
-						reqAttrsTable.getSelectionModel().setSelected(object, object.isAttributeValid());
+                ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
+                if (UiElements.cantSaveEmptyListDialogBox(list)) {
 
-					}
-				});
+                  ArrayList<Attribute> groupList = new ArrayList<Attribute>();
+                  ArrayList<Attribute> groupResourceList = new ArrayList<Attribute>();
+                  SetAttributes request = new SetAttributes();
 
-		// add to table
-		reqAttrsTable.insertColumn(columnId, valueColumn, "Value");
+                  // ask to be sure
+                  // TODO - use new confirm dialog
+                  if (!Window.confirm(
+                      "Same values for selected attributes will be set to all groups you are about to assign." +
+                          "\n\nDo you want to continue ?")) {
+                    return;
+                  }
+                  // get different attributes
+                  for (Attribute attr : list) {
+                    if (attr.getNamespace().contains("urn:perun:group:")) {
+                      groupList.add(attr);
+                    } else if (attr.getNamespace().contains("urn:perun:group_resource:")) {
+                      groupResourceList.add(attr);
+                    }
+                  }
+                  if (!(groupList.isEmpty())) {
+                    ids.clear();
+                    for (int i = 0; i < groups.size(); i++) {
+                      ids.put("group", groups.get(i).getId());
+                      request.setAttributes(ids, groupList);
+                    }
+                  }
+                  if (!(groupResourceList.isEmpty())) {
+                    ids.clear();
+                    ids.put("resource", resourceId);
+                    for (int i = 0; i < groups.size(); i++) {
+                      ids.put("group", groups.get(i).getId());
+                      request.setAttributes(ids, groupResourceList);
+                    }
+                  }
+                  reqAttrs.clearTableSelectedSet();
+                }
+              }
+            });
 
-		// get all required group_resource attributes too
-		ids.put("resource", resourceId);
-		reqAttrs.setIds(ids);
-		reqAttrs.retrieveData();
+    menu.addWidget(UiElements.getRefreshButton(this));
+    menu.addWidget(saveChangesButton);
+    if (!session.isGroupAdmin() && !session.isVoAdmin()) {
+      saveChangesButton.setEnabled(false);
+    }
 
-		reqAttrsTable.addStyleName("perun-table");
-		final ScrollPanel sp = new ScrollPanel(reqAttrsTable);
-		sp.addStyleName("perun-tableScrollPanel");
+    // table content
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
+    mainTab.add(menu);
+    mainTab.add(sp);
+    mainTab.setCellHeight(sp, "100%");
+    mainTab.setCellHeight(menu, "30px");
 
-				ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+    this.contentWidget.setWidget(mainTab);
 
-					ArrayList<Attribute> groupList = new ArrayList<Attribute>();
-					ArrayList<Attribute> groupResourceList = new ArrayList<Attribute>();
-					SetAttributes request = new SetAttributes();
+    return getWidget();
+  }
 
-					// ask to be sure
-					// TODO - use new confirm dialog
-					if (!Window.confirm("Same values for selected attributes will be set to all groups you are about to assign." +
-							"\n\nDo you want to continue ?")) {
-						return;
-							}
-					// get different attributes
-					for (Attribute attr : list) {
-						if (attr.getNamespace().contains("urn:perun:group:")) {
-							groupList.add(attr);
-						} else if (attr.getNamespace().contains("urn:perun:group_resource:")) {
-							groupResourceList.add(attr);
-						}
-					}
-					if (!(groupList.isEmpty())) {
-						ids.clear();
-						for (int i = 0; i < groups.size(); i++) {
-							ids.put("group", groups.get(i).getId());
-							request.setAttributes(ids, groupList);
-						}
-					}
-					if (!(groupResourceList.isEmpty())) {
-						ids.clear();
-						ids.put("resource", resourceId);
-						for (int i = 0; i < groups.size(); i++) {
-							ids.put("group", groups.get(i).getId());
-							request.setAttributes(ids, groupResourceList);
-						}
-					}
-					reqAttrs.clearTableSelectedSet();
-				}
-			}
-		});
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		menu.addWidget(UiElements.getRefreshButton(this));
-		menu.addWidget(saveChangesButton);
-		if (!session.isGroupAdmin() && !session.isVoAdmin()) saveChangesButton.setEnabled(false);
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		// table content
-		session.getUiElements().resizePerunTable(sp, 350, this);
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.attributesDisplayIcon();
+  }
 
-		mainTab.add(menu);
-		mainTab.add(sp);
-		mainTab.setCellHeight(sp, "100%");
-		mainTab.setCellHeight(menu, "30px");
+  @Override
+  public int hashCode() {
+    final int prime = 853;
+    int result = 1;
+    result = prime * result * resourceId;
+    return result;
+  }
 
-		this.contentWidget.setWidget(mainTab);
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-		return getWidget();
-	}
+    GroupsResourceRequiredAttributesTabItem o = (GroupsResourceRequiredAttributesTabItem) obj;
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    if (resourceId != o.resourceId) {
+      return false;
+    }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    if (!groups.equals(o.groups)) {
+      return false;
+    }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.attributesDisplayIcon();
-	}
+    return true;
+  }
 
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 853;
-		int result = 1;
-		result = prime * result * resourceId;
-		return result;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public boolean isAuthorized() {
 
-		GroupsResourceRequiredAttributesTabItem o = (GroupsResourceRequiredAttributesTabItem) obj;
+    if (session.isVoAdmin() || session.isVoObserver()) {
+      return true;
+    } else {
+      return false;
+    }
 
-		if (resourceId != o.resourceId){
-			return false;
-		}
+  }
 
-		if (!groups.equals(o.groups)){
-			return false;
-		}
+  public String getUrl() {
+    return URL;
+  }
 
-		return true;
-	}
-
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
-
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-	}
-
-	public boolean isAuthorized() {
-
-		if (session.isVoAdmin() || session.isVoObserver()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "gps-res-req-attrs";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?groups=" + groups.toString() + "&res=" + resourceId;
-	}
+  public String getUrlWithParameters() {
+    return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?groups=" + groups.toString() + "&res=" +
+        resourceId;
+  }
 
 }

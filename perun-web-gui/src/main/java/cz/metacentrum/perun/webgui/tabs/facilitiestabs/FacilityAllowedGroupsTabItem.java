@@ -41,304 +41,311 @@ import java.util.Map;
  */
 public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "allowed-vos";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading facility");
+  // data
+  private int facilityId;
+  private Facility facility;
+  private int lastSelectedVoId = 0;
+  private int lastSelectedServiceId = 0;
+  private boolean vosCallDone = false;
+  private boolean callDone = false;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param facility facility to get allowed Vos from
+   */
+  public FacilityAllowedGroupsTabItem(Facility facility) {
+    this.facility = facility;
+    this.facilityId = facility.getId();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading facility");
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId
+   */
+  public FacilityAllowedGroupsTabItem(int facilityId) {
+    this.facilityId = facilityId;
+    new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        facility = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	// data
-	private int facilityId;
-	private Facility facility;
-	private int lastSelectedVoId = 0;
-	private int lastSelectedServiceId = 0;
-	private boolean vosCallDone = false;
-	private boolean callDone = false;
+  static public FacilityAllowedGroupsTabItem load(Facility facility) {
+    return new FacilityAllowedGroupsTabItem(facility);
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param facility facility to get allowed Vos from
-	 */
-	public FacilityAllowedGroupsTabItem(Facility facility){
-		this.facility = facility;
-		this.facilityId = facility.getId();
-	}
+  static public FacilityAllowedGroupsTabItem load(Map<String, String> parameters) {
+    int fid = Integer.parseInt(parameters.get("id"));
+    return new FacilityAllowedGroupsTabItem(fid);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facilityId
-	 */
-	public FacilityAllowedGroupsTabItem(int facilityId){
-		this.facilityId = facilityId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				facility = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	public boolean isPrepared(){
-		return !(facility == null);
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public void onClose() {
+  }
 
-	}
+  public Widget draw() {
 
-	public Widget draw() {
+    // set title
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Allowed Groups");
 
-		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Allowed Groups");
+    final ListBoxWithObjects<VirtualOrganization> vosListbox = new ListBoxWithObjects<VirtualOrganization>();
+    final ListBoxWithObjects<Service> servicesListbox = new ListBoxWithObjects<Service>();
+    final GetAllowedGroups jsonCallback = new GetAllowedGroups(facilityId);
+    jsonCallback.setCheckable(false);
 
-		final ListBoxWithObjects<VirtualOrganization> vosListbox = new ListBoxWithObjects<VirtualOrganization>();
-		final ListBoxWithObjects<Service> servicesListbox = new ListBoxWithObjects<Service>();
-		final GetAllowedGroups jsonCallback = new GetAllowedGroups(facilityId);
-		jsonCallback.setCheckable(false);
+    // content
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		// content
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    TabMenu menu = new TabMenu();
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		TabMenu menu = new TabMenu();
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    menu.addWidget(UiElements.getRefreshButton(this));
+    menu.addWidget(new HTML("<strong>Filter by VO:</strong>"));
+    menu.addWidget(vosListbox);
+    menu.addWidget(new HTML("<strong>Filter by service:</strong>"));
+    menu.addWidget(servicesListbox);
 
-		menu.addWidget(UiElements.getRefreshButton(this));
-		menu.addWidget(new HTML("<strong>Filter by VO:</strong>"));
-		menu.addWidget(vosListbox);
-		menu.addWidget(new HTML("<strong>Filter by service:</strong>"));
-		menu.addWidget(servicesListbox);
+    // get the table
+    final GetAllowedVos vosCall = new GetAllowedVos(facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        vosListbox.clear();
+        vosListbox.removeAllOption();
+        vosListbox.addAllItems(
+            new TableSorter<VirtualOrganization>().sortByName(JsonUtils.<VirtualOrganization>jsoAsList(jso)));
+        vosListbox.addAllOption();
+        if (lastSelectedVoId == 0) {
+          vosListbox.setSelectedIndex(0);
+        } else {
+          for (VirtualOrganization vo : vosListbox.getAllObjects()) {
+            if (vo.getId() == lastSelectedVoId) {
+              vosListbox.setSelected(vo, true);
+              break;
+            }
+          }
+        }
+        jsonCallback.setVos(vosListbox.getAllObjects());
+        vosCallDone = true;
+      }
 
-		// get the table
-		final GetAllowedVos vosCall = new GetAllowedVos(facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				vosListbox.clear();
-				vosListbox.removeAllOption();
-				vosListbox.addAllItems(new TableSorter<VirtualOrganization>().sortByName(JsonUtils.<VirtualOrganization>jsoAsList(jso)));
-				vosListbox.addAllOption();
-				if (lastSelectedVoId == 0) {
-					vosListbox.setSelectedIndex(0);
-				} else {
-					for (VirtualOrganization vo : vosListbox.getAllObjects()) {
-						if (vo.getId() == lastSelectedVoId) {
-							vosListbox.setSelected(vo, true);
-							break;
-						}
-					}
-				}
-				jsonCallback.setVos(vosListbox.getAllObjects());
-				vosCallDone = true;
-			}
-			public void onLoadingStart(){
-				vosListbox.removeAllOption();
-				vosListbox.clear();
-				vosListbox.addItem("Loading...");
-				vosCallDone = false;
-			}
-			public void onError(PerunError error) {
-				vosListbox.clear();
-				vosListbox.removeAllOption();
-				vosListbox.addItem("Error while loading");
-				vosCallDone = false;
-			}
-		});
-		vosCall.retrieveData();
+      public void onLoadingStart() {
+        vosListbox.removeAllOption();
+        vosListbox.clear();
+        vosListbox.addItem("Loading...");
+        vosCallDone = false;
+      }
 
-		GetFacilityAssignedServices servCall = new GetFacilityAssignedServices(facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				servicesListbox.clear();
-				servicesListbox.removeAllOption();
-				servicesListbox.addAllItems(new TableSorter<Service>().sortByName(JsonUtils.<Service>jsoAsList(jso)));
-				servicesListbox.addAllOption();
-				if (servicesListbox.isEmpty()) {
-					servicesListbox.addItem("No service available on facility");
-				}
-				if (lastSelectedServiceId == 0) {
-					// choose all
-					servicesListbox.setSelectedIndex(0);
-				} else {
-					for (Service s : servicesListbox.getAllObjects()) {
-						if (s.getId() == lastSelectedServiceId) {
-							servicesListbox.setSelected(s, true);
-							break;
-						}
-					}
-				}
-				callDone = true;
-			}
-			public void onLoadingStart(){
-				servicesListbox.removeAllOption();
-				servicesListbox.clear();
-				servicesListbox.addItem("Loading...");
-				callDone = false;
-			}
-			public void onError(PerunError error) {
-				servicesListbox.clear();
-				servicesListbox.removeAllOption();
-				servicesListbox.addItem("Error while loading");
-				callDone = false;
-			}
-		});
-		servCall.retrieveData();
+      public void onError(PerunError error) {
+        vosListbox.clear();
+        vosListbox.removeAllOption();
+        vosListbox.addItem("Error while loading");
+        vosCallDone = false;
+      }
+    });
+    vosCall.retrieveData();
 
-		Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
-			@Override
-			public boolean execute() {
-				if (vosCallDone && callDone) {
-					jsonCallback.setVoId(lastSelectedVoId);
-					jsonCallback.setServiceId(lastSelectedServiceId);
-					jsonCallback.retrieveData();
-					return false;
-				} else {
-					return true;
-				}
-			}
-		}, 200);
+    GetFacilityAssignedServices servCall = new GetFacilityAssignedServices(facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        servicesListbox.clear();
+        servicesListbox.removeAllOption();
+        servicesListbox.addAllItems(new TableSorter<Service>().sortByName(JsonUtils.<Service>jsoAsList(jso)));
+        servicesListbox.addAllOption();
+        if (servicesListbox.isEmpty()) {
+          servicesListbox.addItem("No service available on facility");
+        }
+        if (lastSelectedServiceId == 0) {
+          // choose all
+          servicesListbox.setSelectedIndex(0);
+        } else {
+          for (Service s : servicesListbox.getAllObjects()) {
+            if (s.getId() == lastSelectedServiceId) {
+              servicesListbox.setSelected(s, true);
+              break;
+            }
+          }
+        }
+        callDone = true;
+      }
 
-		vosListbox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent changeEvent) {
-				if (vosListbox.getSelectedIndex() > 0) {
-					jsonCallback.setVoId(vosListbox.getSelectedObject().getId());
-					lastSelectedVoId = vosListbox.getSelectedObject().getId();
-				} else {
-					jsonCallback.setVoId(0);
-					lastSelectedVoId = 0;
-				}
-				jsonCallback.retrieveData();
-			}
-		});
-		servicesListbox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent changeEvent) {
-				if (servicesListbox.getSelectedIndex() > 0) {
-					jsonCallback.setServiceId(servicesListbox.getSelectedObject().getId());
-					lastSelectedServiceId = servicesListbox.getSelectedObject().getId();
-				} else {
-					jsonCallback.setServiceId(0);
-					lastSelectedServiceId = 0;
-				}
-				jsonCallback.retrieveData();
-			}
-		});
+      public void onLoadingStart() {
+        servicesListbox.removeAllOption();
+        servicesListbox.clear();
+        servicesListbox.addItem("Loading...");
+        callDone = false;
+      }
 
-		CellTable<Group> table = jsonCallback.getEmptyTable(new FieldUpdater<Group, String>() {
-			@Override
-			public void update(int i, Group group, String s) {
-				if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId())) {
-					session.getTabManager().addTab(new GroupDetailTabItem(group));
-				} else {
-					// show alert
-					UiElements.generateInfo("You are not VO / Group manager of this group", "You MUST be VO manager or Group manager of group: <strong>"+SafeHtmlUtils.fromString(group.getName()).asString()+"</strong> to view it's details.");
-				}
-			}
-		});
+      public void onError(PerunError error) {
+        servicesListbox.clear();
+        servicesListbox.removeAllOption();
+        servicesListbox.addItem("Error while loading");
+        callDone = false;
+      }
+    });
+    servCall.retrieveData();
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+      @Override
+      public boolean execute() {
+        if (vosCallDone && callDone) {
+          jsonCallback.setVoId(lastSelectedVoId);
+          jsonCallback.setServiceId(lastSelectedServiceId);
+          jsonCallback.retrieveData();
+          return false;
+        } else {
+          return true;
+        }
+      }
+    }, 200);
 
-		vp.add(sp);
+    vosListbox.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent changeEvent) {
+        if (vosListbox.getSelectedIndex() > 0) {
+          jsonCallback.setVoId(vosListbox.getSelectedObject().getId());
+          lastSelectedVoId = vosListbox.getSelectedObject().getId();
+        } else {
+          jsonCallback.setVoId(0);
+          lastSelectedVoId = 0;
+        }
+        jsonCallback.retrieveData();
+      }
+    });
+    servicesListbox.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent changeEvent) {
+        if (servicesListbox.getSelectedIndex() > 0) {
+          jsonCallback.setServiceId(servicesListbox.getSelectedObject().getId());
+          lastSelectedServiceId = servicesListbox.getSelectedObject().getId();
+        } else {
+          jsonCallback.setServiceId(0);
+          lastSelectedServiceId = 0;
+        }
+        jsonCallback.retrieveData();
+      }
+    });
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    CellTable<Group> table = jsonCallback.getEmptyTable(new FieldUpdater<Group, String>() {
+      @Override
+      public void update(int i, Group group, String s) {
+        if (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId())) {
+          session.getTabManager().addTab(new GroupDetailTabItem(group));
+        } else {
+          // show alert
+          UiElements.generateInfo("You are not VO / Group manager of this group",
+              "You MUST be VO manager or Group manager of group: <strong>" +
+                  SafeHtmlUtils.fromString(group.getName()).asString() + "</strong> to view it's details.");
+        }
+      }
+    });
 
-		this.contentWidget.setWidget(vp);
-		return getWidget();
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-	}
+    vp.add(sp);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    this.contentWidget.setWidget(vp);
+    return getWidget();
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.buildingIcon();
-	}
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 719;
-		int result = 1;
-		result = prime * result + facilityId;
-		return result;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FacilityAllowedGroupsTabItem other = (FacilityAllowedGroupsTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		return true;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.buildingIcon();
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(facility, "Allowed groups", getUrlWithParameters());
-		if(facility != null) {
-			session.setActiveFacility(facility);
-		} else {
-			session.setActiveFacilityId(facilityId);
-		}
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 719;
+    int result = 1;
+    result = prime * result + facilityId;
+    return result;
+  }
 
-	public boolean isAuthorized() {
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FacilityAllowedGroupsTabItem other = (FacilityAllowedGroupsTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-		if (session.isFacilityAdmin(facility.getId())) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(facility, "Allowed groups", getUrlWithParameters());
+    if (facility != null) {
+      session.setActiveFacility(facility);
+    } else {
+      session.setActiveFacilityId(facilityId);
+    }
+  }
 
-	public final static String URL = "allowed-vos";
+  public boolean isAuthorized() {
 
-	public String getUrl()
-	{
-		return URL;
-	}
+    if (session.isFacilityAdmin(facility.getId())) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
-	}
+  }
 
-	static public FacilityAllowedGroupsTabItem load(Facility facility) {
-		return new FacilityAllowedGroupsTabItem(facility);
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	static public FacilityAllowedGroupsTabItem load(Map<String, String> parameters) {
-		int fid = Integer.parseInt(parameters.get("id"));
-		return new FacilityAllowedGroupsTabItem(fid);
-	}
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
+  }
 
 }

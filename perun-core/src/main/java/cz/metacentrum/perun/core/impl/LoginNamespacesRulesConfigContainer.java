@@ -11,30 +11,31 @@ import java.util.Map;
 
 public class LoginNamespacesRulesConfigContainer {
 
-	private static final Logger log = LoggerFactory.getLogger(LoginNamespacesRulesConfigContainer.class);
+  private static final Logger log = LoggerFactory.getLogger(LoginNamespacesRulesConfigContainer.class);
 
-	private Map<String, NamespaceRules> namespacesRules = new HashMap<>();
+  private Map<String, NamespaceRules> namespacesRules = new HashMap<>();
 
-	public void setNamespacesRules(Map<String, NamespaceRules> namespacesRules) {
-		this.namespacesRules = namespacesRules;
-	}
+  public void setNamespacesRules(Map<String, NamespaceRules> namespacesRules) {
+    this.namespacesRules = namespacesRules;
+  }
 
-	/**
-	 * Get Rules for a specific namespace from the LoginNamespacesRulesConfigContainer
-	 *
-	 * @param namespace for which will be rules fetched
-	 * @return NamespaceRules for the namespace name
-	 * @throws NamespaceRulesNotExistsException of there are no rules for the namespace
-	 */
-	public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
-		if (namespacesRules.get(namespace) == null) {
-			throw new NamespaceRulesNotExistsException("Namespace with name '"+ namespace + "' does not exist in the LoginNamespacesRulesConfigContainer.");
-		}
+  /**
+   * Get Rules for a specific namespace from the LoginNamespacesRulesConfigContainer
+   *
+   * @param namespace for which will be rules fetched
+   * @return NamespaceRules for the namespace name
+   * @throws NamespaceRulesNotExistsException of there are no rules for the namespace
+   */
+  public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
+    if (namespacesRules.get(namespace) == null) {
+      throw new NamespaceRulesNotExistsException(
+          "Namespace with name '" + namespace + "' does not exist in the LoginNamespacesRulesConfigContainer.");
+    }
 
-		return namespacesRules.get(namespace);
-	}
+    return namespacesRules.get(namespace);
+  }
 
-	public List<NamespaceRules> getAllNamespacesRules() {
-		return List.copyOf(namespacesRules.values());
-	}
+  public List<NamespaceRules> getAllNamespacesRules() {
+    return List.copyOf(namespacesRules.values());
+  }
 }

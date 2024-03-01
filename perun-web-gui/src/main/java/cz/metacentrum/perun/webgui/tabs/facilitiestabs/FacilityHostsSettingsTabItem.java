@@ -47,275 +47,282 @@ import java.util.Map;
  */
 public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading facility");
-
-	// data
-	private int facilityId = 0;
-	private Facility facility;
-	private int lastSelectedHostId = 0;
-
-	/**
-	 * Creates a tab instance
-	 * @param facilityId
-	 */
-	public FacilityHostsSettingsTabItem(int facilityId, int hostId){
-		this.facilityId = facilityId;
-		this.lastSelectedHostId = hostId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				facility = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public final static String URL = "hostssettings";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading facility");
+  // data
+  private int facilityId = 0;
+  private Facility facility;
+  private int lastSelectedHostId = 0;
 
 
-	public boolean isPrepared(){
-		return !(facility == null);
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId
+   */
+  public FacilityHostsSettingsTabItem(int facilityId, int hostId) {
+    this.facilityId = facilityId;
+    this.lastSelectedHostId = hostId;
+    new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        facility = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facility
+   */
+  public FacilityHostsSettingsTabItem(Facility facility, Host host) {
+    this.facilityId = facility.getId();
+    this.facility = facility;
+    if (host != null) {
+      this.lastSelectedHostId = host.getId();
+    }
+  }
 
-	@Override
-	public void onClose() {
+  static public FacilityHostsSettingsTabItem load(Map<String, String> parameters) {
+    int fid = Integer.parseInt(parameters.get("id"));
+    int hid = Integer.parseInt(parameters.get("hid"));
+    return new FacilityHostsSettingsTabItem(fid, hid);
+  }
 
-	}
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param facility
-	 */
-	public FacilityHostsSettingsTabItem(Facility facility, Host host){
-		this.facilityId = facility.getId();
-		this.facility = facility;
-		if (host != null) {
-			this.lastSelectedHostId = host.getId();
-		}
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public Widget draw() {
+  @Override
+  public void onClose() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Hosts settings");
+  }
 
-		// main panel
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%","100%");
+  public Widget draw() {
 
-		final GetAttributesV2 attrs = new GetAttributesV2();
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Hosts settings");
 
-		final ListBoxWithObjects<Host> listbox = new ListBoxWithObjects<Host>();
-		// refresh attributes for hosts
-		listbox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				if (listbox.getSelectedObject() != null) {
-					lastSelectedHostId = listbox.getSelectedObject().getId();
-					attrs.getHostAttributes(lastSelectedHostId);
-					attrs.retrieveData();
-				} else {
-					lastSelectedHostId = 0;
-				}
-			}
-		});
+    // main panel
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		// retrieve hosts
-		final GetHosts hosts = new GetHosts(facilityId, new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				listbox.clear();
-				ArrayList<Host> result = JsonUtils.jsoAsList(jso);
-				if (result != null && !result.isEmpty()) {
-					for (Host h : result) {
-						listbox.addItem(h);
-						if (h.getId() == lastSelectedHostId) {
-							listbox.setSelected(h, true);
-						}
-					}
-					if (lastSelectedHostId == 0) {
-						lastSelectedHostId = listbox.getSelectedObject().getId();
-					}
-					attrs.getHostAttributes(lastSelectedHostId);
-					attrs.retrieveData();
-				}
-			}
-		@Override
-		public void onError(PerunError error) {
-			listbox.clear();
-			listbox.addItem("Error while loading");
-		}
-		@Override
-		public void onLoadingStart() {
-			listbox.clear();
-			listbox.addItem("Loading...");
-		}
-		});
-		hosts.retrieveData();
+    final GetAttributesV2 attrs = new GetAttributesV2();
 
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(attrs);
+    final ListBoxWithObjects<Host> listbox = new ListBoxWithObjects<Host>();
+    // refresh attributes for hosts
+    listbox.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent event) {
+        if (listbox.getSelectedObject() != null) {
+          lastSelectedHostId = listbox.getSelectedObject().getId();
+          attrs.getHostAttributes(lastSelectedHostId);
+          attrs.retrieveData();
+        } else {
+          lastSelectedHostId = 0;
+        }
+      }
+    });
 
-		// menu
-		TabMenu menu = new TabMenu();
+    // retrieve hosts
+    final GetHosts hosts = new GetHosts(facilityId, new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        listbox.clear();
+        ArrayList<Host> result = JsonUtils.jsoAsList(jso);
+        if (result != null && !result.isEmpty()) {
+          for (Host h : result) {
+            listbox.addItem(h);
+            if (h.getId() == lastSelectedHostId) {
+              listbox.setSelected(h, true);
+            }
+          }
+          if (lastSelectedHostId == 0) {
+            lastSelectedHostId = listbox.getSelectedObject().getId();
+          }
+          attrs.getHostAttributes(lastSelectedHostId);
+          attrs.retrieveData();
+        }
+      }
 
-		// Save changes button
-		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-		final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, events);
-		saveChangesButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = attrs.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					Map<String, Integer> ids = new HashMap<String, Integer>();
-					ids.put("host", lastSelectedHostId);
-					SetAttributes request = new SetAttributes(saveChangesButtonEvent);
-					request.setAttributes(ids, list);
-				}
-			}
-		});
+      @Override
+      public void onError(PerunError error) {
+        listbox.clear();
+        listbox.addItem("Error while loading");
+      }
 
-		// Remove attr button
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
-		final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, events);
-		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = attrs.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					Map<String, Integer> ids = new HashMap<String,Integer>();
-					ids.put("host", lastSelectedHostId);
-					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
-					request.removeAttributes(ids, list);
-				}
-			}
-		});
+      @Override
+      public void onLoadingStart() {
+        listbox.clear();
+        listbox.addItem("Loading...");
+      }
+    });
+    hosts.retrieveData();
 
-		menu.addWidget(UiElements.getRefreshButton(this));
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(attrs);
 
-		menu.addWidget(saveChangesButton);
+    // menu
+    TabMenu menu = new TabMenu();
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Map<String, Integer> ids = new HashMap<String, Integer>();
-				ids.put("host", lastSelectedHostId);
-				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attrs.getList()), true);
-			}
-		}));
+    // Save changes button
+    final CustomButton saveChangesButton =
+        TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+    final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, events);
+    saveChangesButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        ArrayList<Attribute> list = attrs.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          Map<String, Integer> ids = new HashMap<String, Integer>();
+          ids.put("host", lastSelectedHostId);
+          SetAttributes request = new SetAttributes(saveChangesButtonEvent);
+          request.setAttributes(ids, list);
+        }
+      }
+    });
 
-		menu.addWidget(removeButton);
+    // Remove attr button
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
+    final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, events);
+    removeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        ArrayList<Attribute> list = attrs.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          Map<String, Integer> ids = new HashMap<String, Integer>();
+          ids.put("host", lastSelectedHostId);
+          RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
+          request.removeAttributes(ids, list);
+        }
+      }
+    });
 
-		menu.addWidget(new HTML("<strong>Select host:</strong>"));
-		menu.addWidget(listbox);
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		// attrs table
-		CellTable<Attribute> table = attrs.getEmptyTable();
+    menu.addWidget(saveChangesButton);
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(),
+        new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent event) {
+            Map<String, Integer> ids = new HashMap<String, Integer>();
+            ids.put("host", lastSelectedHostId);
+            session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, attrs.getList()), true);
+          }
+        }));
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(menu);
-		firstTabPanel.setCellHeight(menu, "30px");
-		firstTabPanel.add(sp);
+    menu.addWidget(removeButton);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    menu.addWidget(new HTML("<strong>Select host:</strong>"));
+    menu.addWidget(listbox);
 
-		this.contentWidget.setWidget(firstTabPanel);
+    // attrs table
+    CellTable<Attribute> table = attrs.getEmptyTable();
 
-		return getWidget();
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-	}
+    // add menu and the table to the main panel
+    firstTabPanel.add(menu);
+    firstTabPanel.setCellHeight(menu, "30px");
+    firstTabPanel.add(sp);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    this.contentWidget.setWidget(firstTabPanel);
 
-	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.serverIcon();
-	}
+    return getWidget();
 
-	@Override
-	public int hashCode() {
-		final int prime = 739;
-		int result = 1;
-		result = prime * result + facilityId + lastSelectedHostId;
-		return result;
-	}
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FacilityHostsSettingsTabItem other = (FacilityHostsSettingsTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		if (lastSelectedHostId != other.lastSelectedHostId)
-			return false;
-		return true;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(facility, "Hosts settings", getUrlWithParameters());
-		if(facility != null) {
-			session.setActiveFacility(facility);
-		} else {
-			session.setActiveFacilityId(facilityId);
-		}
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.serverIcon();
+  }
 
-	public boolean isAuthorized() {
+  @Override
+  public int hashCode() {
+    final int prime = 739;
+    int result = 1;
+    result = prime * result + facilityId + lastSelectedHostId;
+    return result;
+  }
 
-		if (session.isFacilityAdmin(facilityId)) {
-			return true;
-		} else {
-			return false;
-		}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FacilityHostsSettingsTabItem other = (FacilityHostsSettingsTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    if (lastSelectedHostId != other.lastSelectedHostId) {
+      return false;
+    }
+    return true;
+  }
 
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public final static String URL = "hostssettings";
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(facility, "Hosts settings", getUrlWithParameters());
+    if (facility != null) {
+      session.setActiveFacility(facility);
+    } else {
+      session.setActiveFacilityId(facilityId);
+    }
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
+  public boolean isAuthorized() {
 
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId+"&hid="+lastSelectedHostId;
-	}
+    if (session.isFacilityAdmin(facilityId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	static public FacilityHostsSettingsTabItem load(Map<String, String> parameters) {
-		int fid = Integer.parseInt(parameters.get("id"));
-		int hid = Integer.parseInt(parameters.get("hid"));
-		return new FacilityHostsSettingsTabItem(fid, hid);
-	}
+  }
+
+  public String getUrl() {
+    return URL;
+  }
+
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId + "&hid=" +
+        lastSelectedHostId;
+  }
 
 }

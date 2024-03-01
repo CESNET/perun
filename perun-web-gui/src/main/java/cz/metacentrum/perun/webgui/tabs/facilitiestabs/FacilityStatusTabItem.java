@@ -40,306 +40,331 @@ import java.util.Map;
  */
 public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "status";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading facility");
+  // data
+  private Facility facility;
+  private int facilityId;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param facility facility to get services and status from
+   */
+  public FacilityStatusTabItem(Facility facility) {
+    this.facility = facility;
+    this.facilityId = facility.getId();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading facility");
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId
+   */
+  public FacilityStatusTabItem(int facilityId) {
+    this.facilityId = facilityId;
+    new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        facility = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	// data
-	private Facility facility;
-	private int facilityId;
+  static public FacilityStatusTabItem load(Facility facility) {
+    return new FacilityStatusTabItem(facility);
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param facility facility to get services and status from
-	 */
-	public FacilityStatusTabItem(Facility facility){
-		this.facility = facility;
-		this.facilityId = facility.getId();
-	}
+  static public FacilityStatusTabItem load(Map<String, String> parameters) {
+    int fid = Integer.parseInt(parameters.get("id"));
+    return new FacilityStatusTabItem(fid);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facilityId
-	 */
-	public FacilityStatusTabItem(int facilityId){
-		this.facilityId = facilityId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				facility = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	public boolean isPrepared(){
-		return !(facility == null);
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public void onClose() {
+  }
 
-	}
+  public Widget draw() {
 
-	public Widget draw() {
+    // title
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Services status");
 
-		// title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Services status");
+    // main content
+    final VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		// main content
-		final VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    // get empty table
+    final GetFacilityServicesState callback = new GetFacilityServicesState(facility.getId());
 
-		// get empty table
-		final GetFacilityServicesState callback = new GetFacilityServicesState(facility.getId());
+    CustomButton refreshButton = UiElements.getRefreshButton(this);
+    //callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
 
-		CustomButton refreshButton = UiElements.getRefreshButton(this);
-		//callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
+    final CellTable<ServiceState> table = callback.getTable(new FieldUpdater<ServiceState, String>() {
+      // on row click
+      public void update(int index, final ServiceState object, String value) {
+        // show results if any present
+        if (object.getTask() != null) {
+          session.getTabManager().addTab(new TaskResultsTabItem(object.getTask()));
+        }
+      }
+    });
 
-		final CellTable<ServiceState> table = callback.getTable(new FieldUpdater<ServiceState, String>(){
-			// on row click
-			public void update(int index, final ServiceState object, String value) {
-				// show results if any present
-				if (object.getTask() != null) {
-					session.getTabManager().addTab(new TaskResultsTabItem(object.getTask()));
-				}
-			}
-		});
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    final CustomButton forceButton = new CustomButton(ButtonTranslation.INSTANCE.forcePropagationButton(),
+        ButtonTranslation.INSTANCE.forcePropagation(), SmallIcons.INSTANCE.arrowRightIcon());
+    forceButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
 
-		final CustomButton forceButton = new CustomButton(ButtonTranslation.INSTANCE.forcePropagationButton(), ButtonTranslation.INSTANCE.forcePropagation(), SmallIcons.INSTANCE.arrowRightIcon());
-		forceButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
+        final ArrayList<ServiceState> forceList = callback.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(forceList)) {
 
-				final ArrayList<ServiceState> forceList = callback.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(forceList)) {
+          // TODO - translated Widget
+          boolean denied = false;
+          VerticalPanel vp = new VerticalPanel();
+          vp.add(new HTML(
+              "<p>Some services can't be forcefully propagated, because they are <strong>blocked on facility</strong>. Please change their state to 'Allowed' before starting force propagation.</p>"));
+          for (int i = 0; i < forceList.size(); i++) {
+            if (forceList.get(i).isBlockedOnFacility() || forceList.get(i).isBlockedGlobally()) {
+              vp.add(new Label(" - " + forceList.get(i).getService().getName()));
+              denied = true;
+            }
+          }
+          if (denied) {
+            // show conf
+            Confirm c = new Confirm("Can't propagated blocked services", vp, true);
+            c.show();
+            return;
+          }
+        }
 
-					// TODO - translated Widget
-					boolean denied = false;
-					VerticalPanel vp = new VerticalPanel();
-					vp.add(new HTML("<p>Some services can't be forcefully propagated, because they are <strong>blocked on facility</strong>. Please change their state to 'Allowed' before starting force propagation.</p>"));
-					for (int i=0; i<forceList.size(); i++ ) {
-						if (forceList.get(i).isBlockedOnFacility() || forceList.get(i).isBlockedGlobally()) {
-							vp.add(new Label(" - "+forceList.get(i).getService().getName()));
-							denied = true;
-						}
-					}
-					if (denied) {
-						// show conf
-						Confirm c = new Confirm("Can't propagated blocked services", vp, true);
-						c.show();
-						return;
-					}
-				}
+        // show propagation status page on last call start
+        JsonCallbackEvents events = new JsonCallbackEvents() {
+          @Override
+          public void onFinished(JavaScriptObject jso) {
+            // unselect all services
+            for (ServiceState service : forceList) {
+              callback.getSelectionModel().setSelected(service, false);
+            }
+          }
+        };
 
-				// show propagation status page on last call start
-				JsonCallbackEvents events = new JsonCallbackEvents(){
-					@Override
-					public void onFinished(JavaScriptObject jso) {
-						// unselect all services
-						for (ServiceState service : forceList) {
-							callback.getSelectionModel().setSelected(service, false);
-						}
-					}
-				};
+        // starts propagation for all selected services
+        for (int i = 0; i < forceList.size(); i++) {
+          if (i != forceList.size() - 1) {
+            // force propagation
+            ForceServicePropagation request =
+                new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(forceButton));
+            request.forcePropagation(facility.getId(), forceList.get(i).getService().getId());
+          } else {
+            // force propagation with show status page
+            ForceServicePropagation request =
+                new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(forceButton, events));
+            request.forcePropagation(facility.getId(), forceList.get(i).getService().getId());
+          }
+        }
 
-				// starts propagation for all selected services
-				for (int i=0; i<forceList.size(); i++ ) {
-					if (i != forceList.size()-1) {
-						// force propagation
-						ForceServicePropagation request = new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(forceButton));
-						request.forcePropagation(facility.getId(), forceList.get(i).getService().getId());
-					} else {
-						// force propagation with show status page
-						ForceServicePropagation request = new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(forceButton, events));
-						request.forcePropagation(facility.getId(), forceList.get(i).getService().getId());
-					}
-				}
+      }
+    });
 
-			}
-		});
+    final CustomButton blockButton = new CustomButton(ButtonTranslation.INSTANCE.blockPropagationButton(),
+        ButtonTranslation.INSTANCE.blockServicesOnFacility(), SmallIcons.INSTANCE.stopIcon());
+    final CustomButton allowButton = new CustomButton(ButtonTranslation.INSTANCE.allowPropagationButton(),
+        ButtonTranslation.INSTANCE.allowServicesOnFacility(), SmallIcons.INSTANCE.acceptIcon());
 
-		final CustomButton blockButton = new CustomButton(ButtonTranslation.INSTANCE.blockPropagationButton(), ButtonTranslation.INSTANCE.blockServicesOnFacility(), SmallIcons.INSTANCE.stopIcon());
-		final CustomButton allowButton = new CustomButton(ButtonTranslation.INSTANCE.allowPropagationButton(), ButtonTranslation.INSTANCE.allowServicesOnFacility(), SmallIcons.INSTANCE.acceptIcon());
+    final CustomButton deleteButton =
+        new CustomButton(ButtonTranslation.INSTANCE.deleteButton(), ButtonTranslation.INSTANCE.deleteTasks(),
+            SmallIcons.INSTANCE.deleteIcon());
 
-		final CustomButton deleteButton = new CustomButton(ButtonTranslation.INSTANCE.deleteButton(), ButtonTranslation.INSTANCE.deleteTasks(), SmallIcons.INSTANCE.deleteIcon());
+    blockButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        final ArrayList<ServiceState> list = callback.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          for (int i = 0; i < list.size(); i++) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+            BlockServiceOnFacility sendRequest =
+                new BlockServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(blockButton));
+            JsonCallbackEvents events =
+                JsonCallbackEvents.disableButtonEvents(blockButton, JsonCallbackEvents.refreshTableEvents(callback));
+            if (i == list.size() - 1) {
+              sendRequest.setEvents(events);
+            }
+            if (list.get(i).getTask() != null) {
+              sendRequest.blockService(list.get(i).getTask().getService().getId());
+            }
+          }
+        }
+      }
+    });
 
-		blockButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<ServiceState> list = callback.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					for (int i = 0; i < list.size(); i++) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						BlockServiceOnFacility sendRequest = new BlockServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(blockButton));
-						JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(blockButton, JsonCallbackEvents.refreshTableEvents(callback));
-						if (i == list.size()-1) sendRequest.setEvents(events);
-						if (list.get(i).getTask() != null) sendRequest.blockService(list.get(i).getTask().getService().getId());
-					}
-				}
-			}
-		});
+    allowButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        final ArrayList<ServiceState> list = callback.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          for (int i = 0; i < list.size(); i++) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+            UnblockServiceOnFacility sendRequest =
+                new UnblockServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(allowButton));
+            JsonCallbackEvents events =
+                JsonCallbackEvents.disableButtonEvents(allowButton, JsonCallbackEvents.refreshTableEvents(callback));
+            if (i == list.size() - 1) {
+              sendRequest.setEvents(events);
+            }
+            if (list.get(i).getTask() != null) {
+              sendRequest.unblockService(list.get(i).getTask().getService().getId());
+            }
+          }
+        }
+      }
+    });
 
-		allowButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<ServiceState> list = callback.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					for (int i = 0; i < list.size(); i++) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						UnblockServiceOnFacility sendRequest = new UnblockServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(allowButton));
-						JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(allowButton, JsonCallbackEvents.refreshTableEvents(callback));
-						if (i == list.size()-1) sendRequest.setEvents(events);
-						if (list.get(i).getTask() != null) sendRequest.unblockService(list.get(i).getTask().getService().getId());
-					}
-				}
-			}
-		});
+    TabMenu menu = new TabMenu();
+    menu.addWidget(refreshButton);
+    menu.addWidget(forceButton);
+    menu.addWidget(allowButton);
+    menu.addWidget(blockButton);
 
-		TabMenu menu = new TabMenu();
-		menu.addWidget(refreshButton);
-		menu.addWidget(forceButton);
-		menu.addWidget(allowButton);
-		menu.addWidget(blockButton);
+    if (session.isPerunAdmin()) {
+      menu.addWidget(deleteButton);
+      deleteButton.setEnabled(false);
+      JsonUtils.addTableManagedButton(callback, table, deleteButton);
 
-		if (session.isPerunAdmin()) {
-			menu.addWidget(deleteButton);
-			deleteButton.setEnabled(false);
-			JsonUtils.addTableManagedButton(callback, table, deleteButton);
+      deleteButton.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          final ArrayList<ServiceState> list = callback.getTableSelectedList();
+          if (UiElements.cantSaveEmptyListDialogBox(list)) {
+            UiElements.generateAlert("",
+                "This action will also delete all propagation results. <p>If service is still assigned to any resource, it will be listed in a table.",
+                new ClickHandler() {
+                  @Override
+                  public void onClick(ClickEvent event) {
+                    for (ServiceState ss : list) {
+                      DeleteTask deleteTask = new DeleteTask(JsonCallbackEvents.disableButtonEvents(deleteButton));
+                      deleteTask.setEvents(JsonCallbackEvents.disableButtonEvents(deleteButton,
+                          JsonCallbackEvents.refreshTableEvents(callback)));
+                      if (ss.getTask() != null) {
+                        deleteTask.deleteTask(ss.getTask().getId());
+                      }
+                    }
+                  }
+                });
+          }
+        }
+      });
+    }
 
-			deleteButton.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					final ArrayList<ServiceState> list = callback.getTableSelectedList();
-					if (UiElements.cantSaveEmptyListDialogBox(list)) {
-						UiElements.generateAlert("", "This action will also delete all propagation results. <p>If service is still assigned to any resource, it will be listed in a table.", new ClickHandler() {
-							@Override
-							public void onClick(ClickEvent event) {
-								for (ServiceState ss : list) {
-									DeleteTask deleteTask = new DeleteTask(JsonCallbackEvents.disableButtonEvents(deleteButton));
-									deleteTask.setEvents(JsonCallbackEvents.disableButtonEvents(deleteButton, JsonCallbackEvents.refreshTableEvents(callback)));
-									if (ss.getTask() != null) deleteTask.deleteTask(ss.getTask().getId());
-								}
-							}
-						});
-					}
-				}
-			});
-		}
+    forceButton.setEnabled(false);
+    allowButton.setEnabled(false);
+    blockButton.setEnabled(false);
 
-		forceButton.setEnabled(false);
-		allowButton.setEnabled(false);
-		blockButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(callback, table, forceButton);
+    JsonUtils.addTableManagedButton(callback, table, allowButton);
+    JsonUtils.addTableManagedButton(callback, table, blockButton);
 
-		JsonUtils.addTableManagedButton(callback, table, forceButton);
-		JsonUtils.addTableManagedButton(callback, table, allowButton);
-		JsonUtils.addTableManagedButton(callback, table, blockButton);
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
+    vp.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
-		vp.add(sp);
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    this.contentWidget.setWidget(vp);
 
-		this.contentWidget.setWidget(vp);
+    return getWidget();
+  }
 
-		return getWidget();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.serverInformationIcon();
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.serverInformationIcon();
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1373;
+    int result = 1;
+    result = prime * result + facilityId;
+    return result;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1373;
-		int result = 1;
-		result = prime * result + facilityId;
-		return result;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FacilityStatusTabItem other = (FacilityStatusTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FacilityStatusTabItem other = (FacilityStatusTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		return true;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(facility, "Services status", getUrlWithParameters());
+    if (facility != null) {
+      session.setActiveFacility(facility);
+    } else {
+      session.setActiveFacilityId(facilityId);
+    }
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(facility, "Services status", getUrlWithParameters());
-		if(facility != null) {
-			session.setActiveFacility(facility);
-		} else {
-			session.setActiveFacilityId(facilityId);
-		}
-	}
+  public boolean isAuthorized() {
 
-	public boolean isAuthorized() {
+    if (session.isFacilityAdmin(facility.getId())) {
+      return true;
+    } else {
+      return false;
+    }
 
-		if (session.isFacilityAdmin(facility.getId())) {
-			return true;
-		} else {
-			return false;
-		}
+  }
 
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	public final static String URL = "status";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
-	}
-
-	static public FacilityStatusTabItem load(Facility facility) {
-		return new FacilityStatusTabItem(facility);
-	}
-
-	static public FacilityStatusTabItem load(Map<String, String> parameters) {
-		int fid = Integer.parseInt(parameters.get("id"));
-		return new FacilityStatusTabItem(fid);
-	}
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
+  }
 
 }

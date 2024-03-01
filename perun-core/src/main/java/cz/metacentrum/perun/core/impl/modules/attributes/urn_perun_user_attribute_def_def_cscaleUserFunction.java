@@ -15,25 +15,31 @@ import java.util.List;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_cscaleUserFunction extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_cscaleUserFunction extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	private final static List<String> allowedValues = Arrays.asList("expert", "manager", "researcher", "technician", "other");
+  private final static List<String> allowedValues =
+      Arrays.asList("expert", "manager", "researcher", "technician", "other");
 
-	/**
-	 * Checks if users function has allowed value
-	 *
-	 * @param sess PerunSession
-	 * @param user user
-	 * @param attribute Attribute of the user
-	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
-	 */
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) return;
+  /**
+   * Checks if users function has allowed value
+   *
+   * @param sess      PerunSession
+   * @param user      user
+   * @param attribute Attribute of the user
+   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   */
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		if (!allowedValues.contains(attribute.valueAsString())) {
-			throw new WrongAttributeValueException(attribute, "Attribute must have one of allowed values: expert, manager, researcher, technician, other.");
-		}
-	}
+    if (!allowedValues.contains(attribute.valueAsString())) {
+      throw new WrongAttributeValueException(attribute,
+          "Attribute must have one of allowed values: expert, manager, researcher, technician, other.");
+    }
+  }
 
 }

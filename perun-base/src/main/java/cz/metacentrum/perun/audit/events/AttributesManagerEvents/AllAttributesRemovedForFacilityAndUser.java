@@ -7,35 +7,35 @@ import cz.metacentrum.perun.core.api.User;
 
 public class AllAttributesRemovedForFacilityAndUser extends AuditEvent implements EngineIgnoreEvent {
 
-	private Facility facility;
-	private User user;
-	private String message;
+  private Facility facility;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AllAttributesRemovedForFacilityAndUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AllAttributesRemovedForFacilityAndUser() {
+  }
 
-	public AllAttributesRemovedForFacilityAndUser(Facility facility, User user) {
-		this.facility = facility;
-		this.user = user;
-		this.message = formatMessage("All attributes removed for %s and %s.", facility, user);
-	}
+  public AllAttributesRemovedForFacilityAndUser(Facility facility, User user) {
+    this.facility = facility;
+    this.user = user;
+    this.message = formatMessage("All attributes removed for %s and %s.", facility, user);
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

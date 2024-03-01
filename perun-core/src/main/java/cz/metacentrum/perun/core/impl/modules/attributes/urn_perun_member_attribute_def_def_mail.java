@@ -15,50 +15,61 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 
 /**
  * @author Michal Šťava   <stava.michal@gmail.com>
  */
-public class urn_perun_member_attribute_def_def_mail extends MemberAttributesModuleAbstract implements MemberAttributesModuleImplApi {
+public class urn_perun_member_attribute_def_def_mail extends MemberAttributesModuleAbstract
+    implements MemberAttributesModuleImplApi {
 
-	private static final String A_U_preferredMail = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
-	private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
+  private static final String A_U_preferredMail = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+  private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		Matcher emailMatcher = Utils.emailPattern.matcher(attribute.valueAsString());
-		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, "Email is not in correct form.");
-	}
+    Matcher emailMatcher = Utils.emailPattern.matcher(attribute.valueAsString());
+    if (!emailMatcher.find()) {
+      throw new WrongAttributeValueException(attribute, "Email is not in correct form.");
+    }
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if(attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, "Member mail can't be null.");
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Member mail can't be null.");
+    }
+  }
 
-	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws WrongReferenceAttributeValueException {
-		User user = session.getPerunBl().getUsersManagerBl().getUserByMember(session, member);
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    User user = session.getPerunBl().getUsersManagerBl().getUserByMember(session, member);
 
-		if(attribute.getValue() != null) {
-			Attribute userPreferredMail = null;
-			try {
-				userPreferredMail = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_preferredMail);
-				if(userPreferredMail.getValue() == null) {
-					userPreferredMail.setValue(attribute.getValue());
-					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, userPreferredMail);
-				}
-			} catch (WrongAttributeAssignmentException ex) {
-				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch (WrongAttributeValueException ex) {
-				throw new WrongReferenceAttributeValueException(attribute, userPreferredMail, "Mismatch in checking of member mail and user preferredMail (different checking rules).", ex);
-			}
-		}
+    if (attribute.getValue() != null) {
+      Attribute userPreferredMail = null;
+      try {
+        userPreferredMail =
+            session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_preferredMail);
+        if (userPreferredMail.getValue() == null) {
+          userPreferredMail.setValue(attribute.getValue());
+          session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, userPreferredMail);
+        }
+      } catch (WrongAttributeAssignmentException ex) {
+        throw new InternalErrorException(ex);
+      } catch (AttributeNotExistsException ex) {
+        throw new ConsistencyErrorException(ex);
+      } catch (WrongAttributeValueException ex) {
+        throw new WrongReferenceAttributeValueException(attribute, userPreferredMail,
+            "Mismatch in checking of member mail and user preferredMail (different checking rules).", ex);
+      }
+    }
 
 		/* This funcionality is not needed now
 		//if this mail has been removed, check user preffered mail if the value is still correct, if not set a new one or remove it if no other exists
@@ -110,16 +121,16 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 		} catch(WrongAttributeValueException ex) {
 		throw new WrongReferenceAttributeValueException("There is mismatch between possible format of member mail and userPreferredMail", ex);
 		}*/
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-		attr.setFriendlyName("mail");
-		attr.setDisplayName("Mail");
-		attr.setType(String.class.getName());
-		attr.setDescription("Member's trusted mail.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+    attr.setFriendlyName("mail");
+    attr.setDisplayName("Mail");
+    attr.setType(String.class.getName());
+    attr.setDescription("Member's trusted mail.");
+    return attr;
+  }
 }

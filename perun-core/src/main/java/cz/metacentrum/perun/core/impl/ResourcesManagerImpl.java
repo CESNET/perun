@@ -66,1510 +66,1645 @@ import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_MAPPER;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 /**
- *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
-	private static final int MERGE_TRY_CNT = 10;
-	private static final long MERGE_RAND_SLEEP_MAX = 100;  //max sleep time between SQL merge atempt in milisecond
-
-	final static Logger log = LoggerFactory.getLogger(ResourcesManagerImpl.class);
-
-	protected final static String resourceMappingSelectQuery = "resources.id as resources_id, resources.uu_id as resources_uu_id, resources.facility_id as resources_facility_id, " +
-		"resources.name as resources_name, resources.dsc as resources_dsc, resources.vo_id as resources_vo_id, " +
-		"resources.created_at as resources_created_at, resources.created_by as resources_created_by, resources.modified_by as resources_modified_by, " +
-		"resources.modified_at as resources_modified_at, resources.modified_by_uid as resources_modified_by_uid, resources.created_by_uid as resources_created_by_uid";
-
-	protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
-		", groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id, groups_resources_automatic.auto_assign_subgroups as auto_assign_subgroups, " + FacilitiesManagerImpl.facilityMappingSelectQuery;
-
-	protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery + ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
-		", " + GroupsManagerImpl.groupMappingSelectQuery;
-
-	protected final static String resourceTagMappingSelectQuery = "res_tags.id as res_tags_id, res_tags.vo_id as res_tags_vo_id, res_tags.tag_name as res_tags_tag_name, " +
-		"res_tags.created_at as res_tags_created_at, res_tags.created_by as res_tags_created_by, res_tags.modified_by as res_tags_modified_by, " +
-		"res_tags.modified_at as res_tags_modified_at, res_tags.modified_by_uid as res_tags_modified_by_uid, res_tags.created_by_uid as res_tags_created_by_uid";
-
-	protected final static String banOnResourceMappingSelectQuery = "resources_bans.id as res_bans_id, resources_bans.description as res_bans_description, " +
-		"resources_bans.member_id as res_bans_member_id, resources_bans.resource_id as res_bans_resource_id, resources_bans.banned_to as res_bans_validity_to, " +
-		"resources_bans.created_at as res_bans_created_at, resources_bans.created_by as res_bans_created_by, resources_bans.modified_at as res_bans_modified_at, " +
-		"resources_bans.modified_by as res_bans_modified_by, resources_bans.created_by_uid as res_bans_created_by_uid, resources_bans.modified_by_uid as res_bans_modified_by_uid";
-
-	private final JdbcPerunTemplate jdbc;
-	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-	protected static final RowMapper<Resource> RESOURCE_MAPPER = (resultSet, i) -> {
-		Resource resource = new Resource();
-		resource.setId(resultSet.getInt("resources_id"));
-		resource.setUuid(resultSet.getObject("resources_uu_id", UUID.class));
-		resource.setName(resultSet.getString("resources_name"));
-		resource.setDescription(resultSet.getString("resources_dsc"));
-		resource.setFacilityId(resultSet.getInt("resources_facility_id"));
-		resource.setVoId(resultSet.getInt("resources_vo_id"));
-		resource.setCreatedAt(resultSet.getString("resources_created_at"));
-		resource.setCreatedBy(resultSet.getString("resources_created_by"));
-		resource.setModifiedAt(resultSet.getString("resources_modified_at"));
-		resource.setModifiedBy(resultSet.getString("resources_modified_by"));
-		if(resultSet.getInt("resources_modified_by_uid") == 0) resource.setModifiedByUid(null);
-		else resource.setModifiedByUid(resultSet.getInt("resources_modified_by_uid"));
-		if(resultSet.getInt("resources_created_by_uid") == 0) resource.setCreatedByUid(null);
-		else resource.setCreatedByUid(resultSet.getInt("resources_created_by_uid"));
-		return resource;
-	};
-
-	protected static final RowMapper<AssignedResource> ASSIGNED_RESOURCE_MAPPER = (resultSet, i) -> {
-		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
-		EnrichedResource enrichedResource = new EnrichedResource(resource, null);
-		Integer sourceGroupId = resultSet.getInt("groups_resources_automatic_source_group_id");
-		sourceGroupId = resultSet.wasNull() ? null : sourceGroupId;
-		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
-		Facility facility = FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i);
-		boolean autoAssignSubgroups = resultSet.getBoolean("auto_assign_subgroups");
-		return new AssignedResource(enrichedResource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), sourceGroupId, failureCause, facility, autoAssignSubgroups);
-	};
-
-	protected static final RowMapper<GroupResourceAssignment> GROUP_RESOURCE_ASSIGNMENT_MAPPER = (resultSet, i) -> {
-		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
-		Group group = GroupsManagerImpl.GROUP_MAPPER.mapRow(resultSet, i);
-		String failureCause = resultSet.getString("groups_resources_state_failure_cause");
-		return new GroupResourceAssignment(group, resource, GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), failureCause);
-	};
-
-	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = (resultSet, i) -> {
-		ResourceTag resourceTag = new ResourceTag();
-		resourceTag.setId(resultSet.getInt("res_tags_id"));
-		resourceTag.setVoId(resultSet.getInt("res_tags_vo_id"));
-		resourceTag.setTagName(resultSet.getString("res_tags_tag_name"));
-		resourceTag.setCreatedAt(resultSet.getString("res_tags_created_at"));
-		resourceTag.setCreatedBy(resultSet.getString("res_tags_created_by"));
-		resourceTag.setModifiedAt(resultSet.getString("res_tags_modified_at"));
-		resourceTag.setModifiedBy(resultSet.getString("res_tags_modified_by"));
-		if(resultSet.getInt("res_tags_modified_by_uid") == 0) resourceTag.setModifiedByUid(null);
-		else resourceTag.setModifiedByUid(resultSet.getInt("res_tags_modified_by_uid"));
-		if(resultSet.getInt("res_tags_created_by_uid") == 0) resourceTag.setCreatedByUid(null);
-		else resourceTag.setCreatedByUid(resultSet.getInt("res_tags_created_by_uid"));
-		return resourceTag;
-	};
-
-	protected static final RowMapper<RichResource> RICH_RESOURCE_MAPPER = (resultSet, i) -> {
-		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
-		if (resource == null) return null;
-		RichResource richResource = new RichResource(resource);
-		richResource.setVo(VosManagerImpl.VO_MAPPER.mapRow(resultSet, i));
-		richResource.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i));
-		return richResource;
-	};
-
-	protected static final RowMapper<BanOnResource> BAN_ON_RESOURCE_MAPPER = (resultSet, i) -> {
-		BanOnResource banOnResource = new BanOnResource();
-		banOnResource.setId(resultSet.getInt("res_bans_id"));
-		banOnResource.setMemberId(resultSet.getInt("res_bans_member_id"));
-		banOnResource.setResourceId(resultSet.getInt("res_bans_resource_id"));
-		banOnResource.setDescription(resultSet.getString("res_bans_description"));
-		banOnResource.setValidityTo(resultSet.getTimestamp("res_bans_validity_to"));
-		banOnResource.setCreatedAt(resultSet.getString("res_bans_created_at"));
-		banOnResource.setCreatedBy(resultSet.getString("res_bans_created_by"));
-		banOnResource.setModifiedAt(resultSet.getString("res_bans_modified_at"));
-		banOnResource.setModifiedBy(resultSet.getString("res_bans_modified_by"));
-		if(resultSet.getInt("res_bans_modified_by_uid") == 0) banOnResource.setModifiedByUid(null);
-		else banOnResource.setModifiedByUid(resultSet.getInt("res_bans_modified_by_uid"));
-		if(resultSet.getInt("res_bans_created_by_uid") == 0) banOnResource.setCreatedByUid(null);
-		else banOnResource.setCreatedByUid(resultSet.getInt("res_bans_created_by_uid"));
-		return banOnResource;
-	};
-
-	protected static final RichResourceExtractor RICH_RESOURCE_WITH_TAGS_EXTRACTOR = new RichResourceExtractor();
-
-	private static class RichResourceExtractor implements ResultSetExtractor<List<RichResource>> {
-
-		@Override
-		public List<RichResource> extractData(ResultSet rs) throws SQLException {
-			Map<Integer, RichResource> map = new HashMap<>();
-			RichResource myObject;
-			while (rs.next()) {
-				// fetch from map by ID
-				Integer id = rs.getInt("resources_id");
-				myObject = map.get(id);
-				if(myObject == null){
-					// if not preset, put in map
-					myObject = RICH_RESOURCE_MAPPER.mapRow(rs, rs.getRow());
-					if (myObject == null) {
-						log.warn("RICH_RESOURCE_MAPPER returned null during extraction of data.");
-						continue;
-					}
-					map.put(id, myObject);
-				}
-				// fetch each resource tag and add it to rich resource
-				ResourceTag tag = RESOURCE_TAG_MAPPER.mapRow(rs, rs.getRow());
-				if (tag != null && tag.getId() != 0) {
-					// add only if exists
-					myObject.addResourceTag(tag);
-				}
-			}
-			return new ArrayList<>(map.values());
-		}
-	}
-
-	public ResourcesManagerImpl(DataSource perunPool) {
-		this.jdbc = new JdbcPerunTemplate(perunPool);
-		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
-		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
-		this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
-
-		// Initialize resources manager
-		this.initialize();
-	}
-
-	@Override
-	public List<Resource> getAllResources(PerunSession sess) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + " from resources", RESOURCE_MAPPER);
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public Resource getResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
-		try {
-			return jdbc.queryForObject("select " + resourceMappingSelectQuery + " from resources where resources.id=?", RESOURCE_MAPPER, id);
-		} catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> ids) {
-		try {
-			return jdbc.execute("select " + resourceMappingSelectQuery + " from resources where id " + Compatibility.getStructureForInClause(),
-				(PreparedStatementCallback<List<Resource>>) preparedStatement -> {
-					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
-					preparedStatement.setArray(1, sqlArray);
-					ResultSet rs = preparedStatement.executeQuery();
-					List<Resource> resources = new ArrayList<>();
-					while (rs.next()) {
-						resources.add(RESOURCE_MAPPER.mapRow(rs, rs.getRow()));
-					}
-					return resources;
-				});
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public RichResource getRichResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
-		try {
-			return jdbc.queryForObject("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-					FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id "
-					+ "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, id);
-		} catch (EmptyResultDataAccessException ex) {
-			throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<RichResource> getRichResourcesByIds(PerunSession perunSession, List<Integer> ids) {
-		try {
-			return jdbc.execute("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery + ", " +
-					resourceTagMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id join facilities on resources.facility_id=facilities.id " +
-					"left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id " +
-					"where resources.id "+ Compatibility.getStructureForInClause(),
-				(PreparedStatementCallback<List<RichResource>>) preparedStatement -> {
-					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
-					preparedStatement.setArray(1, sqlArray);
-					ResultSet rs = preparedStatement.executeQuery();
-					return RICH_RESOURCE_WITH_TAGS_EXTRACTOR.extractData(rs);
-				});
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws ResourceNotExistsException {
-		try {
-			return jdbc.queryForObject("select " + resourceMappingSelectQuery + " from resources where resources.name=? and facility_id=? and vo_id=?",
-					RESOURCE_MAPPER, name, facility.getId(), vo.getId());
-		} catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotExistsException(e);
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public Resource createResource(PerunSession sess, Vo vo, Resource resource, Facility facility) {
-		Utils.notNull(resource.getName(), "resource.getName()");
-
-		int newId;
-		try {
-			newId = Utils.getNewId(jdbc, "resources_id_seq");
-
-			jdbc.update("insert into resources(id, name, dsc, facility_id, vo_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-					newId, resource.getName(), resource.getDescription(), facility.getId(), vo.getId(), sess.getPerunPrincipal().getActor(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-		Resource newResource;
-		try {
-			newResource = getResourceById(sess, newId);
-		} catch (ResourceNotExistsException e) {
-			throw new InternalErrorException("Failed to read newly created resource with id: " + newId, e);
-		}
-		resource.setId(newId);
-		resource.setVoId(newResource.getVoId());
-		resource.setFacilityId(newResource.getFacilityId());
-		resource.setUuid(newResource.getUuid());
-		return newResource;
-	}
-
-	@Override
-	public void deleteResource(PerunSession sess, Vo vo, Resource resource) throws ResourceAlreadyRemovedException {
-		try {
-			// Delete authz entries for this resource
-			AuthzResolverBlImpl.removeAllAuthzForResource(sess, resource);
-
-			int numAffected = jdbc.update("delete from resources where id=?", resource.getId());
-			if(numAffected == 0) throw new ResourceAlreadyRemovedException("Resource: " + resource + " , Vo: " + vo);
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	@Deprecated
-	public int getFacilityId(PerunSession sess, Resource resource) {
-		try {
-			return jdbc.queryForInt("select facility_id from resources where id=?", resource.getId());
-		} catch(EmptyResultDataAccessException ex) {
-			throw new ConsistencyErrorException("Resource doesn't have assigned facility", ex);
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public boolean resourceExists(PerunSession sess, Resource resource) {
-		try {
-			int numberOfExistences = jdbc.queryForInt("select count(1) from resources where id=?", resource.getId());
-			if (numberOfExistences == 1) {
-				return true;
-			} else if (numberOfExistences > 1) {
-				throw new ConsistencyErrorException("Resource " + resource + " exists more than once.");
-			}
-			return false;
-		} catch(EmptyResultDataAccessException ex) {
-			return false;
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void checkResourceExists(PerunSession sess, Resource resource) throws ResourceNotExistsException {
-		if(!this.resourceExists(sess, resource)) throw new ResourceNotExistsException("resource: " + resource);
-	}
-
-	public boolean resourceTagExists(PerunSession sess, ResourceTag resourceTag) {
-		try {
-			int numberOfExistences = jdbc.queryForInt("select count(1) from res_tags where id=?", resourceTag.getId());
-			if (numberOfExistences == 1) {
-				return true;
-			} else if (numberOfExistences > 1) {
-				throw new ConsistencyErrorException("Resource tag " + resourceTag + " exists more than once.");
-			}
-			return false;
-		} catch(EmptyResultDataAccessException ex) {
-			return false;
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws ResourceTagNotExistsException {
-		if(!this.resourceTagExists(sess, resourceTag)) throw new ResourceTagNotExistsException("resource: " + resourceTag);
-	}
-
-	@Override
-	public List<User> getAssignedUsers(PerunSession sess, Resource resource) {
-		try  {
-			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" join users on users.id=members.user_id" +
-					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
-				UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<User> getAllowedUsers(PerunSession sess, Resource resource) {
-		try  {
-			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" join users on users.id=members.user_id" +
-					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status and members.status!=? and members.status!=?",
-				UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), Status.INVALID.getCode(), Status.DISABLED.getCode());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<User> getAssociatedUsers(PerunSession sess, Resource resource) {
-		try  {
-			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" join users on users.id=members.user_id" +
-					" where groups_resources_state.resource_id=?",
-				UsersManagerImpl.USER_MAPPER, resource.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) {
-		try  {
-			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" join users on users.id=members.user_id" +
-					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
-					" and members.status!=? and members.status!=? and groups_members.source_group_status =?",
-				UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(), Status.INVALID.getCode(),
-				Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) {
-		try {
-			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status=?::group_resource_status " +
-					" join groups_members on groups_members.group_id=groups_resources_state.group_id" +
-					" join members on members.id=groups_members.member_id" +
-					" where resources.facility_id=? and members.user_id=? and members.status!=? and members.status!=?",
-				RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(), user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		}	catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResources(PerunSession sess, User user, List<Status> memberStatuses, List<MemberGroupStatus> memberGroupStatuses, List<GroupResourceStatus> groupResourceStatuses) {
-		if (memberStatuses == null || memberStatuses.isEmpty()) {
-			memberStatuses = List.of(Status.values());
-		}
-		if (memberGroupStatuses == null || memberGroupStatuses.isEmpty()) {
-			memberGroupStatuses = List.of(MemberGroupStatus.values());
-		}
-		if (groupResourceStatuses == null || groupResourceStatuses.isEmpty()) {
-			groupResourceStatuses = List.of(GroupResourceStatus.values());
-		}
-
-		String groupResourceStatusesSql = groupResourceStatuses.stream()
-			.map(status -> "'" + status.toString() + "'")
-			.collect(Collectors.joining(", "));
-
-		try {
-			MapSqlParameterSource parameters = new MapSqlParameterSource();
-			List<Integer> memberStatusesCodes = memberStatuses.stream().map(Status::getCode).toList();
-			List<Integer> memberGroupStatusesCodes = memberGroupStatuses.stream().map(MemberGroupStatus::getCode).toList();
-			parameters.addValue("voStatuses", memberStatusesCodes);
-			parameters.addValue("groupStatuses", memberGroupStatusesCodes);
-			parameters.addValue("uid", user.getId());
-
-			return namedParameterJdbcTemplate.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status in (" + groupResourceStatusesSql + ")" +
-					" join groups_members on groups_members.group_id=groups_resources_state.group_id and groups_members.source_group_status in (:groupStatuses)" +
-					" join members on members.id=groups_members.member_id" +
-					" where members.user_id=:uid and members.status in (:voStatuses)", parameters, RESOURCE_MAPPER);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		}	catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) {
-		try  {
-			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status " +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" where groups_resources_state.resource_id=? and members.status!=? and members.status!=?",
-				MEMBER_MAPPER, GroupResourceStatus.ACTIVE.toString(), resource.getId(),
-				Status.INVALID.getCode(), Status.DISABLED.getCode());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource) {
-		try  {
-			// we do include all group statuses for such members
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id " +
-					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
-					" and members.status!=? and members.status!=? and groups_members.source_group_status =?",
-				MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), GroupResourceStatus.ACTIVE.toString(),
-				Status.INVALID.getCode(), Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) {
-		try  {
-			// we do include all group statuses for such members
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id " +
-					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
-				MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(), GroupResourceStatus.ACTIVE.toString());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) {
-		try  {
-			// we do include all group statuses for such members
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsAssignedMembersMappingSelectQuery +
-					" from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id " +
-					" where groups_resources_state.resource_id=?",
-				MembersManagerImpl.ASSIGNED_MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
-
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Member> getAssociatedMembers(PerunSession sess, Resource resource) {
-		try  {
-			// we do include all group statuses for such members
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id " +
-					" where groups_resources_state.resource_id=?",
-				MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public boolean isUserAssigned(PerunSession sess, User user, Resource resource) {
-		try {
-			return (0 < jdbc.queryForInt("select count(*) from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status and members.user_id=?",
-				resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId()));
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) {
-		try {
-			return (0 < jdbc.queryForInt("select count(*) from groups_resources_state" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
-					" and members.user_id=? and members.status!=? and members.status!=?",
-				resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId(), Status.INVALID.getCode(),
-				Status.DISABLED.getCode()));
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource, boolean autoAssignSubgroups) throws GroupAlreadyAssignedException {
-		try {
-			if(1==jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId())) {
-				throw new GroupAlreadyAssignedException(group);
-			}else{
-				jdbc.update("insert into groups_resources (group_id, resource_id, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid, auto_assign_subgroups) " +
-						"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?,?)", group.getId(),
-					resource.getId(), sess.getPerunPrincipal().getActor(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-					autoAssignSubgroups);
-			}
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void assignAutomaticGroupToResource(PerunSession sess, Group group, Resource resource, Group sourceGroup) throws GroupAlreadyAssignedException {
-		try {
-			if(1==jdbc.queryForInt("select count(1) from groups_resources_automatic where group_id=? and resource_id=? and source_group_id=?", group.getId(), resource.getId(), sourceGroup.getId())) {
-				throw new GroupAlreadyAssignedException(group);
-			}else{
-				jdbc.update("insert into groups_resources_automatic (group_id, resource_id, source_group_id, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid) " +
-						"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", group.getId(),
-					resource.getId(), sourceGroup.getId(), sess.getPerunPrincipal().getActor(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			}
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-
-	@Override
-	public void assignGroupToResourceState(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) {
-		try {
-			jdbc.update("insert into groups_resources_state (group_id, resource_id, status) values (?,?,?::group_resource_status)",
-				group.getId(), resource.getId(), status.toString());
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws GroupAlreadyRemovedFromResourceException {
-		try {
-			int numAffected = jdbc.update("delete from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId());
-			if(numAffected == 0) throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource, int sourceGroupId) throws GroupAlreadyRemovedFromResourceException {
-		try {
-			int numAffected = jdbc.update("delete from groups_resources_automatic where group_id=? and resource_id=? and source_group_id=?",
-				group.getId(), resource.getId(), sourceGroupId);
-			if (numAffected == 0) throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-
-	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Group group) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
-					" where groups_resources_state.group_id=? and groups_resources_state.status=?::group_resource_status",
-				RESOURCE_MAPPER, group.getId(), GroupResourceStatus.ACTIVE.toString());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getAssociatedResources(PerunSession sess, Group group) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
-					" where groups_resources_state.group_id=?",
-				RESOURCE_MAPPER, group.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Member member) {
-		try  {
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id " +
-					" where groups_members.member_id=?",
-				RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getAssociatedResources(PerunSession sess, Member member) {
-		try  {
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id" +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" where groups_members.member_id=?",
-				RESOURCE_MAPPER, member.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) {
-		try {
-			List<AssignedResource> resources = jdbc.query("select distinct " + assignedResourceMappingSelectQuery + " from resources" +
-				" join (SELECT group_id, resource_id, NULL as source_group_id, auto_assign_subgroups FROM groups_resources" +
-				"	UNION" +
-				"	SELECT group_id, resource_id, source_group_id, true as auto_assign_subgroups FROM groups_resources_automatic)" +
-				" 	groups_resources_automatic on groups_resources_automatic.resource_id = resources.id" +
-				" join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
-				" join facilities on resources.facility_id=facilities.id" +
-				" join groups on groups_resources_state.group_id=groups.id" +
-				" join groups_members on groups.id=groups_members.group_id" +
-				" where groups_members.member_id=?", ASSIGNED_RESOURCE_MAPPER, member.getId());
-
-			resources.removeIf(r1 -> resources.stream()
-				.anyMatch(r2 -> r2.getEnrichedResource().equals(r1.getEnrichedResource()) && r2.getStatus().isMoreImportantThan(r1.getStatus())));
-
-			return resources;
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) {
-		try  {
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join resource_services on resource_services.resource_id=resources.id" +
-					" where groups_members.member_id=? and resource_services.service_id=?",
-				RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId(), service.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) {
-		try  {
-			// FIXME - can we optimize SQL to limit joined data at start (limit resources.vo_id) ?
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join members on groups_members.member_id=members.id" +
-					" where members.user_id=? and members.vo_id=?",
-				RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), user.getId(), vo.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, Group group) {
-
-		try {
-			// FIXME - can we optimize SQL to limit joined data at start (start select from groups_resources) ?
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
-					" join vos on resources.vo_id=vos.id" +
-					" join facilities on resources.facility_id=facilities.id" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status" +
-					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
-					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
-					" where groups_resources_state.group_id=?",
-				RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), group.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) {
-		try  {
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
-					" join vos on resources.vo_id=vos.id" +
-					" join facilities on resources.facility_id=facilities.id" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
-					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
-					" where groups_members.member_id=?",
-				RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), member.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) {
-		try  {
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
-					" join vos on resources.vo_id=vos.id" +
-					" join facilities on resources.facility_id=facilities.id" +
-					" join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
-					" join groups on groups_resources_state.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id" +
-					" join resource_services on resource_services.resource_id=resources.id" +
-					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
-					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
-					" where groups_members.member_id=? and resource_services.service_id=?",
-				RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), member.getId(), service.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public boolean isGroupAssigned(PerunSession sess, Resource resource, Group group) {
-		try {
-			return 1 == jdbc.queryForInt("select count(1) from groups_resources_state where group_id=? and resource_id=? and status=?::group_resource_status",
-				group.getId(), resource.getId(), GroupResourceStatus.ACTIVE.toString());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public boolean groupResourceAssignmentExists(PerunSession sess, Resource resource, Group group) {
-		try {
-			return 1 == jdbc.queryForInt("select count(1) from groups_resources_state where group_id=? and resource_id=?",
-				group.getId(), resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource) {
-		try {
-			return 1 == jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?",
-				group.getId(), resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Service> getAssignedServices(PerunSession sess, Resource resource) {
-		try {
-			return jdbc.query("select "+ ServicesManagerImpl.serviceMappingSelectQuery + " from services" +
-					" join resource_services on services.id=resource_services.service_id and resource_services.resource_id=?",
-				ServicesManagerImpl.SERVICE_MAPPER, resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void assignService(PerunSession sess, Resource resource, Service service) throws ServiceAlreadyAssignedException {
-		try {
-			if (0 < jdbc.queryForInt("select count(*) from resource_services where service_id=? and resource_id=?", service.getId(), resource.getId())) {
-				throw new ServiceAlreadyAssignedException(service);
-			}
-			jdbc.update("insert into resource_services(service_id, resource_id, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
-					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", service.getId(), resource.getId(),
-				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void removeService(PerunSession sess, Resource resource, Service service) throws ServiceNotAssignedException {
-		try {
-			if(0 == jdbc.update("delete from resource_services where service_id=? and resource_id=?", service.getId(), resource.getId())) {
-				throw new ServiceNotAssignedException(service);
-			}
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<Resource> getResources(PerunSession sess, Vo vo) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery+ " from resources where resources.vo_id=?", RESOURCE_MAPPER, vo.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResources(PerunSession sess) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery+ " from resources", RESOURCE_MAPPER);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<RichResource> getRichResources(PerunSession sess, Vo vo) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+ resourceTagMappingSelectQuery +" from resources" +
-					" join vos on resources.vo_id=vos.id" +
-					" join facilities on resources.facility_id=facilities.id" +
-					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
-					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
-					" where resources.vo_id=?",
-				RICH_RESOURCE_WITH_TAGS_EXTRACTOR, vo.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<RichResource> getRichResourcesWithMemberAndAttribute(PerunSession perunSession, Member member, AttributeDefinition ad) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-				FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery +
-				" from resources " +
-					"join vos on resources.vo_id=vos.id " +
-					"join facilities on resources.facility_id=facilities.id " +
-					"join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
-					"join groups on groups_resources_state.group_id=groups.id " +
-					"join groups_members on groups.id=groups_members.group_id " +
-					"join resource_services on resource_services.resource_id=resources.id " +
-					"join services on resource_services.service_id=services.id " +
-					"join service_required_attrs on services.id=service_required_attrs.service_id " +
-					"left outer join tags_resources on resources.id=tags_resources.resource_id " +
-					"left outer join res_tags on tags_resources.tag_id=res_tags.id " +
-				"where service_required_attrs.attr_id=? and groups_members.member_id=?",
-				RICH_RESOURCE_WITH_TAGS_EXTRACTOR,
-				GroupResourceStatus.ACTIVE.toString(), ad.getId(), member.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public Resource updateResource(PerunSession sess, Resource resource) {
-		try {
-			Map<String, Object> map = jdbc.queryForMap("select name, dsc from resources where id=?", resource.getId());
-
-			if (!resource.getName().equals(map.get("name")) && !resource.getDescription().equals(map.get("dsc"))) {
-				jdbc.update("update resources set name=?, dsc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", resource.getName(),
-					resource.getDescription(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), resource.getId());
-			} else if (!resource.getDescription().equals(map.get("dsc"))) {
-				jdbc.update("update resources set dsc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", resource.getDescription(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), resource.getId());
-			} else if (!resource.getName().equals(map.get("name"))) {
-				jdbc.update("update resources set name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", resource.getName(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), resource.getId());
-			}
-
-			return resource;
-		} catch (EmptyResultDataAccessException ex) {
-			throw new ConsistencyErrorException("Updating non existing Resource", ex);
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public int getResourcesCount(PerunSession perunSession, Vo vo) {
-		try {
-			return jdbc.queryForInt("select count(*) from resources where resources.vo_id=?",
-				vo.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + " from resources join " +
-					"resource_attr_values on resources.id=resource_attr_values.resource_id " +
-					"where resource_attr_values.attr_id=? and resource_attr_values.attr_value=?",
-				RESOURCE_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) {
-		try {
-			int newId = Utils.getNewId(jdbc, "res_tags_seq");
-
-			jdbc.update("insert into res_tags(id, vo_id, tag_name, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-					"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-				newId, vo.getId(), resourceTag.getTagName(), perunSession.getPerunPrincipal().getActor(),
-				perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(),
-				perunSession.getPerunPrincipal().getUserId());
-
-			resourceTag.setId(newId);
-			resourceTag.setVoId(vo.getId());
-
-			return resourceTag;
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
-		try {
-			Map<String, Object> map = jdbc.queryForMap("select tag_name from res_tags where id=?", resourceTag.getId());
-
-			if (!resourceTag.getTagName().equals(map.get("tag_name"))) {
-				jdbc.update("update res_tags set tag_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?",
-					resourceTag.getTagName(), perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), resourceTag.getId());
-			}
-
-			return resourceTag;
-		} catch (EmptyResultDataAccessException ex) {
-			throw new ConsistencyErrorException("Updating non existing resourceTag", ex);
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
-		try {
-			jdbc.update("delete from res_tags where id=?", resourceTag.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) {
-		try {
-			jdbc.update("delete from res_tags where vo_id=?", vo.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) {
-		try {
-			jdbc.update("insert into tags_resources(tag_id, resource_id) values(?,?)", resourceTag.getId(),resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) {
-		try {
-			jdbc.update("delete from tags_resources where tag_id=? and resource_id=?", resourceTag.getId(), resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) {
-		try {
-			jdbc.update("delete from tags_resources where resource_id=?", resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
-					" join tags_resources on resources.id=tags_resources.resource_id" +
-					" where tags_resources.tag_id=?",
-				RESOURCE_MAPPER, resourceTag.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) {
-		try {
-			return jdbc.query("select " + resourceTagMappingSelectQuery + " from vos" +
-					" join res_tags on vos.id=res_tags.vo_id" +
-					" where res_tags.vo_id=?",
-				RESOURCE_TAG_MAPPER, vo.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) {
-		try {
-			return jdbc.query("select " + resourceTagMappingSelectQuery + " from tags_resources" +
-					" join res_tags on tags_resources.tag_id=res_tags.id" +
-					" where tags_resources.resource_id=?",
-				RESOURCE_TAG_MAPPER, resource.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public int getResourcesCount(PerunSession sess) {
-		try {
-			return jdbc.queryForInt("select count(*) from resources");
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<User> getAdmins(PerunSession sess, Resource resource) {
-		try {
-			// Direct admins
-			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
-					"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
-				UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase()));
-
-			// Admins through a group
-			List<Group> listOfGroupAdmins = getAdminGroups(sess, resource);
-			for(Group authorizedGroup : listOfGroupAdmins) {
-				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
-					"join groups_members on groups_members.member_id=members.id and groups_members.source_group_status=? where groups_members.group_id=? and members.status=?", UsersManagerImpl.USER_MAPPER, MemberGroupStatus.VALID.getCode(), authorizedGroup.getId(), Status.VALID.getCode()));
-			}
-
-			return new ArrayList(setOfAdmins);
-
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<User> getDirectAdmins(PerunSession perunSession, Resource resource) {
-		try {
-			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
-					"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
-				UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase());
-
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Group> getAdminGroups(PerunSession sess, Resource resource) {
-		try {
-			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
-					" where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
-				GroupsManagerImpl.GROUP_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) {
-		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + " from resources " +
-					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
-					" left outer join members on members.id=groups_members.member_id" +
-					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null)",
-				RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), user.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) {
-		try {
-			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
-					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
-					" left outer join members on members.id=groups_members.member_id" +
-					" where resources.facility_id=? and resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
-					" and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
-				,RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) {
-		try {
-			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
-					" left outer join authz on authz.resource_id=resources.id " +
-					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=? " +
-					" left outer join members on members.id=groups_members.member_id" +
-					" where resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
-					" and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
-				,RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) {
-		try {
-			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
-					" left outer join authz on authz.resource_id=resources.id " +
-					" where resources.facility_id=? and resources.vo_id=? and authz.authorized_group_id=? and authz.role_id=(select id from roles where name=?)"
-				,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedGroup.getId(), Role.RESOURCEADMIN.toLowerCase());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public boolean banExists(PerunSession sess, int memberId, int resourceId) {
-		try {
-			int numberOfExistences = jdbc.queryForInt("select count(1) from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
-			if (numberOfExistences == 1) {
-				return true;
-			} else if (numberOfExistences > 1) {
-				throw new ConsistencyErrorException("Ban on member with ID=" + memberId + " and resource with ID=" + resourceId + " exists more than once.");
-			}
-			return false;
-		} catch(EmptyResultDataAccessException ex) {
-			return false;
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public boolean banExists(PerunSession sess, int banId) {
-		try {
-			int numberOfExistences = jdbc.queryForInt("select count(1) from resources_bans where id=?", banId);
-			if (numberOfExistences == 1) {
-				return true;
-			} else if (numberOfExistences > 1) {
-				throw new ConsistencyErrorException("Ban with ID=" + banId + " exists more than once.");
-			}
-			return false;
-		} catch(EmptyResultDataAccessException ex) {
-			return false;
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) {
-		try {
-			int newId = Utils.getNewId(jdbc, "resources_bans_id_seq");
-
-			jdbc.update("insert into resources_bans(id, description, banned_to, member_id, resource_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
-					"values (?,?,"+ (banOnResource.getValidityTo() != null ? "'" + Compatibility.getDate(banOnResource.getValidityTo().getTime()) + "'" : "DEFAULT") + ",?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-				newId, banOnResource.getDescription(), banOnResource.getMemberId(), banOnResource.getResourceId(), sess.getPerunPrincipal().getActor(),
-				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-
-			banOnResource.setId(newId);
-			// need to adjust date in object if original date was null and default date was assigned in db
-			if (banOnResource.getValidityTo() == null) {
-				banOnResource.setValidityTo(jdbc.queryForObject("select banned_to from resources_bans where id =" + newId, Timestamp.class));
-			}
-
-			return banOnResource;
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public BanOnResource getBanById(PerunSession sess, int banId) throws BanNotExistsException {
-		try {
-			return jdbc.queryForObject("select " + banOnResourceMappingSelectQuery + " from resources_bans where id=? ", BAN_ON_RESOURCE_MAPPER, banId);
-		} catch (EmptyResultDataAccessException ex) {
-			throw new BanNotExistsException("Ban with id " + banId + " not exists for any facility.");
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException {
-		try {
-			return jdbc.queryForObject("select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=? and resource_id=?", BAN_ON_RESOURCE_MAPPER, memberId, resourceId);
-		} catch (EmptyResultDataAccessException ex) {
-			throw new BanNotExistsException("Ban for user " + memberId + " and resource " + resourceId + " not exists.");
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) {
-		try {
-			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=?", BAN_ON_RESOURCE_MAPPER, memberId);
-		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) {
-		try {
-			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where resource_id=?", BAN_ON_RESOURCE_MAPPER, resourceId);
-		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) {
-		try {
-			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where banned_to < " + Compatibility.getSysdate(), BAN_ON_RESOURCE_MAPPER);
-		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) {
-		try {
-			jdbc.update("update resources_bans set description=?, banned_to="+ (banOnResource.getValidityTo() != null ? "'" + Compatibility.getDate(banOnResource.getValidityTo().getTime()) + "'" : "DEFAULT") + ", modified_by=?, modified_by_uid=?, modified_at=" +
-					Compatibility.getSysdate() + " where id=?",
-				banOnResource.getDescription(), sess.getPerunPrincipal().getActor(),
-				sess.getPerunPrincipal().getUserId(), banOnResource.getId());
-
-			// need to adjust date in object if original date was null and default date was assigned in db
-			if (banOnResource.getValidityTo() == null) {
-				banOnResource.setValidityTo(jdbc.queryForObject("select banned_to from resources_bans where id =" + banOnResource.getId(), Timestamp.class));
-			}
-
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-
-		return banOnResource;
-	}
-
-	@Override
-	public void removeBan(PerunSession sess, int banId) throws BanNotExistsException {
-		try {
-			int numAffected = jdbc.update("delete from resources_bans where id=?", banId);
-			if(numAffected != 1) throw new BanNotExistsException("Ban with id " + banId + " can't be remove, because not exists yet.");
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void removeBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException {
-		try {
-			int numAffected = jdbc.update("delete from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
-			if(numAffected != 1) throw new BanNotExistsException("Ban for member " + memberId + " and resource " + resourceId + " can't be remove, because not exists yet.");
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<AssignedResource> getResourceAssignments(PerunSession sess, Group group) {
-		try {
-			return jdbc.query("select " + assignedResourceMappingSelectQuery + " from resources" +
-				" join (SELECT group_id, resource_id, NULL as source_group_id, auto_assign_subgroups FROM groups_resources" +
-					"	UNION" +
-					"	SELECT group_id, resource_id, source_group_id, true as auto_assign_subgroups FROM groups_resources_automatic)" +
-				" 	groups_resources_automatic on groups_resources_automatic.resource_id = resources.id" +
-				" join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
-				" join facilities on resources.facility_id=facilities.id" +
-				" where groups_resources_state.group_id=?", ASSIGNED_RESOURCE_MAPPER, group.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource) {
-		try {
-			return jdbc.query("select " + GroupsManagerImpl.assignedGroupMappingSelectQuery + " from groups join " +
-					" (SELECT group_id, resource_id, NULL as source_group_id, auto_assign_subgroups FROM groups_resources" +
-					"	UNION" +
-					"	SELECT group_id, resource_id, source_group_id, true as auto_assign_subgroups FROM groups_resources_automatic)" +
-					" 	groups_resources_automatic on groups_resources_automatic.group_id = groups.id" +
-					" join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
-					" where groups_resources_state.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public List<GroupResourceAssignment> getGroupResourceAssignments(PerunSession sess, List<GroupResourceStatus> statuses) {
-		try {
-			if (isEmpty(statuses)) {
-				statuses = Arrays.asList(GroupResourceStatus.values());
-			}
-
-			String statusesSql = statuses.stream()
-				.map(status -> "'" + status.toString() + "'")
-				.collect(Collectors.joining(", "));
-
-			return jdbc.query("select " + groupResourceAssignmentMappingSelectQuery + " from groups " +
-				" join groups_resources_state on groups.id=groups_resources_state.group_id " +
-				" join resources on resources.id=groups_resources_state.resource_id " +
-				" where groups_resources_state.status in (" + statusesSql + ")", GROUP_RESOURCE_ASSIGNMENT_MAPPER);
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public GroupResourceStatus getGroupResourceStatus(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException {
-		try {
-			String status = jdbc.queryForObject("select status from groups_resources_state where group_id=? and resource_id=?",
-				String.class, group.getId(), resource.getId());
-			return GroupResourceStatus.valueOf(status);
-		} catch (EmptyResultDataAccessException ex) {
-			throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void setGroupResourceStatus(PerunSession sess, Group group, Resource resource, GroupResourceStatus status) throws GroupNotDefinedOnResourceException {
-		try {
-			int numAffected = jdbc.update("update groups_resources_state set status=?::group_resource_status" +
-				" where group_id=? and resource_id=?", status.toString(), group.getId(), resource.getId());
-			if (numAffected == 0) {
-				throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public String getFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource) {
-		try {
-			return jdbc.queryForObject("select failure_cause from groups_resources_state where group_id=? and resource_id=?",
-				String.class, group.getId(), resource.getId());
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
-	public void setFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource, String cause) throws GroupNotDefinedOnResourceException {
-		try {
-			int numAffected = jdbc.update("update groups_resources_state set failure_cause=?" +
-				" where group_id=? and resource_id=?", cause, group.getId(), resource.getId());
-			if (numAffected == 0) {
-				throw new GroupNotDefinedOnResourceException("Group " + group.getId() + " is not defined on resource " + resource.getId());
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	protected void initialize() {
-	}
+  protected final static String resourceMappingSelectQuery =
+      "resources.id as resources_id, resources.uu_id as resources_uu_id, resources.facility_id as resources_facility_id, " +
+          "resources.name as resources_name, resources.dsc as resources_dsc, resources.vo_id as resources_vo_id, " +
+          "resources.created_at as resources_created_at, resources.created_by as resources_created_by, resources.modified_by as resources_modified_by, " +
+          "resources.modified_at as resources_modified_at, resources.modified_by_uid as resources_modified_by_uid, resources.created_by_uid as resources_created_by_uid";
+  protected final static String assignedResourceMappingSelectQuery = resourceMappingSelectQuery +
+      ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
+      ", groups_resources_automatic.source_group_id as groups_resources_automatic_source_group_id, groups_resources_automatic.auto_assign_subgroups as auto_assign_subgroups, " +
+      FacilitiesManagerImpl.facilityMappingSelectQuery;
+  protected final static String groupResourceAssignmentMappingSelectQuery = resourceMappingSelectQuery +
+      ", groups_resources_state.status as groups_resources_state_status, groups_resources_state.failure_cause as groups_resources_state_failure_cause" +
+      ", " + GroupsManagerImpl.groupMappingSelectQuery;
+  protected final static String resourceTagMappingSelectQuery =
+      "res_tags.id as res_tags_id, res_tags.vo_id as res_tags_vo_id, res_tags.tag_name as res_tags_tag_name, " +
+          "res_tags.created_at as res_tags_created_at, res_tags.created_by as res_tags_created_by, res_tags.modified_by as res_tags_modified_by, " +
+          "res_tags.modified_at as res_tags_modified_at, res_tags.modified_by_uid as res_tags_modified_by_uid, res_tags.created_by_uid as res_tags_created_by_uid";
+  protected final static String banOnResourceMappingSelectQuery =
+      "resources_bans.id as res_bans_id, resources_bans.description as res_bans_description, " +
+          "resources_bans.member_id as res_bans_member_id, resources_bans.resource_id as res_bans_resource_id, resources_bans.banned_to as res_bans_validity_to, " +
+          "resources_bans.created_at as res_bans_created_at, resources_bans.created_by as res_bans_created_by, resources_bans.modified_at as res_bans_modified_at, " +
+          "resources_bans.modified_by as res_bans_modified_by, resources_bans.created_by_uid as res_bans_created_by_uid, resources_bans.modified_by_uid as res_bans_modified_by_uid";
+  protected static final RowMapper<Resource> RESOURCE_MAPPER = (resultSet, i) -> {
+    Resource resource = new Resource();
+    resource.setId(resultSet.getInt("resources_id"));
+    resource.setUuid(resultSet.getObject("resources_uu_id", UUID.class));
+    resource.setName(resultSet.getString("resources_name"));
+    resource.setDescription(resultSet.getString("resources_dsc"));
+    resource.setFacilityId(resultSet.getInt("resources_facility_id"));
+    resource.setVoId(resultSet.getInt("resources_vo_id"));
+    resource.setCreatedAt(resultSet.getString("resources_created_at"));
+    resource.setCreatedBy(resultSet.getString("resources_created_by"));
+    resource.setModifiedAt(resultSet.getString("resources_modified_at"));
+    resource.setModifiedBy(resultSet.getString("resources_modified_by"));
+    if (resultSet.getInt("resources_modified_by_uid") == 0) {
+      resource.setModifiedByUid(null);
+    } else {
+      resource.setModifiedByUid(resultSet.getInt("resources_modified_by_uid"));
+    }
+    if (resultSet.getInt("resources_created_by_uid") == 0) {
+      resource.setCreatedByUid(null);
+    } else {
+      resource.setCreatedByUid(resultSet.getInt("resources_created_by_uid"));
+    }
+    return resource;
+  };
+  protected static final RowMapper<AssignedResource> ASSIGNED_RESOURCE_MAPPER = (resultSet, i) -> {
+    Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
+    EnrichedResource enrichedResource = new EnrichedResource(resource, null);
+    Integer sourceGroupId = resultSet.getInt("groups_resources_automatic_source_group_id");
+    sourceGroupId = resultSet.wasNull() ? null : sourceGroupId;
+    String failureCause = resultSet.getString("groups_resources_state_failure_cause");
+    Facility facility = FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i);
+    boolean autoAssignSubgroups = resultSet.getBoolean("auto_assign_subgroups");
+    return new AssignedResource(enrichedResource,
+        GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), sourceGroupId, failureCause,
+        facility, autoAssignSubgroups);
+  };
+  protected static final RowMapper<GroupResourceAssignment> GROUP_RESOURCE_ASSIGNMENT_MAPPER = (resultSet, i) -> {
+    Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
+    Group group = GroupsManagerImpl.GROUP_MAPPER.mapRow(resultSet, i);
+    String failureCause = resultSet.getString("groups_resources_state_failure_cause");
+    return new GroupResourceAssignment(group, resource,
+        GroupResourceStatus.valueOf(resultSet.getString("groups_resources_state_status")), failureCause);
+  };
+  protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = (resultSet, i) -> {
+    ResourceTag resourceTag = new ResourceTag();
+    resourceTag.setId(resultSet.getInt("res_tags_id"));
+    resourceTag.setVoId(resultSet.getInt("res_tags_vo_id"));
+    resourceTag.setTagName(resultSet.getString("res_tags_tag_name"));
+    resourceTag.setCreatedAt(resultSet.getString("res_tags_created_at"));
+    resourceTag.setCreatedBy(resultSet.getString("res_tags_created_by"));
+    resourceTag.setModifiedAt(resultSet.getString("res_tags_modified_at"));
+    resourceTag.setModifiedBy(resultSet.getString("res_tags_modified_by"));
+    if (resultSet.getInt("res_tags_modified_by_uid") == 0) {
+      resourceTag.setModifiedByUid(null);
+    } else {
+      resourceTag.setModifiedByUid(resultSet.getInt("res_tags_modified_by_uid"));
+    }
+    if (resultSet.getInt("res_tags_created_by_uid") == 0) {
+      resourceTag.setCreatedByUid(null);
+    } else {
+      resourceTag.setCreatedByUid(resultSet.getInt("res_tags_created_by_uid"));
+    }
+    return resourceTag;
+  };
+  protected static final RowMapper<RichResource> RICH_RESOURCE_MAPPER = (resultSet, i) -> {
+    Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
+    if (resource == null) {
+      return null;
+    }
+    RichResource richResource = new RichResource(resource);
+    richResource.setVo(VosManagerImpl.VO_MAPPER.mapRow(resultSet, i));
+    richResource.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i));
+    return richResource;
+  };
+  protected static final RowMapper<BanOnResource> BAN_ON_RESOURCE_MAPPER = (resultSet, i) -> {
+    BanOnResource banOnResource = new BanOnResource();
+    banOnResource.setId(resultSet.getInt("res_bans_id"));
+    banOnResource.setMemberId(resultSet.getInt("res_bans_member_id"));
+    banOnResource.setResourceId(resultSet.getInt("res_bans_resource_id"));
+    banOnResource.setDescription(resultSet.getString("res_bans_description"));
+    banOnResource.setValidityTo(resultSet.getTimestamp("res_bans_validity_to"));
+    banOnResource.setCreatedAt(resultSet.getString("res_bans_created_at"));
+    banOnResource.setCreatedBy(resultSet.getString("res_bans_created_by"));
+    banOnResource.setModifiedAt(resultSet.getString("res_bans_modified_at"));
+    banOnResource.setModifiedBy(resultSet.getString("res_bans_modified_by"));
+    if (resultSet.getInt("res_bans_modified_by_uid") == 0) {
+      banOnResource.setModifiedByUid(null);
+    } else {
+      banOnResource.setModifiedByUid(resultSet.getInt("res_bans_modified_by_uid"));
+    }
+    if (resultSet.getInt("res_bans_created_by_uid") == 0) {
+      banOnResource.setCreatedByUid(null);
+    } else {
+      banOnResource.setCreatedByUid(resultSet.getInt("res_bans_created_by_uid"));
+    }
+    return banOnResource;
+  };
+  protected static final RichResourceExtractor RICH_RESOURCE_WITH_TAGS_EXTRACTOR = new RichResourceExtractor();
+  final static Logger log = LoggerFactory.getLogger(ResourcesManagerImpl.class);
+  private static final int MERGE_TRY_CNT = 10;
+  private static final long MERGE_RAND_SLEEP_MAX = 100;  //max sleep time between SQL merge atempt in milisecond
+  private final JdbcPerunTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+  public ResourcesManagerImpl(DataSource perunPool) {
+    this.jdbc = new JdbcPerunTemplate(perunPool);
+    this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+    this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
+    this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+
+    // Initialize resources manager
+    this.initialize();
+  }
+
+  @Override
+  public List<Resource> getAllResources(PerunSession sess) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources", RESOURCE_MAPPER);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public Resource getResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + resourceMappingSelectQuery + " from resources where resources.id=?",
+          RESOURCE_MAPPER, id);
+    } catch (EmptyResultDataAccessException e) {
+      throw new ResourceNotExistsException("Resource with ID=" + id + " not exists");
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> ids) {
+    try {
+      return jdbc.execute("select " + resourceMappingSelectQuery + " from resources where id " +
+              Compatibility.getStructureForInClause(),
+          (PreparedStatementCallback<List<Resource>>) preparedStatement -> {
+            Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+            preparedStatement.setArray(1, sqlArray);
+            ResultSet rs = preparedStatement.executeQuery();
+            List<Resource> resources = new ArrayList<>();
+            while (rs.next()) {
+              resources.add(RESOURCE_MAPPER.mapRow(rs, rs.getRow()));
+            }
+            return resources;
+          });
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public RichResource getRichResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
+    try {
+      return jdbc.queryForObject(
+          "select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+              FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery +
+              " from resources join vos on resources.vo_id=vos.id "
+              +
+              "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.id=?",
+          RICH_RESOURCE_WITH_TAGS_EXTRACTOR, id);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new ResourceNotExistsException("Resource with ID=" + id + " not exists");
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<RichResource> getRichResourcesByIds(PerunSession perunSession, List<Integer> ids) {
+    try {
+      return jdbc.execute("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+              FacilitiesManagerImpl.facilityMappingSelectQuery + ", " +
+              resourceTagMappingSelectQuery +
+              " from resources join vos on resources.vo_id=vos.id join facilities on resources.facility_id=facilities.id " +
+              "left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id " +
+              "where resources.id " + Compatibility.getStructureForInClause(),
+          (PreparedStatementCallback<List<RichResource>>) preparedStatement -> {
+            Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+            preparedStatement.setArray(1, sqlArray);
+            ResultSet rs = preparedStatement.executeQuery();
+            return RICH_RESOURCE_WITH_TAGS_EXTRACTOR.extractData(rs);
+          });
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name)
+      throws ResourceNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + resourceMappingSelectQuery +
+              " from resources where resources.name=? and facility_id=? and vo_id=?",
+          RESOURCE_MAPPER, name, facility.getId(), vo.getId());
+    } catch (EmptyResultDataAccessException e) {
+      throw new ResourceNotExistsException(e);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public Resource createResource(PerunSession sess, Vo vo, Resource resource, Facility facility) {
+    Utils.notNull(resource.getName(), "resource.getName()");
+
+    int newId;
+    try {
+      newId = Utils.getNewId(jdbc, "resources_id_seq");
+
+      jdbc.update(
+          "insert into resources(id, name, dsc, facility_id, vo_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+              "values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+          newId, resource.getName(), resource.getDescription(), facility.getId(), vo.getId(),
+          sess.getPerunPrincipal().getActor(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+          sess.getPerunPrincipal().getUserId());
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+    Resource newResource;
+    try {
+      newResource = getResourceById(sess, newId);
+    } catch (ResourceNotExistsException e) {
+      throw new InternalErrorException("Failed to read newly created resource with id: " + newId, e);
+    }
+    resource.setId(newId);
+    resource.setVoId(newResource.getVoId());
+    resource.setFacilityId(newResource.getFacilityId());
+    resource.setUuid(newResource.getUuid());
+    return newResource;
+  }
+
+  @Override
+  public void deleteResource(PerunSession sess, Vo vo, Resource resource) throws ResourceAlreadyRemovedException {
+    try {
+      // Delete authz entries for this resource
+      AuthzResolverBlImpl.removeAllAuthzForResource(sess, resource);
+
+      int numAffected = jdbc.update("delete from resources where id=?", resource.getId());
+      if (numAffected == 0) {
+        throw new ResourceAlreadyRemovedException("Resource: " + resource + " , Vo: " + vo);
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  @Deprecated
+  public int getFacilityId(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.queryForInt("select facility_id from resources where id=?", resource.getId());
+    } catch (EmptyResultDataAccessException ex) {
+      throw new ConsistencyErrorException("Resource doesn't have assigned facility", ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public boolean resourceExists(PerunSession sess, Resource resource) {
+    try {
+      int numberOfExistences = jdbc.queryForInt("select count(1) from resources where id=?", resource.getId());
+      if (numberOfExistences == 1) {
+        return true;
+      } else if (numberOfExistences > 1) {
+        throw new ConsistencyErrorException("Resource " + resource + " exists more than once.");
+      }
+      return false;
+    } catch (EmptyResultDataAccessException ex) {
+      return false;
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void checkResourceExists(PerunSession sess, Resource resource) throws ResourceNotExistsException {
+    if (!this.resourceExists(sess, resource)) {
+      throw new ResourceNotExistsException("resource: " + resource);
+    }
+  }
+
+  public boolean resourceTagExists(PerunSession sess, ResourceTag resourceTag) {
+    try {
+      int numberOfExistences = jdbc.queryForInt("select count(1) from res_tags where id=?", resourceTag.getId());
+      if (numberOfExistences == 1) {
+        return true;
+      } else if (numberOfExistences > 1) {
+        throw new ConsistencyErrorException("Resource tag " + resourceTag + " exists more than once.");
+      }
+      return false;
+    } catch (EmptyResultDataAccessException ex) {
+      return false;
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws ResourceTagNotExistsException {
+    if (!this.resourceTagExists(sess, resourceTag)) {
+      throw new ResourceTagNotExistsException("resource: " + resourceTag);
+    }
+  }
+
+  @Override
+  public List<User> getAssignedUsers(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " join users on users.id=members.user_id" +
+              " where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
+          UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<User> getAllowedUsers(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " join users on users.id=members.user_id" +
+              " where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status and members.status!=? and members.status!=?",
+          UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(),
+          Status.INVALID.getCode(), Status.DISABLED.getCode());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<User> getAssociatedUsers(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " join users on users.id=members.user_id" +
+              " where groups_resources_state.resource_id=?",
+          UsersManagerImpl.USER_MAPPER, resource.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " join users on users.id=members.user_id" +
+              " where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
+              " and members.status!=? and members.status!=? and groups_members.source_group_status =?",
+          UsersManagerImpl.USER_MAPPER, resource.getId(), GroupResourceStatus.ACTIVE.toString(),
+          Status.INVALID.getCode(),
+          Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) {
+    try {
+      return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status=?::group_resource_status " +
+              " join groups_members on groups_members.group_id=groups_resources_state.group_id" +
+              " join members on members.id=groups_members.member_id" +
+              " where resources.facility_id=? and members.user_id=? and members.status!=? and members.status!=?",
+          RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), facility.getId(), user.getId(),
+          Status.INVALID.getCode(), Status.DISABLED.getCode());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getResources(PerunSession sess, User user, List<Status> memberStatuses,
+                                     List<MemberGroupStatus> memberGroupStatuses,
+                                     List<GroupResourceStatus> groupResourceStatuses) {
+    if (memberStatuses == null || memberStatuses.isEmpty()) {
+      memberStatuses = List.of(Status.values());
+    }
+    if (memberGroupStatuses == null || memberGroupStatuses.isEmpty()) {
+      memberGroupStatuses = List.of(MemberGroupStatus.values());
+    }
+    if (groupResourceStatuses == null || groupResourceStatuses.isEmpty()) {
+      groupResourceStatuses = List.of(GroupResourceStatus.values());
+    }
+
+    String groupResourceStatusesSql = groupResourceStatuses.stream()
+        .map(status -> "'" + status.toString() + "'")
+        .collect(Collectors.joining(", "));
+
+    try {
+      MapSqlParameterSource parameters = new MapSqlParameterSource();
+      List<Integer> memberStatusesCodes = memberStatuses.stream().map(Status::getCode).toList();
+      List<Integer> memberGroupStatusesCodes = memberGroupStatuses.stream().map(MemberGroupStatus::getCode).toList();
+      parameters.addValue("voStatuses", memberStatusesCodes);
+      parameters.addValue("groupStatuses", memberGroupStatusesCodes);
+      parameters.addValue("uid", user.getId());
+
+      return namedParameterJdbcTemplate.query(
+          "select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on groups_resources_state.resource_id=resources.id and groups_resources_state.status in (" +
+              groupResourceStatusesSql + ")" +
+              " join groups_members on groups_members.group_id=groups_resources_state.group_id and groups_members.source_group_status in (:groupStatuses)" +
+              " join members on members.id=groups_members.member_id" +
+              " where members.user_id=:uid and members.status in (:voStatuses)", parameters, RESOURCE_MAPPER);
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Member> getAllowedMembers(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query(
+          "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id and groups_resources_state.status=?::group_resource_status " +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " where groups_resources_state.resource_id=? and members.status!=? and members.status!=?",
+          MEMBER_MAPPER, GroupResourceStatus.ACTIVE.toString(), resource.getId(),
+          Status.INVALID.getCode(), Status.DISABLED.getCode());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource) {
+    try {
+      // we do include all group statuses for such members
+      return jdbc.query(
+          "select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id " +
+              " where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
+              " and members.status!=? and members.status!=? and groups_members.source_group_status =?",
+          MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
+          GroupResourceStatus.ACTIVE.toString(),
+          Status.INVALID.getCode(), Status.DISABLED.getCode(), MemberGroupStatus.VALID.getCode());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Member> getAssignedMembers(PerunSession sess, Resource resource) {
+    try {
+      // we do include all group statuses for such members
+      return jdbc.query(
+          "select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id " +
+              " where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status",
+          MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
+          GroupResourceStatus.ACTIVE.toString());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) {
+    try {
+      // we do include all group statuses for such members
+      return jdbc.query("select distinct " + MembersManagerImpl.groupsAssignedMembersMappingSelectQuery +
+              " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id " +
+              " where groups_resources_state.resource_id=?",
+          MembersManagerImpl.ASSIGNED_MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
+
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Member> getAssociatedMembers(PerunSession sess, Resource resource) {
+    try {
+      // we do include all group statuses for such members
+      return jdbc.query(
+          "select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id " +
+              " where groups_resources_state.resource_id=?",
+          MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean isUserAssigned(PerunSession sess, User user, Resource resource) {
+    try {
+      return (0 < jdbc.queryForInt("select count(*) from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status and members.user_id=?",
+          resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId()));
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean isUserAllowed(PerunSession sess, User user, Resource resource) {
+    try {
+      return (0 < jdbc.queryForInt("select count(*) from groups_resources_state" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " where groups_resources_state.resource_id=? and groups_resources_state.status=?::group_resource_status " +
+              " and members.user_id=? and members.status!=? and members.status!=?",
+          resource.getId(), GroupResourceStatus.ACTIVE.toString(), user.getId(), Status.INVALID.getCode(),
+          Status.DISABLED.getCode()));
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void assignGroupToResource(PerunSession sess, Group group, Resource resource, boolean autoAssignSubgroups)
+      throws GroupAlreadyAssignedException {
+    try {
+      if (1 ==
+          jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?", group.getId(),
+              resource.getId())) {
+        throw new GroupAlreadyAssignedException(group);
+      } else {
+        jdbc.update(
+            "insert into groups_resources (group_id, resource_id, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid, auto_assign_subgroups) " +
+                "values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?,?)",
+            group.getId(),
+            resource.getId(), sess.getPerunPrincipal().getActor(),
+            sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+            sess.getPerunPrincipal().getUserId(),
+            autoAssignSubgroups);
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void assignAutomaticGroupToResource(PerunSession sess, Group group, Resource resource, Group sourceGroup)
+      throws GroupAlreadyAssignedException {
+    try {
+      if (1 == jdbc.queryForInt(
+          "select count(1) from groups_resources_automatic where group_id=? and resource_id=? and source_group_id=?",
+          group.getId(), resource.getId(), sourceGroup.getId())) {
+        throw new GroupAlreadyAssignedException(group);
+      } else {
+        jdbc.update(
+            "insert into groups_resources_automatic (group_id, resource_id, source_group_id, modified_by, modified_at, created_by, created_at, created_by_uid, modified_by_uid) " +
+                "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+            group.getId(),
+            resource.getId(), sourceGroup.getId(), sess.getPerunPrincipal().getActor(),
+            sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+            sess.getPerunPrincipal().getUserId());
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void assignGroupToResourceState(PerunSession sess, Group group, Resource resource,
+                                         GroupResourceStatus status) {
+    try {
+      jdbc.update(
+          "insert into groups_resources_state (group_id, resource_id, status) values (?,?,?::group_resource_status)",
+          group.getId(), resource.getId(), status.toString());
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void removeGroupFromResource(PerunSession sess, Group group, Resource resource)
+      throws GroupAlreadyRemovedFromResourceException {
+    try {
+      int numAffected = jdbc.update("delete from groups_resources where group_id=? and resource_id=?", group.getId(),
+          resource.getId());
+      if (numAffected == 0) {
+        throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void removeAutomaticGroupFromResource(PerunSession perunSession, Group group, Resource resource,
+                                               int sourceGroupId) throws GroupAlreadyRemovedFromResourceException {
+    try {
+      int numAffected =
+          jdbc.update("delete from groups_resources_automatic where group_id=? and resource_id=? and source_group_id=?",
+              group.getId(), resource.getId(), sourceGroupId);
+      if (numAffected == 0) {
+        throw new GroupAlreadyRemovedFromResourceException("Group: " + group + " , Resource: " + resource);
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<Resource> getAssignedResources(PerunSession sess, Group group) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id" +
+              " where groups_resources_state.group_id=? and groups_resources_state.status=?::group_resource_status",
+          RESOURCE_MAPPER, group.getId(), GroupResourceStatus.ACTIVE.toString());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getAssociatedResources(PerunSession sess, Group group) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id" +
+              " where groups_resources_state.group_id=?",
+          RESOURCE_MAPPER, group.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getAssignedResources(PerunSession sess, Member member) {
+    try {
+      return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id " +
+              " where groups_members.member_id=?",
+          RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getAssociatedResources(PerunSession sess, Member member) {
+    try {
+      return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " where groups_members.member_id=?",
+          RESOURCE_MAPPER, member.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member) {
+    try {
+      List<AssignedResource> resources =
+          jdbc.query("select distinct " + assignedResourceMappingSelectQuery + " from resources" +
+              " join (SELECT group_id, resource_id, NULL as source_group_id, auto_assign_subgroups FROM groups_resources" +
+              "	UNION" +
+              "	SELECT group_id, resource_id, source_group_id, true as auto_assign_subgroups FROM groups_resources_automatic)" +
+              " 	groups_resources_automatic on groups_resources_automatic.resource_id = resources.id" +
+              " join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
+              " join facilities on resources.facility_id=facilities.id" +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " where groups_members.member_id=?", ASSIGNED_RESOURCE_MAPPER, member.getId());
+
+      resources.removeIf(r1 -> resources.stream()
+          .anyMatch(r2 -> r2.getEnrichedResource().equals(r1.getEnrichedResource()) &&
+              r2.getStatus().isMoreImportantThan(r1.getStatus())));
+
+      return resources;
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) {
+    try {
+      return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join resource_services on resource_services.resource_id=resources.id" +
+              " where groups_members.member_id=? and resource_services.service_id=?",
+          RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), member.getId(), service.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) {
+    try {
+      // FIXME - can we optimize SQL to limit joined data at start (limit resources.vo_id) ?
+      return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join members on groups_members.member_id=members.id" +
+              " where members.user_id=? and members.vo_id=?",
+          RESOURCE_MAPPER, GroupResourceStatus.ACTIVE.toString(), user.getId(), vo.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<RichResource> getAssignedRichResources(PerunSession sess, Group group) {
+
+    try {
+      // FIXME - can we optimize SQL to limit joined data at start (start select from groups_resources) ?
+      return jdbc.query(
+          "select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+              FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery +
+              " from resources" +
+              " join vos on resources.vo_id=vos.id" +
+              " join facilities on resources.facility_id=facilities.id" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status" +
+              " left outer join tags_resources on resources.id=tags_resources.resource_id" +
+              " left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+              " where groups_resources_state.group_id=?",
+          RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), group.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) {
+    try {
+      return jdbc.query(
+          "select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+              FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery +
+              " from resources" +
+              " join vos on resources.vo_id=vos.id" +
+              " join facilities on resources.facility_id=facilities.id" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " left outer join tags_resources on resources.id=tags_resources.resource_id" +
+              " left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+              " where groups_members.member_id=?",
+          RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), member.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) {
+    try {
+      return jdbc.query(
+          "select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+              FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery +
+              " from resources" +
+              " join vos on resources.vo_id=vos.id" +
+              " join facilities on resources.facility_id=facilities.id" +
+              " join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+              " join groups on groups_resources_state.group_id=groups.id" +
+              " join groups_members on groups.id=groups_members.group_id" +
+              " join resource_services on resource_services.resource_id=resources.id" +
+              " left outer join tags_resources on resources.id=tags_resources.resource_id" +
+              " left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+              " where groups_members.member_id=? and resource_services.service_id=?",
+          RICH_RESOURCE_WITH_TAGS_EXTRACTOR, GroupResourceStatus.ACTIVE.toString(), member.getId(), service.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean isGroupAssigned(PerunSession sess, Resource resource, Group group) {
+    try {
+      return 1 == jdbc.queryForInt(
+          "select count(1) from groups_resources_state where group_id=? and resource_id=? and status=?::group_resource_status",
+          group.getId(), resource.getId(), GroupResourceStatus.ACTIVE.toString());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean groupResourceAssignmentExists(PerunSession sess, Resource resource, Group group) {
+    try {
+      return 1 == jdbc.queryForInt("select count(1) from groups_resources_state where group_id=? and resource_id=?",
+          group.getId(), resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource) {
+    try {
+      return 1 == jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?",
+          group.getId(), resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Service> getAssignedServices(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query("select " + ServicesManagerImpl.serviceMappingSelectQuery + " from services" +
+              " join resource_services on services.id=resource_services.service_id and resource_services.resource_id=?",
+          ServicesManagerImpl.SERVICE_MAPPER, resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void assignService(PerunSession sess, Resource resource, Service service)
+      throws ServiceAlreadyAssignedException {
+    try {
+      if (0 < jdbc.queryForInt("select count(*) from resource_services where service_id=? and resource_id=?",
+          service.getId(), resource.getId())) {
+        throw new ServiceAlreadyAssignedException(service);
+      }
+      jdbc.update(
+          "insert into resource_services(service_id, resource_id, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
+              "values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+          service.getId(), resource.getId(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
+          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void removeService(PerunSession sess, Resource resource, Service service) throws ServiceNotAssignedException {
+    try {
+      if (0 == jdbc.update("delete from resource_services where service_id=? and resource_id=?", service.getId(),
+          resource.getId())) {
+        throw new ServiceNotAssignedException(service);
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<Resource> getResources(PerunSession sess, Vo vo) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources where resources.vo_id=?",
+          RESOURCE_MAPPER, vo.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getResources(PerunSession sess) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources", RESOURCE_MAPPER);
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<RichResource> getRichResources(PerunSession sess, Vo vo) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+              FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery + " from resources" +
+              " join vos on resources.vo_id=vos.id" +
+              " join facilities on resources.facility_id=facilities.id" +
+              " left outer join tags_resources on resources.id=tags_resources.resource_id" +
+              " left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+              " where resources.vo_id=?",
+          RICH_RESOURCE_WITH_TAGS_EXTRACTOR, vo.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<RichResource> getRichResourcesWithMemberAndAttribute(PerunSession perunSession, Member member,
+                                                                   AttributeDefinition ad) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+              FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery +
+              " from resources " +
+              "join vos on resources.vo_id=vos.id " +
+              "join facilities on resources.facility_id=facilities.id " +
+              "join groups_resources_state on resources.id=groups_resources_state.resource_id and groups_resources_state.status=?::group_resource_status " +
+              "join groups on groups_resources_state.group_id=groups.id " +
+              "join groups_members on groups.id=groups_members.group_id " +
+              "join resource_services on resource_services.resource_id=resources.id " +
+              "join services on resource_services.service_id=services.id " +
+              "join service_required_attrs on services.id=service_required_attrs.service_id " +
+              "left outer join tags_resources on resources.id=tags_resources.resource_id " +
+              "left outer join res_tags on tags_resources.tag_id=res_tags.id " +
+              "where service_required_attrs.attr_id=? and groups_members.member_id=?",
+          RICH_RESOURCE_WITH_TAGS_EXTRACTOR,
+          GroupResourceStatus.ACTIVE.toString(), ad.getId(), member.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public Resource updateResource(PerunSession sess, Resource resource) {
+    try {
+      Map<String, Object> map = jdbc.queryForMap("select name, dsc from resources where id=?", resource.getId());
+
+      if (!resource.getName().equals(map.get("name")) && !resource.getDescription().equals(map.get("dsc"))) {
+        jdbc.update("update resources set name=?, dsc=?, modified_by=?, modified_by_uid=?, modified_at=" +
+                Compatibility.getSysdate() + "  where id=?", resource.getName(),
+            resource.getDescription(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+            resource.getId());
+      } else if (!resource.getDescription().equals(map.get("dsc"))) {
+        jdbc.update(
+            "update resources set dsc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() +
+                "  where id=?", resource.getDescription(),
+            sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), resource.getId());
+      } else if (!resource.getName().equals(map.get("name"))) {
+        jdbc.update(
+            "update resources set name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() +
+                "  where id=?", resource.getName(),
+            sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), resource.getId());
+      }
+
+      return resource;
+    } catch (EmptyResultDataAccessException ex) {
+      throw new ConsistencyErrorException("Updating non existing Resource", ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public int getResourcesCount(PerunSession perunSession, Vo vo) {
+    try {
+      return jdbc.queryForInt("select count(*) from resources where resources.vo_id=?",
+          vo.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources join " +
+              "resource_attr_values on resources.id=resource_attr_values.resource_id " +
+              "where resource_attr_values.attr_id=? and resource_attr_values.attr_value=?",
+          RESOURCE_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) {
+    try {
+      int newId = Utils.getNewId(jdbc, "res_tags_seq");
+
+      jdbc.update(
+          "insert into res_tags(id, vo_id, tag_name, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+              "values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+          newId, vo.getId(), resourceTag.getTagName(), perunSession.getPerunPrincipal().getActor(),
+          perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(),
+          perunSession.getPerunPrincipal().getUserId());
+
+      resourceTag.setId(newId);
+      resourceTag.setVoId(vo.getId());
+
+      return resourceTag;
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
+    try {
+      Map<String, Object> map = jdbc.queryForMap("select tag_name from res_tags where id=?", resourceTag.getId());
+
+      if (!resourceTag.getTagName().equals(map.get("tag_name"))) {
+        jdbc.update("update res_tags set tag_name=?, modified_by=?, modified_by_uid=?, modified_at=" +
+                Compatibility.getSysdate() + "  where id=?",
+            resourceTag.getTagName(), perunSession.getPerunPrincipal().getActor(),
+            perunSession.getPerunPrincipal().getUserId(), resourceTag.getId());
+      }
+
+      return resourceTag;
+    } catch (EmptyResultDataAccessException ex) {
+      throw new ConsistencyErrorException("Updating non existing resourceTag", ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
+    try {
+      jdbc.update("delete from res_tags where id=?", resourceTag.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) {
+    try {
+      jdbc.update("delete from res_tags where vo_id=?", vo.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) {
+    try {
+      jdbc.update("insert into tags_resources(tag_id, resource_id) values(?,?)", resourceTag.getId(), resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) {
+    try {
+      jdbc.update("delete from tags_resources where tag_id=? and resource_id=?", resourceTag.getId(), resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) {
+    try {
+      jdbc.update("delete from tags_resources where resource_id=?", resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources" +
+              " join tags_resources on resources.id=tags_resources.resource_id" +
+              " where tags_resources.tag_id=?",
+          RESOURCE_MAPPER, resourceTag.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) {
+    try {
+      return jdbc.query("select " + resourceTagMappingSelectQuery + " from vos" +
+              " join res_tags on vos.id=res_tags.vo_id" +
+              " where res_tags.vo_id=?",
+          RESOURCE_TAG_MAPPER, vo.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) {
+    try {
+      return jdbc.query("select " + resourceTagMappingSelectQuery + " from tags_resources" +
+              " join res_tags on tags_resources.tag_id=res_tags.id" +
+              " where tags_resources.resource_id=?",
+          RESOURCE_TAG_MAPPER, resource.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public int getResourcesCount(PerunSession sess) {
+    try {
+      return jdbc.queryForInt("select count(*) from resources");
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<User> getAdmins(PerunSession sess, Resource resource) {
+    try {
+      // Direct admins
+      Set<User> setOfAdmins = new HashSet<>(jdbc.query(
+          "select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
+              "  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
+          UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase()));
+
+      // Admins through a group
+      List<Group> listOfGroupAdmins = getAdminGroups(sess, resource);
+      for (Group authorizedGroup : listOfGroupAdmins) {
+        setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
+                " from users join members on users.id=members.user_id " +
+                "join groups_members on groups_members.member_id=members.id and groups_members.source_group_status=? where groups_members.group_id=? and members.status=?",
+            UsersManagerImpl.USER_MAPPER, MemberGroupStatus.VALID.getCode(), authorizedGroup.getId(),
+            Status.VALID.getCode()));
+      }
+
+      return new ArrayList(setOfAdmins);
+
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<User> getDirectAdmins(PerunSession perunSession, Resource resource) {
+    try {
+      return jdbc.query(
+          "select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
+              "  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
+          UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase());
+
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Group> getAdminGroups(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery +
+              " from authz join groups on authz.authorized_group_id=groups.id" +
+              " where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
+          GroupsManagerImpl.GROUP_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) {
+    try {
+      return jdbc.query("select " + resourceMappingSelectQuery + " from resources " +
+              " left outer join authz on authz.resource_id=resources.id " +
+              " left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
+              " left outer join members on members.id=groups_members.member_id" +
+              " where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null)",
+          RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), user.getId(), user.getId(),
+          Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) {
+    try {
+      return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
+              " left outer join authz on authz.resource_id=resources.id " +
+              " left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=?" +
+              " left outer join members on members.id=groups_members.member_id" +
+              " where resources.facility_id=? and resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
+              " and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
+          , RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), facility.getId(), vo.getId(), authorizedUser.getId(),
+          authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) {
+    try {
+      return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
+              " left outer join authz on authz.resource_id=resources.id " +
+              " left outer join groups_members on groups_members.group_id=authz.authorized_group_id and groups_members.source_group_status=? " +
+              " left outer join members on members.id=groups_members.member_id" +
+              " where resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
+              " and authz.role_id=(select id from roles where name=?) and (members.status=? or members.status is null) "
+          , RESOURCE_MAPPER, MemberGroupStatus.VALID.getCode(), vo.getId(), authorizedUser.getId(),
+          authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase(), Status.VALID.getCode());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo,
+                                                      Group authorizedGroup) {
+    try {
+      return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
+              " left outer join authz on authz.resource_id=resources.id " +
+              " where resources.facility_id=? and resources.vo_id=? and authz.authorized_group_id=? and authz.role_id=(select id from roles where name=?)"
+          , RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedGroup.getId(), Role.RESOURCEADMIN.toLowerCase());
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean banExists(PerunSession sess, int memberId, int resourceId) {
+    try {
+      int numberOfExistences =
+          jdbc.queryForInt("select count(1) from resources_bans where member_id=? and resource_id=?", memberId,
+              resourceId);
+      if (numberOfExistences == 1) {
+        return true;
+      } else if (numberOfExistences > 1) {
+        throw new ConsistencyErrorException(
+            "Ban on member with ID=" + memberId + " and resource with ID=" + resourceId + " exists more than once.");
+      }
+      return false;
+    } catch (EmptyResultDataAccessException ex) {
+      return false;
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public boolean banExists(PerunSession sess, int banId) {
+    try {
+      int numberOfExistences = jdbc.queryForInt("select count(1) from resources_bans where id=?", banId);
+      if (numberOfExistences == 1) {
+        return true;
+      } else if (numberOfExistences > 1) {
+        throw new ConsistencyErrorException("Ban with ID=" + banId + " exists more than once.");
+      }
+      return false;
+    } catch (EmptyResultDataAccessException ex) {
+      return false;
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) {
+    try {
+      int newId = Utils.getNewId(jdbc, "resources_bans_id_seq");
+
+      jdbc.update(
+          "insert into resources_bans(id, description, banned_to, member_id, resource_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+              "values (?,?," + (banOnResource.getValidityTo() != null ?
+              "'" + Compatibility.getDate(banOnResource.getValidityTo().getTime()) + "'" : "DEFAULT") + ",?,?,?," +
+              Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+          newId, banOnResource.getDescription(), banOnResource.getMemberId(), banOnResource.getResourceId(),
+          sess.getPerunPrincipal().getActor(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+          sess.getPerunPrincipal().getUserId());
+
+      banOnResource.setId(newId);
+      // need to adjust date in object if original date was null and default date was assigned in db
+      if (banOnResource.getValidityTo() == null) {
+        banOnResource.setValidityTo(
+            jdbc.queryForObject("select banned_to from resources_bans where id =" + newId, Timestamp.class));
+      }
+
+      return banOnResource;
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public BanOnResource getBanById(PerunSession sess, int banId) throws BanNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + banOnResourceMappingSelectQuery + " from resources_bans where id=? ",
+          BAN_ON_RESOURCE_MAPPER, banId);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new BanNotExistsException("Ban with id " + banId + " not exists for any facility.");
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException {
+    try {
+      return jdbc.queryForObject(
+          "select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=? and resource_id=?",
+          BAN_ON_RESOURCE_MAPPER, memberId, resourceId);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new BanNotExistsException("Ban for user " + memberId + " and resource " + resourceId + " not exists.");
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) {
+    try {
+      return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=?",
+          BAN_ON_RESOURCE_MAPPER, memberId);
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) {
+    try {
+      return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where resource_id=?",
+          BAN_ON_RESOURCE_MAPPER, resourceId);
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) {
+    try {
+      return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where banned_to < " +
+          Compatibility.getSysdate(), BAN_ON_RESOURCE_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) {
+    try {
+      jdbc.update("update resources_bans set description=?, banned_to=" + (banOnResource.getValidityTo() != null ?
+              "'" + Compatibility.getDate(banOnResource.getValidityTo().getTime()) + "'" : "DEFAULT") +
+              ", modified_by=?, modified_by_uid=?, modified_at=" +
+              Compatibility.getSysdate() + " where id=?",
+          banOnResource.getDescription(), sess.getPerunPrincipal().getActor(),
+          sess.getPerunPrincipal().getUserId(), banOnResource.getId());
+
+      // need to adjust date in object if original date was null and default date was assigned in db
+      if (banOnResource.getValidityTo() == null) {
+        banOnResource.setValidityTo(
+            jdbc.queryForObject("select banned_to from resources_bans where id =" + banOnResource.getId(),
+                Timestamp.class));
+      }
+
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+
+    return banOnResource;
+  }
+
+  @Override
+  public void removeBan(PerunSession sess, int banId) throws BanNotExistsException {
+    try {
+      int numAffected = jdbc.update("delete from resources_bans where id=?", banId);
+      if (numAffected != 1) {
+        throw new BanNotExistsException("Ban with id " + banId + " can't be remove, because not exists yet.");
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void removeBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException {
+    try {
+      int numAffected =
+          jdbc.update("delete from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
+      if (numAffected != 1) {
+        throw new BanNotExistsException(
+            "Ban for member " + memberId + " and resource " + resourceId + " can't be remove, because not exists yet.");
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<AssignedResource> getResourceAssignments(PerunSession sess, Group group) {
+    try {
+      return jdbc.query("select " + assignedResourceMappingSelectQuery + " from resources" +
+          " join (SELECT group_id, resource_id, NULL as source_group_id, auto_assign_subgroups FROM groups_resources" +
+          "	UNION" +
+          "	SELECT group_id, resource_id, source_group_id, true as auto_assign_subgroups FROM groups_resources_automatic)" +
+          " 	groups_resources_automatic on groups_resources_automatic.resource_id = resources.id" +
+          " join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
+          " join facilities on resources.facility_id=facilities.id" +
+          " where groups_resources_state.group_id=?", ASSIGNED_RESOURCE_MAPPER, group.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<AssignedGroup> getGroupAssignments(PerunSession sess, Resource resource) {
+    try {
+      return jdbc.query("select " + GroupsManagerImpl.assignedGroupMappingSelectQuery + " from groups join " +
+          " (SELECT group_id, resource_id, NULL as source_group_id, auto_assign_subgroups FROM groups_resources" +
+          "	UNION" +
+          "	SELECT group_id, resource_id, source_group_id, true as auto_assign_subgroups FROM groups_resources_automatic)" +
+          " 	groups_resources_automatic on groups_resources_automatic.group_id = groups.id" +
+          " join groups_resources_state on groups_resources_automatic.resource_id=groups_resources_state.resource_id and groups_resources_automatic.group_id=groups_resources_state.group_id" +
+          " where groups_resources_state.resource_id=?", GroupsManagerImpl.ASSIGNED_GROUP_MAPPER, resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<GroupResourceAssignment> getGroupResourceAssignments(PerunSession sess,
+                                                                   List<GroupResourceStatus> statuses) {
+    try {
+      if (isEmpty(statuses)) {
+        statuses = Arrays.asList(GroupResourceStatus.values());
+      }
+
+      String statusesSql = statuses.stream()
+          .map(status -> "'" + status.toString() + "'")
+          .collect(Collectors.joining(", "));
+
+      return jdbc.query("select " + groupResourceAssignmentMappingSelectQuery + " from groups " +
+          " join groups_resources_state on groups.id=groups_resources_state.group_id " +
+          " join resources on resources.id=groups_resources_state.resource_id " +
+          " where groups_resources_state.status in (" + statusesSql + ")", GROUP_RESOURCE_ASSIGNMENT_MAPPER);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public GroupResourceStatus getGroupResourceStatus(PerunSession sess, Group group, Resource resource)
+      throws GroupNotDefinedOnResourceException {
+    try {
+      String status =
+          jdbc.queryForObject("select status from groups_resources_state where group_id=? and resource_id=?",
+              String.class, group.getId(), resource.getId());
+      return GroupResourceStatus.valueOf(status);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new GroupNotDefinedOnResourceException(
+          "Group " + group.getId() + " is not defined on resource " + resource.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void setGroupResourceStatus(PerunSession sess, Group group, Resource resource, GroupResourceStatus status)
+      throws GroupNotDefinedOnResourceException {
+    try {
+      int numAffected = jdbc.update("update groups_resources_state set status=?::group_resource_status" +
+          " where group_id=? and resource_id=?", status.toString(), group.getId(), resource.getId());
+      if (numAffected == 0) {
+        throw new GroupNotDefinedOnResourceException(
+            "Group " + group.getId() + " is not defined on resource " + resource.getId());
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public String getFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource) {
+    try {
+      return jdbc.queryForObject("select failure_cause from groups_resources_state where group_id=? and resource_id=?",
+          String.class, group.getId(), resource.getId());
+    } catch (EmptyResultDataAccessException ex) {
+      return null;
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void setFailedGroupResourceAssignmentCause(PerunSession sess, Group group, Resource resource, String cause)
+      throws GroupNotDefinedOnResourceException {
+    try {
+      int numAffected = jdbc.update("update groups_resources_state set failure_cause=?" +
+          " where group_id=? and resource_id=?", cause, group.getId(), resource.getId());
+      if (numAffected == 0) {
+        throw new GroupNotDefinedOnResourceException(
+            "Group " + group.getId() + " is not defined on resource " + resource.getId());
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  protected void initialize() {
+  }
+
+  private static class RichResourceExtractor implements ResultSetExtractor<List<RichResource>> {
+
+    @Override
+    public List<RichResource> extractData(ResultSet rs) throws SQLException {
+      Map<Integer, RichResource> map = new HashMap<>();
+      RichResource myObject;
+      while (rs.next()) {
+        // fetch from map by ID
+        Integer id = rs.getInt("resources_id");
+        myObject = map.get(id);
+        if (myObject == null) {
+          // if not preset, put in map
+          myObject = RICH_RESOURCE_MAPPER.mapRow(rs, rs.getRow());
+          if (myObject == null) {
+            log.warn("RICH_RESOURCE_MAPPER returned null during extraction of data.");
+            continue;
+          }
+          map.put(id, myObject);
+        }
+        // fetch each resource tag and add it to rich resource
+        ResourceTag tag = RESOURCE_TAG_MAPPER.mapRow(rs, rs.getRow());
+        if (tag != null && tag.getId() != 0) {
+          // add only if exists
+          myObject.addResourceTag(tag);
+        }
+      }
+      return new ArrayList<>(map.values());
+    }
+  }
 }

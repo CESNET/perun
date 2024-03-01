@@ -16,45 +16,45 @@ import java.sql.SQLException;
  */
 public class PerunBasicDataSource extends HikariDataSource {
 
-	private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
+  private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
 
-	private Auditer auditer;
+  private Auditer auditer;
 
-	@Override
-	public Connection getConnection() throws SQLException {
+  @Override
+  public Connection getConnection() throws SQLException {
 
-		Connection con = super.getConnection();
-		//Set readOnly when working with any connection
-		if(BeansUtils.isPerunReadOnly()) {
-			con.setReadOnly(true);
-		} else {
-			con.setReadOnly(false);
-		}
+    Connection con = super.getConnection();
+    //Set readOnly when working with any connection
+    if (BeansUtils.isPerunReadOnly()) {
+      con.setReadOnly(true);
+    } else {
+      con.setReadOnly(false);
+    }
 
-		return new PerunConnection(con, auditer);
-	}
+    return new PerunConnection(con, auditer);
+  }
 
-	public Auditer getAuditer() {
-		return auditer;
-	}
+  public Auditer getAuditer() {
+    return auditer;
+  }
 
-	public void setAuditer(Auditer auditer) {
-		this.auditer = auditer;
-	}
+  public void setAuditer(Auditer auditer) {
+    this.auditer = auditer;
+  }
 
-	@Override
-	public void setJdbcUrl(String jdbcUrl) {
-		//for PostgreSQL, adds system property ApplicationName to URL, it is diplayed as application_name in
-		// SELECT usename||'@'||datname AS who,application_name AS app,client_addr,state,query_start FROM pg_stat_activity ORDER BY app;
-		String applicationName = System.getProperty("ApplicationName");
-		if(applicationName!=null && jdbcUrl.contains("jdbc:postgresql")) {
-			if(jdbcUrl.contains("?")) {
-				jdbcUrl+= "&ApplicationName="+ URLEncoder.encode(applicationName);
-			} else {
-				jdbcUrl+= "?ApplicationName="+ URLEncoder.encode(applicationName);
-			}
-			log.info("changed jdbc.url to include ApplicationName: {}",jdbcUrl);
-		}
-		super.setJdbcUrl(jdbcUrl);
-	}
+  @Override
+  public void setJdbcUrl(String jdbcUrl) {
+    //for PostgreSQL, adds system property ApplicationName to URL, it is diplayed as application_name in
+    // SELECT usename||'@'||datname AS who,application_name AS app,client_addr,state,query_start FROM pg_stat_activity ORDER BY app;
+    String applicationName = System.getProperty("ApplicationName");
+    if (applicationName != null && jdbcUrl.contains("jdbc:postgresql")) {
+      if (jdbcUrl.contains("?")) {
+        jdbcUrl += "&ApplicationName=" + URLEncoder.encode(applicationName);
+      } else {
+        jdbcUrl += "?ApplicationName=" + URLEncoder.encode(applicationName);
+      }
+      log.info("changed jdbc.url to include ApplicationName: {}", jdbcUrl);
+    }
+    super.setJdbcUrl(jdbcUrl);
+  }
 }

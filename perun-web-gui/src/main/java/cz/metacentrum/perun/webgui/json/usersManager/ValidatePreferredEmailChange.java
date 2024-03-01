@@ -17,70 +17,68 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class ValidatePreferredEmailChange implements JsonCallback {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "usersManager/validatePreferredEmailChange";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "usersManager/validatePreferredEmailChange";
+  // data
+  private String token = "";
+  private int u = 0;
+  private boolean hidden = false;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param token parameter for request validation
+   * @param u     user ID to request validation for
+   */
+  public ValidatePreferredEmailChange(String token, int u) {
+    this.token = token;
+    this.u = u;
+  }
 
-	// data
-	private String token = "";
-	private int u = 0;
-	private boolean hidden = false;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param token  parameter for request validation
+   * @param u      user ID to request validation for
+   * @param events Custom events
+   */
+  public ValidatePreferredEmailChange(String token, int u, JsonCallbackEvents events) {
+    this.events = events;
+    this.token = token;
+    this.u = u;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param token parameter for request validation
-	 * @param u user ID to request validation for
-	 */
-	public ValidatePreferredEmailChange(String token, int u) {
-		this.token = token;
-		this.u = u;
-	}
+  public void onFinished(JavaScriptObject jso) {
+    events.onFinished(jso);
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param token parameter for request validation
-	 * @param u user ID to request validation for
-	 * @param events Custom events
-	 */
-	public ValidatePreferredEmailChange(String token, int u, JsonCallbackEvents events) {
-		this.events = events;
-		this.token = token;
-		this.u = u;
-	}
+  public void onError(PerunError error) {
+    events.onError(error);
+  }
 
-	public void onFinished(JavaScriptObject jso) {
-		events.onFinished(jso);
-	}
+  public void onLoadingStart() {
+    events.onLoadingStart();
+  }
 
-	public void onError(PerunError error) {
-		events.onError(error);
-	}
+  public void retrieveData() {
 
-	public void onLoadingStart() {
-		events.onLoadingStart();
-	}
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("u", new JSONNumber(u));
+    jsonQuery.put("token", new JSONString(token));
 
-	public void retrieveData() {
+    JsonPostClient client = new JsonPostClient(events);
+    client.setHidden(hidden);
+    client.sendData(JSON_URL, jsonQuery);
 
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("u", new JSONNumber(u));
-		jsonQuery.put("token", new JSONString(token));
+  }
 
-		JsonPostClient client = new JsonPostClient(events);
-		client.setHidden(hidden);
-		client.sendData(JSON_URL, jsonQuery);
-
-	}
-
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
+  public void setHidden(boolean hidden) {
+    this.hidden = hidden;
+  }
 
 }

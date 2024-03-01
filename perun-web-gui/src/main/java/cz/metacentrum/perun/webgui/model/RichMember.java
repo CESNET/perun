@@ -14,75 +14,76 @@ import java.util.Map;
  */
 public class RichMember extends JavaScriptObject {
 
-	protected RichMember(){}
+  protected RichMember() {
+  }
 
-	public final native int getId() /*-{
+  public final native int getId() /*-{
 		return this.id;
 	}-*/;
 
-	public final native int getVoId() /*-{
+  public final native int getVoId() /*-{
 		return this.voId;
 	}-*/;
 
-	public final native int getUserId() /*-{
+  public final native int getUserId() /*-{
 		return this.userId;
 	}-*/;
 
-	public final native void setChecked(boolean value) /*-{
-		this.checked = value;
-	}-*/;
-
-	public final native boolean isChecked() /*-{
+  public final native boolean isChecked() /*-{
 		if(typeof this.checked === 'undefined'){
 			this.checked = false;
 		}
 		return this.checked;
 	}-*/;
 
-	/**
-	 * Get user stored in rich member
-	 *
-	 * @return user
-	 */
-	public final native User getUser()/*-{
+  public final native void setChecked(boolean value) /*-{
+		this.checked = value;
+	}-*/;
+
+  /**
+   * Get user stored in rich member
+   *
+   * @return user
+   */
+  public final native User getUser()/*-{
 		return this.user;
 	}-*/;
 
-	/**
-	 * Set user stored in rich member
-	 *
-	 * @return user
-	 */
-	public final native void setUser(User user)/*-{
+  /**
+   * Set user stored in rich member
+   *
+   * @return user
+   */
+  public final native void setUser(User user)/*-{
 		this.user = user;
 	}-*/;
 
-	/**
-	 * Get user attributes stored in rich member
-	 *
-	 * @return user attributes
-	 */
-	public final native JsArray<Attribute> getUserAttributes() /*-{
+  /**
+   * Get user attributes stored in rich member
+   *
+   * @return user attributes
+   */
+  public final native JsArray<Attribute> getUserAttributes() /*-{
 		return this.userAttributes;
 	}-*/;
 
-	/**
-	 * Get member attributes stored in rich member
-	 *
-	 * @return member attributes
-	 */
-	public final native JsArray<Attribute> getMemberAttributes() /*-{
+  /**
+   * Get member attributes stored in rich member
+   *
+   * @return member attributes
+   */
+  public final native JsArray<Attribute> getMemberAttributes() /*-{
 		return this.memberAttributes;
 	}-*/;
 
-	/**
-	 * Get specified user/member attribute stored in rich member
-	 * WORK ONLY WITH MEMBER AND USER ATTRIBUTES
-	 *
-	 * @param urn whole attribute namespace+name (urn)
-	 * @return member or user attribute or NULL if attribute not present
-	 */
-	public final native Attribute getAttribute(String urn) /*-{
+  /**
+   * Get specified user/member attribute stored in rich member
+   * WORK ONLY WITH MEMBER AND USER ATTRIBUTES
+   *
+   * @param urn whole attribute namespace+name (urn)
+   * @return member or user attribute or NULL if attribute not present
+   */
+  public final native Attribute getAttribute(String urn) /*-{
 		if (urn.indexOf("urn:perun:user:") !== -1) {
 			for(var i in this.userAttributes){
 				if(this.userAttributes[i].namespace + ":" + this.userAttributes[i].friendlyName == urn){
@@ -101,16 +102,16 @@ public class RichMember extends JavaScriptObject {
 		return null;
 	}-*/;
 
-	/**
-	 * Set attribute to RichMember object.
-	 * WORK ONLY FOR USER AND MEMBER ATTRIBUTES
-	 *
-	 * If attribute present, update value
-	 * If attribute not present, add to attr list
-	 *
-	 * @param attribute to set to RichMember object
-	 */
-	public final native void setAttribute(Attribute attribute) /*-{
+  /**
+   * Set attribute to RichMember object.
+   * WORK ONLY FOR USER AND MEMBER ATTRIBUTES
+   * <p>
+   * If attribute present, update value
+   * If attribute not present, add to attr list
+   *
+   * @param attribute to set to RichMember object
+   */
+  public final native void setAttribute(Attribute attribute) /*-{
 		if (attribute == null) return;
 		// init fields if empty
 		if (this.userAttributes == null) {
@@ -147,12 +148,12 @@ public class RichMember extends JavaScriptObject {
 		}
 	}-*/;
 
-	/**
-	 * Gets all logins stored in user attributes
-	 *
-	 * @return users logins
-	 */
-	public final native String getUserLogins() /*-{
+  /**
+   * Gets all logins stored in user attributes
+   *
+   * @return users logins
+   */
+  public final native String getUserLogins() /*-{
 		var logins = "";
 		for(var i in this.userAttributes){
 			var userAttribute = this.userAttributes[i];
@@ -172,21 +173,21 @@ public class RichMember extends JavaScriptObject {
 		return logins;
 	}-*/;
 
-	/**
-	 * Gets user ext sources associated with user stored in rich member
-	 *
-	 * @return users ext sources stored in user
-	 */
-	public final native ArrayList<UserExtSource> getUserExtSources() /*-{
+  /**
+   * Gets user ext sources associated with user stored in rich member
+   *
+   * @return users ext sources stored in user
+   */
+  public final native ArrayList<UserExtSource> getUserExtSources() /*-{
 		return this.userExtSources;
 	}-*/;
 
-	/**
-	 * Get membership type (context associated on member's retrieval)
-	 *
-	 * @return membership type (DIRECT, INDIRECT, NOT_DEFINED, ....)
-	 */
-	public final native String getMembershipType() /*-{
+  /**
+   * Get membership type (context associated on member's retrieval)
+   *
+   * @return membership type (DIRECT, INDIRECT, NOT_DEFINED, ....)
+   */
+  public final native String getMembershipType() /*-{
 		if (!this.membershipType) {
 			return "NOT_DETERMINED";
 		} else {
@@ -194,84 +195,84 @@ public class RichMember extends JavaScriptObject {
 		}
 	}-*/;
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
 		return this.beanName;
 	}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 		this.beanName = type;
 	}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
+  /**
+   * Returns the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @return string which defines item status
+   */
+  public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
 
-
-	/**
-	 * Returns the status of Member in a Group context, by default VALID.
-	 * Possible values are VALID and EXPIRED
-	 *
-	 * @return string which defines group member status
-	 */
-	public final native String getGroupStatus() /*-{
-		return this.groupStatus;
-	}-*/;
-
-	/**
-	 * Set group membership status (VALID, EXPIRED)
-	 *
-	 * @param groupStatus string which defines item status
-	 */
-	public final native void setGroupStatus(String groupStatus) /*-{
-		this.groupStatus = groupStatus;
-	}-*/;
-
-	/**
-	 * Returns map of all Member statuses, which are used to calculate getGroupStatus() value.
-	 * Its map of GroupId=>Status
-	 * Possible values are VALID and EXPIRED
-	 *
-	 * @return map of member sourcing statuses
-	 */
-	public final native GroupStatuses getGroupStatuses() /*-{
-		return this.groupStatuses;
-	}-*/;
-
-	/**
-	 * Set the status of this item in Perun system as String
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @param status string which defines item status
-	 */
-	public final native void setStatus(String status) /*-{
+  /**
+   * Set the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @param status string which defines item status
+   */
+  public final native void setStatus(String status) /*-{
 		this.status = status;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(RichMember o) {
-		return (o.getId() == this.getId()) && (o.getUser().getId() == this.getUser().getId());
-	}
+  /**
+   * Returns the status of Member in a Group context, by default VALID.
+   * Possible values are VALID and EXPIRED
+   *
+   * @return string which defines group member status
+   */
+  public final native String getGroupStatus() /*-{
+		return this.groupStatus;
+	}-*/;
+
+  /**
+   * Set group membership status (VALID, EXPIRED)
+   *
+   * @param groupStatus string which defines item status
+   */
+  public final native void setGroupStatus(String groupStatus) /*-{
+		this.groupStatus = groupStatus;
+	}-*/;
+
+  /**
+   * Returns map of all Member statuses, which are used to calculate getGroupStatus() value.
+   * Its map of GroupId=>Status
+   * Possible values are VALID and EXPIRED
+   *
+   * @return map of member sourcing statuses
+   */
+  public final native GroupStatuses getGroupStatuses() /*-{
+		return this.groupStatuses;
+	}-*/;
+
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(RichMember o) {
+    return (o.getId() == this.getId()) && (o.getUser().getId() == this.getUser().getId());
+  }
 }

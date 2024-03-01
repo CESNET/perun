@@ -30,47 +30,53 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Module for VO "vo.esc.pithia.eu" and admins subgroups of organizations
- *
+ * <p>
  * This module is used by the "admins" subgroups within the VO in order make its members also "the members" of organization.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class EscPithiaOrganizationAdmins extends DefaultRegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(EscPithiaOrganizationAdmins.class);
+  final static Logger log = LoggerFactory.getLogger(EscPithiaOrganizationAdmins.class);
 
-	@Override
-	public Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, GroupNotExistsException, VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException, NotGroupMemberException {
+  @Override
+  public Application approveApplication(PerunSession session, Application app)
+      throws UserNotExistsException, PrivilegeException, AlreadyAdminException, GroupNotExistsException,
+      VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException,
+      WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException,
+      WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException,
+      NotGroupMemberException {
 
-		// works only for initial group applications
-		if (Application.AppType.INITIAL.equals(app.getType()) && app.getGroup() != null) {
+    // works only for initial group applications
+    if (Application.AppType.INITIAL.equals(app.getType()) && app.getGroup() != null) {
 
-			PerunBl perun = (PerunBl)session.getPerun();
-			Group group = app.getGroup();
-			Vo vo = app.getVo();
-			User user = app.getUser();
-			Member member = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
+      PerunBl perun = (PerunBl) session.getPerun();
+      Group group = app.getGroup();
+      Vo vo = app.getVo();
+      User user = app.getUser();
+      Member member = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
 
-			Group organizationGroup = null;
-			try {
-				organizationGroup = perun.getGroupsManagerBl().getParentGroup(session, group);
-			} catch (ParentGroupNotExistsException e) {
-				throw new ConsistencyErrorException("Parent group of our group doesn't exist!", e);
-			}
+      Group organizationGroup = null;
+      try {
+        organizationGroup = perun.getGroupsManagerBl().getParentGroup(session, group);
+      } catch (ParentGroupNotExistsException e) {
+        throw new ConsistencyErrorException("Parent group of our group doesn't exist!", e);
+      }
 
-			Group membersGroup = perun.getGroupsManagerBl().getGroupByName(session, vo, organizationGroup.getName()+":members");
+      Group membersGroup =
+          perun.getGroupsManagerBl().getGroupByName(session, vo, organizationGroup.getName() + ":members");
 
-			try {
-				// make sure admin is also member of the organization
-				perun.getGroupsManagerBl().addMember(session, membersGroup, member);
-			} catch (AlreadyMemberException e) {
-				// ignore
-			}
+      try {
+        // make sure admin is also member of the organization
+        perun.getGroupsManagerBl().addMember(session, membersGroup, member);
+      } catch (AlreadyMemberException e) {
+        // ignore
+      }
 
-		}
+    }
 
-		return app;
+    return app;
 
-	}
+  }
 
 }

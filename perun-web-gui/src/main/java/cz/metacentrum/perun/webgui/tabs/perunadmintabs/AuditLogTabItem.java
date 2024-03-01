@@ -30,184 +30,182 @@ import java.util.Map;
  */
 public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "alog";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Audit Log");
+  // remember last number of messages
+  private int count = 20; // default 20
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public AuditLogTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Audit Log");
-	// remember last number of messages
-	private int count = 20; // default 20
+  static public AuditLogTabItem load(Map<String, String> parameters) {
+    return new AuditLogTabItem();
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 */
-	public AuditLogTabItem(){ }
+  public boolean isPrepared() {
+    return true;
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public void onClose() {
+  }
 
-	}
+  public Widget draw() {
 
-	public Widget draw() {
+    // page main tab
+    final VerticalPanel mainTab = new VerticalPanel();
+    mainTab.setSize("100%", "100%");
 
-		// page main tab
-		final VerticalPanel mainTab = new VerticalPanel();
-		mainTab.setSize("100%", "100%");
+    // number of messages
+    final TextBox tb = new TextBox();
+    tb.setText(String.valueOf(count));
+    tb.setWidth("100px");
 
-		// number of messages
-		final TextBox tb = new TextBox();
-		tb.setText(String.valueOf(count));
-		tb.setWidth("100px");
+    // menu panel
+    TabMenu menu = new TabMenu();
+    mainTab.add(menu);
+    mainTab.setCellHeight(menu, "30px");
 
-		// menu panel
-		TabMenu menu = new TabMenu();
-		mainTab.add(menu);
-		mainTab.setCellHeight(menu, "30px");
+    CustomButton refreshButton =
+        TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshAuditMessages());
 
-		CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshAuditMessages());
+    // retrieve messages
+    final GetAuditMessagesByCount call =
+        new GetAuditMessagesByCount(JsonCallbackEvents.disableButtonEvents(refreshButton));
+    call.setCount(count);
+    CellTable<AuditMessage> table = call.getTable();
 
-		// retrieve messages
-		final GetAuditMessagesByCount call = new GetAuditMessagesByCount(JsonCallbackEvents.disableButtonEvents(refreshButton));
-		call.setCount(count);
-		CellTable<AuditMessage> table = call.getTable();
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    mainTab.add(sp);
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		mainTab.add(sp);
+    // resize perun table to correct size on screen
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		// resize perun table to correct size on screen
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    // refresh button action
+    refreshButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        if (JsonUtils.checkParseInt(tb.getText())) {
+          call.clearTable();
+          count = Integer.parseInt(tb.getText());
+          call.setCount(count);
+          call.retrieveData();
+        } else {
+          JsonUtils.cantParseIntConfirm("Number of messages", tb.getText());
+        }
+      }
+    });
+    menu.addWidget(refreshButton);
 
-		// refresh button action
-		refreshButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				if (JsonUtils.checkParseInt(tb.getText())) {
-					call.clearTable();
-					count = Integer.parseInt(tb.getText());
-					call.setCount(count);
-					call.retrieveData();
-				} else {
-					JsonUtils.cantParseIntConfirm("Number of messages", tb.getText());
-				}
-			}
-		});
-		menu.addWidget(refreshButton);
+    // enter key = refresh on count text box
+    tb.addKeyPressHandler(new KeyPressHandler() {
+      public void onKeyPress(KeyPressEvent event) {
+        if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+          if (JsonUtils.checkParseInt(tb.getText())) {
+            call.clearTable();
+            count = Integer.parseInt(tb.getText());
+            call.setCount(count);
+            call.retrieveData();
+          } else {
+            JsonUtils.cantParseIntConfirm("Number of messages", tb.getText());
+          }
+        }
+      }
+    });
 
-		// enter key = refresh on count text box
-		tb.addKeyPressHandler(new KeyPressHandler() {
-			public void onKeyPress(KeyPressEvent event) {
-				if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-					if (JsonUtils.checkParseInt(tb.getText())) {
-						call.clearTable();
-						count = Integer.parseInt(tb.getText());
-						call.setCount(count);
-						call.retrieveData();
-					} else {
-						JsonUtils.cantParseIntConfirm("Number of messages", tb.getText());
-					}
-				}
-			}
-		});
+    // add textbox into menu
+    menu.addWidget(new HTML("<strong>Number of messages: </strong>"));
+    menu.addWidget(tb);
 
-		// add textbox into menu
-		menu.addWidget(new HTML("<strong>Number of messages: </strong>"));
-		menu.addWidget(tb);
+    this.contentWidget.setWidget(mainTab);
 
-		this.contentWidget.setWidget(mainTab);
+    return getWidget();
+  }
 
-		return getWidget();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.reportEditIcon();
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.reportEditIcon();
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 911;
+    int result = 1;
+    result = prime * result * 135;
+    return result;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 911;
-		int result = 1;
-		result = prime * result * 135;
-		return result;
-	}
+  /**
+   * @param obj
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	/**
-	 * @param obj
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+    return true;
+  }
 
-		return true;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Audit log", getUrlWithParameters());
+  }
 
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Audit log", getUrlWithParameters());
-	}
+  public boolean isAuthorized() {
 
-	public boolean isAuthorized() {
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
+  }
 
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	public final static String URL = "alog";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public AuditLogTabItem load(Map<String, String> parameters)
-	{
-		return new AuditLogTabItem();
-	}
+  public String getUrlWithParameters() {
+    return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

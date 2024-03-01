@@ -9,16 +9,16 @@ package cz.metacentrum.perun.taskslib.runners;
  */
 public interface Runner extends Runnable {
 
-	/**
-	 * Return TRUE if Runner thread processing should stop.
-	 *
-	 * @return TRUE if should stop / FALSE otherwise
-	 */
-	boolean shouldStop();
+  /**
+   * Return TRUE if Runner thread processing should stop.
+   *
+   * @return TRUE if should stop / FALSE otherwise
+   */
+  boolean shouldStop();
 
-	/**
-	 * Stop Runner thread (it's not interrupt - thread stops by own implementation in run() method).
-	 */
-	void stop();
+  /**
+   * Stop Runner thread (it's not interrupt - thread stops by own implementation in run() method).
+   */
+  void stop();
 
 }

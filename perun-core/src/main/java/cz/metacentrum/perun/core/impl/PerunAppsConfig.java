@@ -13,242 +13,245 @@ import java.util.List;
  */
 public class PerunAppsConfig {
 
-	private static PerunAppsConfig instance;
+  private static PerunAppsConfig instance;
 
-	private List<Brand> brands;
+  private List<Brand> brands;
 
-	public static PerunAppsConfig getInstance() {
-		return instance;
-	}
+  public static PerunAppsConfig getInstance() {
+    return instance;
+  }
 
-	public static void setInstance(PerunAppsConfig instance) {
-		PerunAppsConfig.instance = instance;
-	}
+  public static void setInstance(PerunAppsConfig instance) {
+    PerunAppsConfig.instance = instance;
+  }
 
-	@JsonGetter("brands")
-	public List<Brand> getBrands() {
-		return brands;
-	}
+  /**
+   * Returns configuration's brand in which the provided domain is specified
+   *
+   * @param domain Example: https://perun-dev.cz
+   * @return brand or null if domain is not present in the configuration
+   */
+  public static Brand getBrandContainingDomain(String domain) {
+    Utils.notNull(domain, "domain");
+    for (Brand brand : instance.getBrands()) {
+      PerunAppsConfig.NewApps newApps = brand.getNewApps();
+      if (domain.equals(brand.getOldGuiDomain()) || domain.equals(newApps.getAdmin()) ||
+          domain.equals(newApps.getProfile())
+          || domain.equals(newApps.getPublications()) || domain.equals(newApps.getPwdReset()) ||
+          domain.equals(newApps.getApi())
+          || domain.equals(newApps.getConsolidator()) || domain.equals(newApps.getLinker())) {
+        return brand;
+      }
+    }
+    return null;
+  }
 
-	@JsonSetter("brands")
-	public void setBrands(List<Brand> brands) {
-		this.brands = brands;
-	}
+  /**
+   * Iterates brands and searches for such that contains vo's shortname.
+   * If none found, returns default branding.
+   */
+  public static Brand getBrandContainingVo(String voShortname) {
+    Brand defaultBrand = instance.getBrands()
+        .stream()
+        .filter(brand -> brand.getName().equals("default"))
+        .findFirst()
+        .orElse(null);
+    return instance.getBrands().stream()
+        .filter(brand -> brand.getVoShortnames().contains(voShortname))
+        .findFirst()
+        .orElse(defaultBrand);
+  }
 
-	/**
-	 * Returns configuration's brand in which the provided domain is specified
-	 * @param domain Example: https://perun-dev.cz
-	 * @return brand or null if domain is not present in the configuration
-	 */
-	public static Brand getBrandContainingDomain(String domain) {
-		Utils.notNull(domain, "domain");
-		for (Brand brand : instance.getBrands()) {
-			PerunAppsConfig.NewApps newApps = brand.getNewApps();
-			if (domain.equals(brand.getOldGuiDomain()) || domain.equals(newApps.getAdmin()) || domain.equals(newApps.getProfile())
-				|| domain.equals(newApps.getPublications()) || domain.equals(newApps.getPwdReset()) || domain.equals(newApps.getApi())
-				|| domain.equals(newApps.getConsolidator()) || domain.equals(newApps.getLinker())) {
-				return brand;
-			}
-		}
-		return null;
-	}
+  @JsonGetter("brands")
+  public List<Brand> getBrands() {
+    return brands;
+  }
 
-	/**
-	 * Iterates brands and searches for such that contains vo's shortname.
-	 * If none found, returns default branding.
-	 */
-	public static Brand getBrandContainingVo(String voShortname) {
-		Brand defaultBrand = instance.getBrands()
-			.stream()
-			.filter(brand -> brand.getName().equals("default"))
-			.findFirst()
-			.orElse(null);
-		return instance.getBrands().stream()
-			.filter(brand -> brand.getVoShortnames().contains(voShortname))
-			.findFirst()
-			.orElse(defaultBrand);
-	}
+  @JsonSetter("brands")
+  public void setBrands(List<Brand> brands) {
+    this.brands = brands;
+  }
 
-	/**
-	 * Class holding data for a single branding.
-	 */
-	public static class Brand {
+  @Override
+  public String toString() {
+    return "PerunAppsConfig{" +
+        "brands=" + brands +
+        '}';
+  }
 
-		private String name;
-		private String oldGuiDomain;
-		private NewApps newApps;
-		private List<String> voShortnames = new ArrayList<>();
-		private String oldGuiAlert;
+  /**
+   * Class holding data for a single branding.
+   */
+  public static class Brand {
 
-		@JsonGetter("name")
-		public String getName() {
-			return name;
-		}
+    private String name;
+    private String oldGuiDomain;
+    private NewApps newApps;
+    private List<String> voShortnames = new ArrayList<>();
+    private String oldGuiAlert;
 
-		@JsonSetter("name")
-		public void setName(String name) {
-			this.name = name;
-		}
+    @JsonGetter("name")
+    public String getName() {
+      return name;
+    }
 
-		@JsonGetter("newApps")
-		public NewApps getNewApps() {
-			return newApps;
-		}
+    @JsonSetter("name")
+    public void setName(String name) {
+      this.name = name;
+    }
 
-		@JsonSetter("new_apps")
-		public void setNewApps(NewApps newApps) {
-			this.newApps = newApps;
-		}
+    @JsonGetter("newApps")
+    public NewApps getNewApps() {
+      return newApps;
+    }
 
-		@JsonGetter("voShortnames")
-		public List<String> getVoShortnames() {
-			return voShortnames;
-		}
+    @JsonSetter("new_apps")
+    public void setNewApps(NewApps newApps) {
+      this.newApps = newApps;
+    }
 
-		@JsonSetter("vos")
-		public void setVoShortnames(List<String> voShortnames) {
-			this.voShortnames = voShortnames;
-		}
+    @JsonGetter("voShortnames")
+    public List<String> getVoShortnames() {
+      return voShortnames;
+    }
 
-		@JsonGetter("oldGuiAlert")
-		public String getOldGuiAlert() {
-			return oldGuiAlert;
-		}
+    @JsonSetter("vos")
+    public void setVoShortnames(List<String> voShortnames) {
+      this.voShortnames = voShortnames;
+    }
 
-		@JsonSetter("old_gui_alert")
-		public void setOldGuiAlert(String oldGuiAlert) {
-			this.oldGuiAlert = oldGuiAlert;
-		}
+    @JsonGetter("oldGuiAlert")
+    public String getOldGuiAlert() {
+      return oldGuiAlert;
+    }
 
-		@JsonGetter("oldGuiDomain")
-		public String getOldGuiDomain() {
-			return oldGuiDomain;
-		}
+    @JsonSetter("old_gui_alert")
+    public void setOldGuiAlert(String oldGuiAlert) {
+      this.oldGuiAlert = oldGuiAlert;
+    }
 
-		@JsonSetter("old_gui_domain")
-		public void setOldGuiDomain(String oldGuiDomain) {
-			this.oldGuiDomain = oldGuiDomain;
-		}
+    @JsonGetter("oldGuiDomain")
+    public String getOldGuiDomain() {
+      return oldGuiDomain;
+    }
 
-		@Override
-		public String toString() {
-			return "Brand{" +
-					"name='" + name + '\'' +
-					", oldGuiDomain='" + oldGuiDomain + '\'' +
-					", oldGuiAlert='" + oldGuiAlert + '\'' +
-					", newApps=" + newApps +
-					", vos=" + voShortnames +
-					'}';
-		}
-	}
+    @JsonSetter("old_gui_domain")
+    public void setOldGuiDomain(String oldGuiDomain) {
+      this.oldGuiDomain = oldGuiDomain;
+    }
 
-	/**
-	 * Class holding domains of new gui applications.
-	 */
-	public static class NewApps {
+    @Override
+    public String toString() {
+      return "Brand{" +
+          "name='" + name + '\'' +
+          ", oldGuiDomain='" + oldGuiDomain + '\'' +
+          ", oldGuiAlert='" + oldGuiAlert + '\'' +
+          ", newApps=" + newApps +
+          ", vos=" + voShortnames +
+          '}';
+    }
+  }
 
-		private String api;
+  /**
+   * Class holding domains of new gui applications.
+   */
+  public static class NewApps {
 
-		private String admin;
+    private String api;
 
-		private String consolidator;
+    private String admin;
 
-		private String linker;
+    private String consolidator;
 
-		private String profile;
+    private String linker;
 
-		private String pwdReset;
+    private String profile;
 
-		private String publications;
+    private String pwdReset;
 
-		@JsonGetter("api")
-		public String getApi() {
-			return api;
-		}
+    private String publications;
 
-		@JsonSetter("api")
-		public void setApi(String api) {
-			this.api = api;
-		}
+    @JsonGetter("api")
+    public String getApi() {
+      return api;
+    }
 
-		@JsonGetter("admin")
-		public String getAdmin() {
-			return admin;
-		}
+    @JsonSetter("api")
+    public void setApi(String api) {
+      this.api = api;
+    }
 
-		@JsonSetter("admin")
-		public void setAdmin(String admin) {
-			this.admin = admin;
-		}
+    @JsonGetter("admin")
+    public String getAdmin() {
+      return admin;
+    }
 
-		@JsonGetter("consolidator")
-		public String getConsolidator() {
-			return consolidator;
-		}
+    @JsonSetter("admin")
+    public void setAdmin(String admin) {
+      this.admin = admin;
+    }
 
-		@JsonSetter("consolidator")
-		public void setConsolidator(String consolidator) {
-			this.consolidator = consolidator;
-		}
+    @JsonGetter("consolidator")
+    public String getConsolidator() {
+      return consolidator;
+    }
 
-		@JsonGetter("linker")
-		public String getLinker() {
-			return linker;
-		}
+    @JsonSetter("consolidator")
+    public void setConsolidator(String consolidator) {
+      this.consolidator = consolidator;
+    }
 
-		@JsonSetter("linker")
-		public void setLinker(String linker) {
-			this.linker = linker;
-		}
+    @JsonGetter("linker")
+    public String getLinker() {
+      return linker;
+    }
 
-		@JsonGetter("profile")
-		public String getProfile() {
-			return profile;
-		}
+    @JsonSetter("linker")
+    public void setLinker(String linker) {
+      this.linker = linker;
+    }
 
-		@JsonSetter("profile")
-		public void setProfile(String profile) {
-			this.profile = profile;
-		}
+    @JsonGetter("profile")
+    public String getProfile() {
+      return profile;
+    }
 
-		@JsonGetter("pwdReset")
-		public String getPwdReset() {
-			return pwdReset;
-		}
+    @JsonSetter("profile")
+    public void setProfile(String profile) {
+      this.profile = profile;
+    }
 
-		@JsonSetter("pwd_reset")
-		public void setPwdReset(String pwdReset) {
-			this.pwdReset = pwdReset;
-		}
+    @JsonGetter("pwdReset")
+    public String getPwdReset() {
+      return pwdReset;
+    }
 
-		@JsonGetter("publications")
-		public String getPublications() {
-			return publications;
-		}
+    @JsonSetter("pwd_reset")
+    public void setPwdReset(String pwdReset) {
+      this.pwdReset = pwdReset;
+    }
 
-		@JsonSetter("publications")
-		public void setPublications(String publications) {
-			this.publications = publications;
-		}
+    @JsonGetter("publications")
+    public String getPublications() {
+      return publications;
+    }
 
-		@Override
-		public String toString() {
-			return "NewApps{" +
-					"api='" + api + '\'' +
-					", admin='" + admin + '\'' +
-					", consolidator='" + consolidator + '\'' +
-					", linker='" + linker + '\'' +
-					", profile='" + profile + '\'' +
-					", pwdReset='" + pwdReset + '\'' +
-					", publications='" + publications + '\'' +
-					'}';
-		}
-	}
+    @JsonSetter("publications")
+    public void setPublications(String publications) {
+      this.publications = publications;
+    }
 
-	@Override
-	public String toString() {
-		return "PerunAppsConfig{" +
-				"brands=" + brands +
-				'}';
-	}
+    @Override
+    public String toString() {
+      return "NewApps{" +
+          "api='" + api + '\'' +
+          ", admin='" + admin + '\'' +
+          ", consolidator='" + consolidator + '\'' +
+          ", linker='" + linker + '\'' +
+          ", profile='" + profile + '\'' +
+          ", pwdReset='" + pwdReset + '\'' +
+          ", publications='" + publications + '\'' +
+          '}';
+    }
+  }
 }

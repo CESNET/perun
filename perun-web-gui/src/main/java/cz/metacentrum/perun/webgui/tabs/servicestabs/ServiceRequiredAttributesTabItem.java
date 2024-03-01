@@ -5,11 +5,19 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -24,7 +32,6 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -34,225 +41,225 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl{
+public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "req-attrs";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Required attributes");
+  // data
+  private int serviceId;
+  private Service service;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Tab with required attributes management for selected service
+   *
+   * @param serviceId ID of service to get required attributes for
+   */
+  public ServiceRequiredAttributesTabItem(int serviceId) {
+    this.serviceId = serviceId;
+    new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        service = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Required attributes");
+  /**
+   * Tab with required attributes management for selected service
+   *
+   * @param service service to get required attributes for
+   */
+  public ServiceRequiredAttributesTabItem(Service service) {
+    this.service = service;
+    this.serviceId = service.getId();
+  }
 
-	// data
-	private int serviceId;
-	private Service service;
+  static public ServiceRequiredAttributesTabItem load(Map<String, String> parameters) {
+    int id = Integer.parseInt(parameters.get("id"));
+    return new ServiceRequiredAttributesTabItem(id);
+  }
 
-	/**
-	 * Tab with required attributes management for selected service
-	 *
-	 * @param serviceId ID of service to get required attributes for
-	 */
-	public ServiceRequiredAttributesTabItem(int serviceId){
-		this.serviceId = serviceId;
-		new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				service = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public boolean isPrepared() {
+    return !(service == null);
+  }
 
-	/**
-	 * Tab with required attributes management for selected service
-	 *
-	 * @param service service to get required attributes for
-	 */
-	public ServiceRequiredAttributesTabItem(Service service) {
-		this.service = service;
-		this.serviceId = service.getId();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return !(service == null);
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": Required attributes");
 
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	public Widget draw() {
+    // create new json call for required attributes of service with id=?
+    final GetServiceRequiredAttributes servReqAttr = new GetServiceRequiredAttributes(serviceId);
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(service.getName()) + ": Required attributes");
+    // menu
+    TabMenu menu = new TabMenu();
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    final ExtendedSuggestBox box = new ExtendedSuggestBox(servReqAttr.getOracle());
 
-		// create new json call for required attributes of service with id=?
-		final GetServiceRequiredAttributes servReqAttr = new GetServiceRequiredAttributes(serviceId);
+    // custom event
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(servReqAttr);
 
-		// menu
-		TabMenu menu = new TabMenu();
-		menu.addWidget(UiElements.getRefreshButton(this));
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addRequiredAttribute(),
+        new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            session.getTabManager().addTabToCurrentTab(new AddRequiredAttributesTabItem(service), true);
+          }
+        }));
 
-		final ExtendedSuggestBox box = new ExtendedSuggestBox(servReqAttr.getOracle());
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedRequiredAttributes());
+    removeButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        final ArrayList<AttributeDefinition> attrsForRemoving = servReqAttr.getTableSelectedList();
+        UiElements.showDeleteConfirm(attrsForRemoving, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+            for (int i = 0; i < attrsForRemoving.size(); i++) {
+              if (i == attrsForRemoving.size() - 1) {
+                RemoveRequiredAttribute request = new RemoveRequiredAttribute(
+                    JsonCallbackEvents.disableButtonEvents(removeButton,
+                        JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents() {
+                          @Override
+                          public void onFinished(JavaScriptObject jso) {
+                            // clear filter since filter ignores next call for some reason
+                            box.getSuggestBox().setText("");
+                          }
+                        })));
+                request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
+              } else {
+                RemoveRequiredAttribute request =
+                    new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton));
+                request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
+              }
 
-		// custom event
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(servReqAttr);
+            }
+          }
+        });
+      }
+    });
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addRequiredAttribute(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().addTabToCurrentTab(new AddRequiredAttributesTabItem(service), true);
-			}
-		}));
+    menu.addWidget(removeButton);
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedRequiredAttributes());
-		removeButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				final ArrayList<AttributeDefinition> attrsForRemoving = servReqAttr.getTableSelectedList();
-				UiElements.showDeleteConfirm(attrsForRemoving, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-						for (int i=0; i<attrsForRemoving.size(); i++ ) {
-							if (i == attrsForRemoving.size()-1) {
-								RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents() {
-									@Override
-									public void onFinished(JavaScriptObject jso) {
-										// clear filter since filter ignores next call for some reason
-										box.getSuggestBox().setText("");
-									}
-								})));
-								request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
-							} else {
-								RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton));
-								request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
-							}
+    menu.addFilterWidget(box, new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        servReqAttr.filterTable(text);
+      }
+    }, "Filter required attributes by name");
 
-						}
-					}
-				});
-			}
-		});
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		menu.addWidget(removeButton);
+    // get table = make call
+    CellTable<AttributeDefinition> reqAttrTable = servReqAttr.getTable();
 
-		menu.addFilterWidget(box, new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				servReqAttr.filterTable(text);
-			}
-		}, "Filter required attributes by name");
+    // create scroll panel for table
+    reqAttrTable.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(reqAttrTable);
+    sp.addStyleName("perun-tableScrollPanel");
+    sp.setWidth("100%");
+    vp.add(sp);
+    vp.setCellHeight(sp, "100%");
 
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    removeButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(servReqAttr, reqAttrTable, removeButton);
 
-		// get table = make call
-		CellTable<AttributeDefinition> reqAttrTable = servReqAttr.getTable();
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		// create scroll panel for table
-		reqAttrTable.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(reqAttrTable);
-		sp.addStyleName("perun-tableScrollPanel");
-		sp.setWidth("100%");
-		vp.add(sp);
-		vp.setCellHeight(sp, "100%");
+    // add tabs to the main panel
+    this.contentWidget.setWidget(vp);
 
-		removeButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(servReqAttr, reqAttrTable, removeButton);
+    return getWidget();
+  }
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		// add tabs to the main panel
-		this.contentWidget.setWidget(vp);
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		return getWidget();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.trafficLightsIcon();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1103;
+    int result = 1;
+    result = prime * result + serviceId;
+    return result;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ServiceRequiredAttributesTabItem other = (ServiceRequiredAttributesTabItem) obj;
+    if (serviceId != other.serviceId) {
+      return false;
+    }
+    return true;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon();
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1103;
-		int result = 1;
-		result = prime * result + serviceId;
-		return result;
-	}
+  public void open() {
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ServiceRequiredAttributesTabItem other = (ServiceRequiredAttributesTabItem) obj;
-		if (serviceId != other.serviceId)
-			return false;
-		return true;
-	}
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
 
-	public void open()
-	{
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "req-attrs";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + serviceId;
-	}
-
-	static public ServiceRequiredAttributesTabItem load(Map<String, String> parameters)
-	{
-		int id = Integer.parseInt(parameters.get("id"));
-		return new ServiceRequiredAttributesTabItem(id);
-	}
+  public String getUrlWithParameters() {
+    return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + serviceId;
+  }
 
 }

@@ -7,7 +7,13 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -19,8 +25,10 @@ import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationDataById;
 import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.User;
-import cz.metacentrum.perun.webgui.tabs.*;
-
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.UsersTabs;
 import java.util.Map;
 
 /**
@@ -29,235 +37,240 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
+public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "appl-detail";
+  final ScrollPanel sp = new ScrollPanel();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading application");
+  private Application application;
+  private int applicationId = 0;
+  private User user;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param application
+   */
+  public SelfApplicationDetailTabItem(Application application) {
+    this.application = application;
+    this.applicationId = application.getId();
+    this.user = application.getUser();
+  }
 
-	final ScrollPanel sp = new ScrollPanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param applicationId
+   */
+  public SelfApplicationDetailTabItem(int applicationId) {
+    this.applicationId = applicationId;
+    new GetEntityById(PerunEntity.APPLICATION, applicationId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        application = jso.cast();
+        user = application.getUser();
+      }
+    }).retrieveData();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading application");
+  static public SelfApplicationDetailTabItem load(Map<String, String> parameters) {
 
-	private Application application;
-	private int applicationId = 0;
-	private User user;
+    if (parameters.containsKey("id")) {
+      int appid = Integer.parseInt(parameters.get("id"));
+      if (appid != 0) {
+        return new SelfApplicationDetailTabItem(appid);
+      }
+    }
+    return null;
+  }
 
+  public boolean isPrepared() {
+    return !(application == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param application
-	 */
-	public SelfApplicationDetailTabItem(Application application){
-		this.application = application;
-		this.applicationId = application.getId();
-		this.user = application.getUser();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param applicationId
-	 */
-	public SelfApplicationDetailTabItem(int applicationId) {
-		this.applicationId = applicationId;
-		new GetEntityById(PerunEntity.APPLICATION, applicationId, new JsonCallbackEvents() {
-			public void onFinished(JavaScriptObject jso) {
-				application = jso.cast();
-				user = application.getUser();
-			}
-		}).retrieveData();
-	}
+  @Override
+  public void onClose() {
 
-	public boolean isPrepared(){
-		return !(application == null);
-	}
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public Widget draw() {
 
-	@Override
-	public void onClose() {
+    this.titleWidget.setText(
+        Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": Application detail");
 
-	}
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	public Widget draw() {
+    String header = "<h2>";
+    if (application.getType().equalsIgnoreCase("INITIAL") || application.getType().equalsIgnoreCase("EMBEDDED")) {
+      header += "Initial application for ";
+    } else {
+      header += "Extension application for ";
+    }
+    if (application.getGroup() == null) {
+      header += "VO " + application.getVo().getName();
+    } else {
+      header += "group " + application.getGroup().getShortName() + " in VO " + application.getVo().getName();
+    }
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+ ": Application detail");
+    String submitted = "</h2><p>Submitted on <strong>" + ((application.getCreatedAt().contains(".")) ?
+        application.getCreatedAt().substring(0, application.getCreatedAt().indexOf(".")) : application.getCreatedAt());
+    submitted += "</strong> is in state <strong>" + application.getState().toUpperCase() + "</strong>";
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    vp.add(new HTML(header + submitted));
 
-		String header = "<h2>";
-		if (application.getType().equalsIgnoreCase("INITIAL") || application.getType().equalsIgnoreCase("EMBEDDED")) {
-			header += "Initial application for ";
-		} else {
-			header += "Extension application for ";
-		}
-		if (application.getGroup() == null) {
-			header += "VO "+application.getVo().getName();
-		} else {
-			header += "group "+application.getGroup().getShortName()+" in VO "+application.getVo().getName();
-		}
+    vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\" />"));
 
-		String submitted = "</h2><p>Submitted on <strong>" + ((application.getCreatedAt().contains(".")) ? application.getCreatedAt().substring(0, application.getCreatedAt().indexOf(".")) : application.getCreatedAt());
-		submitted += "</strong> is in state <strong>"+application.getState().toUpperCase()+"</strong>";
+    sp.setSize("100%", "100%");
+    sp.addStyleName("perun-tableScrollPanel");
+    vp.add(sp);
+    vp.setCellHeight(sp, "100%");
 
-		vp.add(new HTML(header+submitted));
+    if (application.getType().equalsIgnoreCase("EMBEDDED")) {
+      final FlexTable ft = new FlexTable();
+      ft.setCellSpacing(5);
+      String userName = application.getUser().getFullNameWithTitles();
+      if (userName != null) {
+        ft.setHTML(0, 0, "<strong>Name:</strong> " + SafeHtmlUtils.fromString(userName).asString());
+      }
+      new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, application.getUser().getId(), new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          User user = jso.cast();
+          Attribute preferredMail = user.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
+          if (preferredMail != null) {
+            ft.setHTML(1, 0,
+                "<strong>Preferred mail:</strong> " + SafeHtmlUtils.fromString(preferredMail.getValue()).asString());
+          }
+        }
+      }).retrieveData();
+      sp.setWidget(ft);
+    } else {
+      GetApplicationDataById data = new GetApplicationDataById(applicationId);
+      data.setShowAdminItems(false);
+      data.retrieveData();
+      sp.setWidget(data.getContents());
+    }
 
-		vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\" />"));
+    session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-		sp.setSize("100%", "100%");
-		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp);
-		vp.setCellHeight(sp, "100%");
+    Window.addResizeHandler(new ResizeHandler() {
+      public void onResize(ResizeEvent event) {
+        // run resize only for opened tab/overlay + shared commands
+        resizeTable();
+      }
+    });
 
-		if (application.getType().equalsIgnoreCase("EMBEDDED")) {
-			final FlexTable ft = new FlexTable();
-			ft.setCellSpacing(5);
-			String userName = application.getUser().getFullNameWithTitles();
-			if (userName != null) {
-				ft.setHTML(0, 0, "<strong>Name:</strong> " + SafeHtmlUtils.fromString(userName).asString());
-			}
-			new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, application.getUser().getId(), new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					User user = jso.cast();
-					Attribute preferredMail = user.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
-					if (preferredMail != null) {
-						ft.setHTML(1, 0, "<strong>Preferred mail:</strong> " + SafeHtmlUtils.fromString(preferredMail.getValue()).asString());
-					}
-				}
-			}).retrieveData();
-			sp.setWidget(ft);
-		} else {
-			GetApplicationDataById data = new GetApplicationDataById(applicationId);
-			data.setShowAdminItems(false);
-			data.retrieveData();
-			sp.setWidget(data.getContents());
-		}
+    this.contentWidget.setWidget(vp);
+    resizeTable();
+    return getWidget();
 
-		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+  }
 
-		Window.addResizeHandler(new ResizeHandler() {
-			public void onResize(ResizeEvent event) {
-				// run resize only for opened tab/overlay + shared commands
-				resizeTable();
-			}
-		});
+  /**
+   * Resize table to the max width possible based on tab content width
+   */
+  private void resizeTable() {
 
-		this.contentWidget.setWidget(vp);
-		resizeTable();
-		return getWidget();
+    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+      @Override
+      public void execute() {
+        if (sp.getWidget() != null && contentWidget != null) {
+          ((SimplePanel) sp.getWidget()).setWidth((Math.max(contentWidget.getOffsetWidth() - 5, 0) + "px"));
+        }
+      }
+    });
 
-	}
+  }
 
-	/**
-	 * Resize table to the max width possible based on tab content width
-	 */
-	private void resizeTable() {
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				if (sp.getWidget() != null && contentWidget != null) {
-					((SimplePanel)sp.getWidget()).setWidth((Math.max(contentWidget.getOffsetWidth()-5, 0)+"px"));
-				}
-			}
-		});
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.applicationFromStorageIcon();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1223;
+    int result = 43;
+    result = prime * result * applicationId;
+    return result;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    if (this.applicationId != ((SelfApplicationDetailTabItem) obj).applicationId) {
+      return false;
+    }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.applicationFromStorageIcon();
-	}
+    return true;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1223;
-		int result = 43;
-		result = prime * result * applicationId;
-		return result;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		if (this.applicationId != ((SelfApplicationDetailTabItem)obj).applicationId)
-			return false;
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.USER);
+    if (user != null) {
+      session.setActiveUser(user);
+    }
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My applications",
+        UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "appls?id=" + application.getUser().getId(),
+        "Application detail", getUrlWithParameters());
+    resizeTable();
+  }
 
-		return true;
-	}
+  public boolean isAuthorized() {
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    // GETTING APPLICATION WITHOUT USER SET IS NOT ALLOWED IN PERUN GUI,
+    // SINCE USER MUST BE LOGGED-IN !!
+    if (user != null) {
+      if (session.isSelf(user.getId())) {
+        // is authorized for user from application
+        return true;
+      }
+    }
+    return false;
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.USER);
-		if (user != null) {
-			session.setActiveUser(user);
-		}
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "My applications", UsersTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"appls?id="+application.getUser().getId(), "Application detail", getUrlWithParameters());
-		resizeTable();
-	}
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		// GETTING APPLICATION WITHOUT USER SET IS NOT ALLOWED IN PERUN GUI,
-		// SINCE USER MUST BE LOGGED-IN !!
-		if (user != null) {
-			if (session.isSelf(user.getId())) {
-				// is authorized for user from application
-				return true;
-			}
-		}
-		return false;
-
-	}
-
-	public final static String URL = "appl-detail";
-
-	public String getUrl() {
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return  UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + applicationId;
-	}
-
-	static public SelfApplicationDetailTabItem load(Map<String, String> parameters) {
-
-		if (parameters.containsKey("id")) {
-			int appid = Integer.parseInt(parameters.get("id"));
-			if (appid != 0) {
-				return new SelfApplicationDetailTabItem(appid);
-			}
-		}
-		return null;
-	}
+  public String getUrlWithParameters() {
+    return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + applicationId;
+  }
 
 }

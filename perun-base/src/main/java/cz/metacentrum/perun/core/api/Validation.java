@@ -6,7 +6,7 @@ package cz.metacentrum.perun.core.api;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public enum Validation {
-	NONE,
-	SYNC,
-	ASYNC
+  NONE,
+  SYNC,
+  ASYNC
 }

@@ -11,37 +11,37 @@ import java.util.List;
  */
 public class RegexpValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
-	/**
-	 * List of applied regex replace operations.
-	 * Initialized from the Spring context.
-	 */
-	private List<RegexpSubst> replaceList;
+  /**
+   * List of applied regex replace operations.
+   * Initialized from the Spring context.
+   */
+  private List<RegexpSubst> replaceList;
 
-	public List<RegexpSubst> getReplaceList() {
-		return replaceList;
-	}
+  public List<RegexpSubst> getReplaceList() {
+    return replaceList;
+  }
 
-	public void setReplaceList(List<RegexpSubst> replaceList) {
-		this.replaceList = replaceList;
-	}
+  public void setReplaceList(List<RegexpSubst> replaceList) {
+    this.replaceList = replaceList;
+  }
 
-	@Override
-	public String getValue(String value, Attribute attr) {
-		String result = value;
-		for (RegexpSubst regexpSubst : replaceList) {
-			result = result.replaceAll(regexpSubst.getFind(), regexpSubst.getReplace());
-		}
-		return result;
-	}
+  @Override
+  public String getValue(String value, Attribute attr) {
+    String result = value;
+    for (RegexpSubst regexpSubst : replaceList) {
+      result = result.replaceAll(regexpSubst.getFind(), regexpSubst.getReplace());
+    }
+    return result;
+  }
 
-	@Override
-	public Boolean isMassTransformationPreferred() {
-		return false;
-	}
+  @Override
+  public Boolean isMassTransformationPreferred() {
+    return false;
+  }
 
-	@Override
-	public Boolean isReduce() {
-		return false;
-	}
+  @Override
+  public Boolean isReduce() {
+    return false;
+  }
 
 }

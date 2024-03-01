@@ -11,7 +11,16 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -35,7 +44,6 @@ import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.Map;
 
 /**
@@ -46,479 +54,502 @@ import java.util.Map;
  */
 public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	final ScrollPanel sp = new ScrollPanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Application detail");
-
-	// data
-	private int appId;
-	private TabItem tab;
-	private Application app = null;
-	private int row = 0;
-	private boolean refreshParent = false;
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param app
-	 */
-	public ApplicationDetailTabItem(Application app){
-		this.app = app;
-		this.appId = app.getId();
-	}
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param appId
-	 */
-	public ApplicationDetailTabItem(int appId){
-		this.appId = appId;
-		new GetEntityById(PerunEntity.APPLICATION, appId, new JsonCallbackEvents() {
-			public void onFinished(JavaScriptObject jso) {
-				app = jso.cast();
-			}
-		}).retrieveData();
-	}
-
-	public boolean isPrepared(){
-		return (app != null);
-	}
-
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return refreshParent;
-	}
-
-	@Override
-	public void onClose() {
-
-	}
-
-	public Widget draw() {
-
-		tab = this;
-		row = 0;
-
-		boolean buttonsEnabled = ((session.isVoAdmin(app.getVo().getId())) ||
-				(app.getGroup() != null && session.isGroupAdmin(app.getGroup().getId())));
-
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
-
-		TabMenu menu = new TabMenu();
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
-
-		final FlexTable ft = new FlexTable();
-
-		String text = "<strong>Submitted by:</strong> ";
-		if (app.getUser() != null) {
-			text += SafeHtmlUtils.fromString(app.getUser().getFullNameWithTitles() + " (" + app.getCreatedBy() + ")").asString();
-		} else {
-			text += SafeHtmlUtils.fromString(app.getCreatedBy()).asString();
-		}
-		text += " <strong>from External Source:</strong> " + SafeHtmlUtils.fromString(app.getExtSourceName()).asString()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
-		text += " <strong>on: </strong> " + app.getCreatedAt().split("\\.")[0];
-		ft.setHTML(row, 0, text);
-		ft.setCellSpacing(5);
-
-		row++;
-
-		if (app.getGroup() != null) {
-			ft.setHTML(row, 0, "<strong>Application for group: </strong>"+ SafeHtmlUtils.fromString((app.getGroup().getName() != null) ? app.getGroup().getName() : "").asString() + "<strong> in VO: </strong>"+SafeHtmlUtils.fromString((app.getVo().getName() != null) ? app.getVo().getName() : "").asString());
-		} else {
-			ft.setHTML(row, 0, "<strong>Application for VO: </strong>"+SafeHtmlUtils.fromString((app.getVo().getName() != null) ? app.getVo().getName() : "").asString());
-		}
-
-		if (app.getState().equalsIgnoreCase("APPROVED")) {
-			row++;
-			ft.setHTML(row, 0, "<strong>Approved by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " + app.getModifiedAt().split("\\.")[0]);
-		}
-		if (app.getState().equalsIgnoreCase("REJECTED")) {
-			row++;
-			ft.setHTML(row, 0, "<strong>Rejected by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " + app.getModifiedAt().split("\\.")[0]);
-		}
-
-		// for extension in VO if not approved or rejected
-		if (app.getType().equalsIgnoreCase("EXTENSION") && app.getUser() != null &&
-				!app.getState().equalsIgnoreCase("APPROVED") && !app.getState().equalsIgnoreCase("REJECTED")) {
-
-			GetNewExtendMembership ex = new GetNewExtendMembership(app.getVo().getId(), app.getUser().getId(), new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					if (jso != null) {
-						BasicOverlayType basic = jso.cast();
-						row++;
-						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+SafeHtmlUtils.fromString(basic.getString()).asString());
-					}
-				}
-			});
-			ex.retrieveData();
-		}
-
-		// for initial in VO, if not approved or rejected
-		if (app.getType().equalsIgnoreCase("INITIAL") &&
-				app.getGroup() == null &&
-				!app.getState().equalsIgnoreCase("APPROVED") &&
-				!app.getState().equalsIgnoreCase("REJECTED")) {
-
-			GetNewExtendMembershipLoa ex = new GetNewExtendMembershipLoa(app.getVo().getId(), app.getExtSourceLoa(), new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					if (jso != null) {
-						BasicOverlayType basic = jso.cast();
-						row++;
-						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+SafeHtmlUtils.fromString(basic.getString()).asString());
-					}
-				}
-			});
-			ex.retrieveData();
-		}
-
-		vp.add(ft);
-		vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\"/>"));
-
-		// only NEW apps can be Verified
-		if (app.getState().equals("NEW")) {
-			if (session.isPerunAdmin()) {
-				// verify button
-				final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
-				menu.addWidget(verify);
-				verify.addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, new JsonCallbackEvents() {
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								app = jso.cast();
-								draw();
-								refreshParent = true;
-							}
-						}));
-						request.verifyApplication(appId);
-					}
-				});
-			}
-		}
-
-		// only VERIFIED apps can be approved/rejected
-		if (app.getState().equals("VERIFIED") || app.getState().equals("NEW")) {
-
-			// accept button
-			final CustomButton approve = TabMenu.getPredefinedButton(ButtonType.APPROVE, ButtonTranslation.INSTANCE.approveApplication());
-			approve.setEnabled(buttonsEnabled);
-			menu.addWidget(approve);
-			approve.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							refreshParent = true;
-							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-						}
-					}));
-					request.approveApplication(app);
-				}
-			});
-
-			//reject button
-			final CustomButton reject = TabMenu.getPredefinedButton(ButtonType.REJECT, ButtonTranslation.INSTANCE.rejectApplication());
-			reject.setEnabled(buttonsEnabled);
-			menu.addWidget(reject);
-			reject.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					// confirm content
-					FlexTable content = new FlexTable();
-					content.setCellSpacing(10);
-					content.setHTML(0, 0, "Please specify reason of rejection to let user know why was application rejected.");
-					content.getFlexCellFormatter().setColSpan(0, 0, 2);
-					final TextArea reason = new TextArea();
-					reason.setSize("300px", "150px");
-					content.setHTML(1, 0, "<strong>Reason: </strong>");
-					content.setWidget(1, 1, reason);
-
-					Confirm c = new Confirm("Specify reason", content, new ClickHandler(){
-						public void onClick(ClickEvent event) {
-							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, new JsonCallbackEvents(){
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									refreshParent = true;
-									session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-								}
-							}));
-							request.rejectApplication(appId, reason.getText());
-						}
-					}, true);
-					c.show();
-				}
-			});
-
-		}
-
-		if (app.getState().equals("NEW") || app.getState().equals("REJECTED")) {
-
-			// delete button
-			final CustomButton delete = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteApplication());
-			delete.setEnabled(buttonsEnabled);
-			menu.addWidget(delete);
-			delete.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							refreshParent = true;
-							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-						}
-					}));
-					request.deleteApplication(appId);
-				}
-			});
-
-		}
-
-		// NOTIFICATION SENDER
-
-		final CustomButton send = new CustomButton("Re-send notifications...", SmallIcons.INSTANCE.emailIcon());
-		send.setEnabled(buttonsEnabled);
-		menu.addWidget(send);
-		send.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-
-				final FlexTable ft = new FlexTable();
-				ft.setStyleName("inputFormFlexTable");
-				ft.setWidth("400px");
-
-				final ListBox selection = new ListBox();
-				selection.setWidth("200px");
-
-				if (session.isPerunAdmin()) {
-
-					// add all except user invite
-					for (ApplicationMail.MailType mail : ApplicationMail.MailType.values()) {
-						if (!mail.equals(ApplicationMail.MailType.USER_INVITE)) {
-							selection.addItem(ApplicationMail.getTranslatedMailType(mail.toString()), mail.toString());
-						}
-					}
-
-				} else {
-
-					// add TYPEs based on actual APP-STATE
-					if (app.getState().equals("NEW")) {
-
-						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_USER"), "APP_CREATED_USER");
-						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_VO_ADMIN"), "APP_CREATED_VO_ADMIN");
-						selection.addItem(ApplicationMail.getTranslatedMailType("MAIL_VALIDATION"), "MAIL_VALIDATION");
-
-					} else if (app.getState().equals("VERIFIED")) {
-
-						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_USER"), "APP_CREATED_USER");
-						selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_VO_ADMIN"), "APP_CREATED_VO_ADMIN");
-
-					} else if (app.getState().equals("APPROVED")) {
-
-						selection.addItem(ApplicationMail.getTranslatedMailType("APP_APPROVED_USER"), "APP_APPROVED_USER");
-
-					} else if (app.getState().equals("REJECTED")) {
-
-						selection.addItem(ApplicationMail.getTranslatedMailType("APP_REJECTED_USER"), "APP_REJECTED_USER");
-
-					}
-
-					// FIXME - how to handle APPROVABLE_GROUP_APP_USER
-
-				}
-
-				ft.setHTML(0, 0, "Select notification:");
-				ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-				ft.setWidget(0, 1, selection);
-
-				final TextArea reason = new TextArea();
-				reason.setSize("250px", "100px");
-
-				selection.addChangeHandler(new ChangeHandler() {
-					@Override
-					public void onChange(ChangeEvent event) {
-
-						if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
-							ft.setHTML(1, 0, "Reason:");
-							ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
-							ft.setWidget(1, 1, reason);
-						} else {
-							ft.setHTML(1, 0, "");
-							ft.setHTML(1, 1, "");
-						}
-
-					}
-				});
-
-				// if pre-selected
-				if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
-					ft.setHTML(1, 0, "Reason:");
-					ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
-					ft.setWidget(1, 1, reason);
-				} else {
-					ft.setHTML(1, 0, "");
-					ft.setHTML(1, 1, "");
-				}
-
-				final Confirm c = new Confirm("Re-send notifications", ft, null, true);
-				c.setOkIcon(SmallIcons.INSTANCE.emailIcon());
-				c.setOkButtonText("Send");
-				c.setNonScrollable(true);
-				c.setOkClickHandler(new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-
-						ResendNotification call = new ResendNotification(appId, JsonCallbackEvents.disableButtonEvents(c.getOkButton(), new JsonCallbackEvents() {
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								c.hide();
-							}
-						}));
-
-						if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
-							call.resendNotification(selection.getValue(selection.getSelectedIndex()), reason.getValue().trim());
-						} else {
-							call.resendNotification(selection.getValue(selection.getSelectedIndex()), null);
-						}
-
-					}
-				});
-				c.setCancelClickHandler(new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						c.hide();
-					}
-				});
-				c.show();
-
-			}
-		});
-
-		menu.addWidget(new HTML("<strong>TYPE: </strong>"+Application.getTranslatedType(app.getType())));
-		menu.addWidget(new HTML("<strong>STATE: </strong>"+Application.getTranslatedState(app.getState())));
-
-		GetApplicationDataById data = new GetApplicationDataById(appId);
-		data.setEditable(app.getState().equals("VERIFIED") || app.getState().equals("NEW"));
-		data.setEmbedded(app.getType().equals("EMBEDDED"), app.getUser());
-		data.retrieveData();
-
-		sp.setWidget(data.getContents());
-		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp);
-		vp.setCellHeight(sp, "100%");
-		vp.setCellHorizontalAlignment(sp, HasHorizontalAlignment.ALIGN_CENTER);
-
-		session.getUiElements().resizePerunTable(sp, 400, this);
-
-		Window.addResizeHandler(new ResizeHandler() {
-			public void onResize(ResizeEvent event) {
-				// run resize only for opened tab/overlay + shared commands
-				resizeTable();
-			}
-		});
-
-		this.contentWidget.setWidget(vp);
-		resizeTable();
-		return getWidget();
-
-	}
-
-	/**
-	 * Resize table to the max width possible based on tab content width
-	 */
-	private void resizeTable() {
-
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				if (sp.getWidget() != null && contentWidget != null) {
-					((SimplePanel)sp.getWidget()).setWidth((Math.max(contentWidget.getOffsetWidth()-15, 0)+"px"));
-				}
-			}
-		});
-
-	}
-
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
-
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
-
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.applicationFromStorageIcon();
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 1487;
-		int result = 1;
-		result = prime * result + appId;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ApplicationDetailTabItem other = (ApplicationDetailTabItem) obj;
-		if (appId != other.appId)
-			return false;
-		return true;
-	}
-
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
-
-	public void open(){
-		resizeTable();
-	}
-
-	public boolean isAuthorized() {
-
-		if (session.isVoAdmin() || session.isVoObserver() || session.isGroupAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "appdetail";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + appId;
-	}
-
-	static public ApplicationDetailTabItem load(Map<String, String> parameters) {
-		int appId = Integer.parseInt(parameters.get("id"));
-		return new ApplicationDetailTabItem(appId);
-	}
+  public final static String URL = "appdetail";
+  final ScrollPanel sp = new ScrollPanel();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Application detail");
+  // data
+  private int appId;
+  private TabItem tab;
+  private Application app = null;
+  private int row = 0;
+  private boolean refreshParent = false;
+
+  /**
+   * Creates a tab instance
+   *
+   * @param app
+   */
+  public ApplicationDetailTabItem(Application app) {
+    this.app = app;
+    this.appId = app.getId();
+  }
+
+  /**
+   * Creates a tab instance
+   *
+   * @param appId
+   */
+  public ApplicationDetailTabItem(int appId) {
+    this.appId = appId;
+    new GetEntityById(PerunEntity.APPLICATION, appId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        app = jso.cast();
+      }
+    }).retrieveData();
+  }
+
+  static public ApplicationDetailTabItem load(Map<String, String> parameters) {
+    int appId = Integer.parseInt(parameters.get("id"));
+    return new ApplicationDetailTabItem(appId);
+  }
+
+  public boolean isPrepared() {
+    return (app != null);
+  }
+
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return refreshParent;
+  }
+
+  @Override
+  public void onClose() {
+
+  }
+
+  public Widget draw() {
+
+    tab = this;
+    row = 0;
+
+    boolean buttonsEnabled = ((session.isVoAdmin(app.getVo().getId())) ||
+        (app.getGroup() != null && session.isGroupAdmin(app.getGroup().getId())));
+
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
+
+    TabMenu menu = new TabMenu();
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
+
+    final FlexTable ft = new FlexTable();
+
+    String text = "<strong>Submitted by:</strong> ";
+    if (app.getUser() != null) {
+      text +=
+          SafeHtmlUtils.fromString(app.getUser().getFullNameWithTitles() + " (" + app.getCreatedBy() + ")").asString();
+    } else {
+      text += SafeHtmlUtils.fromString(app.getCreatedBy()).asString();
+    }
+    text += " <strong>from External Source:</strong> " + SafeHtmlUtils.fromString(app.getExtSourceName()).asString() +
+        " <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
+    text += " <strong>on: </strong> " + app.getCreatedAt().split("\\.")[0];
+    ft.setHTML(row, 0, text);
+    ft.setCellSpacing(5);
+
+    row++;
+
+    if (app.getGroup() != null) {
+      ft.setHTML(row, 0, "<strong>Application for group: </strong>" +
+          SafeHtmlUtils.fromString((app.getGroup().getName() != null) ? app.getGroup().getName() : "").asString() +
+          "<strong> in VO: </strong>" +
+          SafeHtmlUtils.fromString((app.getVo().getName() != null) ? app.getVo().getName() : "").asString());
+    } else {
+      ft.setHTML(row, 0, "<strong>Application for VO: </strong>" +
+          SafeHtmlUtils.fromString((app.getVo().getName() != null) ? app.getVo().getName() : "").asString());
+    }
+
+    if (app.getState().equalsIgnoreCase("APPROVED")) {
+      row++;
+      ft.setHTML(row, 0, "<strong>Approved by:</strong> " +
+          ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" :
+              Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " +
+          app.getModifiedAt().split("\\.")[0]);
+    }
+    if (app.getState().equalsIgnoreCase("REJECTED")) {
+      row++;
+      ft.setHTML(row, 0, "<strong>Rejected by:</strong> " +
+          ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" :
+              Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " +
+          app.getModifiedAt().split("\\.")[0]);
+    }
+
+    // for extension in VO if not approved or rejected
+    if (app.getType().equalsIgnoreCase("EXTENSION") && app.getUser() != null &&
+        !app.getState().equalsIgnoreCase("APPROVED") && !app.getState().equalsIgnoreCase("REJECTED")) {
+
+      GetNewExtendMembership ex =
+          new GetNewExtendMembership(app.getVo().getId(), app.getUser().getId(), new JsonCallbackEvents() {
+            @Override
+            public void onFinished(JavaScriptObject jso) {
+              if (jso != null) {
+                BasicOverlayType basic = jso.cast();
+                row++;
+                ft.setHTML(row, 0, "<strong>New membership expiration:</strong> " +
+                    SafeHtmlUtils.fromString(basic.getString()).asString());
+              }
+            }
+          });
+      ex.retrieveData();
+    }
+
+    // for initial in VO, if not approved or rejected
+    if (app.getType().equalsIgnoreCase("INITIAL") &&
+        app.getGroup() == null &&
+        !app.getState().equalsIgnoreCase("APPROVED") &&
+        !app.getState().equalsIgnoreCase("REJECTED")) {
+
+      GetNewExtendMembershipLoa ex =
+          new GetNewExtendMembershipLoa(app.getVo().getId(), app.getExtSourceLoa(), new JsonCallbackEvents() {
+            @Override
+            public void onFinished(JavaScriptObject jso) {
+              if (jso != null) {
+                BasicOverlayType basic = jso.cast();
+                row++;
+                ft.setHTML(row, 0, "<strong>New membership expiration:</strong> " +
+                    SafeHtmlUtils.fromString(basic.getString()).asString());
+              }
+            }
+          });
+      ex.retrieveData();
+    }
+
+    vp.add(ft);
+    vp.add(new HTML("<hr size=\"1\" style=\"color: #ccc;\"/>"));
+
+    // only NEW apps can be Verified
+    if (app.getState().equals("NEW")) {
+      if (session.isPerunAdmin()) {
+        // verify button
+        final CustomButton verify =
+            TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
+        menu.addWidget(verify);
+        verify.addClickHandler(new ClickHandler() {
+          public void onClick(ClickEvent event) {
+            HandleApplication request =
+                new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    app = jso.cast();
+                    draw();
+                    refreshParent = true;
+                  }
+                }));
+            request.verifyApplication(appId);
+          }
+        });
+      }
+    }
+
+    // only VERIFIED apps can be approved/rejected
+    if (app.getState().equals("VERIFIED") || app.getState().equals("NEW")) {
+
+      // accept button
+      final CustomButton approve =
+          TabMenu.getPredefinedButton(ButtonType.APPROVE, ButtonTranslation.INSTANCE.approveApplication());
+      approve.setEnabled(buttonsEnabled);
+      menu.addWidget(approve);
+      approve.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          HandleApplication request =
+              new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, new JsonCallbackEvents() {
+                @Override
+                public void onFinished(JavaScriptObject jso) {
+                  refreshParent = true;
+                  session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+                }
+              }));
+          request.approveApplication(app);
+        }
+      });
+
+      //reject button
+      final CustomButton reject =
+          TabMenu.getPredefinedButton(ButtonType.REJECT, ButtonTranslation.INSTANCE.rejectApplication());
+      reject.setEnabled(buttonsEnabled);
+      menu.addWidget(reject);
+      reject.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          // confirm content
+          FlexTable content = new FlexTable();
+          content.setCellSpacing(10);
+          content.setHTML(0, 0, "Please specify reason of rejection to let user know why was application rejected.");
+          content.getFlexCellFormatter().setColSpan(0, 0, 2);
+          final TextArea reason = new TextArea();
+          reason.setSize("300px", "150px");
+          content.setHTML(1, 0, "<strong>Reason: </strong>");
+          content.setWidget(1, 1, reason);
+
+          Confirm c = new Confirm("Specify reason", content, new ClickHandler() {
+            public void onClick(ClickEvent event) {
+              HandleApplication request =
+                  new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, new JsonCallbackEvents() {
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                      refreshParent = true;
+                      session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+                    }
+                  }));
+              request.rejectApplication(appId, reason.getText());
+            }
+          }, true);
+          c.show();
+        }
+      });
+
+    }
+
+    if (app.getState().equals("NEW") || app.getState().equals("REJECTED")) {
+
+      // delete button
+      final CustomButton delete =
+          TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteApplication());
+      delete.setEnabled(buttonsEnabled);
+      menu.addWidget(delete);
+      delete.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          HandleApplication request =
+              new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, new JsonCallbackEvents() {
+                @Override
+                public void onFinished(JavaScriptObject jso) {
+                  refreshParent = true;
+                  session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+                }
+              }));
+          request.deleteApplication(appId);
+        }
+      });
+
+    }
+
+    // NOTIFICATION SENDER
+
+    final CustomButton send = new CustomButton("Re-send notifications...", SmallIcons.INSTANCE.emailIcon());
+    send.setEnabled(buttonsEnabled);
+    menu.addWidget(send);
+    send.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+
+        final FlexTable ft = new FlexTable();
+        ft.setStyleName("inputFormFlexTable");
+        ft.setWidth("400px");
+
+        final ListBox selection = new ListBox();
+        selection.setWidth("200px");
+
+        if (session.isPerunAdmin()) {
+
+          // add all except user invite
+          for (ApplicationMail.MailType mail : ApplicationMail.MailType.values()) {
+            if (!mail.equals(ApplicationMail.MailType.USER_INVITE)) {
+              selection.addItem(ApplicationMail.getTranslatedMailType(mail.toString()), mail.toString());
+            }
+          }
+
+        } else {
+
+          // add TYPEs based on actual APP-STATE
+          if (app.getState().equals("NEW")) {
+
+            selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_USER"), "APP_CREATED_USER");
+            selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_VO_ADMIN"), "APP_CREATED_VO_ADMIN");
+            selection.addItem(ApplicationMail.getTranslatedMailType("MAIL_VALIDATION"), "MAIL_VALIDATION");
+
+          } else if (app.getState().equals("VERIFIED")) {
+
+            selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_USER"), "APP_CREATED_USER");
+            selection.addItem(ApplicationMail.getTranslatedMailType("APP_CREATED_VO_ADMIN"), "APP_CREATED_VO_ADMIN");
+
+          } else if (app.getState().equals("APPROVED")) {
+
+            selection.addItem(ApplicationMail.getTranslatedMailType("APP_APPROVED_USER"), "APP_APPROVED_USER");
+
+          } else if (app.getState().equals("REJECTED")) {
+
+            selection.addItem(ApplicationMail.getTranslatedMailType("APP_REJECTED_USER"), "APP_REJECTED_USER");
+
+          }
+
+          // FIXME - how to handle APPROVABLE_GROUP_APP_USER
+
+        }
+
+        ft.setHTML(0, 0, "Select notification:");
+        ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+        ft.setWidget(0, 1, selection);
+
+        final TextArea reason = new TextArea();
+        reason.setSize("250px", "100px");
+
+        selection.addChangeHandler(new ChangeHandler() {
+          @Override
+          public void onChange(ChangeEvent event) {
+
+            if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
+              ft.setHTML(1, 0, "Reason:");
+              ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
+              ft.setWidget(1, 1, reason);
+            } else {
+              ft.setHTML(1, 0, "");
+              ft.setHTML(1, 1, "");
+            }
+
+          }
+        });
+
+        // if pre-selected
+        if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
+          ft.setHTML(1, 0, "Reason:");
+          ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
+          ft.setWidget(1, 1, reason);
+        } else {
+          ft.setHTML(1, 0, "");
+          ft.setHTML(1, 1, "");
+        }
+
+        final Confirm c = new Confirm("Re-send notifications", ft, null, true);
+        c.setOkIcon(SmallIcons.INSTANCE.emailIcon());
+        c.setOkButtonText("Send");
+        c.setNonScrollable(true);
+        c.setOkClickHandler(new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent event) {
+
+            ResendNotification call = new ResendNotification(appId,
+                JsonCallbackEvents.disableButtonEvents(c.getOkButton(), new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    c.hide();
+                  }
+                }));
+
+            if (selection.getValue(selection.getSelectedIndex()).equals("APP_REJECTED_USER")) {
+              call.resendNotification(selection.getValue(selection.getSelectedIndex()), reason.getValue().trim());
+            } else {
+              call.resendNotification(selection.getValue(selection.getSelectedIndex()), null);
+            }
+
+          }
+        });
+        c.setCancelClickHandler(new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent event) {
+            c.hide();
+          }
+        });
+        c.show();
+
+      }
+    });
+
+    menu.addWidget(new HTML("<strong>TYPE: </strong>" + Application.getTranslatedType(app.getType())));
+    menu.addWidget(new HTML("<strong>STATE: </strong>" + Application.getTranslatedState(app.getState())));
+
+    GetApplicationDataById data = new GetApplicationDataById(appId);
+    data.setEditable(app.getState().equals("VERIFIED") || app.getState().equals("NEW"));
+    data.setEmbedded(app.getType().equals("EMBEDDED"), app.getUser());
+    data.retrieveData();
+
+    sp.setWidget(data.getContents());
+    sp.addStyleName("perun-tableScrollPanel");
+    vp.add(sp);
+    vp.setCellHeight(sp, "100%");
+    vp.setCellHorizontalAlignment(sp, HasHorizontalAlignment.ALIGN_CENTER);
+
+    session.getUiElements().resizePerunTable(sp, 400, this);
+
+    Window.addResizeHandler(new ResizeHandler() {
+      public void onResize(ResizeEvent event) {
+        // run resize only for opened tab/overlay + shared commands
+        resizeTable();
+      }
+    });
+
+    this.contentWidget.setWidget(vp);
+    resizeTable();
+    return getWidget();
+
+  }
+
+  /**
+   * Resize table to the max width possible based on tab content width
+   */
+  private void resizeTable() {
+
+    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+      @Override
+      public void execute() {
+        if (sp.getWidget() != null && contentWidget != null) {
+          ((SimplePanel) sp.getWidget()).setWidth((Math.max(contentWidget.getOffsetWidth() - 15, 0) + "px"));
+        }
+      }
+    });
+
+  }
+
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
+
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
+
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.applicationFromStorageIcon();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 1487;
+    int result = 1;
+    result = prime * result + appId;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ApplicationDetailTabItem other = (ApplicationDetailTabItem) obj;
+    if (appId != other.appId) {
+      return false;
+    }
+    return true;
+  }
+
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
+
+  public void open() {
+    resizeTable();
+  }
+
+  public boolean isAuthorized() {
+
+    if (session.isVoAdmin() || session.isVoObserver() || session.isGroupAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
+  public String getUrl() {
+    return URL;
+  }
+
+  public String getUrlWithParameters() {
+    return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + appId;
+  }
 
 }

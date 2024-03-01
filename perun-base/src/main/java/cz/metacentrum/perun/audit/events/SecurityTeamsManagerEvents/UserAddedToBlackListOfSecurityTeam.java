@@ -7,41 +7,41 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserAddedToBlackListOfSecurityTeam extends AuditEvent implements EngineForceEvent {
 
-	private User user;
-	private SecurityTeam securityTeam;
-	private String description;
-	private String message;
+  private User user;
+  private SecurityTeam securityTeam;
+  private String description;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public UserAddedToBlackListOfSecurityTeam() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public UserAddedToBlackListOfSecurityTeam() {
+  }
 
-	public UserAddedToBlackListOfSecurityTeam(User user, SecurityTeam securityTeam, String description) {
-		this.user = user;
-		this.securityTeam = securityTeam;
-		this.description = description;
-		this.message = formatMessage("%s add to blacklist of %s with description '%s'.", user, securityTeam, description);
-	}
+  public UserAddedToBlackListOfSecurityTeam(User user, SecurityTeam securityTeam, String description) {
+    this.user = user;
+    this.securityTeam = securityTeam;
+    this.description = description;
+    this.message = formatMessage("%s add to blacklist of %s with description '%s'.", user, securityTeam, description);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	public SecurityTeam getSecurityTeam() {
-		return securityTeam;
-	}
+  public SecurityTeam getSecurityTeam() {
+    return securityTeam;
+  }
 
-	public String getDescription() {
-		return description;
-	}
+  public String getDescription() {
+    return description;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

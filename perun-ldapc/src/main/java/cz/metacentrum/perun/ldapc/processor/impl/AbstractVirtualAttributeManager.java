@@ -18,51 +18,51 @@ import cz.metacentrum.perun.ldapc.processor.VirtualAttributeManager;
 @Component
 public class AbstractVirtualAttributeManager<T extends PerunBean> implements VirtualAttributeManager<T> {
 
-	private final static Logger log = LoggerFactory.getLogger(AbstractVirtualAttributeManager.class);
+  private final static Logger log = LoggerFactory.getLogger(AbstractVirtualAttributeManager.class);
 
-	/* maps perun group attribute names to ldap attribute descriptions */
-	protected Map<String, List<PerunVirtualAttribute<T>>> attributeDependencies;
-	
-	public AbstractVirtualAttributeManager() {
-		attributeDependencies = new HashMap<String, List<PerunVirtualAttribute<T>>>();
-	}
+  /* maps perun group attribute names to ldap attribute descriptions */
+  protected Map<String, List<PerunVirtualAttribute<T>>> attributeDependencies;
 
-	@Override
-	public void registerAttributeDependency(String parentName, PerunVirtualAttribute<T> dependentAttr) {
-		List<PerunVirtualAttribute<T>> attrDefs;
-		if(attributeDependencies.containsKey(parentName)) {
-			attrDefs = attributeDependencies.get(parentName);
-		} else {
-			attrDefs = new ArrayList<PerunVirtualAttribute<T>>();
-			attributeDependencies.put(parentName, attrDefs);
-		}
-		List<String> presentAttrs = attrDefs.stream()
-				.map(attr -> attr.getName())
-				.distinct()
-				.collect(Collectors.toList()); 
-		if(!presentAttrs.contains(dependentAttr.getName())) {
-			attrDefs.add(dependentAttr);
-			log.debug("Added attribute {} dependency on {}", dependentAttr.getName(), parentName);
-		}
-	}
+  public AbstractVirtualAttributeManager() {
+    attributeDependencies = new HashMap<String, List<PerunVirtualAttribute<T>>>();
+  }
 
-	@Override 
-	public List<String> getRegisteredAttributes() {
-		return new ArrayList<String>(attributeDependencies.keySet());
-	}
-	
-	
-	@Override
-	public Collection<PerunVirtualAttribute<T>> getAttributeDependants(String name) {
-		return attributeDependencies.get(name);
-	}
-	
-	@Override
-	public Collection<PerunVirtualAttribute<T>> getAllAttributeDependants() {
-		List<PerunVirtualAttribute<T>> dependants = new ArrayList<>();
-		attributeDependencies.values().forEach(attrDefs -> dependants.addAll(attrDefs));
-		return dependants;
-	}
+  @Override
+  public void registerAttributeDependency(String parentName, PerunVirtualAttribute<T> dependentAttr) {
+    List<PerunVirtualAttribute<T>> attrDefs;
+    if (attributeDependencies.containsKey(parentName)) {
+      attrDefs = attributeDependencies.get(parentName);
+    } else {
+      attrDefs = new ArrayList<PerunVirtualAttribute<T>>();
+      attributeDependencies.put(parentName, attrDefs);
+    }
+    List<String> presentAttrs = attrDefs.stream()
+        .map(attr -> attr.getName())
+        .distinct()
+        .collect(Collectors.toList());
+    if (!presentAttrs.contains(dependentAttr.getName())) {
+      attrDefs.add(dependentAttr);
+      log.debug("Added attribute {} dependency on {}", dependentAttr.getName(), parentName);
+    }
+  }
 
-	
+  @Override
+  public List<String> getRegisteredAttributes() {
+    return new ArrayList<String>(attributeDependencies.keySet());
+  }
+
+
+  @Override
+  public Collection<PerunVirtualAttribute<T>> getAttributeDependants(String name) {
+    return attributeDependencies.get(name);
+  }
+
+  @Override
+  public Collection<PerunVirtualAttribute<T>> getAllAttributeDependants() {
+    List<PerunVirtualAttribute<T>> dependants = new ArrayList<>();
+    attributeDependencies.values().forEach(attrDefs -> dependants.addAll(attrDefs));
+    return dependants;
+  }
+
+
 }

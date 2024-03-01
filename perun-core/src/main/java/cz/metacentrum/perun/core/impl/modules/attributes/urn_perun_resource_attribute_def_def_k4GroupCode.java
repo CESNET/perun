@@ -15,29 +15,39 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_resource_attribute_def_def_k4GroupCode extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_k4GroupCode extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
 
-		if (attribute.getValue() == null) return;
-		if ((attribute.valueAsString()).length() > 20) throw new WrongAttributeValueException("Code of Group in K4 mustn't exceed 20 characters.");
+    if (attribute.getValue() == null) {
+      return;
+    }
+    if ((attribute.valueAsString()).length() > 20) {
+      throw new WrongAttributeValueException("Code of Group in K4 mustn't exceed 20 characters.");
+    }
 
-	}
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Code of Group in K4 can't be empty.");
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Code of Group in K4 can't be empty.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("k4GroupCode");
-		attr.setDisplayName("K4 Group Code");
-		attr.setType(String.class.getName());
-		attr.setDescription("Code of Group in K4 (visible to users).");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("k4GroupCode");
+    attr.setDisplayName("K4 Group Code");
+    attr.setType(String.class.getName());
+    attr.setDescription("Code of Group in K4 (visible to users).");
+    return attr;
+  }
 }

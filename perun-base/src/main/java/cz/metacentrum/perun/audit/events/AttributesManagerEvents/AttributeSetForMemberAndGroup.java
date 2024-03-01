@@ -10,41 +10,41 @@ import cz.metacentrum.perun.core.api.Member;
  */
 public class AttributeSetForMemberAndGroup extends AuditEvent {
 
-	private Attribute attribute;
-	private Member member;
-	private Group group;
-	private String message;
+  private Attribute attribute;
+  private Member member;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeSetForMemberAndGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeSetForMemberAndGroup() {
+  }
 
-	public AttributeSetForMemberAndGroup(Attribute attribute, Member member, Group group) {
-		this.attribute = attribute;
-		this.member = member;
-		this.group = group;
-		this.message = formatMessage("%s set for %s and %s.", attribute, member, group);
-	}
+  public AttributeSetForMemberAndGroup(Attribute attribute, Member member, Group group) {
+    this.attribute = attribute;
+    this.member = member;
+    this.group = group;
+    this.message = formatMessage("%s set for %s and %s.", attribute, member, group);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

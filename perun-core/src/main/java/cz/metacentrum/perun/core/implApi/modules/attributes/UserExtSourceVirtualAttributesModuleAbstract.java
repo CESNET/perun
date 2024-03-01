@@ -15,33 +15,33 @@ import java.util.List;
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
  *
  * @author Jan Zvěřina <zverina.jan@email.cz>
- *
  */
-public abstract class UserExtSourceVirtualAttributesModuleAbstract extends UserExtSourceAttributesModuleAbstract implements UserExtSourceVirtualAttributesModuleImplApi {
+public abstract class UserExtSourceVirtualAttributesModuleAbstract extends UserExtSourceAttributesModuleAbstract
+    implements UserExtSourceVirtualAttributesModuleImplApi {
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) {
-		return new Attribute(attribute);
-	}
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) {
+    return new Attribute(attribute);
+  }
 
-	@Override
-	public boolean setAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) {
-		return false;
-	}
+  @Override
+  public boolean setAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) {
+    return false;
+  }
 
-	@Override
-	public boolean removeAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) {
-		return false;
-	}
+  @Override
+  public boolean removeAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) {
+    return false;
+  }
 
-	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
-		return new ArrayList<>();
-	}
+  @Override
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
+    return new ArrayList<>();
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    return dependecies;
+  }
 }

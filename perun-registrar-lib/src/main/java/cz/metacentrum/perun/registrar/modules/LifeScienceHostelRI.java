@@ -8,20 +8,20 @@ package cz.metacentrum.perun.registrar.modules;
  */
 public class LifeScienceHostelRI extends AbstractLifeScienceHostelRI {
 
-	private final static String HOSTEL_HOSTNAME = "hostel.aai.lifescience-ri.eu";
+  private final static String HOSTEL_HOSTNAME = "hostel.aai.lifescience-ri.eu";
 
-	private final static String LS_HOSTEL_SCOPE = "@" + HOSTEL_HOSTNAME;
+  private final static String LS_HOSTEL_SCOPE = "@" + HOSTEL_HOSTNAME;
 
-	private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://" + HOSTEL_HOSTNAME + "/lshostel/";
+  private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://" + HOSTEL_HOSTNAME + "/lshostel/";
 
-	@Override
-	protected String getScope() {
-		return LS_HOSTEL_SCOPE;
-	}
+  @Override
+  protected String getScope() {
+    return LS_HOSTEL_SCOPE;
+  }
 
-	@Override
-	protected String getExtSourceName() {
-		return LS_HOSTEL_EXT_SOURCE_NAME;
-	}
+  @Override
+  protected String getExtSourceName() {
+    return LS_HOSTEL_EXT_SOURCE_NAME;
+  }
 }
 

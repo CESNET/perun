@@ -30,157 +30,157 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
+public class ExtSourcesTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "extsrc";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("External sources");
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public ExtSourcesTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("External sources");
+  static public ExtSourcesTabItem load(Map<String, String> parameters) {
+    return new ExtSourcesTabItem();
+  }
 
+  public boolean isPrepared() {
+    return true;
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public ExtSourcesTabItem(){}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    // create main panel for content
+    VerticalPanel mainPage = new VerticalPanel();
+    mainPage.setWidth("100%");
 
-	public Widget draw() {
+    // create new instance for jsonCall getExtSources
+    final GetExtSources getExtSources = new GetExtSources();
+    getExtSources.setCheckable(false);
 
-		// create main panel for content
-		VerticalPanel mainPage = new VerticalPanel();
-		mainPage.setWidth("100%");
+    // menu
+    TabMenu menu = new TabMenu();
+    menu.addWidget(UiElements.getRefreshButton(this));
+    menu.addFilterWidget(new ExtendedSuggestBox(getExtSources.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        getExtSources.filterTable(text);
+      }
+    }, "Filter external sources by name or type");
 
-		// create new instance for jsonCall getExtSources
-		final GetExtSources getExtSources = new GetExtSources();
-		getExtSources.setCheckable(false);
+    final CustomButton loadButton =
+        new CustomButton("Load ext sources", "Load ext sources definitions from a local file.",
+            SmallIcons.INSTANCE.worldIcon());
+    loadButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        LoadExtSourcesDefinitions loadCall = new LoadExtSourcesDefinitions(
+            JsonCallbackEvents.disableButtonEvents(loadButton, JsonCallbackEvents.refreshTableEvents(getExtSources)));
+        loadCall.retrieveData();
+      }
+    });
 
-		// menu
-		TabMenu menu = new TabMenu();
-		menu.addWidget(UiElements.getRefreshButton(this));
-		menu.addFilterWidget(new ExtendedSuggestBox(getExtSources.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				getExtSources.filterTable(text);
-			}
-		}, "Filter external sources by name or type");
+    menu.addWidget(loadButton);
 
-		final CustomButton loadButton = new CustomButton("Load ext sources", "Load ext sources definitions from a local file.", SmallIcons.INSTANCE.worldIcon());
-		loadButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				LoadExtSourcesDefinitions loadCall = new LoadExtSourcesDefinitions(JsonCallbackEvents.disableButtonEvents(loadButton, JsonCallbackEvents.refreshTableEvents(getExtSources)));
-				loadCall.retrieveData();
-			}
-		});
+    // get CellTable from jsonCall
+    CellTable<ExtSource> extSourcesTable = getExtSources.getTable();
+    extSourcesTable.setStyleName("perun-table");
+    ScrollPanel scrollTable = new ScrollPanel(extSourcesTable);
+    scrollTable.addStyleName("perun-tableScrollPanel");
 
-		menu.addWidget(loadButton);
+    // put page into scroll panel
+    mainPage.add(menu);
+    mainPage.setCellHeight(menu, "30px");
+    mainPage.add(scrollTable);
 
-		// get CellTable from jsonCall
-		CellTable<ExtSource> extSourcesTable = getExtSources.getTable();
-		extSourcesTable.setStyleName("perun-table");
-		ScrollPanel scrollTable = new ScrollPanel(extSourcesTable);
-		scrollTable.addStyleName("perun-tableScrollPanel");
+    session.getUiElements().resizePerunTable(scrollTable, 350, this);
+    this.contentWidget.setWidget(mainPage);
 
-		// put page into scroll panel
-		mainPage.add(menu);
-		mainPage.setCellHeight(menu, "30px");
-		mainPage.add(scrollTable);
+    return getWidget();
+  }
 
-		session.getUiElements().resizePerunTable(scrollTable, 350, this);
-		this.contentWidget.setWidget(mainPage);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.worldIcon();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 929;
+    int result = 1;
+    result = prime * result * 135;
+    return result;
+  }
 
-	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.worldIcon();
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
+    return true;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 929;
-		int result = 1;
-		result = prime * result * 135;
-		return result;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs()
+        .setLocation(MainMenu.PERUN_ADMIN, "External sources", getUrlWithParameters());
+  }
 
-		return true;
-	}
+  public boolean isAuthorized() {
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "External sources", getUrlWithParameters());
-	}
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "extsrc";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public ExtSourcesTabItem load(Map<String, String> parameters)
-	{
-		return new ExtSourcesTabItem();
-	}
+  public String getUrlWithParameters() {
+    return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 }

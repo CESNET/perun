@@ -10,8 +10,8 @@ import cz.metacentrum.perun.webgui.model.Attribute;
  */
 public class EntitylessAttributeKeyProvider implements ProvidesKey<Attribute> {
 
-	public Object getKey(Attribute attribute) {
-		return attribute.getKey();
-	}
+  public Object getKey(Attribute attribute) {
+    return attribute.getKey();
+  }
 
 }

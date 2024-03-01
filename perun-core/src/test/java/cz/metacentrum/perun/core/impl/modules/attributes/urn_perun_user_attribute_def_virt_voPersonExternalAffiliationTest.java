@@ -48,346 +48,366 @@ import static org.mockito.Mockito.when;
  */
 public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliationTest {
 
-	private static urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance;
-	private PerunSessionImpl session;
-	private User user;
-	private UserExtSource ues1;
-	private UserExtSource ues2;
-	private UserExtSource ues3;
-	private Attribute uesAtt1;
-	private Attribute uesAtt2;
-	private Attribute uesAtt3;
-	private Attribute userAtt1;
-	private final String VALUE1 = "11aff11@somewhere.edu";
-	private final String VALUE2 = "22aff22@somewhere.edu";
-	private final String VALUE3 = "33aff33@somewhere.edu";
-	private final String VALUE4 = "44aff44@somewhere.edu";
-	private final String VALUE5 = "55aff55@somewhere.edu";
-	private final String VALUE6 = "66aff66@somewhere.edu";
-	private final String VALUE7 = "77aff77@somewhere.edu";
-	private final String VALUE7_DUPLICITY1 = "77aff77@SOMEWHERE.edu";
-	private final String VALUE7_DUPLICITY2 = "77AFF77@somewhere.edu";
-	private final String VALUE7_DUPLICITY3 = "77AFF77@SOMEWHERE.edu";
+  private static urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance;
+  private final String VALUE1 = "11aff11@somewhere.edu";
+  private final String VALUE2 = "22aff22@somewhere.edu";
+  private final String VALUE3 = "33aff33@somewhere.edu";
+  private final String VALUE4 = "44aff44@somewhere.edu";
+  private final String VALUE5 = "55aff55@somewhere.edu";
+  private final String VALUE6 = "66aff66@somewhere.edu";
+  private final String VALUE7 = "77aff77@somewhere.edu";
+  private final String VALUE7_DUPLICITY1 = "77aff77@SOMEWHERE.edu";
+  private final String VALUE7_DUPLICITY2 = "77AFF77@somewhere.edu";
+  private final String VALUE7_DUPLICITY3 = "77AFF77@SOMEWHERE.edu";
+  private final int gId1 = 1;
+  private final int gId2 = 2;
+  private PerunSessionImpl session;
+  private User user;
+  private UserExtSource ues1;
+  private UserExtSource ues2;
+  private UserExtSource ues3;
+  private Attribute uesAtt1;
+  private Attribute uesAtt2;
+  private Attribute uesAtt3;
+  private Attribute userAtt1;
+  private LocalDate valid;
+  private LocalDate invalid;
+  private Member validMember;
+  private Member groupMember1;
+  private Member groupMember2;
+  private Group group1;
+  private Attribute groupAtt1;
 
-	private LocalDate valid;
-	private LocalDate invalid;
-	private Member validMember;
-	private Member groupMember1;
-	private Member groupMember2;
-	private final int gId1 = 1;
-	private final int gId2 = 2;
-	private Group group1;
-	private Attribute groupAtt1;
+  private static void prepareCoreConfig() {
+    // if test is run separately, coreConfig might not have been initialized
+    if (BeansUtils.getCoreConfig() == null) {
+      CoreConfig testConfig = new CoreConfig();
+      testConfig.setIdpLoginValidity(12);
+      BeansUtils.setConfig(testConfig);
+    }
+  }
 
-	@Before
-	public void setVariables() {
-		classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+  @Before
+  public void setVariables() {
+    classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-		valid = LocalDate.now();
-		invalid = valid.minusDays(1);
-		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    valid = LocalDate.now();
+    invalid = valid.minusDays(1);
+    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-		user = new User();
-		user.setId(1);
+    user = new User();
+    user.setId(1);
 
-		ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), "login1");
-		ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), "login2");
-		ues3 = new UserExtSource(30, new ExtSource(300, "name3", "type3"), "login3");
-
-
-		uesAtt1 = new Attribute();
-		uesAtt2 = new Attribute();
-		uesAtt3 = new Attribute();
-		uesAtt1.setValue(VALUE1);
-		uesAtt2.setValue(VALUE2+";"+VALUE3);
-		uesAtt3.setValue(VALUE7_DUPLICITY1+";"+VALUE7_DUPLICITY2+";"+VALUE7_DUPLICITY3);
-
-		userAtt1 = new Attribute();
-		Map<String, String> mapValue = new LinkedHashMap<>();
-		mapValue.put(VALUE6, valid.format(dateFormat));
-		mapValue.put(VALUE7, invalid.format(dateFormat));
-		userAtt1.setValue(mapValue);
-
-		group1 = new Group(gId1, "G1", "G1_DSC", null, null, null, null, null, null);
-
-		validMember = new Member(1, 1, 1, Status.VALID);
-
-		groupMember1 = new Member(1, 1, 1, Status.VALID);
-		groupMember1.setSourceGroupId(gId1);
-		groupMember1.putGroupStatus(gId1, MemberGroupStatus.VALID);
-
-		groupMember2 = new Member(1, 1, 1, Status.VALID);
-		groupMember2.setSourceGroupId(gId2);
-		groupMember2.putGroupStatus(gId2, MemberGroupStatus.EXPIRED);
-
-		groupAtt1 = new Attribute();
-		List<String> arrListValue = new ArrayList<>();
-		arrListValue.add(VALUE4);
-		arrListValue.add(VALUE5);
-		groupAtt1.setValue(arrListValue);
-	}
-
-	@Test
-	public void getAttributeValueNoDuplicities() throws Exception {
-		System.out.println("getAttributeValueNoDuplicities()");
-		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-
-		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-			Collections.singletonList(ues3)
-		);
-
-		String attributeName = classInstance.getSourceAttributeName();
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues3, attributeName)).thenReturn(
-			uesAtt3
-		);
-
-		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-
-		// check that the value is a list with size 1 and only VALUE7
-		assertTrue(receivedAttr.getValue() instanceof List);
-		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
-
-		List<String> actual = receivedAttr.valueAsList();
-		assertEquals("collected values are incorrect", Collections.singletonList(VALUE7_DUPLICITY3), actual);
-	}
-
-	@Test
-	public void getAttributeValueFromAllSources() throws Exception {
-		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-
-		String primarySourceAttributeName = classInstance.getSourceAttributeName();
-		String secondarySourceAttrName = classInstance.getSecondarySourceAttributeName();
-		String tertiarySourceAttrName = classInstance.getTertiarySourceAttributeName();
-
-		// USER_EXT_SOURCE
-		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-			Arrays.asList(ues1, ues2)
-		);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, primarySourceAttributeName)).thenReturn(
-			uesAtt1
-		);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, primarySourceAttributeName)).thenReturn(
-			uesAtt2
-		);
-
-		// MANUALLY_ASSIGNED_AFFILIATIONS
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
-			userAtt1
-		);
-
-		// AFFILIATIONS_FROM_GROUP
-		when(session.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(session, user, Status.VALID)).thenReturn(
-			Collections.singletonList(validMember)
-		);
-		when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, validMember)).thenReturn(
-			Collections.singletonList(group1)
-		);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
-			groupAtt1
-		);
-
-		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-		assertTrue(receivedAttr.getValue() instanceof List);
-		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
-
-		List<String> actual = receivedAttr.valueAsList();
-		Collections.sort(actual);
-		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4, VALUE5, VALUE6);
-		Collections.sort(expected);
-		assertEquals("collected values are incorrect", expected, actual);
-	}
-
-	@Test
-	public void getAttributeValueOnlyGroupAffiliations() throws Exception {
-		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-
-		// AFFILIATIONS_FROM_GROUP
-		when(session.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(session, user, Status.VALID)).thenReturn(
-			Collections.singletonList(validMember)
-		);
-		when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, validMember)).thenReturn(
-			Collections.singletonList(group1)
-		);
-
-		String tertiarySourceAttrName = classInstance.getTertiarySourceAttributeName();
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
-			groupAtt1
-		);
-
-		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-		assertTrue(receivedAttr.getValue() instanceof List);
-		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
-
-		List<String> actual = receivedAttr.valueAsList();
-		Collections.sort(actual);
-		List<String> expected = Arrays.asList(VALUE4, VALUE5);
-		Collections.sort(expected);
-		assertEquals("collected values are incorrect", expected, actual);
-	}
-
-	@Test
-	public void getAttributeValueOnlyFromUserExtSources() throws Exception {
-		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-
-		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-			Arrays.asList(ues1, ues2)
-		);
-
-		String attributeName = classInstance.getSourceAttributeName();
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
-			uesAtt1
-		);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
-			uesAtt2
-		);
-
-		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-		assertTrue(receivedAttr.getValue() instanceof List);
-		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
-
-		@SuppressWarnings("unchecked")
-		List<String> actual = (List<String>) receivedAttr.getValue();
-		Collections.sort(actual);
-		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
-		Collections.sort(expected);
-		assertEquals("collected values are incorrect", expected, actual);
-	}
-
-	@Test
-	public void getAttributeValueOnlyFromVoPersonExternalAffiliationManuallyAssigned() throws Exception {
-		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-
-		String secondarySourceAttrName = classInstance.getSecondarySourceAttributeName();
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
-			userAtt1
-		);
-
-		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-		assertTrue(receivedAttr.getValue() instanceof List);
-		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
-
-		@SuppressWarnings("unchecked")
-		List<String> actual = (List<String>) receivedAttr.getValue();
-		Collections.sort(actual);
-		List<String> expected = new ArrayList<>();
-		expected.add(VALUE6);
-		Collections.sort(expected);
-		assertEquals("collected values are incorrect", expected, actual);
-	}
-
-	@Test
-	public void resolveAttributeValueChangeTest() throws Exception {
-		when(session.getPerunBl().getUsersManagerBl().getUserById(session, 1)).thenReturn(user);
-		AuditEvent event = new AllAttributesRemovedForUserExtSource(ues1);
-		List<AuditEvent> auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-
-		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
-
-		event = new AllAttributesRemovedForUser(user);
-		auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
-
-		Attribute attribute = new Attribute();
-		attribute.setFriendlyName("voPersonExternalAffiliationManuallyAssigned");
-
-		event = new AttributeSetForUser(attribute, user);
-		auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
-
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + "voPersonExternalAffiliation")).thenReturn(attribute);
-		auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
-	}
-
-	@Test
-	public void lastAccessValid() throws Exception {
-		prepareCoreConfig();
-
-		ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
-		ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity()+1).format(Utils.lastAccessFormatter));
-
-		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-
-		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-			Arrays.asList(ues1, ues2)
-		);
-
-		String attributeName = classInstance.getSourceAttributeName();
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
-			uesAtt1
-		);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
-			uesAtt2
-		);
-
-		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-		List<String> actual = receivedAttr.valueAsList();
-		assertFalse(actual.contains(VALUE1));
-		assertTrue(actual.contains(VALUE2));
-		assertTrue(actual.contains(VALUE3));
+    ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), "login1");
+    ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), "login2");
+    ues3 = new UserExtSource(30, new ExtSource(300, "name3", "type3"), "login3");
 
 
-		ues1.setLastAccess(LocalDateTime.now().format(Utils.lastAccessFormatter));
-		receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-		assertTrue(receivedAttr.valueAsList().contains(VALUE1));
-	}
+    uesAtt1 = new Attribute();
+    uesAtt2 = new Attribute();
+    uesAtt3 = new Attribute();
+    uesAtt1.setValue(VALUE1);
+    uesAtt2.setValue(VALUE2 + ";" + VALUE3);
+    uesAtt3.setValue(VALUE7_DUPLICITY1 + ";" + VALUE7_DUPLICITY2 + ";" + VALUE7_DUPLICITY3);
 
-	@Test
-	public void lastAccessException() throws Exception {
-		prepareCoreConfig();
+    userAtt1 = new Attribute();
+    Map<String, String> mapValue = new LinkedHashMap<>();
+    mapValue.put(VALUE6, valid.format(dateFormat));
+    mapValue.put(VALUE7, invalid.format(dateFormat));
+    userAtt1.setValue(mapValue);
 
-		ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
-		ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity()+1).format(Utils.lastAccessFormatter));
+    group1 = new Group(gId1, "G1", "G1_DSC", null, null, null, null, null, null);
 
-		urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance = new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
-		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    validMember = new Member(1, 1, 1, Status.VALID);
 
-		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-			Arrays.asList(ues1, ues2)
-		);
+    groupMember1 = new Member(1, 1, 1, Status.VALID);
+    groupMember1.setSourceGroupId(gId1);
+    groupMember1.putGroupStatus(gId1, MemberGroupStatus.VALID);
 
-		String attributeName = classInstance.getSourceAttributeName();
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
-			uesAtt1
-		);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
-			uesAtt2
-		);
+    groupMember2 = new Member(1, 1, 1, Status.VALID);
+    groupMember2.setSourceGroupId(gId2);
+    groupMember2.putGroupStatus(gId2, MemberGroupStatus.EXPIRED);
 
-		List<String> exceptions = BeansUtils.getCoreConfig().getIdpLoginValidityExceptions();
-		if (exceptions == null) { exceptions = new ArrayList<>(); }
-		boolean exceptioned = exceptions.contains(classInstance.getDestinationAttributeName());
-		exceptions.add(classInstance.getDestinationAttributeName());
-		BeansUtils.getCoreConfig().setIdpLoginValidityExceptions(exceptions);
+    groupAtt1 = new Attribute();
+    List<String> arrListValue = new ArrayList<>();
+    arrListValue.add(VALUE4);
+    arrListValue.add(VALUE5);
+    groupAtt1.setValue(arrListValue);
+  }
 
-		try {
-			Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-			List<String> actual = receivedAttr.valueAsList();
-			assertTrue(actual.contains(VALUE1));
-			assertTrue(actual.contains(VALUE2));
-			assertTrue(actual.contains(VALUE3));
-		} finally {
-			if (!exceptioned) {
-				BeansUtils.getCoreConfig().getIdpLoginValidityExceptions().remove(classInstance.getDestinationAttributeName());
-			}
-		}
+  @Test
+  public void getAttributeValueNoDuplicities() throws Exception {
+    System.out.println("getAttributeValueNoDuplicities()");
+    urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance =
+        new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-	}
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Collections.singletonList(ues3)
+    );
 
-	private static void prepareCoreConfig() {
-		// if test is run separately, coreConfig might not have been initialized
-		if (BeansUtils.getCoreConfig() == null) {
-			CoreConfig testConfig = new CoreConfig();
-			testConfig.setIdpLoginValidity(12);
-			BeansUtils.setConfig(testConfig);
-		}
-	}
+    String attributeName = classInstance.getSourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues3, attributeName)).thenReturn(
+        uesAtt3
+    );
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+
+    // check that the value is a list with size 1 and only VALUE7
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+
+    List<String> actual = receivedAttr.valueAsList();
+    assertEquals("collected values are incorrect", Collections.singletonList(VALUE7_DUPLICITY3), actual);
+  }
+
+  @Test
+  public void getAttributeValueFromAllSources() throws Exception {
+    urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance =
+        new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    String primarySourceAttributeName = classInstance.getSourceAttributeName();
+    String secondarySourceAttrName = classInstance.getSecondarySourceAttributeName();
+    String tertiarySourceAttrName = classInstance.getTertiarySourceAttributeName();
+
+    // USER_EXT_SOURCE
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Arrays.asList(ues1, ues2)
+    );
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, ues1, primarySourceAttributeName)).thenReturn(
+        uesAtt1
+    );
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, ues2, primarySourceAttributeName)).thenReturn(
+        uesAtt2
+    );
+
+    // MANUALLY_ASSIGNED_AFFILIATIONS
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
+        userAtt1
+    );
+
+    // AFFILIATIONS_FROM_GROUP
+    when(session.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(session, user, Status.VALID)).thenReturn(
+        Collections.singletonList(validMember)
+    );
+    when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, validMember)).thenReturn(
+        Collections.singletonList(group1)
+    );
+    when(
+        session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
+        groupAtt1
+    );
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+
+    List<String> actual = receivedAttr.valueAsList();
+    Collections.sort(actual);
+    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4, VALUE5, VALUE6);
+    Collections.sort(expected);
+    assertEquals("collected values are incorrect", expected, actual);
+  }
+
+  @Test
+  public void getAttributeValueOnlyGroupAffiliations() throws Exception {
+    urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance =
+        new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    // AFFILIATIONS_FROM_GROUP
+    when(session.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(session, user, Status.VALID)).thenReturn(
+        Collections.singletonList(validMember)
+    );
+    when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, validMember)).thenReturn(
+        Collections.singletonList(group1)
+    );
+
+    String tertiarySourceAttrName = classInstance.getTertiarySourceAttributeName();
+    when(
+        session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
+        groupAtt1
+    );
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+
+    List<String> actual = receivedAttr.valueAsList();
+    Collections.sort(actual);
+    List<String> expected = Arrays.asList(VALUE4, VALUE5);
+    Collections.sort(expected);
+    assertEquals("collected values are incorrect", expected, actual);
+  }
+
+  @Test
+  public void getAttributeValueOnlyFromUserExtSources() throws Exception {
+    urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance =
+        new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Arrays.asList(ues1, ues2)
+    );
+
+    String attributeName = classInstance.getSourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
+        uesAtt1
+    );
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
+        uesAtt2
+    );
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+
+    @SuppressWarnings("unchecked")
+    List<String> actual = (List<String>) receivedAttr.getValue();
+    Collections.sort(actual);
+    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
+    Collections.sort(expected);
+    assertEquals("collected values are incorrect", expected, actual);
+  }
+
+  @Test
+  public void getAttributeValueOnlyFromVoPersonExternalAffiliationManuallyAssigned() throws Exception {
+    urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance =
+        new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    String secondarySourceAttrName = classInstance.getSecondarySourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
+        userAtt1
+    );
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+
+    @SuppressWarnings("unchecked")
+    List<String> actual = (List<String>) receivedAttr.getValue();
+    Collections.sort(actual);
+    List<String> expected = new ArrayList<>();
+    expected.add(VALUE6);
+    Collections.sort(expected);
+    assertEquals("collected values are incorrect", expected, actual);
+  }
+
+  @Test
+  public void resolveAttributeValueChangeTest() throws Exception {
+    when(session.getPerunBl().getUsersManagerBl().getUserById(session, 1)).thenReturn(user);
+    AuditEvent event = new AllAttributesRemovedForUserExtSource(ues1);
+    List<AuditEvent> auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+
+    assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
+
+    event = new AllAttributesRemovedForUser(user);
+    auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+    assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
+
+    Attribute attribute = new Attribute();
+    attribute.setFriendlyName("voPersonExternalAffiliationManuallyAssigned");
+
+    event = new AttributeSetForUser(attribute, user);
+    auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+    assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
+
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user,
+        AttributesManager.NS_USER_ATTR_VIRT + ":" + "voPersonExternalAffiliation")).thenReturn(attribute);
+    auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+    assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
+  }
+
+  @Test
+  public void lastAccessValid() throws Exception {
+    prepareCoreConfig();
+
+    ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
+    ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity() + 1)
+        .format(Utils.lastAccessFormatter));
+
+    urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance =
+        new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Arrays.asList(ues1, ues2)
+    );
+
+    String attributeName = classInstance.getSourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
+        uesAtt1
+    );
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
+        uesAtt2
+    );
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    List<String> actual = receivedAttr.valueAsList();
+    assertFalse(actual.contains(VALUE1));
+    assertTrue(actual.contains(VALUE2));
+    assertTrue(actual.contains(VALUE3));
+
+
+    ues1.setLastAccess(LocalDateTime.now().format(Utils.lastAccessFormatter));
+    receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.valueAsList().contains(VALUE1));
+  }
+
+  @Test
+  public void lastAccessException() throws Exception {
+    prepareCoreConfig();
+
+    ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
+    ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity() + 1)
+        .format(Utils.lastAccessFormatter));
+
+    urn_perun_user_attribute_def_virt_voPersonExternalAffiliation classInstance =
+        new urn_perun_user_attribute_def_virt_voPersonExternalAffiliation();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Arrays.asList(ues1, ues2)
+    );
+
+    String attributeName = classInstance.getSourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
+        uesAtt1
+    );
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
+        uesAtt2
+    );
+
+    List<String> exceptions = BeansUtils.getCoreConfig().getIdpLoginValidityExceptions();
+    if (exceptions == null) {
+      exceptions = new ArrayList<>();
+    }
+    boolean exceptioned = exceptions.contains(classInstance.getDestinationAttributeName());
+    exceptions.add(classInstance.getDestinationAttributeName());
+    BeansUtils.getCoreConfig().setIdpLoginValidityExceptions(exceptions);
+
+    try {
+      Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+      List<String> actual = receivedAttr.valueAsList();
+      assertTrue(actual.contains(VALUE1));
+      assertTrue(actual.contains(VALUE2));
+      assertTrue(actual.contains(VALUE3));
+    } finally {
+      if (!exceptioned) {
+        BeansUtils.getCoreConfig().getIdpLoginValidityExceptions().remove(classInstance.getDestinationAttributeName());
+      }
+    }
+
+  }
 
 }

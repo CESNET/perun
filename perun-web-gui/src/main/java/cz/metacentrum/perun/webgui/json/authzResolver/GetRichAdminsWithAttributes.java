@@ -12,7 +12,11 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator;
 import cz.metacentrum.perun.webgui.json.comparators.RichUserComparator;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
@@ -21,7 +25,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
-
 import java.util.ArrayList;
 
 /**
@@ -31,390 +34,389 @@ import java.util.ArrayList;
  */
 public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTable<User> {
 
-	// Session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // JSON URL TO LIST ALL ADMINISTRATORS (ASSIGNED DIRECTLY OR BY GROUP)
+  private static final String GROUP_JSON_URL = "groupsManager/getRichAdminsWithSpecificAttributes";
+  private static final String VO_JSON_URL = "vosManager/getRichAdminsWithSpecificAttributes";
+  private static final String FACILITY_JSON_URL = "facilitiesManager/getRichAdminsWithSpecificAttributes";
+  private static final String SECURITY_JSON_URL = "securityTeamsManager/getRichAdminsWithSpecificAttributes";
+  // JSON URL TO LIST ONLY DIRECT ADMINISTRATORS (NOT ASSIGNED BY GROUP)
+  private static final String GROUP_DIRECT_JSON_URL = "groupsManager/getDirectRichAdminsWithSpecificAttributes";
+  private static final String VO_DIRECT_JSON_URL = "vosManager/getDirectRichAdminsWithSpecificAttributes";
+  private static final String FACILITY_DIRECT_JSON_URL = "facilitiesManager/getDirectRichAdminsWithSpecificAttributes";
+  private static final String SECURITY_DIRECT_JSON_URL =
+      "securityTeamsManager/getDirectRichAdminsWithSpecificAttributes";
+  // Selection model for the table
+  final MultiSelectionModel<User> selectionModel = new MultiSelectionModel<User>(new GeneralKeyProvider<User>());
+  // Session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // entity ID
+  private int entityId;
+  private ArrayList<String> attributes = new ArrayList<String>();
+  // Table data provider.
+  private ListDataProvider<User> dataProvider = new ListDataProvider<User>();
+  // Cell table
+  private PerunTable<User> table;
+  // List of members
+  private ArrayList<User> list = new ArrayList<User>();
+  // Table field updater
+  private FieldUpdater<User, String> tableFieldUpdater;
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // loader image
+  private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+  private PerunEntity entity;
+  private boolean checkable = true; // default true
 
-	// JSON URL TO LIST ALL ADMINISTRATORS (ASSIGNED DIRECTLY OR BY GROUP)
-	private static final String GROUP_JSON_URL = "groupsManager/getRichAdminsWithSpecificAttributes";
-	private static final String VO_JSON_URL = "vosManager/getRichAdminsWithSpecificAttributes";
-	private static final String FACILITY_JSON_URL = "facilitiesManager/getRichAdminsWithSpecificAttributes";
-	private static final String SECURITY_JSON_URL = "securityTeamsManager/getRichAdminsWithSpecificAttributes";
+  // wheter to load all admins (true) or only direct (false). Default is false (direct admins only).
+  private boolean showAllAdmins = false;
 
-	// JSON URL TO LIST ONLY DIRECT ADMINISTRATORS (NOT ASSIGNED BY GROUP)
-	private static final String GROUP_DIRECT_JSON_URL = "groupsManager/getDirectRichAdminsWithSpecificAttributes";
-	private static final String VO_DIRECT_JSON_URL = "vosManager/getDirectRichAdminsWithSpecificAttributes";
-	private static final String FACILITY_DIRECT_JSON_URL = "facilitiesManager/getDirectRichAdminsWithSpecificAttributes";
-	private static final String SECURITY_DIRECT_JSON_URL = "securityTeamsManager/getDirectRichAdminsWithSpecificAttributes";
+  /**
+   * Creates a new instance of callback
+   *
+   * @param entity     entity
+   * @param id         entity ID
+   * @param attributes list of attributes urns (null if default / empty if all / explicit for selection)
+   */
+  public GetRichAdminsWithAttributes(PerunEntity entity, int id, ArrayList<String> attributes) {
+    this.entity = entity;
+    this.entityId = id;
+    // if null use default
+    if (attributes == null) {
+      this.attributes = JsonUtils.getAttributesListForUserTables();
+    } else {
+      this.attributes = attributes;
+    }
+  }
 
-	// entity ID
-	private int entityId;
-	private ArrayList<String> attributes = new ArrayList<String>();
-	// Selection model for the table
-	final MultiSelectionModel<User> selectionModel = new MultiSelectionModel<User>(new GeneralKeyProvider<User>());
-	// Table data provider.
-	private ListDataProvider<User> dataProvider = new ListDataProvider<User>();
-	// Cell table
-	private PerunTable<User> table;
-	// List of members
-	private ArrayList<User> list = new ArrayList<User>();
-	// Table field updater
-	private FieldUpdater<User, String> tableFieldUpdater;
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// loader image
-	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	private PerunEntity entity;
-	private boolean checkable = true; // default true
+  /**
+   * Creates a new instance of callback
+   *
+   * @param entity     entity
+   * @param id         entity ID
+   * @param attributes list of attributes urns (null if default / empty if all / explicit for selection)
+   * @param events     events
+   */
+  public GetRichAdminsWithAttributes(PerunEntity entity, int id, ArrayList<String> attributes,
+                                     JsonCallbackEvents events) {
+    this(entity, id, attributes);
+    this.events = events;
+  }
 
-	// wheter to load all admins (true) or only direct (false). Default is false (direct admins only).
-	private boolean showAllAdmins = false;
+  /**
+   * Choose between listing all admins (direct + indirect (by group))
+   * and only directly assigned admins.
+   *
+   * @param showAllAdmins TRUE = list all admins / FALSE = list direct admins
+   */
+  public void setShowAllAdmins(boolean showAllAdmins) {
+    this.showAllAdmins = showAllAdmins;
+  }
 
-	/**
-	 * Creates a new instance of callback
-	 *
-	 * @param entity entity
-	 * @param id entity ID
-	 * @param attributes list of attributes urns (null if default / empty if all / explicit for selection)
-	 */
-	public GetRichAdminsWithAttributes(PerunEntity entity, int id, ArrayList<String> attributes) {
-		this.entity = entity;
-		this.entityId = id;
-		// if null use default
-		if (attributes == null) {
-			this.attributes = JsonUtils.getAttributesListForUserTables();
-		} else {
-			this.attributes = attributes;
-		}
-	}
+  /**
+   * Retrieves members from RPC
+   */
+  public void retrieveData() {
 
-	/**
-	 * Creates a new instance of callback
-	 *
-	 * @param entity entity
-	 * @param id entity ID
-	 * @param attributes list of attributes urns (null if default / empty if all / explicit for selection)
-	 * @param events events
-	 */
-	public GetRichAdminsWithAttributes(PerunEntity entity, int id, ArrayList<String> attributes, JsonCallbackEvents events) {
-		this(entity, id, attributes);
-		this.events = events;
-	}
+    JsonClient js = new JsonClient();
+    String param;
 
-	/**
-	 * Choose between listing all admins (direct + indirect (by group))
-	 * and only directly assigned admins.
-	 *
-	 * @param showAllAdmins TRUE = list all admins / FALSE = list direct admins
-	 */
-	public void setShowAllAdmins(boolean showAllAdmins) {
-		this.showAllAdmins = showAllAdmins;
-	}
+    if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+      param = "vo=" + entityId;
+      if (!attributes.isEmpty()) {
+        // parse lists
+        for (String attribute : attributes) {
+          param += "&specificAttributes[]=" + attribute;
+        }
+      }
+      if (showAllAdmins) {
+        js.retrieveData(VO_JSON_URL, param, this);
+      } else {
+        js.retrieveData(VO_DIRECT_JSON_URL, param, this);
+      }
+    } else if (entity.equals(PerunEntity.GROUP)) {
+      param = "group=" + entityId;
+      if (!attributes.isEmpty()) {
+        // parse lists
+        for (String attribute : attributes) {
+          param += "&specificAttributes[]=" + attribute;
+        }
+      }
+      if (showAllAdmins) {
+        js.retrieveData(GROUP_JSON_URL, param, this);
+      } else {
+        js.retrieveData(GROUP_DIRECT_JSON_URL, param, this);
+      }
+    } else if (entity.equals(PerunEntity.FACILITY)) {
+      param = "facility=" + entityId;
+      if (!attributes.isEmpty()) {
+        // parse lists
+        for (String attribute : attributes) {
+          param += "&specificAttributes[]=" + attribute;
+        }
+      }
+      if (showAllAdmins) {
+        js.retrieveData(FACILITY_JSON_URL, param, this);
+      } else {
+        js.retrieveData(FACILITY_DIRECT_JSON_URL, param, this);
+      }
+    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
+      param = "securityTeam=" + entityId;
+      if (!attributes.isEmpty()) {
+        // parse lists
+        for (String attribute : attributes) {
+          param += "&specificAttributes[]=" + attribute;
+        }
+      }
+      if (showAllAdmins) {
+        js.retrieveData(SECURITY_JSON_URL, param, this);
+      } else {
+        js.retrieveData(SECURITY_DIRECT_JSON_URL, param, this);
+      }
+    }
 
-	/**
-	 * Retrieves members from RPC
-	 */
-	public void retrieveData() {
+  }
 
-		JsonClient js = new JsonClient();
-		String param;
+  /**
+   * Returns the table with member-users
+   *
+   * @param fu Custom field updater
+   * @return CellTable widget
+   */
+  public CellTable<User> getTable(FieldUpdater<User, String> fu) {
+    this.tableFieldUpdater = fu;
+    return this.getTable();
+  }
 
-		if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
-			param = "vo="+entityId;
-			if (!attributes.isEmpty()) {
-				// parse lists
-				for (String attribute : attributes) {
-					param += "&specificAttributes[]=" + attribute;
-				}
-			}
-			if (showAllAdmins) {
-				js.retrieveData(VO_JSON_URL, param, this);
-			} else {
-				js.retrieveData(VO_DIRECT_JSON_URL, param, this);
-			}
-		} else if (entity.equals(PerunEntity.GROUP)) {
-			param = "group="+entityId;
-			if (!attributes.isEmpty()) {
-				// parse lists
-				for (String attribute : attributes) {
-					param += "&specificAttributes[]=" + attribute;
-				}
-			}
-			if (showAllAdmins) {
-				js.retrieveData(GROUP_JSON_URL, param, this);
-			} else {
-				js.retrieveData(GROUP_DIRECT_JSON_URL, param, this);
-			}
-		} else if (entity.equals(PerunEntity.FACILITY)) {
-			param = "facility="+entityId;
-			if (!attributes.isEmpty()) {
-				// parse lists
-				for (String attribute : attributes) {
-					param += "&specificAttributes[]=" + attribute;
-				}
-			}
-			if (showAllAdmins) {
-				js.retrieveData(FACILITY_JSON_URL, param, this);
-			} else {
-				js.retrieveData(FACILITY_DIRECT_JSON_URL, param, this);
-			}
-		} else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-			param = "securityTeam="+entityId;
-			if (!attributes.isEmpty()) {
-				// parse lists
-				for (String attribute : attributes) {
-					param += "&specificAttributes[]=" + attribute;
-				}
-			}
-			if (showAllAdmins) {
-				js.retrieveData(SECURITY_JSON_URL, param, this);
-			} else {
-				js.retrieveData(SECURITY_DIRECT_JSON_URL, param, this);
-			}
-		}
+  /**
+   * Returns the table with member-users
+   *
+   * @return CellTable widget
+   */
+  public CellTable<User> getTable() {
 
-	}
+    // Retrieves data
+    this.retrieveData();
 
-	/**
-	 * Returns the table with member-users
-	 *
-	 * @param fu Custom field updater
-	 * @return CellTable widget
-	 */
-	public CellTable<User> getTable(FieldUpdater<User, String> fu) {
-		this.tableFieldUpdater = fu;
-		return this.getTable();
-	}
+    // Table data provider.
+    dataProvider = new ListDataProvider<User>(list);
 
-	/**
-	 * Returns the table with member-users
-	 *
-	 * @return CellTable widget
-	 */
-	public CellTable<User> getTable() {
+    // Cell table
+    table = new PerunTable<User>(list);
 
-		// Retrieves data
-		this.retrieveData();
+    // Connect the table to the data provider.
+    dataProvider.addDataDisplay(table);
 
-		// Table data provider.
-		dataProvider = new ListDataProvider<User>(list);
+    if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
+      loaderImage.setEmptyResultMessage("VO has no managers (try to switch to 'Groups' view).");
+    } else if (entity.equals(PerunEntity.GROUP)) {
+      loaderImage.setEmptyResultMessage("Group has no managers (try to switch to 'Groups' view).");
+    } else if (entity.equals(PerunEntity.FACILITY)) {
+      loaderImage.setEmptyResultMessage("Facility has no managers (try to switch to 'Groups' view).");
+    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
+      loaderImage.setEmptyResultMessage("SecurityTeam has no members (try to switch to 'Groups' view).");
+    }
 
-		// Cell table
-		table = new PerunTable<User>(list);
+    // Sorting
+    ListHandler<User> columnSortHandler = new ListHandler<User>(dataProvider.getList());
+    table.addColumnSortHandler(columnSortHandler);
 
-		// Connect the table to the data provider.
-		dataProvider.addDataDisplay(table);
+    // Table selection
+    table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<User>createCheckboxManager());
 
-		if (entity.equals(PerunEntity.VIRTUAL_ORGANIZATION)) {
-			loaderImage.setEmptyResultMessage("VO has no managers (try to switch to 'Groups' view).");
-		} else if (entity.equals(PerunEntity.GROUP)) {
-			loaderImage.setEmptyResultMessage("Group has no managers (try to switch to 'Groups' view).");
-		} else if (entity.equals(PerunEntity.FACILITY)) {
-			loaderImage.setEmptyResultMessage("Facility has no managers (try to switch to 'Groups' view).");
-		} else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-			loaderImage.setEmptyResultMessage("SecurityTeam has no members (try to switch to 'Groups' view).");
-		}
+    // Set empty content & loader
+    table.setEmptyTableWidget(loaderImage);
 
-		// Sorting
-		ListHandler<User> columnSortHandler = new ListHandler<User>(dataProvider.getList());
-		table.addColumnSortHandler(columnSortHandler);
+    // Checkbox column column
+    if (checkable) {
+      table.addCheckBoxColumn();
+    }
 
-		// Table selection
-		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<User> createCheckboxManager());
+    // Create User ID column.
+    Column<User, String> userIdColumn = JsonUtils.addColumn(
+        new JsonUtils.GetValue<User, String>() {
+          public String getValue(User object) {
+            return String.valueOf(object.getId());
+          }
+        }, this.tableFieldUpdater);
 
-		// Set empty content & loader
-		table.setEmptyTableWidget(loaderImage);
+    userIdColumn.setSortable(true);
+    columnSortHandler.setComparator(userIdColumn, new GeneralComparator<User>(GeneralComparator.Column.ID));
 
-		// Checkbox column column
-		if (checkable) {
-			table.addCheckBoxColumn();
-		}
+    table.setColumnWidth(userIdColumn, 110.0, Unit.PX);
 
-		// Create User ID column.
-		Column<User, String> userIdColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<User, String>() {
-					public String getValue(User object) {
-						return String.valueOf(object.getId());
-					}
-				}, this.tableFieldUpdater);
+    if (JsonUtils.isExtendedInfoVisible()) {
+      table.addColumn(userIdColumn, "User ID");
+    }
 
-		userIdColumn.setSortable(true);
-		columnSortHandler.setComparator(userIdColumn, new GeneralComparator<User>(GeneralComparator.Column.ID));
+    table.setHyperlinksAllowed(false);
+    table.addNameColumn(tableFieldUpdater);
 
-		table.setColumnWidth(userIdColumn, 110.0, Unit.PX);
+    // Create organization column.
+    Column<User, String> organizationColumn = JsonUtils.addColumn(
+        new JsonUtils.GetValue<User, String>() {
+          public String getValue(User object) {
+            Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
+            if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+              return at.getValue();
+            }
+            return "";
+          }
+        }, this.tableFieldUpdater);
 
-		if(JsonUtils.isExtendedInfoVisible()){
-			table.addColumn(userIdColumn,  "User ID");
-		}
+    // Create e-mail column.
+    Column<User, String> emailColumn = JsonUtils.addColumn(
+        new JsonUtils.GetValue<User, String>() {
+          public String getValue(User object) {
+            Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
+            if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
+              return at.getValue().replace(",", " ");
+            }
+            return "";
+          }
+        }, this.tableFieldUpdater);
 
-		table.setHyperlinksAllowed(false);
-		table.addNameColumn(tableFieldUpdater);
+    // Create name column.
+    Column<User, String> loginsColumn = JsonUtils.addColumn(
+        new JsonUtils.GetValue<User, String>() {
+          public String getValue(User object) {
+            return object.getLogins();
+          }
+        }, this.tableFieldUpdater);
 
-		// Create organization column.
-		Column<User, String> organizationColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<User, String>() {
-					public String getValue(User object) {
-						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
-						if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
-							return at.getValue();
-						}
-						return "";
-					}
-				}, this.tableFieldUpdater);
+    organizationColumn.setSortable(true);
+    columnSortHandler.setComparator(organizationColumn, new RichUserComparator(RichUserComparator.Column.ORGANIZATION));
 
-		// Create e-mail column.
-		Column<User, String> emailColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<User, String>() {
-					public String getValue(User object) {
-						Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
-						if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
-							return at.getValue().replace(",", " ");
-						}
-						return "";
-					}
-				}, this.tableFieldUpdater);
+    emailColumn.setSortable(true);
+    columnSortHandler.setComparator(emailColumn, new RichUserComparator(RichUserComparator.Column.EMAIL));
 
-		// Create name column.
-		Column<User, String> loginsColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<User, String>() {
-					public String getValue(User object) {
-						return object.getLogins();
-					}
-				}, this.tableFieldUpdater);
+    // Add the other columns.
+    table.addColumn(organizationColumn, "Organization");
+    table.addColumn(emailColumn, "E-mail");
+    table.addColumn(loginsColumn, "Logins");
 
-		organizationColumn.setSortable(true);
-		columnSortHandler.setComparator(organizationColumn, new RichUserComparator(RichUserComparator.Column.ORGANIZATION));
+    return table;
 
-		emailColumn.setSortable(true);
-		columnSortHandler.setComparator(emailColumn, new RichUserComparator(RichUserComparator.Column.EMAIL));
+  }
 
-		// Add the other columns.
-		table.addColumn(organizationColumn, "Organization");
-		table.addColumn(emailColumn, "E-mail");
-		table.addColumn(loginsColumn, "Logins");
+  /**
+   * Sorts table by objects Name
+   */
+  public void sortTable() {
+    list = new TableSorter<User>().sortByName(getList());
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-		return table;
+  /**
+   * Add object as new row to table
+   *
+   * @param object User to be added as new row
+   */
+  public void addToTable(User object) {
+    list.add(object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	}
+  /**
+   * Removes object as row from table
+   *
+   * @param object User to be removed as row
+   */
+  public void removeFromTable(User object) {
+    list.remove(object);
+    selectionModel.getSelectedSet().remove(object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Sorts table by objects Name
-	 */
-	public void sortTable() {
-		list = new TableSorter<User>().sortByName(getList());
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Clear all table content
+   */
+  public void clearTable() {
+    loaderImage.loadingStart();
+    list.clear();
+    selectionModel.clear();
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Add object as new row to table
-	 *
-	 * @param object User to be added as new row
-	 */
-	public void addToTable(User object) {
-		list.add(object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Clears list of selected items
+   */
+  public void clearTableSelectedSet() {
+    selectionModel.clear();
+  }
 
-	/**
-	 * Removes object as row from table
-	 *
-	 * @param object User to be removed as row
-	 */
-	public void removeFromTable(User object) {
-		list.remove(object);
-		selectionModel.getSelectedSet().remove(object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Return selected items from list
+   *
+   * @return return list of checked items
+   */
+  public ArrayList<User> getTableSelectedList() {
+    return JsonUtils.setToList(selectionModel.getSelectedSet());
+  }
 
-	/**
-	 * Clear all table content
-	 */
-	public void clearTable(){
-		loaderImage.loadingStart();
-		list.clear();
-		selectionModel.clear();
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Called, when an error occurs
+   */
+  public void onError(PerunError error) {
+    session.getUiElements().setLogErrorText("Error while loading managers.");
+    loaderImage.loadingError(error);
+    events.onError(error);
+  }
 
-	/**
-	 * Clears list of selected items
-	 */
-	public void clearTableSelectedSet(){
-		selectionModel.clear();
-	}
+  /**
+   * Called, when loading starts
+   */
+  public void onLoadingStart() {
+    session.getUiElements().setLogText("Loading managers started.");
+    events.onLoadingStart();
+  }
 
-	/**
-	 * Return selected items from list
-	 *
-	 * @return return list of checked items
-	 */
-	public ArrayList<User> getTableSelectedList(){
-		return JsonUtils.setToList(selectionModel.getSelectedSet());
-	}
+  /**
+   * Called, when operation finishes successfully.
+   */
+  public void onFinished(JavaScriptObject jso) {
+    setList(JsonUtils.<User>jsoAsList(jso));
+    sortTable();
+    session.getUiElements().setLogText("Managers loaded: " + list.size());
+    events.onFinished(jso);
+    loaderImage.loadingFinished();
+  }
 
-	/**
-	 * Called, when an error occurs
-	 */
-	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading managers.");
-		loaderImage.loadingError(error);
-		events.onError(error);
-	}
+  public void insertToTable(int index, User object) {
+    list.add(index, object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Called, when loading starts
-	 */
-	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading managers started.");
-		events.onLoadingStart();
-	}
+  public void setEditable(boolean editable) {
+    // TODO Auto-generated method stub
+  }
 
-	/**
-	 * Called, when operation finishes successfully.
-	 */
-	public void onFinished(JavaScriptObject jso) {
-		setList(JsonUtils.<User>jsoAsList(jso));
-		sortTable();
-		session.getUiElements().setLogText("Managers loaded: " + list.size());
-		events.onFinished(jso);
-		loaderImage.loadingFinished();
-	}
+  public void setCheckable(boolean checkable) {
+    this.checkable = checkable;
+  }
 
-	public void insertToTable(int index, User object) {
-		list.add(index, object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  public ArrayList<User> getList() {
+    return this.list;
+  }
 
-	public void setEditable(boolean editable) {
-		// TODO Auto-generated method stub
-	}
+  public void setList(ArrayList<User> list) {
+    clearTable();
+    this.list.addAll(list);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	public void setCheckable(boolean checkable) {
-		this.checkable = checkable;
-	}
-
-	public void setList(ArrayList<User> list) {
-		clearTable();
-		this.list.addAll(list);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
-
-	public ArrayList<User> getList() {
-		return this.list;
-	}
-
-	/**
-	 * Sets external events after callback creation
-	 *
-	 * @param externalEvents external events
-	 */
-	public void setEvents(JsonCallbackEvents externalEvents) {
-		events = externalEvents;
-	}
+  /**
+   * Sets external events after callback creation
+   *
+   * @param externalEvents external events
+   */
+  public void setEvents(JsonCallbackEvents externalEvents) {
+    events = externalEvents;
+  }
 
 }

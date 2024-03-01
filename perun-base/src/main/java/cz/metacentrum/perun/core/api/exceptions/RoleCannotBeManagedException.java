@@ -5,32 +5,33 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class RoleCannotBeManagedException extends PerunException {
 
-	String role;
-	Object complementaryObject;
-	Object entity;
+  String role;
+  Object complementaryObject;
+  Object entity;
 
-	public RoleCannotBeManagedException(String role, Object complementaryObject, Object entity) {
-		super("Combination of Role: "+ role +", Object: "+ complementaryObject +" and Entity: "+ entity +" cannot be managed.");
-		this.role = role;
-		this.complementaryObject = complementaryObject;
-		this.entity = entity;
-	}
+  public RoleCannotBeManagedException(String role, Object complementaryObject, Object entity) {
+    super("Combination of Role: " + role + ", Object: " + complementaryObject + " and Entity: " + entity +
+        " cannot be managed.");
+    this.role = role;
+    this.complementaryObject = complementaryObject;
+    this.entity = entity;
+  }
 
-	public RoleCannotBeManagedException(String role, Object complementaryObject) {
-		super("Combination of Role: "+ role +" and Object: "+ complementaryObject +" cannot be managed.");
-		this.role = role;
-		this.complementaryObject = complementaryObject;
-	}
+  public RoleCannotBeManagedException(String role, Object complementaryObject) {
+    super("Combination of Role: " + role + " and Object: " + complementaryObject + " cannot be managed.");
+    this.role = role;
+    this.complementaryObject = complementaryObject;
+  }
 
-	public String getRole() {
-		return role;
-	}
+  public String getRole() {
+    return role;
+  }
 
-	public Object getComplementaryObject() {
-		return complementaryObject;
-	}
+  public Object getComplementaryObject() {
+    return complementaryObject;
+  }
 
-	public Object getEntity() {
-		return entity;
-	}
+  public Object getEntity() {
+    return entity;
+  }
 }

@@ -1,9 +1,13 @@
 package cz.metacentrum.perun.webgui.tabs.cabinettabs;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
@@ -12,9 +16,7 @@ import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
-import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
-
 import java.util.Map;
 
 /**
@@ -24,152 +26,149 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
-public class PublicationsTabItem implements TabItem, TabItemWithUrl{
+public class PublicationsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "all";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Publications");
+  /**
+   * Small tab panel
+   */
+  private TabPanelForTabItems tabPanel;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public PublicationsTabItem() {
+    this.tabPanel = new TabPanelForTabItems(this);
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Publications");
+  static public PublicationsTabItem load(Map<String, String> parameters) {
+    return new PublicationsTabItem();
+  }
 
-	/**
-	 * Small tab panel
-	 */
-	private TabPanelForTabItems tabPanel;
+  public boolean isPrepared() {
+    return true;
+  }
 
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public PublicationsTabItem(){
-		this.tabPanel = new TabPanelForTabItems(this);
-	}
+  @Override
+  public void onClose() {
 
-	public boolean isPrepared(){
-		return true;
-	}
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public Widget draw() {
 
-	@Override
-	public void onClose() {
+    // MAIN PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-	}
+    AbsolutePanel dp = new AbsolutePanel();
+    final FlexTable menu = new FlexTable();
+    menu.setCellSpacing(5);
+    menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.booksIcon()));
+    menu.setHTML(0, 1, "Publications");
+    menu.getFlexCellFormatter().setStyleName(0, 1, "now-managing");
 
-	public Widget draw() {
+    menu.setHTML(0, 2, "&nbsp;");
+    menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-		// MAIN PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    dp.add(menu);
+    firstTabPanel.add(dp);
+    firstTabPanel.setCellHeight(dp, "30px");
 
-		AbsolutePanel dp = new AbsolutePanel();
-		final FlexTable menu = new FlexTable();
-		menu.setCellSpacing(5);
-		menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.booksIcon()));
-		menu.setHTML(0, 1, "Publications");
-		menu.getFlexCellFormatter().setStyleName(0, 1, "now-managing");
+    // prepare panel
+    tabPanel.clear();
 
-		menu.setHTML(0, 2, "&nbsp;");
-		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
+    // adds small tabs
+    tabPanel.add(new AllPublicationsTabItem(), "All publications");
+    tabPanel.add(new AllAuthorsTabItem(), "Authors");
+    tabPanel.add(new AllCategoriesTabItem(), "Categories");
+    tabPanel.add(new PublicationSystemsTabItem(), "Publication systems");
 
-		dp.add(menu);
-		firstTabPanel.add(dp);
-		firstTabPanel.setCellHeight(dp, "30px");
+    // select last active tab before clearing
+    tabPanel.finishAdding();
 
-		// prepare panel
-		tabPanel.clear();
+    firstTabPanel.add(tabPanel);
+    this.contentWidget.setWidget(firstTabPanel);
 
-		// adds small tabs
-		tabPanel.add(new AllPublicationsTabItem(), "All publications");
-		tabPanel.add(new AllAuthorsTabItem(), "Authors");
-		tabPanel.add(new AllCategoriesTabItem(), "Categories");
-		tabPanel.add(new PublicationSystemsTabItem(), "Publication systems");
+    return getWidget();
 
-		// select last active tab before clearing
-		tabPanel.finishAdding();
+  }
 
-		firstTabPanel.add(tabPanel);
-		this.contentWidget.setWidget(firstTabPanel);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.booksIcon();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 617;
+    int result = 21;
+    result = prime * result * 22;
+    return result;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.booksIcon();
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 617;
-		int result = 21;
-		result = prime * result * 22;
-		return result;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Publications", getUrlWithParameters());
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		return true;
-	}
+  public boolean isAuthorized() {
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Publications", getUrlWithParameters());
-	}
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "all";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public PublicationsTabItem load(Map<String, String> parameters) {
-		return new PublicationsTabItem();
-	}
+  public String getUrlWithParameters() {
+    return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

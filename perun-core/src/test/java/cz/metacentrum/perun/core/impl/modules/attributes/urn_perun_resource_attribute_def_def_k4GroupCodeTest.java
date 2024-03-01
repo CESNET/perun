@@ -11,47 +11,47 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_resource_attribute_def_def_k4GroupCodeTest {
 
-	private urn_perun_resource_attribute_def_def_k4GroupCode classInstance;
-	private Attribute attributeToCheck;
-	private Resource resource = new Resource();
-	private PerunSessionImpl sess;
+  private urn_perun_resource_attribute_def_def_k4GroupCode classInstance;
+  private Attribute attributeToCheck;
+  private Resource resource = new Resource();
+  private PerunSessionImpl sess;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_resource_attribute_def_def_k4GroupCode();
-		attributeToCheck = new Attribute();
-		sess = mock(PerunSessionImpl.class);
-	}
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_resource_attribute_def_def_k4GroupCode();
+    attributeToCheck = new Attribute();
+    sess = mock(PerunSessionImpl.class);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testSyntaxWithWrongValue() throws Exception {
-		System.out.println("testSyntaxWithWrongValue()");
-		attributeToCheck.setValue("badValueBecauseItIsTooLong");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testSyntaxWithWrongValue() throws Exception {
+    System.out.println("testSyntaxWithWrongValue()");
+    attributeToCheck.setValue("badValueBecauseItIsTooLong");
 
-		classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testSyntaxCorrect() throws Exception {
-		System.out.println("testSyntaxCorrect()");
-		attributeToCheck.setValue("example");
+  @Test
+  public void testSyntaxCorrect() throws Exception {
+    System.out.println("testSyntaxCorrect()");
+    attributeToCheck.setValue("example");
 
-		classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testSemanticsWithNullValue() throws Exception {
-		System.out.println("testSemanticsWithNullValue()");
-		attributeToCheck.setValue(null);
+  @Test
+  public void testSemanticsWithNullValue() throws Exception {
+    System.out.println("testSemanticsWithNullValue()");
+    attributeToCheck.setValue(null);
 
-		classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testSemanticsCorrect() throws Exception {
-		System.out.println("testSemanticsCorrect()");
-		attributeToCheck.setValue("example");
+  @Test
+  public void testSemanticsCorrect() throws Exception {
+    System.out.println("testSemanticsCorrect()");
+    attributeToCheck.setValue("example");
 
-		classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
+  }
 }

@@ -17,23 +17,27 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- *
  */
-public abstract class GroupResourceAttributesModuleAbstract extends AttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
+public abstract class GroupResourceAttributesModuleAbstract extends AttributesModuleAbstract
+    implements GroupResourceAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
 
-	}
+  }
 
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource,
+                                      Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-	}
+  }
 
-	public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
-		return new Attribute(attribute);
-	}
+  public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource,
+                                 AttributeDefinition attribute) throws WrongAttributeAssignmentException {
+    return new Attribute(attribute);
+  }
 
-	public void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute) {
+  public void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute) {
 
-	}
+  }
 }

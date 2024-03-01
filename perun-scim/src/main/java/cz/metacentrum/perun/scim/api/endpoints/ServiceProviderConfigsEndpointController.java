@@ -25,38 +25,38 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class ServiceProviderConfigsEndpointController {
 
-	public Response getServiceProviderConfigs() throws SCIMException {
-		try {
-			ServiceProviderConfiguration result = new ServiceProviderConfiguration();
-			result.setAuthenticationSchemes(getAuthenticationSchemes());
-			result.setDocumentationUrl(AUTH_DOCUMENTATION);
-			result.setPatchSupport(false);
-			result.setFilterSupport(false);
-			result.setBulkSupport(false);
-			result.setChangePasswordSupport(false);
-			result.setEtagSupport(false);
-			result.setSortSupport(false);
-			result.setXmlDataFormatSupport(false);
+  public Response getServiceProviderConfigs() throws SCIMException {
+    try {
+      ServiceProviderConfiguration result = new ServiceProviderConfiguration();
+      result.setAuthenticationSchemes(getAuthenticationSchemes());
+      result.setDocumentationUrl(AUTH_DOCUMENTATION);
+      result.setPatchSupport(false);
+      result.setFilterSupport(false);
+      result.setBulkSupport(false);
+      result.setChangePasswordSupport(false);
+      result.setEtagSupport(false);
+      result.setSortSupport(false);
+      result.setXmlDataFormatSupport(false);
 
-			List schemas = new ArrayList();
-			schemas.add(URN_SERVICE_PROVIDER_CONFIG);
-			result.setSchemas(schemas);
+      List schemas = new ArrayList();
+      schemas.add(URN_SERVICE_PROVIDER_CONFIG);
+      result.setSchemas(schemas);
 
-			ObjectMapper mapper = new ObjectMapper();
-			return Response.ok(mapper.writeValueAsString(result)).build();
-		} catch (IOException ex) {
-			throw new SCIMException("Cannot convert service provider configuration to json string", ex);
-		}
-	}
+      ObjectMapper mapper = new ObjectMapper();
+      return Response.ok(mapper.writeValueAsString(result)).build();
+    } catch (IOException ex) {
+      throw new SCIMException("Cannot convert service provider configuration to json string", ex);
+    }
+  }
 
-	private List<AuthenticationSchemes> getAuthenticationSchemes() {
-		List schemes = new ArrayList();
+  private List<AuthenticationSchemes> getAuthenticationSchemes() {
+    List schemes = new ArrayList();
 
-		AuthenticationSchemes autheticationSchemes = new AuthenticationSchemes();
-		autheticationSchemes.setName(AUTH_OAUTH2_NAME);
-		autheticationSchemes.setDescription(AUTH_OAUTH2_DESC);
+    AuthenticationSchemes autheticationSchemes = new AuthenticationSchemes();
+    autheticationSchemes.setName(AUTH_OAUTH2_NAME);
+    autheticationSchemes.setDescription(AUTH_OAUTH2_DESC);
 
-		schemes.add(autheticationSchemes);
-		return schemes;
-	}
+    schemes.add(autheticationSchemes);
+    return schemes;
+  }
 }

@@ -5,7 +5,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -25,7 +29,6 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -36,195 +39,193 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
-public class ServicesTabItem implements TabItem, TabItemWithUrl{
+public class ServicesTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "list";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Services");
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public ServicesTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Services");
+  static public ServicesTabItem load(Map<String, String> parameters) {
+    return new ServicesTabItem();
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public ServicesTabItem(){}
+  public boolean isPrepared() {
+    return true;
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public void onClose() {
+  }
 
-	}
+  public Widget draw() {
 
-	public Widget draw() {
+    // create widget for the whole page
+    VerticalPanel mainTab = new VerticalPanel();
+    mainTab.setSize("100%", "100%");
 
-		// create widget for the whole page
-		VerticalPanel mainTab = new VerticalPanel();
-		mainTab.setSize("100%", "100%");
+    // create widget for menu on page
+    TabMenu tabMenu = new TabMenu();
+    tabMenu.addWidget(UiElements.getRefreshButton(this));
 
-		// create widget for menu on page
-		TabMenu tabMenu = new TabMenu();
-		tabMenu.addWidget(UiElements.getRefreshButton(this));
+    // get services
+    final GetServices services = new GetServices();
 
-		// get services
-		final GetServices services = new GetServices();
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(services);
 
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(services);
+    // get the table of services with custom field updater (lines are clickable and open service details)
+    CellTable<Service> table = services.getTable(new FieldUpdater<Service, String>() {
+      // when user click on a row -> open new tab
+      public void update(int index, Service object, String value) {
+        session.getTabManager().addTab(new ServiceDetailTabItem(object));
+      }
+    });
 
-		// get the table of services with custom field updater (lines are clickable and open service details)
-		CellTable<Service> table = services.getTable(new FieldUpdater<Service, String>() {
-			// when user click on a row -> open new tab
-			public void update(int index, Service object, String value) {
-				session.getTabManager().addTab(new ServiceDetailTabItem(object));
-			}
-		});
+    // create button
+    tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createService(),
+        new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            session.getTabManager().addTabToCurrentTab(new CreateServiceTabItem());
+          }
+        }));
 
-		// create button
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createService(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().addTabToCurrentTab(new CreateServiceTabItem());
-			}
-		}));
+    final CustomButton deleteButton =
+        TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSelectedServices());
 
-		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSelectedServices());
+    deleteButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
 
-		deleteButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
+        // get selected items
+        final ArrayList<Service> itemsToRemove = services.getTableSelectedList();
+        UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+            for (int i = 0; i < itemsToRemove.size(); i++) {
+              DeleteService request;
+              if (i == itemsToRemove.size() - 1) {
+                request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
+              } else {
+                request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton));
+              }
+              request.deleteService(itemsToRemove.get(i).getId());
+            }
+          }
+        });
+      }
+    });
+    tabMenu.addWidget(deleteButton);
 
-				// get selected items
-				final ArrayList<Service> itemsToRemove  = services.getTableSelectedList();
-				UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-						for (int i=0; i<itemsToRemove.size(); i++ ) {
-							DeleteService request;
-							if(i == itemsToRemove.size()-1){
-								request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton, events));
-							}else{
-								request = new DeleteService(JsonCallbackEvents.disableButtonEvents(deleteButton));
-							}
-							request.deleteService(itemsToRemove.get(i).getId());
-						}
-					}
-				});
-			}
-		});
-		tabMenu.addWidget(deleteButton);
+    tabMenu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        services.filterTable(text);
+      }
+    }, "Filter services by name");
 
-		tabMenu.addFilterWidget(new ExtendedSuggestBox(services.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				services.filterTable(text);
-			}
-		}, "Filter services by name");
+    // add menu to page itself
+    mainTab.add(tabMenu);
+    mainTab.setCellHeight(tabMenu, "30px");
 
-		// add menu to page itself
-		mainTab.add(tabMenu);
-		mainTab.setCellHeight(tabMenu, "30px");
+    // add styling to table with services
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    mainTab.add(sp);
 
-		// add styling to table with services
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		mainTab.add(sp);
+    deleteButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(services, table, deleteButton);
 
-		deleteButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(services, table, deleteButton);
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    this.contentWidget.setWidget(mainTab);
 
-		this.contentWidget.setWidget(mainTab);
+    return getWidget();
+  }
 
-		return getWidget();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.trafficLightsIcon();
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.trafficLightsIcon();
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1109;
+    int result = 1;
+    result = prime * result + 122341;
+    return result;
+  }
 
-
-	@Override
-	public int hashCode() {
-		final int prime = 1109;
-		int result = 1;
-		result = prime * result + 122341;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
 
-		return true;
-	}
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", getUrlWithParameters());
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Services", getUrlWithParameters());
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
-	public final static String URL = "list";
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public ServicesTabItem load(Map<String, String> parameters)
-	{
-		return new ServicesTabItem();
-	}
+  public String getUrlWithParameters() {
+    return ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 }

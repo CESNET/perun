@@ -1,5 +1,14 @@
 package cz.metacentrum.perun.registrar;
 
+import static cz.metacentrum.perun.registrar.model.Application.AppType.INITIAL;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -15,12 +24,6 @@ import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,571 +31,570 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static cz.metacentrum.perun.registrar.model.Application.AppType.INITIAL;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Tests for auto rejection of expired applications
  *
  * @author Jakub Hejda <Jakub.Hejda@cesnet.cz>
  */
-public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
+public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest {
+
+  private final static String CLASS_NAME = "ApplicationAutoRejectorTest.";
+
+  private static final String VO_APP_EXP_RULES = "urn:perun:vo:attribute-def:def:applicationExpirationRules";
+  private static final String GROUP_APP_EXP_RULES = "urn:perun:group:attribute-def:def:applicationExpirationRules";
+  private static final String A_V_D_REJECT_MESSAGES =
+      AttributesManager.NS_VO_ATTR_DEF + ":applicationAutoRejectMessages";
+  private static final String A_G_D_REJECT_MESSAGES =
+      AttributesManager.NS_GROUP_ATTR_DEF + ":applicationAutoRejectMessages";
+  private static final String A_U_D_PREF_LANG = AttributesManager.NS_USER_ATTR_DEF + ":preferredLanguage";
+  private final MailManager mockMailManager = mock(MailManager.class);
+  private final Auditer auditerMock = mock(Auditer.class);
+  private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
+  private Vo vo = new Vo(0, "ApplicationExpirationTestVO", "AppExpTestVo");
+  private User applicationUser;
+  private AppAutoRejectionScheduler scheduler;
+  private AppAutoRejectionScheduler spyScheduler;
+  private JdbcPerunTemplate jdbc;
 
-	private final static String CLASS_NAME = "ApplicationAutoRejectorTest.";
+  public AppAutoRejectionScheduler getScheduler() {
+    return scheduler;
+  }
 
-	private static final String VO_APP_EXP_RULES = "urn:perun:vo:attribute-def:def:applicationExpirationRules";
-	private static final String GROUP_APP_EXP_RULES = "urn:perun:group:attribute-def:def:applicationExpirationRules";
-	private static final String A_V_D_REJECT_MESSAGES = AttributesManager.NS_VO_ATTR_DEF + ":applicationAutoRejectMessages";
-	private static final String A_G_D_REJECT_MESSAGES = AttributesManager.NS_GROUP_ATTR_DEF + ":applicationAutoRejectMessages";
-	private static final String A_U_D_PREF_LANG = AttributesManager.NS_USER_ATTR_DEF + ":preferredLanguage";
+  @Autowired
+  public void setScheduler(AppAutoRejectionScheduler scheduler) {
+    this.scheduler = scheduler;
+    ReflectionTestUtils.setField(this.scheduler.getRegistrarManager(), "mailManager", mockMailManager);
+    this.spyScheduler = spy(scheduler);
+  }
 
-	private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
-	private Vo vo = new Vo(0, "ApplicationExpirationTestVO", "AppExpTestVo");
-	private User applicationUser;
+  @Before
+  public void setUp() throws Exception {
+    setUpJdbc();
+    setUpExtSource();
+    setUpVo();
+    setApplicationUser();
 
-	private AppAutoRejectionScheduler scheduler;
-	private AppAutoRejectionScheduler spyScheduler;
 
-	private final MailManager mockMailManager = mock(MailManager.class);
+    ReflectionTestUtils.setField(spyScheduler.getPerun(), "auditer", auditerMock);
+  }
 
-	private final Auditer auditerMock = mock(Auditer.class);
+  @Test
+  public void checkApplicationsExpirationForVo() throws Exception {
+    System.out.println(CLASS_NAME + "checkApplicationsExpirationForVo");
 
-	private JdbcPerunTemplate jdbc;
+    // set up expired application and reject it
+    Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+    //ReflectionTestUtils.invokeMethod(spyScheduler, "checkApplicationsExpiration");
+    spyScheduler.checkApplicationsExpiration();
 
-	public AppAutoRejectionScheduler getScheduler() {
-		return scheduler;
-	}
+    // check results
+    Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+  }
 
-	@Autowired
-	public void setScheduler(AppAutoRejectionScheduler scheduler) {
-		this.scheduler = scheduler;
-		ReflectionTestUtils.setField(this.scheduler.getRegistrarManager(), "mailManager", mockMailManager);
-		this.spyScheduler = spy(scheduler);
-	}
+  @Test
+  public void checkApplicationsExpirationForGroup() throws Exception {
+    System.out.println(CLASS_NAME + "checkApplicationsExpirationForGroup");
 
-	@Before
-	public void setUp() throws Exception {
-		setUpJdbc();
-		setUpExtSource();
-		setUpVo();
-		setApplicationUser();
+    // set up expired application and reject it
+    Group group = createGroup("Group for apply");
+    Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+    spyScheduler.checkApplicationsExpiration();
 
+    // check results
+    Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
 
-		ReflectionTestUtils.setField(spyScheduler.getPerun(), "auditer", auditerMock);
-	}
+  }
 
-	@Test
-	public void checkApplicationsExpirationForVo() throws Exception {
-		System.out.println(CLASS_NAME + "checkApplicationsExpirationForVo");
+  @Test
+  public void checkVoApplicationShouldBeAutoRejected() throws Exception {
+    System.out.println(CLASS_NAME + "checkVoApplicationShouldBeAutoRejected");
 
-		// set up expired application and reject it
-		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
-		//ReflectionTestUtils.invokeMethod(spyScheduler, "checkApplicationsExpiration");
-		spyScheduler.checkApplicationsExpiration();
+    Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		// check results
-		Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
-	}
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", Collections.singletonList(vo));
 
-	@Test
-	public void checkApplicationsExpirationForGroup() throws Exception {
-		System.out.println(CLASS_NAME + "checkApplicationsExpirationForGroup");
+    // check results
+    Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+  }
 
-		// set up expired application and reject it
-		Group group = createGroup("Group for apply");
-		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
-		spyScheduler.checkApplicationsExpiration();
+  @Test
+  public void checkVoApplicationShouldNotBeAutoRejected() throws Exception {
+    System.out.println(CLASS_NAME + "checkVoApplicationShouldNotBeAutoRejected");
 
-		// check results
-		Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+    Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(50, null, VO_APP_EXP_RULES);
 
-	}
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", Collections.singletonList(vo));
 
-	@Test
-	public void checkVoApplicationShouldBeAutoRejected() throws Exception {
-		System.out.println(CLASS_NAME + "checkVoApplicationShouldBeAutoRejected");
+    // check results
+    Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
+    assertEquals("Application shouldn't be rejected.", returnedApp.getState(), Application.AppState.VERIFIED);
+  }
 
-		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+  @Test
+  public void checkGroupApplicationShouldBeAutoRejected() throws Exception {
+    System.out.println(CLASS_NAME + "checkGroupApplicationShouldBeAutoRejected");
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", Collections.singletonList(vo));
+    Group group = createGroup("Group for apply");
 
-		// check results
-		Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
-	}
+    Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
-	@Test
-	public void checkVoApplicationShouldNotBeAutoRejected() throws Exception {
-		System.out.println(CLASS_NAME + "checkVoApplicationShouldNotBeAutoRejected");
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", Collections.singletonList(group));
 
-		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(50, null, VO_APP_EXP_RULES);
+    // check results
+    Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+  }
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", Collections.singletonList(vo));
+  @Test
+  public void checkGroupApplicationShouldNotBeAutoRejected() throws Exception {
+    System.out.println(CLASS_NAME + "checkGroupApplicationShouldNotBeAutoRejected");
 
-		// check results
-		Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
-		assertEquals("Application shouldn't be rejected.", returnedApp.getState(), Application.AppState.VERIFIED);
-	}
+    Group group = createGroup("Group for apply");
 
-	@Test
-	public void checkGroupApplicationShouldBeAutoRejected() throws Exception {
-		System.out.println(CLASS_NAME + "checkGroupApplicationShouldBeAutoRejected");
+    Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(50, group, GROUP_APP_EXP_RULES);
 
-		Group group = createGroup("Group for apply");
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", Collections.singletonList(group));
 
-		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+    // check results
+    Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.VERIFIED);
+  }
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", Collections.singletonList(group));
+  @Test
+  public void checkGroupApplicationsRejectedWhenVoApplicationRejected() throws Exception {
+    System.out.println(CLASS_NAME + "checkGroupApplicationsRejectedWhenVoApplicationRejected");
 
-		// check results
-		Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
-	}
-	@Test
-	public void checkGroupApplicationShouldNotBeAutoRejected() throws Exception {
-		System.out.println(CLASS_NAME + "checkGroupApplicationShouldNotBeAutoRejected");
+    Group group1 = createGroup("Group1");
+    Group group2 = createGroup("Group2");
 
-		Group group = createGroup("Group for apply");
+    Application expiredVoApp = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(50, group, GROUP_APP_EXP_RULES);
+    Application nonExpiredGroupApp = setUpAndSubmitAppForPotentialAutoRejection(50, group1, GROUP_APP_EXP_RULES);
+    Application expiredGroupApp = setUpAndSubmitAppForPotentialAutoRejection(70, group2, GROUP_APP_EXP_RULES);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", Collections.singletonList(group));
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", Collections.singletonList(vo));
 
-		// check results
-		Application returnedApp = registrarManager.getApplicationById(session, submitApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.VERIFIED);
-	}
+    // check results
+    Application returnedApp = registrarManager.getApplicationById(session, expiredVoApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
 
-	@Test
-	public void checkGroupApplicationsRejectedWhenVoApplicationRejected() throws Exception {
-		System.out.println(CLASS_NAME + "checkGroupApplicationsRejectedWhenVoApplicationRejected");
+    returnedApp = registrarManager.getApplicationById(session, nonExpiredGroupApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
 
-		Group group1 = createGroup("Group1");
-		Group group2 = createGroup("Group2");
+    returnedApp = registrarManager.getApplicationById(session, expiredGroupApp.getId());
+    assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+  }
 
-		Application expiredVoApp = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+  @Test
+  public void voAdminIgnoredCustomMessage() throws Exception {
+    System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessage");
 
-		Application nonExpiredGroupApp = setUpAndSubmitAppForPotentialAutoRejection(50, group1, GROUP_APP_EXP_RULES);
-		Application expiredGroupApp = setUpAndSubmitAppForPotentialAutoRejection(70, group2, GROUP_APP_EXP_RULES);
+    setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", Collections.singletonList(vo));
+    String messageTemplate = "Your application to %vo_name% was rejected";
+    String expectedReason = "Your application to " + vo.getName() + " was rejected";
 
-		// check results
-		Application returnedApp = registrarManager.getApplicationById(session, expiredVoApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+    setVoMessagesAttribute("ignoredByAdmin-en", messageTemplate);
 
-		returnedApp = registrarManager.getApplicationById(session, nonExpiredGroupApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		returnedApp = registrarManager.getApplicationById(session, expiredGroupApp.getId());
-		assertEquals("Application should be rejected.", returnedApp.getState(), Application.AppState.REJECTED);
-	}
+  @Test
+  public void voAdminIgnoredDefaultMessage() throws Exception {
+    System.out.println(CLASS_NAME + "voAdminIgnoredDefaultMessage");
 
-	@Test
-	public void voAdminIgnoredCustomMessage() throws Exception {
-		System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessage");
+    setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+    String expectedReason = "Your application to VO " + vo.getName() + " was automatically rejected, because " +
+        "admin didn't approve your application in a timely manner.";
 
-		String messageTemplate = "Your application to %vo_name% was rejected";
-		String expectedReason = "Your application to " + vo.getName() + " was rejected";
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		setVoMessagesAttribute("ignoredByAdmin-en", messageTemplate);
+  @Test
+  public void voEmailVerificationCustomMessage() throws Exception {
+    System.out.println(CLASS_NAME + "voEmailVerificationCustomMessage");
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    Application application = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-	@Test
-	public void voAdminIgnoredDefaultMessage() throws Exception {
-		System.out.println(CLASS_NAME + "voAdminIgnoredDefaultMessage");
+    String messageTemplate = "Your application to %vo_name% was rejected";
+    String expectedReason = "Your application to " + vo.getName() + " was rejected";
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+    setVoMessagesAttribute("emailVerification-en", messageTemplate);
 
-		String expectedReason = "Your application to VO " + vo.getName() + " was automatically rejected, because " +
-				"admin didn't approve your application in a timely manner.";
+    // fake that the application is waiting for mail verification
+    jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-	@Test
-	public void voEmailVerificationCustomMessage() throws Exception {
-		System.out.println(CLASS_NAME + "voEmailVerificationCustomMessage");
+  @Test
+  public void voEmailVerificationDefaultMessage() throws Exception {
+    System.out.println(CLASS_NAME + "voEmailVerificationDefaultMessage");
 
-		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+    Application application = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		String messageTemplate = "Your application to %vo_name% was rejected";
-		String expectedReason = "Your application to " + vo.getName() + " was rejected";
+    String expectedReason = "Your application to VO " + vo.getName() + " was automatically rejected, because you" +
+        " didn't verify your email address.";
 
-		setVoMessagesAttribute("emailVerification-en", messageTemplate);
+    // fake that the application is waiting for mail verification
+    jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
 
-		// fake that the application is waiting for mail verification
-		jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+  @Test
+  public void groupAdminIgnoredCustomMessage() throws Exception {
+    System.out.println(CLASS_NAME + "groupAdminIgnoredCustomMessage");
 
-	@Test
-	public void voEmailVerificationDefaultMessage() throws Exception {
-		System.out.println(CLASS_NAME + "voEmailVerificationDefaultMessage");
+    Group group = createGroup("Group for apply");
 
-		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+    setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
-		String expectedReason = "Your application to VO " + vo.getName() + " was automatically rejected, because you" +
-				" didn't verify your email address.";
+    String messageTemplate = "Your application to %group_name% was rejected";
+    String expectedReason = "Your application to " + group.getName() + " was rejected";
 
-		// fake that the application is waiting for mail verification
-		jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
+    setGroupMessagesAttribute("ignoredByAdmin-en", messageTemplate, group);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-	@Test
-	public void groupAdminIgnoredCustomMessage() throws Exception {
-		System.out.println(CLASS_NAME + "groupAdminIgnoredCustomMessage");
+  @Test
+  public void groupAdminIgnoredDefaultMessage() throws Exception {
+    System.out.println(CLASS_NAME + "groupAdminIgnoredDefaultMessage");
 
-		Group group = createGroup("Group for apply");
+    Group group = createGroup("Group for apply");
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+    setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
-		String messageTemplate = "Your application to %group_name% was rejected";
-		String expectedReason = "Your application to " + group.getName() + " was rejected";
+    String expectedReason = "Your application to group " + group.getName() + " was automatically rejected, because " +
+        "admin didn't approve your application in a timely manner.";
 
-		setGroupMessagesAttribute("ignoredByAdmin-en", messageTemplate, group);
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+  @Test
+  public void groupEmailVerificationCustomMessage() throws Exception {
+    System.out.println(CLASS_NAME + "groupEmailVerificationCustomMessage");
 
-	@Test
-	public void groupAdminIgnoredDefaultMessage() throws Exception {
-		System.out.println(CLASS_NAME + "groupAdminIgnoredDefaultMessage");
+    Group group = createGroup("Group for apply");
 
-		Group group = createGroup("Group for apply");
+    Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+    String messageTemplate = "Your application to %group_name% was rejected";
+    String expectedReason = "Your application to " + group.getName() + " was rejected";
 
-		String expectedReason = "Your application to group " + group.getName() + " was automatically rejected, because " +
-				"admin didn't approve your application in a timely manner.";
+    setGroupMessagesAttribute("emailVerification-en", messageTemplate, group);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    // fake that the application is waiting for mail verification
+    jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
 
-	@Test
-	public void groupEmailVerificationCustomMessage() throws Exception {
-		System.out.println(CLASS_NAME + "groupEmailVerificationCustomMessage");
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		Group group = createGroup("Group for apply");
+  @Test
+  public void groupEmailVerificationDefaultMessage() throws Exception {
+    System.out.println(CLASS_NAME + "groupEmailVerificationDefaultMessage");
 
-		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+    Group group = createGroup("Group for apply");
 
-		String messageTemplate = "Your application to %group_name% was rejected";
-		String expectedReason = "Your application to " + group.getName() + " was rejected";
+    Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
-		setGroupMessagesAttribute("emailVerification-en", messageTemplate, group);
+    String expectedReason = "Your application to group " + group.getName() + " was automatically rejected, " +
+        "because you didn't verify your email address.";
 
-		// fake that the application is waiting for mail verification
-		jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
+    // fake that the application is waiting for mail verification
+    jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-	@Test
-	public void groupEmailVerificationDefaultMessage() throws Exception {
-		System.out.println(CLASS_NAME + "groupEmailVerificationDefaultMessage");
+  @Test
+  public void voAdminIgnoredCustomMessageByPreferredLangFromApplication() throws Exception {
+    System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessageByPreferredLangFromApplication");
 
-		Group group = createGroup("Group for apply");
+    ApplicationForm voform = registrarManager.getFormForVo(vo);
+    registrarManager.addFormItem(session, voform, new ApplicationFormItem(-1, "lang", true,
+        ApplicationFormItem.Type.TEXTFIELD, null, null, A_U_D_PREF_LANG, ""));
 
-		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+    setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES, "cs", null);
 
-		String expectedReason = "Your application to group " + group.getName() + " was automatically rejected, " +
-				"because you didn't verify your email address.";
+    String messageTemplate = "Vase zadost do %vo_name% byla zamitnuta";
+    String expectedReason = "Vase zadost do " + vo.getName() + " byla zamitnuta";
 
-		// fake that the application is waiting for mail verification
-		jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
+    setVoMessagesAttribute("ignoredByAdmin-cs", messageTemplate);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-	@Test
-	public void voAdminIgnoredCustomMessageByPreferredLangFromApplication() throws Exception {
-		System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessageByPreferredLangFromApplication");
+  @Test
+  public void voAdminIgnoredCustomMessageByPreferredLang() throws Exception {
+    System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessageByPreferredLang");
 
-		ApplicationForm voform = registrarManager.getFormForVo(vo);
-		registrarManager.addFormItem(session, voform, new ApplicationFormItem(-1, "lang", true,
-				ApplicationFormItem.Type.TEXTFIELD, null, null, A_U_D_PREF_LANG, ""));
+    setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES, "cs", null);
+    String messageTemplate = "Vase zadost do %vo_name% byla zamitnuta";
+    String expectedReason = "Vase zadost do " + vo.getName() + " byla zamitnuta";
 
-		String messageTemplate = "Vase zadost do %vo_name% byla zamitnuta";
-		String expectedReason = "Vase zadost do " + vo.getName() + " byla zamitnuta";
+    Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
+    attr.setValue("cs");
+    perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
 
-		setVoMessagesAttribute("ignoredByAdmin-cs", messageTemplate);
+    setVoMessagesAttribute("ignoredByAdmin-cs", messageTemplate);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
-	@Test
-	public void voAdminIgnoredCustomMessageByPreferredLang() throws Exception {
-		System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessageByPreferredLang");
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+  @Test
+  public void voAdminIgnoredCustomMessageDefault() throws Exception {
+    System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessageDefault");
 
-		String messageTemplate = "Vase zadost do %vo_name% byla zamitnuta";
-		String expectedReason = "Vase zadost do " + vo.getName() + " byla zamitnuta";
+    setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
-		attr.setValue("cs");
-		perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
+    String messageTemplate = "Your application to %vo_name% was rejected";
+    String expectedReason = "Your application to " + vo.getName() + " was rejected";
 
-		setVoMessagesAttribute("ignoredByAdmin-cs", messageTemplate);
+    Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
+    attr.setValue("cs");
+    perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    setVoMessagesAttribute("ignoredByAdmin", messageTemplate);
 
-	@Test
-	public void voAdminIgnoredCustomMessageDefault() throws Exception {
-		System.out.println(CLASS_NAME + "voAdminIgnoredCustomMessageDefault");
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+  @Test
+  public void voMailVerificationCustomMessageDefault() throws Exception {
+    System.out.println(CLASS_NAME + "voMailVerificationCustomMessageDefault");
 
-		String messageTemplate = "Your application to %vo_name% was rejected";
-		String expectedReason = "Your application to " + vo.getName() + " was rejected";
+    Application application = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
 
-		Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
-		attr.setValue("cs");
-		perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
+    String messageTemplate = "Your application to %vo_name% was rejected";
+    String expectedReason = "Your application to " + vo.getName() + " was rejected";
 
-		setVoMessagesAttribute("ignoredByAdmin", messageTemplate);
+    Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
+    attr.setValue("cs");
+    perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    setVoMessagesAttribute("emailVerification", messageTemplate);
 
-	@Test
-	public void voMailVerificationCustomMessageDefault() throws Exception {
-		System.out.println(CLASS_NAME + "voMailVerificationCustomMessageDefault");
+    // fake that the application is waiting for mail verification
+    jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
 
-		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, null, VO_APP_EXP_RULES);
+    ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		String messageTemplate = "Your application to %vo_name% was rejected";
-		String expectedReason = "Your application to " + vo.getName() + " was rejected";
+  @Test
+  public void groupAdminIgnoredCustomMessageDefault() throws Exception {
+    System.out.println(CLASS_NAME + "groupAdminIgnoredCustomMessageDefault");
 
-		Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
-		attr.setValue("cs");
-		perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
+    Group group = createGroup("Group for apply");
 
-		setVoMessagesAttribute("emailVerification", messageTemplate);
+    setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
-		// fake that the application is waiting for mail verification
-		jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
+    String messageTemplate = "Your application to %group_name% was rejected";
+    String expectedReason = "Your application to " + group.getName() + " was rejected";
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "voApplicationsAutoRejection", List.of(vo));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
+    attr.setValue("cs");
+    perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
 
-	@Test
-	public void groupAdminIgnoredCustomMessageDefault() throws Exception {
-		System.out.println(CLASS_NAME + "groupAdminIgnoredCustomMessageDefault");
+    setGroupMessagesAttribute("ignoredByAdmin", messageTemplate, group);
 
-		Group group = createGroup("Group for apply");
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+  @Test
+  public void groupMailVerificationCustomMessageDefault() throws Exception {
+    System.out.println(CLASS_NAME + "groupMailVerificationCustomMessageDefault");
 
-		String messageTemplate = "Your application to %group_name% was rejected";
-		String expectedReason = "Your application to " + group.getName() + " was rejected";
+    Group group = createGroup("Group for apply");
 
-		Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
-		attr.setValue("cs");
-		perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
+    Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
-		setGroupMessagesAttribute("ignoredByAdmin", messageTemplate, group);
+    String messageTemplate = "Your application to %group_name% was rejected";
+    String expectedReason = "Your application to " + group.getName() + " was rejected";
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+    Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
+    attr.setValue("cs");
+    perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
 
-	@Test
-	public void groupMailVerificationCustomMessageDefault() throws Exception {
-		System.out.println(CLASS_NAME + "groupMailVerificationCustomMessageDefault");
+    setGroupMessagesAttribute("emailVerification", messageTemplate, group);
 
-		Group group = createGroup("Group for apply");
+    // fake that the application is waiting for mail verification
+    jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
 
-		Application application = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
+    ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
+    verify(mockMailManager)
+        .sendMessage(any(), any(), eq(expectedReason), eq(null));
+  }
 
-		String messageTemplate = "Your application to %group_name% was rejected";
-		String expectedReason = "Your application to " + group.getName() + " was rejected";
+  // ------------------------------------------------ PRIVATE METHODS ------------------------------------------------
 
-		Attribute attr = perun.getAttributesManagerBl().getAttribute(session, applicationUser, A_U_D_PREF_LANG);
-		attr.setValue("cs");
-		perun.getAttributesManagerBl().setAttribute(session, applicationUser, attr);
+  private void setUpJdbc() {
+    jdbc = (JdbcPerunTemplate) ReflectionTestUtils.getField(scheduler, "jdbc");
+  }
 
-		setGroupMessagesAttribute("emailVerification", messageTemplate, group);
+  private void setUpExtSource() throws Exception {
+    extSource = perun.getExtSourcesManager().createExtSource(session, extSource, null);
+  }
 
-		// fake that the application is waiting for mail verification
-		jdbc.update("UPDATE application SET state = 'NEW' WHERE application.id = ?", application.getId());
+  private void setUpVo() throws Exception {
+    vo = perun.getVosManager().createVo(session, vo);
+    perun.getExtSourcesManager().addExtSource(session, vo, extSource);
+  }
 
-		ReflectionTestUtils.invokeMethod(spyScheduler, "groupApplicationsAutoRejection", List.of(group));
-		verify(mockMailManager)
-				.sendMessage(any(), any(), eq(expectedReason), eq(null));
-	}
+  private void setApplicationUser() {
+    applicationUser = new User(-1, "John", "Doe", "", "", "");
+    applicationUser = perun.getUsersManagerBl().createUser(session, applicationUser);
+  }
 
-	// ------------------------------------------------ PRIVATE METHODS ------------------------------------------------
+  /**
+   * Creates new group.
+   *
+   * @return created group
+   * @throws GroupExistsException if group already exists
+   */
+  private Group createGroup(String name) throws GroupExistsException {
+    Group group = new Group();
+    group.setName(name);
+    return perun.getGroupsManagerBl().createGroup(session, vo, group);
+  }
 
-	private void setUpJdbc() {
-		jdbc = (JdbcPerunTemplate) ReflectionTestUtils.getField(scheduler, "jdbc");
-	}
+  /**
+   * Converts object ApplicationFormItemWithPrefillValue to ApplicationFormItemData. If the given
+   * item is mapped to user:preferredLanguage attribute, sets it the given lang value.
+   *
+   * @param object ApplicationFormItemWithPrefilledValue to convert
+   * @return converted object ApplicationFormItemData
+   */
+  private ApplicationFormItemData convertAppFormItemWithPrefValToAppFormItemData(
+      ApplicationFormItemWithPrefilledValue object, String lang) {
+    String value = "";
+    if (A_U_D_PREF_LANG.equals(object.getFormItem().getPerunDestinationAttribute())) {
+      value = lang;
+    }
+    return new ApplicationFormItemData(object.getFormItem(), object.getFormItem().getShortname(), value, "0");
+  }
 
-	private void setUpExtSource() throws Exception {
-		extSource = perun.getExtSourcesManager().createExtSource(session, extSource, null);
-	}
+  /**
+   * In the first step method sets the return value for getCurrentLocalDay method. Then sets the application expiration
+   * attribute for Vo or Group and creates and submits application.
+   *
+   * @param days      number of days for move today
+   * @param group     optional group
+   * @param attribute application expiration attribute for Vo or Group
+   * @return submitted application
+   * @throws Exception exception
+   */
+  private Application setUpAndSubmitAppForPotentialAutoRejection(int days, Group group, String attribute)
+      throws Exception {
+    return setUpAndSubmitAppForPotentialAutoRejection(days, group, attribute, null, applicationUser);
+  }
 
-	private void setUpVo() throws Exception {
-		vo = perun.getVosManager().createVo(session, vo);
-		perun.getExtSourcesManager().addExtSource(session, vo, extSource);
-	}
+  /**
+   * In the first step method sets the return value for getCurrentLocalDay method. Then sets the application expiration
+   * attribute for Vo or Group and creates and submits application. If the application has an item mapping to
+   * user:preferredLanguage attribute, set it the given lang value.
+   *
+   * @param days      number of days for move today
+   * @param group     optional group
+   * @param attribute application expiration attribute for Vo or Group
+   * @return submitted application
+   * @throws Exception exception
+   */
+  private Application setUpAndSubmitAppForPotentialAutoRejection(int days, Group group, String attribute, String lang,
+                                                                 User user) throws Exception {
+    // change today date for test
+    LocalDate today = LocalDate.now().plusDays(days);
+    when(spyScheduler.getCurrentLocalDate())
+        .thenReturn(today);
 
-	private void setApplicationUser() {
-		applicationUser = new User(-1, "John", "Doe", "", "", "");
-		applicationUser = perun.getUsersManagerBl().createUser(session, applicationUser);
-	}
+    // set application expiration attribute for Vo
+    Attribute appExp = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, attribute));
+    Map<String, String> attrValue = new LinkedHashMap<>();
+    attrValue.put("emailVerification", "14");
+    attrValue.put("ignoredByAdmin", "60");
+    appExp.setValue(attrValue);
+    if (group != null) {
+      perun.getAttributesManagerBl().setAttribute(session, group, appExp);
+    } else {
+      perun.getAttributesManagerBl().setAttribute(session, vo, appExp);
+    }
 
-	/**
-	 * Creates new group.
-	 *
-	 * @return created group
-	 * @throws GroupExistsException if group already exists
-	 */
-	private Group createGroup(String name) throws GroupExistsException {
-		Group group = new Group();
-		group.setName(name);
-		return perun.getGroupsManagerBl().createGroup(session, vo, group);
-	}
+    // create application
+    Application application = new Application();
+    application.setType(INITIAL);
+    application.setCreatedBy("testUser");
+    application.setVo(vo);
 
-	/**
-	 * Converts object ApplicationFormItemWithPrefillValue to ApplicationFormItemData. If the given
-	 * item is mapped to user:preferredLanguage attribute, sets it the given lang value.
-	 *
-	 * @param object ApplicationFormItemWithPrefilledValue to convert
-	 * @return converted object ApplicationFormItemData
-	 */
-	private ApplicationFormItemData convertAppFormItemWithPrefValToAppFormItemData(ApplicationFormItemWithPrefilledValue object, String lang) {
-		String value = "";
-		if (A_U_D_PREF_LANG.equals(object.getFormItem().getPerunDestinationAttribute())) {
-			value = lang;
-		}
-		return new ApplicationFormItemData(object.getFormItem(), object.getFormItem().getShortname(), value, "0");
-	}
+    // get application form item data
+    ApplicationForm applicationForm;
+    if (group != null) {
+      application.setGroup(group);
+      registrarManager.createApplicationFormInGroup(session, group);
+      applicationForm = registrarManager.getFormForGroup(group);
+    } else {
+      applicationForm = registrarManager.getFormForVo(vo);
+    }
+    List<ApplicationFormItemData> data =
+        registrarManager.getFormItemsWithPrefilledValues(session, INITIAL, applicationForm).stream()
+            .map(item -> convertAppFormItemWithPrefValToAppFormItemData(item, lang))
+            .collect(Collectors.toList());
 
-	/**
-	 * In the first step method sets the return value for getCurrentLocalDay method. Then sets the application expiration
-	 * attribute for Vo or Group and creates and submits application.
-	 *
-	 * @param days number of days for move today
-	 * @param group optional group
-	 * @param attribute application expiration attribute for Vo or Group
-	 * @return submitted application
-	 * @throws Exception exception
-	 */
-	private Application setUpAndSubmitAppForPotentialAutoRejection(int days, Group group, String attribute) throws Exception {
-		return setUpAndSubmitAppForPotentialAutoRejection(days, group, attribute, null, applicationUser);
-	}
+    application.setUser(user);
 
-	/**
-	 * In the first step method sets the return value for getCurrentLocalDay method. Then sets the application expiration
-	 * attribute for Vo or Group and creates and submits application. If the application has an item mapping to
-	 * user:preferredLanguage attribute, set it the given lang value.
-	 *
-	 * @param days number of days for move today
-	 * @param group optional group
-	 * @param attribute application expiration attribute for Vo or Group
-	 * @return submitted application
-	 * @throws Exception exception
-	 */
-	private Application setUpAndSubmitAppForPotentialAutoRejection(int days, Group group, String attribute, String lang, User user) throws Exception {
-		// change today date for test
-		LocalDate today = LocalDate.now().plusDays(days);
-		when(spyScheduler.getCurrentLocalDate())
-			.thenReturn(today);
+    return registrarManager.submitApplication(session, application, data);
+  }
 
-		// set application expiration attribute for Vo
-		Attribute appExp = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, attribute));
-		Map<String, String> attrValue = new LinkedHashMap<>();
-		attrValue.put("emailVerification", "14");
-		attrValue.put("ignoredByAdmin", "60");
-		appExp.setValue(attrValue);
-		if (group != null) {
-			perun.getAttributesManagerBl().setAttribute(session, group, appExp);
-		} else {
-			perun.getAttributesManagerBl().setAttribute(session, vo, appExp);
-		}
+  private void setVoMessagesAttribute(String key, String messageTemplate) throws Exception {
+    Attribute attrToSet = perun.getAttributesManager().getAttribute(session, vo, A_V_D_REJECT_MESSAGES);
+    HashMap<String, String> attrValue = new LinkedHashMap<>();
+    attrValue.put(key, messageTemplate);
+    attrToSet.setValue(attrValue);
+    perun.getAttributesManagerBl().setAttribute(session, vo, attrToSet);
+  }
 
-		// create application
-		Application application = new Application();
-		application.setType(INITIAL);
-		application.setCreatedBy("testUser");
-		application.setVo(vo);
-
-		// get application form item data
-		ApplicationForm applicationForm;
-		if (group != null) {
-			application.setGroup(group);
-			registrarManager.createApplicationFormInGroup(session, group);
-			applicationForm = registrarManager.getFormForGroup(group);
-		} else {
-			applicationForm = registrarManager.getFormForVo(vo);
-		}
-		List<ApplicationFormItemData> data = registrarManager.getFormItemsWithPrefilledValues(session, INITIAL, applicationForm).stream()
-			.map(item -> convertAppFormItemWithPrefValToAppFormItemData(item, lang))
-			.collect(Collectors.toList());
-
-		application.setUser(user);
-
-		return registrarManager.submitApplication(session, application, data);
-	}
-
-	private void setVoMessagesAttribute(String key, String messageTemplate) throws Exception {
-		Attribute attrToSet = perun.getAttributesManager().getAttribute(session, vo, A_V_D_REJECT_MESSAGES);
-		HashMap<String, String> attrValue = new LinkedHashMap<>();
-		attrValue.put(key, messageTemplate);
-		attrToSet.setValue(attrValue);
-		perun.getAttributesManagerBl().setAttribute(session, vo, attrToSet);
-	}
-
-	private void setGroupMessagesAttribute(String key, String messageTemplate, Group group) throws Exception {
-		Attribute attrToSet = perun.getAttributesManager().getAttribute(session, group, A_G_D_REJECT_MESSAGES);
-		HashMap<String, String> attrValue = new LinkedHashMap<>();
-		attrValue.put(key, messageTemplate);
-		attrToSet.setValue(attrValue);
-		perun.getAttributesManagerBl().setAttribute(session, group, attrToSet);
-	}
+  private void setGroupMessagesAttribute(String key, String messageTemplate, Group group) throws Exception {
+    Attribute attrToSet = perun.getAttributesManager().getAttribute(session, group, A_G_D_REJECT_MESSAGES);
+    HashMap<String, String> attrValue = new LinkedHashMap<>();
+    attrValue.put(key, messageTemplate);
+    attrToSet.setValue(attrValue);
+    perun.getAttributesManagerBl().setAttribute(session, group, attrToSet);
+  }
 }

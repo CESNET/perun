@@ -16,51 +16,57 @@ import static org.mockito.Mockito.when;
 
 public class urn_perun_facility_attribute_def_def_unixGID_namespaceTest {
 
-	private static urn_perun_facility_attribute_def_def_unixGID_namespace classInstance;
-	private static PerunSessionImpl session;
-	private static Facility facility;
-	private static Attribute attributeToCheck;
-	private static Attribute reqAttribute;
+  private static urn_perun_facility_attribute_def_def_unixGID_namespace classInstance;
+  private static PerunSessionImpl session;
+  private static Facility facility;
+  private static Attribute attributeToCheck;
+  private static Attribute reqAttribute;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_facility_attribute_def_def_unixGID_namespace();
-		session = mock(PerunSessionImpl.class);
-		facility = new Facility();
-		attributeToCheck = new Attribute();
-		attributeToCheck.setFriendlyName("friendly_name");
-		reqAttribute = new Attribute();
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_facility_attribute_def_def_unixGID_namespace();
+    session = mock(PerunSessionImpl.class);
+    facility = new Facility();
+    attributeToCheck = new Attribute();
+    attributeToCheck.setFriendlyName("friendly_name");
+    reqAttribute = new Attribute();
 
-		PerunBl perunBl = mock(PerunBl.class);
-		when(session.getPerunBl()).thenReturn(perunBl);
+    PerunBl perunBl = mock(PerunBl.class);
+    when(session.getPerunBl()).thenReturn(perunBl);
 
-		AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
-		when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
-	}
+    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
+    when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithoutReqAttribute() throws Exception {
-		System.out.println("testCheckAttributeSemanticsWithoutReqAttribute()");
-		attributeToCheck.setValue("example");
-		when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + attributeToCheck.getValue())).thenThrow(new AttributeNotExistsException(""));
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithoutReqAttribute() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithoutReqAttribute()");
+    attributeToCheck.setValue("example");
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
+        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + attributeToCheck.getValue())).thenThrow(
+        new AttributeNotExistsException(""));
 
-		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithNullValue() throws Exception {
-		System.out.println("testCheckAttributeSemanticsWithNullValue()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithNullValue()");
 
-		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeSemanticsCorrect() throws Exception {
-		System.out.println("testCheckAttributeSemanticsCorrect()");
-		attributeToCheck.setValue("example");
-		when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + attributeToCheck.getValue())).thenReturn(reqAttribute);
-		when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + attributeToCheck.getValue())).thenReturn(reqAttribute);
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
+    attributeToCheck.setValue("example");
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
+        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + attributeToCheck.getValue())).thenReturn(
+        reqAttribute);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
+        AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + attributeToCheck.getValue())).thenReturn(
+        reqAttribute);
 
-		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
 }

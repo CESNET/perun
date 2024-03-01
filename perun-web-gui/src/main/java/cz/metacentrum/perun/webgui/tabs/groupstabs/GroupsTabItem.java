@@ -6,7 +6,13 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -30,7 +36,6 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -42,245 +47,247 @@ import java.util.Map;
 
 public class GroupsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "list";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Groups");
+  private int voId = 0;
+  private VirtualOrganization vo = null;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param vo vo to show groups for (if null, you can select VO from list)
+   */
+  public GroupsTabItem(VirtualOrganization vo) {
+    this.vo = vo;
+    if (vo != null) {
+      this.voId = vo.getId();
+    }
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Groups");
+  /**
+   * Creates a tab instance
+   *
+   * @param voId vo to show groups for (if 0, you can select VO from list)
+   */
+  public GroupsTabItem(int voId) {
+    this.voId = voId;
+    if (voId != 0) {
+      JsonCallbackEvents events = new JsonCallbackEvents() {
+        public void onFinished(JavaScriptObject jso) {
+          vo = jso.cast();
+        }
+      };
+      new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+    }
+  }
 
-	private int voId = 0;
-	private VirtualOrganization vo = null;
+  static public GroupsTabItem load(Map<String, String> parameters) {
+    int id = Integer.parseInt(parameters.get("vo"));
+    return new GroupsTabItem(id);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param vo vo to show groups for (if null, you can select VO from list)
-	 */
-	public GroupsTabItem(VirtualOrganization vo){
-		this.vo = vo;
-		if (vo != null) {
-			this.voId = vo.getId();
-		}
-	}
+  public boolean isPrepared() {
+    // if vo selected and loaded or no vo selected
+    return ((voId != 0 && vo != null) || (voId == 0 && vo == null));
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param voId vo to show groups for (if 0, you can select VO from list)
-	 */
-	public GroupsTabItem(int voId){
-		this.voId = voId;
-		if (voId != 0) {
-			JsonCallbackEvents events = new JsonCallbackEvents(){
-				public void onFinished(JavaScriptObject jso) {
-					vo = jso.cast();
-				}
-			};
-			new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-		}
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		// if vo selected and loaded or no vo selected
-		return ((voId != 0 && vo != null) || (voId == 0 && vo == null));
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    // main panel
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
+    // Horizontal menu
+    TabMenu menu = new TabMenu();
 
-	public Widget draw() {
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		// main panel
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
-		// Horizontal menu
-		TabMenu menu = new TabMenu();
+    //call
+    ArrayList<String> attrNames = new ArrayList<>();
+    attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+    attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+    attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+    attrNames.add("urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp");
+    attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+    attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+    attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
+    attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
+    attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
+    attrNames.add("urn:perun:group:attribute-def:def:blockManualMemberAdding");
+    final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
+    groups.setCheckable(false);
 
-		menu.addWidget(UiElements.getRefreshButton(this));
+    // listbox
+    final ListBoxWithObjects<VirtualOrganization> vos = new ListBoxWithObjects<VirtualOrganization>();
+    menu.addWidget(new HTML("<strong>Selected VO: </strong>"));
+    menu.addWidget(vos);
+    menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        groups.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterGroup());
+    menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
+    menu.addWidget(new HTML("<strong>Select VO to see groups that you can manage.</strong>"));
 
-		//call
-		ArrayList<String> attrNames = new ArrayList<>();
-		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
-		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
-		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
-		attrNames.add("urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp");
-		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
-		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
-		attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
-		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
-		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
-		attrNames.add("urn:perun:group:attribute-def:def:blockManualMemberAdding");
-		final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
-		groups.setCheckable(false);
+    final TabItem tab = this;
 
-		// listbox
-		final ListBoxWithObjects<VirtualOrganization> vos = new ListBoxWithObjects<VirtualOrganization>();
-		menu.addWidget(new HTML("<strong>Selected VO: </strong>"));
-		menu.addWidget(vos);
-		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				groups.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterGroup());
-		menu.addWidget(new Image(SmallIcons.INSTANCE.helpIcon()));
-		menu.addWidget(new HTML("<strong>Select VO to see groups that you can manage.</strong>"));
+    // groups table
+    CellTable<RichGroup> table = groups.getEmptyTable(new FieldUpdater<RichGroup, String>() {
+      public void update(int index, RichGroup group, String value) {
+        session.getTabManager().addTab(new GroupDetailTabItem(group));
+        // close group selection tab when group is selected
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    });
 
-		final TabItem tab = this;
+    // listbox change => load vo's groups
+    vos.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent changeEvent) {
+        groups.setVoId(vos.getSelectedObject().getId());
+        groups.clearTable();
+        groups.retrieveData();
+      }
+    });
 
-		// groups table
-		CellTable<RichGroup> table = groups.getEmptyTable(new FieldUpdater<RichGroup, String>() {
-			public void update(int index, RichGroup group, String value) {
-				session.getTabManager().addTab(new GroupDetailTabItem(group));
-				// close group selection tab when group is selected
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		});
+    // initial fill listbox and trigger groups loading
+    GetVos vosCall = new GetVos(new JsonCallbackEvents() {
+      public void onLoadingStart() {
+        vos.clear();
+        vos.addItem("Loading...");
+      }
 
-		// listbox change => load vo's groups
-		vos.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent changeEvent) {
-				groups.setVoId(vos.getSelectedObject().getId());
-				groups.clearTable();
-				groups.retrieveData();
-			}
-		});
+      public void onFinished(JavaScriptObject jso) {
+        vos.clear();
+        ArrayList<VirtualOrganization> returnedVos = JsonUtils.jsoAsList(jso);
+        returnedVos = new TableSorter<VirtualOrganization>().sortByName(returnedVos);
+        if (returnedVos == null || returnedVos.isEmpty()) {
+          vos.addItem("No VO available");
+          return;
+        }
+        // put and set selected
+        for (int i = 0; i < returnedVos.size(); i++) {
+          vos.addItem(returnedVos.get(i));
+          if (voId == returnedVos.get(i).getId()) {
+            vos.setSelected(returnedVos.get(i), true);
+          }
+        }
+        // trigger loading of groups for selected VO
+        groups.setVoId(vos.getSelectedObject().getId());
+        groups.clearTable();
+        groups.retrieveData();
+      }
 
-		// initial fill listbox and trigger groups loading
-		GetVos vosCall = new GetVos(new JsonCallbackEvents(){
-			public void onLoadingStart(){
-				vos.clear();
-				vos.addItem("Loading...");
-			}
-			public void onFinished(JavaScriptObject jso) {
-				vos.clear();
-				ArrayList<VirtualOrganization> returnedVos = JsonUtils.jsoAsList(jso);
-				returnedVos = new TableSorter<VirtualOrganization>().sortByName(returnedVos);
-				if (returnedVos == null || returnedVos.isEmpty()){
-					vos.addItem("No VO available");
-					return;
-				}
-				// put and set selected
-				for (int i = 0; i<returnedVos.size(); i++) {
-					vos.addItem(returnedVos.get(i));
-					if (voId == returnedVos.get(i).getId()) {
-						vos.setSelected(returnedVos.get(i), true);
-					}
-				}
-				// trigger loading of groups for selected VO
-				groups.setVoId(vos.getSelectedObject().getId());
-				groups.clearTable();
-				groups.retrieveData();
-			}
-			public void onError(PerunError error){
-				vos.clear();
-				vos.addItem("Error while loading");
-			};
-		});
-		vosCall.retrieveData();
+      public void onError(PerunError error) {
+        vos.clear();
+        vos.addItem("Error while loading");
+      }
 
-		// set width to 100%
-		table.setWidth("100%");
+      ;
+    });
+    vosCall.retrieveData();
 
-		// add menu and table to the main panel
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    // set width to 100%
+    table.setWidth("100%");
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    // add menu and table to the main panel
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		vp.add(sp);
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    vp.add(sp);
 
-		this.contentWidget.setWidget(vp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		return getWidget();
-	}
+    this.contentWidget.setWidget(vp);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    return getWidget();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupIcon();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1427;
-		int result = 1;
-		result = prime * result + 341;
-		return result;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.groupIcon();
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  @Override
+  public int hashCode() {
+    final int prime = 1427;
+    int result = 1;
+    result = prime * result + 341;
+    return result;
+  }
 
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    return true;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "Select group", getUrlWithParameters());
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public boolean isAuthorized() {
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.GROUP_ADMIN, "Select group", getUrlWithParameters());
+  }
 
-		if (session.isGroupAdmin() || session.isVoAdmin() || session.isVoObserver()) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean isAuthorized() {
 
-	}
+    if (session.isGroupAdmin() || session.isVoAdmin() || session.isVoObserver()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public final static String URL = "list";
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrlWithParameters() {
-		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl()+"?vo="+voId;
-	}
-
-	static public GroupsTabItem load(Map<String, String> parameters) {
-		int id = Integer.parseInt(parameters.get("vo"));
-		return new GroupsTabItem(id);
-	}
+  public String getUrlWithParameters() {
+    return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo=" + voId;
+  }
 
 }

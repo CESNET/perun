@@ -16,22 +16,25 @@ import java.util.LinkedHashMap;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class urn_perun_entityless_attribute_def_def_namespace_GIDRanges extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
+public class urn_perun_entityless_attribute_def_def_namespace_GIDRanges extends EntitylessAttributesModuleAbstract
+    implements EntitylessAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
-		//Check if gid ranges are in correct format (we don't need to use the output of the method there, we want to just check it)
-		perunSession.getPerunBl().getModulesUtilsBl().checkAndConvertIDRanges(attribute);
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Check if gid ranges are in correct format (we don't need to use the output of the method there, we want to just check it)
+    perunSession.getPerunBl().getModulesUtilsBl().checkAndConvertIDRanges(attribute);
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-		attr.setFriendlyName("namespace-GIDRanges");
-		attr.setDisplayName("GID ranges in namespace");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Manageable GID ranges in a namespace - key of map is minimum and assigned value is maximum of one range, minimum and maximum can be equal");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+    attr.setFriendlyName("namespace-GIDRanges");
+    attr.setDisplayName("GID ranges in namespace");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription(
+        "Manageable GID ranges in a namespace - key of map is minimum and assigned value is maximum of one range, minimum and maximum can be equal");
+    return attr;
+  }
 }

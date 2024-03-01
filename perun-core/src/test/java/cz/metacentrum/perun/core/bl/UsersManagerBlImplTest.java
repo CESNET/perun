@@ -33,255 +33,253 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextHierarchy({
-		@ContextConfiguration(locations = { "classpath:perun-base.xml", "classpath:perun-core.xml" })
+    @ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})
 })
 @Transactional(transactionManager = "springTransactionManager")
 public class UsersManagerBlImplTest {
 
-	@Autowired
-	private PerunBl perun;
+  private static final String EXT_SOURCE_NAME = "UsersManagerBlExtSource";
+  @Autowired
+  private PerunBl perun;
+  private PerunSession sess;
+  private User user;
+  private Vo vo;
+  private Member member;
+  private Group group;
+  private Resource resource;
+  private Facility facility;
+  private Vo vo2;
+  private Member member2;
+  private Group group2;
+  private Resource resource2;
+  private Resource resource3;
+  private Facility facility2;
+  private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
+  private Candidate candidate;
+  private UserExtSource ues;
 
-	private PerunSession sess;
-	private User user;
-	private Vo vo;
-	private Member member;
-	private Group group;
-	private Resource resource;
-	private Facility facility;
 
-	private Vo vo2;
-	private Member member2;
-	private Group group2;
-	private Resource resource2;
+  @Before
+  public void setUp() throws Exception {
+    perun.getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
 
-	private Resource resource3;
-	private Facility facility2;
+    candidate = new Candidate();
+    candidate.setFirstName("some");
+    candidate.setId(0);
+    candidate.setMiddleName("");
+    candidate.setLastName("testingUser");
+    candidate.setTitleBefore("");
+    candidate.setTitleAfter("");
+    ues = new UserExtSource(extSource, "extLogin");
+    candidate.setUserExtSource(ues);
+    candidate.setAttributes(new HashMap<>());
 
-	private static final String EXT_SOURCE_NAME = "UsersManagerBlExtSource";
-	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
-	private Candidate candidate;
-	private UserExtSource ues;
+    sess = perun.getPerunSession(
+        new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+            ExtSourcesManager.EXTSOURCE_INTERNAL),
+        new PerunClient());
 
 
-	@Before
-	public void setUp() throws Exception {
-		perun.getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
+    vo = new Vo(0, "UsersBlImplTestVo", "UsrMgrBlImplTestVo");
+    vo = perun.getVosManagerBl().createVo(sess, vo);
 
-		candidate = new Candidate();
-		candidate.setFirstName("some");
-		candidate.setId(0);
-		candidate.setMiddleName("");
-		candidate.setLastName("testingUser");
-		candidate.setTitleBefore("");
-		candidate.setTitleAfter("");
-		ues = new UserExtSource(extSource, "extLogin");
-		candidate.setUserExtSource(ues);
-		candidate.setAttributes(new HashMap<>());
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 
-		sess = perun.getPerunSession(
-				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
-				new PerunClient());
+    group = new Group("testGroup", "testGroup");
+    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
 
+    perun.getGroupsManagerBl().addMember(sess, group, member);
 
-		vo = new Vo(0, "UsersBlImplTestVo", "UsrMgrBlImplTestVo");
-		vo = perun.getVosManagerBl().createVo(sess, vo);
+    facility = new Facility(0, "testFac");
+    facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 
-		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    resource = new Resource(0, "testRes", null, facility.getId(), vo.getId());
+    resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
 
-		group = new Group("testGroup", "testGroup");
-		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+    perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
 
-		perun.getGroupsManagerBl().addMember(sess, group, member);
+    // second branch
 
-		facility = new Facility(0, "testFac");
-		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+    vo2 = new Vo(0, "FacilitiesManagerBlImplTestVo2", "FacMgrBlImplTestVo2");
+    vo2 = perun.getVosManagerBl().createVo(sess, vo2);
 
-		resource = new Resource(0, "testRes", null, facility.getId(), vo.getId());
-		resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+    member2 = perun.getMembersManagerBl().createMemberSync(sess, vo2, candidate);
 
-		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+    group2 = new Group("testGroup", "testGroup");
+    group2 = perun.getGroupsManagerBl().createGroup(sess, vo2, group2);
 
-		// second branch
+    perun.getGroupsManagerBl().addMember(sess, group2, member2);
 
-		vo2 = new Vo(0, "FacilitiesManagerBlImplTestVo2", "FacMgrBlImplTestVo2");
-		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+    resource2 = new Resource(0, "testRes2", null, facility.getId(), vo2.getId());
+    resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo2, facility);
 
-		member2 = perun.getMembersManagerBl().createMemberSync(sess, vo2, candidate);
+    // third branch
 
-		group2 = new Group("testGroup", "testGroup");
-		group2 = perun.getGroupsManagerBl().createGroup(sess, vo2, group2);
+    facility2 = new Facility(0, "testFac2");
+    facility2 = perun.getFacilitiesManagerBl().createFacility(sess, facility2);
 
-		perun.getGroupsManagerBl().addMember(sess, group2, member2);
+    resource3 = new Resource(0, "testRes3", null, facility2.getId(), vo2.getId());
+    resource3 = perun.getResourcesManagerBl().createResource(sess, resource3, vo2, facility2);
 
-		resource2 = new Resource(0, "testRes2", null, facility.getId(), vo2.getId());
-		resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo2, facility);
+    perun.getResourcesManagerBl()
+        .assignGroupToResources(sess, group2, Arrays.asList(resource2, resource3), false, false, false);
 
-		// third branch
+    user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
-		facility2 = new Facility(0, "testFac2");
-		facility2 = perun.getFacilitiesManagerBl().createFacility(sess, facility2);
+  }
 
-		resource3 = new Resource(0, "testRes3", null, facility2.getId(), vo2.getId());
-		resource3 = perun.getResourcesManagerBl().createResource(sess, resource3, vo2, facility2);
+  @Test
+  public void getAllowedResourcesForFacilityAndUserTest() throws Exception {
+    System.out.println("UsersManagerBlImpl.getAllowedResources(facility,user)");
 
-		perun.getResourcesManagerBl().assignGroupToResources(sess, group2, Arrays.asList(resource2, resource3), false, false, false);
+    List<Resource> resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2)));
+    Assert.assertEquals(2, resourceList.size());
 
-		user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility2, user);
+    Assert.assertTrue(resourceList.contains(resource3));
+    Assert.assertEquals(1, resourceList.size());
 
-	}
+    // disable member 1, we should have only single allowed resource
 
-	@Test
-	public void getAllowedResourcesForFacilityAndUserTest() throws Exception {
-		System.out.println("UsersManagerBlImpl.getAllowedResources(facility,user)");
+    perun.getMembersManagerBl().disableMember(sess, member);
 
-		List<Resource> resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2)));
-		Assert.assertEquals(2, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility, user);
+    Assert.assertTrue(resourceList.contains(resource2));
+    Assert.assertEquals(1, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility2, user);
-		Assert.assertTrue(resourceList.contains(resource3));
-		Assert.assertEquals(1, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility2, user);
+    Assert.assertTrue(resourceList.contains(resource3));
+    Assert.assertEquals(1, resourceList.size());
 
-		// disable member 1, we should have only single allowed resource
+    // disable member 2, we should have only single allowed resource
 
-		perun.getMembersManagerBl().disableMember(sess, member);
+    perun.getMembersManagerBl().disableMember(sess, member2);
 
-		resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility, user);
-		Assert.assertTrue(resourceList.contains(resource2));
-		Assert.assertEquals(1, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility, user);
+    Assert.assertTrue(resourceList.isEmpty());
 
-		resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility2, user);
-		Assert.assertTrue(resourceList.contains(resource3));
-		Assert.assertEquals(1, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility2, user);
+    Assert.assertTrue(resourceList.isEmpty());
 
-		// disable member 2, we should have only single allowed resource
+  }
 
-		perun.getMembersManagerBl().disableMember(sess, member2);
+  @Test
+  public void getAssignedResourcesForFacilityAndUserTest() throws Exception {
+    System.out.println("UsersManagerBlImpl.getAssignedResources(facility,user)");
 
-		resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility, user);
-		Assert.assertTrue(resourceList.isEmpty());
+    List<Resource> resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2)));
+    Assert.assertEquals(2, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAllowedResources(sess, facility2, user);
-		Assert.assertTrue(resourceList.isEmpty());
+    resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility2, user);
+    Assert.assertTrue(resourceList.contains(resource3));
+    Assert.assertEquals(1, resourceList.size());
 
-	}
+    // disable member 1, it shouldn't have any effect
 
-	@Test
-	public void getAssignedResourcesForFacilityAndUserTest() throws Exception {
-		System.out.println("UsersManagerBlImpl.getAssignedResources(facility,user)");
+    perun.getMembersManagerBl().disableMember(sess, member);
 
-		List<Resource> resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2)));
-		Assert.assertEquals(2, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2)));
+    Assert.assertEquals(2, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility2, user);
-		Assert.assertTrue(resourceList.contains(resource3));
-		Assert.assertEquals(1, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility2, user);
+    Assert.assertTrue(resourceList.contains(resource3));
+    Assert.assertEquals(1, resourceList.size());
 
-		// disable member 1, it shouldn't have any effect
+    // remove member2 from group2
 
-		perun.getMembersManagerBl().disableMember(sess, member);
+    perun.getGroupsManagerBl().removeMember(sess, group2, member2);
 
-		resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2)));
-		Assert.assertEquals(2, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility, user);
+    Assert.assertTrue(resourceList.contains(resource));
+    Assert.assertEquals(1, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility2, user);
-		Assert.assertTrue(resourceList.contains(resource3));
-		Assert.assertEquals(1, resourceList.size());
+    resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility2, user);
+    Assert.assertTrue(resourceList.isEmpty());
 
-		// remove member2 from group2
+  }
 
-		perun.getGroupsManagerBl().removeMember(sess, group2, member2);
+  @Test
+  public void getAllowedResourcesForUserTest() throws Exception {
+    System.out.println("UsersManagerBlImpl.getAllowedResources(user)");
 
-		resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility, user);
-		Assert.assertTrue(resourceList.contains(resource));
-		Assert.assertEquals(1, resourceList.size());
+    List<Resource> resourceList = perun.getUsersManagerBl().getAllowedResources(sess, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2, resource3)));
+    Assert.assertEquals(3, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAssignedResources(sess, facility2, user);
-		Assert.assertTrue(resourceList.isEmpty());
+    // disable member 1, we should have only two allowed resource from two facilities
 
-	}
+    perun.getMembersManagerBl().disableMember(sess, member);
 
-	@Test
-	public void getAllowedResourcesForUserTest() throws Exception {
-		System.out.println("UsersManagerBlImpl.getAllowedResources(user)");
+    resourceList = perun.getUsersManagerBl().getAllowedResources(sess, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource2, resource3)));
+    Assert.assertEquals(2, resourceList.size());
 
-		List<Resource> resourceList = perun.getUsersManagerBl().getAllowedResources(sess, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2, resource3)));
-		Assert.assertEquals(3, resourceList.size());
+    // disable member 2, we shouldn't have any allowed resource
 
-		// disable member 1, we should have only two allowed resource from two facilities
+    perun.getMembersManagerBl().disableMember(sess, member2);
 
-		perun.getMembersManagerBl().disableMember(sess, member);
+    resourceList = perun.getUsersManagerBl().getAllowedResources(sess, user);
+    Assert.assertTrue(resourceList.isEmpty());
 
-		resourceList = perun.getUsersManagerBl().getAllowedResources(sess, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource2, resource3)));
-		Assert.assertEquals(2, resourceList.size());
+  }
 
-		// disable member 2, we shouldn't have any allowed resource
+  @Test
+  public void getAssignedResourcesForUserTest() throws Exception {
+    System.out.println("UsersManagerBlImpl.getAssignedResources(user)");
 
-		perun.getMembersManagerBl().disableMember(sess, member2);
+    List<Resource> resourceList = perun.getUsersManagerBl().getAssignedResources(sess, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2, resource3)));
+    Assert.assertEquals(3, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAllowedResources(sess, user);
-		Assert.assertTrue(resourceList.isEmpty());
+    // disable member 1, it shouldn't have any effect
 
-	}
+    perun.getMembersManagerBl().disableMember(sess, member);
 
-	@Test
-	public void getAssignedResourcesForUserTest() throws Exception {
-		System.out.println("UsersManagerBlImpl.getAssignedResources(user)");
+    resourceList = perun.getUsersManagerBl().getAssignedResources(sess, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2, resource3)));
+    Assert.assertEquals(3, resourceList.size());
 
-		List<Resource> resourceList = perun.getUsersManagerBl().getAssignedResources(sess, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2, resource3)));
-		Assert.assertEquals(3, resourceList.size());
+    // remove member2 from group2, we should have single resource left
 
-		// disable member 1, it shouldn't have any effect
+    perun.getGroupsManagerBl().removeMember(sess, group2, member2);
 
-		perun.getMembersManagerBl().disableMember(sess, member);
+    resourceList = perun.getUsersManagerBl().getAssignedResources(sess, user);
+    Assert.assertTrue(resourceList.contains(resource));
+    Assert.assertEquals(1, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAssignedResources(sess, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(resource, resource2, resource3)));
-		Assert.assertEquals(3, resourceList.size());
+  }
 
-		// remove member2 from group2, we should have single resource left
+  @Test
+  public void getAssignedRichResourcesForUserTest() throws Exception {
+    System.out.println("UsersManagerBlImpl.getAssignedRichResources(user)");
 
-		perun.getGroupsManagerBl().removeMember(sess, group2, member2);
+    RichResource rr = perun.getResourcesManagerBl().getRichResourceById(sess, resource.getId());
+    RichResource rr2 = perun.getResourcesManagerBl().getRichResourceById(sess, resource2.getId());
+    RichResource rr3 = perun.getResourcesManagerBl().getRichResourceById(sess, resource3.getId());
 
-		resourceList = perun.getUsersManagerBl().getAssignedResources(sess, user);
-		Assert.assertTrue(resourceList.contains(resource));
-		Assert.assertEquals(1, resourceList.size());
+    List<RichResource> resourceList = perun.getUsersManagerBl().getAssignedRichResources(sess, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(rr, rr2, rr3)));
+    Assert.assertEquals(3, resourceList.size());
 
-	}
+    // disable member 1, it shouldn't have any effect
 
-	@Test
-	public void getAssignedRichResourcesForUserTest() throws Exception {
-		System.out.println("UsersManagerBlImpl.getAssignedRichResources(user)");
+    perun.getMembersManagerBl().disableMember(sess, member);
 
-		RichResource rr = perun.getResourcesManagerBl().getRichResourceById(sess, resource.getId());
-		RichResource rr2 = perun.getResourcesManagerBl().getRichResourceById(sess, resource2.getId());
-		RichResource rr3 = perun.getResourcesManagerBl().getRichResourceById(sess, resource3.getId());
+    resourceList = perun.getUsersManagerBl().getAssignedRichResources(sess, user);
+    Assert.assertTrue(resourceList.containsAll(Arrays.asList(rr, rr2, rr3)));
+    Assert.assertEquals(3, resourceList.size());
 
-		List<RichResource> resourceList = perun.getUsersManagerBl().getAssignedRichResources(sess, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(rr, rr2, rr3)));
-		Assert.assertEquals(3, resourceList.size());
+    // remove member2 from group2, we should have single resource left
 
-		// disable member 1, it shouldn't have any effect
+    perun.getGroupsManagerBl().removeMember(sess, group2, member2);
 
-		perun.getMembersManagerBl().disableMember(sess, member);
+    resourceList = perun.getUsersManagerBl().getAssignedRichResources(sess, user);
+    Assert.assertTrue(resourceList.contains(rr));
+    Assert.assertEquals(1, resourceList.size());
 
-		resourceList = perun.getUsersManagerBl().getAssignedRichResources(sess, user);
-		Assert.assertTrue(resourceList.containsAll(Arrays.asList(rr, rr2, rr3)));
-		Assert.assertEquals(3, resourceList.size());
-
-		// remove member2 from group2, we should have single resource left
-
-		perun.getGroupsManagerBl().removeMember(sess, group2, member2);
-
-		resourceList = perun.getUsersManagerBl().getAssignedRichResources(sess, user);
-		Assert.assertTrue(resourceList.contains(rr));
-		Assert.assertEquals(1, resourceList.size());
-
-	}
+  }
 
 }

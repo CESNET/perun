@@ -22,48 +22,53 @@ import java.util.List;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_persistent extends UserVirtualAttributesModuleAbstract {
+public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_persistent
+    extends UserVirtualAttributesModuleAbstract {
 
-	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
+  public static final String SHADOW =
+      "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute lifescienceidPersistent = new Attribute(attributeDefinition);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute lifescienceidPersistent = new Attribute(attributeDefinition);
 
-		try {
-			Attribute lifescienceidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+    try {
+      Attribute lifescienceidPersistentShadow =
+          sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-			if (lifescienceidPersistentShadow.getValue() == null) {
+      if (lifescienceidPersistentShadow.getValue() == null) {
 
-				lifescienceidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, lifescienceidPersistentShadow);
+        lifescienceidPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, lifescienceidPersistentShadow);
 
-				if (lifescienceidPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("Lifescienceid id couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, lifescienceidPersistentShadow);
-			}
+        if (lifescienceidPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("Lifescienceid id couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, lifescienceidPersistentShadow);
+      }
 
-			lifescienceidPersistent.setValue(lifescienceidPersistentShadow.getValue());
-			return lifescienceidPersistent;
+      lifescienceidPersistent.setValue(lifescienceidPersistentShadow.getValue());
+      return lifescienceidPersistent;
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:lifescienceid-persistent");
-		attr.setDisplayName("Lifescienceid login");
-		attr.setType(String.class.getName());
-		attr.setDescription("Login to Lifescienceid. It is set automatically with first call.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:lifescienceid-persistent");
+    attr.setDisplayName("Lifescienceid login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login to Lifescienceid. It is set automatically with first call.");
+    return attr;
+  }
 }

@@ -26,47 +26,55 @@ import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
 
 public class urn_perun_user_attribute_def_def_o365SystemEmailAddresses_mu extends UserAttributesModuleAbstract {
 
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_o365SystemEmailAddresses_mu.class);
+  private final static Logger log =
+      LoggerFactory.getLogger(urn_perun_user_attribute_def_def_o365SystemEmailAddresses_mu.class);
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-		//empty value is valid
-		if(attribute.getValue() == null) return;
-		ArrayList<String> emails = attribute.valueAsList();
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute)
+      throws InternalErrorException, WrongAttributeValueException {
+    //empty value is valid
+    if (attribute.getValue() == null) {
+      return;
+    }
+    ArrayList<String> emails = attribute.valueAsList();
 
-		//check syntax of all values
-		for (String email : emails) {
-			Matcher emailMatcher = emailPattern.matcher(email);
-			if (!emailMatcher.matches())
-				throw new WrongAttributeValueException(attribute, user, "Email " + email + " is not in correct form.");
-		}
+    //check syntax of all values
+    for (String email : emails) {
+      Matcher emailMatcher = emailPattern.matcher(email);
+      if (!emailMatcher.matches()) {
+        throw new WrongAttributeValueException(attribute, user, "Email " + email + " is not in correct form.");
+      }
+    }
 
-		//check for duplicities
-		if (hasDuplicate(emails)) {
-			throw new WrongAttributeValueException(attribute, user, "duplicate values");
-		}
-	}
+    //check for duplicities
+    if (hasDuplicate(emails)) {
+      throw new WrongAttributeValueException(attribute, user, "duplicate values");
+    }
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		log.trace("checkAttributeSemantics(user={},attribute={})", user, attribute);
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute)
+      throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+    log.trace("checkAttributeSemantics(user={},attribute={})", user, attribute);
 
-		//empty value is valid
-		if(attribute.getValue() == null) return;
-		ArrayList<String> emails = attribute.valueAsList();
+    //empty value is valid
+    if (attribute.getValue() == null) {
+      return;
+    }
+    ArrayList<String> emails = attribute.valueAsList();
 
-		//No need to check duplicities, attribute is unique
-	}
+    //No need to check duplicities, attribute is unique
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("o365SystemEmailAddresses:mu");
-		attr.setDisplayName("System managed email addresses for MU o365");
-		attr.setType(ArrayList.class.getName());
-		attr.setUnique(true);
-		attr.setDescription("System managed email addresses for MU o365");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("o365SystemEmailAddresses:mu");
+    attr.setDisplayName("System managed email addresses for MU o365");
+    attr.setType(ArrayList.class.getName());
+    attr.setUnique(true);
+    attr.setDescription("System managed email addresses for MU o365");
+    return attr;
+  }
 }

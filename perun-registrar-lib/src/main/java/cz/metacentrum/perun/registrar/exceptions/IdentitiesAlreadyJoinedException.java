@@ -9,14 +9,14 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class IdentitiesAlreadyJoinedException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public IdentitiesAlreadyJoinedException(String message) {
-		super(message);
-	}
+  public IdentitiesAlreadyJoinedException(String message) {
+    super(message);
+  }
 
-	public IdentitiesAlreadyJoinedException(String message, Throwable ex) {
-		super(message, ex);
-	}
+  public IdentitiesAlreadyJoinedException(String message, Throwable ex) {
+    super(message, ex);
+  }
 
 }

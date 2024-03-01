@@ -10,18 +10,18 @@ package cz.metacentrum.perun.engine.service;
  */
 public interface EngineManager {
 
-	/**
-	 * Start JSM communication with perun-dispatcher component
-	 */
-	void startMessaging();
+  /**
+   * Start JSM communication with perun-dispatcher component
+   */
+  void startMessaging();
 
-	/**
-	 * Starts all threads responsible for moving and executing Tasks
-	 */
-	void startRunnerThreads();
+  /**
+   * Starts all threads responsible for moving and executing Tasks
+   */
+  void startRunnerThreads();
 
-	/**
-	 * Gives indication to all runner Threads that they should stop
-	 */
-	void stopRunnerThreads();
+  /**
+   * Gives indication to all runner Threads that they should stop
+   */
+  void stopRunnerThreads();
 }

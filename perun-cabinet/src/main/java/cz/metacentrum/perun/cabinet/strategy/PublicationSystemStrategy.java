@@ -20,32 +20,32 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
  */
 public interface PublicationSystemStrategy {
 
-	/**
-	 * Executes a HTTP request (i.e. HttpGet or HttpPost) and returns obtained httpResponse.
-	 *
-	 * @param request HTTP request which we get from PSStrategy files (required)
-	 * @return HTTP response we pass back to PSStrategy files to be parsed as publications
-	 * @throws CabinetException
-	 */
-	public HttpResponse execute(HttpUriRequest request) throws CabinetException;
+  /**
+   * Executes a HTTP request (i.e. HttpGet or HttpPost) and returns obtained httpResponse.
+   *
+   * @param request HTTP request which we get from PSStrategy files (required)
+   * @return HTTP response we pass back to PSStrategy files to be parsed as publications
+   * @throws CabinetException
+   */
+  public HttpResponse execute(HttpUriRequest request) throws CabinetException;
 
-	/**
-	 * Create HTTP GET/POST request based on PublicationSystem strategy.
-	 *
-	 * @param authorId Author's identification in external PS, should be unique
-	 * @param yearSince Since which year should publications be (filter results)
-	 * @param yearTill Until which year should publications be (filter results)
-	 * @param ps PublicationSystem to be "asked" for publications
-	 * @return HTTP request
-	 */
-	HttpUriRequest getHttpRequest(String authorId, int yearSince, int yearTill, PublicationSystem ps);
+  /**
+   * Create HTTP GET/POST request based on PublicationSystem strategy.
+   *
+   * @param authorId  Author's identification in external PS, should be unique
+   * @param yearSince Since which year should publications be (filter results)
+   * @param yearTill  Until which year should publications be (filter results)
+   * @param ps        PublicationSystem to be "asked" for publications
+   * @return HTTP request
+   */
+  HttpUriRequest getHttpRequest(String authorId, int yearSince, int yearTill, PublicationSystem ps);
 
-	/**
-	 * Parse XML response from external PS into list of user's publications.
-	 *
-	 * @param response HTTP response returned from external PS
-	 * @return List of user's publications. Empty list if nothing found.
-	 */
-	List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException;
+  /**
+   * Parse XML response from external PS into list of user's publications.
+   *
+   * @param response HTTP response returned from external PS
+   * @return List of user's publications. Empty list if nothing found.
+   */
+  List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException;
 
 }

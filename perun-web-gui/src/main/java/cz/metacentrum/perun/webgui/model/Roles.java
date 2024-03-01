@@ -10,24 +10,27 @@ import com.google.gwt.core.client.JsArrayInteger;
  */
 public class Roles extends JavaScriptObject {
 
-	protected Roles() {};
+  protected Roles() {
+  }
 
-	/**
-	 * Get role name stored in object
-	 *
-	 * @return role name
-	 */
-	public final native boolean hasRole(String role) /*-{
+  ;
+
+  /**
+   * Get role name stored in object
+   *
+   * @return role name
+   */
+  public final native boolean hasRole(String role) /*-{
 		if (this.hasOwnProperty(role)) {
 			return true;
 		}
 		return false;
 	}-*/;
 
-	/**
-	 * Check if there are any roles
-	 */
-	public final native boolean hasAnyRole() /*-{
+  /**
+   * Check if there are any roles
+   */
+  public final native boolean hasAnyRole() /*-{
 		for (var key in this) {
 			if (this.hasOwnProperty(key)) {
 				return true;
@@ -36,12 +39,12 @@ public class Roles extends JavaScriptObject {
 		return false;
 	}-*/;
 
-	/**
-	 * Return all editable entities contained in session.
-	 *
-	 * @param entityType "Vo, Facility, User, Group"
-	 */
-	public final native JsArrayInteger getEditableEntities(String entityType) /*-{
+  /**
+   * Return all editable entities contained in session.
+   *
+   * @param entityType "Vo, Facility, User, Group"
+   */
+  public final native JsArrayInteger getEditableEntities(String entityType) /*-{
 		var entities = new Array();
 		for (var key in this) {
 			if (this.hasOwnProperty(key)) {
@@ -55,13 +58,13 @@ public class Roles extends JavaScriptObject {
 	}-*/;
 
 
-	/**
-	 * Return all editable entities contained in session.
-	 *
-	 * @param role VOADMIN, SELF, PERUNADMIN, GROUPADMIN, VOOBSERVER, FACILITYADMIN
-	 * @param entityType "Vo, Facility, User, Group, SecurityTeam, Sponsor"
-	 */
-	public final native JsArrayInteger getEditableEntities(String role, String entityType) /*-{
+  /**
+   * Return all editable entities contained in session.
+   *
+   * @param role       VOADMIN, SELF, PERUNADMIN, GROUPADMIN, VOOBSERVER, FACILITYADMIN
+   * @param entityType "Vo, Facility, User, Group, SecurityTeam, Sponsor"
+   */
+  public final native JsArrayInteger getEditableEntities(String role, String entityType) /*-{
 		var entities = new Array();
 		if (this.hasOwnProperty(role)) {
 			if (typeof this[role][entityType] != "undefined") {
@@ -72,44 +75,44 @@ public class Roles extends JavaScriptObject {
 		return entities;
 	}-*/;
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 		if (!this.objecttype) {
 			return "JavaScriptObject"
 		}
 		return this.objecttype;
 	}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 		this.objecttype = type;
 	}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
+  /**
+   * Returns the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @return string which defines item status
+   */
+  public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(Roles o)
-	{
-		return true; //o.getRole().equals(this.getRole());
-	}
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(Roles o) {
+    return true; //o.getRole().equals(this.getRole());
+  }
 }

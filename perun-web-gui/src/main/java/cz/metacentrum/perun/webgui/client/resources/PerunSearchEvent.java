@@ -7,10 +7,11 @@ package cz.metacentrum.perun.webgui.client.resources;
  */
 abstract public class PerunSearchEvent {
 
-	/**
-	 * Text to search for.
-	 * The text is always not-empty.
-	 * @param text
-	 */
-	public abstract void searchFor(String text);
+  /**
+   * Text to search for.
+   * The text is always not-empty.
+   *
+   * @param text
+   */
+  public abstract void searchFor(String text);
 }

@@ -6,29 +6,29 @@ import cz.metacentrum.perun.cabinet.model.Authorship;
 
 public class AuthorshipCreated extends AuditEvent implements EngineIgnoreEvent {
 
-	private Authorship authorship;
-	private String message;
+  private Authorship authorship;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AuthorshipCreated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AuthorshipCreated() {
+  }
 
-	public AuthorshipCreated(Authorship authorship) {
-		this.authorship = authorship;
-		this.message = formatMessage("Authorship %s created.", authorship.serializeToString());
-	}
+  public AuthorshipCreated(Authorship authorship) {
+    this.authorship = authorship;
+    this.message = formatMessage("Authorship %s created.", authorship.serializeToString());
+  }
 
-	public Authorship getAuthorship() {
-		return authorship;
-	}
+  public Authorship getAuthorship() {
+    return authorship;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

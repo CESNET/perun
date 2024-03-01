@@ -13,58 +13,59 @@ import java.util.concurrent.ConcurrentMap;
 
 @ThreadSafe
 public class PerunAuthenticatorImpl extends Authenticator {
-	private final static Logger log = LoggerFactory.getLogger(PerunAuthenticatorImpl.class);
+  private final static Logger log = LoggerFactory.getLogger(PerunAuthenticatorImpl.class);
+  @GuardedBy("PerunAuthenticatorImpl.class")
+  private static PerunAuthenticatorImpl instance;
+  @GuardedBy("itself")
+  private final ConcurrentMap<String, PasswordAuthentication> passwordAuthenticationsForURL = new ConcurrentHashMap<>();
 
-	@GuardedBy("itself")
-	private final ConcurrentMap<String, PasswordAuthentication> passwordAuthenticationsForURL = new ConcurrentHashMap<>();
+  private PerunAuthenticatorImpl() {
+    super();
+  }
 
-	@GuardedBy("PerunAuthenticatorImpl.class")
-	private static PerunAuthenticatorImpl instance;
+  synchronized public static PerunAuthenticatorImpl getPerunAuthenticator() {
+    if (instance == null) {
+      instance = new PerunAuthenticatorImpl();
+      Authenticator.setDefault(instance);
+    }
+    return instance;
+  }
 
-	synchronized public static PerunAuthenticatorImpl getPerunAuthenticator() {
-		if(instance == null) {
-			instance = new PerunAuthenticatorImpl();
-			Authenticator.setDefault(instance);
-		}
-		return instance;
-	}
+  /**
+   * {@inheritDoc}
+   *
+   * @see Authenticator#getPasswordAuthentication()
+   */
+  protected PasswordAuthentication getPasswordAuthentication() {
+    URL url = getRequestingURL();
+    PasswordAuthentication passwordAuthentication = passwordAuthenticationsForURL.get(url.toExternalForm());
+    if (passwordAuthentication == null) {
+      log.info("No authenticator provided for url {}", url);
+    }
+    return passwordAuthentication;
+  }
 
-	private PerunAuthenticatorImpl() {
-		super();
-	}
+  /**
+   * Register passwordAuthentication for specific URL. If there is some passwordAuthentication already registered for the url it is replaced by the new one.
+   *
+   * @param url
+   * @param passwordAuthentication
+   * @return true if there is no passwordAuthentication already registered for the URL, false otherwise
+   */
+  public boolean registerAuthenticationForURL(URL url, PasswordAuthentication passwordAuthentication) {
+    log.debug("Authenticator registered for url {}", url);
+    return passwordAuthenticationsForURL.put(url.toExternalForm(), passwordAuthentication) == null;
+  }
 
-	/**
-	 * {@inheritDoc}
-	 * @see Authenticator#getPasswordAuthentication()
-	 */
-	protected PasswordAuthentication getPasswordAuthentication() {
-		URL url = getRequestingURL();
-		PasswordAuthentication passwordAuthentication = passwordAuthenticationsForURL.get(url.toExternalForm());
-		if(passwordAuthentication == null) log.info("No authenticator provided for url {}", url);
-		return passwordAuthentication;
-	}
-
-	/**
-	 * Register passwordAuthentication for specific URL. If there is some passwordAuthentication already registered for the url it is replaced by the new one.
-	 *
-	 * @param url
-	 * @param passwordAuthentication
-	 * @return true if there is no passwordAuthentication already registered for the URL, false otherwise
-	 */
-	public boolean registerAuthenticationForURL(URL url, PasswordAuthentication passwordAuthentication) {
-		log.debug("Authenticator registered for url {}", url);
-		return passwordAuthenticationsForURL.put(url.toExternalForm(), passwordAuthentication) == null;
-	}
-
-	/**
-	 * Unregister passwordAuthentication for specific URL.
-	 *
-	 * @param url
-	 * @return true if there was passwordAuthentication registered for the URL
-	 */
-	public boolean unRegisterAuthenticationForURL(URL url) {
-		log.debug("Authenticator unregistered for url {}", url);
-		return passwordAuthenticationsForURL.remove(url.toExternalForm()) == null;
-	}
+  /**
+   * Unregister passwordAuthentication for specific URL.
+   *
+   * @param url
+   * @return true if there was passwordAuthentication registered for the URL
+   */
+  public boolean unRegisterAuthenticationForURL(URL url) {
+    log.debug("Authenticator unregistered for url {}", url);
+    return passwordAuthenticationsForURL.remove(url.toExternalForm()) == null;
+  }
 
 }

@@ -31,43 +31,43 @@ import org.junit.Before;
  */
 public class UserResourceEndpointControllerTest extends AbstractSCIMTest {
 
-	private UserResourceEndpointController controller;
-	private ObjectMapper mapper;
+  private UserResourceEndpointController controller;
+  private ObjectMapper mapper;
 
-	@Before
-	public void setUp() throws SCIMException, IOException, Exception {
-		controller = new UserResourceEndpointController(session);
-		mapper = new ObjectMapper();
-	}
+  @Before
+  public void setUp() throws SCIMException, IOException, Exception {
+    controller = new UserResourceEndpointController(session);
+    mapper = new ObjectMapper();
+  }
 
-	@Test
-	public void testGetUser() throws Exception {
-		UserSCIM user = prepareExpectedResult();
-		String expectedJson = mapper.writeValueAsString(user);
-		Response expectedResponse = Response.ok(expectedJson).build();
+  @Test
+  public void testGetUser() throws Exception {
+    UserSCIM user = prepareExpectedResult();
+    String expectedJson = mapper.writeValueAsString(user);
+    Response expectedResponse = Response.ok(expectedJson).build();
 
-		Response result = controller.getUser(user.getId().toString());
+    Response result = controller.getUser(user.getId().toString());
 
-		if (result.getStatus() != 200) {
-			fail();
-		}
-		assertEquals("expected user should equal with result obtained from SCIM REST API",
-				expectedResponse.getEntity(), result.getEntity());
-	}
+    if (result.getStatus() != 200) {
+      fail();
+    }
+    assertEquals("expected user should equal with result obtained from SCIM REST API",
+        expectedResponse.getEntity(), result.getEntity());
+  }
 
-	private UserSCIM prepareExpectedResult() throws Exception {
-		User user1 = createUser(1, "firstName1", "lastName1");
-		Long userId = new Long(user1.getId());
+  private UserSCIM prepareExpectedResult() throws Exception {
+    User user1 = createUser(1, "firstName1", "lastName1");
+    Long userId = new Long(user1.getId());
 
-		UserSCIM user = new UserSCIM();
-		user.setId(userId);
-		user.setName(user1.getDisplayName());
-		user.setDisplayName(user1.getDisplayName());
-		user.setUserName(userId.toString());
-		List<String> schemas = new ArrayList<>();
-		schemas.add(URN_USER);
-		user.setSchemas(schemas);
+    UserSCIM user = new UserSCIM();
+    user.setId(userId);
+    user.setName(user1.getDisplayName());
+    user.setDisplayName(user1.getDisplayName());
+    user.setUserName(userId.toString());
+    List<String> schemas = new ArrayList<>();
+    schemas.add(URN_USER);
+    user.setSchemas(schemas);
 
-		return user;
-	}
+    return user;
+  }
 }

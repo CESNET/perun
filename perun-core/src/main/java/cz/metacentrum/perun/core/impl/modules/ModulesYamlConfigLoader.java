@@ -19,155 +19,156 @@ import static cz.metacentrum.perun.core.impl.Utils.notNull;
 
 public class ModulesYamlConfigLoader implements ModulesConfigLoader {
 
-	private final static Logger log = LoggerFactory.getLogger(ModulesYamlConfigLoader.class);
+  private final static Logger log = LoggerFactory.getLogger(ModulesYamlConfigLoader.class);
 
-	private String modulesDirPath = "/etc/perun/modules/";
+  private String modulesDirPath = "/etc/perun/modules/";
 
-	public ModulesYamlConfigLoader() { }
+  public ModulesYamlConfigLoader() {
+  }
 
-	public ModulesYamlConfigLoader(String modulesDirPath) {
-		this.modulesDirPath = modulesDirPath;
-	}
+  public ModulesYamlConfigLoader(String modulesDirPath) {
+    this.modulesDirPath = modulesDirPath;
+  }
 
-	@Override
-	public String loadString(String moduleName, String property) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			throw new ModulePropertyNotFoundException(moduleName, property);
-		}
-		return propertyNode.asText();
-	}
+  /**
+   * Parse a corresponding JsonNode from the given root node, with the specified property name.
+   * The syntax supports a dot notation to identify children nodes. Eg: oidc.client.id.
+   *
+   * @param root         root node
+   * @param propertyName name of the desired property
+   * @return JsonNode corresponding to the specified property name
+   */
+  private static JsonNode parsePropertyNode(JsonNode root, String propertyName) {
+    JsonNode currentNode = root;
+    while (propertyName.contains(".")) {
+      String[] split = propertyName.split("\\.", 2);
+      currentNode = currentNode.get(split[0]);
+      propertyName = split[1];
+    }
+    return currentNode.get(propertyName);
+  }
 
-	@Override
-	public String loadStringOrDefault(String moduleName, String property, String defaultValue) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			return defaultValue;
-		}
-		return propertyNode.asText();
-	}
+  /**
+   * Loads a root JsonNode from the given path.
+   *
+   * @param path path
+   * @return loaded root JsonNode
+   */
+  private static JsonNode loadModulesYamlFile(String path) {
+    try {
+      YAMLMapper mapper = new YAMLMapper();
+      return mapper.readTree(new File(path));
+    } catch (IOException e) {
+      log.error("Failed to load a module's yaml property file at: {}", path);
+      throw new ModulePropertyNotFoundException("Failed to load a module's yaml property file.", e);
+    }
+  }
 
-	@Override
-	public Integer loadInteger(String moduleName, String property) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			throw new ModulePropertyNotFoundException(moduleName, property);
-		}
-		return propertyNode.asInt();
-	}
+  @Override
+  public String loadString(String moduleName, String property) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      throw new ModulePropertyNotFoundException(moduleName, property);
+    }
+    return propertyNode.asText();
+  }
 
-	@Override
-	public Integer loadIntegerOrDefault(String moduleName, String property, Integer defaultValue) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			return defaultValue;
-		}
-		return propertyNode.asInt();
-	}
+  @Override
+  public String loadStringOrDefault(String moduleName, String property, String defaultValue) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      return defaultValue;
+    }
+    return propertyNode.asText();
+  }
 
-	@Override
-	public List<String> loadStringList(String moduleName, String property) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			throw new ModulePropertyNotFoundException(moduleName, property);
-		}
-		List<String> values = new ArrayList<>();
-		propertyNode.iterator().forEachRemaining(node -> values.add(node.asText()));
-		return values;
-	}
+  @Override
+  public Integer loadInteger(String moduleName, String property) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      throw new ModulePropertyNotFoundException(moduleName, property);
+    }
+    return propertyNode.asInt();
+  }
 
-	@Override
-	public List<String> loadStringListOrDefault(String moduleName, String property, List<String> defaultValue) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			return defaultValue;
-		}
-		List<String> values = new ArrayList<>();
-		propertyNode.iterator().forEachRemaining(node -> values.add(node.asText()));
-		return values;
-	}
+  @Override
+  public Integer loadIntegerOrDefault(String moduleName, String property, Integer defaultValue) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      return defaultValue;
+    }
+    return propertyNode.asInt();
+  }
 
-	@Override
-	public List<Integer> loadIntegerList(String moduleName, String property) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			throw new ModulePropertyNotFoundException(moduleName, property);
-		}
-		List<Integer> values = new ArrayList<>();
-		propertyNode.iterator().forEachRemaining(node -> values.add(node.isNull() ? null : node.asInt()));
-		return values;
-	}
+  @Override
+  public List<String> loadStringList(String moduleName, String property) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      throw new ModulePropertyNotFoundException(moduleName, property);
+    }
+    List<String> values = new ArrayList<>();
+    propertyNode.iterator().forEachRemaining(node -> values.add(node.asText()));
+    return values;
+  }
 
-	@Override
-	public List<Integer> loadIntegerListOrDefault(String moduleName, String property, List<Integer> defaultValue) {
-		JsonNode propertyNode = loadPropertyNode(moduleName, property);
-		if (propertyNode == null || propertyNode.isNull()) {
-			return defaultValue;
-		}
-		List<Integer> values = new ArrayList<>();
-		propertyNode.iterator().forEachRemaining(node -> values.add(node.isNull() ? null : node.asInt()));
-		return values;
-	}
+  @Override
+  public List<String> loadStringListOrDefault(String moduleName, String property, List<String> defaultValue) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      return defaultValue;
+    }
+    List<String> values = new ArrayList<>();
+    propertyNode.iterator().forEachRemaining(node -> values.add(node.asText()));
+    return values;
+  }
 
-	@Override
-	public boolean moduleFileExists(String moduleName) {
-		notNull(moduleName, "configFile");
-		String path = modulesDirPath + moduleName + ".yaml";
+  @Override
+  public List<Integer> loadIntegerList(String moduleName, String property) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      throw new ModulePropertyNotFoundException(moduleName, property);
+    }
+    List<Integer> values = new ArrayList<>();
+    propertyNode.iterator().forEachRemaining(node -> values.add(node.isNull() ? null : node.asInt()));
+    return values;
+  }
 
-		File f = new File(path);
-		return f.exists() && !f.isDirectory();
-	}
+  @Override
+  public List<Integer> loadIntegerListOrDefault(String moduleName, String property, List<Integer> defaultValue) {
+    JsonNode propertyNode = loadPropertyNode(moduleName, property);
+    if (propertyNode == null || propertyNode.isNull()) {
+      return defaultValue;
+    }
+    List<Integer> values = new ArrayList<>();
+    propertyNode.iterator().forEachRemaining(node -> values.add(node.isNull() ? null : node.asInt()));
+    return values;
+  }
 
-	/**
-	 * Loads a JsonNode corresponding to the given module and property name.
-	 * This method expects a {moduleName}.yaml file at the modulesDirPath.
-	 *
-	 * @param moduleName name of the module
-	 * @param propertyName property name
-	 * @return JsonNode corresponding to the desired property.
-	 */
-	private JsonNode loadPropertyNode(String moduleName, String propertyName) {
-		notNull(moduleName, "configFile");
-		notNull(propertyName, "propertyName");
+  @Override
+  public boolean moduleFileExists(String moduleName) {
+    notNull(moduleName, "configFile");
+    String path = modulesDirPath + moduleName + ".yaml";
 
-		String path = modulesDirPath + moduleName + ".yaml";
+    File f = new File(path);
+    return f.exists() && !f.isDirectory();
+  }
 
-		JsonNode root = loadModulesYamlFile(path);
+  /**
+   * Loads a JsonNode corresponding to the given module and property name.
+   * This method expects a {moduleName}.yaml file at the modulesDirPath.
+   *
+   * @param moduleName   name of the module
+   * @param propertyName property name
+   * @return JsonNode corresponding to the desired property.
+   */
+  private JsonNode loadPropertyNode(String moduleName, String propertyName) {
+    notNull(moduleName, "configFile");
+    notNull(propertyName, "propertyName");
 
-		return parsePropertyNode(root, propertyName);
-	}
+    String path = modulesDirPath + moduleName + ".yaml";
 
-	/**
-	 * Parse a corresponding JsonNode from the given root node, with the specified property name.
-	 * The syntax supports a dot notation to identify children nodes. Eg: oidc.client.id.
-	 *
-	 * @param root root node
-	 * @param propertyName name of the desired property
-	 * @return JsonNode corresponding to the specified property name
-	 */
-	private static JsonNode parsePropertyNode(JsonNode root, String propertyName) {
-		JsonNode currentNode = root;
-		while (propertyName.contains(".")) {
-			String[] split = propertyName.split("\\.", 2);
-			currentNode = currentNode.get(split[0]);
-			propertyName = split[1];
-		}
-		return currentNode.get(propertyName);
-	}
+    JsonNode root = loadModulesYamlFile(path);
 
-	/**
-	 * Loads a root JsonNode from the given path.
-	 *
-	 * @param path path
-	 * @return loaded root JsonNode
-	 */
-	private static JsonNode loadModulesYamlFile(String path) {
-		try {
-			YAMLMapper mapper = new YAMLMapper();
-			return mapper.readTree(new File(path));
-		} catch (IOException e) {
-			log.error("Failed to load a module's yaml property file at: {}", path);
-			throw new ModulePropertyNotFoundException("Failed to load a module's yaml property file.", e);
-		}
-	}
+    return parsePropertyNode(root, propertyName);
+  }
 }

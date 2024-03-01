@@ -10,9 +10,9 @@ import cz.metacentrum.perun.webgui.model.RichMember;
  */
 public class RichMemberKeyProvider implements ProvidesKey<RichMember> {
 
-	public Object getKey(RichMember o) {
-		// returns ID
-		return o.getUser().getId();
-	}
+  public Object getKey(RichMember o) {
+    // returns ID
+    return o.getUser().getId();
+  }
 
 }

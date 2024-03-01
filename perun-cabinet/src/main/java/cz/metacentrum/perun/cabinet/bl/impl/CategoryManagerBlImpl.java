@@ -29,101 +29,101 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CategoryManagerBlImpl implements CategoryManagerBl {
 
-	private CategoryManagerDao categoryManagerDao;
-	private PublicationManagerBl publicationManagerBl;
-	private CabinetManagerBl cabinetManagerBl;
-	private AuthorshipManagerBl authorshipManagerBl;
+  private static Logger log = LoggerFactory.getLogger(CategoryManagerBlImpl.class);
+  private CategoryManagerDao categoryManagerDao;
+  private PublicationManagerBl publicationManagerBl;
+  private CabinetManagerBl cabinetManagerBl;
+  private AuthorshipManagerBl authorshipManagerBl;
 
-	private static Logger log = LoggerFactory.getLogger(CategoryManagerBlImpl.class);
+  // setters ----------------------
 
-	// setters ----------------------
+  public CategoryManagerDao getCategoryManagerDao() {
+    return categoryManagerDao;
+  }
 
-	@Autowired
-	public void setCategoryManagerDao(CategoryManagerDao categoryManagerDao) {
-		this.categoryManagerDao = categoryManagerDao;
-	}
+  @Autowired
+  public void setCategoryManagerDao(CategoryManagerDao categoryManagerDao) {
+    this.categoryManagerDao = categoryManagerDao;
+  }
 
-	@Autowired
-	public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
-		this.publicationManagerBl = publicationManagerBl;
-	}
+  public PublicationManagerBl getPublicationManagerBl() {
+    return publicationManagerBl;
+  }
 
-	@Autowired
-	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
-		this.cabinetManagerBl = cabinetManagerBl;
-	}
+  @Autowired
+  public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
+    this.publicationManagerBl = publicationManagerBl;
+  }
 
-	@Autowired
-	public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
-		this.authorshipManagerBl = authorshipManagerBl;
-	}
+  public CabinetManagerBl getCabinetManagerBl() {
+    return cabinetManagerBl;
+  }
 
-	public CategoryManagerDao getCategoryManagerDao() {
-		return categoryManagerDao;
-	}
+  @Autowired
+  public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+    this.cabinetManagerBl = cabinetManagerBl;
+  }
 
-	public PublicationManagerBl getPublicationManagerBl() {
-		return publicationManagerBl;
-	}
+  public AuthorshipManagerBl getAuthorshipManagerBl() {
+    return authorshipManagerBl;
+  }
 
-	public CabinetManagerBl getCabinetManagerBl() {
-		return cabinetManagerBl;
-	}
+  @Autowired
+  public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
+    this.authorshipManagerBl = authorshipManagerBl;
+  }
 
-	public AuthorshipManagerBl getAuthorshipManagerBl() {
-		return authorshipManagerBl;
-	}
+  // methods ----------------------
 
-	// methods ----------------------
+  @Override
+  public Category createCategory(PerunSession sess, Category category) throws CabinetException {
+    Category newCategory = getCategoryManagerDao().createCategory(sess, category);
+    log.debug("{} created.", newCategory);
+    return newCategory;
+  }
 
-	@Override
-	public Category createCategory(PerunSession sess, Category category) throws CabinetException {
-		Category newCategory = getCategoryManagerDao().createCategory(sess, category);
-		log.debug("{} created.", newCategory);
-		return newCategory;
-	}
+  @Override
+  public Category updateCategory(PerunSession sess, Category category) throws CabinetException {
+    // save original category
+    Category cat = getCategoryManagerDao().getCategoryById(category.getId());
+    // update
+    Category result = getCategoryManagerDao().updateCategory(sess, category);
+    // was rank changed ?
+    if (!Objects.equals(cat.getRank(), category.getRank())) {
+      synchronized (CabinetManagerBlImpl.class) {
+        // yes
+        List<Publication> pubs = getPublicationManagerBl().getPublicationsByCategoryId(category.getId());
 
-	@Override
-	public Category updateCategory(PerunSession sess, Category category) throws CabinetException {
-		// save original category
-		Category cat = getCategoryManagerDao().getCategoryById(category.getId());
-		// update
-		Category result = getCategoryManagerDao().updateCategory(sess, category);
-		// was rank changed ?
-		if (!Objects.equals(cat.getRank(), category.getRank())) {
-			synchronized (CabinetManagerBlImpl.class) {
-				// yes
-				List<Publication> pubs = getPublicationManagerBl().getPublicationsByCategoryId(category.getId());
+        // update coef for all authors of all publications in updated category
+        Set<Author> authors = new HashSet<Author>();
+        for (Publication p : pubs) {
+          authors.addAll(getAuthorshipManagerBl().getAuthorsByPublicationId(p.getId()));
+        }
 
-				// update coef for all authors of all publications in updated category
-				Set<Author> authors = new HashSet<Author>();
-				for (Publication p : pubs) {
-					authors.addAll(getAuthorshipManagerBl().getAuthorsByPublicationId(p.getId()));
-				}
+        for (Author a : authors) {
+          getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(),
+              getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
+        }
+      }
+      log.debug("Category: [{}] updated to Category: [{}]", cat, category);
+    }
+    return result;
+  }
 
-				for (Author a : authors) {
-					getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
-				}
-			}
-			log.debug("Category: [{}] updated to Category: [{}]", cat, category);
-		}
-		return result;
-	}
+  @Override
+  public void deleteCategory(PerunSession sess, Category category) throws CabinetException {
+    getCategoryManagerDao().deleteCategory(sess, category);
+    log.debug("{} deleted.", category);
+  }
 
-	@Override
-	public void deleteCategory(PerunSession sess, Category category) throws CabinetException {
-		getCategoryManagerDao().deleteCategory(sess, category);
-		log.debug("{} deleted.", category);
-	}
+  @Override
+  public List<Category> getCategories() {
+    return getCategoryManagerDao().getCategories();
+  }
 
-	@Override
-	public List<Category> getCategories() {
-		return getCategoryManagerDao().getCategories();
-	}
-
-	@Override
-	public Category getCategoryById(int id) throws CabinetException {
-		return getCategoryManagerDao().getCategoryById(id);
-	}
+  @Override
+  public Category getCategoryById(int id) throws CabinetException {
+    return getCategoryManagerDao().getCategoryById(id);
+  }
 
 }

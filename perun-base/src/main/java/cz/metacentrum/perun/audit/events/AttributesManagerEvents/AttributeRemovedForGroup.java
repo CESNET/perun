@@ -9,35 +9,35 @@ import cz.metacentrum.perun.core.api.Group;
  */
 public class AttributeRemovedForGroup extends AuditEvent {
 
-	private AttributeDefinition attribute;
-	private Group group;
-	private String message;
+  private AttributeDefinition attribute;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeRemovedForGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeRemovedForGroup() {
+  }
 
-	public AttributeRemovedForGroup(AttributeDefinition attribute, Group group) {
-		this.attribute = attribute;
-		this.group = group;
-		this.message = formatMessage("%s removed for %s.", attribute, group);
-	}
+  public AttributeRemovedForGroup(AttributeDefinition attribute, Group group) {
+    this.attribute = attribute;
+    this.group = group;
+    this.message = formatMessage("%s removed for %s.", attribute, group);
+  }
 
-	public AttributeDefinition getAttribute() {
-		return attribute;
-	}
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

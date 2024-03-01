@@ -11,14 +11,14 @@ import java.util.Map;
  */
 public class KeysetValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
-	@Override
-	public String[] getAllValues(Map<String, String> value, Attribute attr) {
-		return value.keySet().toArray(new String[value.size()]);
-	}
+  @Override
+  public String[] getAllValues(Map<String, String> value, Attribute attr) {
+    return value.keySet().toArray(new String[value.size()]);
+  }
 
-	@Override
-	public Boolean isMassTransformationPreferred() {
-		return true;
-	}
+  @Override
+  public Boolean isMassTransformationPreferred() {
+    return true;
+  }
 
 }

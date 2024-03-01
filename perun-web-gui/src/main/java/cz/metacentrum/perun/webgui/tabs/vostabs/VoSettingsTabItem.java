@@ -5,7 +5,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -29,7 +33,6 @@ import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.tabs.attributestabs.SetNewAttributeTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,233 +45,247 @@ import java.util.Map;
  */
 public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "settings";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading vo attributes");
+  // data
+  private VirtualOrganization vo;
+  private int voId;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param vo
+   */
+  public VoSettingsTabItem(VirtualOrganization vo) {
+    this.voId = vo.getId();
+    this.vo = vo;
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading vo attributes");
+  /**
+   * Creates a tab instance
+   *
+   * @param voId
+   */
+  public VoSettingsTabItem(int voId) {
+    this.voId = voId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        vo = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+  }
 
-	// data
-	private VirtualOrganization vo;
-	private int voId;
+  static public VoSettingsTabItem load(Map<String, String> parameters) {
+    int voId = Integer.parseInt(parameters.get("id"));
+    return new VoSettingsTabItem(voId);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param vo
-	 */
-	public VoSettingsTabItem(VirtualOrganization vo){
-		this.voId = vo.getId();
-		this.vo = vo;
-	}
+  public boolean isPrepared() {
+    return !(vo == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param voId
-	 */
-	public VoSettingsTabItem(int voId){
-		this.voId = voId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				vo = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return !(vo == null);
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": settings");
 
-	public Widget draw() {
+    // MAIN PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": settings");
+    // HORIZONTAL MENU
+    TabMenu menu = new TabMenu();
+    // refresh
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		// MAIN PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    // Get Attributes
+    final GetAttributesV2 jsonCallback = new GetAttributesV2();
 
-		// HORIZONTAL MENU
-		TabMenu menu = new TabMenu();
-		// refresh
-		menu.addWidget(UiElements.getRefreshButton(this));
+    // We want VO attributes
+    jsonCallback.getVoAttributes(voId);
 
-		// Get Attributes
-		final GetAttributesV2 jsonCallback = new GetAttributesV2();
+    // get the table
+    CellTable<Attribute> table = jsonCallback.getTable();
 
-		// We want VO attributes
-		jsonCallback.getVoAttributes(voId);
+    if (!session.isVoAdmin(voId)) {
+      jsonCallback.setCheckable(false);
+    }
 
-		// get the table
-		CellTable<Attribute> table = jsonCallback.getTable();
+    final CustomButton setButton =
+        TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+    menu.addWidget(setButton);
+    if (!session.isVoAdmin(voId)) {
+      setButton.setEnabled(false);
+    }
 
-		if (!session.isVoAdmin(voId)) jsonCallback.setCheckable(false);
+    // refresh table
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(jsonCallback);
 
-		final CustomButton setButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-		menu.addWidget(setButton);
-		if (!session.isVoAdmin(voId)) setButton.setEnabled(false);
+    // set button event with button disable
+    final JsonCallbackEvents setButtonEvent = JsonCallbackEvents.disableButtonEvents(setButton, events);
 
-		// refresh table
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(jsonCallback);
+    setButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
 
-		// set button event with button disable
-		final JsonCallbackEvents setButtonEvent = JsonCallbackEvents.disableButtonEvents(setButton, events);
+        ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
 
-		setButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          Map<String, Integer> ids = new HashMap<String, Integer>();
+          ids.put("vo", voId);
+          SetAttributes request = new SetAttributes(setButtonEvent);
+          request.setAttributes(ids, list);
+        }
+      }
+    });
 
-				ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
+    CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(),
+            new ClickHandler() {
+              @Override
+              public void onClick(ClickEvent event) {
+                Map<String, Integer> ids = new HashMap<String, Integer>();
+                ids.put("vo", voId);
+                session.getTabManager()
+                    .addTabToCurrentTab(new SetNewAttributeTabItem(ids, jsonCallback.getList()), true);
+              }
+            });
+    menu.addWidget(addButton);
+    if (!session.isVoAdmin(voId)) {
+      addButton.setEnabled(false);
+    }
 
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					Map<String, Integer> ids = new HashMap<String,Integer>();
-					ids.put("vo", voId);
-					SetAttributes request = new SetAttributes(setButtonEvent);
-					request.setAttributes(ids, list);
-				}
-			}
-		});
+    // remove attr button
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
+    menu.addWidget(removeButton);
+    if (!session.isVoAdmin(voId)) {
+      removeButton.setEnabled(false);
+    }
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Map<String, Integer> ids = new HashMap<String, Integer>();
-				ids.put("vo", voId);
-				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, jsonCallback.getList()), true);
-			}
-		});
-		menu.addWidget(addButton);
-		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
+    // remove button event
+    final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, events);
+    removeButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          Map<String, Integer> ids = new HashMap<String, Integer>();
+          ids.put("vo", voId);
+          RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
+          request.removeAttributes(ids, list);
+        }
+      }
+    });
 
-		// remove attr button
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
-		menu.addWidget(removeButton);
-		if (!session.isVoAdmin(voId)) removeButton.setEnabled(false);
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    if (session.isVoAdmin(voId)) {
+      JsonUtils.addTableManagedButton(jsonCallback, table, removeButton);
+    }
 
-		// remove button event
-		final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, events);
-		removeButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					Map<String, Integer> ids = new HashMap<String,Integer>();
-					ids.put("vo", voId);
-					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
-					request.removeAttributes(ids, list);
-				}
-			}
-		});
+    // add menu and the table to the main panel
+    firstTabPanel.add(menu);
+    firstTabPanel.setCellHeight(menu, "30px");
+    firstTabPanel.add(sp);
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(jsonCallback, table, removeButton);
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(menu);
-		firstTabPanel.setCellHeight(menu, "30px");
-		firstTabPanel.add(sp);
+    this.contentWidget.setWidget(firstTabPanel);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    return getWidget();
+  }
 
-		this.contentWidget.setWidget(firstTabPanel);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.settingToolsIcon();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1619;
+    int result = 1;
+    result = prime * result + voId;
+    return result;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.settingToolsIcon();
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    VoSettingsTabItem other = (VoSettingsTabItem) obj;
+    if (voId != other.voId) {
+      return false;
+    }
+    return true;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1619;
-		int result = 1;
-		result = prime * result + voId;
-		return result;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		VoSettingsTabItem other = (VoSettingsTabItem) obj;
-		if (voId != other.voId)
-			return false;
-		return true;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(vo, "Settings", getUrlWithParameters());
+    if (vo != null) {
+      session.setActiveVo(vo);
+      return;
+    }
+    session.setActiveVoId(voId);
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(vo, "Settings", getUrlWithParameters());
-		if(vo != null){
-			session.setActiveVo(vo);
-			return;
-		}
-		session.setActiveVoId(voId);
-	}
+    if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+  }
 
-		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public String getUrl() {
+    return URL;
+  }
 
-	}
-
-	public final static String URL = "settings";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
-	}
-
-	static public VoSettingsTabItem load(Map<String, String> parameters) {
-		int voId = Integer.parseInt(parameters.get("id"));
-		return new VoSettingsTabItem(voId);
-	}
+  public String getUrlWithParameters() {
+    return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
+  }
 
 }

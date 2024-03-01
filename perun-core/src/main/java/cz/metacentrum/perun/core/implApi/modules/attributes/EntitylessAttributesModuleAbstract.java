@@ -15,23 +15,25 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- *
  */
-public abstract class EntitylessAttributesModuleAbstract extends AttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
+public abstract class EntitylessAttributesModuleAbstract extends AttributesModuleAbstract
+    implements EntitylessAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
+      throws WrongAttributeValueException {
 
-	}
+  }
 
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
-	}
+  }
 
-	public Attribute fillAttribute(PerunSessionImpl session, String key, AttributeDefinition attribute) {
-		return new Attribute(attribute);
-	}
+  public Attribute fillAttribute(PerunSessionImpl session, String key, AttributeDefinition attribute) {
+    return new Attribute(attribute);
+  }
 
-	public void changedAttributeHook(PerunSessionImpl session, String key, Attribute attribute) {
+  public void changedAttributeHook(PerunSessionImpl session, String key, Attribute attribute) {
 
-	}
+  }
 }

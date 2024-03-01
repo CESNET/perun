@@ -19,49 +19,51 @@ import java.util.List;
  * @author Kristyna Kysela
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_member_group_attribute_def_virt_isGroupAdmin extends MemberGroupVirtualAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
+public class urn_perun_member_group_attribute_def_virt_isGroupAdmin extends MemberGroupVirtualAttributesModuleAbstract
+    implements MemberGroupVirtualAttributesModuleImplApi {
 
-    @Override
-    public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attributeDefinition) {
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group,
+                                     AttributeDefinition attributeDefinition) {
 
-        List<User> userAdminList;
-        User newUser;
-        Attribute attribute = new Attribute(attributeDefinition);
+    List<User> userAdminList;
+    User newUser;
+    Attribute attribute = new Attribute(attributeDefinition);
 
-        userAdminList = sess.getPerunBl().getGroupsManagerBl().getAdmins(sess, group, false);
-        newUser = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+    userAdminList = sess.getPerunBl().getGroupsManagerBl().getAdmins(sess, group, false);
+    newUser = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 
-        if (userAdminList.contains(newUser)) {
-            attribute.setValue(true);
-            return attribute;
-        }
-
-        attribute.setValue(false);
-        return attribute;
-
+    if (userAdminList.contains(newUser)) {
+      attribute.setValue(true);
+      return attribute;
     }
 
-    @Override
-    public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) {
-        return false;
-    }
+    attribute.setValue(false);
+    return attribute;
 
-    @Override
-    public boolean removeAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
-        return false;
-    }
+  }
 
-    @Override
-    public AttributeDefinition getAttributeDefinition() {
-        AttributeDefinition attr = new AttributeDefinition();
-        attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-        attr.setFriendlyName("isGroupAdmin");
-        attr.setDisplayName("Is group admin");
-        attr.setType(Boolean.class.getName());
-        attr.setDescription("Is group admin.");
-        return attr;
-    }
+  @Override
+  public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) {
+    return false;
+  }
 
+  @Override
+  public boolean removeAttributeValue(PerunSessionImpl sess, Member member, Group group,
+                                      AttributeDefinition attribute) {
+    return false;
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+    attr.setFriendlyName("isGroupAdmin");
+    attr.setDisplayName("Is group admin");
+    attr.setType(Boolean.class.getName());
+    attr.setDescription("Is group admin.");
+    return attr;
+  }
 
 
 }

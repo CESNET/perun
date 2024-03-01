@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.notif.managers;
 
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.notif.dao.PerunNotifObjectDao;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
 import cz.metacentrum.perun.notif.exceptions.NotExistsException;
@@ -16,74 +15,74 @@ import org.springframework.stereotype.Service;
 @Service("perunNotifObjectManager")
 public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(PerunNotifObjectManager.class);
+  private static final Logger logger = LoggerFactory.getLogger(PerunNotifObjectManager.class);
 
-	@Autowired
-	private PerunNotifObjectDao perunNotifObjectDao;
+  @Autowired
+  private PerunNotifObjectDao perunNotifObjectDao;
 
-	@Autowired
-	private PerunNotifRegexManager perunNotifRegexManager;
+  @Autowired
+  private PerunNotifRegexManager perunNotifRegexManager;
 
-	@Override
-	public PerunNotifObject getPerunNotifObjectById(int id) {
+  @Override
+  public PerunNotifObject getPerunNotifObjectById(int id) {
 
-		return perunNotifObjectDao.getPerunNotifObjectById(id);
-	}
+    return perunNotifObjectDao.getPerunNotifObjectById(id);
+  }
 
-	@Override
-	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
+  @Override
+  public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
 
-		PerunNotifObject newObject = perunNotifObjectDao.updatePerunNotifObject(object);
+    PerunNotifObject newObject = perunNotifObjectDao.updatePerunNotifObject(object);
 
-		perunNotifRegexManager.addObjectToCache(newObject);
+    perunNotifRegexManager.addObjectToCache(newObject);
 
-		return newObject;
-	}
+    return newObject;
+  }
 
-	@Override
-	public void removePerunNotifRegexObjectRelation(int regexId, int objectId) {
+  @Override
+  public void removePerunNotifRegexObjectRelation(int regexId, int objectId) {
 
-		perunNotifObjectDao.removePerunNotifObjectRegexRelation(regexId, objectId);
-	}
+    perunNotifObjectDao.removePerunNotifObjectRegexRelation(regexId, objectId);
+  }
 
-	@Override
-	public void removePerunNotifObjectById(int id) {
+  @Override
+  public void removePerunNotifObjectById(int id) {
 
-		PerunNotifObject objectToRemove = getPerunNotifObjectById(id);
-		if (objectToRemove == null) {
-			throw new NotExistsException("Object does not exists in db.");
-		}
+    PerunNotifObject objectToRemove = getPerunNotifObjectById(id);
+    if (objectToRemove == null) {
+      throw new NotExistsException("Object does not exists in db.");
+    }
 
-		perunNotifObjectDao.removePerunNotifObjectById(id);
-		perunNotifRegexManager.removePerunNotifObjectFromCache(objectToRemove);
-	}
+    perunNotifObjectDao.removePerunNotifObjectById(id);
+    perunNotifRegexManager.removePerunNotifObjectFromCache(objectToRemove);
+  }
 
-	@Override
-	public void saveObjectRegexRelation(int regexId, int objectId) {
+  @Override
+  public void saveObjectRegexRelation(int regexId, int objectId) {
 
-		if (perunNotifObjectDao.isObjectRelation(regexId, objectId)) {
-			logger.debug("Relation between object: {}, template: {} exists", objectId, regexId);
-			//Relation exists
-			return;
-		} else {
-			logger.debug("Saving relation between object: {}, template: {}", objectId, regexId);
-			perunNotifObjectDao.saveObjectRelation(regexId, objectId);
-		}
-	}
+    if (perunNotifObjectDao.isObjectRelation(regexId, objectId)) {
+      logger.debug("Relation between object: {}, template: {} exists", objectId, regexId);
+      //Relation exists
+      return;
+    } else {
+      logger.debug("Saving relation between object: {}, template: {}", objectId, regexId);
+      perunNotifObjectDao.saveObjectRelation(regexId, objectId);
+    }
+  }
 
-	@Override
-	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
+  @Override
+  public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
 
-		PerunNotifObject perunNotifObject = perunNotifObjectDao.createPerunNotifObject(object);
+    PerunNotifObject perunNotifObject = perunNotifObjectDao.createPerunNotifObject(object);
 
-		perunNotifRegexManager.addObjectToCache(object);
+    perunNotifRegexManager.addObjectToCache(object);
 
-		return perunNotifObject;
-	}
+    return perunNotifObject;
+  }
 
-	@Override
-	public List<PerunNotifObject> getAllPerunNotifObjects() {
-		return perunNotifObjectDao.getAll();
-	}
+  @Override
+  public List<PerunNotifObject> getAllPerunNotifObjects() {
+    return perunNotifObjectDao.getAll();
+  }
 
 }

@@ -21,71 +21,72 @@ import static org.mockito.Mockito.when;
 
 public class urn_perun_resource_attribute_def_def_fairshareGroupNameTest {
 
-	private urn_perun_resource_attribute_def_def_fairshareGroupName classInstance;
-	private Attribute attributeToCheck;
-	private Resource resource = new Resource();
-	private PerunSessionImpl sess;
-	private Attribute reqAttribute;
+  private urn_perun_resource_attribute_def_def_fairshareGroupName classInstance;
+  private Attribute attributeToCheck;
+  private Resource resource = new Resource();
+  private PerunSessionImpl sess;
+  private Attribute reqAttribute;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_resource_attribute_def_def_fairshareGroupName();
-		attributeToCheck = new Attribute();
-		reqAttribute = new Attribute();
-		sess = mock(PerunSessionImpl.class);
-		Facility facility = new Facility();
-		List<Resource> resources = new ArrayList<>();
-		Resource resource2 = new Resource();
-		resources.add(resource2);
-		resources.add(resource);
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_resource_attribute_def_def_fairshareGroupName();
+    attributeToCheck = new Attribute();
+    reqAttribute = new Attribute();
+    sess = mock(PerunSessionImpl.class);
+    Facility facility = new Facility();
+    List<Resource> resources = new ArrayList<>();
+    Resource resource2 = new Resource();
+    resources.add(resource2);
+    resources.add(resource);
 
-		PerunBl perunBl = mock(PerunBl.class);
-		when(sess.getPerunBl()).thenReturn(perunBl);
+    PerunBl perunBl = mock(PerunBl.class);
+    when(sess.getPerunBl()).thenReturn(perunBl);
 
-		AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
-		when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource2, attributeToCheck.getName())).thenReturn(reqAttribute);
+    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
+    when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
+    when(sess.getPerunBl().getAttributesManagerBl()
+        .getAttribute(sess, resource2, attributeToCheck.getName())).thenReturn(reqAttribute);
 
-		ResourcesManagerBl resourcesManagerBl = mock(ResourcesManagerBl.class);
-		when(perunBl.getResourcesManagerBl()).thenReturn(resourcesManagerBl);
-		when(resourcesManagerBl.getFacility(sess, resource)).thenReturn(facility);
+    ResourcesManagerBl resourcesManagerBl = mock(ResourcesManagerBl.class);
+    when(perunBl.getResourcesManagerBl()).thenReturn(resourcesManagerBl);
+    when(resourcesManagerBl.getFacility(sess, resource)).thenReturn(facility);
 
-		FacilitiesManagerBl facilitiesManagerBl = mock(FacilitiesManagerBl.class);
-		when(perunBl.getFacilitiesManagerBl()).thenReturn(facilitiesManagerBl);
-		when(facilitiesManagerBl.getAssignedResources(sess, facility)).thenReturn(resources);
-	}
+    FacilitiesManagerBl facilitiesManagerBl = mock(FacilitiesManagerBl.class);
+    when(perunBl.getFacilitiesManagerBl()).thenReturn(facilitiesManagerBl);
+    when(facilitiesManagerBl.getAssignedResources(sess, facility)).thenReturn(resources);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testSyntaxWithWrongValue() throws Exception {
-		System.out.println("testSyntaxWithWrongValue()");
-		attributeToCheck.setValue("bad_example");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testSyntaxWithWrongValue() throws Exception {
+    System.out.println("testSyntaxWithWrongValue()");
+    attributeToCheck.setValue("bad_example");
 
-		classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testSyntaxCorrect() throws Exception {
-		System.out.println("testSyntaxCorrect()");
-		attributeToCheck.setValue("example");
+  @Test
+  public void testSyntaxCorrect() throws Exception {
+    System.out.println("testSyntaxCorrect()");
+    attributeToCheck.setValue("example");
 
-		classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testSemanticsWithNameAlreadyTaken() throws Exception {
-		System.out.println("testSemanticsWithNameAlreadyTaken()");
-		attributeToCheck.setValue("example");
-		reqAttribute.setValue("example");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testSemanticsWithNameAlreadyTaken() throws Exception {
+    System.out.println("testSemanticsWithNameAlreadyTaken()");
+    attributeToCheck.setValue("example");
+    reqAttribute.setValue("example");
 
-		classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testSemanticsCorrect() throws Exception {
-		System.out.println("testSemanticsCorrect()");
-		attributeToCheck.setValue("example");
-		reqAttribute.setValue("anotherValue");
+  @Test
+  public void testSemanticsCorrect() throws Exception {
+    System.out.println("testSemanticsCorrect()");
+    attributeToCheck.setValue("example");
+    reqAttribute.setValue("anotherValue");
 
-		classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
+  }
 }

@@ -6,36 +6,36 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class DirectMemberAddedToGroup extends AuditEvent {
 
-	private Group group;
-	private Member member;
-	private String message;
+  private Group group;
+  private Member member;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public DirectMemberAddedToGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public DirectMemberAddedToGroup() {
+  }
 
-	public DirectMemberAddedToGroup(Member member, Group group) {
-		this.group = group;
-		this.member = member;
-		this.message = formatMessage("%s added to %s", member, group);
-	}
+  public DirectMemberAddedToGroup(Member member, Group group) {
+    this.group = group;
+    this.member = member;
+    this.message = formatMessage("%s added to %s", member, group);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }
 

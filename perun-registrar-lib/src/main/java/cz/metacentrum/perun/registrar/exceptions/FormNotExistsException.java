@@ -10,10 +10,10 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class FormNotExistsException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public FormNotExistsException(String message) {
-		super(message);
-	}
+  public FormNotExistsException(String message) {
+    super(message);
+  }
 
 }

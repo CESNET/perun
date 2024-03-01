@@ -16,31 +16,31 @@ import java.util.List;
  * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
  *
  * @author Michal Stava <stavamichal@gmail.com>
- *
  */
-public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi{
+public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttributesModuleAbstract
+    implements MemberVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
-		return new Attribute(attribute);
-	}
+  public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
+    return new Attribute(attribute);
+  }
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) {
-		return false;
-	}
+  public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) {
+    return false;
+  }
 
-	public void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
+  public void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
 
-	}
+  }
 
-	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
-		return new ArrayList<>();
-	}
+  @Override
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
+    return new ArrayList<>();
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    return dependecies;
+  }
 }

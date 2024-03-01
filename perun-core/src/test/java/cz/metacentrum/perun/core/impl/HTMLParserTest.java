@@ -5,114 +5,117 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /*
  * @author: Matej Hakoš <492968@mail.muni.cz>
  */
 public class HTMLParserTest extends AbstractPerunIntegrationTest {
-	private boolean originalForce;
-	@Before
-	public void setForce() {
-		originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
-		BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
-	}
-	@After
-	public void revertForce() {
-		BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
-	}
+  private boolean originalForce;
 
-	@Test
-	public void checkParserAPI() {
-		System.out.println("HTMLParserTest.checkParserAPI");
+  @Before
+  public void setForce() {
+    originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
+    BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
+  }
 
-		HTMLParser parser = new HTMLParser();
+  @After
+  public void revertForce() {
+    BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
+  }
 
+  @Test
+  public void checkParserAPI() {
+    System.out.println("HTMLParserTest.checkParserAPI");
 
-		assertTrue(parser.isInputValid());
-		assertEquals(parser.getMessage(), "");
-		assertEquals(parser.getRawInput(), "");
-		assertEquals(parser.getEscapedHTML(), "");
+    HTMLParser parser = new HTMLParser();
 
 
-		parser.sanitizeHTML("<p>Hello</p>").checkEscapedHTML();
-		assertTrue(parser.isInputValid());
-		assertEquals(parser.getMessage(), "");
-		assertEquals(parser.getRawInput(), "<p>Hello</p>");
-		assertEquals(parser.getEscapedHTML(), "<p>Hello</p>");
+    assertTrue(parser.isInputValid());
+    assertEquals(parser.getMessage(), "");
+    assertEquals(parser.getRawInput(), "");
+    assertEquals(parser.getEscapedHTML(), "");
 
-		parser = new HTMLParser();
-		parser.sanitizeHTML("<p>Hello</p><script>alert('I AM UNSAFE!');</script>").checkEscapedHTML();
-		assertFalse(parser.isInputValid());
-		assertNotEquals(parser.getMessage(), "");
-		assertEquals(parser.getRawInput(), "<p>Hello</p><script>alert('I AM UNSAFE!');</script>");
-		assertEquals(parser.getEscapedHTML(), "<p>Hello</p>");
-	}
 
-	@Test
-	public void checkUnsafeHtmlInput() {
-		System.out.println("HTMLParserTest.checkUnsafeHtmlInput");
+    parser.sanitizeHTML("<p>Hello</p>").checkEscapedHTML();
+    assertTrue(parser.isInputValid());
+    assertEquals(parser.getMessage(), "");
+    assertEquals(parser.getRawInput(), "<p>Hello</p>");
+    assertEquals(parser.getEscapedHTML(), "<p>Hello</p>");
 
-		String unsafeInput = """
-			<style>
-			.helo {
-			  background-color:blue;
-			  color:red;
-			}
-			</style>
-			<script>
-			alert("I AM UNSAFE!");
-			</script>
-			<p class="helo">HELLO !</p>
-			<p non-existing-attr style="background-color:blue; background: url(''); color:red;">Hello 2!</p>""";
+    parser = new HTMLParser();
+    parser.sanitizeHTML("<p>Hello</p><script>alert('I AM UNSAFE!');</script>").checkEscapedHTML();
+    assertFalse(parser.isInputValid());
+    assertNotEquals(parser.getMessage(), "");
+    assertEquals(parser.getRawInput(), "<p>Hello</p><script>alert('I AM UNSAFE!');</script>");
+    assertEquals(parser.getEscapedHTML(), "<p>Hello</p>");
+  }
 
-		HTMLParser parser = new HTMLParser()
-			.sanitizeHTML(unsafeInput)
-			.checkEscapedHTML();
+  @Test
+  public void checkUnsafeHtmlInput() {
+    System.out.println("HTMLParserTest.checkUnsafeHtmlInput");
 
-		assertFalse(parser.isInputValid());
-		String[] unsafeTags = parser.getEscaped();
-		assertEquals(unsafeTags[0], "style, script");
-		assertEquals(unsafeTags[1], "p [non-existing-attr]");
-		assertEquals(unsafeTags[2], "background");
-	}
+    String unsafeInput = """
+        <style>
+        .helo {
+          background-color:blue;
+          color:red;
+        }
+        </style>
+        <script>
+        alert("I AM UNSAFE!");
+        </script>
+        <p class="helo">HELLO !</p>
+        <p non-existing-attr style="background-color:blue; background: url(''); color:red;">Hello 2!</p>""";
 
-	@Test
-	public void checkSafeHtmlInput() {
-		System.out.println("HTMLParserTest.checkSafeHtmlInput");
+    HTMLParser parser = new HTMLParser()
+        .sanitizeHTML(unsafeInput)
+        .checkEscapedHTML();
 
-		String input = """
-			<hr>
-			<p class="helo">HELLO !</p>
-			<p style="background-color:blue; color:red;">Hello 2!</p>
-			<a href="https://www.example.eu">https://www.example.eu</a>
-			<a href="mailto:contact@email.eu">contact@email.eu</a>
-			""";
+    assertFalse(parser.isInputValid());
+    String[] unsafeTags = parser.getEscaped();
+    assertEquals(unsafeTags[0], "style, script");
+    assertEquals(unsafeTags[1], "p [non-existing-attr]");
+    assertEquals(unsafeTags[2], "background");
+  }
 
-		HTMLParser parser = new HTMLParser()
-            .sanitizeHTML(input)
-            .checkEscapedHTML();
-		assertTrue(parser.isInputValid());
-		assertEquals(parser.getMessage(), "");
-	}
+  @Test
+  public void checkSafeHtmlInput() {
+    System.out.println("HTMLParserTest.checkSafeHtmlInput");
 
-	@Test
-	public void checkSafeCheckboxLabel() {
-		System.out.println("HTMLParserTest.checkSafeCheckboxLabel");
+    String input = """
+        <hr>
+        <p class="helo">HELLO !</p>
+        <p style="background-color:blue; color:red;">Hello 2!</p>
+        <a href="https://www.example.eu">https://www.example.eu</a>
+        <a href="mailto:contact@email.eu">contact@email.eu</a>
+        """;
 
-		// this is the format in which options are stored, potentially parse before sanitizing if this causes issues
-		String input = "testVal#I have read <a href=\"https://www.example.eu\">these terms</a>|f#b";
+    HTMLParser parser = new HTMLParser()
+        .sanitizeHTML(input)
+        .checkEscapedHTML();
+    assertTrue(parser.isInputValid());
+    assertEquals(parser.getMessage(), "");
+  }
 
-		assertTrue(new HTMLParser().isCheckboxLabelSafe(input));
-	}
+  @Test
+  public void checkSafeCheckboxLabel() {
+    System.out.println("HTMLParserTest.checkSafeCheckboxLabel");
 
-	@Test
-	public void checkUnsafeCheckboxLabel() {
-		System.out.println("HTMLParserTest.checkUnsafeCheckboxLabel");
+    // this is the format in which options are stored, potentially parse before sanitizing if this causes issues
+    String input = "testVal#I have read <a href=\"https://www.example.eu\">these terms</a>|f#b";
 
-		// this is the format in which options are stored, potentially parse before sanitizing if this causes issues
-		String input = "testVal#I have read <a>these terms</a>|f#<script>alert(\"I AM UNSAFE!\")</script>";
+    assertTrue(new HTMLParser().isCheckboxLabelSafe(input));
+  }
 
-		assertFalse(new HTMLParser().isCheckboxLabelSafe(input));
-		}
+  @Test
+  public void checkUnsafeCheckboxLabel() {
+    System.out.println("HTMLParserTest.checkUnsafeCheckboxLabel");
+
+    // this is the format in which options are stored, potentially parse before sanitizing if this causes issues
+    String input = "testVal#I have read <a>these terms</a>|f#<script>alert(\"I AM UNSAFE!\")</script>";
+
+    assertFalse(new HTMLParser().isCheckboxLabelSafe(input));
+  }
 }

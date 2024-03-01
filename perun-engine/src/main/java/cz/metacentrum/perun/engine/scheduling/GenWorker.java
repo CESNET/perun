@@ -9,21 +9,21 @@ import cz.metacentrum.perun.taskslib.model.Task;
  */
 public interface GenWorker extends EngineWorker<Task> {
 
-	@Override
-	Task call() throws Exception;
+  @Override
+  Task call() throws Exception;
 
-	/**
-	 * Return ID of Task associated with this GenWorker
-	 *
-	 * @return ID of Task
-	 */
-	Integer getTaskId();
+  /**
+   * Return ID of Task associated with this GenWorker
+   *
+   * @return ID of Task
+   */
+  Integer getTaskId();
 
-	/**
-	 * Return Task associated with this GenWorker
-	 *
-	 * @return Task
-	 */
-	Task getTask();
+  /**
+   * Return Task associated with this GenWorker
+   *
+   * @return Task
+   */
+  Task getTask();
 
 }

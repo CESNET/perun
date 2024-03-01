@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class VoCreated extends AuditEvent implements EngineIgnoreEvent {
 
-	private Vo vo;
-	private String message;
+  private Vo vo;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public VoCreated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public VoCreated() {
+  }
 
-	public VoCreated(Vo vo) {
-		this.vo = vo;
-		this.message = formatMessage("%s created.", vo);
-	}
+  public VoCreated(Vo vo) {
+    this.vo = vo;
+    this.message = formatMessage("%s created.", vo);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

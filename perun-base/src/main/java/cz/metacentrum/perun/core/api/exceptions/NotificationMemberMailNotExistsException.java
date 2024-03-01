@@ -9,15 +9,15 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class NotificationMemberMailNotExistsException extends PerunException {
 
-	public NotificationMemberMailNotExistsException(String message) {
-		super(message);
-	}
+  public NotificationMemberMailNotExistsException(String message) {
+    super(message);
+  }
 
-	public NotificationMemberMailNotExistsException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public NotificationMemberMailNotExistsException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public NotificationMemberMailNotExistsException(Throwable cause) {
-		super(cause);
-	}
+  public NotificationMemberMailNotExistsException(Throwable cause) {
+    super(cause);
+  }
 }

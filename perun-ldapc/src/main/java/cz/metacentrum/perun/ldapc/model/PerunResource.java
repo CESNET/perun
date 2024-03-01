@@ -9,29 +9,29 @@ import java.util.List;
 
 public interface PerunResource extends PerunEntry<Resource> {
 
-	/**
-	 * Remove resource from LDAP
-	 *
-	 * @param resource resource from Perun
-	 * @throws InternalErrorException if NameNotFoundException is thrown
-	 */
-	public void deleteResource(Resource resource);
+  /**
+   * Remove resource from LDAP
+   *
+   * @param resource resource from Perun
+   * @throws InternalErrorException if NameNotFoundException is thrown
+   */
+  public void deleteResource(Resource resource);
 
-	/**
-	 * Add resource to LDAP
-	 *
-	 * @param resource resource from Perun
-	 * @throws InternalErrorException if NameNotFoundException is thrown
-	 */
-	public void addResource(Resource resource);
+  /**
+   * Add resource to LDAP
+   *
+   * @param resource resource from Perun
+   * @throws InternalErrorException if NameNotFoundException is thrown
+   */
+  public void addResource(Resource resource);
 
-	public void updateResource(Resource resource);
+  public void updateResource(Resource resource);
 
-	public void assignGroup(Resource resource, Group group);
+  public void assignGroup(Resource resource, Group group);
 
-	public void removeGroup(Resource resource, Group group);
+  public void removeGroup(Resource resource, Group group);
 
-	public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups);
+  public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups);
 
-	public void synchronizeGroups(Resource resource, List<Group> assignedGroups);
+  public void synchronizeGroups(Resource resource, List<Group> assignedGroups);
 }

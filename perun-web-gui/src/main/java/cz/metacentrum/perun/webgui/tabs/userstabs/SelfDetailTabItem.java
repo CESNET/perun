@@ -6,19 +6,30 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.model.*;
-import cz.metacentrum.perun.webgui.tabs.*;
+import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
+import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.UsersTabs;
 import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
-import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-
+import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
 import java.util.Map;
 
 /**
@@ -28,264 +39,269 @@ import java.util.Map;
  */
 public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "info";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading user");
+  private TabPanelForTabItems tabPanel;
+  private User user;
+  private int userId = 0;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public SelfDetailTabItem() {
+    this.user = session.getActiveUser();
+    this.userId = user.getId();
+    this.tabPanel = new TabPanelForTabItems(this);
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading user");
+  /**
+   * Creates a tab instance with custom user
+   *
+   * @param user
+   */
+  public SelfDetailTabItem(User user) {
+    this.user = user;
+    this.userId = user.getId();
+    this.tabPanel = new TabPanelForTabItems(this);
+  }
 
-	private TabPanelForTabItems tabPanel;
+  /**
+   * Creates a tab instance with custom user
+   *
+   * @param userId
+   */
+  public SelfDetailTabItem(int userId) {
+    this.userId = userId;
+    new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        user = jso.cast();
+      }
+    }).retrieveData();
+    this.tabPanel = new TabPanelForTabItems(this);
+  }
 
-	private User user;
-	private int userId = 0;
+  static public SelfDetailTabItem load(Map<String, String> parameters) {
+    if (parameters.containsKey("id")) {
+      int uid = Integer.parseInt(parameters.get("id"));
+      if (uid != 0) {
+        return new SelfDetailTabItem(uid);
+      }
+    }
+    return new SelfDetailTabItem();
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public SelfDetailTabItem(){
-		this.user = session.getActiveUser();
-		this.userId = user.getId();
-		this.tabPanel = new TabPanelForTabItems(this);
-	}
+  public boolean isPrepared() {
+    return !(user == null);
+  }
 
-	/**
-	 * Creates a tab instance with custom user
-	 * @param user
-	 */
-	public SelfDetailTabItem(User user){
-		this.user = user;
-		this.userId = user.getId();
-		this.tabPanel = new TabPanelForTabItems(this);
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Creates a tab instance with custom user
-	 * @param userId
-	 */
-	public SelfDetailTabItem(int userId) {
-		this.userId = userId;
-		new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				user = jso.cast();
-			}
-		}).retrieveData();
-		this.tabPanel = new TabPanelForTabItems(this);
-	}
+  @Override
+  public void onClose() {
 
-	public boolean isPrepared(){
-		return !(user == null);
-	}
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public Widget draw() {
 
-	@Override
-	public void onClose() {
+    this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()));
 
-	}
+    // main panel
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	public Widget draw() {
+    // The table
+    AbsolutePanel dp = new AbsolutePanel();
+    //dp.setStyleName("decoration");
+    final FlexTable menu = new FlexTable();
+    menu.setCellSpacing(5);
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()));
+    if (user.isServiceUser()) {
+      menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
+    } else {
+      menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
+    }
+    Label userName = new Label();
+    userName.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles(), 40));
+    userName.setStyleName("now-managing");
+    userName.setTitle(user.getFullNameWithTitles());
+    menu.setWidget(0, 1, userName);
 
-		// main panel
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    menu.setHTML(0, 2, "&nbsp;");
+    menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-		// The table
-		AbsolutePanel dp = new AbsolutePanel();
-		//dp.setStyleName("decoration");
-		final FlexTable menu = new FlexTable();
-		menu.setCellSpacing(5);
+    int column = 3;
 
-		if (user.isServiceUser()) {
-			menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
-		} else {
-			menu.setWidget(0, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
-		}
-		Label userName = new Label();
-		userName.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles(), 40));
-		userName.setStyleName("now-managing");
-		userName.setTitle(user.getFullNameWithTitles());
-		menu.setWidget(0, 1, userName);
+    final TabItem tab = this;
+    final JsonCallbackEvents events = new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        user = jso.cast();
+        tab.open();
+        tab.draw();
+      }
+    };
 
-		menu.setHTML(0, 2, "&nbsp;");
-		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
+    CustomButton change = new CustomButton("", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
+    change.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));
+      }
+    });
+    menu.setWidget(0, column, change);
 
-		int column = 3;
+    column++;
+    menu.setHTML(0, column, "&nbsp;");
+    menu.getFlexCellFormatter().setWidth(0, column, "25px");
+    column++;
 
-		final TabItem tab = this;
-		final JsonCallbackEvents events = new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				user = jso.cast();
-				tab.open();
-				tab.draw();
-			}
-		};
+    if (JsonUtils.isExtendedInfoVisible()) {
+      menu.setHTML(0, column,
+          "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">" + user.getId() + "</span>");
+      column++;
 
-		CustomButton change = new CustomButton("", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
-		change.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));
-			}
-		});
-		menu.setWidget(0, column,  change);
+      menu.setHTML(0, column, "&nbsp;");
+      menu.getFlexCellFormatter().setWidth(0, column, "25px");
+      column++;
+    }
 
-		column++;
-		menu.setHTML(0, column, "&nbsp;");
-		menu.getFlexCellFormatter().setWidth(0, column, "25px");
-		column++;
+    String type = "Person";
+    type = user.isServiceUser() ? "Service" : "Person";
+    type = user.isSponsoredUser() ? "Sponsored" : "Person";
+    menu.setHTML(0, column,
+        "<strong>User type:</strong><br/><span class=\"inputFormInlineComment\">" + type + "</span>");
 
-		if (JsonUtils.isExtendedInfoVisible()) {
-			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+user.getId()+"</span>");
-			column++;
+    dp.add(menu);
+    vp.add(dp);
+    vp.setCellHeight(dp, "30px");
 
-			menu.setHTML(0, column, "&nbsp;");
-			menu.getFlexCellFormatter().setWidth(0, column, "25px");
-			column++;
-		}
+    tabPanel.clear();
 
-		String type = "Person";
-		type = user.isServiceUser() ? "Service" : "Person";
-		type = user.isSponsoredUser() ? "Sponsored" : "Person";
-		menu.setHTML(0, column, "<strong>User type:</strong><br/><span class=\"inputFormInlineComment\">"+type+"</span>");
+    SelfPersonalTabItem item = new SelfPersonalTabItem(user);
+    item.setParentPanel(tabPanel);
+    tabPanel.add(item, "Overview");
 
-		dp.add(menu);
-		vp.add(dp);
-		vp.setCellHeight(dp, "30px");
+    SelfVosTabItem vosTab = new SelfVosTabItem(user);
+    vosTab.setParentPanel(tabPanel);
+    tabPanel.add(vosTab, "VO settings");
 
-		tabPanel.clear();
+    tabPanel.add(new SelfResourcesSettingsTabItem(user), "Resources settings");
+    tabPanel.add(new SelfAuthenticationsTabItem(user), "Authentication");
 
-		SelfPersonalTabItem item = new SelfPersonalTabItem(user);
-		item.setParentPanel(tabPanel);
-		tabPanel.add(item, "Overview");
+    if (!user.isServiceUser()) {
+      tabPanel.add(new UsersPublicationsTabItem(user), "Publications");
+    }
+    tabPanel.add(new SelfApplicationsTabItem(user), "Applications");
+    if (!user.isServiceUser()) {
+      tabPanel.add(new SelfServiceUsersTabItem(user), "Service identities");
+    } else {
+      tabPanel.add(new SelfServiceUsersTabItem(user), "Associated users");
+    }
 
-		SelfVosTabItem vosTab = new SelfVosTabItem(user);
-		vosTab.setParentPanel(tabPanel);
-		tabPanel.add(vosTab, "VO settings");
+    // Resize must be called after page fully displays
+    Scheduler.get().scheduleDeferred(new Command() {
+      @Override
+      public void execute() {
+        tabPanel.finishAdding();
+      }
+    });
 
-		tabPanel.add(new SelfResourcesSettingsTabItem(user), "Resources settings");
-		tabPanel.add(new SelfAuthenticationsTabItem(user), "Authentication");
+    vp.add(tabPanel);
 
-		if (!user.isServiceUser()) {
-			tabPanel.add(new UsersPublicationsTabItem(user), "Publications");
-		}
-		tabPanel.add(new SelfApplicationsTabItem(user), "Applications");
-		if (!user.isServiceUser()) {
-			tabPanel.add(new SelfServiceUsersTabItem(user), "Service identities");
-		} else {
-			tabPanel.add(new SelfServiceUsersTabItem(user), "Associated users");
-		}
+    this.contentWidget.setWidget(vp);
 
-		// Resize must be called after page fully displays
-		Scheduler.get().scheduleDeferred(new Command() {
-			@Override
-			public void execute() {
-				tabPanel.finishAdding();
-			}
-		});
+    return getWidget();
 
-		vp.add(tabPanel);
+  }
 
-		this.contentWidget.setWidget(vp);
+  /**
+   * Method used for setting user when tab supposed to be refreshed
+   *
+   * @param user
+   */
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-		return getWidget();
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	/**
-	 * Method used for setting user when tab supposed to be refreshed
-	 * @param user
-	 */
-	public void setUser(User user){
-		this.user = user;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.userGrayIcon();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1231;
+    int result = 432;
+    result = prime * result * userId;
+    return result;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    if (this.userId != ((SelfDetailTabItem) obj).userId) {
+      return false;
+    }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGrayIcon();
-	}
+    return true;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1231;
-		int result = 432;
-		result = prime * result * userId;
-		return result;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		if (this.userId != ((SelfDetailTabItem)obj).userId)
-			return false;
+  public void open() {
+    session.setActiveUser(user);
+    session.getUiElements().getMenu().openMenu(MainMenu.USER);
+    session.getUiElements().getBreadcrumbs()
+        .setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()),
+            getUrlWithParameters());
+  }
 
-		return true;
-	}
+  public boolean isAuthorized() {
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    if (session.isSelf(userId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public void open() {
-		session.setActiveUser(user);
-		session.getUiElements().getMenu().openMenu(MainMenu.USER);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()), getUrlWithParameters());
-	}
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		if (session.isSelf(userId)) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "info";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return  UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
-	}
-
-	static public SelfDetailTabItem load(Map<String, String> parameters) {
-		if (parameters.containsKey("id")) {
-			int uid = Integer.parseInt(parameters.get("id"));
-			if (uid != 0) {
-				return new SelfDetailTabItem(uid);
-			}
-		}
-		return new SelfDetailTabItem();
-	}
+  public String getUrlWithParameters() {
+    return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
+  }
 
 }

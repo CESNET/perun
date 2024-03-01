@@ -11,31 +11,31 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_resource_attribute_def_def_k4GroupNameTest {
 
-	private urn_perun_resource_attribute_def_def_k4GroupName classInstance;
-	private Attribute attributeToCheck;
-	private Resource resource = new Resource();
-	private PerunSessionImpl sess;
+  private urn_perun_resource_attribute_def_def_k4GroupName classInstance;
+  private Attribute attributeToCheck;
+  private Resource resource = new Resource();
+  private PerunSessionImpl sess;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_resource_attribute_def_def_k4GroupName();
-		attributeToCheck = new Attribute();
-		sess = mock(PerunSessionImpl.class);
-	}
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_resource_attribute_def_def_k4GroupName();
+    attributeToCheck = new Attribute();
+    sess = mock(PerunSessionImpl.class);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testSyntaxWithWrongValue() throws Exception {
-		System.out.println("testSyntaxWithWrongValue()");
-		attributeToCheck.setValue("testWithBadValueBecauseItIsToooooooooLong");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testSyntaxWithWrongValue() throws Exception {
+    System.out.println("testSyntaxWithWrongValue()");
+    attributeToCheck.setValue("testWithBadValueBecauseItIsToooooooooLong");
 
-		classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
+  }
 
-	@Test
-	public void testSyntaxCorrect() throws Exception {
-		System.out.println("testSyntaxCorrect()");
-		attributeToCheck.setValue("example");
+  @Test
+  public void testSyntaxCorrect() throws Exception {
+    System.out.println("testSyntaxCorrect()");
+    attributeToCheck.setValue("example");
 
-		classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(sess, resource, attributeToCheck);
+  }
 }

@@ -10,16 +10,17 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  */
 @SuppressWarnings("unused")
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_schacHomeOrganizations extends UserVirtualAttributeCollectedFromUserExtSource {
+public class urn_perun_user_attribute_def_virt_schacHomeOrganizations
+    extends UserVirtualAttributeCollectedFromUserExtSource {
 
-	@Override
-	public String getSourceAttributeFriendlyName() {
-		return "schacHomeOrganization";
-	}
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "schacHomeOrganization";
+  }
 
-	@Override
-	public String getDestinationAttributeFriendlyName() {
-		return "schacHomeOrganizations";
-	}
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "schacHomeOrganizations";
+  }
 
 }

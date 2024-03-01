@@ -8,23 +8,24 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleImplApi;
 
-public class urn_perun_group_attribute_def_virt_autoRegistrationEnabled extends GroupVirtualAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi {
+public class urn_perun_group_attribute_def_virt_autoRegistrationEnabled extends GroupVirtualAttributesModuleAbstract
+    implements GroupVirtualAttributesModuleImplApi {
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) {
-		Attribute attribute = new Attribute(attributeDefinition);
-		attribute.setValue(sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group));
-		return attribute;
-	}
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+    attribute.setValue(sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group));
+    return attribute;
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
-		attr.setType(Boolean.class.getName());
-		attr.setFriendlyName("autoRegistrationEnabled");
-		attr.setDisplayName("Automatic registration enabled");
-		attr.setDescription("If true, group can be selected for automatic registration.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
+    attr.setType(Boolean.class.getName());
+    attr.setFriendlyName("autoRegistrationEnabled");
+    attr.setDisplayName("Automatic registration enabled");
+    attr.setDescription("If true, group can be selected for automatic registration.");
+    return attr;
+  }
 }

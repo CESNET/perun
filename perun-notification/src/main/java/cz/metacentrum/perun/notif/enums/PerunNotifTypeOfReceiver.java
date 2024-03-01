@@ -7,40 +7,39 @@ import java.util.List;
  * Represents which type can receiver be
  *
  * @author tomas.tunkl
- *
  */
 public enum PerunNotifTypeOfReceiver {
 
-	EMAIL_USER("EMAIL_USER"),
-	EMAIL_GROUP("EMAIL_GROUP");
+  EMAIL_USER("EMAIL_USER"),
+  EMAIL_GROUP("EMAIL_GROUP");
 
-	private PerunNotifTypeOfReceiver(String key) {
-		this.key = key;
-	}
+  private String key;
 
-	private String key;
+  private PerunNotifTypeOfReceiver(String key) {
+    this.key = key;
+  }
 
-	public String getKey() {
-		return key;
-	}
+  public static List<PerunNotifTypeOfReceiver> getAll() {
 
-	public void setKey(String key) {
-		this.key = key;
-	}
+    return Arrays.asList(values());
+  }
 
-	public static List<PerunNotifTypeOfReceiver> getAll() {
+  public static PerunNotifTypeOfReceiver resolve(String key) {
 
-		return Arrays.asList(values());
-	}
+    for (PerunNotifTypeOfReceiver type : getAll()) {
+      if (type.getKey().equals(key)) {
+        return type;
+      }
+    }
 
-	public static PerunNotifTypeOfReceiver resolve(String key) {
+    return null;
+  }
 
-		for (PerunNotifTypeOfReceiver type : getAll()) {
-			if (type.getKey().equals(key)) {
-				return type;
-			}
-		}
+  public String getKey() {
+    return key;
+  }
 
-		return null;
-	}
+  public void setKey(String key) {
+    this.key = key;
+  }
 }

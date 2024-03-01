@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.controller.model;
 
 import cz.metacentrum.perun.core.api.Facility;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,70 +12,82 @@ import java.util.Map;
 
 public class FacilityState implements Comparable<FacilityState> {
 
-	public static enum FacilityPropagationState {
-		OK, ERROR, PROCESSING, NOT_DETERMINED
-	};
+  private Facility facility;
 
-	private Facility facility;
-	private FacilityPropagationState state;
-	private Map<String, FacilityPropagationState> results = new HashMap<String, FacilityPropagationState>();
+  ;
+  private FacilityPropagationState state;
+  private Map<String, FacilityPropagationState> results = new HashMap<String, FacilityPropagationState>();
 
-	public Facility getFacility() {
-		return facility;
-	}
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
-	public FacilityPropagationState getState() {
-		return state;
-	}
-	public void setState(FacilityPropagationState state) {
-		this.state = state;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public Map<String, FacilityPropagationState> getResults() {
-		return results;
-	}
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
 
-	public void setResults(Map<String, FacilityPropagationState> results) {
-		this.results = results;
-	}
+  public FacilityPropagationState getState() {
+    return state;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-			+ ((facility == null) ? 0 : facility.hashCode());
-		return result;
-	}
+  public void setState(FacilityPropagationState state) {
+    this.state = state;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FacilityState other = (FacilityState) obj;
-		if (facility == null) {
-			if (other.facility != null)
-				return false;
-		} else if (!facility.equals(other.facility))
-			return false;
-		return true;
-	}
+  public Map<String, FacilityPropagationState> getResults() {
+    return results;
+  }
 
-	@Override
-	public String toString() {
-		return "FacilityState [facility=" + facility + ", state=" + state + "]";
-	}
+  public void setResults(Map<String, FacilityPropagationState> results) {
+    this.results = results;
+  }
 
-	@Override
-	public int compareTo(FacilityState facility) {
-		if (facility == null || this.facility == null || this.facility.getName() == null) throw new NullPointerException("Facility or facility name");
-		return this.facility.getName().compareTo(facility.getFacility().getName());
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result
+        + ((facility == null) ? 0 : facility.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FacilityState other = (FacilityState) obj;
+    if (facility == null) {
+      if (other.facility != null) {
+        return false;
+      }
+    } else if (!facility.equals(other.facility)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "FacilityState [facility=" + facility + ", state=" + state + "]";
+  }
+
+  @Override
+  public int compareTo(FacilityState facility) {
+    if (facility == null || this.facility == null || this.facility.getName() == null) {
+      throw new NullPointerException("Facility or facility name");
+    }
+    return this.facility.getName().compareTo(facility.getFacility().getName());
+  }
+
+  public static enum FacilityPropagationState {
+    OK, ERROR, PROCESSING, NOT_DETERMINED
+  }
 
 }

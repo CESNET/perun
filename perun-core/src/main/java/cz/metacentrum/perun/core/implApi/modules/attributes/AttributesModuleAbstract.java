@@ -18,23 +18,24 @@ import java.util.List;
  */
 public abstract class AttributesModuleAbstract implements AttributesModuleImplApi {
 
-	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
-	}
+  public List<String> getDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    return dependecies;
+  }
 
-	public List<String> getAuthorizedRoles() {
-		List<String> roles = new ArrayList<>();
-		return roles;
-	}
+  public List<String> getAuthorizedRoles() {
+    List<String> roles = new ArrayList<>();
+    return roles;
+  }
 
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		return attr;
-	}
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    return attr;
+  }
 
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		return new ArrayList<>();
-	}
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
+      throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+    return new ArrayList<>();
+  }
 
 }

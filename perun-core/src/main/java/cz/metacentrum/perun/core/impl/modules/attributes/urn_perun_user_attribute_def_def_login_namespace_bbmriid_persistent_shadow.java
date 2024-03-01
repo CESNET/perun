@@ -9,37 +9,36 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.Random;
 
 /**
- *
  * Class for filling bbmriid shadow value.
  * It is only storage! Use module login bbmriid_persistent for access the value.
- *
  */
 public class urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadow
-	extends urn_perun_user_attribute_def_def_login_namespace {
-	private final static String attrFriendlyName = "login-namespace:bbmriid-persistent-shadow";
-	private final static int lowestId = 2000;
-	private final static int randomBound = 10000;
-	private final static Random random = new Random();
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
+    extends urn_perun_user_attribute_def_def_login_namespace {
+  private final static String attrFriendlyName = "login-namespace:bbmriid-persistent-shadow";
+  private final static int lowestId = 2000;
+  private final static int randomBound = 10000;
+  private final static Random random = new Random();
 
-		Attribute filledAttribute = new Attribute(attribute);
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
 
-		if (attribute.getFriendlyName().equals(attrFriendlyName)) {
-			String computedValue = Long.toString(System.nanoTime() + random.nextLong(lowestId, randomBound));
-			filledAttribute.setValue(computedValue);
-		}
-		return filledAttribute;
-	}
+    Attribute filledAttribute = new Attribute(attribute);
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName(attrFriendlyName);
-		attr.setDisplayName("BBMRI Computed ID");
-		attr.setType(String.class.getName());
-		attr.setDescription("BBMRI Computed ID used in proxy and BBMRI services.");
-		return attr;
-	}
+    if (attribute.getFriendlyName().equals(attrFriendlyName)) {
+      String computedValue = Long.toString(System.nanoTime() + random.nextLong(lowestId, randomBound));
+      filledAttribute.setValue(computedValue);
+    }
+    return filledAttribute;
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName(attrFriendlyName);
+    attr.setDisplayName("BBMRI Computed ID");
+    attr.setType(String.class.getName());
+    attr.setDescription("BBMRI Computed ID used in proxy and BBMRI services.");
+    return attr;
+  }
 }

@@ -8,15 +8,15 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class PasswordResetLinkNotValidException extends PerunException {
 
-	public PasswordResetLinkNotValidException(String message) {
-		super(message);
-	}
+  public PasswordResetLinkNotValidException(String message) {
+    super(message);
+  }
 
-	public PasswordResetLinkNotValidException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public PasswordResetLinkNotValidException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public PasswordResetLinkNotValidException(Throwable cause) {
-		super(cause);
-	}
+  public PasswordResetLinkNotValidException(Throwable cause) {
+    super(cause);
+  }
 }

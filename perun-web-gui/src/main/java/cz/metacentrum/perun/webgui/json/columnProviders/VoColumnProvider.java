@@ -13,7 +13,6 @@ import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableTextCellWithAuthz;
-
 import java.util.Comparator;
 
 /**
@@ -23,126 +22,135 @@ import java.util.Comparator;
  */
 public class VoColumnProvider {
 
-	private PerunTable<VirtualOrganization> table;
-	private FieldUpdater<VirtualOrganization, VirtualOrganization> fieldUpdater;
+  private PerunTable<VirtualOrganization> table;
+  private FieldUpdater<VirtualOrganization, VirtualOrganization> fieldUpdater;
 
-	/**
-	 * New instance of VoColumnProvider
-	 *
-	 * @param table table to add columns to
-	 * @param fieldUpdater field updater used when cell is "clicked"
-	 */
-	public VoColumnProvider(PerunTable<VirtualOrganization> table, FieldUpdater<VirtualOrganization, VirtualOrganization> fieldUpdater) {
-		this.table = table;
-		this.fieldUpdater = fieldUpdater;
-	}
+  /**
+   * New instance of VoColumnProvider
+   *
+   * @param table        table to add columns to
+   * @param fieldUpdater field updater used when cell is "clicked"
+   */
+  public VoColumnProvider(PerunTable<VirtualOrganization> table,
+                          FieldUpdater<VirtualOrganization, VirtualOrganization> fieldUpdater) {
+    this.table = table;
+    this.fieldUpdater = fieldUpdater;
+  }
 
-	public void addIdColumn(IsClickableCell authz) {
-		addIdColumn(authz, 0);
-	}
+  public static IsClickableCell<GeneralObject> getDefaultClickableAuthz() {
 
-	public void addIdColumn(IsClickableCell authz, int width) {
+    return new IsClickableCell<GeneralObject>() {
 
-		// create column
-		Column<VirtualOrganization, VirtualOrganization> idColumn = JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "id"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
-			@Override
-			public VirtualOrganization getValue(VirtualOrganization object) {
-				return object;
-			}
-		}, fieldUpdater);
+      @Override
+      public boolean isClickable(GeneralObject object) {
+        VirtualOrganization vo = object.cast();
+        return (PerunWebSession.getInstance().isVoAdmin(vo.getId()) ||
+            PerunWebSession.getInstance().isVoObserver(vo.getId()));
+      }
 
-		// add column only if extended info is visible
-		if (JsonUtils.isExtendedInfoVisible()) {
+      @Override
+      public String linkUrl(GeneralObject object) {
+        VirtualOrganization vo = object.cast();
+        return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + VoDetailTabItem.URL + "?id=" + vo.getId() + "&active=1";
+      }
 
-			table.addColumn(idColumn, "VO Id");
+    };
 
-			if (width != 0) {
-				table.setColumnWidth(idColumn, width, Style.Unit.PX);
-			}
+  }
 
-			// sort column
-			idColumn.setSortable(true);
-			table.getColumnSortHandler().setComparator(idColumn, new GeneralComparator<VirtualOrganization>(GeneralComparator.Column.ID));
+  public void addIdColumn(IsClickableCell authz) {
+    addIdColumn(authz, 0);
+  }
 
-		}
+  public void addIdColumn(IsClickableCell authz, int width) {
 
-	}
+    // create column
+    Column<VirtualOrganization, VirtualOrganization> idColumn =
+        JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "id"),
+            new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
+              @Override
+              public VirtualOrganization getValue(VirtualOrganization object) {
+                return object;
+              }
+            }, fieldUpdater);
 
+    // add column only if extended info is visible
+    if (JsonUtils.isExtendedInfoVisible()) {
 
-	public void addNameColumn(IsClickableCell authz) {
-		addNameColumn(authz, 0);
-	}
+      table.addColumn(idColumn, "VO Id");
 
-	public void addNameColumn(IsClickableCell authz, int width) {
+      if (width != 0) {
+        table.setColumnWidth(idColumn, width, Style.Unit.PX);
+      }
 
-		// create column
-		Column<VirtualOrganization, VirtualOrganization> nameColumn = JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "name"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
-			@Override
-			public VirtualOrganization getValue(VirtualOrganization object) {
-				return object;
-			}
-		}, fieldUpdater);
+      // sort column
+      idColumn.setSortable(true);
+      table.getColumnSortHandler()
+          .setComparator(idColumn, new GeneralComparator<VirtualOrganization>(GeneralComparator.Column.ID));
 
-		// add column
-		table.addColumn(nameColumn, "Name");
-		if (width != 0) {
-			table.setColumnWidth(nameColumn, width, Style.Unit.PX);
-		}
+    }
 
-		// sort column
-		nameColumn.setSortable(true);
-		table.getColumnSortHandler().setComparator(nameColumn, new GeneralComparator<VirtualOrganization>(GeneralComparator.Column.NAME));
+  }
 
-	}
+  public void addNameColumn(IsClickableCell authz) {
+    addNameColumn(authz, 0);
+  }
 
-	public void addShortNameColumn(IsClickableCell authz) {
-		addShortNameColumn(authz, 0);
-	}
+  public void addNameColumn(IsClickableCell authz, int width) {
 
-	public void addShortNameColumn(IsClickableCell authz, int width) {
+    // create column
+    Column<VirtualOrganization, VirtualOrganization> nameColumn =
+        JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "name"),
+            new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
+              @Override
+              public VirtualOrganization getValue(VirtualOrganization object) {
+                return object;
+              }
+            }, fieldUpdater);
 
-		// create column
-		Column<VirtualOrganization, VirtualOrganization> shortNameColumn = JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "shortName"), new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
-			@Override
-			public VirtualOrganization getValue(VirtualOrganization object) {
-				return object;
-			}
-		}, fieldUpdater);
+    // add column
+    table.addColumn(nameColumn, "Name");
+    if (width != 0) {
+      table.setColumnWidth(nameColumn, width, Style.Unit.PX);
+    }
 
-		// add column
-		table.addColumn(shortNameColumn, "Short name");
-		if (width != 0) {
-			table.setColumnWidth(shortNameColumn, width, Style.Unit.PX);
-		}
+    // sort column
+    nameColumn.setSortable(true);
+    table.getColumnSortHandler()
+        .setComparator(nameColumn, new GeneralComparator<VirtualOrganization>(GeneralComparator.Column.NAME));
 
-		// sort column
-		shortNameColumn.setSortable(true);
-		table.getColumnSortHandler().setComparator(shortNameColumn, new Comparator<VirtualOrganization>() {
-			public int compare(VirtualOrganization o1, VirtualOrganization o2) {
-				return o1.getShortName().compareToIgnoreCase(o2.getShortName());
-			}
-		});
+  }
 
-	}
+  public void addShortNameColumn(IsClickableCell authz) {
+    addShortNameColumn(authz, 0);
+  }
 
-	public static IsClickableCell<GeneralObject> getDefaultClickableAuthz() {
+  public void addShortNameColumn(IsClickableCell authz, int width) {
 
-		return new IsClickableCell<GeneralObject>() {
+    // create column
+    Column<VirtualOrganization, VirtualOrganization> shortNameColumn =
+        JsonUtils.addColumn(new CustomClickableTextCellWithAuthz<VirtualOrganization>(authz, "shortName"),
+            new JsonUtils.GetValue<VirtualOrganization, VirtualOrganization>() {
+              @Override
+              public VirtualOrganization getValue(VirtualOrganization object) {
+                return object;
+              }
+            }, fieldUpdater);
 
-			@Override
-			public boolean isClickable(GeneralObject object) {
-				VirtualOrganization vo = object.cast();
-				return (PerunWebSession.getInstance().isVoAdmin(vo.getId()) || PerunWebSession.getInstance().isVoObserver(vo.getId()));
-			}
+    // add column
+    table.addColumn(shortNameColumn, "Short name");
+    if (width != 0) {
+      table.setColumnWidth(shortNameColumn, width, Style.Unit.PX);
+    }
 
-			@Override
-			public String linkUrl(GeneralObject object) {
-				VirtualOrganization vo = object.cast();
-				return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + VoDetailTabItem.URL + "?id=" + vo.getId()+"&active=1";
-			}
+    // sort column
+    shortNameColumn.setSortable(true);
+    table.getColumnSortHandler().setComparator(shortNameColumn, new Comparator<VirtualOrganization>() {
+      public int compare(VirtualOrganization o1, VirtualOrganization o2) {
+        return o1.getShortName().compareToIgnoreCase(o2.getShortName());
+      }
+    });
 
-		};
-
-	}
+  }
 
 }

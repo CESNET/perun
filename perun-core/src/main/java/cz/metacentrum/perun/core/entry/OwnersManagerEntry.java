@@ -21,155 +21,161 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class OwnersManagerEntry implements OwnersManager {
 
-	final static Logger log = LoggerFactory.getLogger(OwnersManagerEntry.class);
+  final static Logger log = LoggerFactory.getLogger(OwnersManagerEntry.class);
 
-	private OwnersManagerBl ownersManagerBl;
-	private PerunBl perunBl;
+  private OwnersManagerBl ownersManagerBl;
+  private PerunBl perunBl;
 
-	/**
-	 * Constructor.
-	 *
-	 */
-	public OwnersManagerEntry(PerunBl perunBl) {
-		this.perunBl = perunBl;
-		this.ownersManagerBl = perunBl.getOwnersManagerBl();
-	}
+  /**
+   * Constructor.
+   */
+  public OwnersManagerEntry(PerunBl perunBl) {
+    this.perunBl = perunBl;
+    this.ownersManagerBl = perunBl.getOwnersManagerBl();
+  }
 
-	public OwnersManagerEntry() {
-	}
+  public OwnersManagerEntry() {
+  }
 
-	/*FIXME delete this method */
-	public OwnersManagerImplApi getOwnersManagerImpl() {
-		throw new InternalErrorException("Unsupported method!");
-	}
+  /*FIXME delete this method */
+  public OwnersManagerImplApi getOwnersManagerImpl() {
+    throw new InternalErrorException("Unsupported method!");
+  }
 
-	@Override
-	public Owner createOwner(PerunSession sess, Owner owner) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public Owner createOwner(PerunSession sess, Owner owner) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "createOwner_Owner_policy"))
-			throw new PrivilegeException(sess, "createOwner");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "createOwner_Owner_policy")) {
+      throw new PrivilegeException(sess, "createOwner");
+    }
 
-		if (!owner.getName().equals(owner.getName().trim())) {
-			throw new IllegalArgumentException("Owner name cannot contain leading or trailing spaces");
-		}
-		Utils.notNull(owner, "owner");
+    if (!owner.getName().equals(owner.getName().trim())) {
+      throw new IllegalArgumentException("Owner name cannot contain leading or trailing spaces");
+    }
+    Utils.notNull(owner, "owner");
 
-		return getOwnersManagerBl().createOwner(sess, owner);
-	}
+    return getOwnersManagerBl().createOwner(sess, owner);
+  }
 
-	@Override
-	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public void deleteOwner(PerunSession sess, Owner owner)
+      throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_policy", owner))
-			throw new PrivilegeException(sess, "deleteOwner");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_policy", owner)) {
+      throw new PrivilegeException(sess, "deleteOwner");
+    }
 
-		getOwnersManagerBl().checkOwnerExists(sess, owner);
+    getOwnersManagerBl().checkOwnerExists(sess, owner);
 
-		getOwnersManagerBl().deleteOwner(sess, owner);
-	}
+    getOwnersManagerBl().deleteOwner(sess, owner);
+  }
 
-	@Override
-	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete)
+      throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", owner))
-			throw new PrivilegeException(sess, "deleteOwner");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", owner)) {
+      throw new PrivilegeException(sess, "deleteOwner");
+    }
 
-		getOwnersManagerBl().checkOwnerExists(sess, owner);
+    getOwnersManagerBl().checkOwnerExists(sess, owner);
 
-		getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
-	}
+    getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
+  }
 
-	@Override
-	public void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public void deleteOwners(PerunSession sess, List<Owner> owners, boolean forceDelete)
+      throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+    Utils.checkPerunSession(sess);
 
-		for (Owner owner : owners) {
-			getOwnersManagerBl().checkOwnerExists(sess, owner);
+    for (Owner owner : owners) {
+      getOwnersManagerBl().checkOwnerExists(sess, owner);
 
-			// Authorization
-			if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", owner))
-				throw new PrivilegeException(sess, "deleteOwners");
+      // Authorization
+      if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", owner)) {
+        throw new PrivilegeException(sess, "deleteOwners");
+      }
 
-			getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
-		}
-	}
+      getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
+    }
+  }
 
-	@Override
-	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getOwnerById_int_policy"))
-			throw new PrivilegeException(sess, "getOwnerById");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getOwnerById_int_policy")) {
+      throw new PrivilegeException(sess, "getOwnerById");
+    }
 
-		return getOwnersManagerBl().getOwnerById(sess, id);
-	}
+    return getOwnersManagerBl().getOwnerById(sess, id);
+  }
 
-	@Override
-	public Owner getOwnerByName(PerunSession sess, String name) throws OwnerNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public Owner getOwnerByName(PerunSession sess, String name) throws OwnerNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getOwnerByName_String_policy"))
-			throw new PrivilegeException(sess, "getOwnerByName");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getOwnerByName_String_policy")) {
+      throw new PrivilegeException(sess, "getOwnerByName");
+    }
 
-		return getOwnersManagerBl().getOwnerByName(sess, name);
-	}
+    return getOwnersManagerBl().getOwnerByName(sess, name);
+  }
 
-	@Override
-	public List<Owner> getOwners(PerunSession sess) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public List<Owner> getOwners(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getOwners_policy"))
-			throw new PrivilegeException(sess, "getOwners");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getOwners_policy")) {
+      throw new PrivilegeException(sess, "getOwners");
+    }
 
-		return getOwnersManagerBl().getOwners(sess);
-	}
+    return getOwnersManagerBl().getOwners(sess);
+  }
 
-	/**
-	 * Sets the ownersManagerBl for this instance.
-	 *
-	 * @param ownersManagerBl The ownersManagerBl.
-	 */
-	public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl)
-	{
-		this.ownersManagerBl = ownersManagerBl;
-	}
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
 
-	public PerunBl getPerunBl() {
-		return this.perunBl;
-	}
+  /**
+   * Sets the perunBl for this instance.
+   *
+   * @param perunBl The perunBl.
+   */
+  public void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
+  }
 
-	/**
-	 * Gets the owners manager
-	 *
-	 * @return The ownersManagerBl.
-	 */
-	public OwnersManagerBl getOwnersManagerBl() {
-		return this.ownersManagerBl;
-	}
+  /**
+   * Gets the owners manager
+   *
+   * @return The ownersManagerBl.
+   */
+  public OwnersManagerBl getOwnersManagerBl() {
+    return this.ownersManagerBl;
+  }
 
-	/**
-	 * Sets the perunBl for this instance.
-	 *
-	 * @param perunBl The perunBl.
-	 */
-	public void setPerunBl(PerunBl perunBl)
-	{
-		this.perunBl = perunBl;
-	}
+  /**
+   * Sets the ownersManagerBl for this instance.
+   *
+   * @param ownersManagerBl The ownersManagerBl.
+   */
+  public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl) {
+    this.ownersManagerBl = ownersManagerBl;
+  }
 
 
 }

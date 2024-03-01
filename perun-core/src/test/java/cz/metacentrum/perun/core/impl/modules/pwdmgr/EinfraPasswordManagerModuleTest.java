@@ -16,53 +16,53 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class EinfraPasswordManagerModuleTest extends AbstractPerunIntegrationTest {
 
-	private EinfraPasswordManagerModule module;
+  private final int randomPasswordLength = 12;
+  private final Pattern EinfraPasswordContainsNotAllowedChars =
+      Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,._-].*");
+  private EinfraPasswordManagerModule module;
 
-	private final int randomPasswordLength = 12;
-	private final Pattern EinfraPasswordContainsNotAllowedChars = Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,._-].*");
+  @Before
+  public void setUp() {
+    this.module = (EinfraPasswordManagerModule) ((PerunBl) sess.getPerun()).getUsersManagerBl()
+        .getPasswordManagerModule(sess, "einfra");
+  }
 
-	@Before
-	public void setUp() {
-		this.module = (EinfraPasswordManagerModule) ((PerunBl) sess.getPerun()).getUsersManagerBl()
-				.getPasswordManagerModule(sess, "einfra");
-	}
+  @Test
+  public void testNotAllowedLogins() {
+    List<String> notAllowedLogins = List.of(
+        "open-suff",
+        "dd-suff",
+        "it4isuff",
+        "pr0suff",
+        "pr5suff"
+    );
 
-	@Test
-	public void testNotAllowedLogins() {
-		List<String> notAllowedLogins = List.of(
-				"open-suff",
-				"dd-suff",
-				"it4isuff",
-				"pr0suff",
-				"pr5suff"
-		);
+    assertThat(notAllowedLogins)
+        .noneMatch(login -> module.isLoginPermitted(sess, login));
+  }
 
-		assertThat(notAllowedLogins)
-				.noneMatch(login -> module.isLoginPermitted(sess, login));
-	}
+  @Test
+  public void testAllowedLogins() {
+    List<String> allowedLogins = List.of(
+        "vopen-suff",
+        "it5i",
+        "john"
+    );
 
-	@Test
-	public void testAllowedLogins() {
-		List<String> allowedLogins = List.of(
-				"vopen-suff",
-				"it5i",
-				"john"
-		);
+    assertThat(allowedLogins)
+        .allMatch(login -> module.isLoginPermitted(sess, login));
+  }
 
-		assertThat(allowedLogins)
-				.allMatch(login -> module.isLoginPermitted(sess, login));
-	}
+  @Test
+  public void testGeneratedPasswordContainsOnlyAllowedChars() {
 
-	@Test
-	public void testGeneratedPasswordContainsOnlyAllowedChars() {
+    // test that password does not contain any invalid character
+    Assert.assertFalse(EinfraPasswordContainsNotAllowedChars.matcher(module.generateRandomPassword(sess, null))
+        .matches());
+  }
 
-		// test that password does not contain any invalid character
-		Assert.assertFalse(EinfraPasswordContainsNotAllowedChars.matcher(module.generateRandomPassword(sess, null))
-			.matches());
-	}
-
-	@Test
-	public void generatedPasswordHasValidLength() {
-		Assert.assertEquals(module.generateRandomPassword(sess, null).length(), randomPasswordLength);
-	}
+  @Test
+  public void generatedPasswordHasValidLength() {
+    Assert.assertEquals(module.generateRandomPassword(sess, null).length(), randomPasswordLength);
+  }
 }

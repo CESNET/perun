@@ -22,80 +22,81 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 public class DefaultBlockedLoginCheckerTest extends AbstractPerunIntegrationTest {
-	private final static String CLASS_NAME = "DefaultBlockedLoginChecker.";
-	private final static String LOGIN = "testLogin";
+  private final static String CLASS_NAME = "DefaultBlockedLoginChecker.";
+  private final static String LOGIN = "testLogin";
+  DefaultBlockedLoginChecker defaultBlockedLoginChecker;
+  private User user;
+  private Attribute attr;
 
-	private User user;
-	private Attribute attr;
+  @Before
+  public void setUp() throws Exception {
+    defaultBlockedLoginChecker = new DefaultBlockedLoginChecker(perun);
 
-	DefaultBlockedLoginChecker defaultBlockedLoginChecker;
+    setUser();
+    setLoginNamespaceAttribute();
+  }
 
-	@Before
-	public void setUp() throws Exception {
-		defaultBlockedLoginChecker = new DefaultBlockedLoginChecker(perun);
+  @Test
+  public void defaultBlockedLoginAlreadyUsed() {
+    System.out.println(CLASS_NAME + "defaultBlockedLoginIsAlreadyUsed");
 
-		setUser();
-		setLoginNamespaceAttribute();
-	}
+    List<String> originalAdmins = BeansUtils.getCoreConfig().getAdmins();
+    try {
+      // configure admins to contain one login - testLogin
+      BeansUtils.getCoreConfig().setAdmins(Collections.singletonList(LOGIN));
+      assertThrows(InternalErrorException.class, () -> defaultBlockedLoginChecker.checkDefaultBlockedLogins());
+    } finally {
+      // set admins back to the original admins
+      BeansUtils.getCoreConfig().setAdmins(originalAdmins);
+    }
+  }
 
-	@Test
-	public void defaultBlockedLoginAlreadyUsed() {
-		System.out.println(CLASS_NAME + "defaultBlockedLoginIsAlreadyUsed");
+  @Test
+  public void defaultBlockedLoginAreNotUsed() {
+    System.out.println(CLASS_NAME + "defaultBlockedLoginAreNotUsed");
 
-		List<String> originalAdmins = BeansUtils.getCoreConfig().getAdmins();
-		try {
-			// configure admins to contain one login - testLogin
-			BeansUtils.getCoreConfig().setAdmins(Collections.singletonList(LOGIN));
-			assertThrows(InternalErrorException.class, () -> defaultBlockedLoginChecker.checkDefaultBlockedLogins());
-		} finally {
-			// set admins back to the original admins
-			BeansUtils.getCoreConfig().setAdmins(originalAdmins);
-		}
-	}
+    CoreConfig originalConfig = BeansUtils.getCoreConfig();
+    try {
+      // set new core config
+      CoreConfig cfNew = new CoreConfig();
 
-	@Test
-	public void defaultBlockedLoginAreNotUsed() {
-		System.out.println(CLASS_NAME + "defaultBlockedLoginAreNotUsed");
+      cfNew.setAdmins(new ArrayList<>());
+      cfNew.setEnginePrincipals(new ArrayList<>());
+      cfNew.setNotificationPrincipals(new ArrayList<>());
+      cfNew.setDontLookupUsers(new HashSet<>());
+      cfNew.setRegistrarPrincipals(new ArrayList<>());
+      cfNew.setRpcPrincipal(null);
+      cfNew.setInstanceId("test");
 
-		CoreConfig originalConfig = BeansUtils.getCoreConfig();
-		try {
-			// set new core config
-			CoreConfig cfNew = new CoreConfig();
+      BeansUtils.setConfig(cfNew);
 
-			cfNew.setAdmins(new ArrayList<>());
-			cfNew.setEnginePrincipals(new ArrayList<>());
-			cfNew.setNotificationPrincipals(new ArrayList<>());
-			cfNew.setDontLookupUsers(new HashSet<>());
-			cfNew.setRegistrarPrincipals(new ArrayList<>());
-			cfNew.setRpcPrincipal(null);
-			cfNew.setInstanceId("test");
+      defaultBlockedLoginChecker.checkDefaultBlockedLogins();
+    } finally {
+      // set core config back to original
+      BeansUtils.setConfig(originalConfig);
+    }
+  }
 
-			BeansUtils.setConfig(cfNew);
+  private void setUser() {
+    user = new User();
+    user.setFirstName("Joe");
+    user.setLastName("Doe");
+    user = perun.getUsersManagerBl().createUser(sess, user);
+    assertNotNull(user);
+  }
 
-			defaultBlockedLoginChecker.checkDefaultBlockedLogins();
-		} finally {
-			// set core config back to original
-			BeansUtils.setConfig(originalConfig);
-		}
-	}
+  private void setLoginNamespaceAttribute()
+      throws AttributeDefinitionExistsException, WrongAttributeAssignmentException,
+      WrongReferenceAttributeValueException, WrongAttributeValueException {
+    attr = new Attribute();
+    attr.setNamespace("urn:perun:user:attribute-def:def");
+    attr.setFriendlyName("login-namespace:META-login");
+    attr.setType(String.class.getName());
+    attr.setValue(LOGIN);
 
-	private void setUser() {
-		user = new User();
-		user.setFirstName("Joe");
-		user.setLastName("Doe");
-		user = perun.getUsersManagerBl().createUser(sess, user);
-		assertNotNull(user);
-	}
+    assertNotNull("unable to create login namespace attribute",
+        perun.getAttributesManagerBl().createAttribute(sess, attr));
 
-	private void setLoginNamespaceAttribute() throws AttributeDefinitionExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException {
-		attr = new Attribute();
-		attr.setNamespace("urn:perun:user:attribute-def:def");
-		attr.setFriendlyName("login-namespace:META-login");
-		attr.setType(String.class.getName());
-		attr.setValue(LOGIN);
-
-		assertNotNull("unable to create login namespace attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
-
-		perun.getAttributesManagerBl().setAttribute(sess, user, attr);
-	}
+    perun.getAttributesManagerBl().setAttribute(sess, user, attr);
+  }
 }

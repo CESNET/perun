@@ -11,37 +11,37 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- *
  * @author David Flor <493294@mail.muni.cz>
  */
 public class ConfigManagerBlImpl implements ConfigManagerBl {
 
-	private final ConfigManagerImplApi configManagerImpl;
+  private final ConfigManagerImplApi configManagerImpl;
 
-	public ConfigManagerBlImpl(ConfigManagerImplApi configManagerImpl) {
-		this.configManagerImpl = configManagerImpl;
-	}
+  public ConfigManagerBlImpl(ConfigManagerImplApi configManagerImpl) {
+    this.configManagerImpl = configManagerImpl;
+  }
 
-	public ConfigManagerImplApi getConfigManagerImpl() {
-		return configManagerImpl;
-	}
+  public ConfigManagerImplApi getConfigManagerImpl() {
+    return configManagerImpl;
+  }
 
-	@Override
-	public void reloadAppsConfig() {
-		configManagerImpl.reloadAppsConfig();
-	}
+  @Override
+  public void reloadAppsConfig() {
+    configManagerImpl.reloadAppsConfig();
+  }
 
-	@Override
-	public OidcConfig getPerunOidcConfig(String requestUrl) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
-		String domain;
-		try {
-			URL url = new URL(requestUrl);
-			domain = url.getHost().startsWith("www.") ? url.getHost().substring(4) : url.getHost();
-		} catch (MalformedURLException ex) {
-			throw new InternalErrorException("request url is malformed", ex);
-		}
+  @Override
+  public OidcConfig getPerunOidcConfig(String requestUrl)
+      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
+    String domain;
+    try {
+      URL url = new URL(requestUrl);
+      domain = url.getHost().startsWith("www.") ? url.getHost().substring(4) : url.getHost();
+    } catch (MalformedURLException ex) {
+      throw new InternalErrorException("request url is malformed", ex);
+    }
 
-		return configManagerImpl.getPerunOidcConfig(domain);
-	}
+    return configManagerImpl.getPerunOidcConfig(domain);
+  }
 
 }

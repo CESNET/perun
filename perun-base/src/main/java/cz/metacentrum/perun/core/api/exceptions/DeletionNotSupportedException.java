@@ -8,15 +8,15 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class DeletionNotSupportedException extends PerunException {
 
-	public DeletionNotSupportedException(String message) {
-		super(message);
-	}
+  public DeletionNotSupportedException(String message) {
+    super(message);
+  }
 
-	public DeletionNotSupportedException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public DeletionNotSupportedException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public DeletionNotSupportedException(Throwable cause) {
-		super(cause);
-	}
+  public DeletionNotSupportedException(Throwable cause) {
+    super(cause);
+  }
 }

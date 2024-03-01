@@ -32,252 +32,252 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Provides page with add Group union form
- *
+ * <p>
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Michal Krajcovic <mkrajcovic@mail.muni.cz>
  */
 public class AddGroupUnionTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public final static String URL = "add-grp-union";
+  //data
+  public int groupId;
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Add Group union");
+  private Group group;
+  private List<Group> alreadyAddedList = new ArrayList<>();
+  private SimplePanel alreadyAdded = new SimplePanel();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  public AddGroupUnionTabItem(Group group) {
+    this.group = group;
+    this.groupId = group.getId();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Add Group union");
+  @Override
+  public Widget draw() {
+    titleWidget.setText("Add group union");
 
-	//data
-	public int groupId;
-	private Group group;
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	private List<Group> alreadyAddedList = new ArrayList<>();
-	private SimplePanel alreadyAdded = new SimplePanel();
+    // menu
+    TabMenu menu = new TabMenu();
+    menu.addWidget(new HTML(""));
 
-	public AddGroupUnionTabItem(Group group) {
-		this.group = group;
-		this.groupId = group.getId();
-	}
+    final GetAllGroups groups = new GetAllGroups(group.getVoId());
+    groups.setCoreGroupsCheckable(true);
 
-	@Override
-	public Widget draw() {
-		titleWidget.setText("Add group union");
+    // remove already added union groups from offering
+    JsonCallbackEvents localEvents = new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        // second callback
+        final GetGroupUnions alreadyAssigned = new GetGroupUnions(group, false, new JsonCallbackEvents() {
+          public void onFinished(JavaScriptObject jso) {
+            JsArray<Group> esToRemove = JsonUtils.jsoAsArray(jso);
+            for (int i = 0; i < esToRemove.length(); i++) {
+              groups.removeFromTable(esToRemove.get(i));
+            }
+            // remove itself
+            groups.removeFromTable(group);
+          }
+        });
+        alreadyAssigned.retrieveData();
+      }
+    };
+    groups.setEvents(localEvents);
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    final ExtendedSuggestBox box = new ExtendedSuggestBox(groups.getOracle());
 
-		// menu
-		TabMenu menu = new TabMenu();
-		menu.addWidget(new HTML(""));
+    // button
+    final CustomButton assignButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedExtSource());
+    final TabItem tab = this;
 
-		final GetAllGroups groups = new GetAllGroups(group.getVoId());
-		groups.setCoreGroupsCheckable(true);
+    assignButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        final ArrayList<Group> groupsToAdd = groups.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(groupsToAdd)) {
+          // FIXME - Should have only one callback to core
+          for (int i = 0; i < groupsToAdd.size(); i++) {
+            final int n = i;
+            AddGroupUnion request =
+                new AddGroupUnion(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    // unselect added person
+                    groups.getSelectionModel().setSelected(groupsToAdd.get(n), false);
+                    alreadyAddedList.add(groupsToAdd.get(n));
+                    rebuildAlreadyAddedWidget();
+                    // clear search
+                    box.getSuggestBox().setText("");
+                  }
+                }));
+            request.createGroupUnion(group, groupsToAdd.get(i));
+          }
+        }
+      }
+    });
 
-		// remove already added union groups from offering
-		JsonCallbackEvents localEvents = new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				// second callback
-				final GetGroupUnions alreadyAssigned = new GetGroupUnions(group, false, new JsonCallbackEvents() {
-					public void onFinished(JavaScriptObject jso) {
-						JsArray<Group> esToRemove = JsonUtils.jsoAsArray(jso);
-						for (int i = 0; i < esToRemove.length(); i++) {
-							groups.removeFromTable(esToRemove.get(i));
-						}
-						// remove itself
-						groups.removeFromTable(group);
-					}
-				});
-				alreadyAssigned.retrieveData();
-			}
-		};
-		groups.setEvents(localEvents);
+    // refresh
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		final ExtendedSuggestBox box = new ExtendedSuggestBox(groups.getOracle());
+    menu.addFilterWidget(box, new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        groups.filterTable(text);
+      }
+    }, "Filter by ext source name or type");
 
-		// button
-		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedExtSource());
-		final TabItem tab = this;
+    menu.addWidget(assignButton);
 
-		assignButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<Group> groupsToAdd = groups.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(groupsToAdd)) {
-					// FIXME - Should have only one callback to core
-					for (int i = 0; i < groupsToAdd.size(); i++) {
-						final int n = i;
-						AddGroupUnion request = new AddGroupUnion(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents() {
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								// unselect added person
-								groups.getSelectionModel().setSelected(groupsToAdd.get(n), false);
-								alreadyAddedList.add(groupsToAdd.get(n));
-								rebuildAlreadyAddedWidget();
-								// clear search
-								box.getSuggestBox().setText("");
-							}
-						}));
-						request.createGroupUnion(group, groupsToAdd.get(i));
-					}
-				}
-			}
-		});
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		// refresh
-		menu.addWidget(UiElements.getRefreshButton(this));
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		menu.addFilterWidget(box, new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				groups.filterTable(text);
-			}
-		}, "Filter by ext source name or type");
+    vp.add(alreadyAdded);
 
-		menu.addWidget(assignButton);
+    CellTable<Group> table = groups.getTable();
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    assignButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(groups, table, assignButton);
 
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    vp.add(sp);
 
-		vp.add(alreadyAdded);
+    // do not use resizePerunTable() when tab is in overlay - wrong width is calculated
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		CellTable<Group> table = groups.getTable();
+    this.contentWidget.setWidget(vp);
 
-		assignButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(groups, table, assignButton);
+    return getWidget();
+  }
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp);
+  /**
+   * Rebuild already added widget based on already added ext sources
+   */
+  private void rebuildAlreadyAddedWidget() {
 
-		// do not use resizePerunTable() when tab is in overlay - wrong width is calculated
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    alreadyAdded.setStyleName("alreadyAdded");
+    alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+    alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+    for (int i = 0; i < alreadyAddedList.size(); i++) {
+      alreadyAdded.getWidget().getElement().setInnerHTML(
+          alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") +
+              SafeHtmlUtils.fromString(alreadyAddedList.get(i).getName()).asString());
+    }
+  }
 
-		this.contentWidget.setWidget(vp);
+  @Override
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  @Override
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	/**
-	 * Rebuild already added widget based on already added ext sources
-	 */
-	private void rebuildAlreadyAddedWidget() {
+  @Override
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-		alreadyAdded.setStyleName("alreadyAdded");
-		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
-		alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-		for (int i = 0; i < alreadyAddedList.size(); i++) {
-			alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + SafeHtmlUtils.fromString(alreadyAddedList.get(i).getName()).asString());
-		}
-	}
+  @Override
+  public boolean equals(Object o) {
 
+    if (this == o) {
+      return true;
+    }
+    if (o == null) {
+      return false;
+    }
+    if (getClass() != o.getClass()) {
+      return false;
+    }
 
-	@Override
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    AddGroupUnionTabItem create = (AddGroupUnionTabItem) o;
+    if (groupId != create.groupId) {
+      return false;
+    }
+    return true;
 
-	@Override
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  }
 
-	@Override
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  @Override
+  public int hashCode() {
 
-	@Override
-	public boolean equals(Object o) {
+    final int prime = 104759;
+    int result = 1;
+    result = prime * result + 6786786;
+    return result;
 
-		if (this == o)
-			return true;
-		if (o == null)
-			return false;
-		if (getClass() != o.getClass())
-			return false;
+  }
 
-		AddGroupUnionTabItem create = (AddGroupUnionTabItem) o;
-		if (groupId != create.groupId){
-			return false;
-		}
-		return true;
+  @Override
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	}
+  @Override
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
+    if (group != null) {
+      session.setActiveGroup(group);
+      return;
+    }
+    session.setActiveGroupId(groupId);
+  }
 
-	@Override
-	public int hashCode() {
+  @Override
+  public boolean isAuthorized() {
+    return (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId()));
+  }
 
-		final int prime = 104759;
-		int result = 1;
-		result = prime * result + 6786786;
-		return result;
+  @Override
+  public boolean isPrepared() {
+    return !(group == null);
+  }
 
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return !alreadyAddedList.isEmpty();
+  }
 
-	@Override
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-		if (group != null) {
-			session.setActiveGroup(group);
-			return;
-		}
-		session.setActiveGroupId(groupId);
-	}
+  }
 
-	@Override
-	public boolean isAuthorized() {
-		return (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId()));
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	@Override
-	public boolean isPrepared() {
-		return !(group == null);
-	}
-
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return !alreadyAddedList.isEmpty();
-	}
-
-	@Override
-	public void onClose() {
-
-	}
-
-	public final static String URL = "add-grp-union";
-
-	public String getUrl() {
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
-	}
+  public String getUrlWithParameters() {
+    return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
+  }
 }

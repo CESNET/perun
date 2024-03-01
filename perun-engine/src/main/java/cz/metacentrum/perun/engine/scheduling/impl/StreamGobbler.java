@@ -14,43 +14,43 @@ import org.slf4j.LoggerFactory;
  */
 class StreamGobbler extends Thread {
 
-	private InputStream is;
-	private StringBuilder sb;
-	private final static Logger log = LoggerFactory
-			.getLogger(StreamGobbler.class);
+  private final static Logger log = LoggerFactory
+      .getLogger(StreamGobbler.class);
+  private InputStream is;
+  private StringBuilder sb;
 
-	StreamGobbler(InputStream is) {
-		super("StreamGobbler");
-		this.sb = new StringBuilder();
-		this.is = is;
-	}
+  StreamGobbler(InputStream is) {
+    super("StreamGobbler");
+    this.sb = new StringBuilder();
+    this.is = is;
+  }
 
-	public String getSb() {
-		return sb.toString();
-	}
+  public String getSb() {
+    return sb.toString();
+  }
 
-	@Override
-	public void run() {
-		BufferedReader br = null;
-		try {
-			InputStreamReader isr = new InputStreamReader(is);
-			br = new BufferedReader(isr);
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				this.sb.append(line);
-				this.sb.append("\n");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null) {
-					br.close();
-				}
-			} catch (IOException e) {
-				log.error(e.toString(), e);
-			}
-		}
-	}
+  @Override
+  public void run() {
+    BufferedReader br = null;
+    try {
+      InputStreamReader isr = new InputStreamReader(is);
+      br = new BufferedReader(isr);
+      String line = null;
+      while ((line = br.readLine()) != null) {
+        this.sb.append(line);
+        this.sb.append("\n");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        if (br != null) {
+          br.close();
+        }
+      } catch (IOException e) {
+        log.error(e.toString(), e);
+      }
+    }
+  }
 
 }

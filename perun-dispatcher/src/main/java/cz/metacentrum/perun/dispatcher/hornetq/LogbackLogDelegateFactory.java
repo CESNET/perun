@@ -10,9 +10,9 @@ import org.hornetq.spi.core.logging.LogDelegateFactory;
  */
 public class LogbackLogDelegateFactory implements LogDelegateFactory {
 
-	@Override
-	public LogDelegate createDelegate(Class clazz) {
-		return new LogbackLogDelegate(clazz);
-	}
+  @Override
+  public LogDelegate createDelegate(Class clazz) {
+    return new LogbackLogDelegate(clazz);
+  }
 
 }

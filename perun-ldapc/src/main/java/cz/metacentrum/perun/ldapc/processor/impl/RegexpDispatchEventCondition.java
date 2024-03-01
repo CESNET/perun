@@ -8,16 +8,16 @@ import java.util.regex.Pattern;
 
 public class RegexpDispatchEventCondition extends SimpleDispatchEventCondition {
 
-	private Pattern pattern;
+  private Pattern pattern;
 
-	@Required
-	public void setPattern(String regexp) {
-		this.pattern = Pattern.compile(regexp, Pattern.DOTALL);
-	}
+  @Required
+  public void setPattern(String regexp) {
+    this.pattern = Pattern.compile(regexp, Pattern.DOTALL);
+  }
 
-	@Override
-	public boolean isApplicable(MessageBeans beans, String msg) {
-		Matcher matcher = pattern.matcher(msg);
-		return super.isApplicable(beans, msg) && matcher.find();
-	}
+  @Override
+  public boolean isApplicable(MessageBeans beans, String msg) {
+    Matcher matcher = pattern.matcher(msg);
+    return super.isApplicable(beans, msg) && matcher.find();
+  }
 }

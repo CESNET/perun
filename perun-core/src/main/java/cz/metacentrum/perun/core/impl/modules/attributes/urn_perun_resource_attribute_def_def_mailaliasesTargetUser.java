@@ -18,36 +18,43 @@ import java.util.regex.Pattern;
  *
  * @author Michal Stava   <stavamichal@gmail.com>
  */
-public class urn_perun_resource_attribute_def_def_mailaliasesTargetUser extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_mailaliasesTargetUser extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	private static final Pattern userPattern = Pattern.compile("^[-a-zA-Z0-9_]+$");
+  private static final Pattern userPattern = Pattern.compile("^[-a-zA-Z0-9_]+$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		String targetUser = attribute.valueAsString();
-		Matcher userMatcher = userPattern.matcher(targetUser);
-		if(!userMatcher.matches()) {
-			throw new WrongAttributeValueException(attribute, resource, null, "Matcher must match to ^[-a-zA-Z0-9_]+$ pattern.");
-		}
-	}
+    String targetUser = attribute.valueAsString();
+    Matcher userMatcher = userPattern.matcher(targetUser);
+    if (!userMatcher.matches()) {
+      throw new WrongAttributeValueException(attribute, resource, null,
+          "Matcher must match to ^[-a-zA-Z0-9_]+$ pattern.");
+    }
+  }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value can't be null.");
-		}
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Attribute value can't be null.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("mailaliasesTargetUser");
-		attr.setDisplayName("Target user for mailaliases");
-		attr.setType(String.class.getName());
-		attr.setDescription("Target user for mailaliases settings.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("mailaliasesTargetUser");
+    attr.setDisplayName("Target user for mailaliases");
+    attr.setType(String.class.getName());
+    attr.setDescription("Target user for mailaliases settings.");
+    return attr;
+  }
 }

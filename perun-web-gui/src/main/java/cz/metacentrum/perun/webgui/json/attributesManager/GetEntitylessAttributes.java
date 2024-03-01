@@ -30,7 +30,6 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -41,247 +40,250 @@ import java.util.Map;
  */
 public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<Attribute> {
 
-	// Perun session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  final MultiSelectionModel<Attribute> selectionModel = new MultiSelectionModel<>(new EntitylessAttributeKeyProvider());
+  // Perun session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // Json callback events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // Table data provider
+  private ListDataProvider<Attribute> dataProvider = new ListDataProvider<>();
+  // Table
+  private PerunTable<Attribute> table;
+  // List of attributes
+  private ArrayList<Attribute> list = new ArrayList<>();
 
-	// Json callback events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  private AttributeDefinition attributeDefinition;
 
-	final MultiSelectionModel<Attribute> selectionModel = new MultiSelectionModel<>(new EntitylessAttributeKeyProvider());
-	// Table data provider
-	private ListDataProvider<Attribute> dataProvider = new ListDataProvider<>();
-	// Table
-	private PerunTable<Attribute> table;
-	// List of attributes
-	private ArrayList<Attribute> list = new ArrayList<>();
+  // FIELD UPDATER - when user clicks on a row
+  private FieldUpdater<Attribute, String> tableFieldUpdater;
+  // loader image
+  private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 
-	private AttributeDefinition attributeDefinition;
+  private boolean editable = true;
+  private boolean checkable = true;
+  private boolean ownClear = false;
 
-	// FIELD UPDATER - when user clicks on a row
-	private FieldUpdater<Attribute, String> tableFieldUpdater;
-	// loader image
-	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+  public GetEntitylessAttributes(AttributeDefinition attributeDefinition) {
+    this.attributeDefinition = attributeDefinition;
+  }
 
-	private boolean editable = true;
-	private boolean checkable = true;
-	private boolean ownClear = false;
+  public GetEntitylessAttributes(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	public GetEntitylessAttributes(AttributeDefinition attributeDefinition) {
-		this.attributeDefinition = attributeDefinition;
-	}
+  @Override
+  public void clearTable() {
+    loaderImage.loadingStart();
+    list.clear();
+    selectionModel.clear();
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	public GetEntitylessAttributes(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  @Override
+  public void insertToTable(int index, Attribute object) {
+    list.add(index, object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	@Override
-	public void clearTable() {
-		loaderImage.loadingStart();
-		list.clear();
-		selectionModel.clear();
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  @Override
+  public void addToTable(Attribute object) {
+    list.add(object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	@Override
-	public void insertToTable(int index, Attribute object) {
-		list.add(index, object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  @Override
+  public void removeFromTable(Attribute object) {
+    list.remove(object);
+    selectionModel.getSelectedSet().remove(object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	@Override
-	public void addToTable(Attribute object) {
-		list.add(object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  @Override
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+  }
 
-	@Override
-	public void removeFromTable(Attribute object) {
-		list.remove(object);
-		selectionModel.getSelectedSet().remove(object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  @Override
+  public void setCheckable(boolean checkable) {
+    this.checkable = checkable;
+  }
 
-	@Override
-	public void setEditable(boolean editable) {
-		this.editable = editable;
-	}
+  @Override
+  public void clearTableSelectedSet() {
+    selectionModel.clear();
+  }
 
-	@Override
-	public void setCheckable(boolean checkable) {
-		this.checkable = checkable;
-	}
+  @Override
+  public ArrayList<Attribute> getTableSelectedList() {
+    return JsonUtils.setToList(selectionModel.getSelectedSet());
+  }
 
-	@Override
-	public void clearTableSelectedSet() {
-		selectionModel.clear();
-	}
+  @Override
+  public ArrayList<Attribute> getList() {
+    return this.list;
+  }
 
-	@Override
-	public ArrayList<Attribute> getTableSelectedList() {
-		return JsonUtils.setToList(selectionModel.getSelectedSet());
-	}
+  @Override
+  public void setList(ArrayList<Attribute> list) {
+    if (!ownClear) {
+      clearTable();
+    }
+    this.list.addAll(list);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	@Override
-	public void setList(ArrayList<Attribute> list) {
-		if (!ownClear) clearTable();
-		this.list.addAll(list);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  @Override
+  public CellTable<Attribute> getTable() {
+    CellTable<Attribute> table = getEmptyTable();
+    // retrieve data
+    retrieveData();
+    return table;
+  }
 
-	@Override
-	public ArrayList<Attribute> getList() {
-		return this.list;
-	}
+  public CellTable<Attribute> getEmptyTable() {
 
-	@Override
-	public CellTable<Attribute> getTable() {
-		CellTable<Attribute> table = getEmptyTable();
-		// retrieve data
-		retrieveData();
-		return table;
-	}
+    // Table data provider.
+    dataProvider = new ListDataProvider<>(list);
 
-	public CellTable<Attribute> getEmptyTable() {
+    // Cell table
+    table = new PerunTable<>(list);
+    table.removeRowCountChangeHandler(); // remove row count change handler
 
-		// Table data provider.
-		dataProvider = new ListDataProvider<>(list);
+    // Connect the table to the data provider.
+    dataProvider.addDataDisplay(table);
 
-		// Cell table
-		table = new PerunTable<>(list);
-		table.removeRowCountChangeHandler(); // remove row count change handler
+    // Sorting
+    ColumnSortEvent.ListHandler<Attribute> columnSortHandler =
+        new ColumnSortEvent.ListHandler<>(dataProvider.getList());
+    table.addColumnSortHandler(columnSortHandler);
 
-		// Connect the table to the data provider.
-		dataProvider.addDataDisplay(table);
+    // set empty content & loader
+    table.setEmptyTableWidget(loaderImage);
 
-		// Sorting
-		ColumnSortEvent.ListHandler<Attribute> columnSortHandler = new ColumnSortEvent.ListHandler<>(dataProvider.getList());
-		table.addColumnSortHandler(columnSortHandler);
+    loaderImage.setEmptyResultMessage("No attributes found. Use 'Add' button to add new key=value.");
 
-		// set empty content & loader
-		table.setEmptyTableWidget(loaderImage);
+    // because of tab index
+    table.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
 
-		loaderImage.setEmptyResultMessage("No attributes found. Use 'Add' button to add new key=value.");
+    // checkbox column
+    if (checkable) {
 
-		// because of tab index
-		table.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
+      // checkbox column column
+      Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
+          new PerunCheckboxCell<>(true, false, false)) {
+        @Override
+        public Attribute getValue(Attribute object) {
+          // Get the value from the selection model.
+          GeneralObject go = object.cast();
+          go.setChecked(selectionModel.isSelected(object));
+          return go.cast();
+        }
+      };
 
-		// checkbox column
-		if (checkable) {
+      // updates the columns size
+      table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
 
-			// checkbox column column
-			Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
-				new PerunCheckboxCell<>(true, false, false)) {
-				@Override
-				public Attribute getValue(Attribute object) {
-					// Get the value from the selection model.
-					GeneralObject go = object.cast();
-					go.setChecked(selectionModel.isSelected(object));
-					return go.cast();
-				}
-			};
+      // Add the columns
 
-			// updates the columns size
-			table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
+      // Checkbox column header
+      CheckboxCell cb = new CheckboxCell();
+      Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+        public Boolean getValue() {
+          return false;//return true to see a checked checkbox.
+        }
+      };
+      checkBoxHeader.setUpdater(value -> {
+        // sets selected to all, if value = true, unselect otherwise
+        for (Attribute obj : list) {
+          if (obj.isWritable()) {
+            selectionModel.setSelected(obj, value);
+          }
+        }
+      });
 
-			// Add the columns
+      // table selection
+      table.setSelectionModel(selectionModel, DefaultSelectionEventManager.createCheckboxManager(0));
 
-			// Checkbox column header
-			CheckboxCell cb = new CheckboxCell();
-			Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
-				public Boolean getValue() {
-					return false;//return true to see a checked checkbox.
-				}
-			};
-			checkBoxHeader.setUpdater(value -> {
-				// sets selected to all, if value = true, unselect otherwise
-				for (Attribute obj : list) {
-					if (obj.isWritable()) {
-						selectionModel.setSelected(obj, value);
-					}
-				}
-			});
+      table.addColumn(checkBoxColumn, checkBoxHeader);
 
-			// table selection
-			table.setSelectionModel(selectionModel, DefaultSelectionEventManager.createCheckboxManager(0));
+    }
 
-			table.addColumn(checkBoxColumn, checkBoxHeader);
+    //Key column
+    TextColumn<Attribute> keyColumn = new TextColumn<Attribute>() {
+      @Override
+      public String getValue(Attribute attribute) {
+        return attribute.getKey();
+      }
+    };
+    keyColumn.setSortable(true);
+    table.addColumn(keyColumn, "Key");
+    this.table.setColumnWidth(keyColumn, 200.0, Style.Unit.PX);
 
-		}
+    // Value column
+    Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(new PerunAttributeValueCell());
+    valueColumn.setFieldUpdater((index, object, value) -> {
+      object = value;
+      selectionModel.setSelected(object, object.isAttributeValid());
+    });
 
-		//Key column
-		TextColumn<Attribute> keyColumn = new TextColumn<Attribute>() {
-			@Override
-			public String getValue(Attribute attribute) {
-				return attribute.getKey();
-			}
-		};
-		keyColumn.setSortable(true);
-		table.addColumn(keyColumn, "Key");
-		this.table.setColumnWidth(keyColumn, 200.0, Style.Unit.PX);
+    // Add sorting
+    this.table.addColumnSortHandler(columnSortHandler);
 
-		// Value column
-		Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(new PerunAttributeValueCell());
-		valueColumn.setFieldUpdater((index, object, value) -> {
-			object = value;
-			selectionModel.setSelected(object, object.isAttributeValid());
-		});
+    // Add the columns.
+    this.table.addColumn(valueColumn, "Value");
 
-		// Add sorting
-		this.table.addColumnSortHandler(columnSortHandler);
+    return this.table;
+  }
 
-		// Add the columns.
-		this.table.addColumn(valueColumn, "Value");
+  @Override
+  public void onFinished(JavaScriptObject jso) {
+    if (!ownClear) {
+      clearTable();
+    }
+    ArrayList<Attribute> attrList = new ArrayList<>();
+    Map<String, JSONValue> bot = JsonUtils.parseJsonToMap(jso);
+    for (String key : bot.keySet()) {
+      Attribute a = bot.get(key).isObject().getJavaScriptObject().cast();
+      a.setKey(key);
+      attrList.add(a);
+    }
+    setList(attrList);
+    sortTable();
+    loaderImage.loadingFinished();
+    events.onFinished(jso);
+  }
 
-		return this.table;
-	}
+  @Override
+  public void onError(PerunError error) {
+    session.getUiElements().setLogErrorText("Error while loading attributes.");
+    loaderImage.loadingError(error);
+    events.onError(error);
+  }
 
-	@Override
-	public void onFinished(JavaScriptObject jso) {
-		if (!ownClear) clearTable();
-		ArrayList<Attribute> attrList = new ArrayList<>();
-		Map<String, JSONValue> bot = JsonUtils.parseJsonToMap(jso);
-		for (String key : bot.keySet()) {
-			Attribute a = bot.get(key).isObject().getJavaScriptObject().cast();
-			a.setKey(key);
-			attrList.add(a);
-		}
-		setList(attrList);
-		sortTable();
-		loaderImage.loadingFinished();
-		events.onFinished(jso);
-	}
+  @Override
+  public void onLoadingStart() {
+    loaderImage.loadingStart();
+    session.getUiElements().setLogText("Loading attributes started.");
+    events.onLoadingStart();
+  }
 
-	@Override
-	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading attributes.");
-		loaderImage.loadingError(error);
-		events.onError(error);
-	}
+  @Override
+  public void retrieveData() {
+    String params = "attrName=" + attributeDefinition.getName();
+    String JSON_URL_ATRIBUTES = "attributesManager/getEntitylessAttributesWithKeys";
+    JsonClient js = new JsonClient();
+    js.retrieveData(JSON_URL_ATRIBUTES, params, this);
+  }
 
-	@Override
-	public void onLoadingStart() {
-		loaderImage.loadingStart();
-		session.getUiElements().setLogText("Loading attributes started.");
-		events.onLoadingStart();
-	}
-
-	@Override
-	public void retrieveData() {
-		String params = "attrName=" + attributeDefinition.getName();
-		String JSON_URL_ATRIBUTES = "attributesManager/getEntitylessAttributesWithKeys";
-		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL_ATRIBUTES, params, this);
-	}
-
-	public void sortTable() {
-		list = new TableSorter<Attribute>().sortById(getList());
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  public void sortTable() {
+    list = new TableSorter<Attribute>().sortById(getList());
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
 }

@@ -7,35 +7,35 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class ExtSourceAddedToGroup extends AuditEvent implements EngineIgnoreEvent {
 
-	private ExtSource source;
-	private Group group;
-	private String message;
+  private ExtSource source;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ExtSourceAddedToGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ExtSourceAddedToGroup() {
+  }
 
-	public ExtSourceAddedToGroup(ExtSource source, Group group) {
-		this.source = source;
-		this.group = group;
-		this.message = formatMessage("%s added to %s.", source, group);
-	}
+  public ExtSourceAddedToGroup(ExtSource source, Group group) {
+    this.source = source;
+    this.group = group;
+    this.message = formatMessage("%s added to %s.", source, group);
+  }
 
-	public ExtSource getSource() {
-		return source;
-	}
+  public ExtSource getSource() {
+    return source;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

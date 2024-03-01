@@ -33,185 +33,186 @@ import java.util.Map;
  */
 public class FacilityBlacklistTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading facility");
-
-	// data
-	private int facilityId = 0;
-	private Facility facility;
-
-	/**
-	 * Creates a tab instance
-	 * @param facilityId
-	 */
-	public FacilityBlacklistTabItem(int facilityId){
-		this.facilityId = facilityId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				facility = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public final static String URL = "black";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading facility");
+  // data
+  private int facilityId = 0;
+  private Facility facility;
 
 
-	public boolean isPrepared(){
-		return !(facility == null);
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId
+   */
+  public FacilityBlacklistTabItem(int facilityId) {
+    this.facilityId = facilityId;
+    new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        facility = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facility
+   */
+  public FacilityBlacklistTabItem(Facility facility) {
+    this.facilityId = facility.getId();
+    this.facility = facility;
+  }
 
-	@Override
-	public void onClose() {
+  static public FacilityBlacklistTabItem load(Map<String, String> parameters) {
+    int fid = Integer.parseInt(parameters.get("id"));
+    return new FacilityBlacklistTabItem(fid);
+  }
 
-	}
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param facility
-	 */
-	public FacilityBlacklistTabItem(Facility facility){
-		this.facilityId = facility.getId();
-		this.facility = facility;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public Widget draw() {
+  @Override
+  public void onClose() {
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Blacklist");
+  }
 
-		// main panel
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%","100%");
+  public Widget draw() {
 
-		final GetBlacklistWithDescription securityTeams = new GetBlacklistWithDescription(PerunEntity.FACILITY, facilityId);
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Blacklist");
 
-		// menu
-		TabMenu menu = new TabMenu();
-		menu.addWidget(UiElements.getRefreshButton(this));
+    // main panel
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		menu.addFilterWidget(new ExtendedSuggestBox(securityTeams.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				securityTeams.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterSecurityTeam());
+    final GetBlacklistWithDescription securityTeams = new GetBlacklistWithDescription(PerunEntity.FACILITY, facilityId);
 
-		CellTable<Pair<User,String>> table;
-		if (session.isPerunAdmin() || session.isSecurityAdmin()) {
-			table = securityTeams.getTable(new FieldUpdater<Pair<User,String>, String>() {
-				@Override
-				public void update(int index, Pair<User,String> object, String value) {
-					session.getTabManager().addTab(new UserDetailTabItem(object.getLeft()));
-				}
-			});
-		} else {
-			table = securityTeams.getTable();
-		}
+    // menu
+    TabMenu menu = new TabMenu();
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    menu.addFilterWidget(new ExtendedSuggestBox(securityTeams.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        securityTeams.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterSecurityTeam());
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(menu);
-		firstTabPanel.setCellHeight(menu, "30px");
-		firstTabPanel.add(sp);
+    CellTable<Pair<User, String>> table;
+    if (session.isPerunAdmin() || session.isSecurityAdmin()) {
+      table = securityTeams.getTable(new FieldUpdater<Pair<User, String>, String>() {
+        @Override
+        public void update(int index, Pair<User, String> object, String value) {
+          session.getTabManager().addTab(new UserDetailTabItem(object.getLeft()));
+        }
+      });
+    } else {
+      table = securityTeams.getTable();
+    }
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		this.contentWidget.setWidget(firstTabPanel);
+    // add menu and the table to the main panel
+    firstTabPanel.add(menu);
+    firstTabPanel.setCellHeight(menu, "30px");
+    firstTabPanel.add(sp);
 
-		return getWidget();
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-	}
+    this.contentWidget.setWidget(firstTabPanel);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    return getWidget();
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  }
 
-	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.firewallIcon();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 739;
-		int result = 1;
-		result = prime * result + facilityId;
-		return result;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FacilityBlacklistTabItem other = (FacilityBlacklistTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		return true;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.firewallIcon();
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 739;
+    int result = 1;
+    result = prime * result + facilityId;
+    return result;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(facility, "Security teams", getUrlWithParameters());
-		if(facility != null) {
-			session.setActiveFacility(facility);
-		} else {
-			session.setActiveFacilityId(facilityId);
-		}
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FacilityBlacklistTabItem other = (FacilityBlacklistTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean isAuthorized() {
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-		if (session.isFacilityAdmin(facilityId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(facility, "Security teams", getUrlWithParameters());
+    if (facility != null) {
+      session.setActiveFacility(facility);
+    } else {
+      session.setActiveFacilityId(facilityId);
+    }
+  }
 
-	}
+  public boolean isAuthorized() {
 
-	public final static String URL = "black";
+    if (session.isFacilityAdmin(facilityId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public String getUrl()
-	{
-		return URL;
-	}
+  }
 
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	static public FacilityBlacklistTabItem load(Map<String, String> parameters) {
-		int fid = Integer.parseInt(parameters.get("id"));
-		return new FacilityBlacklistTabItem(fid);
-	}
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facilityId;
+  }
 
 }

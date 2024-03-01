@@ -18,5 +18,4 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 public interface PerunManagerBl {
 
 
-
 }

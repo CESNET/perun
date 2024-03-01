@@ -7,35 +7,35 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class GroupMembershipExpirationInMonthNotification extends AuditEvent implements EngineIgnoreEvent {
 
-	private Member member;
-	private Group group;
-	private String message;
+  private Member member;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public GroupMembershipExpirationInMonthNotification() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public GroupMembershipExpirationInMonthNotification() {
+  }
 
-	public GroupMembershipExpirationInMonthNotification(Member member, Group group) {
-		this.member = member;
-		this.group = group;
-		this.message = formatMessage("%s will expire in a month in %s.", member, group);
-	}
+  public GroupMembershipExpirationInMonthNotification(Member member, Group group) {
+    this.member = member;
+    this.group = group;
+    this.message = formatMessage("%s will expire in a month in %s.", member, group);
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

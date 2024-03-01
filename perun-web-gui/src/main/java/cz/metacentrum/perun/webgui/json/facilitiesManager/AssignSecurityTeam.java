@@ -16,112 +16,118 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class AssignSecurityTeam {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// IDS
-	private int secTeam = 0;
-	private int facility = 0;
-	// URL to call
-	final String JSON_URL = "facilitiesManager/assignSecurityTeam";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "facilitiesManager/assignSecurityTeam";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // IDS
+  private int secTeam = 0;
+  private int facility = 0;
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	/**
-	 * Creates a new request
-	 */
-	public AssignSecurityTeam() {}
+  /**
+   * Creates a new request
+   */
+  public AssignSecurityTeam() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public AssignSecurityTeam(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public AssignSecurityTeam(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false if process can/can't continue
-	 */
-	private boolean testAdding()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false if process can/can't continue
+   */
+  private boolean testAdding() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(facility == 0){
-			errorMsg += "Wrong parameter 'Facility'.\n";
-			result = false;
-		}
+    if (facility == 0) {
+      errorMsg += "Wrong parameter 'Facility'.\n";
+      result = false;
+    }
 
-		if(secTeam == 0){
-			errorMsg += "Wrong parameter 'Security team'.\n";
-			result = false;
-		}
+    if (secTeam == 0) {
+      errorMsg += "Wrong parameter 'Security team'.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to add security team to facility, it first tests the values and then submits them.
-	 *
-	 * @param facility ID of facility which should have security team added
-	 * @param secTeam ID of SecurityTeam to be added to facility
-	 */
-	public void assignSecurityTeam(final int facility,final int secTeam)
-	{
-		this.facility = facility;
-		this.secTeam = secTeam;
+  /**
+   * Attempts to add security team to facility, it first tests the values and then submits them.
+   *
+   * @param facility ID of facility which should have security team added
+   * @param secTeam  ID of SecurityTeam to be added to facility
+   */
+  public void assignSecurityTeam(final int facility, final int secTeam) {
+    this.facility = facility;
+    this.secTeam = secTeam;
 
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		// json object
-		JSONObject jsonQuery = prepareJSONObject();
+    // json object
+    JSONObject jsonQuery = prepareJSONObject();
 
-		// local events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+    // local events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding SecurityTeam " + secTeam + " to facility "+facility+" failed.");
-				events.onError(error);
-			};
+      public void onError(PerunError error) {
+        session.getUiElements()
+            .setLogErrorText("Adding SecurityTeam " + secTeam + " to facility " + facility + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("SecurityTeam " + secTeam + " added to facility "+ facility);
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("SecurityTeam " + secTeam + " added to facility " + facility);
+        events.onFinished(jso);
+      }
 
-		};
+      ;
 
-		// create request
-		JsonPostClient request = new JsonPostClient(newEvents);
-		request.sendData(JSON_URL, jsonQuery);
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	}
+      ;
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("facility", new JSONNumber(facility));
-		jsonQuery.put("securityTeam", new JSONNumber(secTeam));
-		return jsonQuery;
-	}
+    };
+
+    // create request
+    JsonPostClient request = new JsonPostClient(newEvents);
+    request.sendData(JSON_URL, jsonQuery);
+
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("facility", new JSONNumber(facility));
+    jsonQuery.put("securityTeam", new JSONNumber(secTeam));
+    return jsonQuery;
+  }
 
 }

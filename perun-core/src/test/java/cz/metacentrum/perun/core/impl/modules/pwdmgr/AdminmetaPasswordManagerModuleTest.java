@@ -20,64 +20,64 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  */
 public class AdminmetaPasswordManagerModuleTest extends AbstractPerunIntegrationTest {
 
-	private AdminmetaPasswordManagerModule module;
+  private AdminmetaPasswordManagerModule module;
 
-	@Before
-	public void setUp() {
-		this.module = (AdminmetaPasswordManagerModule) ((PerunBl) sess.getPerun()).getUsersManagerBl()
-				.getPasswordManagerModule(sess, "admin-meta");
-	}
+  @Before
+  public void setUp() {
+    this.module = (AdminmetaPasswordManagerModule) ((PerunBl) sess.getPerun()).getUsersManagerBl()
+        .getPasswordManagerModule(sess, "admin-meta");
+  }
 
-	@Test
-	public void passwordTooShortTest() {
-		String password = "123456";
-		assertThatExceptionOfType(PasswordStrengthException.class)
-			.isThrownBy(() -> module.checkPasswordStrength(sess, "test", password));
-	}
+  @Test
+  public void passwordTooShortTest() {
+    String password = "123456";
+    assertThatExceptionOfType(PasswordStrengthException.class)
+        .isThrownBy(() -> module.checkPasswordStrength(sess, "test", password));
+  }
 
-	@Test
-	public void passwordContainsLoginTest() {
-		String password = "1234test567890";
-		assertThatExceptionOfType(PasswordStrengthException.class)
-			.isThrownBy(() -> module.checkPasswordStrength(sess, "test", password));
-	}
+  @Test
+  public void passwordContainsLoginTest() {
+    String password = "1234test567890";
+    assertThatExceptionOfType(PasswordStrengthException.class)
+        .isThrownBy(() -> module.checkPasswordStrength(sess, "test", password));
+  }
 
-	@Test
-	public void passwordContainsReverseLoginTest() {
-		String password = "1234tset567890";
-		assertThatExceptionOfType(PasswordStrengthException.class)
-			.isThrownBy(() -> module.checkPasswordStrength(sess, "test", password));
-	}
+  @Test
+  public void passwordContainsReverseLoginTest() {
+    String password = "1234tset567890";
+    assertThatExceptionOfType(PasswordStrengthException.class)
+        .isThrownBy(() -> module.checkPasswordStrength(sess, "test", password));
+  }
 
-	@Test
-	public void passwordIsWeakTest() {
-		String password = "bcvjoEWIQOfdsa";
-		assertThatExceptionOfType(PasswordStrengthException.class)
-			.isThrownBy(() -> module.checkPasswordStrength(sess, "login", password));
-	}
+  @Test
+  public void passwordIsWeakTest() {
+    String password = "bcvjoEWIQOfdsa";
+    assertThatExceptionOfType(PasswordStrengthException.class)
+        .isThrownBy(() -> module.checkPasswordStrength(sess, "login", password));
+  }
 
-	@Test
-	public void passwordIsValidTest() {
-		String password = "viwuq24736/?+-";
-		assertThatNoException()
-			.isThrownBy(() -> module.checkPasswordStrength(sess, "login", password));
-	}
+  @Test
+  public void passwordIsValidTest() {
+    String password = "viwuq24736/?+-";
+    assertThatNoException()
+        .isThrownBy(() -> module.checkPasswordStrength(sess, "login", password));
+  }
 
-	@Test
-	public void loginTooLongTest() {
-		assertThatExceptionOfType(InvalidLoginException.class)
-			.isThrownBy(() -> module.checkLoginFormat(sess, "aaaaaaaaaaaa1234"));
-	}
+  @Test
+  public void loginTooLongTest() {
+    assertThatExceptionOfType(InvalidLoginException.class)
+        .isThrownBy(() -> module.checkLoginFormat(sess, "aaaaaaaaaaaa1234"));
+  }
 
-	@Test
-	public void loginWithInvalidCharTest() {
-		assertThatExceptionOfType(InvalidLoginException.class)
-			.isThrownBy(() -> module.checkLoginFormat(sess, "abc123["));
-	}
+  @Test
+  public void loginWithInvalidCharTest() {
+    assertThatExceptionOfType(InvalidLoginException.class)
+        .isThrownBy(() -> module.checkLoginFormat(sess, "abc123["));
+  }
 
-	@Test
-	public void loginValidTest() {
-		assertThatNoException()
-			.isThrownBy(() -> module.checkLoginFormat(sess, "abc123"));
-	}
+  @Test
+  public void loginValidTest() {
+    assertThatNoException()
+        .isThrownBy(() -> module.checkLoginFormat(sess, "abc123"));
+  }
 }

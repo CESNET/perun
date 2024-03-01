@@ -17,96 +17,102 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 public class DeleteResource {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "resourcesManager/deleteResource";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private int resourceId = 0;
+  // URL to call
+  final String JSON_URL = "resourcesManager/deleteResource";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private int resourceId = 0;
 
-	/**
-	 * Creates a new request
-	 */
-	public DeleteResource() {
-	}
+  /**
+   * Creates a new request
+   */
+  public DeleteResource() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public DeleteResource(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public DeleteResource(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testDeleting()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testDeleting() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(resourceId == 0){
-			errorMsg += "Wrong parameter 'resource ID'";
-			result = false;
-		}
+    if (resourceId == 0) {
+      errorMsg += "Wrong parameter 'resource ID'";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Parameter error", errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Parameter error", errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to delete resource, it first tests the values and then submits them
-	 *
-	 * @param resourceId ID of resource to be deleted
-	 */
-	public void deleteResource(final int resourceId) {
+  /**
+   * Attempts to delete resource, it first tests the values and then submits them
+   *
+   * @param resourceId ID of resource to be deleted
+   */
+  public void deleteResource(final int resourceId) {
 
-		this.resourceId = resourceId;
+    this.resourceId = resourceId;
 
-		// test arguments
-		if(!this.testDeleting()){
-			return;
-		}
+    // test arguments
+    if (!this.testDeleting()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting resource: " + resourceId + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Deleting resource: " + resourceId + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Resource " + resourceId + " deleted.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Resource " + resourceId + " deleted.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("resource", new JSONNumber(resourceId));
-		return jsonQuery;
-	}
+      ;
+    };
+
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("resource", new JSONNumber(resourceId));
+    return jsonQuery;
+  }
 
 }

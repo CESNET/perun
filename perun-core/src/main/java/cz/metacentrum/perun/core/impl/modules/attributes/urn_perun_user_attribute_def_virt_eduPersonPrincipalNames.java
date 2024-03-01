@@ -24,51 +24,55 @@ import java.util.regex.Pattern;
  * @author Michal Šťava <stavamichal@gmail.com>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends UserVirtualAttributesModuleAbstract
+    implements UserVirtualAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("[^@]+@[^@]+");
+  private static final Pattern pattern = Pattern.compile("[^@]+@[^@]+");
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 
-		// prevent duplicate entries in EPPN
-		Set<String> idpLogins = new HashSet<>();
-		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+    // prevent duplicate entries in EPPN
+    Set<String> idpLogins = new HashSet<>();
+    List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
-		for(UserExtSource uES: userExtSources) {
-			if(uES.getExtSource() != null) {
-				String login = uES.getLogin();
-				String type = uES.getExtSource().getType();
+    for (UserExtSource uES : userExtSources) {
+      if (uES.getExtSource() != null) {
+        String login = uES.getLogin();
+        String type = uES.getExtSource().getType();
 
-				if(type != null && login != null) {
-					// insert only EPPN formatted data
-					Matcher matcher = pattern.matcher(login);
-					if(type.equals(ExtSourcesManager.EXTSOURCE_IDP) && matcher.matches()) {
-						idpLogins.add(login);
-					}
-				}
-			}
-		}
+        if (type != null && login != null) {
+          // insert only EPPN formatted data
+          Matcher matcher = pattern.matcher(login);
+          if (type.equals(ExtSourcesManager.EXTSOURCE_IDP) && matcher.matches()) {
+            idpLogins.add(login);
+          }
+        }
+      }
+    }
 
-		Attribute attribute = new Attribute(attributeDefinition);
-		attribute.setValue(new ArrayList<>(idpLogins));
-		return attribute;
-	}
+    Attribute attribute = new Attribute(attributeDefinition);
+    attribute.setValue(new ArrayList<>(idpLogins));
+    return attribute;
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("eduPersonPrincipalNames");
-		attr.setDisplayName("EPPN");
-		attr.setType(ArrayList.class.getName());
-		attr.setDescription("Extsource logins from IDP.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("eduPersonPrincipalNames");
+    attr.setDisplayName("EPPN");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("Extsource logins from IDP.");
+    return attr;
+  }
 
-	@Override
-	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String login) {
-		if (login == null) return null;
-		return perunSession.getPerunBl().getUsersManagerBl().getUsersByExtSourceTypeAndLogin(perunSession, ExtSourcesManager.EXTSOURCE_IDP, login);
-	}
+  @Override
+  public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String login) {
+    if (login == null) {
+      return null;
+    }
+    return perunSession.getPerunBl().getUsersManagerBl()
+        .getUsersByExtSourceTypeAndLogin(perunSession, ExtSourcesManager.EXTSOURCE_IDP, login);
+  }
 }

@@ -16,53 +16,53 @@ import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_sshPublicAdminKeyTest {
 
-	private static urn_perun_user_attribute_def_def_sshPublicAdminKey classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
+  private static urn_perun_user_attribute_def_def_sshPublicAdminKey classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
 
-	@Before
-	public void setUp() {
-		classInstance = new urn_perun_user_attribute_def_def_sshPublicAdminKey();
-		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-		user = new User();
-		attributeToCheck = new Attribute();
-	}
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_user_attribute_def_def_sshPublicAdminKey();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    user = new User();
+    attributeToCheck = new Attribute();
+  }
 
-	@Test
-	public void testCheckAttributeSyntaxCorrect() throws Exception {
-		System.out.println("testCheckAttributeSyntaxCorrect()");
-		List<String> value = new ArrayList<>();
-		value.add("my_example");
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCheckAttributeSyntaxCorrect() throws Exception {
+    System.out.println("testCheckAttributeSyntaxCorrect()");
+    List<String> value = new ArrayList<>();
+    value.add("my_example");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithWrongValue()");
-		List<String> value = new ArrayList<>();
-		value.add("bad_example\n");
-		attributeToCheck.setValue(value);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+    List<String> value = new ArrayList<>();
+    value.add("bad_example\n");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithNullValue() throws Exception {
-		System.out.println("testCheckAttributeSemanticsWithNullValue()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithNullValue()");
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 
-	@Test
-	public void testCheckAttributeSemanticsCorrect() throws Exception {
-		System.out.println("testCheckAttributeSemanticsCorrect()");
-		List<String> value = new ArrayList<>();
-		value.add("my_example");
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
+    List<String> value = new ArrayList<>();
+    value.add("my_example");
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 }

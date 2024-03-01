@@ -9,7 +9,11 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.columnProviders.IsClickableCell;
 import cz.metacentrum.perun.webgui.json.columnProviders.VoColumnProvider;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
@@ -18,7 +22,6 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
-
 import java.util.ArrayList;
 
 /**
@@ -28,221 +31,227 @@ import java.util.ArrayList;
  */
 public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<VirtualOrganization> {
 
-	// JSON URL
-	private final String JSON_URL = "usersManager/getVosWhereUserIsAdmin";
-	// session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// Data provider.
-	private ListDataProvider<VirtualOrganization> dataProvider = new ListDataProvider<VirtualOrganization>();
-	// Table itself
-	private PerunTable<VirtualOrganization> table;
-	// Table list
-	private ArrayList<VirtualOrganization> list = new ArrayList<VirtualOrganization>();
-	// Selection model
-	final MultiSelectionModel<VirtualOrganization> selectionModel = new MultiSelectionModel<VirtualOrganization>(new GeneralKeyProvider<VirtualOrganization>());
-	// Custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// User id
-	private int userId = 0;
-	// Table field updater
-	private FieldUpdater<VirtualOrganization, VirtualOrganization> tableFieldUpdater;
-	// loader image
-	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	private boolean checkable = true;
+  // Selection model
+  final MultiSelectionModel<VirtualOrganization> selectionModel =
+      new MultiSelectionModel<VirtualOrganization>(new GeneralKeyProvider<VirtualOrganization>());
+  // JSON URL
+  private final String JSON_URL = "usersManager/getVosWhereUserIsAdmin";
+  // session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // Data provider.
+  private ListDataProvider<VirtualOrganization> dataProvider = new ListDataProvider<VirtualOrganization>();
+  // Table itself
+  private PerunTable<VirtualOrganization> table;
+  // Table list
+  private ArrayList<VirtualOrganization> list = new ArrayList<VirtualOrganization>();
+  // Custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // User id
+  private int userId = 0;
+  // Table field updater
+  private FieldUpdater<VirtualOrganization, VirtualOrganization> tableFieldUpdater;
+  // loader image
+  private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+  private boolean checkable = true;
 
-	/**
-	 * Creates a new instance of the request
-	 * @param userId User id
-	 */
-	public GetVosWhereUserIsAdmin(int userId) {
-		this.userId = userId;
-	}
+  /**
+   * Creates a new instance of the request
+   *
+   * @param userId User id
+   */
+  public GetVosWhereUserIsAdmin(int userId) {
+    this.userId = userId;
+  }
 
-	/**
-	 * Creates a new instance of the request with custom events
-	 * @param userId User id
-	 * @param events Custom events
-	 */
-	public GetVosWhereUserIsAdmin(int userId, JsonCallbackEvents events) {
-		this.events = events;
-		this.userId = userId;
-	}
-
-
-	/**
-	 * When called, the VOs are reloaded.
-	 */
-	public void retrieveData(){
-		String param = "user=" + userId;
-		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, param, this);
-	}
-
-	/**
-	 * Returns the table widget with VOs and custom onclick.
-	 * @param fu Field Updater instance
-	 * @return The table Widget
-	 */
-	public CellTable<VirtualOrganization> getTable(FieldUpdater<VirtualOrganization, VirtualOrganization> fu){
-		this.tableFieldUpdater = fu;
-		return this.getTable();
-	}
+  /**
+   * Creates a new instance of the request with custom events
+   *
+   * @param userId User id
+   * @param events Custom events
+   */
+  public GetVosWhereUserIsAdmin(int userId, JsonCallbackEvents events) {
+    this.events = events;
+    this.userId = userId;
+  }
 
 
-	/**
-	 * Returns the table widget with VOs.
-	 * @return The table Widget
-	 */
-	public CellTable<VirtualOrganization> getTable(){
+  /**
+   * When called, the VOs are reloaded.
+   */
+  public void retrieveData() {
+    String param = "user=" + userId;
+    JsonClient js = new JsonClient();
+    js.retrieveData(JSON_URL, param, this);
+  }
 
-		// retrieve data
-		retrieveData();
+  /**
+   * Returns the table widget with VOs and custom onclick.
+   *
+   * @param fu Field Updater instance
+   * @return The table Widget
+   */
+  public CellTable<VirtualOrganization> getTable(FieldUpdater<VirtualOrganization, VirtualOrganization> fu) {
+    this.tableFieldUpdater = fu;
+    return this.getTable();
+  }
 
-		// Table data provider.
-		dataProvider = new ListDataProvider<VirtualOrganization>(list);
 
-		// Cell table
-		table = new PerunTable<VirtualOrganization>(list);
+  /**
+   * Returns the table widget with VOs.
+   *
+   * @return The table Widget
+   */
+  public CellTable<VirtualOrganization> getTable() {
 
-		// Connect the table to the data provider.
-		dataProvider.addDataDisplay(table);
+    // retrieve data
+    retrieveData();
 
-		// Sorting
-		ListHandler<VirtualOrganization> columnSortHandler = new ListHandler<VirtualOrganization>(dataProvider.getList());
-		table.addColumnSortHandler(columnSortHandler);
+    // Table data provider.
+    dataProvider = new ListDataProvider<VirtualOrganization>(list);
 
-		// table selection
-		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<VirtualOrganization> createCheckboxManager());
+    // Cell table
+    table = new PerunTable<VirtualOrganization>(list);
 
-		// set empty content & loader
-		table.setEmptyTableWidget(loaderImage);
+    // Connect the table to the data provider.
+    dataProvider.addDataDisplay(table);
 
-		// checkbox column column
-		if (checkable) {
-			table.addCheckBoxColumn();
-		}
+    // Sorting
+    ListHandler<VirtualOrganization> columnSortHandler = new ListHandler<VirtualOrganization>(dataProvider.getList());
+    table.addColumnSortHandler(columnSortHandler);
 
-		VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
-		IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
-		columnProvider.addIdColumn(authz, 100);
-		columnProvider.addShortNameColumn(authz, 200);
-		columnProvider.addNameColumn(authz, 0);
+    // table selection
+    table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<VirtualOrganization>createCheckboxManager());
 
-		return table;
-	}
+    // set empty content & loader
+    table.setEmptyTableWidget(loaderImage);
 
-	/**
-	 * Sorts table by objects Name
-	 */
-	public void sortTable() {
-		list = new TableSorter<VirtualOrganization>().sortByName(getList());
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+    // checkbox column column
+    if (checkable) {
+      table.addCheckBoxColumn();
+    }
 
-	/**
-	 * Return selected Vos from Table
-	 *
-	 * @return ArrayList<Vo> selected items
-	 */
-	public ArrayList<VirtualOrganization> getTableSelectedList() {
-		return JsonUtils.setToList(selectionModel.getSelectedSet());
-	}
+    VoColumnProvider columnProvider = new VoColumnProvider(table, tableFieldUpdater);
+    IsClickableCell<GeneralObject> authz = VoColumnProvider.getDefaultClickableAuthz();
+    columnProvider.addIdColumn(authz, 100);
+    columnProvider.addShortNameColumn(authz, 200);
+    columnProvider.addNameColumn(authz, 0);
 
-	/**
-	 * Clears list of selected items
-	 */
-	public void clearTableSelectedSet(){
-		selectionModel.clear();
-	}
+    return table;
+  }
 
-	/**
-	 * Add object as new row to table
-	 *
-	 * @param object VO to be added as new row
-	 */
-	public void addToTable(VirtualOrganization object) {
-		list.add(object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Sorts table by objects Name
+   */
+  public void sortTable() {
+    list = new TableSorter<VirtualOrganization>().sortByName(getList());
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Removes object as row from table
-	 *
-	 * @param object VO to be removed as row
-	 */
-	public void removeFromTable(VirtualOrganization object) {
-		list.remove(object);
-		selectionModel.getSelectedSet().remove(object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Return selected Vos from Table
+   *
+   * @return ArrayList<Vo> selected items
+   */
+  public ArrayList<VirtualOrganization> getTableSelectedList() {
+    return JsonUtils.setToList(selectionModel.getSelectedSet());
+  }
 
-	/**
-	 * Clear all table content
-	 */
-	public void clearTable(){
-		loaderImage.loadingStart();
-		list.clear();
-		selectionModel.clear();
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Clears list of selected items
+   */
+  public void clearTableSelectedSet() {
+    selectionModel.clear();
+  }
 
-	/**
-	 * Called when the query successfully finishes.
-	 * @param jso The JavaScript object returned by the query.
-	 */
-	public void onFinished(JavaScriptObject jso) {
-		setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
-		sortTable();
-		session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
-		events.onFinished(jso);
-		loaderImage.loadingFinished();
-	}
+  /**
+   * Add object as new row to table
+   *
+   * @param object VO to be added as new row
+   */
+  public void addToTable(VirtualOrganization object) {
+    list.add(object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Called when an error occurs.
-	 */
-	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading virtual organizations.");
-		loaderImage.loadingError(error);
-		events.onError(error);
-	}
+  /**
+   * Removes object as row from table
+   *
+   * @param object VO to be removed as row
+   */
+  public void removeFromTable(VirtualOrganization object) {
+    list.remove(object);
+    selectionModel.getSelectedSet().remove(object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Called when loading starts.
-	 */
-	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading virtual organizations started.");
-		events.onLoadingStart();
-	}
+  /**
+   * Clear all table content
+   */
+  public void clearTable() {
+    loaderImage.loadingStart();
+    list.clear();
+    selectionModel.clear();
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	public void insertToTable(int index, VirtualOrganization object) {
-		list.add(index, object);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Called when the query successfully finishes.
+   *
+   * @param jso The JavaScript object returned by the query.
+   */
+  public void onFinished(JavaScriptObject jso) {
+    setList(JsonUtils.<VirtualOrganization>jsoAsList(jso));
+    sortTable();
+    session.getUiElements().setLogText("Virtual organizations loaded: " + list.size());
+    events.onFinished(jso);
+    loaderImage.loadingFinished();
+  }
 
-	public void setEditable(boolean editable) {
-		// TODO Auto-generated method stub
-	}
+  /**
+   * Called when an error occurs.
+   */
+  public void onError(PerunError error) {
+    session.getUiElements().setLogErrorText("Error while loading virtual organizations.");
+    loaderImage.loadingError(error);
+    events.onError(error);
+  }
 
-	public void setCheckable(boolean checkable) {
-		this.checkable = checkable;
-	}
+  /**
+   * Called when loading starts.
+   */
+  public void onLoadingStart() {
+    session.getUiElements().setLogText("Loading virtual organizations started.");
+    events.onLoadingStart();
+  }
 
-	public void setList(ArrayList<VirtualOrganization> list) {
-		clearTable();
-		this.list.addAll(list);
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  public void insertToTable(int index, VirtualOrganization object) {
+    list.add(index, object);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	public ArrayList<VirtualOrganization> getList() {
-		return this.list;
-	}
+  public void setEditable(boolean editable) {
+    // TODO Auto-generated method stub
+  }
+
+  public void setCheckable(boolean checkable) {
+    this.checkable = checkable;
+  }
+
+  public ArrayList<VirtualOrganization> getList() {
+    return this.list;
+  }
+
+  public void setList(ArrayList<VirtualOrganization> list) {
+    clearTable();
+    this.list.addAll(list);
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
 }
 

@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.Host;
 
 public class HostAddedToFacility extends AuditEvent {
 
-	private Host host;
-	private Facility facility;
-	private String message;
+  private Host host;
+  private Facility facility;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public HostAddedToFacility() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public HostAddedToFacility() {
+  }
 
-	public HostAddedToFacility(Host host, Facility facility) {
-		this.facility = facility;
-		this.host = host;
-		this.message = formatMessage("%s added to %s.", host, facility);
-	}
+  public HostAddedToFacility(Host host, Facility facility) {
+    this.facility = facility;
+    this.host = host;
+    this.message = formatMessage("%s added to %s.", host, facility);
+  }
 
-	public Host getHost() {
-		return host;
-	}
+  public Host getHost() {
+    return host;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

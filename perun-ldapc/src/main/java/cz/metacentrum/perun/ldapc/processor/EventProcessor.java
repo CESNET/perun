@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public interface EventProcessor {
 
-	public void setDispatchConditions(Collection<DispatchEventCondition> condition);
+  public void setDispatchConditions(Collection<DispatchEventCondition> condition);
 
-	public void processEvent(String msg, MessageBeans beans);
+  public void processEvent(String msg, MessageBeans beans);
 }

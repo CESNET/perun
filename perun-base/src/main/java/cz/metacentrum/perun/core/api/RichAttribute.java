@@ -1,87 +1,92 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Attribute;
-
-
 /**
- *
- *
- *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
-public class RichAttribute<P,S>  {
+public class RichAttribute<P, S> {
 
-	private P primaryHolder;
-	private S secondaryHolder;
-	private Attribute attribute;
-
-
-	public RichAttribute() {
-	}
-
-	public RichAttribute(P primaryHolder, S secondaryHolder, Attribute attribute) {
-		this.primaryHolder = primaryHolder;
-		this.secondaryHolder = secondaryHolder;
-		this.attribute = attribute;
-	}
+  private P primaryHolder;
+  private S secondaryHolder;
+  private Attribute attribute;
 
 
-	public P getPrimaryHolder() {
-		return this.primaryHolder;
-	}
+  public RichAttribute() {
+  }
 
-	public void setPrimaryHolder(P primaryHolder) {
-		this.primaryHolder = primaryHolder;
-	}
+  public RichAttribute(P primaryHolder, S secondaryHolder, Attribute attribute) {
+    this.primaryHolder = primaryHolder;
+    this.secondaryHolder = secondaryHolder;
+    this.attribute = attribute;
+  }
 
-	public S getSecondaryHolder() {
-		return this.secondaryHolder;
-	}
 
-	public void setSecondaryHolder(S secondaryHolder) {
-		this.secondaryHolder = secondaryHolder;
-	}
+  public P getPrimaryHolder() {
+    return this.primaryHolder;
+  }
 
-	public Attribute getAttribute() {
-		return this.attribute;
-	}
+  public void setPrimaryHolder(P primaryHolder) {
+    this.primaryHolder = primaryHolder;
+  }
 
-	public void setAttribute(Attribute attribute) {
-		this.attribute = attribute;
-	}
+  public S getSecondaryHolder() {
+    return this.secondaryHolder;
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 7;
-		hash = 53 * hash + (primaryHolder == null ? 0 : primaryHolder.hashCode());
-		hash = 53 * hash + (secondaryHolder == null ? 0 : secondaryHolder.hashCode());
-		hash = 53 * hash + (attribute == null ? 0 : attribute.hashCode());
-		return hash;
-	}
+  public void setSecondaryHolder(S secondaryHolder) {
+    this.secondaryHolder = secondaryHolder;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if(obj == null) return false;
+  public Attribute getAttribute() {
+    return this.attribute;
+  }
 
-		if (getClass() != obj.getClass()) return false;
+  public void setAttribute(Attribute attribute) {
+    this.attribute = attribute;
+  }
 
-		RichAttribute other = (RichAttribute) obj;
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 53 * hash + (primaryHolder == null ? 0 : primaryHolder.hashCode());
+    hash = 53 * hash + (secondaryHolder == null ? 0 : secondaryHolder.hashCode());
+    hash = 53 * hash + (attribute == null ? 0 : attribute.hashCode());
+    return hash;
+  }
 
-		if(this.primaryHolder == null ? other.primaryHolder != null : !this.primaryHolder.equals(other.primaryHolder)) return false;
-		if(this.secondaryHolder == null ? other.secondaryHolder != null : !this.secondaryHolder.equals(other.secondaryHolder)) return false;
-		if(this.attribute == null ? other.attribute != null : !this.attribute.equals(other.attribute)) return false;
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
 
-		return true;
-	}
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
+    RichAttribute other = (RichAttribute) obj;
 
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			(attribute == null ? "Attribute: NULL." : attribute.toString())).append(
-			" Primary holder: ").append(primaryHolder == null ? "NULL. " : primaryHolder.toString()).append(
-			" Secondary holder: ").append(secondaryHolder == null ? "NULL. " : secondaryHolder.toString()).append(
-			']').toString();
-	}
+    if (this.primaryHolder == null ? other.primaryHolder != null : !this.primaryHolder.equals(other.primaryHolder)) {
+      return false;
+    }
+    if (this.secondaryHolder == null ? other.secondaryHolder != null :
+        !this.secondaryHolder.equals(other.secondaryHolder)) {
+      return false;
+    }
+    if (this.attribute == null ? other.attribute != null : !this.attribute.equals(other.attribute)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append(
+        (attribute == null ? "Attribute: NULL." : attribute.toString())).append(
+        " Primary holder: ").append(primaryHolder == null ? "NULL. " : primaryHolder.toString()).append(
+        " Secondary holder: ").append(secondaryHolder == null ? "NULL. " : secondaryHolder.toString()).append(
+        ']').toString();
+  }
 }

@@ -11,193 +11,193 @@ import cz.metacentrum.perun.core.api.Vo;
  */
 public class Application {
 
-	public static enum AppState { NEW, VERIFIED, APPROVED, REJECTED }
+  private int id;
+  private Vo vo;
+  private Group group;
+  private AppType type;
+  private String fedInfo;
+  private AppState state = AppState.NEW;
+  private String extSourceName;
+  private String extSourceType;
+  private int extSourceLoa = 0; // 0 - by default
+  private User user;
+  private String autoApproveError;
+  private String createdBy;
+  private String createdAt;
+  private String modifiedBy;
+  private String modifiedAt;
+  public Application() {
+  }
+  public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName,
+                     String extSourceType, User user) {
+    this.id = id;
+    this.vo = vo;
+    this.group = group;
+    this.type = type;
+    this.fedInfo = fedInfo;
+    this.state = state;
+    this.extSourceName = extSourceName;
+    this.extSourceType = extSourceType;
+    this.user = user;
+  }
 
-	public static enum AppType { INITIAL, EXTENSION, EMBEDDED }
+  public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName,
+                     String extSourceType, int extSourceLoa, User user) {
+    this(id, vo, group, type, fedInfo, state, extSourceName, extSourceType, user);
+    this.extSourceLoa = extSourceLoa;
+  }
 
-	private int id;
-	private Vo vo;
-	private Group group;
-	private AppType type;
-	private String fedInfo;
-	private AppState state = AppState.NEW;
-	private String extSourceName;
-	private String extSourceType;
-	private int extSourceLoa = 0; // 0 - by default
-	private User user;
-	private String autoApproveError;
-	private String createdBy;
-	private String createdAt;
-	private String modifiedBy;
-	private String modifiedAt;
+  public int getId() {
+    return id;
+  }
 
-	public Application() {
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName, String extSourceType, User user) {
-		this.id = id;
-		this.vo = vo;
-		this.group = group;
-		this.type = type;
-		this.fedInfo = fedInfo;
-		this.state = state;
-		this.extSourceName = extSourceName;
-		this.extSourceType = extSourceType;
-		this.user = user;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName, String extSourceType, int extSourceLoa, User user) {
-		this(id, vo, group, type, fedInfo, state, extSourceName, extSourceType, user);
-		this.extSourceLoa = extSourceLoa;
-	}
+  public void setVo(Vo vo) {
+    this.vo = vo;
+  }
 
-	public int getId() {
-		return id;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+  public void setGroup(Group group) {
+    this.group = group;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  public AppType getType() {
+    return type;
+  }
 
-	public void setVo(Vo vo) {
-		this.vo = vo;
-	}
+  public void setType(AppType type) {
+    this.type = type;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public String getFedInfo() {
+    return fedInfo;
+  }
 
-	public void setGroup(Group group) {
-		this.group = group;
-	}
+  public void setFedInfo(String fedInfo) {
+    this.fedInfo = fedInfo;
+  }
 
-	public AppType getType() {
-		return type;
-	}
+  public AppState getState() {
+    return state;
+  }
 
-	public void setType(AppType type) {
-		this.type = type;
-	}
+  public void setState(AppState state) {
+    this.state = state;
+  }
 
-	public String getFedInfo() {
-		return fedInfo;
-	}
+  public String getExtSourceName() {
+    return extSourceName;
+  }
 
-	public void setFedInfo(String fedInfo) {
-		this.fedInfo = fedInfo;
-	}
+  public void setExtSourceName(String extSourceName) {
+    this.extSourceName = extSourceName;
+  }
 
-	public AppState getState() {
-		return state;
-	}
+  public String getExtSourceType() {
+    return extSourceType;
+  }
 
-	public void setState(AppState state) {
-		this.state = state;
-	}
+  public void setExtSourceType(String extSourceType) {
+    this.extSourceType = extSourceType;
+  }
 
-	public String getExtSourceName() {
-		return extSourceName;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	public void setExtSourceName(String extSourceName) {
-		this.extSourceName = extSourceName;
-	}
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-	public void setExtSourceType(String extSourceType) {
-		this.extSourceType = extSourceType;
-	}
+  public int getExtSourceLoa() {
+    return extSourceLoa;
+  }
 
-	public String getExtSourceType() {
-		return extSourceType;
-	}
+  public void setExtSourceLoa(int extSourceLoa) {
+    this.extSourceLoa = extSourceLoa;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 
-	public int getExtSourceLoa() {
-		return extSourceLoa;
-	}
+  public String getCreatedAt() {
+    return createdAt;
+  }
 
-	public void setExtSourceLoa(int extSourceLoa) {
-		this.extSourceLoa = extSourceLoa;
-	}
+  public void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+  }
 
-	public String getCreatedBy() {
-		return createdBy;
-	}
+  public String getModifiedBy() {
+    return modifiedBy;
+  }
 
-	public String getCreatedAt() {
-		return createdAt;
-	}
+  public void setModifiedBy(String modifiedBy) {
+    this.modifiedBy = modifiedBy;
+  }
 
-	public String getModifiedBy() {
-		return modifiedBy;
-	}
+  public String getModifiedAt() {
+    return modifiedAt;
+  }
 
-	public String getModifiedAt() {
-		return modifiedAt;
-	}
+  public void setModifiedAt(String modifiedAt) {
+    this.modifiedAt = modifiedAt;
+  }
 
-	public String getAutoApproveError() {
-		return autoApproveError;
-	}
+  public String getAutoApproveError() {
+    return autoApproveError;
+  }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+  public void setAutoApproveError(String error) {
+    this.autoApproveError = error;
+  }
 
-	public void setCreatedAt(String createdAt) {
-		this.createdAt = createdAt;
-	}
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
 
-	public void setModifiedBy(String modifiedBy) {
-		this.modifiedBy = modifiedBy;
-	}
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + ":[" +
+        "id='" + getId() + '\'' +
+        ", vo='" + getVo() + '\'' +
+        ", group='" + getGroup() + '\'' +
+        ", fedInfo='" + getFedInfo() + '\'' +
+        ", type='" + getType().toString() + '\'' +
+        ", state='" + getState().toString() + '\'' +
+        ", autoApproveError='" + getAutoApproveError() + '\'' +
+        ", extSourceName='" + getExtSourceName() + '\'' +
+        ", extSourceType='" + getExtSourceType() + '\'' +
+        ", extSourceLoa='" + getExtSourceLoa() + '\'' +
+        ", user='" + getUser() + '\'' +
+        ", created_at='" + getCreatedAt() + '\'' +
+        ", created_by='" + getCreatedBy() + '\'' +
+        ", modified_at='" + getModifiedAt() + '\'' +
+        ", modified_by='" + getModifiedBy() + '\'' + ']';
+  }
 
-	public void setModifiedAt(String modifiedAt) {
-		this.modifiedAt = modifiedAt;
-	}
+  public static enum AppState {NEW, VERIFIED, APPROVED, REJECTED}
 
-	public void setAutoApproveError(String error) {
-		this.autoApproveError = error;
-	}
-
-	/**
-	 * Return bean name as PerunBean does.
-	 *
-	 * @return Class simple name (beanName)
-	 */
-	public String getBeanName() {
-		return this.getClass().getSimpleName();
-	}
-
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", vo='" + getVo() + '\'' +
-			", group='" + getGroup() + '\'' +
-			", fedInfo='" + getFedInfo() + '\'' +
-			", type='" + getType().toString() + '\'' +
-			", state='" + getState().toString() + '\'' +
-			", autoApproveError='" + getAutoApproveError() + '\'' +
-			", extSourceName='" + getExtSourceName() + '\'' +
-			", extSourceType='" + getExtSourceType() + '\'' +
-			", extSourceLoa='" + getExtSourceLoa() + '\'' +
-			", user='" + getUser() + '\'' +
-			", created_at='" + getCreatedAt() + '\'' +
-			", created_by='" + getCreatedBy() + '\'' +
-			", modified_at='" + getModifiedAt() + '\'' +
-			", modified_by='" + getModifiedBy() + '\'' + ']';
-	}
+  public static enum AppType {INITIAL, EXTENSION, EMBEDDED}
 
 }

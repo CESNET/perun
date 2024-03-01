@@ -13,24 +13,24 @@ import java.util.logging.Logger;
  */
 public class ExceptionLogger implements GWT.UncaughtExceptionHandler {
 
-	private static Logger rootLogger = Logger.getLogger("");
+  private static Logger rootLogger = Logger.getLogger("");
 
-	@Override
-	public void onUncaughtException(Throwable wrapped) {
+  @Override
+  public void onUncaughtException(Throwable wrapped) {
 
-		Throwable t = unwrapUmbrella(wrapped);
-		rootLogger.log(Level.SEVERE, "", t);
+    Throwable t = unwrapUmbrella(wrapped);
+    rootLogger.log(Level.SEVERE, "", t);
 
-	}
+  }
 
-	private Throwable unwrapUmbrella(Throwable e) {
-		if(e instanceof UmbrellaException) {
-			UmbrellaException ue = (UmbrellaException) e;
-			if(ue.getCauses().size() == 1) {
-				return unwrapUmbrella(ue.getCauses().iterator().next());
-			}
-		}
-		return e;
-	}
+  private Throwable unwrapUmbrella(Throwable e) {
+    if (e instanceof UmbrellaException) {
+      UmbrellaException ue = (UmbrellaException) e;
+      if (ue.getCauses().size() == 1) {
+        return unwrapUmbrella(ue.getCauses().iterator().next());
+      }
+    }
+    return e;
+  }
 
 }

@@ -23,70 +23,75 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
 
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "UČO can't be null.");
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "UČO can't be null.");
+    }
 
-	}
+  }
 
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
 
-		Attribute attr = new Attribute(attribute);
-		int uco = Utils.getNewId(sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate(), "vsup_uco_seq");
-		attr.setValue(uco);
-		return attr;
+    Attribute attr = new Attribute(attribute);
+    int uco = Utils.getNewId(sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate(), "vsup_uco_seq");
+    attr.setValue(uco);
+    return attr;
 
-	}
+  }
 
-	/**
-	 * When UCO changes: add UserExtSource, since UCOs are generated in Perun.
-	 *
-	 * @param session
-	 * @param user
-	 * @param attribute
-	 * @throws InternalErrorException
-	 */
-	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
+  /**
+   * When UCO changes: add UserExtSource, since UCOs are generated in Perun.
+   *
+   * @param session
+   * @param user
+   * @param attribute
+   * @throws InternalErrorException
+   */
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
 
-		if (attribute.getValue() != null) {
+    if (attribute.getValue() != null) {
 
-			// add UES
-			ExtSource es;
+      // add UES
+      ExtSource es;
 
-			try {
-				es = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, "UCO");
-			} catch (ExtSourceNotExistsException ex) {
-				throw new InternalErrorException("UCO ext source on VŠUP doesn't exists.", ex);
-			}
-			try {
-				session.getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(session, es, String.valueOf(attribute.getValue()));
-			} catch (UserExtSourceNotExistsException ex) {
-				// add UES
-				UserExtSource ues = new UserExtSource(es, 2, String.valueOf(attribute.getValue()));
-				try {
-					session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, ues);
-				} catch (UserExtSourceExistsException ex2) {
-					throw new ConsistencyErrorException(ex2);
-				}
-			}
-		}
+      try {
+        es = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, "UCO");
+      } catch (ExtSourceNotExistsException ex) {
+        throw new InternalErrorException("UCO ext source on VŠUP doesn't exists.", ex);
+      }
+      try {
+        session.getPerunBl().getUsersManagerBl()
+            .getUserExtSourceByExtLogin(session, es, String.valueOf(attribute.getValue()));
+      } catch (UserExtSourceNotExistsException ex) {
+        // add UES
+        UserExtSource ues = new UserExtSource(es, 2, String.valueOf(attribute.getValue()));
+        try {
+          session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, ues);
+        } catch (UserExtSourceExistsException ex2) {
+          throw new ConsistencyErrorException(ex2);
+        }
+      }
+    }
 
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("ucoVsup");
-		attr.setDisplayName("UČO");
-		attr.setType(Integer.class.getName());
-		attr.setDescription("Unique University person identifier.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("ucoVsup");
+    attr.setDisplayName("UČO");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("Unique University person identifier.");
+    return attr;
+  }
 
 }

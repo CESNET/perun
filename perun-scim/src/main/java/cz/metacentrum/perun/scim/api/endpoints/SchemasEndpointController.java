@@ -23,43 +23,43 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class SchemasEndpointController {
 
-	public Response getSchemas() throws SCIMException {
-		try {
-			ListResponseSCIM result = new ListResponseSCIM();
-			result.setResources(getAllSchemas());
-			result.setSchemas(URN_SCHEMA);
-			int numberOfSchemas = result.getResources().size();
-			result.setTotalResults(new Long(numberOfSchemas));
+  public Response getSchemas() throws SCIMException {
+    try {
+      ListResponseSCIM result = new ListResponseSCIM();
+      result.setResources(getAllSchemas());
+      result.setSchemas(URN_SCHEMA);
+      int numberOfSchemas = result.getResources().size();
+      result.setTotalResults(new Long(numberOfSchemas));
 
-			ObjectMapper mapper = new ObjectMapper();
-			return Response.ok(mapper.writeValueAsString(result)).build();
-		} catch (IOException ex) {
-			throw new SCIMException("Cannot convert schemas to json string", ex);
-		}
-	}
+      ObjectMapper mapper = new ObjectMapper();
+      return Response.ok(mapper.writeValueAsString(result)).build();
+    } catch (IOException ex) {
+      throw new SCIMException("Cannot convert schemas to json string", ex);
+    }
+  }
 
-	private List<SchemaSCIM> getAllSchemas() {
-		List<SchemaSCIM> schemas = new ArrayList<>();
-		schemas.add(getUserSchema());
-		schemas.add(getGroupSchema());
-		return schemas;
-	}
+  private List<SchemaSCIM> getAllSchemas() {
+    List<SchemaSCIM> schemas = new ArrayList<>();
+    schemas.add(getUserSchema());
+    schemas.add(getGroupSchema());
+    return schemas;
+  }
 
-	private SchemaSCIM getUserSchema() {
-		SchemaSCIM userSchema = new SchemaSCIM();
-		userSchema.setId(URN_USER);
-		userSchema.setName("User");
-		userSchema.setDescription("User Account");
+  private SchemaSCIM getUserSchema() {
+    SchemaSCIM userSchema = new SchemaSCIM();
+    userSchema.setId(URN_USER);
+    userSchema.setName("User");
+    userSchema.setDescription("User Account");
 
-		return userSchema;
-	}
+    return userSchema;
+  }
 
-	private SchemaSCIM getGroupSchema() {
-		SchemaSCIM groupSchema = new SchemaSCIM();
-		groupSchema.setId(URN_GROUP);
-		groupSchema.setName("Group");
-		groupSchema.setDescription("Group");
+  private SchemaSCIM getGroupSchema() {
+    SchemaSCIM groupSchema = new SchemaSCIM();
+    groupSchema.setId(URN_GROUP);
+    groupSchema.setName("Group");
+    groupSchema.setDescription("Group");
 
-		return groupSchema;
-	}
+    return groupSchema;
+  }
 }

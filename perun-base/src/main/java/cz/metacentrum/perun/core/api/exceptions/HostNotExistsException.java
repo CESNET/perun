@@ -9,49 +9,54 @@ import cz.metacentrum.perun.core.api.Host;
  * @author Michal Karm Babacek
  */
 public class HostNotExistsException extends EntityNotExistsException {
-	static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-	private Host host;
+  private Host host;
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public HostNotExistsException(String message) {
-		super(message);
-	}
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public HostNotExistsException(String message) {
+    super(message);
+  }
 
-	/**
-	 * Constructor with a message and Throwable object
-	 * @param message message with details about the cause
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public HostNotExistsException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  /**
+   * Constructor with a message and Throwable object
+   *
+   * @param message message with details about the cause
+   * @param cause   Throwable that caused throwing of this exception
+   */
+  public HostNotExistsException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	/**
-	 * Constructor with a Throwable object
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public HostNotExistsException(Throwable cause) {
-		super(cause);
-	}
+  /**
+   * Constructor with a Throwable object
+   *
+   * @param cause Throwable that caused throwing of this exception
+   */
+  public HostNotExistsException(Throwable cause) {
+    super(cause);
+  }
 
-	/**
-	 * Constructor with the host
-	 * @param host the host that doesn't exist
-	 */
-	public HostNotExistsException(Host host) {
-		super(host.toString());
-		this.host = host;
-	}
+  /**
+   * Constructor with the host
+   *
+   * @param host the host that doesn't exist
+   */
+  public HostNotExistsException(Host host) {
+    super(host.toString());
+    this.host = host;
+  }
 
-	/**
-	 * Getter for the host
-	 * @return the host that doesn't exist
-	 */
-	public Host getHost() {
-		return this.host;
-	}
+  /**
+   * Getter for the host
+   *
+   * @return the host that doesn't exist
+   */
+  public Host getHost() {
+    return this.host;
+  }
 }

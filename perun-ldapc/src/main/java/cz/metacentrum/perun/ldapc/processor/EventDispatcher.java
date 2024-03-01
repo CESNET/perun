@@ -17,68 +17,68 @@ import java.util.List;
 
 public interface EventDispatcher extends Runnable {
 
-	public interface MessageBeans {
-		public static final int GROUP_F = 1 << 0;
-		public static final int MEMBER_F = 1 << 1;
-		public static final int VO_F = 1 << 2;
-		public static final int USER_F = 1 << 3;
-		public static final int ATTRIBUTE_F = 1 << 4;
-		public static final int ATTRIBUTEDEF_F = 1 << 5;
-		public static final int USEREXTSOURCE_F = 1 << 6;
-		public static final int RESOURCE_F = 1 << 7;
-		public static final int FACILITY_F = 1 << 8;
+  public void registerProcessor(EventProcessor processor, DispatchEventCondition condition);
 
-		public int getPresentBeansMask();
+  public void dispatchEvent(String msg, MessageBeans beans);
 
-		public Collection<Integer> getPresentBeansFlags();
+  public void setLastProcessedIdNumber(int lastProcessedId);
 
-		public int getBeansCount();
+  public interface MessageBeans {
+    public static final int GROUP_F = 1 << 0;
+    public static final int MEMBER_F = 1 << 1;
+    public static final int VO_F = 1 << 2;
+    public static final int USER_F = 1 << 3;
+    public static final int ATTRIBUTE_F = 1 << 4;
+    public static final int ATTRIBUTEDEF_F = 1 << 5;
+    public static final int USEREXTSOURCE_F = 1 << 6;
+    public static final int RESOURCE_F = 1 << 7;
+    public static final int FACILITY_F = 1 << 8;
 
-		public void addBean(PerunBean p);
+    public int getPresentBeansMask();
 
-		public Group getGroup();
+    public Collection<Integer> getPresentBeansFlags();
 
-		public Group getParentGroup();
+    public int getBeansCount();
 
-		public Member getMember();
+    public void addBean(PerunBean p);
 
-		public Vo getVo();
+    public Group getGroup();
 
-		public User getUser();
+    public Group getParentGroup();
 
-		public User getSpecificUser();
+    public Member getMember();
 
-		public Attribute getAttribute();
+    public Vo getVo();
 
-		public AttributeDefinition getAttributeDef();
+    public User getUser();
 
-		public UserExtSource getUserExtSource();
+    public User getSpecificUser();
 
-		public Resource getResource();
+    public Attribute getAttribute();
 
-		public Facility getFacility();
-	}
+    public AttributeDefinition getAttributeDef();
 
-	public interface DispatchEventCondition {
+    public UserExtSource getUserExtSource();
 
-		public void setBeansConditionByMask(int presentBeansMask);
+    public Resource getResource();
 
-		public void setBeansConditionByClasses(Class... beanClasses);
+    public Facility getFacility();
+  }
 
-		public void setBeansConditionByNames(String... names);
+  public interface DispatchEventCondition {
 
-		public void setBeansCondition(List<String> names);
+    public void setBeansConditionByMask(int presentBeansMask);
 
-		public void setHandlerMethodName(String name);
+    public void setBeansConditionByClasses(Class... beanClasses);
 
-		public String getHandlerMethodName();
+    public void setBeansConditionByNames(String... names);
 
-		public boolean isApplicable(MessageBeans beans, String msg);
-	}
+    public void setBeansCondition(List<String> names);
 
-	public void registerProcessor(EventProcessor processor, DispatchEventCondition condition);
+    public String getHandlerMethodName();
 
-	public void dispatchEvent(String msg, MessageBeans beans);
+    public void setHandlerMethodName(String name);
 
-	public void setLastProcessedIdNumber(int lastProcessedId);
+    public boolean isApplicable(MessageBeans beans, String msg);
+  }
 }

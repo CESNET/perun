@@ -7,41 +7,41 @@ import cz.metacentrum.perun.core.api.User;
 
 public class AttributeChangedForFacilityAndUser extends AuditEvent {
 
-	private Attribute attribute;
-	private Facility facility;
-	private User user;
-	private String message;
+  private Attribute attribute;
+  private Facility facility;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeChangedForFacilityAndUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeChangedForFacilityAndUser() {
+  }
 
-	public AttributeChangedForFacilityAndUser(Attribute attribute, Facility facility, User user) {
-		this.attribute = attribute;
-		this.facility = facility;
-		this.user = user;
-		this.message = formatMessage("%s changed for %s and %s.", attribute, facility, user);
-	}
+  public AttributeChangedForFacilityAndUser(Attribute attribute, Facility facility, User user) {
+    this.attribute = attribute;
+    this.facility = facility;
+    this.user = user;
+    this.message = formatMessage("%s changed for %s and %s.", attribute, facility, user);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -20,49 +20,56 @@ import org.slf4j.LoggerFactory;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_member_group_attribute_def_virt_groupStatus extends MemberGroupVirtualAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
+public class urn_perun_member_group_attribute_def_virt_groupStatus extends MemberGroupVirtualAttributesModuleAbstract
+    implements MemberGroupVirtualAttributesModuleImplApi {
 
-	final static Logger log = LoggerFactory.getLogger(urn_perun_member_group_attribute_def_virt_groupStatus.class);
+  final static Logger log = LoggerFactory.getLogger(urn_perun_member_group_attribute_def_virt_groupStatus.class);
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
 
-		String status = attribute.valueAsString();
+    String status = attribute.valueAsString();
 
-		if (status == null) return; // NULL is ok
+    if (status == null) {
+      return; // NULL is ok
+    }
 
-		if (!"VALID".equals(status) && !"EXPIRED".equals(status)) throw new WrongAttributeValueException("Group status of member can be only 'VALID' or 'EXPIRED', not '"+status+"'");
+    if (!"VALID".equals(status) && !"EXPIRED".equals(status)) {
+      throw new WrongAttributeValueException(
+          "Group status of member can be only 'VALID' or 'EXPIRED', not '" + status + "'");
+    }
 
-	}
+  }
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
 
-		// Source member object can't be trusted to hold correct group membership status, since we don't know in which context
-		// it was originally retrieved. Hence we get member of a group once more.
-		Attribute newAttribute = new Attribute(attribute);
-		try {
-			Member retrievedMember = sess.getPerunBl().getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
-			MemberGroupStatus result  = retrievedMember.getGroupStatus();
-			newAttribute.setValue((result != null) ? result.toString() : null);
-			return newAttribute;
+    // Source member object can't be trusted to hold correct group membership status, since we don't know in which context
+    // it was originally retrieved. Hence we get member of a group once more.
+    Attribute newAttribute = new Attribute(attribute);
+    try {
+      Member retrievedMember = sess.getPerunBl().getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
+      MemberGroupStatus result = retrievedMember.getGroupStatus();
+      newAttribute.setValue((result != null) ? result.toString() : null);
+      return newAttribute;
 
-		} catch (NotGroupMemberException e) {
-			log.warn("{} is not member of a {} when retrieving member_group:virt:groupStatus attribute.", member, group);
-		}
-		return newAttribute;
+    } catch (NotGroupMemberException e) {
+      log.warn("{} is not member of a {} when retrieving member_group:virt:groupStatus attribute.", member, group);
+    }
+    return newAttribute;
 
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		attr.setFriendlyName("groupStatus");
-		attr.setDisplayName("Group membership status");
-		attr.setType(String.class.getName());
-		attr.setDescription("Whether member is VALID or EXPIRED in a group.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+    attr.setFriendlyName("groupStatus");
+    attr.setDisplayName("Group membership status");
+    attr.setType(String.class.getName());
+    attr.setDescription("Whether member is VALID or EXPIRED in a group.");
+    return attr;
+  }
 
 }

@@ -19,33 +19,39 @@ import java.util.regex.Pattern;
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_elixirScopedAffiliation extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_elixirScopedAffiliation extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^(member|affiliate|faculty)@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+  private static final Pattern pattern =
+      Pattern.compile("^(member|affiliate|faculty)@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute)
+      throws WrongAttributeValueException {
 
-		List<String> values = attribute.valueAsList();
-		if (values != null && !values.isEmpty()) {
-			for (String value : values) {
-				// check each value
-				Matcher matcher = pattern.matcher(value);
-				if(!matcher.matches()) throw new WrongAttributeValueException(attribute, "Wrong format. List of \"(member|affiliate|faculty)@scope\" expected.");
-			}
-		}
+    List<String> values = attribute.valueAsList();
+    if (values != null && !values.isEmpty()) {
+      for (String value : values) {
+        // check each value
+        Matcher matcher = pattern.matcher(value);
+        if (!matcher.matches()) {
+          throw new WrongAttributeValueException(attribute,
+              "Wrong format. List of \"(member|affiliate|faculty)@scope\" expected.");
+        }
+      }
+    }
 
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("elixirScopedAffiliation");
-		attr.setDisplayName("Elixir Scoped Affiliation");
-		attr.setType(List.class.getName());
-		attr.setDescription("List of users affiliations with scope. Like: (member|affiliate|faculty)@scope");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("elixirScopedAffiliation");
+    attr.setDisplayName("Elixir Scoped Affiliation");
+    attr.setType(List.class.getName());
+    attr.setDescription("List of users affiliations with scope. Like: (member|affiliate|faculty)@scope");
+    return attr;
+  }
 
 }

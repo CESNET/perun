@@ -7,42 +7,41 @@ import java.util.List;
  * Represents trigger to send notification
  *
  * @author tomas.tunkl
- *
  */
 public enum PerunNotifNotifyTrigger {
 
-	// All type of objects must be received
-	ALL_REGEX_IDS("all_regex_ids"),
-	// Many object of same type, executed by time
-	STREAM("stream");
+  // All type of objects must be received
+  ALL_REGEX_IDS("all_regex_ids"),
+  // Many object of same type, executed by time
+  STREAM("stream");
 
-	private PerunNotifNotifyTrigger(String key) {
-		this.key = key;
-	}
+  private String key;
 
-	private String key;
+  private PerunNotifNotifyTrigger(String key) {
+    this.key = key;
+  }
 
-	public String getKey() {
-		return key;
-	}
+  public static List<PerunNotifNotifyTrigger> getAll() {
 
-	public void setKey(String key) {
-		this.key = key;
-	}
+    return Arrays.asList(values());
+  }
 
-	public static List<PerunNotifNotifyTrigger> getAll() {
+  public static PerunNotifNotifyTrigger resolve(String key) {
 
-		return Arrays.asList(values());
-	}
+    for (PerunNotifNotifyTrigger type : getAll()) {
+      if (type.getKey().equals(key)) {
+        return type;
+      }
+    }
 
-	public static PerunNotifNotifyTrigger resolve(String key) {
+    return null;
+  }
 
-		for (PerunNotifNotifyTrigger type : getAll()) {
-			if (type.getKey().equals(key)) {
-				return type;
-			}
-		}
+  public String getKey() {
+    return key;
+  }
 
-		return null;
-	}
+  public void setKey(String key) {
+    this.key = key;
+  }
 }

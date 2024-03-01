@@ -34,61 +34,62 @@ import static org.mockito.Mockito.when;
  */
 public class ExtSourceREMSTest extends AbstractPerunIntegrationTest {
 
-	@Spy
-	private static ExtSourceREMS extSourceREMS;
+  @Spy
+  private static ExtSourceREMS extSourceREMS;
 
-	private static PerunBlImpl perunBl;
+  private static PerunBlImpl perunBl;
 
-	@Before
-	public void setUp() throws Exception {
-		extSourceREMS = new ExtSourceREMS();
-		perunBl = mock(PerunBlImpl.class, RETURNS_DEEP_STUBS);
+  @Before
+  public void setUp() throws Exception {
+    extSourceREMS = new ExtSourceREMS();
+    perunBl = mock(PerunBlImpl.class, RETURNS_DEEP_STUBS);
 
-		MockitoAnnotations.initMocks(this);
-		extSourceREMS.setPerunBl(perunBl);
-	}
+    MockitoAnnotations.initMocks(this);
+    extSourceREMS.setPerunBl(perunBl);
+  }
 
-	@Test
-	public void getUsersSubjectsTest() throws Exception {
-		System.out.println("getUsersSubjectsTest");
+  @Test
+  public void getUsersSubjectsTest() throws Exception {
+    System.out.println("getUsersSubjectsTest");
 
-		// define needed attributes
-		String usersQuery = "usersQuery";
-		Map<String, String> mapOfAttributes = new HashMap<>();
-		mapOfAttributes.put("usersQuery", usersQuery);
-		mapOfAttributes.put("url", "some.url.com");
-		doReturn(mapOfAttributes).when(extSourceREMS).getAttributes();
+    // define needed attributes
+    String usersQuery = "usersQuery";
+    Map<String, String> mapOfAttributes = new HashMap<>();
+    mapOfAttributes.put("usersQuery", usersQuery);
+    mapOfAttributes.put("url", "some.url.com");
+    doReturn(mapOfAttributes).when(extSourceREMS).getAttributes();
 
-		// mock data got from database
-		Connection con = mock(Connection.class);
-		DataSource dataSource = mock(DataSource.class);
-		doReturn(dataSource).when(extSourceREMS).getDataSource();
-		doReturn(con).when(dataSource).getConnection();
-		PreparedStatement preparedStatement = mock(PreparedStatement.class);
-		doReturn(preparedStatement).when(con).prepareStatement(mapOfAttributes.get("usersQuery"));
-		ResultSet resultSet = mock(ResultSet.class, RETURNS_DEEP_STUBS);
-		doReturn(resultSet).when(preparedStatement).executeQuery();
-		ResultSetMetaData metaData = mock(ResultSetMetaData.class);
-		doReturn(2).when(metaData).getColumnCount();
-		doReturn("firstName").when(metaData).getColumnLabel(1);
-		doReturn("login").when(metaData).getColumnLabel(2);
-		doReturn(metaData).when(resultSet).getMetaData();
-		doReturn(true, false).when(resultSet).next();
-		doReturn("josef").when(resultSet).getString(1);
-		doReturn("xjosef").when(resultSet).getString(2);
-		User user = new User();
-		user.setFirstName("josef");
-		when(perunBl.getUsersManagerBl().getUsersByExtSourceTypeAndLogin(any(), anyString(), eq("xjosef"))).thenReturn(Collections.singletonList(user));
+    // mock data got from database
+    Connection con = mock(Connection.class);
+    DataSource dataSource = mock(DataSource.class);
+    doReturn(dataSource).when(extSourceREMS).getDataSource();
+    doReturn(con).when(dataSource).getConnection();
+    PreparedStatement preparedStatement = mock(PreparedStatement.class);
+    doReturn(preparedStatement).when(con).prepareStatement(mapOfAttributes.get("usersQuery"));
+    ResultSet resultSet = mock(ResultSet.class, RETURNS_DEEP_STUBS);
+    doReturn(resultSet).when(preparedStatement).executeQuery();
+    ResultSetMetaData metaData = mock(ResultSetMetaData.class);
+    doReturn(2).when(metaData).getColumnCount();
+    doReturn("firstName").when(metaData).getColumnLabel(1);
+    doReturn("login").when(metaData).getColumnLabel(2);
+    doReturn(metaData).when(resultSet).getMetaData();
+    doReturn(true, false).when(resultSet).next();
+    doReturn("josef").when(resultSet).getString(1);
+    doReturn("xjosef").when(resultSet).getString(2);
+    User user = new User();
+    user.setFirstName("josef");
+    when(perunBl.getUsersManagerBl().getUsersByExtSourceTypeAndLogin(any(), anyString(), eq("xjosef"))).thenReturn(
+        Collections.singletonList(user));
 
-		// create expected subject to get
-		List<Map<String, String>> expectedSubjects = new ArrayList<>();
-		Map<String, String> subject = new HashMap<>();
-		subject.put("firstName", "josef");
-		subject.put("login", "xjosef");
-		expectedSubjects.add(subject);
+    // create expected subject to get
+    List<Map<String, String>> expectedSubjects = new ArrayList<>();
+    Map<String, String> subject = new HashMap<>();
+    subject.put("firstName", "josef");
+    subject.put("login", "xjosef");
+    expectedSubjects.add(subject);
 
-		// test the method
-		List<Map<String, String>> actualSubjects = extSourceREMS.getUsersSubjects();
-		assertEquals("subjects should be same", expectedSubjects, actualSubjects);
-	}
+    // test the method
+    List<Map<String, String>> actualSubjects = extSourceREMS.getUsersSubjects();
+    assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
 }

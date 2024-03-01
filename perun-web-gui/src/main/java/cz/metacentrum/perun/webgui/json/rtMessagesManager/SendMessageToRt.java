@@ -19,148 +19,146 @@ import cz.metacentrum.perun.webgui.model.RTMessage;
  */
 public class SendMessageToRt {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // default queue
+  static public final String DEFAULT_QUEUE = Utils.defaultRtQueue();
+  static public final String SIGNATURE = "\n\n-------------------------------------\nSent from Perun GUI";
+  // URL to call
+  final String JSON_URL = "rtMessagesManager/sentMessageToRT";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "rtMessagesManager/sentMessageToRT";
+  /**
+   * Creates a new request
+   */
+  public SendMessageToRt() {
+  }
 
-	// default queue
-	static public final String DEFAULT_QUEUE = Utils.defaultRtQueue();
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events external events
+   */
+  public SendMessageToRt(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	static public final String SIGNATURE = "\n\n-------------------------------------\nSent from Perun GUI";
+  /**
+   * Sends a new message to RT with the default member and default RT queue
+   *
+   * @param subject
+   * @param text
+   * @return True if message sent
+   */
+  public boolean sendMessage(final String subject, final String text) {
+    return sendMessage("", subject, text, 0);
+  }
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Sends a new message to RT with the default member
+   *
+   * @param queue
+   * @param subject
+   * @param text
+   * @return True if message sent
+   */
+  public boolean sendMessage(final String queue, final String subject, final String text) {
+    return sendMessage(queue, subject, text, 0);
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public SendMessageToRt() {
-	}
+  /**
+   * Sends a new message to RT with the default queue
+   *
+   * @param subject
+   * @param text
+   * @param voId
+   * @return True if message sent
+   */
+  public boolean sendMessage(final String subject, final String text, int voId) {
+    return sendMessage("", subject, text, voId);
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events external events
-	 */
-	public SendMessageToRt(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Sends a new message to RT
+   * If VO ID specified, the e-mail will contain the member which corresponds with the current user and VO
+   *
+   * @param queue
+   * @param subject
+   * @param text
+   * @param voId
+   * @return True if message sent
+   */
+  public boolean sendMessage(final String queue, final String subject, String text, final int voId) {
+    // append signature
+    text += SIGNATURE;
 
-	/**
-	 * Sends a new message to RT with the default member and default RT queue
-	 *
-	 * @param subject
-	 * @param text
-	 * @return True if message sent
-	 */
-	public boolean sendMessage(final String subject, final String text) {
-		return sendMessage("", subject, text, 0);
-	}
+    // appended space after each new line ("\n" to "\n ")
+    text = text.replace("\n", "\n ");
 
-	/**
-	 * Sends a new message to RT with the default member
-	 *
-	 * @param queue
-	 * @param subject
-	 * @param text
-	 * @return True if message sent
-	 */
-	public boolean sendMessage(final String queue, final String subject, final String text) {
-		return sendMessage(queue, subject, text, 0);
-	}
+    // encode URL
+    //text = URL.encode(text);
 
-	/**
-	 * Sends a new message to RT with the default queue
-	 *
-	 * @param subject
-	 * @param text
-	 * @param voId
-	 * @return True if message sent
-	 */
-	public boolean sendMessage(final String subject, final String text, int voId) {
-		return sendMessage("", subject, text, voId);
-	}
+    // json object
+    JSONObject jsonQuery = prepareJSONObject(queue, subject, text, voId);
 
-	/**
-	 * Sends a new message to RT
-	 * If VO ID specified, the e-mail will contain the member which corresponds with the current user and VO
-	 *
-	 * @param queue
-	 * @param subject
-	 * @param text
-	 * @param voId
-	 * @return True if message sent
-	 */
-	public boolean sendMessage(final String queue, final String subject, String text, final int voId) {
-		// append signature
-		text += SIGNATURE;
+    // local events
+    JsonCallbackEvents sendEvents = new JsonCallbackEvents() {
 
-		// appended space after each new line ("\n" to "\n ")
-		text = text.replace("\n", "\n ");
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Sending RT ticket " + subject + " failed.");
+        events.onError(error);
+      }
 
-		// encode URL
-		//text = URL.encode(text);
+      public void onFinished(JavaScriptObject jso) {
 
-		// json object
-		JSONObject jsonQuery = prepareJSONObject(queue, subject, text, voId);
+        RTMessage msg = jso.cast();
 
-		// local events
-		JsonCallbackEvents sendEvents = new JsonCallbackEvents() {
+        session.getUiElements().setLogSuccessText(
+            "RT ticket " + subject + " send. Responses will be sent to the e-mail address: " +
+                msg.getMemberPreferredEmail());
+        events.onFinished(jso);
+      }
 
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Sending RT ticket " + subject + " failed.");
-				events.onError(error);
-			}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-			public void onFinished(JavaScriptObject jso) {
+    };
 
-				RTMessage msg = jso.cast();
+    // create request
+    JsonPostClient request = new JsonPostClient(sendEvents);
+    request.setHidden(true);
+    request.sendData(JSON_URL, jsonQuery);
 
-				session.getUiElements().setLogSuccessText("RT ticket " + subject + " send. Responses will be sent to the e-mail address: " + msg.getMemberPreferredEmail());
-				events.onFinished(jso);
-			}
+    return true;
+  }
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			}
+  /**
+   * Prepares a JSON object
+   *
+   * @param queue
+   * @param subject
+   * @param text
+   * @param voId
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject(String queue, String subject, String text, int voId) {
+    JSONObject rtMsg = new JSONObject();
 
-		};
-
-		// create request
-		JsonPostClient request = new JsonPostClient(sendEvents);
-		request.setHidden(true);
-		request.sendData(JSON_URL, jsonQuery);
-
-		return true;
-	}
-
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @param queue
-	 * @param subject
-	 * @param text
-	 * @param voId
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject(String queue, String subject, String text, int voId) {
-		JSONObject rtMsg = new JSONObject();
-
-		if (!queue.isEmpty()) {
-			rtMsg.put("queue", new JSONString(queue));
-		}
-		rtMsg.put("subject", new JSONString(subject));
+    if (!queue.isEmpty()) {
+      rtMsg.put("queue", new JSONString(queue));
+    }
+    rtMsg.put("subject", new JSONString(subject));
 
 
-		rtMsg.put("text", new JSONString(text));
+    rtMsg.put("text", new JSONString(text));
 
-		if (voId != 0) {
-			rtMsg.put("voId", new JSONNumber(voId));
-		}
+    if (voId != 0) {
+      rtMsg.put("voId", new JSONNumber(voId));
+    }
 
-		return rtMsg;
-	}
+    return rtMsg;
+  }
 
 }

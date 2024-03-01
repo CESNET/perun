@@ -10,41 +10,41 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class AttributeSetForGroupAndResource extends AuditEvent {
 
-	private Attribute attribute;
-	private Group group;
-	private Resource resource;
-	private String message;
+  private Attribute attribute;
+  private Group group;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeSetForGroupAndResource() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeSetForGroupAndResource() {
+  }
 
-	public AttributeSetForGroupAndResource(Attribute attribute, Group group, Resource resource) {
-		this.attribute = attribute;
-		this.group = group;
-		this.resource = resource;
-		this.message = formatMessage("%s set for %s and %s.", attribute, group, resource);
-	}
+  public AttributeSetForGroupAndResource(Attribute attribute, Group group, Resource resource) {
+    this.attribute = attribute;
+    this.group = group;
+    this.resource = resource;
+    this.message = formatMessage("%s set for %s and %s.", attribute, group, resource);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

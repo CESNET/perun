@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package cz.metacentrum.perun.webgui.widgets;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -31,442 +32,434 @@ import java.util.*;
  */
 public class UnaccentMultiWordSuggestOracle extends SuggestOracle {
 
-	/**
-	 * Suggestion class for {@link com.google.gwt.user.client.ui.MultiWordSuggestOracle}.
-	 */
-	public static class MultiWordSuggestion implements Suggestion, IsSerializable {
-		private String displayString;
-		private String replacementString;
+  private static final char WHITESPACE_CHAR = ' ';
+  private static final String WHITESPACE_STRING = " ";
+  /**
+   * Regular expression used to collapse all whitespace in a query string.
+   */
+  private static final String NORMALIZE_TO_SINGLE_WHITE_SPACE = "\\s+";
+  /**
+   * Associates substrings with words.
+   */
+  private final PrefixTree tree = new PrefixTree();
+  /**
+   * Associates individual words with candidates.
+   */
+  private HashMap<String, Set<String>> toCandidates = new HashMap<String, Set<String>>();
+  /**
+   * Associates candidates with their formatted suggestions.
+   */
+  private HashMap<String, String> toRealSuggestions = new HashMap<String, String>();
+  /**
+   * The whitespace masks used to prevent matching and replacing of the given
+   * substrings.
+   */
+  private char[] whitespaceChars;
+  private Response defaultResponse;
+  /*
+   * Comparator used for sorting candidates from search.
+   */
+  private Comparator<String> comparator = null;
 
-		/**
-		 * Constructor used by RPC.
-		 */
-		public MultiWordSuggestion() {
-		}
+  /**
+   * Constructor for <code>MultiWordSuggestOracle</code>. This uses a space as
+   * the whitespace character.
+   *
+   * @see #UnaccentMultiWordSuggestOracle(String)
+   */
+  public UnaccentMultiWordSuggestOracle() {
+    this(" ");
+  }
 
-		/**
-		 * Constructor for <code>MultiWordSuggestion</code>.
-		 *
-		 * @param replacementString the string to enter into the SuggestBox's text
-		 *          box if the suggestion is chosen
-		 * @param displayString the display string
-		 */
-		public MultiWordSuggestion(String replacementString, String displayString) {
-			this.replacementString = replacementString;
-			this.displayString = displayString;
-		}
+  /**
+   * Constructor for <code>MultiWordSuggestOracle</code> which takes in a set of
+   * whitespace chars that filter its input.
+   * <p>
+   * Example: If <code>".,"</code> is passed in as whitespace, then the string
+   * "foo.bar" would match the queries "foo", "bar", "foo.bar", "foo...bar", and
+   * "foo, bar". If the empty string is used, then all characters are used in
+   * matching. For example, the query "bar" would match "bar", but not "foo
+   * bar".
+   * </p>
+   *
+   * @param whitespaceChars the characters to treat as word separators
+   */
+  public UnaccentMultiWordSuggestOracle(String whitespaceChars) {
+    this.whitespaceChars = new char[whitespaceChars.length()];
+    for (int i = 0; i < whitespaceChars.length(); i++) {
+      this.whitespaceChars[i] = whitespaceChars.charAt(i);
+    }
+  }
 
-		public String getDisplayString() {
-			return displayString;
-		}
+  /**
+   * Adds a suggestion to the oracle. Each suggestion must be plain text.
+   *
+   * @param suggestion the suggestion
+   */
+  public void add(String suggestion) {
+    String candidate = normalizeSuggestion(suggestion);
+    candidate = Utils.unAccent(candidate);
+    // candidates --> real suggestions.
+    toRealSuggestions.put(candidate, suggestion);
 
-		public String getReplacementString() {
-			return replacementString;
-		}
-	}
+    // word fragments --> candidates.
+    String[] words = candidate.split(WHITESPACE_STRING);
+    for (int i = 0; i < words.length; i++) {
+      String word = words[i];
+      tree.add(word);
+      Set<String> l = toCandidates.get(word);
+      if (l == null) {
+        l = new HashSet<String>();
+        toCandidates.put(word, l);
+      }
+      l.add(candidate);
+    }
+  }
 
-	/**
-	 * A class reresenting the bounds of a word within a string.
-	 *
-	 * The bounds are represented by a {@code startIndex} (inclusive) and
-	 * an {@code endIndex} (exclusive).
-	 */
-	private static class WordBounds implements Comparable<WordBounds> {
+  /**
+   * Adds all suggestions specified. Each suggestion must be plain text.
+   *
+   * @param collection the collection
+   */
+  public final void addAll(Collection<String> collection) {
+    for (String suggestion : collection) {
+      add(suggestion);
+    }
+  }
 
-		final int startIndex;
-		final int endIndex;
+  /**
+   * Removes all of the suggestions from the oracle.
+   */
+  public void clear() {
+    tree.clear();
+    toCandidates.clear();
+    toRealSuggestions.clear();
+  }
 
-		public WordBounds(int startIndex, int length) {
-			this.startIndex = startIndex;
-			this.endIndex = startIndex + length;
-		}
+  @Override
+  public boolean isDisplayStringHTML() {
+    return true;
+  }
 
-		public int compareTo(WordBounds that) {
-			int comparison = this.startIndex - that.startIndex;
-			if (comparison == 0) {
-				comparison = that.endIndex - this.endIndex;
-			}
-			return comparison;
-		}
-	}
+  @Override
+  public void requestDefaultSuggestions(Request request, Callback callback) {
+    if (defaultResponse != null) {
+      callback.onSuggestionsReady(request, defaultResponse);
+    } else {
+      super.requestDefaultSuggestions(request, callback);
+    }
+  }
 
-	private static final char WHITESPACE_CHAR = ' ';
-	private static final String WHITESPACE_STRING = " ";
+  @Override
+  public void requestSuggestions(Request request, Callback callback) {
+    String query = normalizeSearch(request.getQuery());
+    int limit = request.getLimit();
 
-	/**
-	 * Regular expression used to collapse all whitespace in a query string.
-	 */
-	private static final String NORMALIZE_TO_SINGLE_WHITE_SPACE = "\\s+";
+    // Get candidates from search words.
+    List<String> candidates = createCandidatesFromSearch(query);
 
-	/**
-	 * Associates substrings with words.
-	 */
-	private final PrefixTree tree = new PrefixTree();
+    // Respect limit for number of choices.
+    int numberTruncated = Math.max(0, candidates.size() - limit);
+    for (int i = candidates.size() - 1; i > limit; i--) {
+      candidates.remove(i);
+    }
 
-	/**
-	 * Associates individual words with candidates.
-	 */
-	private HashMap<String, Set<String>> toCandidates = new HashMap<String, Set<String>>();
+    // Convert candidates to suggestions.
+    List<MultiWordSuggestion> suggestions =
+        convertToFormattedSuggestions(query, candidates);
 
-	/**
-	 * Associates candidates with their formatted suggestions.
-	 */
-	private HashMap<String, String> toRealSuggestions = new HashMap<String, String>();
+    Response response = new Response(suggestions);
+    response.setMoreSuggestionsCount(numberTruncated);
 
-	/**
-	 * The whitespace masks used to prevent matching and replacing of the given
-	 * substrings.
-	 */
-	private char[] whitespaceChars;
+    callback.onSuggestionsReady(request, response);
+  }
 
-	private Response defaultResponse;
+  /**
+   * Sets the comparator used for sorting candidates from search.
+   *
+   * @param comparator the comparator to use.
+   */
+  public void setComparator(Comparator<String> comparator) {
+    this.comparator = comparator;
+  }
 
-	/*
-	 * Comparator used for sorting candidates from search.
-	 */
-	private Comparator<String> comparator = null;
+  /**
+   * Sets the default suggestion collection.
+   *
+   * @param suggestionList the default list of suggestions
+   */
+  public void setDefaultSuggestions(Collection<Suggestion> suggestionList) {
+    this.defaultResponse = new Response(suggestionList);
+  }
 
-	/**
-	 * Constructor for <code>MultiWordSuggestOracle</code>. This uses a space as
-	 * the whitespace character.
-	 *
-	 * @see #UnaccentMultiWordSuggestOracle(String)
-	 */
-	public UnaccentMultiWordSuggestOracle() {
-		this(" ");
-	}
+  /**
+   * A convenience method to set default suggestions using plain text strings.
+   * <p>
+   * Note to use this method each default suggestion must be plain text.
+   *
+   * @param suggestionList the default list of suggestions
+   */
+  public final void setDefaultSuggestionsFromText(
+      Collection<String> suggestionList) {
+    Collection<Suggestion> accum = new ArrayList<Suggestion>();
+    for (String candidate : suggestionList) {
+      accum.add(createSuggestion(candidate, SafeHtmlUtils.htmlEscape(candidate)));
+    }
+    setDefaultSuggestions(accum);
+  }
 
-	/**
-	 * Constructor for <code>MultiWordSuggestOracle</code> which takes in a set of
-	 * whitespace chars that filter its input.
-	 * <p>
-	 * Example: If <code>".,"</code> is passed in as whitespace, then the string
-	 * "foo.bar" would match the queries "foo", "bar", "foo.bar", "foo...bar", and
-	 * "foo, bar". If the empty string is used, then all characters are used in
-	 * matching. For example, the query "bar" would match "bar", but not "foo
-	 * bar".
-	 * </p>
-	 *
-	 * @param whitespaceChars the characters to treat as word separators
-	 */
-	public UnaccentMultiWordSuggestOracle(String whitespaceChars) {
-		this.whitespaceChars = new char[whitespaceChars.length()];
-		for (int i = 0; i < whitespaceChars.length(); i++) {
-			this.whitespaceChars[i] = whitespaceChars.charAt(i);
-		}
-	}
+  /**
+   * Creates the suggestion based on the given replacement and display strings.
+   *
+   * @param replacementString the string to enter into the SuggestBox's text box
+   *                          if the suggestion is chosen
+   * @param displayString     the display string
+   * @return the suggestion created
+   */
+  protected MultiWordSuggestion createSuggestion(String replacementString,
+                                                 String displayString) {
+    return new MultiWordSuggestion(replacementString, displayString);
+  }
 
-	/**
-	 * Adds a suggestion to the oracle. Each suggestion must be plain text.
-	 *
-	 * @param suggestion the suggestion
-	 */
-	public void add(String suggestion) {
-		String candidate = normalizeSuggestion(suggestion);
-		candidate = Utils.unAccent(candidate);
-		// candidates --> real suggestions.
-		toRealSuggestions.put(candidate, suggestion);
+  /**
+   * Returns real suggestions with the given query in <code>strong</code> html
+   * font.
+   *
+   * @param query      query string
+   * @param candidates candidates
+   * @return real suggestions
+   */
+  private List<MultiWordSuggestion> convertToFormattedSuggestions(String query,
+                                                                  List<String> candidates) {
+    List<MultiWordSuggestion> suggestions = new ArrayList<MultiWordSuggestion>();
 
-		// word fragments --> candidates.
-		String[] words = candidate.split(WHITESPACE_STRING);
-		for (int i = 0; i < words.length; i++) {
-			String word = words[i];
-			tree.add(word);
-			Set<String> l = toCandidates.get(word);
-			if (l == null) {
-				l = new HashSet<String>();
-				toCandidates.put(word, l);
-			}
-			l.add(candidate);
-		}
-	}
+    for (int i = 0; i < candidates.size(); i++) {
+      String candidate = candidates.get(i);
+      int cursor = 0;
+      int index = 0;
+      // Use real suggestion for assembly.
+      String formattedSuggestion = toRealSuggestions.get(candidate);
 
-	/**
-	 * Adds all suggestions specified. Each suggestion must be plain text.
-	 *
-	 * @param collection the collection
-	 */
-	public final void addAll(Collection<String> collection) {
-		for (String suggestion : collection) {
-			add(suggestion);
-		}
-	}
+      // Create strong search string.
+      SafeHtmlBuilder accum = new SafeHtmlBuilder();
 
-	/**
-	 * Removes all of the suggestions from the oracle.
-	 */
-	public void clear() {
-		tree.clear();
-		toCandidates.clear();
-		toRealSuggestions.clear();
-	}
+      String[] searchWords = query.split(WHITESPACE_STRING);
+      while (true) {
+        WordBounds wordBounds = findNextWord(candidate, searchWords, index);
+        if (wordBounds == null) {
+          break;
+        }
+        if (wordBounds.startIndex == 0 ||
+            WHITESPACE_CHAR == candidate.charAt(wordBounds.startIndex - 1)) {
+          String part1 = formattedSuggestion.substring(cursor, wordBounds.startIndex);
+          String part2 = formattedSuggestion.substring(wordBounds.startIndex,
+              wordBounds.endIndex);
+          cursor = wordBounds.endIndex;
+          accum.appendEscaped(part1);
+          accum.appendHtmlConstant("<strong>");
+          accum.appendEscaped(part2);
+          accum.appendHtmlConstant("</strong>");
+        }
+        index = wordBounds.endIndex;
+      }
 
-	@Override
-	public boolean isDisplayStringHTML() {
-		return true;
-	}
+      // Check to make sure the search was found in the string.
+      if (cursor == 0) {
+        continue;
+      }
 
-	@Override
-	public void requestDefaultSuggestions(Request request, Callback callback) {
-		if (defaultResponse != null) {
-			callback.onSuggestionsReady(request, defaultResponse);
-		} else {
-			super.requestDefaultSuggestions(request, callback);
-		}
-	}
+      accum.appendEscaped(formattedSuggestion.substring(cursor));
+      MultiWordSuggestion suggestion = createSuggestion(formattedSuggestion,
+          accum.toSafeHtml().asString());
+      suggestions.add(suggestion);
+    }
+    return suggestions;
+  }
 
-	@Override
-	public void requestSuggestions(Request request, Callback callback) {
-		String query = normalizeSearch(request.getQuery());
-		int limit = request.getLimit();
+  /**
+   * Find the sorted list of candidates that are matches for the given query.
+   */
+  private List<String> createCandidatesFromSearch(String query) {
+    ArrayList<String> candidates = new ArrayList<String>();
 
-		// Get candidates from search words.
-		List<String> candidates = createCandidatesFromSearch(query);
+    if (query.length() == 0) {
+      return candidates;
+    }
 
-		// Respect limit for number of choices.
-		int numberTruncated = Math.max(0, candidates.size() - limit);
-		for (int i = candidates.size() - 1; i > limit; i--) {
-			candidates.remove(i);
-		}
+    query = Utils.unAccent(query);
 
-		// Convert candidates to suggestions.
-		List<MultiWordSuggestion> suggestions =
-			convertToFormattedSuggestions(query, candidates);
+    // Find all words to search for.
+    String[] searchWords = query.split(WHITESPACE_STRING);
+    HashSet<String> candidateSet = null;
+    for (int i = 0; i < searchWords.length; i++) {
+      String word = searchWords[i];
 
-		Response response = new Response(suggestions);
-		response.setMoreSuggestionsCount(numberTruncated);
+      // Eliminate bogus word choices.
+      if (word.length() == 0 || word.matches(WHITESPACE_STRING)) {
+        continue;
+      }
 
-		callback.onSuggestionsReady(request, response);
-	}
+      // Find the set of candidates that are associated with all the
+      // searchWords.
+      HashSet<String> thisWordChoices = createCandidatesFromWord(word);
+      if (candidateSet == null) {
+        candidateSet = thisWordChoices;
+      } else {
+        candidateSet.retainAll(thisWordChoices);
 
-	/**
-	 * Sets the comparator used for sorting candidates from search.
-	 *
-	 * @param comparator the comparator to use.
-	 */
-	public void setComparator(Comparator<String> comparator) {
-		this.comparator = comparator;
-	}
+        if (candidateSet.size() < 2) {
+          // If there is only one candidate, on average it is cheaper to
+          // check if that candidate contains our search string than to
+          // continue intersecting suggestion sets.
+          break;
+        }
+      }
+    }
+    if (candidateSet != null) {
+      candidates.addAll(candidateSet);
+      Collections.sort(candidates, comparator);
+    }
+    return candidates;
+  }
 
-	/**
-	 * Sets the default suggestion collection.
-	 *
-	 * @param suggestionList the default list of suggestions
-	 */
-	public void setDefaultSuggestions(Collection<Suggestion> suggestionList) {
-		this.defaultResponse = new Response(suggestionList);
-	}
+  /**
+   * Creates a set of potential candidates that match the given query.
+   *
+   * @param query query string
+   * @return possible candidates
+   */
+  private HashSet<String> createCandidatesFromWord(String query) {
+    HashSet<String> candidateSet = new HashSet<String>();
+    List<String> words = tree.getSuggestions(query, Integer.MAX_VALUE);
+    if (words != null) {
+      // Find all candidates that contain the given word the search is a
+      // subset of.
+      for (int i = 0; i < words.size(); i++) {
+        Collection<String> belongsTo = toCandidates.get(words.get(i));
+        if (belongsTo != null) {
+          candidateSet.addAll(belongsTo);
+        }
+      }
+    }
+    return candidateSet;
+  }
 
-	/**
-	 * A convenience method to set default suggestions using plain text strings.
-	 *
-	 * Note to use this method each default suggestion must be plain text.
-	 *
-	 * @param suggestionList the default list of suggestions
-	 */
-	public final void setDefaultSuggestionsFromText(
-			Collection<String> suggestionList) {
-		Collection<Suggestion> accum = new ArrayList<Suggestion>();
-		for (String candidate : suggestionList) {
-			accum.add(createSuggestion(candidate, SafeHtmlUtils.htmlEscape(candidate)));
-		}
-		setDefaultSuggestions(accum);
-			}
+  /**
+   * Returns a {@link WordBounds} representing the first word in {@code
+   * searchWords} that is found in candidate starting at {@code indexToStartAt}
+   * or {@code null} if no words could be found.
+   */
+  private WordBounds findNextWord(String candidate, String[] searchWords, int indexToStartAt) {
+    WordBounds firstWord = null;
+    for (String word : searchWords) {
+      int index = candidate.indexOf(word, indexToStartAt);
+      if (index != -1) {
+        WordBounds newWord = new WordBounds(index, word.length());
+        if (firstWord == null || newWord.compareTo(firstWord) < 0) {
+          firstWord = newWord;
+        }
+      }
+    }
+    return firstWord;
+  }
 
-	/**
-	 * Creates the suggestion based on the given replacement and display strings.
-	 *
-	 * @param replacementString the string to enter into the SuggestBox's text box
-	 *          if the suggestion is chosen
-	 * @param displayString the display string
-	 *
-	 * @return the suggestion created
-	 */
-	protected MultiWordSuggestion createSuggestion(String replacementString,
-			String displayString) {
-		return new MultiWordSuggestion(replacementString, displayString);
-	}
+  /**
+   * Normalize the search key by making it lower case, removing multiple spaces,
+   * apply whitespace masks, and make it lower case.
+   */
+  private String normalizeSearch(String search) {
+    // Use the same whitespace masks and case normalization for the search
+    // string as was used with the candidate values.
+    search = normalizeSuggestion(search);
 
-	/**
-	 * Returns real suggestions with the given query in <code>strong</code> html
-	 * font.
-	 *
-	 * @param query query string
-	 * @param candidates candidates
-	 * @return real suggestions
-	 */
-	private List<MultiWordSuggestion> convertToFormattedSuggestions(String query,
-			List<String> candidates) {
-		List<MultiWordSuggestion> suggestions = new ArrayList<MultiWordSuggestion>();
+    // Remove all excess whitespace from the search string.
+    search = search.replaceAll(NORMALIZE_TO_SINGLE_WHITE_SPACE,
+        WHITESPACE_STRING);
 
-		for (int i = 0; i < candidates.size(); i++) {
-			String candidate = candidates.get(i);
-			int cursor = 0;
-			int index = 0;
-			// Use real suggestion for assembly.
-			String formattedSuggestion = toRealSuggestions.get(candidate);
+    return search.trim();
+  }
 
-			// Create strong search string.
-			SafeHtmlBuilder accum = new SafeHtmlBuilder();
+  /**
+   * Takes the formatted suggestion, makes it lower case and blanks out any
+   * existing whitespace for searching.
+   */
+  private String normalizeSuggestion(String formattedSuggestion) {
+    // Formatted suggestions should already have normalized whitespace. So we
+    // can skip that step.
 
-			String[] searchWords = query.split(WHITESPACE_STRING);
-			while (true) {
-				WordBounds wordBounds = findNextWord(candidate, searchWords, index);
-				if (wordBounds == null) {
-					break;
-				}
-				if (wordBounds.startIndex == 0 ||
-						WHITESPACE_CHAR == candidate.charAt(wordBounds.startIndex - 1)) {
-					String part1 = formattedSuggestion.substring(cursor, wordBounds.startIndex);
-					String part2 = formattedSuggestion.substring(wordBounds.startIndex,
-							wordBounds.endIndex);
-					cursor = wordBounds.endIndex;
-					accum.appendEscaped(part1);
-					accum.appendHtmlConstant("<strong>");
-					accum.appendEscaped(part2);
-					accum.appendHtmlConstant("</strong>");
-						}
-				index = wordBounds.endIndex;
-			}
+    // Lower case suggestion.
+    formattedSuggestion = formattedSuggestion.toLowerCase();
 
-			// Check to make sure the search was found in the string.
-			if (cursor == 0) {
-				continue;
-			}
+    // Apply whitespace.
+    if (whitespaceChars != null) {
+      for (int i = 0; i < whitespaceChars.length; i++) {
+        char ignore = whitespaceChars[i];
+        formattedSuggestion = formattedSuggestion.replace(ignore,
+            WHITESPACE_CHAR);
+      }
+    }
 
-			accum.appendEscaped(formattedSuggestion.substring(cursor));
-			MultiWordSuggestion suggestion = createSuggestion(formattedSuggestion,
-					accum.toSafeHtml().asString());
-			suggestions.add(suggestion);
-		}
-		return suggestions;
-	}
+    formattedSuggestion = Utils.unAccent(formattedSuggestion);
 
-	/**
-	 * Find the sorted list of candidates that are matches for the given query.
-	 */
-	private List<String> createCandidatesFromSearch(String query) {
-		ArrayList<String> candidates = new ArrayList<String>();
+    return formattedSuggestion;
+  }
 
-		if (query.length() == 0) {
-			return candidates;
-		}
+  /**
+   * Suggestion class for {@link com.google.gwt.user.client.ui.MultiWordSuggestOracle}.
+   */
+  public static class MultiWordSuggestion implements Suggestion, IsSerializable {
+    private String displayString;
+    private String replacementString;
 
-		query = Utils.unAccent(query);
+    /**
+     * Constructor used by RPC.
+     */
+    public MultiWordSuggestion() {
+    }
 
-		// Find all words to search for.
-		String[] searchWords = query.split(WHITESPACE_STRING);
-		HashSet<String> candidateSet = null;
-		for (int i = 0; i < searchWords.length; i++) {
-			String word = searchWords[i];
+    /**
+     * Constructor for <code>MultiWordSuggestion</code>.
+     *
+     * @param replacementString the string to enter into the SuggestBox's text
+     *                          box if the suggestion is chosen
+     * @param displayString     the display string
+     */
+    public MultiWordSuggestion(String replacementString, String displayString) {
+      this.replacementString = replacementString;
+      this.displayString = displayString;
+    }
 
-			// Eliminate bogus word choices.
-			if (word.length() == 0 || word.matches(WHITESPACE_STRING)) {
-				continue;
-			}
+    public String getDisplayString() {
+      return displayString;
+    }
 
-			// Find the set of candidates that are associated with all the
-			// searchWords.
-			HashSet<String> thisWordChoices = createCandidatesFromWord(word);
-			if (candidateSet == null) {
-				candidateSet = thisWordChoices;
-			} else {
-				candidateSet.retainAll(thisWordChoices);
+    public String getReplacementString() {
+      return replacementString;
+    }
+  }
 
-				if (candidateSet.size() < 2) {
-					// If there is only one candidate, on average it is cheaper to
-					// check if that candidate contains our search string than to
-					// continue intersecting suggestion sets.
-					break;
-				}
-			}
-		}
-		if (candidateSet != null) {
-			candidates.addAll(candidateSet);
-			Collections.sort(candidates, comparator);
-		}
-		return candidates;
-	}
+  /**
+   * A class reresenting the bounds of a word within a string.
+   * <p>
+   * The bounds are represented by a {@code startIndex} (inclusive) and
+   * an {@code endIndex} (exclusive).
+   */
+  private static class WordBounds implements Comparable<WordBounds> {
 
-	/**
-	 * Creates a set of potential candidates that match the given query.
-	 *
-	 * @param query query string
-	 * @return possible candidates
-	 */
-	private HashSet<String> createCandidatesFromWord(String query) {
-		HashSet<String> candidateSet = new HashSet<String>();
-		List<String> words = tree.getSuggestions(query, Integer.MAX_VALUE);
-		if (words != null) {
-			// Find all candidates that contain the given word the search is a
-			// subset of.
-			for (int i = 0; i < words.size(); i++) {
-				Collection<String> belongsTo = toCandidates.get(words.get(i));
-				if (belongsTo != null) {
-					candidateSet.addAll(belongsTo);
-				}
-			}
-		}
-		return candidateSet;
-	}
+    final int startIndex;
+    final int endIndex;
 
-	/**
-	 * Returns a {@link WordBounds} representing the first word in {@code
-	 * searchWords} that is found in candidate starting at {@code indexToStartAt}
-	 * or {@code null} if no words could be found.
-	 */
-	private WordBounds findNextWord(String candidate, String[] searchWords, int indexToStartAt) {
-		WordBounds firstWord = null;
-		for (String word : searchWords) {
-			int index = candidate.indexOf(word, indexToStartAt);
-			if (index != -1) {
-				WordBounds newWord = new WordBounds(index, word.length());
-				if (firstWord == null || newWord.compareTo(firstWord) < 0) {
-					firstWord = newWord;
-				}
-			}
-		}
-		return firstWord;
-	}
+    public WordBounds(int startIndex, int length) {
+      this.startIndex = startIndex;
+      this.endIndex = startIndex + length;
+    }
 
-	/**
-	 * Normalize the search key by making it lower case, removing multiple spaces,
-	 * apply whitespace masks, and make it lower case.
-	 */
-	private String normalizeSearch(String search) {
-		// Use the same whitespace masks and case normalization for the search
-		// string as was used with the candidate values.
-		search = normalizeSuggestion(search);
-
-		// Remove all excess whitespace from the search string.
-		search = search.replaceAll(NORMALIZE_TO_SINGLE_WHITE_SPACE,
-				WHITESPACE_STRING);
-
-		return search.trim();
-	}
-
-	/**
-	 * Takes the formatted suggestion, makes it lower case and blanks out any
-	 * existing whitespace for searching.
-	 */
-	private String normalizeSuggestion(String formattedSuggestion) {
-		// Formatted suggestions should already have normalized whitespace. So we
-		// can skip that step.
-
-		// Lower case suggestion.
-		formattedSuggestion = formattedSuggestion.toLowerCase();
-
-		// Apply whitespace.
-		if (whitespaceChars != null) {
-			for (int i = 0; i < whitespaceChars.length; i++) {
-				char ignore = whitespaceChars[i];
-				formattedSuggestion = formattedSuggestion.replace(ignore,
-						WHITESPACE_CHAR);
-			}
-		}
-
-		formattedSuggestion = Utils.unAccent(formattedSuggestion);
-
-		return formattedSuggestion;
-	}
+    public int compareTo(WordBounds that) {
+      int comparison = this.startIndex - that.startIndex;
+      if (comparison == 0) {
+        comparison = that.endIndex - this.endIndex;
+      }
+      return comparison;
+    }
+  }
 }

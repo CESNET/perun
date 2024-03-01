@@ -61,340 +61,360 @@ import java.util.Map;
  */
 public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
-	private final static Logger log = LoggerFactory.getLogger(AuditMessagesManagerImpl.class);
-	private final static ObjectMapper mapper = new ObjectMapper();
+  private final static Logger log = LoggerFactory.getLogger(AuditMessagesManagerImpl.class);
+  private final static ObjectMapper mapper = new ObjectMapper();
 
-	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
-	private final static String auditMessageMappingSelectQuery = "id, msg, actor, created_at, created_by_uid";
+  private static final Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
+  private final static String auditMessageMappingSelectQuery = "id, msg, actor, created_at, created_by_uid";
 
-	private static final int PAGE_COUNT_PRECISION = 1000;
+  private static final int PAGE_COUNT_PRECISION = 1000;
+  private static final RowMapper<AuditEvent> AUDIT_EVENT_MAPPER = new RowMapper<AuditEvent>() {
+    @Override
+    public AuditEvent mapRow(ResultSet resultSet, int i) throws SQLException {
+      try {
+        return mapper.readValue(resultSet.getString("msg"), AuditEvent.class);
+      } catch (JsonParseException | JsonMappingException ex) {
+        log.error("Can't parse JSON auditer log!", ex);
+        throw new SQLException(ex);
+      } catch (IOException ex) {
+        throw new SQLException(ex);
+      }
 
-	private final JdbcPerunTemplate jdbc;
+    }
+  };
+  private static final RowMapper<AuditMessage> AUDIT_MESSAGE_MAPPER = new RowMapper<AuditMessage>() {
+    @Override
+    public AuditMessage mapRow(ResultSet resultSet, int i) throws SQLException {
 
-	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+      AuditEvent event = AUDIT_EVENT_MAPPER.mapRow(resultSet, i);
 
-	static {
+      Integer principalUserId = null;
+      if (resultSet.getInt("created_by_uid") != 0) {
+        principalUserId = resultSet.getInt("created_by_uid");
+      }
+      return new AuditMessage(resultSet.getInt("id"), event, resultSet.getString("actor"),
+          resultSet.getString("created_at"), principalUserId);
 
-		JavaTimeModule module = new JavaTimeModule();
-		mapper.registerModule(module);
-		// make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+  };
+  private static final ResultSetExtractor<Map<String, Integer>> AUDITER_CONSUMER_EXTRACTOR = resultSet -> {
+    Map<String, Integer> auditerConsumers = new HashMap<>();
+    while (resultSet.next()) {
+      // fetch from map by ID
+      String name = resultSet.getString("name");
+      Integer lastProcessedId = resultSet.getInt("last_processed_id");
+      auditerConsumers.put(name, lastProcessedId);
+    }
+    return auditerConsumers;
+  };
 
-		// configure JSON deserializer for auditer log
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		mapper.enableDefaultTyping();
+  static {
 
-		mixinMap.put(Attribute.class, JsonDeserializer.AttributeMixIn.class);
-		mixinMap.put(AttributeDefinition.class, JsonDeserializer.AttributeDefinitionMixIn.class);
-		mixinMap.put(User.class, JsonDeserializer.UserMixIn.class);
-		mixinMap.put(Member.class, JsonDeserializer.MemberMixIn.class);
-		mixinMap.put(PerunBean.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(Candidate.class, JsonDeserializer.CandidateMixIn.class);
-		mixinMap.put(PerunException.class, JsonDeserializer.PerunExceptionMixIn.class);
-		mixinMap.put(Destination.class, JsonDeserializer.DestinationMixIn.class);
-		mixinMap.put(Group.class, JsonDeserializer.GroupMixIn.class);
-		mixinMap.put(UserExtSource.class, JsonDeserializer.UserExtSourceMixIn.class);
+    JavaTimeModule module = new JavaTimeModule();
+    mapper.registerModule(module);
+    // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-		// we probably do not log these objects to auditer log, but to be sure we could read them later they are included
+    // configure JSON deserializer for auditer log
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    mapper.enableDefaultTyping();
 
-		mixinMap.put(Application.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(ApplicationForm.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(ApplicationFormItem.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(ApplicationFormItemWithPrefilledValue.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(ApplicationMail.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(Attribute.class, JsonDeserializer.AttributeMixIn.class);
+    mixinMap.put(AttributeDefinition.class, JsonDeserializer.AttributeDefinitionMixIn.class);
+    mixinMap.put(User.class, JsonDeserializer.UserMixIn.class);
+    mixinMap.put(Member.class, JsonDeserializer.MemberMixIn.class);
+    mixinMap.put(PerunBean.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(Candidate.class, JsonDeserializer.CandidateMixIn.class);
+    mixinMap.put(PerunException.class, JsonDeserializer.PerunExceptionMixIn.class);
+    mixinMap.put(Destination.class, JsonDeserializer.DestinationMixIn.class);
+    mixinMap.put(Group.class, JsonDeserializer.GroupMixIn.class);
+    mixinMap.put(UserExtSource.class, JsonDeserializer.UserExtSourceMixIn.class);
 
-		mixinMap.put(Author.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(Category.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(Publication.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(PublicationForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(PublicationSystem.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(Thanks.class, JsonDeserializer.PerunBeanMixIn.class);
-		mixinMap.put(ThanksForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
+    // we probably do not log these objects to auditer log, but to be sure we could read them later they are included
 
-		mapper.setMixIns(mixinMap);
+    mixinMap.put(Application.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(ApplicationForm.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(ApplicationFormItem.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(ApplicationFormItemWithPrefilledValue.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(ApplicationMail.class, JsonDeserializer.PerunBeanMixIn.class);
 
-	}
+    mixinMap.put(Author.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(Category.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(Publication.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(PublicationForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(PublicationSystem.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(Thanks.class, JsonDeserializer.PerunBeanMixIn.class);
+    mixinMap.put(ThanksForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
 
-	private static final RowMapper<AuditEvent> AUDIT_EVENT_MAPPER = new RowMapper<AuditEvent>() {
-		@Override
-		public AuditEvent mapRow(ResultSet resultSet, int i) throws SQLException {
-			try {
-				return mapper.readValue(resultSet.getString("msg"), AuditEvent.class);
-			} catch (JsonParseException | JsonMappingException ex) {
-				log.error("Can't parse JSON auditer log!", ex);
-				throw new SQLException(ex);
-			} catch (IOException ex) {
-				throw new SQLException(ex);
-			}
+    mapper.setMixIns(mixinMap);
 
-		}
-	};
+  }
 
-	private static final RowMapper<AuditMessage> AUDIT_MESSAGE_MAPPER = new RowMapper<AuditMessage>() {
-		@Override
-		public AuditMessage mapRow(ResultSet resultSet, int i) throws SQLException {
+  private final JdbcPerunTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-			AuditEvent event = AUDIT_EVENT_MAPPER.mapRow(resultSet, i);
+  public AuditMessagesManagerImpl(DataSource perunPool) {
+    this.jdbc = new JdbcPerunTemplate(perunPool);
+    this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
+  }
 
-			Integer principalUserId = null;
-			if (resultSet.getInt("created_by_uid") != 0) principalUserId = resultSet.getInt("created_by_uid");
-			return new AuditMessage(resultSet.getInt("id"), event, resultSet.getString("actor"),
-					resultSet.getString("created_at"), principalUserId);
+  /**
+   * Returns ResultSetExtractor that can be used to extract returned paginated audit messages from db.
+   *
+   * @param query query data
+   * @return extractor, that can be used to extract returned paginated audit messages from db
+   */
+  private static ResultSetExtractor<Paginated<AuditMessage>> getPaginatedMessagesExtractor(MessagesPageQuery query) {
+    return resultSet -> {
+      List<AuditMessage> messages = new ArrayList<>();
+      int total_count = 0;
+      int row = 0;
+      while (resultSet.next()) {
+        total_count = resultSet.getInt("total_count");
+        messages.add(AUDIT_MESSAGE_MAPPER.mapRow(resultSet, row));
+        row++;
+      }
 
-		}
-	};
+      if (messages.size() > 0 && total_count == 0) {
+        total_count = PAGE_COUNT_PRECISION + 1;
+      }
 
-	private static final ResultSetExtractor<Map<String, Integer>> AUDITER_CONSUMER_EXTRACTOR = resultSet -> {
-		Map<String, Integer> auditerConsumers = new HashMap<>();
-		while (resultSet.next()) {
-			// fetch from map by ID
-			String name = resultSet.getString("name");
-			Integer lastProcessedId = resultSet.getInt("last_processed_id");
-			auditerConsumers.put(name, lastProcessedId);
-		}
-		return auditerConsumers;
-	};
+      return new Paginated<>(messages, query.getOffset(), query.getPageSize(), total_count);
+    };
+  }
 
-	/**
-	 * Returns ResultSetExtractor that can be used to extract returned paginated audit messages from db.
-	 *
-	 * @param query query data
-	 * @return extractor, that can be used to extract returned paginated audit messages from db
-	 */
-	private static ResultSetExtractor<Paginated<AuditMessage>> getPaginatedMessagesExtractor(MessagesPageQuery query) {
-		return resultSet -> {
-			List<AuditMessage> messages = new ArrayList<>();
-			int total_count = 0;
-			int row = 0;
-			while (resultSet.next()) {
-				total_count = resultSet.getInt("total_count");
-				messages.add(AUDIT_MESSAGE_MAPPER.mapRow(resultSet, row));
-				row++;
-			}
+  @Override
+  public List<AuditMessage> getMessages(PerunSession perunSession, int count) {
+    try {
+      return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery +
+              Compatibility.getRowNumberOver() + " from auditer_log ORDER BY id desc) " + Compatibility.getAsAlias("temp") +
+              " where rownumber <= ?",
+          AUDIT_MESSAGE_MAPPER, count);
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
 
-			if (messages.size() > 0 && total_count == 0) {
-				total_count = PAGE_COUNT_PRECISION + 1;
-			}
+  @Override
+  public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) {
+    try {
+      return jdbc.query("select " + auditMessageMappingSelectQuery +
+              " from auditer_log where id > ((select max(id) from auditer_log)-?) order by id desc", AUDIT_MESSAGE_MAPPER,
+          count);
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
 
-			return new Paginated<>(messages, query.getOffset(), query.getPageSize(), total_count);
-		};
-	}
+  @Override
+  public List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id, int count) {
+    try {
+      return jdbc.query(
+          "select " + auditMessageMappingSelectQuery + " from auditer_log where id >=? order by id asc limit ?",
+          AUDIT_MESSAGE_MAPPER, id, count);
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
 
-	public AuditMessagesManagerImpl(DataSource perunPool) {
-		this.jdbc = new JdbcPerunTemplate(perunPool);
-		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
-	}
+  @Override
+  public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+    parameters.addValue("selectedEvents", query.getSelectedEvents());
+    String filter =
+        !query.getSelectedEvents().isEmpty() ? "where split_part(msg::json ->>'name', '.', 7) IN (:selectedEvents)" :
+            "";
 
-	@Override
-	public List<AuditMessage> getMessages(PerunSession perunSession, int count) {
-		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log ORDER BY id desc) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
-					AUDIT_MESSAGE_MAPPER, count);
-		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<>();
-		} catch (RuntimeException err) {
-			throw new InternalErrorException(err);
-		}
-	}
+    // take exact total count up to PAGE_COUNT_PRECISION entries, estimate it otherwise
+    return namedParameterJdbcTemplate.query("select " + auditMessageMappingSelectQuery
+        + ", case when (select count(*) from (select 1 from auditer_log " + filter + "limit " + PAGE_COUNT_PRECISION +
+        ") as sample) < " + PAGE_COUNT_PRECISION
+        + " then (select count(*) from auditer_log " + filter + ")"
+        + " else (select 100 * count(*) FROM auditer_log TABLESAMPLE SYSTEM (1) " + filter + ") end as total_count "
+        + "from auditer_log " + filter + "order by id " + query.getOrder().getSqlValue() + " offset " +
+        query.getOffset()
+        + " limit " + query.getPageSize(), parameters, getPaginatedMessagesExtractor(query));
+  }
 
-	@Override
-	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) {
-		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ((select max(id) from auditer_log)-?) order by id desc", AUDIT_MESSAGE_MAPPER, count);
-		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<>();
-		} catch (RuntimeException err) {
-			throw new InternalErrorException(err);
-		}
-	}
+  @Override
+  public int getLastMessageId(PerunSession perunSession) {
+    try {
+      return jdbc.queryForInt("select max(id) from auditer_log");
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-	@Override
-	public List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id, int count) {
-		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id >=? order by id asc limit ?", AUDIT_MESSAGE_MAPPER, id, count);
-		} catch (RuntimeException err) {
-			throw new InternalErrorException(err);
-		}
-	}
+  @Override
+  public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) {
+    try {
+      jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() +
+          " where name=?", lastProcessedId, consumerName);
+    } catch (Exception ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-	@Override
-	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
-		MapSqlParameterSource parameters = new MapSqlParameterSource();
-		parameters.addValue("selectedEvents", query.getSelectedEvents());
-		String filter = !query.getSelectedEvents().isEmpty() ? "where split_part(msg::json ->>'name', '.', 7) IN (:selectedEvents)" : "";
+  @Override
+  public int getAuditerMessagesCount(PerunSession perunSession) {
+    try {
+      return jdbc.queryForInt("select count(id) from auditer_log");
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-		// take exact total count up to PAGE_COUNT_PRECISION entries, estimate it otherwise
-		return namedParameterJdbcTemplate.query("select " + auditMessageMappingSelectQuery
-			+ ", case when (select count(*) from (select 1 from auditer_log " + filter + "limit " + PAGE_COUNT_PRECISION + ") as sample) < " + PAGE_COUNT_PRECISION
-			+ " then (select count(*) from auditer_log " + filter +")"
-			+ " else (select 100 * count(*) FROM auditer_log TABLESAMPLE SYSTEM (1) " + filter +") end as total_count "
-			+ "from auditer_log " + filter +  "order by id " + query.getOrder().getSqlValue() + " offset " + query.getOffset()
-			+ " limit " + query.getPageSize(), parameters, getPaginatedMessagesExtractor(query));
-	}
+  @Override
+  public void createAuditerConsumer(PerunSession perunSession, String consumerName) {
+    try {
+      int lastProcessedId = getLastMessageId(perunSession);
+      int consumerId = Utils.getNewId(jdbc, "auditer_consumers_id_seq");
+      jdbc.update("insert into auditer_consumers (id, name, last_processed_id) values (?,?,?)", consumerId,
+          consumerName, lastProcessedId);
+      log.debug("New consumer [name: '{}', lastProcessedId: '{}'] created.", consumerName, lastProcessedId);
+    } catch (Exception e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	@Override
-	public int getLastMessageId(PerunSession perunSession) {
-		try {
-			return jdbc.queryForInt("select max(id) from auditer_log");
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+  @Override
+  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) {
 
-	@Override
-	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) {
-		try {
-			jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
-		} catch (Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+    checkAuditerConsumerExists(perunSession, consumerName);
 
-	@Override
-	public int getAuditerMessagesCount(PerunSession perunSession) {
-		try {
-			return jdbc.queryForInt("select count(id) from auditer_log");
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+    try {
 
-	@Override
-	public void createAuditerConsumer(PerunSession perunSession, String consumerName) {
-		try {
-			int lastProcessedId = getLastMessageId(perunSession);
-			int consumerId = Utils.getNewId(jdbc, "auditer_consumers_id_seq");
-			jdbc.update("insert into auditer_consumers (id, name, last_processed_id) values (?,?,?)", consumerId, consumerName, lastProcessedId);
-			log.debug("New consumer [name: '{}', lastProcessedId: '{}'] created.", consumerName, lastProcessedId);
-		} catch(Exception e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      List<AuditMessage> messages = new ArrayList<>();
 
-	@Override
-	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) {
+      int lastProcessedId = getLastProcessedId(consumerName);
+      int maxId = getLastMessageId(perunSession);
+      if (maxId > lastProcessedId) {
+        // get messages
+        messages = jdbc.query(
+            "select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id",
+            AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
+        // update counter
+        setLastProcessedId(perunSession, consumerName, maxId);
+      }
+      return messages;
+    } catch (Exception ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-		checkAuditerConsumerExists(perunSession, consumerName);
+  @Override
+  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) {
 
-		try {
+    checkAuditerConsumerExists(perunSession, consumerName);
 
-			List<AuditMessage> messages = new ArrayList<>();
+    try {
 
-			int lastProcessedId = getLastProcessedId(consumerName);
-			int maxId = getLastMessageId(perunSession);
-			if(maxId > lastProcessedId) {
-				// get messages
-				messages = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
-				// update counter
-				setLastProcessedId(perunSession, consumerName, maxId);
-			}
-			return messages;
-		} catch(Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+      List<AuditMessage> messages = new ArrayList<>();
 
-	@Override
-	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) {
+      int maxId = getLastMessageId(perunSession);
+      if (maxId > lastProcessedId) {
+        // get messages
+        messages = jdbc.query(
+            "select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id",
+            AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
+      }
+      return messages;
+    } catch (Exception ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-		checkAuditerConsumerExists(perunSession, consumerName);
+  @Override
+  public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) {
 
-		try {
+    checkAuditerConsumerExists(perunSession, consumerName);
 
-			List<AuditMessage> messages = new ArrayList<>();
+    try {
 
-			int maxId = getLastMessageId(perunSession);
-			if(maxId > lastProcessedId) {
-				// get messages
-				messages = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
-			}
-			return messages;
-		} catch(Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+      List<AuditEvent> eventList = new ArrayList<>();
 
-	@Override
-	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) {
+      int lastProcessedId = getLastProcessedId(consumerName);
+      int maxId = getLastMessageId(perunSession);
+      if (maxId > lastProcessedId) {
+        // get events
+        eventList = jdbc.query(
+            "select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id",
+            AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
+        // update counter
+        setLastProcessedId(perunSession, consumerName, maxId);
+      }
 
-		checkAuditerConsumerExists(perunSession, consumerName);
+      return eventList;
 
-		try {
+    } catch (Exception ex) {
+      throw new InternalErrorException(ex);
+    }
 
-			List<AuditEvent> eventList = new ArrayList<>();
+  }
 
-			int lastProcessedId = getLastProcessedId(consumerName);
-			int maxId = getLastMessageId(perunSession);
-			if (maxId > lastProcessedId) {
-				// get events
-				eventList = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
-				// update counter
-				setLastProcessedId(perunSession, consumerName, maxId);
-			}
+  @Override
+  public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) {
 
-			return eventList;
+    checkAuditerConsumerExists(perunSession, consumerName);
 
-		} catch (Exception ex) {
-			throw new InternalErrorException(ex);
-		}
+    try {
 
-	}
+      List<AuditEvent> eventList = new ArrayList<>();
 
-	@Override
-	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) {
+      int maxId = getLastMessageId(perunSession);
+      if (maxId > lastProcessedId) {
+        // get events
+        eventList = jdbc.query(
+            "select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id",
+            AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
+      }
 
-		checkAuditerConsumerExists(perunSession, consumerName);
+      return eventList;
 
-		try {
+    } catch (Exception ex) {
+      throw new InternalErrorException(ex);
+    }
 
-			List<AuditEvent> eventList = new ArrayList<>();
+  }
 
-			int maxId = getLastMessageId(perunSession);
-			if (maxId > lastProcessedId) {
-				// get events
-				eventList = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
-			}
+  @Override
+  public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) {
+    try {
+      return jdbc.query("select name, last_processed_id from auditer_consumers", AUDITER_CONSUMER_EXTRACTOR);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-			return eventList;
+  @Override
+  public boolean checkAuditerConsumerExists(PerunSession session, String consumerName) {
+    if (consumerName == null) {
+      throw new InternalErrorException("Auditer consumer doesn't exist.");
+    }
+    try {
+      return jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) == 1;
+    } catch (Exception ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-		} catch (Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-
-	}
-
-	@Override
-	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) {
-		try {
-			return jdbc.query("select name, last_processed_id from auditer_consumers", AUDITER_CONSUMER_EXTRACTOR);
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public boolean checkAuditerConsumerExists(PerunSession session, String consumerName) {
-		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
-		try {
-			return jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) == 1;
-		} catch (Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	/**
-	 * Return last processed ID of audit message for specified consumer.
-	 *
-	 * @param consumerName Name of consumer
-	 * @return ID of last processed message
-	 * @throws InternalErrorException When implementation failse
-	 */
-	private int getLastProcessedId(String consumerName) {
-		try {
-			return jdbc.queryForInt("select last_processed_id from auditer_consumers where name=? for update", consumerName);
-		} catch (Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+  /**
+   * Return last processed ID of audit message for specified consumer.
+   *
+   * @param consumerName Name of consumer
+   * @return ID of last processed message
+   * @throws InternalErrorException When implementation failse
+   */
+  private int getLastProcessedId(String consumerName) {
+    try {
+      return jdbc.queryForInt("select last_processed_id from auditer_consumers where name=? for update", consumerName);
+    } catch (Exception ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
 }
